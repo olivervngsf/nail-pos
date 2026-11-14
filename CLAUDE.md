@@ -5,7 +5,7 @@ Read this first every session. Keep it short; link out for detail.
 ## What we're building
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
 - Angle: fair, clear pay for techs + Tap to Pay on iPhone (no card terminal).
-- Team: Viet = product/design/build. Elang = sales, client care.
+- Team: Oliver = product/design/build. Elang = sales, client care.
 
 ## Source docs (live, in claude.ai)
 - Hub (decisions, ideas, research, next steps): https://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU
@@ -19,7 +19,7 @@ Read this first every session. Keep it short; link out for detail.
 Docs win over this file if they disagree. Update this file when a big decision lands.
 
 ## V1 scope
-1. Tap to Pay checkout on iPhone, receipt via Bluetooth printer or text
+1. Checkout in the web app: cash or card by Stripe QR code / pay link; receipt by printer, text or email
 2. Tech payout sheet: earnings + tips per tech, cash vs card, check/cash payout split, printable
 3. Vietnamese (staff) / English (customer) toggle
 4. PIN login + clock-in; print own earnings by PIN
@@ -40,7 +40,8 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Code: GitHub (this repo)
 - Data: Supabase
 - Web hosting: Vercel
-- Payments: Stripe (Tap to Pay needs a native iPhone app; web app first for setup + payouts)
+- Build: web app first (owner computer + shared salon iPad/phone), deployed on Vercel
+- Payments: Stripe QR code / pay link now; Tap to Pay later in a native iPhone app (issue #11)
 
 ## Open questions
 - Pilot salons (2–3)
@@ -52,6 +53,8 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Pricing = one flat monthly price per salon, all staff included; no per-tech/new-client/instant-payout fees; card fee upfront; max 2 plans; free 30-day pilot. Test ~$39–49/mo in pilot.
 
 - 2026-11-14: Research applied: turn list into V1, check/cash split, tip fee transparency, success measures. Segments board: https://claude.ai/artifact/VqxQY5rPpXfkja7VsND9Fy
+
+- 2026-11-14: Web app first on Vercel; Tap to Pay iPhone app after the pilot.
 
 ## Tracking
 - Features: GitHub Issues, labels v1 / v1.1 / feature / ux / research / setup
