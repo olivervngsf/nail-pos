@@ -18,7 +18,16 @@ Docs win over this file if they disagree. Update this file when a big decision l
 1. Tap to Pay checkout on iPhone, receipt via Bluetooth printer or text
 2. Tech payout sheet: earnings + tips per tech, cash vs card, printable
 3. Vietnamese (staff) / English (customer) toggle
+4. PIN login + clock-in; print own earnings by PIN
+5. Client profile by phone number (visits, last service/tech, notes, gift card)
 - Basics: salon setup, staff + pay rates, service menu, owner login
+
+## Design rules
+- Users: senior Vietnamese staff, low tech. Phone number first, no extra apps.
+- PIN for staff actions. Big buttons, one job per screen.
+- Roles: owner, manager, front desk, tech, customer — each sees only their part.
+- Scale: 50 salons x 20 staff; data walled per salon; works offline.
+- Edge cases table lives in the PRD.
 
 ## Stack
 - Code: GitHub (this repo)
