@@ -42,7 +42,9 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Data: Supabase
 - Web hosting: Vercel
 - Build: web app first (owner computer + shared salon iPad/phone), deployed on Vercel
-- Payments: Stripe QR code / pay link now; Tap to Pay later in a native iPhone app (issue #11)
+- Devices: desktop (front desk, owner) + phones iOS/Android (techs, clients). Design both.
+- Printing: desktop to USB/Wi-Fi receipt printer; Android web can use Bluetooth; iPhone web can't (needs Bluefy) — don't depend on it.
+- Payments: Stripe QR code / pay link now, optional Stripe card reader; Tap to Pay later in a native iPhone app (issue #11)
 
 ## Open questions
 - Pilot salons (2–3)
@@ -57,6 +59,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 
 - 2026-11-14: Web app first on Vercel; Tap to Pay iPhone app after the pilot.
 - 2026-11-14: Booking joins V1 (calendar, quick-add, booking link).
+- 2026-11-14: Desktop + mobile design; printing from desktop; iOS web Bluetooth printing not relied on.
 
 ## Tracking
 - Build Tracker (status per feature, build order): https://claude.ai/artifact/6DjfxMPXy64uDX8YZdCCnt — keep in sync with GitHub Issues
