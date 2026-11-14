@@ -23,7 +23,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Basics: salon setup, staff + pay rates, service menu, owner login
 
 ## Design rules
-- Users: senior Vietnamese staff, low tech. Phone number first, no extra apps.
+- Users: senior Vietnamese staff, low tech. Phone number first, email second (both collected), no extra apps.
 - PIN for staff actions. Big buttons, one job per screen.
 - Roles: owner, manager, front desk, tech, customer — each sees only their part.
 - Scale: 50 salons x 20 staff; data walled per salon; works offline.
