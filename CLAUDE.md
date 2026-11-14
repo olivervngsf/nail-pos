@@ -44,6 +44,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Build: web app first (owner computer + shared salon iPad/phone), deployed on Vercel
 - Devices: desktop (front desk, owner) + phones iOS/Android (techs, clients). Design both.
 - Printing: desktop to USB/Wi-Fi receipt printer; Android web can use Bluetooth; iPhone web can't (needs Bluefy) — don't depend on it.
+- Texting: Twilio or Telnyx; one local number per salon; A2P 10DLC registration; consent + STOP; email backup. Spec in PRD "Texting and phone numbers".
 - Payments: Stripe QR code / pay link now, optional Stripe card reader; Tap to Pay later in a native iPhone app (issue #11)
 
 ## Open questions
