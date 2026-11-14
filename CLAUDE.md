@@ -12,6 +12,8 @@ Read this first every session. Keep it short; link out for detail.
 - PRD (V1 scope, data, tech, launch): https://claude.ai/artifact/7aC8Az4WkTYmX9KRntxsCD
 - Ideas & Monthly Plan: https://claude.ai/artifact/P8oW1dX4CFQT3tjy8DdaUN
 - Experience map (journeys + screen states): https://claude.ai/artifact/Sj5wvmx7KvFTutrJ8k3dDS
+- Whiteboards: experience map https://claude.ai/artifact/PZuEnZcu9UvNHJ1MXWN8Gr · how it works https://claude.ai/artifact/4doaYFSTWrB5vAeA3Z7SAD
+- Keep docs, whiteboards and this file in sync when scope or stack changes.
 
 Docs win over this file if they disagree. Update this file when a big decision lands.
 
