@@ -14,6 +14,7 @@ Read this first every session. Keep it short; link out for detail.
 - Experience map (journeys + screen states): https://claude.ai/artifact/Sj5wvmx7KvFTutrJ8k3dDS
 - Whiteboards: experience map https://claude.ai/artifact/PZuEnZcu9UvNHJ1MXWN8Gr · how it works https://claude.ai/artifact/4doaYFSTWrB5vAeA3Z7SAD
 - Keep docs, whiteboards and this file in sync when scope or stack changes.
+- Every new note/whiteboard: add a row to the Hub table + a "Back to: Nail POS Hub" link in it.
 
 Docs win over this file if they disagree. Update this file when a big decision lands.
 
