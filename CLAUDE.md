@@ -25,7 +25,8 @@ Docs win over this file if they disagree. Update this file when a big decision l
 4. PIN login + clock-in; print own earnings by PIN
 5. Client profile by phone number (visits, last service/tech, notes, gift card)
 6. Turn list for walk-ins (moved into V1)
-- Basics: salon setup, staff + pay rates, service menu, owner login
+7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12)
+- Basics: salon setup, staff + pay rates, service menu from a nail template, owner login
 
 ## Design rules
 - Users: senior Vietnamese staff, low tech. Phone number first, email second (both collected), no extra apps.
@@ -55,6 +56,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Research applied: turn list into V1, check/cash split, tip fee transparency, success measures. Segments board: https://claude.ai/artifact/VqxQY5rPpXfkja7VsND9Fy
 
 - 2026-11-14: Web app first on Vercel; Tap to Pay iPhone app after the pilot.
+- 2026-11-14: Booking joins V1 (calendar, quick-add, booking link).
 
 ## Tracking
 - Features: GitHub Issues, labels v1 / v1.1 / feature / ux / research / setup
