@@ -19,10 +19,11 @@ Docs win over this file if they disagree. Update this file when a big decision l
 
 ## V1 scope
 1. Tap to Pay checkout on iPhone, receipt via Bluetooth printer or text
-2. Tech payout sheet: earnings + tips per tech, cash vs card, printable
+2. Tech payout sheet: earnings + tips per tech, cash vs card, check/cash payout split, printable
 3. Vietnamese (staff) / English (customer) toggle
 4. PIN login + clock-in; print own earnings by PIN
 5. Client profile by phone number (visits, last service/tech, notes, gift card)
+6. Turn list for walk-ins (moved into V1)
 - Basics: salon setup, staff + pay rates, service menu, owner login
 
 ## Design rules
@@ -30,6 +31,8 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - PIN for staff actions. Big buttons, one job per screen.
 - Roles: owner, manager, front desk, tech, customer — each sees only their part.
 - Scale: 50 salons x 20 staff; data walled per salon; works offline.
+- Every ticket shows tip + any card fee; nothing taken silently.
+- Target: Vietnamese walk-in salons, 1–20 techs (appointment salons later).
 - Edge cases table lives in the PRD.
 
 ## Stack
@@ -46,6 +49,8 @@ Docs win over this file if they disagree. Update this file when a big decision l
 ## Decision log
 - 2026-11-14: PRD drafted; V1 = checkout, payout sheet, language toggle.
 - 2026-11-14: Pricing = one flat monthly price per salon, all staff included; no per-tech/new-client/instant-payout fees; card fee upfront; max 2 plans; free 30-day pilot. Test ~$39–49/mo in pilot.
+
+- 2026-11-14: Research applied: turn list into V1, check/cash split, tip fee transparency, success measures. Segments board: https://claude.ai/artifact/VqxQY5rPpXfkja7VsND9Fy
 
 ## Tracking
 - Features: GitHub Issues, labels v1 / v1.1 / feature / ux / research / setup
