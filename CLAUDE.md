@@ -61,6 +61,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Web app first on Vercel; Tap to Pay iPhone app after the pilot.
 - 2026-11-14: Booking joins V1 (calendar, quick-add, booking link).
 - 2026-11-14: Desktop + mobile design; printing from desktop; iOS web Bluetooth printing not relied on.
+- 2026-11-14: Oliver's built calendar page = base front desk design; 10 gaps listed on the Screens board.
 
 ## Tracking
 - Build Tracker (status per feature, build order): https://claude.ai/artifact/6DjfxMPXy64uDX8YZdCCnt — keep in sync with GitHub Issues
