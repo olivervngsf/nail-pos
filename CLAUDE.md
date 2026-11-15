@@ -71,6 +71,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Features: GitHub Issues, labels v1 / v1.1 / feature / ux / research / setup
 - Market research: https://claude.ai/artifact/UUbqTu5wKNkBxShMVfTqYU (unverified, needs web access) · board https://claude.ai/artifact/Rzu7quesSz9RxryAFvAJrh
 - Affinity map (draft, 5 clusters): docs/affinity-map.md
+- Tools reference list (options, not selected yet): docs/tools-reference.md
 - Close an issue when its checklist is done; note big calls in the decision log
 
 ## How we work
