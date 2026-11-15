@@ -30,6 +30,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Basics: salon setup, staff + pay rates, service menu from a nail template, owner login
 
 ## Design rules
+- Core principle (Oliver, top priority): fast, consistent, reliable. Works on strong, weak or no internet — every screen loads fast, actions save offline and sync later, nothing lost.
 - Users: senior Vietnamese staff, low tech. Phone number first, email second (both collected), no extra apps.
 - PIN for staff actions. Big buttons, one job per screen.
 - Roles: owner, manager, front desk, tech, customer — each sees only their part.
