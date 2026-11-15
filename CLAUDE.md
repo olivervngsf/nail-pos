@@ -33,6 +33,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - PIN for staff actions. Big buttons, one job per screen.
 - Roles: owner, manager, front desk, tech, customer — each sees only their part.
 - Scale: 50 salons x 20 staff; data walled per salon; works offline.
+- Insight, not autopilot: turn board/calendar show facts (turns, $ today, free-at, skills, requests); owner/manager/front desk decides who's next; optional one-tap reason.
 - Every ticket shows tip + any card fee; nothing taken silently.
 - Target: Vietnamese walk-in salons, 1–20 techs (appointment salons later).
 - Edge cases table lives in the PRD.
@@ -62,6 +63,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Booking joins V1 (calendar, quick-add, booking link).
 - 2026-11-14: Desktop + mobile design; printing from desktop; iOS web Bluetooth printing not relied on.
 - 2026-11-14: Oliver's built calendar page = base front desk design; 10 gaps listed on the Screens board.
+- 2026-11-15: Insight, not autopilot for turns (Gap conflict #3 settled).
 
 ## Tracking
 - Build Tracker (status per feature, build order): https://claude.ai/artifact/6DjfxMPXy64uDX8YZdCCnt — keep in sync with GitHub Issues
