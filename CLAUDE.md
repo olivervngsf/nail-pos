@@ -12,7 +12,7 @@ Read this first every session. Keep it short; link out for detail.
 - PRD (V1 scope, data, tech, launch): https://claude.ai/artifact/7aC8Az4WkTYmX9KRntxsCD
 - Ideas & Monthly Plan: https://claude.ai/artifact/P8oW1dX4CFQT3tjy8DdaUN
 - Experience map (journeys + screen states): https://claude.ai/artifact/Sj5wvmx7KvFTutrJ8k3dDS
-- Whiteboards: experience map (journeys only) https://claude.ai/artifact/PZuEnZcu9UvNHJ1MXWN8Gr · screens (all screens, ~740/800 items, nearly full) https://claude.ai/artifact/LHG1YGcM7KyLU8WJ9ht7ME · how it works https://claude.ai/artifact/4doaYFSTWrB5vAeA3Z7SAD · feature map https://claude.ai/artifact/4p51HNLiiGwj6dGZL3XgZx
+- Whiteboards: experience map (journeys only) https://claude.ai/artifact/PZuEnZcu9UvNHJ1MXWN8Gr · screens 1 (full) https://claude.ai/artifact/LHG1YGcM7KyLU8WJ9ht7ME · screens 2 (new screens go here; payout insights) https://claude.ai/artifact/25PHQ8dTQFedYjcn2pLLxF · how it works https://claude.ai/artifact/4doaYFSTWrB5vAeA3Z7SAD · feature map https://claude.ai/artifact/4p51HNLiiGwj6dGZL3XgZx
 - Keep docs, whiteboards and this file in sync when scope or stack changes.
 - Every new note/whiteboard: add a row to the Hub table + a "Back to: Nail POS Hub" link in it.
 
