@@ -11,6 +11,7 @@ Read this first every session. Keep it short; link out for detail.
 - Hub (decisions, ideas, research, next steps): https://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU
 - PRD (V1 scope, data, tech, launch): https://claude.ai/artifact/7aC8Az4WkTYmX9KRntxsCD
 - Ideas & Monthly Plan: https://claude.ai/artifact/P8oW1dX4CFQT3tjy8DdaUN
+- Running costs (software, hardware, AI, people; estimates to verify): https://claude.ai/artifact/UioTSft9RRanZRPN9j7qom
 - Experience map (journeys + screen states): https://claude.ai/artifact/Sj5wvmx7KvFTutrJ8k3dDS
 - Whiteboards: experience map (journeys only) https://claude.ai/artifact/PZuEnZcu9UvNHJ1MXWN8Gr · screens (ONE board, low-fi, all screens; ~770/800 items, keep new screens compact) https://claude.ai/artifact/LHG1YGcM7KyLU8WJ9ht7ME · how it works https://claude.ai/artifact/4doaYFSTWrB5vAeA3Z7SAD · feature map https://claude.ai/artifact/4p51HNLiiGwj6dGZL3XgZx
 - Keep docs, whiteboards and this file in sync when scope or stack changes.
