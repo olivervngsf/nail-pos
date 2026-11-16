@@ -5,7 +5,7 @@ Back to: [Nail POS Hub](https://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU)
 As of 2026-11-16. From search snippets only (their site and app store pages were blocked here). Verify on a demo call.
 
 ## Who
-- Vietnamese nail POS by MAC Marketing / MAC Solution. Site: abcsalonsystem.com. Phone app: "ABC Salon System Go" (iOS + Android).
+- Vietnamese nail POS by MAC Marketing / MAC Solution. Site: [abcsalonsystem.com](https://abcsalonsystem.com/en/). Phone app: "ABC Salon System Go" (iOS + Android).
 - Pitch: "check lương cho 50–70 thợ chỉ trong tích tắc" (pay check for 50–70 techs in seconds).
 
 ## Plans (unverified)
