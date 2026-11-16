@@ -37,7 +37,7 @@ export function toPayload(s: SetupState) {
     state: s.state,
     step: s.step,
     hours: s.hours.map((h) => ({ on: h.on, open: h.open, close: h.close })),
-    services: s.svcStage === "review" || s.step > 1 ? s.menu.map((m) => ({ id: m.id, cat: m.cat, name: m.name.trim(), minutes: m.minutes, priceCents: m.priceCents, on: m.on })) : undefined,
+    services: s.svcStage === "review" || s.step > 1 ? s.menu.map((m) => ({ id: m.id, cat: m.cat, name: m.name.trim(), minutes: m.minutes, priceCents: m.priceCents, priceFrom: !!m.priceFrom, on: m.on })) : undefined,
     staff: s.staff
       .filter((p) => p.role !== "Owner")
       .map((p) => ({ id: p.id, name: p.name, phone: e164(p.phone), role: ROLE[p.role], inviteCode: p.inviteCode, ...pay(p.pay) })),

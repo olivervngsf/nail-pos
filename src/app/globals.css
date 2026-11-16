@@ -86,3 +86,6 @@ button:disabled { cursor: not-allowed; }
 /* /kit preview page */
 .kit-sec { display: flex; flex-direction: column; gap: 12px; }
 .kit-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+/* "+" starting-price toggle next to a price (setup services) */
+.plus { width: 30px; height: 30px; flex: none; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); font: inherit; font-size: 16px; font-weight: 700; color: var(--muted); cursor: pointer; }
+.plus.on { background: var(--ink); border-color: var(--ink); color: #fff; }

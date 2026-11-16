@@ -235,10 +235,10 @@ const Services: StepView = ({ s, set, say, next }) => {
         <H1>Check your services</H1>
         <span className="cap">{kept} kept{look ? ` · ${look} need a look` : " · all checked ✓"}</span>
       </div>
-      <div className="cap" style={{ marginTop: -8 }}>Tap any name, minutes or price to change it. Untick to leave a service out.</div>
+      <div className="cap" style={{ marginTop: -8 }}>Tap any name, minutes or price to change it. Tap <b>+</b> when the price can go up ($45+): the front desk sets the final price at checkout. Untick to leave a service out.</div>
       <div className="group" style={{ overflow: "auto", maxHeight: "55dvh" }}>
         <table className="svc">
-          <thead><tr><th style={{ width: 36 }} /><th className="cat" style={{ width: 140 }}>Category</th><th>Service</th><th className="r" style={{ width: 80 }}>Min</th><th className="r" style={{ width: 96 }}>Price $</th><th style={{ width: 40 }} /></tr></thead>
+          <thead><tr><th style={{ width: 36 }} /><th className="cat" style={{ width: 140 }}>Category</th><th>Service</th><th className="r" style={{ width: 80 }}>Min</th><th className="r" style={{ width: 124 }} title="+ = starting price, can go up">Price $ · +</th><th style={{ width: 40 }} /></tr></thead>
           <tbody>
             {s.menu.map((m, i) => (
               <tr key={i} style={{ opacity: m.on ? 1 : 0.4 }}>
@@ -247,7 +247,13 @@ const Services: StepView = ({ s, set, say, next }) => {
                 <td><input className="ed" style={{ fontWeight: 600 }} value={m.name} placeholder="Service name" aria-label="Service name" onChange={(e) => upd(i, { name: e.target.value })} /></td>
                 <td className="r"><input className={`ed r ${m.flag ? "flag" : ""}`} inputMode="numeric" value={m.minutes} aria-label="Minutes" title={m.flag ? "Check minutes" : undefined}
                   onChange={(e) => upd(i, { minutes: Number(e.target.value.replace(/\D/g, "")) || 0, flag: false })} /></td>
-                <td className="r"><PriceInput cents={m.priceCents} onChange={(c) => upd(i, { priceCents: c })} /></td>
+                <td className="r">
+                  <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <PriceInput cents={m.priceCents} onChange={(c) => upd(i, { priceCents: c })} />
+                    <button type="button" className={`plus ${m.priceFrom ? "on" : ""}`} aria-pressed={!!m.priceFrom} aria-label={`${m.name}: starting price (and up)`}
+                      title={m.priceFrom ? "Starting price: final price set at checkout" : "Tap if the price can go up ($45+)"} onClick={() => upd(i, { priceFrom: !m.priceFrom })}>+</button>
+                  </span>
+                </td>
                 <td><button type="button" className="btn ghost sm" aria-label={`Remove ${m.name}`} onClick={() => {
                   const removed = s.menu[i];
                   set((p) => ({ ...p, menu: p.menu.filter((_, j) => j !== i) }));

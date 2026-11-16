@@ -16,7 +16,8 @@ const Menu = z.object({
       name: z.string().describe("Service name as the salon writes it"),
       minutes: z.number().int().describe("Duration in minutes; estimate a typical nail-salon time if not shown"),
       minutes_guessed: z.boolean().describe("true when minutes were not on the menu and you estimated them"),
-      price_dollars: z.number().describe("Price in US dollars; for 'from $X' or a range use the lowest price"),
+      price_dollars: z.number().describe("Price in US dollars; for 'from $X', '$X+' or a range use the lowest price"),
+      price_from: z.boolean().describe("true when the price is a starting price: shown as '$45+', 'from $45', '$45 and up' or a range"),
     }),
   ),
   note: z.string().describe("One short sentence for the owner if something was unclear, else empty"),
@@ -26,7 +27,7 @@ const PROMPT = `You read a US nail salon's service menu and list every service a
 - Keep the salon's own service names and section names.
 - Include add-ons (French tip, nail art, removal). Skip non-services: hours, policies, gift card text, staff bios.
 - One row per service. If a service has sizes (short/long) or variants with different prices, make one row each.
-- Prices in dollars. "From $45" or "$45-55" means 45. Skip items with no price at all.
+- Prices in dollars. "$45+", "From $45", "$45 and up" or "$45-55" all mean 45 with price_from true. Skip items with no price at all.
 - Minutes: use the menu's time if shown; otherwise estimate a typical time and set minutes_guessed true.`;
 
 const isPrivateHost = (h: string) =>
@@ -98,6 +99,7 @@ export async function POST(req: Request) {
         name: nice(s.name.trim()),
         minutes: Math.min(300, Math.max(5, Math.round(s.minutes / 5) * 5)),
         priceCents: Math.round(s.price_dollars * 100),
+        priceFrom: s.price_from,
         flag: s.minutes_guessed,
       }));
     if (!services.length) return fail(422, "No services found. Try a photo of your menu or the nail template.");
