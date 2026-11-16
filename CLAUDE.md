@@ -8,6 +8,7 @@ Read this first every session. Keep it short; link out for detail.
 
 ## Repo state
 - Docs + design source only for now: `CLAUDE.md`, `docs/`, `design/`. No app code yet, so no build, lint or test commands. Add them here when the web app starts.
+- **Building the product:** start at `docs/build/README.md` (stack, rules, status). The user says "Build M<n>" → follow `docs/build/milestones.md` § M<n>, the boards/frames it lists, `docs/build/schema.sql`, `docs/build/screens.md`; tick the Status table when done.
 - Plans, specs and boards live in claude.ai artifacts (links below), not in this repo.
 
 ## Designing flows in Claude Design

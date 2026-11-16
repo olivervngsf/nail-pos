@@ -13,6 +13,7 @@
 body{margin:0}
 .gl .dtable td,.gl .dtable th{text-align:left}
 .gl .dtable td.r,.gl .dtable th.r{text-align:right}
+.kind{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:6px;background:var(--fill);font-size:12px;font-weight:600;color:var(--ink-soft)}
 .stt{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600}
 .dlg{position:absolute;left:420px;top:150px;width:480px;background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(28,28,30,.28);z-index:9;padding:20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px;animation:pop .2s ease both}
 .code{font-family:ui-monospace,Menlo,monospace;font-size:15px;letter-spacing:.06em}
@@ -35,7 +36,7 @@ body{margin:0}
       <div style="display:flex;gap:8px;align-items:center;height:36px"><sc-for list="{{filters}}" as="f" hint-placeholder-count="6"><button class="{{f.cls}}" type="button" onClick="{{f.pick}}">{{f.label}}</button></sc-for><span style="flex:1"></span><input class="inp" placeholder="Last 4, phone or name" aria-label="Search codes" style="width:240px;height:36px;font-size:14px"></div>
       <div class="group" style="flex:1;min-height:0;overflow:hidden">
         <table class="dtable"><thead><tr><th>Card</th><th>Made by</th><th>Status</th><th class="r">Balance</th><th>Sold</th><th>To / from</th><th>Last used</th></tr></thead>
-        <tbody><sc-for list="{{rows}}" as="r" hint-placeholder-count="12"><tr><td><b class="code">•••• {{r.l4}}</b> <span class="cap">{{r.kind}}</span><sc-if value="{{r.canRe}}" hint-placeholder-val="{{false}}"> <button class="btn" type="button" onClick="{{r.re}}" style="height:24px;font-size:12px;padding:0 8px;margin-left:6px">Back to stock</button></sc-if></td><td class="cap">{{r.src}}</td><td><span class="stt" style="{{r.sty}}">{{r.st}}</span></td><td class="r"><b>{{r.bal}}</b></td><td>{{r.sold}}</td><td>{{r.to}}</td><td>{{r.used}}</td></tr></sc-for></tbody></table>
+        <tbody><sc-for list="{{rows}}" as="r" hint-placeholder-count="12"><tr><td><span style="display:inline-flex;align-items:center;gap:8px"><b class="code">•••• {{r.l4}}</b><span class="kind"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{r.icon}}"/></svg>{{r.kindLabel}}</span></span><sc-if value="{{r.canRe}}" hint-placeholder-val="{{false}}"> <button class="btn" type="button" onClick="{{r.re}}" style="height:24px;font-size:12px;padding:0 8px;margin-left:6px">Back to stock</button></sc-if></td><td class="cap">{{r.src}}</td><td><span class="stt" style="{{r.sty}}">{{r.st}}</span></td><td class="r"><b>{{r.bal}}</b></td><td>{{r.sold}}</td><td>{{r.to}}</td><td>{{r.used}}</td></tr></sc-for></tbody></table>
       </div>
       <div class="cap" style="display:flex;gap:18px"><span><b style="color:#1C1C1E">$2,340 owed</b> on 61 active cards</span><span>186 plastic in stock ($0)</span><span>412 used up</span><span>3 locked / replaced</span><span>Full codes are hidden; tap a row for details + history</span></div>
     </main>
@@ -66,7 +67,7 @@ class Component extends DCLogic {
     const keep = (r) => S.f === 'All' || r[3] === S.f || (S.f === 'Locked / replaced' && (r[3] === 'Locked' || r[3] === 'Replaced'));
     return {
       filters: [['All', 662], ['Active', 61], ['In stock', 186], ['Used up', 412], ['Locked / replaced', 3]].map((f) => ({ label: f[0] + ' ' + f[1], cls: 'chip' + (S.f === f[0] ? ' on' : ''), pick: () => this.setState({ f: f[0] }) })),
-      rows: R.filter(keep).map((r) => ({ canRe: r[1] === 'plastic' && r[3] === 'Used up', re: () => this.setState({ re: true }), l4: r[0], kind: r[1], src: r[2], st: r[3], sty: ST[r[3]], bal: r[4], sold: r[5], to: r[6], used: r[7] })),
+      rows: R.filter(keep).map((r) => ({ canRe: r[1] === 'plastic' && r[3] === 'Used up', re: () => this.setState({ re: true }), l4: r[0], kind: r[1], kindLabel: { digital: 'Digital', plastic: 'Plastic', 'old paper': 'Paper' }[r[1]], icon: { digital: 'M7 2h10v20H7zM11 18h2', plastic: 'M2 6h20v12H2zM2 10h20M6 15h4', 'old paper': 'M6 2h9l4 4v16H6zM14 2v5h5M9 13h6M9 17h6' }[r[1]], src: r[2], st: r[3], sty: ST[r[3]], bal: r[4], sold: r[5], to: r[6], used: r[7] })),
       showRe: S.re, closeRe: () => this.setState({ re: false }),
       ways: [['printer', 'Plastic cards from a card printer', 'Download a file of numbers + barcodes for the printer'], ['sticker', 'Stickers for blank cards', 'Print code + QR labels on the label printer, stick on any card'], ['paper', 'Paper card on the receipt printer', 'Prints right away at the desk: salon name, amount, code + QR']].map((w) => ({ n: w[1], d: w[2], cls: 'pick' + (S.w === w[0] ? ' on' : ''), pick: () => this.setState({ w: w[0] }) })),
       genBtn: S.w === 'printer' ? 'Make 200 + download file' : S.w === 'sticker' ? 'Make 50 + print stickers' : 'Make 1 + print now',
