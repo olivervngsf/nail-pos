@@ -226,6 +226,15 @@
       "w": 390,
       "x": 6850,
       "y": 3500
+    },
+    "StaffBook.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Staff books on own phone",
+      "w": 390,
+      "x": 7320,
+      "y": 3500
     }
   },
   "createdOnFiles": {
@@ -303,7 +312,7 @@
     "s1": {
       "fill": "orange",
       "page": "overview",
-      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Calendar + Checkout = same screens as their own boards, here so the left menu clicks through\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nLAST SYNCED: Nov 16, 2026 - Checkout v27, Booking v8 (Alerts panel, bookings fit), Inter font\nRule: any change on a flow board is copied here the same day.\n\nSame look as Checkout / Booking: compact, calm, English first.",
+      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Calendar + Checkout = same screens as their own boards, here so the left menu clicks through\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nLAST SYNCED: Nov 16, 2026 - Checkout v30, Booking v13 (staff phone booking, shared kit), Inter font\nRule: any change on a flow board is copied here the same day.\n\nSame look as Checkout / Booking: compact, calm, English first.",
       "w": 420,
       "x": -520,
       "y": 0
@@ -337,9 +346,9 @@
     },
     "t4": {
       "kind": "title1",
-      "maxW": 7240,
+      "maxW": 7710,
       "page": "overview",
-      "text": "Checkout steps (linked from Charge)",
+      "text": "Checkout steps + phones (staff booking on the right)",
       "w": 240,
       "x": 0,
       "y": 3230
@@ -370,7 +379,8 @@
     "Cd4Tips.dc.html",
     "Cd5Done.dc.html",
     "Me1Profile.dc.html",
-    "Me2Support.dc.html"
+    "Me2Support.dc.html",
+    "StaffBook.dc.html"
   ],
   "pages": [
     {

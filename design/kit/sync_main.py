@@ -12,6 +12,7 @@ COPY = [('checkout', 'Main', 'Checkout', 'Checkout', ''), ('checkout', 'Pay', 'P
         ('checkout', 'Done', 'Done', 'Checkout', ''), ('checkout', 'Profile', 'Profile', None, ''),
         ('checkout', 'PhoneQR', 'PhoneQR', None, ''), ('checkout', 'PhoneClientPay', 'PhoneClientPay', None, ''),
         ('checkout', 'PhoneClientReceipt', 'PhoneClientReceipt', None, ''),
+        ('booking', 'StaffBook', 'StaffBook', None, ''),
         ('booking', 'Cal', 'Cal', 'Calendar', 'position:absolute;left:0;top:0;bottom:0;box-sizing:border-box')]
 M = f'{R}/main/project/'
 for b, f, n, act, st in COPY:

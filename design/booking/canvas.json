@@ -21,6 +21,10 @@
   {
    "id": "client",
    "name": "3 · Client booking link — step by step"
+  },
+  {
+   "id": "staff",
+   "name": "4 · Staff books on own phone — step by step"
   }
  ],
  "boards": {
@@ -463,6 +467,78 @@
    "title": "D9a · Tap Alerts → list with icons",
    "is_interactive": true,
    "page": "desk"
+  },
+  "Sb1Day.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "S1 · My day (own schedule)",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sb2Client.dc.html": {
+   "x": 830,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "S2 · Pick the client",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sb3Service.dc.html": {
+   "x": 1660,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "S3 · Pick the service",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sb4Time.dc.html": {
+   "x": 2490,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "S4 · Pick a time",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sb5Review.dc.html": {
+   "x": 3320,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "S5 · Check + book",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sb6Done.dc.html": {
+   "x": 4150,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "S6 · Booked",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sb7Rebook.dc.html": {
+   "x": 4980,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "S7 · Rebook at the end of a visit",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "StaffBook.dc.html": {
+   "x": 2460,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Staff books on own phone (tap through)",
+   "is_interactive": true,
+   "page": "overview"
   }
  },
  "order": [
@@ -470,6 +546,7 @@
   "Main.dc.html",
   "BookPhone.dc.html",
   "Sms.dc.html",
+  "StaffBook.dc.html",
   "Bk1Day.dc.html",
   "Bk2Client.dc.html",
   "Bk3Service.dc.html",
@@ -514,7 +591,14 @@
   "Ki4Done.dc.html",
   "Pg1Main.dc.html",
   "Pg2Upload.dc.html",
-  "Pg3Google.dc.html"
+  "Pg3Google.dc.html",
+  "Sb1Day.dc.html",
+  "Sb2Client.dc.html",
+  "Sb3Service.dc.html",
+  "Sb4Time.dc.html",
+  "Sb5Review.dc.html",
+  "Sb6Done.dc.html",
+  "Sb7Rebook.dc.html"
  ],
  "notes": {
   "t1": {
@@ -604,6 +688,22 @@
    "kind": "title1",
    "maxW": 5080,
    "page": "desk"
+  },
+  "st1": {
+   "x": 0,
+   "y": -300,
+   "text": "Staff books their own client on their phone (S1–S7)",
+   "kind": "title1",
+   "maxW": 5730,
+   "page": "staff"
+  },
+  "st2": {
+   "x": 0,
+   "y": 980,
+   "w": 520,
+   "fill": "orange",
+   "page": "staff",
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nWhy: techs book their regulars from the chair (rebook = return rate up).\nRules\n• Owner turns it on/off per staff\n• Only own free times, only services they do, salon price\n• Lands on the one salon calendar, source \"Booked by <staff>\"\n• Front desk can move/cancel; tech gets told\n• Client text from the salon number\nOpen: let techs book OTHER staff? (proposal: no in V1)"
   }
  },
  "designSystems": [
