@@ -1,243 +1,386 @@
 {
- "v": 3,
- "createdOnFiles": {
-  "v": 1,
-  "at": "2026-11-16T18:30:00Z"
- },
- "title": "Nail POS — Main Screens",
- "launch": {
-  "view": "canvas",
-  "page": "overview"
- },
- "pages": [
-  {
-   "id": "overview",
-   "name": "1 · Overview — clickable screens"
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Cd1Open.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "Z1 · Open tickets",
+      "w": 1640,
+      "x": 0,
+      "y": 2600
+    },
+    "Cd2Short.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "Z2 · Count cash (short)",
+      "w": 1640,
+      "x": 1720,
+      "y": 2600
+    },
+    "Cd3Card.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "Z3 · Card total",
+      "w": 1640,
+      "x": 3440,
+      "y": 2600
+    },
+    "Cd4Tips.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "Z4 · Tips per staff",
+      "w": 1640,
+      "x": 5160,
+      "y": 2600
+    },
+    "Cd5Done.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "Z5 · Day closed",
+      "w": 1640,
+      "x": 6880,
+      "y": 2600
+    },
+    "Cl1All.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "C1 · List + profile",
+      "w": 1640,
+      "x": 0,
+      "y": 1300
+    },
+    "Cl2Lost.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "C2 · Lost regulars",
+      "w": 1640,
+      "x": 1720,
+      "y": 1300
+    },
+    "Clients.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Clients (CRM)",
+      "w": 1280,
+      "x": 1360,
+      "y": 0
+    },
+    "CloseDay.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Close day",
+      "w": 1280,
+      "x": 0,
+      "y": 1100
+    },
+    "Hm1Today.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "H1 · Today (owner)",
+      "w": 1640,
+      "x": 0,
+      "y": 0
+    },
+    "Hm2Return.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "H2 · Tap a KPI",
+      "w": 1640,
+      "x": 1720,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Today (home) — owner",
+      "w": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "Me.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Profile + settings",
+      "w": 1280,
+      "x": 1360,
+      "y": 1100
+    },
+    "Me1Profile.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "M1 · Profile + settings",
+      "w": 1640,
+      "x": 0,
+      "y": 3900
+    },
+    "Me2Support.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "M2 · Support access on",
+      "w": 1640,
+      "x": 1720,
+      "y": 3900
+    },
+    "Checkout.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Checkout · Ticket (tap Charge to go on)",
+      "w": 1280,
+      "x": 0,
+      "y": 2200
+    },
+    "Cal.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Calendar — merged",
+      "w": 1440,
+      "x": 1360,
+      "y": 2200
+    },
+    "Pay.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Checkout 2 · Choose how to pay",
+      "w": 1280,
+      "x": 0,
+      "y": 3500
+    },
+    "Reader.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Checkout 3a · Card reader",
+      "w": 1280,
+      "x": 1360,
+      "y": 3500
+    },
+    "Cash.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Checkout 3b · Cash",
+      "w": 1280,
+      "x": 2720,
+      "y": 3500
+    },
+    "Done.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Checkout 4 · Paid + receipt",
+      "w": 1280,
+      "x": 4080,
+      "y": 3500
+    },
+    "Profile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Client profile (phone)",
+      "w": 390,
+      "x": 5440,
+      "y": 3500
+    },
+    "PhoneQR.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "QR pay (phone)",
+      "w": 390,
+      "x": 5910,
+      "y": 3500
+    },
+    "PhoneClientPay.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Client pays (phone)",
+      "w": 390,
+      "x": 6380,
+      "y": 3500
+    },
+    "PhoneClientReceipt.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Receipt (phone)",
+      "w": 390,
+      "x": 6850,
+      "y": 3500
+    }
   },
-  {
-   "id": "spec",
-   "name": "2 · Step by step (with notes)"
-  }
- ],
- "boards": {
-  "Main.dc.html": {
-   "x": 0,
-   "y": 0,
-   "w": 1280,
-   "h": 800,
-   "title": "Today (home) — owner",
-   "is_interactive": true,
-   "page": "overview"
+  "createdOnFiles": {
+    "at": "2026-11-16T18:30:00Z",
+    "v": 1
   },
-  "Clients.dc.html": {
-   "x": 1360,
-   "y": 0,
-   "w": 1280,
-   "h": 800,
-   "title": "Clients (CRM)",
-   "is_interactive": true,
-   "page": "overview"
+  "designSystems": [
+    {
+      "artifact": "https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n",
+      "copiedAt": "2026-11-16T22:30:00Z",
+      "namespace": "NailPOS",
+      "title": "Nail POS Design System",
+      "version": null
+    },
+    {
+      "artifact": "https://claude.ai/artifact/FAPieCxsXFJvSAyzgZ4b2L",
+      "copiedAt": "2026-11-16T18:30:00Z",
+      "namespace": "nailsalonosdesignsystem_afaa02",
+      "title": "Nail Salon OS Design System",
+      "version": null
+    }
+  ],
+  "launch": {
+    "page": "overview",
+    "view": "canvas"
   },
-  "CloseDay.dc.html": {
-   "x": 0,
-   "y": 1100,
-   "w": 1280,
-   "h": 800,
-   "title": "Close day",
-   "is_interactive": true,
-   "page": "overview"
+  "noteOrder": [
+    "t1",
+    "t2",
+    "t4",
+    "t3",
+    "s1",
+    "r0",
+    "r1",
+    "r2",
+    "r3"
+  ],
+  "notes": {
+    "r0": {
+      "kind": "title1",
+      "maxW": 3360,
+      "page": "spec",
+      "text": "Today — with notes",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "r1": {
+      "kind": "title1",
+      "maxW": 3360,
+      "page": "spec",
+      "text": "Clients — with notes",
+      "w": 240,
+      "x": 0,
+      "y": 1000
+    },
+    "r2": {
+      "kind": "title1",
+      "maxW": 8000,
+      "page": "spec",
+      "text": "Close day — with notes",
+      "w": 240,
+      "x": 0,
+      "y": 2300
+    },
+    "r3": {
+      "kind": "title1",
+      "maxW": 3360,
+      "page": "spec",
+      "text": "Profile — with notes",
+      "w": 240,
+      "x": 0,
+      "y": 3600
+    },
+    "s1": {
+      "fill": "orange",
+      "page": "overview",
+      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Calendar + Checkout = same screens as their own boards, here so the left menu clicks through\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nSame look as Checkout / Booking: compact, calm, English first.",
+      "w": 420,
+      "x": -520,
+      "y": 0
+    },
+    "t1": {
+      "kind": "title1",
+      "maxW": 2640,
+      "page": "overview",
+      "text": "Today · Clients",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 2640,
+      "page": "overview",
+      "text": "Close day · Profile",
+      "w": 240,
+      "x": 0,
+      "y": 830
+    },
+    "t3": {
+      "kind": "title1",
+      "maxW": 2800,
+      "page": "overview",
+      "text": "Checkout · Calendar",
+      "w": 240,
+      "x": 0,
+      "y": 1930
+    },
+    "t4": {
+      "kind": "title1",
+      "maxW": 7240,
+      "page": "overview",
+      "text": "Checkout steps (linked from Charge)",
+      "w": 240,
+      "x": 0,
+      "y": 3230
+    }
   },
-  "Me.dc.html": {
-   "x": 1360,
-   "y": 1100,
-   "w": 1280,
-   "h": 800,
-   "title": "Profile + settings",
-   "is_interactive": true,
-   "page": "overview"
-  },
-  "Hm1Today.dc.html": {
-   "x": 0,
-   "y": 0,
-   "w": 1640,
-   "h": 800,
-   "title": "H1 · Today (owner)",
-   "is_interactive": true,
-   "page": "spec"
-  },
-  "Hm2Return.dc.html": {
-   "x": 1720,
-   "y": 0,
-   "w": 1640,
-   "h": 800,
-   "title": "H2 · Tap a KPI",
-   "is_interactive": true,
-   "page": "spec"
-  },
-  "Cl1All.dc.html": {
-   "x": 0,
-   "y": 1300,
-   "w": 1640,
-   "h": 800,
-   "title": "C1 · List + profile",
-   "is_interactive": true,
-   "page": "spec"
-  },
-  "Cl2Lost.dc.html": {
-   "x": 1720,
-   "y": 1300,
-   "w": 1640,
-   "h": 800,
-   "title": "C2 · Lost regulars",
-   "is_interactive": true,
-   "page": "spec"
-  },
-  "Cd1Open.dc.html": {
-   "x": 0,
-   "y": 2600,
-   "w": 1640,
-   "h": 800,
-   "title": "Z1 · Open tickets",
-   "is_interactive": true,
-   "page": "spec"
-  },
-  "Cd2Short.dc.html": {
-   "x": 1720,
-   "y": 2600,
-   "w": 1640,
-   "h": 800,
-   "title": "Z2 · Count cash (short)",
-   "is_interactive": true,
-   "page": "spec"
-  },
-  "Cd3Card.dc.html": {
-   "x": 3440,
-   "y": 2600,
-   "w": 1640,
-   "h": 800,
-   "title": "Z3 · Card total",
-   "is_interactive": true,
-   "page": "spec"
-  },
-  "Cd4Tips.dc.html": {
-   "x": 5160,
-   "y": 2600,
-   "w": 1640,
-   "h": 800,
-   "title": "Z4 · Tips per staff",
-   "is_interactive": true,
-   "page": "spec"
-  },
-  "Cd5Done.dc.html": {
-   "x": 6880,
-   "y": 2600,
-   "w": 1640,
-   "h": 800,
-   "title": "Z5 · Day closed",
-   "is_interactive": true,
-   "page": "spec"
-  },
-  "Me1Profile.dc.html": {
-   "x": 0,
-   "y": 3900,
-   "w": 1640,
-   "h": 800,
-   "title": "M1 · Profile + settings",
-   "is_interactive": true,
-   "page": "spec"
-  },
-  "Me2Support.dc.html": {
-   "x": 1720,
-   "y": 3900,
-   "w": 1640,
-   "h": 800,
-   "title": "M2 · Support access on",
-   "is_interactive": true,
-   "page": "spec"
-  }
- },
- "order": [
-  "Main.dc.html",
-  "Clients.dc.html",
-  "CloseDay.dc.html",
-  "Me.dc.html",
-  "Hm1Today.dc.html",
-  "Hm2Return.dc.html",
-  "Cl1All.dc.html",
-  "Cl2Lost.dc.html",
-  "Cd1Open.dc.html",
-  "Cd2Short.dc.html",
-  "Cd3Card.dc.html",
-  "Cd4Tips.dc.html",
-  "Cd5Done.dc.html",
-  "Me1Profile.dc.html",
-  "Me2Support.dc.html"
- ],
- "notes": {
-  "t1": {
-   "x": 0,
-   "y": -300,
-   "text": "Today · Clients",
-   "kind": "title1",
-   "maxW": 2640,
-   "page": "overview"
-  },
-  "t2": {
-   "x": 0,
-   "y": 830,
-   "text": "Close day · Profile",
-   "kind": "title1",
-   "maxW": 2640,
-   "page": "overview"
-  },
-  "s1": {
-   "x": -520,
-   "y": 0,
-   "w": 420,
-   "fill": "orange",
-   "page": "overview",
-   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nSame look as Checkout / Booking: compact, calm, English first."
-  },
-  "r0": {
-   "x": 0,
-   "y": -300,
-   "text": "Today — with notes",
-   "kind": "title1",
-   "maxW": 3360,
-   "page": "spec"
-  },
-  "r1": {
-   "x": 0,
-   "y": 1000,
-   "text": "Clients — with notes",
-   "kind": "title1",
-   "maxW": 3360,
-   "page": "spec"
-  },
-  "r2": {
-   "x": 0,
-   "y": 2300,
-   "text": "Close day — with notes",
-   "kind": "title1",
-   "maxW": 8520,
-   "page": "spec"
-  },
-  "r3": {
-   "x": 0,
-   "y": 3600,
-   "text": "Profile — with notes",
-   "kind": "title1",
-   "maxW": 3360,
-   "page": "spec"
-  }
- },
- "designSystems": [
-  {
-   "title": "Nail Salon OS Design System",
-   "namespace": "nailsalonosdesignsystem_afaa02",
-   "artifact": "https://claude.ai/artifact/FAPieCxsXFJvSAyzgZ4b2L",
-   "version": null,
-   "copiedAt": "2026-11-16T18:30:00Z"
-  }
- ]
+  "order": [
+    "Main.dc.html",
+    "Clients.dc.html",
+    "CloseDay.dc.html",
+    "Me.dc.html",
+    "Checkout.dc.html",
+    "Cal.dc.html",
+    "Pay.dc.html",
+    "Reader.dc.html",
+    "Cash.dc.html",
+    "Done.dc.html",
+    "Profile.dc.html",
+    "PhoneQR.dc.html",
+    "PhoneClientPay.dc.html",
+    "PhoneClientReceipt.dc.html",
+    "Hm1Today.dc.html",
+    "Hm2Return.dc.html",
+    "Cl1All.dc.html",
+    "Cl2Lost.dc.html",
+    "Cd1Open.dc.html",
+    "Cd2Short.dc.html",
+    "Cd3Card.dc.html",
+    "Cd4Tips.dc.html",
+    "Cd5Done.dc.html",
+    "Me1Profile.dc.html",
+    "Me2Support.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "overview",
+      "name": "1 · Overview — clickable screens"
+    },
+    {
+      "id": "spec",
+      "name": "2 · Step by step (with notes)"
+    }
+  ],
+  "title": "Nail POS — Main Screens"
 }

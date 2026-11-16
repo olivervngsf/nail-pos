@@ -23,6 +23,11 @@ body{margin:0}
 @keyframes grow{from{transform:scaleY(0)}to{transform:none}}
 .att{display:flex;align-items:center;gap:10px;min-height:50px;padding:0 14px;border-bottom:1px solid #E5E5EA;font-size:14px}
 .att:last-child{border-bottom:0}
+.att .mk{width:30px;height:30px;border-radius:9px;border:0;outline:0;display:flex;align-items:center;justify-content:center;flex:none}
+.att .tx{flex:1;min-width:0}
+.att .tx b{display:block;font-size:14px;font-weight:700;line-height:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att .tx .cap{display:block;font-size:12px;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att .btn{height:30px;font-size:13px;padding:0 12px;flex:none}
 .mark{width:22px;height:22px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
 .stf{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:#fff;box-shadow:var(--shadow);font-size:13px;line-height:17px}
 </style>
@@ -30,9 +35,9 @@ body{margin:0}
 <div class="app">
   <nav class="rail" aria-label="Menu">
     <div class="logo">MN</div>
-    <a class="on" href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
-    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
-    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a class="on" href="Main.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="Cal.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="Checkout.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
     <a href="Clients.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
     <a href="CloseDay.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
     <div style="flex:1"></div>
@@ -74,7 +79,7 @@ body{margin:0}
         <div class="group in3">
           <div style="padding:12px 14px 4px" class="eyebrow">Needs attention · {{attCount}}</div>
           <sc-for list="{{att}}" as="a" hint-placeholder-count="5">
-            <div class="att"><span class="mark" style="{{a.markStyle}}">{{a.mark}}</span><span style="flex:1"><b>{{a.title}}</b><span class="cap" style="display:block">{{a.sub}}</span></span><button class="btn" type="button" onClick="{{a.go}}" style="height:32px;font-size:13px;padding:0 10px">{{a.cta}}</button></div>
+            <div class="att"><span class="mk" style="{{a.markStyle}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{a.icon}}"/></svg></span><span class="tx"><b>{{a.title}}</b><span class="cap">{{a.sub}}</span></span><button class="btn" type="button" onClick="{{a.go}}">{{a.cta}}</button></div>
           </sc-for>
           <sc-if value="{{allClear}}" hint-placeholder-val="{{false}}"><div class="att fade" style="justify-content:center;color:#5C5C5E">Nothing needs you right now ☀</div></sc-if>
         </div>
@@ -100,19 +105,20 @@ class Component extends DCLogic {
     const cur = K.find((x) => x[0] === S.k);
     const max = Math.max.apply(null, cur[8].concat(cur[9]));
     const bars = []; cur[8].forEach((v, i) => { bars.push({ cls: '', style: 'height:' + Math.round(v / max * 100) + '%;animation-delay:' + (i * 0.03) + 's' }); bars.push({ cls: 'last', style: 'height:' + Math.round(cur[9][i] / max * 100) + '%;animation-delay:' + (i * 0.03) + 's' }); });
+    const ICO = {"▲": "M12 7v6M12 17h.01M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z", "?": "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z", "$": "M4 4h16v16l-3-2-2 2-2-2-2 2-2-2-3 2zM8 9h8M8 13h8", "!": "M4 5h16v14H4zM8 10h4M8 14h8", "★": "M4 11h16v9H4zM12 11v9M4 11l2-4h12l2 4M12 7c-1-3-5-3-4 0M12 7c1-3 5-3 4 0"};
     const att = [
       ['a', '▲', 'Hoa is 24 min late', '2 bookings need cover', 'Cover', '#FDEEE6', '#B5470A'],
       ['b', '?', 'Sofia not confirmed · 3:00', 'Reminder sent 9 AM, no reply', 'Text', '#FDEEE6', '#B5470A'],
       ['c', '$', '2 tickets ready for bill', 'Hailey $55 · Rosa $45', 'Open', '#EFEFF2', '#1C1C1E'],
-      ['d', '!', 'Ngọc’s license expires in 21 days', 'Dec 7 · upload the new one', 'Remind', '#FCEAEA', '#C92A2A'],
-      ['e', '★', 'Lan Tran’s birthday is Friday', 'Regular · 12 visits', 'Send wish', '#EAF5EC', '#1F7A33']
+      ['d', '!', 'Ngọc’s license expires Dec 7', '21 days · ask for the new one', 'Remind', '#FCEAEA', '#C92A2A'],
+      ['e', '★', 'Lan Tran’s birthday Friday', 'Regular · 12 visits', 'Send wish', '#EAF5EC', '#1F7A33']
     ].filter((a) => !S.done[a[0]]);
     return {
       roles: [['Owner', 'owner'], ['Front desk', 'desk']].map((r) => ({ label: r[0], cls: S.role === r[1] ? 'on' : '' })),
       kpis: K.map((x) => ({ label: x[1], value: x[2], trend: x[3], trendCls: x[4], cls: 'kpi' + (S.k === x[0] ? ' on' : ''), pick: () => this.setState({ k: x[0] }) })),
       chartTitle: cur[5], chartSub: cur[6], chartFact: cur[7], bars,
       staff: [['K', 'Kim', 'In chair · $186 · 4 turns', '#E03131'], ['N', 'Ngọc', 'In chair · $142 · 3 turns', '#E03131'], ['T', 'Tuyết', 'Free 36 min · $120', '#2F9E44'], ['H', 'Hoa', 'Not in · 24m late', '#8E8E93'], ['L', 'Linh', 'In chair · $165 · 2 turns', '#E03131']].map((s) => ({ init: s[0], name: s[1], sub: s[2], dot: 'width:8px;height:8px;border-radius:50%;background:' + s[3] })),
-      att: att.map((a) => ({ mark: a[1], title: a[2], sub: a[3], cta: a[4], markStyle: 'background:' + a[5] + ';color:' + a[6], go: () => { const d = Object.assign({}, S.done); d[a[0]] = true; this.setState({ done: d }); } })),
+      att: att.map((a) => ({ icon: ICO[a[1]], mark: a[1], title: a[2], sub: a[3], cta: a[4], markStyle: 'background:' + a[5] + ';color:' + a[6], go: () => { const d = Object.assign({}, S.done); d[a[0]] = true; this.setState({ done: d }); } })),
       attCount: att.length, allClear: att.length === 0
     };
   }

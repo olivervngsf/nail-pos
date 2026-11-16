@@ -1,12 +1,12 @@
 /* Annotation frame: screen (1280x800) + notes panel (360) = 1640x800 */
 .af{width:1640px;height:800px;display:flex;background:#F5F5F7}
 .af-screen{position:relative;width:1280px;height:800px;flex:none;overflow:hidden}
-.af-notes{width:360px;padding:24px 22px;border-left:1px solid #E5E5EA;background:#FFFDF6;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;color:#1C1C1E}
+.af-notes{width:360px;padding:24px 22px;border-left:1px solid #E5E5EA;background:#FFFDF6;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;overflow:hidden;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#1C1C1E}
 .af-title{font-size:17px;font-weight:700;letter-spacing:-0.01em;line-height:22px}
 .af-row{display:flex;gap:10px;align-items:flex-start}
 .af-txt{font-size:14px;line-height:20px}
 .af-next{margin-top:auto;padding-top:10px;border-top:1px solid #E5E5EA;font-size:13px;line-height:18px;color:#5C5C5E}
-.pin{position:absolute;width:28px;height:28px;border-radius:50%;background:#E8590C;color:#fff;font:700 13px/28px -apple-system,BlinkMacSystemFont,sans-serif;text-align:center;box-shadow:0 0 0 4px rgba(232,89,12,.25),0 2px 6px rgba(0,0,0,.2);pointer-events:none;z-index:50;transform:translate(-50%,-50%)}
+.pin{position:absolute;width:28px;height:28px;border-radius:50%;background:#E8590C;color:#fff;font:700 13px/28px Inter,-apple-system,BlinkMacSystemFont,sans-serif;text-align:center;box-shadow:0 0 0 4px rgba(232,89,12,.25),0 2px 6px rgba(0,0,0,.2);pointer-events:none;z-index:50;transform:translate(-50%,-50%)}
 .pin.static{position:static;transform:none;flex:none;box-shadow:none}
 /* Phone annotation frame: screen (390x844) + notes (360) = 750x844 */
 .afp{width:750px;height:844px;display:flex;background:#F5F5F7}
@@ -18,7 +18,7 @@
 .pin::after{content:"";position:absolute;left:100%;top:50%;width:14px;height:2px;margin-top:-1px;background:#E8590C}
 .pin.static{width:24px;height:24px;line-height:24px;transform:none;box-shadow:none}
 .pin.static::after{display:none}
-.af-toggle{align-self:flex-start;height:30px;padding:0 12px;border-radius:999px;border:1px solid #E5E5EA;background:#fff;font:600 12px -apple-system,BlinkMacSystemFont,sans-serif;color:#1C1C1E;cursor:pointer}
+.af-toggle{align-self:flex-start;height:30px;padding:0 12px;border-radius:999px;border:1px solid #E5E5EA;background:#fff;font:600 12px Inter,-apple-system,BlinkMacSystemFont,sans-serif;color:#1C1C1E;cursor:pointer}
 .af-body{display:flex;flex-direction:column;gap:12px;flex:1;min-height:0}
 /* Wide frame for the 1440x900 calendar: screen 1440 + notes 360 = 1800x900 */
 .afw{width:1800px;height:900px;display:flex;background:#F5F5F7}
