@@ -93,6 +93,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - How pilot salons pay techs today
 - Final monthly price (testing ~$39–49 in pilot). New input Nov 16: pricing deck proposes $199/mo flat for 25+ staff salons ($149 with $100K+/mo card volume), 5,000 texts, 0.20–0.30% card markup — conflicts with 1–20 tech target + no-markup decision. Options: 2 plans (small ~$49–79 / large $199). Decide with Elang.
 
+- Gift cards + loyalty how-it-works (roles, codes, steps, money): https://claude.ai/artifact/GKRwnoiAkv5pTHk8rQFUby
 - Loyalty in V1? Research (Nov 16): points/punch card, prepaid packages, auto perks (birthday, rebook, VIP), referrals = near-zero cost, high switching cost. Proposal: V1 = points + gift cards (receipt/email only, $0); packages, perks, referrals in V1.1. Decide with Elang. Board: https://claude.ai/artifact/7JTHZUnaHsDpjSEk1fzLPY
 
 ## Decision log
