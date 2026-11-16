@@ -4,7 +4,7 @@ Read this first every session. Keep it short; link out for detail.
 
 ## What we're building
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
-- Angle: fair, clear pay for techs + Tap to Pay on iPhone (no card terminal).
+- Angle: fair, clear pay for techs + Tap to Pay on iPhone and Android (no card terminal).
 - Team: Oliver = product/design/build. Elang = sales, client care.
 
 ## Source docs (live, in claude.ai)
@@ -12,6 +12,7 @@ Read this first every session. Keep it short; link out for detail.
 - PRD (V1 scope, data, tech, launch): https://claude.ai/artifact/7aC8Az4WkTYmX9KRntxsCD
 - Ideas & Monthly Plan: https://claude.ai/artifact/P8oW1dX4CFQT3tjy8DdaUN
 - Running costs (software, hardware, AI, people; estimates to verify): https://claude.ai/artifact/UioTSft9RRanZRPN9j7qom · board https://claude.ai/artifact/F5RmPXxLS8CRMZEZCeY9jr
+- System design (accounts + PIN, data per salon, hardware, payments end to end, zero surprises): https://claude.ai/artifact/2Urwx55HAAv1kVv37pC6AB · board https://claude.ai/artifact/FrdZnr7duYtJfyQzpC2yzd
 - Experience map (journeys + screen states): https://claude.ai/artifact/Sj5wvmx7KvFTutrJ8k3dDS
 - Whiteboards: experience map (journeys only) https://claude.ai/artifact/PZuEnZcu9UvNHJ1MXWN8Gr · screens (ONE board, low-fi, all screens; FULL) https://claude.ai/artifact/LHG1YGcM7KyLU8WJ9ht7ME · screens 2 (NEW low-fi screens go here) https://claude.ai/artifact/9AhqNeeUFvN6UnC5zG2kbh · how it works https://claude.ai/artifact/4doaYFSTWrB5vAeA3Z7SAD · feature map https://claude.ai/artifact/4p51HNLiiGwj6dGZL3XgZx
 - Keep docs, whiteboards and this file in sync when scope or stack changes.
@@ -28,13 +29,15 @@ Docs win over this file if they disagree. Update this file when a big decision l
 6. Turn list for walk-ins (moved into V1)
 7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12)
 8. Owner dashboard: top 5 KPIs (sales vs last week, avg ticket, return rate + lost regulars, sales per tech per hour, walk-in wait + walk-outs); full list in PRD "Owner KPIs" (issue #16)
+- Salon setup (demo → first payment in ~1 week; 1-hour setup day, 10 steps incl. Connect payments): PRD "Salon setup", board https://claude.ai/artifact/1wByQp7c3nViD27dsqJqgD, issue #20
 - Basics: salon setup, staff + pay rates, service menu from a nail template, owner login
 
 ## Design rules
 - Core principle (Oliver, top priority): fast, consistent, reliable. Works on strong, weak or no internet — every screen loads fast, actions save offline and sync later, nothing lost.
 - Users: senior Vietnamese staff, low tech. Phone number first, email second (both collected), no extra apps.
 - PIN for staff actions. Big buttons, one job per screen.
-- Roles: owner, manager, front desk, tech, customer — each sees only their part.
+- Roles: owner, manager, front desk, tech, customer — each sees only their part. Platform roles (us): admin (Oliver), support (Elang).
+- Salons own their account + data; we run the platform. Founder Admin = salon health, not private data; support access only when owner allows (24 h, logged). Issue #21.
 - Scale: 50 salons x 20 staff; data walled per salon; works offline.
 - Insight, not autopilot: turn board/calendar show facts (turns, $ today, free-at, skills, requests); owner/manager/front desk decides who's next; optional one-tap reason.
 - Every ticket shows tip + any card fee; nothing taken silently.
@@ -46,12 +49,15 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Data: Supabase
 - Web hosting: Vercel
 - Build: web app first (owner computer + shared salon iPad/phone), deployed on Vercel
-- Devices: desktop (front desk, owner) + phones iOS/Android (techs, clients). Design both.
+- Devices: desktop (front desk, owner) + phones iOS/Android (techs, clients). Design both. Every feature must work on both iOS and Android (web app now; later phone app from one shared codebase for both).
 - Printing: desktop to USB/Wi-Fi receipt printer; Android web can use Bluetooth; iPhone web can't (needs Bluefy) — don't depend on it.
 - Texting: Twilio or Telnyx; one local number per salon; A2P 10DLC registration; consent + STOP; email backup. Spec in PRD "Texting and phone numbers".
-- Payments: Stripe card reader (M2) in every V1 setup, QR code / pay link as backup; card fee = Stripe's rate passed through, no markup; Tap to Pay later in a native iPhone app (issue #11)
+- Ops (before pilot, issue #22): dev/staging/live; Supabase backups + restore test; DB changes via GitHub; data-wall tests; Sentry + uptime alerts; 2-step login + password manager everywhere; secrets only in Vercel/Supabase; spending alerts; terms/privacy/texting consent. Spec: System Design "Running smooth".
+- Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); $59 M2 needs our phone app (OPEN: Oliver to pick). QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
+- Stripe Connect type: Standard vs Express (lean Express); confirm with Stripe before building
+- V1 card reader: Stripe S710 (~$299, works with web app now; WisePOS E discontinued) vs M2 (~$59, needs phone app first)
 - Pilot salons (2–3)
 - How pilot salons pay techs today
 - Final monthly price (testing ~$39–49 in pilot)
@@ -67,6 +73,12 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Desktop + mobile design; printing from desktop; iOS web Bluetooth printing not relied on.
 - 2026-11-14: Oliver's built calendar page = base front desk design; 10 gaps listed on the Screens board.
 - 2026-11-15: Insight, not autopilot for turns (Gap conflict #3 settled).
+- 2026-11-16: Run-smooth setup required before first pilot salon (issue #22; System Design "Running smooth" + board).
+- 2026-11-16: Founder Admin + support access (owner-granted, 24 h, logged); we see salon health, not client/tech private data.
+- 2026-11-16: Salon setup plan: demo → hardware + texting registration → 1-hour setup day (sign up, info, services, staff+PIN, Connect payments, reader, printer, salon device, clients, $1 test) → Elang on call day 1 → week-4 pilot review.
+- 2026-11-16: Each salon has its own Stripe account linked to our platform (Connect); money goes straight to salon; card fees pass-through; we earn only the flat monthly subscription. Stripe events (payments, fees, refunds, disputes, payouts) saved next to tickets by ticket # → insights (who earns how much, staff KPIs, daily money truth). Spec: System Design doc.
+- 2026-11-16: Product supports both Android and iOS equally (web app + later one phone app for both, incl. Tap to Pay).
+- 2026-11-16: System design: one person = one account (phone); membership links person to salon + role + PIN; salon devices use name + PIN; every row has salon_id + row-level security; money in cents; nothing deleted; Stripe Connect, salon's own account, webhook confirms paid; daily money report = zero surprises.
 - 2026-11-16: Owner dashboard (top 5 KPIs, facts only) joins V1.
 - 2026-11-16: Payroll = V1 insights + export; real payroll later via embedded partner (e.g. Check, Gusto Embedded); never build tax filing ourselves.
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
@@ -78,6 +90,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Market research: https://claude.ai/artifact/UUbqTu5wKNkBxShMVfTqYU (unverified, needs web access) · board https://claude.ai/artifact/Rzu7quesSz9RxryAFvAJrh
 - Affinity map (draft, 5 clusters): docs/affinity-map.md
 - Tools reference list (options, not selected yet): docs/tools-reference.md
+- Hardware shopping list (Amazon links, readers from Stripe): docs/hardware-shopping-list.md
 - Client data ideas (bring clients back, show care; after V1): Hub "Ideas" + board https://claude.ai/artifact/FGuDonq7GNmEeAgTWfbjKh
 - Close an issue when its checklist is done; note big calls in the decision log
 
