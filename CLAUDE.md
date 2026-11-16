@@ -41,6 +41,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Scale: 50 salons x 20 staff; data walled per salon; works offline.
 - Insight, not autopilot: turn board/calendar show facts (turns, $ today, free-at, skills, requests); owner/manager/front desk decides who's next; optional one-tap reason.
 - Every ticket shows tip + any card fee; nothing taken silently.
+- Honest reviews: every client gets the same review request; never filter or hide it from unhappy clients (Google rules, FTC risk).
 - Target: Vietnamese walk-in salons, 1–20 techs (appointment salons later).
 - Edge cases table lives in the PRD.
 
@@ -59,7 +60,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Stripe Connect type: Standard vs Express (lean Express); confirm with Stripe before building
 - Pilot salons (2–3)
 - How pilot salons pay techs today
-- Final monthly price (testing ~$39–49 in pilot)
+- Final monthly price (testing ~$39–49 in pilot). PROPOSAL: 2 plans, Salon $49 (1–20 staff, texts by use) + Salon Plus $149–199 (20+ staff, 5,000 texts); PRD "Plans", docs/salon-saas-pricing-playbook.pdf
 
 ## Decision log
 - 2026-11-14: PRD drafted; V1 = checkout, payout sheet, language toggle.
