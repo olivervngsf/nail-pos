@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Connect payments</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="setup.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>body{margin:0}</style>
+</helmet>
+<div class="wiz">
+  <aside class="side">
+    <div class="brand"><div class="logo" style="margin:0">N</div>Salon setup</div>
+    <div class="prog"><span style="{{pct}}"></span></div>
+    <sc-for list="{{steps}}" as="s" hint-placeholder-count="10">
+      <div class="{{s.cls}}"><span class="n">{{s.n}}</span>{{s.label}}</div>
+    </sc-for>
+    <div class="help">Have ready: business name + EIN (or SSN), bank account and routing number, owner's ID.</div>
+  </aside>
+  <div class="main">
+    <div class="body" style="flex-direction:row;gap:32px">
+      <section style="flex:1;display:flex;flex-direction:column;gap:18px;min-width:0">
+        <div class="eyebrow in">Step 5 of 10</div>
+        <div class="h1 in">Get paid straight to your bank</div>
+        <div class="in2" style="font-size:17px;line-height:25px;color:var(--ink-soft);max-width:520px">You get your own Stripe account, linked to Nail POS. Card money goes from Stripe to your bank — never through us.</div>
+        <div class="group in2" style="max-width:560px">
+          <div class="row"><span class="ico" style="width:32px;height:32px">$</span><div class="grow">Card reader fee</div><span class="num">2.7% + 5¢</span></div>
+          <div class="row"><span class="ico" style="width:32px;height:32px">QR</span><div class="grow">QR / pay link fee</div><span class="num">2.9% + 30¢</span></div>
+          <div class="row"><span class="ico" style="width:32px;height:32px">↓</span><div class="grow">Money in your bank</div><span>2 business days</span></div>
+          <div class="row"><span class="ico" style="width:32px;height:32px">✓</span><div class="grow">Our cut of card payments</div><span style="font-weight:600">$0 — only your monthly plan</span></div>
+        </div>
+      </section>
+      <section class="card in3" style="width:380px;padding:28px;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;align-self:flex-start">
+        <sc-if value="{{idle}}" hint-placeholder-val="{{true}}">
+          <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:14px">
+            <div style="width:64px;height:64px;border-radius:18px;background:#635BFF;color:#fff;font-weight:700;font-size:26px;display:flex;align-items:center;justify-content:center">S</div>
+            <div class="h2">Connect with Stripe</div>
+            <div class="cap" style="font-size:14px">Takes about 5 minutes. Stripe checks your ID and bank — we never see them.</div>
+            <button class="btn primary" type="button" onClick="{{connect}}" style="width:100%">Connect payments</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{busy}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px 0">
+            <div class="pulse" style="width:64px;height:64px;border-radius:50%;border:3px solid #1C1C1E"></div>
+            <div class="h2">Waiting for Stripe…</div>
+            <div class="cap" style="font-size:14px">Finish in the Stripe window. This page updates by itself.</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%">
+            <div class="pop" style="width:64px;height:64px;border-radius:50%;background:var(--jade-soft);border:2px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:28px">✓</div>
+            <div class="h2">Payments connected</div>
+            <div class="group" style="width:100%;box-shadow:none;border:1px solid var(--line);text-align:left">
+              <div class="row"><div class="grow">Business</div><span class="cap">Mai Nails LLC ✓</span></div>
+              <div class="row"><div class="grow">Bank</div><span class="cap num">Chase ••6789 ✓</span></div>
+              <div class="row"><div class="grow">Payouts</div><span class="cap">Daily</span></div>
+            </div>
+          </div>
+        </sc-if>
+      </section>
+    </div>
+    <div class="foot">
+      <a class="btn ghost" href="Staff.dc.html">Back</a>
+      <span class="sp"></span>
+      <span class="pill ok"><span class="dot"></span>Saved</span>
+      <a class="btn primary" href="Hardware.dc.html" style="width:200px">Continue</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { s: 0 }; }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  renderVals() {
+    const cur = 4;
+    const names = ['Sign up','Salon info','Services','Staff + PIN','Payments','Card reader','Printer','Salon device','Clients','$1 test'];
+    return {
+      steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
+      pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
+      idle: this.state.s === 0, busy: this.state.s === 1, done: this.state.s === 2,
+      connect: () => { this.setState({ s: 1 }); this.t = setTimeout(() => this.setState({ s: 2 }), 2200); }
+    };
+  }
+}
+</script>
+</body>
+</html>

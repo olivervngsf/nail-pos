@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Staff sets PIN</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.k{height:64px;border-radius:50%;width:64px;border:0;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08);font:inherit;font-size:26px;font-weight:500;color:#1C1C1E;cursor:pointer;justify-self:center;transition:transform .12s,background .2s}
+.k:active{transform:scale(.94);background:#EFEFF2}
+.pd{width:14px;height:14px;border-radius:50%;border:1.5px solid #1C1C1E;box-sizing:border-box;transition:background .2s}
+.pd.on{background:#1C1C1E}
+</style>
+</helmet>
+<div class="phone">
+  <div class="pbar">Messages</div>
+  <div style="padding:16px 16px 0">
+    <div class="in" style="max-width:300px;padding:12px 14px;border-radius:18px 18px 18px 4px;background:#E9E9EB;font-size:15px;line-height:21px">Mai Nails added you to Nail POS. Tap to set your PIN: nailpos.app/j/K7Q2</div>
+    <div class="cap" style="margin:4px 0 0 6px">Today 10:02 AM</div>
+  </div>
+  <div class="in2" style="flex:1;margin:14px 0 0;background:var(--paper);border-radius:24px 24px 0 0;box-shadow:0 -6px 24px rgba(28,28,30,.08);display:flex;flex-direction:column;align-items:center;gap:14px;padding:24px 20px">
+    <sc-if value="{{entering}}" hint-placeholder-val="{{true}}">
+      <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%">
+        <div class="av" style="width:56px;height:56px;font-size:20px">K</div>
+        <div class="h2">Hi Kim — make your PIN</div>
+        <div class="cap" style="text-align:center">4 numbers. You use it to clock in and see your pay.</div>
+        <div style="display:flex;gap:16px;margin:6px 0">
+          <sc-for list="{{dots}}" as="d" hint-placeholder-count="4"><span class="{{d.cls}}"></span></sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 24px;width:260px">
+          <sc-for list="{{keys}}" as="k" hint-placeholder-count="12">
+            <sc-if value="{{k.show}}" hint-placeholder-val="{{true}}"><button class="k" type="button" onClick="{{k.press}}" aria-label="{{k.aria}}">{{k.label}}</button></sc-if>
+            <sc-if value="{{k.blank}}" hint-placeholder-val="{{false}}"><span></span></sc-if>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+      <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:60px;text-align:center">
+        <div class="pop" style="width:76px;height:76px;border-radius:50%;background:var(--jade-soft);border:2px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:34px">✓</div>
+        <div class="h2">PIN saved</div>
+        <div class="cap" style="font-size:15px;line-height:21px">Use it on the salon iPad to clock in. Change language anytime in your profile.</div>
+        <a class="btn primary" href="StaffClockIn.dc.html" style="width:260px;margin-top:10px">Continue</a>
+        <button class="btn ghost" type="button" onClick="{{reset}}">Start over</button>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { n: 1 }; }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  renderVals() {
+    const n = this.state.n;
+    const press = () => {
+      const next = Math.min(n + 1, 4);
+      this.setState({ n: next });
+      if (next === 4) { clearTimeout(this.t); this.t = setTimeout(() => this.setState({ n: 5 }), 500); }
+    };
+    const labels = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+    return {
+      entering: n < 5, done: n >= 5,
+      dots: [0, 1, 2, 3].map((i) => ({ cls: i < n ? 'pd on' : 'pd' })),
+      keys: labels.map((l) => ({
+        label: l, show: l !== '', blank: l === '',
+        aria: l === '⌫' ? 'Delete' : 'Digit ' + l,
+        press: l === '⌫' ? () => this.setState({ n: Math.max(n - 1, 0) }) : press
+      })),
+      reset: () => this.setState({ n: 0 })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Read this first every session. Keep it short; link out for detail.
 
 ## Repo state
-- Docs only for now: `CLAUDE.md` + `docs/`. No app code yet, so no build, lint or test commands. Add them here when the web app starts.
+- Docs + design source only for now: `CLAUDE.md`, `docs/`, `design/`. No app code yet, so no build, lint or test commands. Add them here when the web app starts.
 - Plans, specs and boards live in claude.ai artifacts (links below), not in this repo.
 
 ## Designing flows in Claude Design
@@ -17,6 +17,9 @@ Read this first every session. Keep it short; link out for detail.
 - Every flow shows: desktop (front desk/owner) + phone (tech/client); VN staff / EN customer text; offline + syncing state; PIN step for staff actions; who (role) sees it.
 - Each screen: big buttons, one job, money in plain $ with tip + card fee shown.
 - When a flow is done: add a row to the Hub table, a "Back to: Nail POS Hub" link in it, and update the Build Tracker.
+- Look (set Nov 16): English first (EN/VI switch in each person's profile), compact Apple-like, client (CRM) panel on checkout, soft fade-in motion, off with reduced motion.
+- Done flows: Checkout https://claude.ai/artifact/ArXa9za1gubGLWzEUH6GLw · Onboarding https://claude.ai/artifact/1A5maZvg44WyCY5gugLVym
+- Building UI: follow `docs/design-spec.md` (tokens, components, motion, every screen + interaction) and the exact source in `design/<flow>/` (`.dc.html` + `pos.css`/`setup.css`). Pixel match; re-copy files into `design/` if the boards change.
 
 ## What we're building
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.

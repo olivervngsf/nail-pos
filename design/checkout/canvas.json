@@ -1,0 +1,28 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-11-16T16:45:00Z"},
+  "title": "Nail POS — Checkout Flow",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1280, "h": 800, "title": "1 · Ticket + client profile", "is_interactive": true},
+    "Pay.dc.html": {"x": 1360, "y": 0, "w": 1280, "h": 800, "title": "2 · Choose how to pay", "is_interactive": true},
+    "Reader.dc.html": {"x": 2720, "y": 0, "w": 1280, "h": 800, "title": "3a · Card reader (animated)", "is_interactive": true},
+    "Cash.dc.html": {"x": 4080, "y": 0, "w": 1280, "h": 800, "title": "3b · Cash (works offline)", "is_interactive": true},
+    "Done.dc.html": {"x": 5440, "y": 0, "w": 1280, "h": 800, "title": "4 · Paid + receipt", "is_interactive": true},
+    "PhoneQR.dc.html": {"x": 0, "y": 1220, "w": 390, "h": 844, "title": "P1 · Salon phone shows QR", "is_interactive": true},
+    "PhoneClientPay.dc.html": {"x": 470, "y": 1220, "w": 390, "h": 844, "title": "P2 · Client picks tip + pays", "is_interactive": true},
+    "PhoneClientReceipt.dc.html": {"x": 940, "y": 1220, "w": 390, "h": 844, "title": "P3 · Client receipt (text)", "is_interactive": true},
+    "PhoneStaff.dc.html": {"x": 1410, "y": 1220, "w": 390, "h": 844, "title": "P4 · Staff sees their share", "is_interactive": true},
+    "Profile.dc.html": {"x": 1880, "y": 1220, "w": 390, "h": 844, "title": "P5 · Profile · language switch", "is_interactive": true}
+  },
+  "order": ["Main.dc.html", "Pay.dc.html", "Reader.dc.html", "Cash.dc.html", "Done.dc.html", "PhoneQR.dc.html", "PhoneClientPay.dc.html", "PhoneClientReceipt.dc.html", "PhoneStaff.dc.html", "Profile.dc.html"],
+  "notes": {
+    "t1": {"x": 0, "y": -300, "text": "Checkout — front desk (desktop)", "kind": "title1", "maxW": 6720},
+    "t2": {"x": 0, "y": 920, "text": "Checkout — phone (QR pay, client, staff, profile)", "kind": "title1", "maxW": 2270},
+    "s1": {"x": -520, "y": 0, "w": 420, "fill": "orange", "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nRules on every screen\n• English first; each person switches English / Tiếng Việt in their profile (P5)\n• Tip + card fee always shown; salon keeps no tip; card fee on tips never taken from staff\n• Saves offline, syncs later (pill top right)\n• Compact, calm, Apple-like; soft fade-ins (off with reduced motion)\n\nOpen\n• Reader: S710 (web app now) vs M2 (needs phone app)\n• Split payment, refunds, sell gift card: next flows"}
+  },
+  "designSystems": [
+    {"title": "Nail Salon OS Design System", "namespace": "nailsalonosdesignsystem_afaa02", "artifact": "https://claude.ai/artifact/FAPieCxsXFJvSAyzgZ4b2L", "version": "1790970587-f6aa", "copiedAt": "2026-11-16T16:45:00Z"}
+  ]
+}

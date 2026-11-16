@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Paid and receipt</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+table{border-collapse:collapse;width:100%}
+th{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#5C5C5E;text-align:left;padding:8px 0;border-bottom:1px solid #E5E5EA}
+td{font-size:15px;padding:12px 0;border-bottom:1px solid #E5E5EA}
+tr:last-child td{border-bottom:0}
+.r{text-align:right}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a class="on" href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+  </nav>
+  <div class="col">
+    <header class="bar">
+      <div class="title">Ticket #1042 · Paid</div>
+      <span class="pill ok"><span class="dot"></span>Confirmed by Stripe</span>
+      <a class="who" href="Profile.dc.html" style="text-decoration:none"><div class="av">H</div>Hạnh · Front desk</a>
+    </header>
+    <main style="flex:1;display:flex;gap:24px;padding:24px 32px">
+      <section class="card" style="flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:16px">
+        <div class="in" style="display:flex;align-items:center;gap:16px">
+          <div class="pop" style="width:56px;height:56px;border-radius:50%;background:var(--jade-soft);border:2px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:26px">✓</div>
+          <div>
+            <div class="money">$83.00 <span style="font-size:16px;font-weight:500;color:var(--ink-soft)">Visa ••4242</span></div>
+            <div class="cap num">$65.00 services + $18.00 tip · gift card ••4821 paid $20.00</div>
+          </div>
+        </div>
+        <table class="num in2">
+          <thead><tr><th>Staff</th><th class="r">Service</th><th class="r">Card tip</th><th class="r">Fee on tip</th></tr></thead>
+          <tbody>
+            <tr><td><span style="display:inline-flex;align-items:center;gap:10px"><span class="av">K</span>Kim · Gel manicure</span></td><td class="r">$35.00</td><td class="r">$7.00</td><td class="r">$0.00</td></tr>
+            <tr><td><span style="display:inline-flex;align-items:center;gap:10px"><span class="av">N</span>Ngọc · Deluxe pedicure</span></td><td class="r">$55.00</td><td class="r">$11.00</td><td class="r">$0.00</td></tr>
+          </tbody>
+        </table>
+        <div class="cap">Tip split by service price (owner setting). Staff get the full tip — no card fee taken.</div>
+        <div class="in3" style="margin-top:auto;padding:16px 18px;border-radius:16px;background:var(--surface);display:flex;flex-direction:column;gap:8px">
+          <div class="eyebrow">Money for this ticket</div>
+          <div class="line"><span>Card charged</span><span>$83.00</span></div>
+          <div class="line"><span>Card fee (2.7% + 5¢) · salon pays</span><span>−$2.29</span></div>
+          <div class="line"><span>Tips to staff</span><span>−$18.00</span></div>
+          <div class="sep"></div>
+          <div class="line" style="font-weight:600;font-size:16px"><span>Salon keeps (to Stripe)</span><span>$62.71</span></div>
+        </div>
+      </section>
+      <section class="in2" style="width:320px;display:flex;flex-direction:column;gap:10px">
+        <div class="h2" style="margin-bottom:4px">Receipt</div>
+        <div class="group">
+          <a class="row" href="#" style="text-decoration:none">Print<span class="grow"></span><span class="cap">›</span></a>
+          <a class="row" href="PhoneClientReceipt.dc.html" style="text-decoration:none">Text<span class="grow"></span><span class="cap num">(408) 555-0142 ›</span></a>
+          <a class="row" href="#" style="text-decoration:none">Email<span class="grow"></span><span class="cap">lan.t@… ›</span></a>
+          <a class="row" href="#" style="text-decoration:none;color:var(--ink-soft)">No receipt</a>
+        </div>
+        <div class="cap">Receipt uses the client's language.</div>
+        <div style="flex:1"></div>
+        <div class="group" style="padding:14px 16px">
+          <div class="eyebrow" style="margin-bottom:6px">Book next visit?</div>
+          <div style="font-size:15px">Lan comes every ~4 weeks → <b>Mon, Dec 14</b> with Kim</div>
+          <a class="btn" href="#" style="margin-top:10px;height:40px">Book it</a>
+        </div>
+        <a class="btn primary block" href="Main.dc.html">New ticket</a>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

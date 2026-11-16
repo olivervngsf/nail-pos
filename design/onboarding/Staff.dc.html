@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Staff, pay and PIN</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="setup.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.paybtn{flex:1;height:64px;border-radius:12px;border:1px solid var(--line);background:#fff;font:inherit;text-align:left;padding:0 12px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;gap:2px;transition:border-color .2s,background .2s}
+.paybtn.on{border:2px solid #1C1C1E;background:#F5F5F7}
+</style>
+</helmet>
+<div class="wiz">
+  <aside class="side">
+    <div class="brand"><div class="logo" style="margin:0">N</div>Salon setup</div>
+    <div class="prog"><span style="{{pct}}"></span></div>
+    <sc-for list="{{steps}}" as="s" hint-placeholder-count="10">
+      <div class="{{s.cls}}"><span class="n">{{s.n}}</span>{{s.label}}</div>
+    </sc-for>
+    <div class="help">About 1 hour. Everything saves as you go — stop anytime and come back.</div>
+  </aside>
+  <div class="main">
+    <div class="body" style="flex-direction:row;gap:24px">
+      <section style="flex:1;display:flex;flex-direction:column;gap:16px;min-width:0">
+        <div class="eyebrow in">Step 4 of 10</div>
+        <div class="h1 in">Your team</div>
+        <div class="cap in" style="font-size:15px;margin-top:-8px">Each person gets a text to set their own 4-digit PIN.</div>
+        <div class="group in2">
+          <div class="row"><div class="av">M</div><div class="grow"><div style="font-weight:600">Mai (you)</div><div class="cap">Owner</div></div><span class="tag">Owner</span></div>
+          <div class="row"><div class="av">H</div><div class="grow"><div style="font-weight:600">Hạnh</div><div class="cap num">Front desk · $16.50/hr</div></div><span class="tag jade">PIN set</span></div>
+          <div class="row"><div class="av">K</div><div class="grow"><div style="font-weight:600">Kim</div><div class="cap">Commission 60%</div></div><span class="tag jade">PIN set</span></div>
+          <div class="row"><div class="av">N</div><div class="grow"><div style="font-weight:600">Ngọc</div><div class="cap">Commission 60%</div></div><span class="tag">Text sent</span></div>
+          <div class="row"><div class="av">T</div><div class="grow"><div style="font-weight:600">Tuyết</div><div class="cap">Booth renter · $250/wk</div></div><span class="tag">Text sent</span></div>
+        </div>
+      </section>
+      <section class="card in3" style="width:400px;padding:22px;display:flex;flex-direction:column;gap:14px;align-self:flex-start">
+        <div class="h2">Add staff</div>
+        <div><label class="lbl" for="sn">Name</label><input class="inp" id="sn" value="Hạnh Lê"></div>
+        <div><label class="lbl" for="sc">Cell phone</label><input class="inp num" id="sc" value="(408) 555-0177"></div>
+        <div>
+          <div class="lbl">Role</div>
+          <div class="seg"><span>Front desk</span><span class="on">Nail staff</span><span>Manager</span></div>
+        </div>
+        <div>
+          <div class="lbl">How they're paid</div>
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{pays}}" as="p" hint-placeholder-count="3">
+              <button class="{{p.cls}}" type="button" onClick="{{p.pick}}"><span style="font-weight:600;font-size:14px">{{p.label}}</span><span class="cap" style="font-size:12px">{{p.sub}}</span></button>
+            </sc-for>
+          </div>
+        </div>
+        <div class="fade" style="padding:12px 14px;border-radius:12px;background:var(--surface);font-size:14px;line-height:20px">{{payNote}}</div>
+        <button class="btn primary" type="button" style="height:48px;font-size:16px">Add + text PIN invite</button>
+      </section>
+    </div>
+    <div class="foot">
+      <a class="btn ghost" href="Services.dc.html">Back</a>
+      <span class="sp"></span>
+      <span class="pill ok"><span class="dot"></span>Saved</span>
+      <a class="btn primary" href="Payments.dc.html" style="width:200px">Continue</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { pay: 0 }; }
+  renderVals() {
+    const cur = 3;
+    const names = ['Sign up','Salon info','Services','Staff + PIN','Payments','Card reader','Printer','Salon device','Clients','$1 test'];
+    const opts = [
+      { label: 'Commission', sub: '% of services', note: 'Staff keeps 60% of service price (change per person). Tips are 100% theirs. Shows on their payout sheet.' },
+      { label: 'Hourly', sub: '+ optional %', note: 'Hourly pay from clock-in. We flag minimum wage, overtime and missed breaks — you stay in control.' },
+      { label: 'Booth renter', sub: 'pays rent', note: 'Separate pay type. Their card payments go to their own Stripe account; you charge weekly rent.' }
+    ];
+    return {
+      steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
+      pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
+      pays: opts.map((o, i) => ({ label: o.label, sub: o.sub, cls: this.state.pay === i ? 'paybtn on' : 'paybtn', pick: () => this.setState({ pay: i }) })),
+      payNote: opts[this.state.pay].note
+    };
+  }
+}
+</script>
+</body>
+</html>

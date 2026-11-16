@@ -1,0 +1,29 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-11-16T17:10:00Z"},
+  "title": "Nail POS — Onboarding Flow",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1280, "h": 800, "title": "1 · Sign up with phone", "is_interactive": true},
+    "Info.dc.html": {"x": 1360, "y": 0, "w": 1280, "h": 800, "title": "2 · Salon info + state rules", "is_interactive": true},
+    "Services.dc.html": {"x": 2720, "y": 0, "w": 1280, "h": 800, "title": "3 · Services from nail template", "is_interactive": true},
+    "Staff.dc.html": {"x": 4080, "y": 0, "w": 1280, "h": 800, "title": "4 · Staff, pay + PIN", "is_interactive": true},
+    "Payments.dc.html": {"x": 0, "y": 1220, "w": 1280, "h": 800, "title": "5 · Connect payments (Stripe)", "is_interactive": true},
+    "Hardware.dc.html": {"x": 1360, "y": 1220, "w": 1280, "h": 800, "title": "6–8 · Reader, printer, salon device", "is_interactive": true},
+    "Clients.dc.html": {"x": 2720, "y": 1220, "w": 1280, "h": 800, "title": "9 · Bring in clients", "is_interactive": true},
+    "Test.dc.html": {"x": 4080, "y": 1220, "w": 1280, "h": 800, "title": "10 · $1 test → ready", "is_interactive": true},
+    "StaffInvite.dc.html": {"x": 0, "y": 2440, "w": 390, "h": 844, "title": "S1 · Staff gets text, sets PIN", "is_interactive": true},
+    "StaffClockIn.dc.html": {"x": 470, "y": 2440, "w": 390, "h": 844, "title": "S2 · First clock-in", "is_interactive": true}
+  },
+  "order": ["Main.dc.html", "Info.dc.html", "Services.dc.html", "Staff.dc.html", "Payments.dc.html", "Hardware.dc.html", "Clients.dc.html", "Test.dc.html", "StaffInvite.dc.html", "StaffClockIn.dc.html"],
+  "notes": {
+    "t1": {"x": 0, "y": -300, "text": "Owner setup — steps 1–4", "kind": "title1", "maxW": 5360},
+    "t2": {"x": 0, "y": 920, "text": "Owner setup — steps 5–10", "kind": "title1", "maxW": 5360},
+    "t3": {"x": 0, "y": 2140, "text": "Staff onboarding (phone)", "kind": "title1", "maxW": 860},
+    "s1": {"x": -520, "y": 0, "w": 420, "fill": "orange", "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nSetup day = about 1 hour, Elang beside the owner.\n• Demo → hardware + texting registration → setup day → first payment in ~1 week\n• Every step saves; owner can stop and come back\n• Skip anything except Payments and $1 test\n• English first; language switch in each person's profile\n\nOpen\n• Stripe Connect Express vs Standard (lean Express)\n• Reader: S710 now vs M2 later"}
+  },
+  "designSystems": [
+    {"title": "Nail Salon OS Design System", "namespace": "nailsalonosdesignsystem_afaa02", "artifact": "https://claude.ai/artifact/FAPieCxsXFJvSAyzgZ4b2L", "version": "1790970587-f6aa", "copiedAt": "2026-11-16T17:10:00Z"}
+  ]
+}

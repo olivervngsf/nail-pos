@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My profile and language</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.opt{display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border:0;border-bottom:1px solid #E5E5EA;background:#FFFFFF;font:inherit;font-size:17px;color:#1C1C1E;width:100%;text-align:left;cursor:pointer}
+.opt:last-child{border-bottom:0}
+.check{margin-left:auto;font-weight:700;color:#1C1C1E;transition:opacity .25s}
+</style>
+</helmet>
+<div class="phone">
+  <div class="pbar" style="justify-content:space-between;padding:0 12px">
+    <a class="btn ghost" href="Main.dc.html" style="height:36px;padding:0 8px">‹ {{t.back}}</a>
+    <span>{{t.title}}</span>
+    <span style="width:60px"></span>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:22px;padding:24px 20px">
+    <div class="in" style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div class="av" style="width:76px;height:76px;font-size:28px">H</div>
+      <div class="h2">Hạnh Nguyễn</div>
+      <div class="cap">{{t.role}} · Mai Nails</div>
+    </div>
+    <div class="in2">
+      <div class="eyebrow" style="margin:0 0 8px 16px">{{t.lang}}</div>
+      <div class="group">
+        <button class="opt" type="button" onClick="{{pickEn}}">English<span class="check" style="{{enCheck}}">✓</span></button>
+        <button class="opt" type="button" onClick="{{pickVi}}">Tiếng Việt<span class="check" style="{{viCheck}}">✓</span></button>
+      </div>
+      <div class="cap" style="margin:8px 16px 0">{{t.note}}</div>
+    </div>
+    <div class="in3">
+      <div class="group">
+        <div class="row"><div class="grow">{{t.pin}}</div><span class="cap">••••  ›</span></div>
+        <div class="row"><div class="grow">{{t.phone}}</div><span class="cap num">(408) 555-0199 ›</span></div>
+        <div class="row"><div class="grow">{{t.earn}}</div><span class="cap">›</span></div>
+      </div>
+    </div>
+    <div style="flex:1"></div>
+    <a class="btn block" href="#" style="color:var(--red)">{{t.out}}</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { lang: 'en' }; }
+  renderVals() {
+    const en = { back: 'Back', title: 'My profile', role: 'Front desk', lang: 'Language', note: 'Only changes your screens. Clients see their own language on receipts and the card reader.', pin: 'Change PIN', phone: 'Phone', earn: 'My earnings', out: 'Switch person' };
+    const vi = { back: 'Quay lại', title: 'Hồ sơ của tôi', role: 'Quầy', lang: 'Ngôn ngữ', note: 'Chỉ đổi màn hình của bạn. Khách thấy ngôn ngữ riêng trên biên lai và máy đọc thẻ.', pin: 'Đổi mã PIN', phone: 'Số điện thoại', earn: 'Thu nhập của tôi', out: 'Đổi người' };
+    const isEn = this.state.lang === 'en';
+    return {
+      t: isEn ? en : vi,
+      enCheck: isEn ? 'opacity:1' : 'opacity:0',
+      viCheck: isEn ? 'opacity:0' : 'opacity:1',
+      pickEn: () => this.setState({ lang: 'en' }),
+      pickVi: () => this.setState({ lang: 'vi' })
+    };
+  }
+}
+</script>
+</body>
+</html>

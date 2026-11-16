@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Services</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="setup.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.price{width:96px;height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:15px;text-align:right;padding:0 10px;box-sizing:border-box}
+.off{opacity:.45}
+</style>
+</helmet>
+<div class="wiz">
+  <aside class="side">
+    <div class="brand"><div class="logo" style="margin:0">N</div>Salon setup</div>
+    <div class="prog"><span style="{{pct}}"></span></div>
+    <sc-for list="{{steps}}" as="s" hint-placeholder-count="10">
+      <div class="{{s.cls}}"><span class="n">{{s.n}}</span>{{s.label}}</div>
+    </sc-for>
+    <div class="help">About 1 hour. Everything saves as you go — stop anytime and come back.</div>
+  </aside>
+  <div class="main">
+    <div class="body" style="gap:16px">
+      <div class="eyebrow in">Step 3 of 10</div>
+      <div class="in" style="display:flex;align-items:flex-end;gap:16px">
+        <div style="flex:1"><div class="h1">Your service menu</div><div class="cap" style="font-size:15px;margin-top:4px">We started you with a nail salon menu. Turn off what you don't do and type your prices.</div></div>
+        <div class="seg"><sc-for list="{{cats}}" as="c" hint-placeholder-count="5"><span class="{{c.cls}}">{{c.label}}</span></sc-for></div>
+      </div>
+      <div class="group in2" style="max-width:860px">
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+          <div class="row" style="min-height:56px">
+            <button class="{{r.tcls}}" type="button" onClick="{{r.toggle}}" aria-label="Offer {{r.name}}"></button>
+            <div class="grow {{r.dim}}"><div style="font-weight:600">{{r.name}}</div><div class="cap">{{r.min}} min · {{r.cat}}</div></div>
+            <input class="price num {{r.dim}}" value="{{r.price}}" aria-label="Price for {{r.name}}">
+          </div>
+        </sc-for>
+      </div>
+      <div class="in3" style="display:flex;gap:10px;align-items:center">
+        <a class="btn" href="#">+ Add a service</a>
+        <span class="cap">{{count}} services on · add-ons and colors can come later</span>
+      </div>
+    </div>
+    <div class="foot">
+      <a class="btn ghost" href="Info.dc.html">Back</a>
+      <span class="sp"></span>
+      <span class="pill ok"><span class="dot"></span>Saved</span>
+      <a class="btn primary" href="Staff.dc.html" style="width:200px">Continue</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { off: { 5: true } }; }
+  renderVals() {
+    const cur = 2;
+    const names = ['Sign up','Salon info','Services','Staff + PIN','Payments','Card reader','Printer','Salon device','Clients','$1 test'];
+    const list = [
+      ['Regular manicure', 30, 'Manicure', '$20'], ['Gel manicure', 45, 'Manicure', '$35'],
+      ['Regular pedicure', 40, 'Pedicure', '$30'], ['Deluxe pedicure', 60, 'Pedicure', '$55'],
+      ['Dip powder', 60, 'Dip & gel', '$45'], ['Acrylic full set', 75, 'Acrylic', '$50'],
+      ['Acrylic fill', 45, 'Acrylic', '$35']
+    ];
+    const off = this.state.off;
+    const rows = list.map((r, i) => ({
+      name: r[0], min: r[1], cat: r[2], price: r[3],
+      tcls: off[i] ? 'toggle' : 'toggle on', dim: off[i] ? 'off' : '',
+      toggle: () => { const o = Object.assign({}, off); o[i] = !o[i]; this.setState({ off: o }); }
+    }));
+    return {
+      steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
+      pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
+      cats: ['All', 'Manicure', 'Pedicure', 'Dip & gel', 'Acrylic'].map((c, i) => ({ label: c, cls: i === 0 ? 'on' : '' })),
+      rows,
+      count: rows.filter((r, i) => !off[i]).length
+    };
+  }
+}
+</script>
+</body>
+</html>
