@@ -271,7 +271,7 @@ function seed(){ return [
 ];}
 const ALERTS0=[['a1','golden','bad','!','Card reader offline 2 h. Cards can’t be taken on it.','since 10:12 AM'],['a2','cosmo','warn','$','Stripe needs the owner’s ID. Payouts paused.','since yesterday'],['a3','lily','warn','…','Setup stuck at step 6 (Card reader) for 3 days.','last step Nov 13'],['a4','bella','warn','▼','Tickets down 60% vs last month. At risk.','this month']];
 let S, tm;
-function reset(){ S={dev:'desk',view:'salons',role:'elang',sel:null,filter:'all',q:'',alerts:ALERTS0.map((a)=>a.slice()),salons:seed(),access:{},left:{},log:{},plan:'pilot',invite:null,form:{n:'Queen Nails 2',st:'TX',o:'Hoa Pham',p:'(512) 555-0161'},toast:'',noteDraft:''}; }
+function reset(){ S={dev:'desk',view:'salons',role:'elang',sel:null,filter:'all',q:'',alerts:ALERTS0.map((a)=>a.slice()),salons:seed(),access:{},left:{},log:{},plan:'pilot',invite:null,form:{n:'Lotus Nails',st:'TX',o:'Anh Le',p:'(512) 555-0174',e:'anh.lotusnails@gmail.com'},via:{text:true,email:true},invites:[{id:'i1',salon:'Queen Nails',owner:'Hoa Pham',city:'Austin, TX',phone:'(512) 555-0161',email:'hoa.queennails@gmail.com',via:['text','email'],sent:'Nov 16 · 9:10 AM',status:'Not opened'},{id:'i2',salon:'Pho Ever Nails',owner:'Minh Tran',city:'Plano, TX',phone:'',email:'minh@phoevernails.com',via:['email'],sent:'Oct 29',status:'Expired'},{id:'i3',salon:'Lily Nail Spa',owner:'Vy Ngo',city:'San Jose, CA',phone:'(408) 555-0133',email:'',via:['text'],sent:'Nov 10',status:'Signed up ✓'}],toast:'',noteDraft:''}; }
 reset();
 function toast(t){ S.toast=t; render(); clearTimeout(tm); tm=setTimeout(()=>{S.toast='';render();},3200); }
 const byId=(id)=>S.salons.find((s)=>s.id===id);
@@ -336,15 +336,19 @@ function newView(){ const f=S.form;
   const qr='1111111100000110111011011101101110110000011111111'.split('').map((b,i)=>`<i class="${(((i*7+3)%5===0)!==(b==='1'))?'':'o'}"></i>`).join('');
   return `${bar('Add a salon')}<main style="flex:1;display:flex;gap:24px;padding:24px 32px;min-height:0;overflow:auto">
   <div class="card pad" style="width:520px;flex:none;gap:14px;padding:22px 24px;align-self:flex-start"><div class="h2">Add a salon</div>
-   <div class="cap" style="font-size:14px;margin-top:-6px">Makes a one-time invite link. The owner signs up by phone and becomes the owner. Their data is walled off from day one.</div>
-   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">${[['n','Salon name'],['st','State'],['o','Owner name'],['p','Owner cell']].map((x)=>`<div><label class="lbl" for="f${x[0]}">${x[1]}</label><input class="inp" id="f${x[0]}" data-form="${x[0]}" value="${esc(f[x[0]])}" style="height:44px;font-size:16px"></div>`).join('')}</div>
+   <div class="cap" style="font-size:14px;margin-top:-6px">Sends a one-time invite link by text, email or both. The owner opens it, signs up and becomes the owner. Their data is walled off from day one.</div>
+   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">${[['n','Salon name'],['st','State'],['o','Owner name'],['p','Owner cell'],['e','Owner email']].map((x)=>`<div${x[0]==='e'?' style="grid-column:span 2"':''}><label class="lbl" for="f${x[0]}">${x[1]}</label><input class="inp" id="f${x[0]}" data-form="${x[0]}" value="${esc(f[x[0]])}" style="height:44px;font-size:16px"></div>`).join('')}</div>
    <div><span class="lbl">Plan</span><div class="seg">${[['pilot','Pilot · free 30 days'],['paid','Paid · $49/mo']].map((p)=>`<span class="${S.plan===p[0]?'on':''}" data-act="plan:${p[0]}" tabindex="0" role="button" style="cursor:pointer">${p[1]}</span>`).join('')}</div></div>
-   ${S.invite?`<div style="display:flex;gap:16px;align-items:center;padding:14px;border-radius:14px;background:var(--surface)"><div class="qr">${qr}</div><div style="display:flex;flex-direction:column;gap:6px"><b>nailpos.app/s/${S.invite.code}</b><span class="cap">Works once · ends in 14 days</span><div style="display:flex;gap:6px"><button class="abtn dark" type="button" data-act="sendInvite">${S.invite.sent?'✓ Texted':'Text it to '+esc(S.invite.o.split(' ')[0])}</button><button class="abtn" type="button" data-act="copy">Copy link</button></div></div></div>
-    <button class="btn" type="button" data-act="another" style="height:40px;font-size:14px">Add another salon</button>`:`<button class="btn primary" type="button" data-act="makeInvite" style="height:48px;font-size:16px">Make invite link</button>`}
+   <div><span class="lbl">Send the invite by</span><div style="display:flex;gap:8px">${[['text','Text message'],['email','Email']].map((c)=>`<button type="button" class="chip ${S.via[c[0]]?'on':''}" data-act="via:${c[0]}" aria-pressed="${S.via[c[0]]}">${S.via[c[0]]?'✓ ':''}${c[1]}</button>`).join('')}</div><div class="cap" style="margin-top:6px">Both is best: text gets read fast, email is the backup.</div></div>
+   ${S.invite?`<div style="display:flex;gap:16px;align-items:center;padding:14px;border-radius:14px;background:var(--surface)"><div class="qr">${qr}</div><div style="display:flex;flex-direction:column;gap:6px;min-width:0"><b>nailpos.app/s/${S.invite.code}</b>
+     ${S.invite.via.map((v)=>`<span style="font-size:13px">✓ ${v==='text'?'Texted to '+esc(S.invite.p):'Emailed to '+esc(S.invite.e)}</span>`).join('')}<span class="cap">Works once · ends in 14 days</span>
+     <div style="display:flex;gap:6px;flex-wrap:wrap">${S.invite.p?`<button class="abtn" type="button" data-act="resend:${S.invite.id}:text">Resend text</button>`:''}${S.invite.e?`<button class="abtn" type="button" data-act="resend:${S.invite.id}:email">Resend email</button>`:''}<button class="abtn" type="button" data-act="copy">Copy link</button></div></div></div>
+    <button class="btn" type="button" data-act="another" style="height:40px;font-size:14px">Add another salon</button>`:`<button class="btn primary" type="button" data-act="makeInvite" style="height:48px;font-size:16px">Send invite</button>`}
   </div>
   <div style="flex:1;display:flex;flex-direction:column;gap:12px"><b style="font-size:16px">What happens when the owner opens it</b>
-   <div class="group">${[['1 · Sign up','Phone code, no password'],['2 · Salon made','Own salon_id (own data wall) · they become owner'],['3 · Defaults','Time zone, receipt, EN/VI, nail service template'],['4 · Setup checklist','10 steps start · progress shows on Salons']].map((r)=>`<div class="hrow"><span class="k">${r[0]}</span><span class="v">${r[1]}</span></div>`).join('')}</div>
-   <div class="group"><div class="hrow" style="font-weight:600">Invites</div>${S.salons.filter((s)=>s.plan==='Invited').map((s)=>`<div class="hrow"><span class="v"><b>${esc(s.name)}</b> <span class="cap">· ${esc(s.owner)} · ${esc(s.city)}</span></span><span class="tag grey">Not opened</span></div>`).join('')}<div class="hrow"><span class="v"><b>Lily Nail Spa</b> <span class="cap">· Vy Ngo · Nov 10</span></span><span class="tag jade">Signed up ✓</span></div></div>
+   <div class="group">${[['1 · Sign up','Opens the link from text or email · phone code (email code if no cell) · no password'],['2 · Salon made','Own salon_id (own data wall) · they become owner'],['3 · Defaults','Time zone, receipt, EN/VI, nail service template'],['4 · Setup checklist','10 steps start · progress shows on Salons']].map((r)=>`<div class="hrow"><span class="k">${r[0]}</span><span class="v">${r[1]}</span></div>`).join('')}</div>
+   <div class="group"><div class="hrow" style="font-weight:600">Invites<span class="cap" style="font-weight:400;margin-left:auto">Resend = new link, old one stops working</span></div>${S.invites.map((i)=>`<div style="display:flex;flex-direction:column;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line)"><div style="display:flex;align-items:center;gap:8px"><span style="flex:1;min-width:0"><b>${esc(i.salon)}</b> <span class="cap">· ${esc(i.owner)} · ${esc(i.city)}</span></span><span class="tag ${i.status==='Expired'?'warn':i.status.startsWith('Signed')?'jade':'grey'}">${i.status}</span></div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="cap" style="flex:1;min-width:180px">Sent ${i.sent} by ${i.via.map((v)=>v==='text'?'text':'email').join(' + ')}${i.status==='Expired'?' · link ended':''}</span>${i.status.startsWith('Signed')?'':`${i.phone?`<button class="abtn" type="button" data-act="resend:${i.id}:text">Resend text</button>`:''}${i.email?`<button class="abtn" type="button" data-act="resend:${i.id}:email">Resend email</button>`:''}`}</div></div>`).join('')}</div>
   </div></main>`; }
 
 function systemView(){ return `${bar('System (admin only)')}<main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 24px;min-height:0">
@@ -387,12 +391,22 @@ function act(x){ const i=x.indexOf(':'), k=i<0?x:x.slice(0,i), v=i<0?'':x.slice(
   else if (k==='endSupport'){ S.access[v]='none'; addLog(v,'Support ended by Elang'); toast('Support mode off. The log stays with the owner.'); return; }
   else if (k==='addNote'){ if (!S.noteDraft.trim()) return; const d=new Date(); byId(v).notes.unshift(['Nov 16 · '+now(),S.noteDraft.trim()]); S.noteDraft=''; }
   else if (k==='plan') S.plan=v;
-  else if (k==='makeInvite'){ const f=S.form; if (!f.n.trim()||f.p.replace(/\D/g,'').length!==10){ toast('Add a salon name and a 10-digit cell'); return; }
-    S.invite={code:'Q'+Math.random().toString(36).slice(2,6).toUpperCase(),o:f.o,sent:false};
+  else if (k==='via'){ const n=Object.assign({},S.via); n[v]=!n[v]; if(!n.text&&!n.email){ toast('Pick at least one: text or email'); return; } S.via=n; }
+  else if (k==='resend'){ const [id,ch]=v.split(':'); const i=S.invites.find((z)=>z.id===id); i.sent='Nov 16 · '+now(); if(!i.via.includes(ch)) i.via.push(ch); if(i.status==='Expired') i.status='Not opened';
+    if (S.invite&&S.invite.id===id) S.invite.code='Q'+Math.random().toString(36).slice(2,6).toUpperCase();
+    toast('New link '+(ch==='text'?'texted to '+i.phone:'emailed to '+i.email)+'. The old link stops working.'); return; }
+  else if (k==='makeInvite'){ const f=S.form, ph=f.p.replace(/\D/g,'').length===10, em=/.+@.+\..+/.test(f.e||'');
+    if (!f.n.trim()){ toast('Add the salon name'); return; }
+    if (S.via.text&&!ph){ toast('Add a 10-digit cell to send by text'); return; }
+    if (S.via.email&&!em){ toast('Add an email to send by email'); return; }
+    const via=['text','email'].filter((c)=>S.via[c]), id='i'+Date.now();
+    S.invite={id,code:'Q'+Math.random().toString(36).slice(2,6).toUpperCase(),o:f.o,p:S.via.text?f.p:'',e:S.via.email?f.e:'',via};
+    S.invites.unshift({id,salon:f.n,owner:f.o,city:f.st,phone:S.invite.p,email:S.invite.e,via,sent:'Nov 16 · '+now(),status:'Not opened'});
+    toast('Invite sent by '+via.join(' + ')+' to '+f.o);
     S.salons.push({id:'n'+Date.now(),name:f.n,city:f.st,plan:'Invited',setup:0,today:'—',month:'—',owner:f.o,phone:f.p,since:'—',stripe:['Not yet','tag grey','—'],text:['Not yet','tag grey','—'],reader:['—',['—','tag grey']],printer:['—',['—','tag grey']],devices:['—',['—','tag grey']],errors:['—',['—','tag grey']],health:['Invite sent','tag grey'],notes:[]}); }
   else if (k==='sendInvite'){ S.invite.sent=true; toast('Invite texted to '+S.invite.o+' · shows on Salons as “Invite sent”'); return; }
   else if (k==='copy'){ toast('Link copied'); return; }
-  else if (k==='another'){ S.invite=null; S.form={n:'',st:'',o:'',p:''}; }
+  else if (k==='another'){ S.invite=null; S.form={n:'',st:'',o:'',p:'',e:''}; }
   render(); }
 setInterval(()=>{ let ch=false; for (const id in S.access){ if (S.access[id]==='on'){ const [h,m]=S.left[id].match(/\d+/g).map(Number); const t=h*60+m-1; S.left[id]=Math.floor(t/60)+' h '+String(t%60).padStart(2,'0')+' m'; ch=true; } } if (ch&&!document.activeElement.matches('input')) render(); },60000);
 document.addEventListener('click',(e)=>{ const el=e.target.closest('[data-act]'); if(!el||el.disabled) return; e.preventDefault(); act(el.getAttribute('data-act')); });
