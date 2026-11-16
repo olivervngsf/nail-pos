@@ -1,5 +1,7 @@
 # Nail-salon-specific POS competitors (US, late 2026)
 
+> Current full list (all kinds, threat levels): `docs/competitors.md`.
+
 > **Research limits (read first).** This session could not open web pages. Fetches to mangoforsalon.com, capterra.com, goftx.com and connectpos.com all failed because those hosts are outside the session's allowed network. Everything below comes from search-engine snippets and summaries, not from reading full pages. Many of the "comparison" pages are run by competing vendors (Tilavon, Galaxy Access, Astra POS, Zenoti), and several look like SEO sites. Treat every price as **unverified** until someone confirms it with the vendor. No Reddit, BBB, Trustpilot or Vietnamese Facebook-group content about the nail-specific vendors showed up in search.
 
 ## Which nail POS brands serve Vietnamese-run salons, and do they exist?
