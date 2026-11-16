@@ -21,7 +21,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 
 ## V1 scope
 1. Checkout in the web app: cash or card by Stripe QR code / pay link; receipt by printer, text or email; gift cards (sell + use, plastic + text, no expiry) + $/% discounts (issue #14, PRD "Gift cards and discounts")
-2. Tech payout sheet: earnings + tips per tech, cash vs card, check/cash payout split, printable
+2. Tech payout sheet: earnings + tips per tech, cash vs card, check/cash payout split, printable; payroll insights (min wage, overtime, breaks) + export to Gusto/QuickBooks (issue #15)
 3. Vietnamese (staff) / English (customer) toggle
 4. PIN login + clock-in; print own earnings by PIN
 5. Client profile by phone number (visits, last service/tech, notes, gift card)
@@ -66,6 +66,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Desktop + mobile design; printing from desktop; iOS web Bluetooth printing not relied on.
 - 2026-11-14: Oliver's built calendar page = base front desk design; 10 gaps listed on the Screens board.
 - 2026-11-15: Insight, not autopilot for turns (Gap conflict #3 settled).
+- 2026-11-16: Payroll = V1 insights + export; real payroll later via embedded partner (e.g. Check, Gusto Embedded); never build tax filing ourselves.
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
 
 ## Tracking
