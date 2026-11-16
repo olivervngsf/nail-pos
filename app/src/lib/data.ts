@@ -53,12 +53,28 @@ export type Ticket = {
   doneAt?: number;
   paidAt?: number;
   subtotalCents: number;
+  discountCents?: number;
+  source?: "online" | "called" | "walk-in";
   tipCents: number;
   tipMethod?: "card" | "cash";
   payMethod?: "card" | "cash" | "link";
   cardFeeCents: number;
   receipt?: "print" | "text" | "email" | "none";
 };
+
+export type Appointment = {
+  id: string;
+  phone: string;
+  techId: string;
+  serviceIds: string[];
+  start: number; // ms
+  source: "online" | "called" | "walk-in";
+  requested: boolean;
+  status: "booked" | "arrived" | "no_show";
+  texted?: boolean;
+};
+
+export type LogEntry = { at: number; by: string; text: string };
 
 export type ClockEntry = { staffId: string; inAt: number; outAt?: number };
 
@@ -72,6 +88,7 @@ export const STAFF: Staff[] = [
   { id: "hoa", name: "Hoa", pin: "2222", role: "tech", commissionPct: 60, skills: ["acrylic", "dip"] },
   { id: "tuan", name: "Tuấn", pin: "3333", role: "tech", commissionPct: 55, skills: ["pedi", "acrylic"] },
   { id: "vy", name: "Vy", pin: "4444", role: "tech", commissionPct: 60, skills: ["gel", "pedi"] },
+  { id: "thao", name: "Thảo", pin: "5555", role: "front_desk", commissionPct: 0, skills: [] },
   { id: "kim", name: "Kim", pin: "9999", role: "manager", commissionPct: 0, skills: [] },
 ];
 

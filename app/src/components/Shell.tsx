@@ -50,6 +50,7 @@ export function Header() {
     { href: "/check-in", label: t("checkIn") },
     { href: "/checkout", label: t("checkout"), badge: ready },
     { href: "/pin", label: t("staffPin") },
+    { href: "/desk", label: s.lang === "vi" ? "Quầy (máy tính)" : "Front desk (desktop)" },
   ];
   return (
     <header className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-stone-200 print:hidden">

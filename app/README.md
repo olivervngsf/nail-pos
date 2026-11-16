@@ -11,6 +11,14 @@ A clickable prototype of the **core salon day**, with fake data:
 5. **Checkout** (client-facing, English): ticket → tip (15/20/25%, custom, cash, none) → card reader / cash with change / QR link → receipt (text, email, print, none) → thank you. Card fee shown; never taken from tips.
 6. **My earnings**: PIN → today's tickets, commission, card vs cash tips, total, print, report a problem.
 
+7. **Front desk (desktop)** at `/desk`: one screen for the whole day.
+   - Top bar: sales + tips today, waiting, in chair, ready to pay; who's using the desk (PIN: Thảo 5555, Kim 9999); + Walk-in, + Booking.
+   - Day calendar, one column per tech, now line. Cards: booked (white, online/called, text sent), in chair (yellow), ready to pay (green), late / no-show (peach); ★ requested, ⚠ client note. Overlaps sit side by side.
+   - Click an open slot → quick booking (phone → service → confirm, text sent). Drag a booking to move it; overlap warning, nobody else moved.
+   - Click a card → client arrived / no-show / start / done / checkout.
+   - Right side: turn order (facts only), waiting + Assign with optional skip reason, ready to pay, log of who did what.
+   - Desktop checkout: discount (salon pays), tip, card fee shown, pay by QR / text link / reader / cash, receipt.
+
 Vietnamese / English toggle on top. Orange bar shows when offline; everything saves on the device.
 
 ## Not real yet

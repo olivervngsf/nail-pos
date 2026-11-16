@@ -7,6 +7,9 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import {
   CLIENTS,
+  staffById,
+  type Appointment,
+  type LogEntry,
   type Client,
   type ClockEntry,
   type Ticket,
@@ -23,15 +26,32 @@ type State = {
   tickets: Ticket[];
   problems: { staffId: string; at: number; note: string }[];
   nextNumber: number;
+  appointments: Appointment[];
+  log: LogEntry[];
+  deskUserId: string;
 };
 
-const KEY = "nailpos-proto-v1";
+const KEY = "nailpos-proto-v2";
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 function seed(): State {
   const now = Date.now();
   const h = 3600_000;
+  const at = (hh: number, mm = 0) => {
+    const d = new Date();
+    d.setHours(hh, mm, 0, 0);
+    return d.getTime();
+  };
+  const appointments: Appointment[] = [
+    { id: uid(), phone: "4155550104", techId: "hoa", serviceIds: ["dip"], start: now - 15 * 60_000, source: "called", requested: false, status: "booked", texted: true },
+    { id: uid(), phone: "4155550101", techId: "lan", serviceIds: ["acrylic"], start: Math.max(now + 90 * 60_000, at(13)), source: "online", requested: true, status: "booked", texted: true },
+    { id: uid(), phone: "4155550102", techId: "vy", serviceIds: ["gelpedi"], start: now + 150 * 60_000, source: "called", requested: false, status: "booked" },
+    { id: uid(), phone: "4155550103", techId: "tuan", serviceIds: ["pedi", "art"], start: now + 60 * 60_000, source: "online", requested: false, status: "booked", texted: true },
+  ];
   return {
+    appointments,
+    log: [{ at: now - 2 * h, by: "Kim", text: "Skipped Hoa: client asked for Lan" }],
+    deskUserId: "kim",
     lang: "vi",
     clients: CLIENTS,
     clock: [
@@ -111,6 +131,38 @@ function useStoreState() {
 
     removeWaiting: (id: string) => up((s) => ({ ...s, waiting: s.waiting.filter((w) => w.id !== id) })),
 
+    setDeskUser: (deskUserId: string) => up((s) => ({ ...s, deskUserId })),
+
+    addLog: (text: string) =>
+      up((s) => ({ ...s, log: [{ at: Date.now(), by: staffById(s.deskUserId)?.name ?? "?", text }, ...s.log] })),
+
+    book: (a: Omit<Appointment, "id" | "status">) =>
+      up((s) => ({ ...s, appointments: [...s.appointments, { ...a, id: uid(), status: "booked" }] })),
+
+    moveAppointment: (id: string, techId: string, start: number) =>
+      up((s) => ({ ...s, appointments: s.appointments.map((a) => (a.id === id ? { ...a, techId, start } : a)) })),
+
+    noShow: (id: string) =>
+      up((s) => ({ ...s, appointments: s.appointments.map((a) => (a.id === id ? { ...a, status: "no_show" } : a)) })),
+
+    // Appointment client arrives: straight into the chair with the booked tech.
+    arrive: (id: string) =>
+      up((s) => {
+        const a = s.appointments.find((x) => x.id === id);
+        if (!a) return s;
+        const t: Ticket = {
+          id: uid(), number: s.nextNumber, phone: a.phone, techId: a.techId, serviceIds: a.serviceIds,
+          status: "in_service", createdAt: Date.now(), startedAt: Date.now(), subtotalCents: sumServices(a.serviceIds),
+          tipCents: 0, cardFeeCents: 0, source: a.source,
+        };
+        return {
+          ...s,
+          appointments: s.appointments.map((x) => (x.id === id ? { ...x, status: "arrived" } : x)),
+          tickets: [...s.tickets, t],
+          nextNumber: s.nextNumber + 1,
+        };
+      }),
+
     assign: (waitingId: string, techId: string) =>
       up((s) => {
         const w = s.waiting.find((x) => x.id === waitingId);
@@ -118,7 +170,7 @@ function useStoreState() {
         const t: Ticket = {
           id: uid(), number: s.nextNumber, phone: w.phone, techId, serviceIds: w.serviceIds,
           status: "assigned", createdAt: Date.now(), subtotalCents: sumServices(w.serviceIds),
-          tipCents: 0, cardFeeCents: 0,
+          tipCents: 0, cardFeeCents: 0, source: "walk-in",
         };
         return { ...s, waiting: s.waiting.filter((x) => x.id !== waitingId), tickets: [...s.tickets, t], nextNumber: s.nextNumber + 1 };
       }),
@@ -128,11 +180,13 @@ function useStoreState() {
     setServices: (id: string, serviceIds: string[]) =>
       patchTicket(id, { serviceIds, subtotalCents: sumServices(serviceIds) }),
 
+    setDiscount: (id: string, discountCents: number) => patchTicket(id, { discountCents }),
+
     pay: (id: string, p: { tipCents: number; tipMethod: "card" | "cash"; payMethod: "card" | "cash" | "link"; receipt: Ticket["receipt"] }) =>
       up((s) => {
         const t = s.tickets.find((x) => x.id === id);
         if (!t) return s;
-        const charged = (p.payMethod === "cash" ? 0 : t.subtotalCents) + (p.tipMethod === "card" ? p.tipCents : 0);
+        const charged = (p.payMethod === "cash" ? 0 : dueCents(t)) + (p.tipMethod === "card" ? p.tipCents : 0);
         const fee = charged > 0 ? cardFee(charged) : 0;
         const today = new Date().toISOString().slice(0, 10);
         return {
@@ -172,6 +226,8 @@ export function useStore() {
 }
 
 // ---- derived facts (insight, not autopilot) ----
+
+export const dueCents = (t: Ticket) => Math.max(0, t.subtotalCents - (t.discountCents ?? 0));
 
 export const isClockedIn = (s: State, staffId: string) =>
   s.clock.some((c) => c.staffId === staffId && !c.outAt);
