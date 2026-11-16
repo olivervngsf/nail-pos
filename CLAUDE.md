@@ -46,7 +46,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Edge cases table lives in the PRD.
 
 ## Stack
-- Code: GitHub (this repo)
+- Code: GitHub (this repo). Web app lives in `app/` (Next.js 15 + Tailwind). Prototype of the core salon day (PIN clock-in, check-in, turn list, tech start/done, checkout, earnings) with fake data in localStorage; see app/README.md
 - Data: Supabase
 - Web hosting: Vercel
 - Build: web app first (owner computer + shared salon iPad/phone), deployed on Vercel
