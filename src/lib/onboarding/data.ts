@@ -17,9 +17,9 @@ export const STEPS = [
 export type Role = "Owner" | "Manager" | "Front desk" | "Tech";
 export type PayType = "Commission 60%" | "Hourly $16" | "Booth rent";
 
-export type Service = { cat: string; name: string; minutes: number; priceCents: number; on: boolean; flag?: boolean };
+export type Service = { id?: string; cat: string; name: string; minutes: number; priceCents: number; on: boolean; flag?: boolean };
 export type Hours = { day: string; on: boolean; open: string; close: string };
-export type Staff = { name: string; phone: string; role: Role; pay?: PayType; status: "You" | "Invited" | "Joined"; inviteCode?: string };
+export type Staff = { id?: string; name: string; phone: string; role: Role; pay?: PayType; status: "You" | "Invited" | "Joined"; inviteCode?: string };
 
 // Nail salon starter menu. Owner edits prices; "flag" = minutes to double-check.
 export const NAIL_TEMPLATE: Service[] = [

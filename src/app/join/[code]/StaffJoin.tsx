@@ -1,11 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useStored } from "@/lib/useStored";
 import { WEAK_PINS } from "@/lib/onboarding/data";
+import PhoneCodeLogin from "@/components/PhoneCodeLogin";
+import { ROLE_LABEL, SMS_ON, myMemberships, rpc, type Role } from "@/lib/auth";
+import { getSupabase } from "@/lib/supabase/client";
 
 type Invite = { code: string; name: string; role: string; salon: string; owner: string };
 type JoinState = {
-  step: "invite" | "notme" | "lang" | "pin" | "pin2" | "photo" | "done" | "home";
+  step: "invite" | "notme" | "verify" | "lang" | "pin" | "pin2" | "photo" | "done" | "home";
+  salonId?: string;
   lang: "English" | "Tiếng Việt";
   clocked: boolean;
 };
@@ -41,7 +46,19 @@ const T = {
   },
 } as const;
 
-export default function StaffJoin({ invite }: { invite: Invite }) {
+type DbInvite = { salon_name: string; display_name: string; role: Role; owner_name: string | null; phone_last4: string; status: "open" | "used" | "expired" };
+
+export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
+  const router = useRouter();
+  const [db, setDb] = useState<DbInvite | null | undefined>(SMS_ON ? undefined : null);
+  const [phone, setPhone] = useState("");
+  useEffect(() => {
+    if (!SMS_ON) return;
+    void rpc<DbInvite[]>("get_invite", { p_code: linkInvite.code }).then((r) => setDb(r[0] ?? null)).catch(() => setDb(null));
+  }, [linkInvite.code]);
+  const invite: Invite = db
+    ? { code: linkInvite.code, name: db.display_name, role: ROLE_LABEL[db.role], salon: db.salon_name, owner: (db.owner_name ?? "The owner").split(" ")[0] }
+    : linkInvite;
   const [s, setS, { ready }] = useStored<JoinState>(`nailpos.join.${invite.code}`, () => ({ step: "invite", lang: "English", clocked: false }));
   const [pin, setPin] = useState("");
   const [pin1, setPin1] = useState("");
@@ -73,12 +90,44 @@ export default function StaffJoin({ invite }: { invite: Invite }) {
       if (s.step === "pin") {
         if (WEAK_PINS.includes(v)) { setErr(t.weak); setPin(""); }
         else { setPin1(v); setPin(""); go("pin2"); }
-      } else if (v === pin1) { setPin(""); go("photo"); }
+      } else if (v === pin1) {
+        setPin("");
+        if (!SMS_ON) return go("photo");
+        void (async () => {
+          try {
+            await rpc("set_my_pin", { p_salon: s.salonId, p_pin: v });
+            const c = getSupabase(); const uid = (await c?.auth.getUser())?.data.user?.id;
+            if (c && uid) await c.from("people").update({ language: s.lang === "Tiếng Việt" ? "vi" : "en" }).eq("auth_user_id", uid);
+            go("photo");
+          } catch (e) { setErr((e as Error).message.includes("weak") ? t.weak : (e as Error).message); setPin1(""); go("pin"); }
+        })();
+      }
       else { setErr(t.nomatch); setPin(""); setPin1(""); go("pin"); }
     }, 200);
   };
 
+  if (SMS_ON && db === undefined) return <div className="phone" aria-busy="true" />;
+  if (SMS_ON && db === null && s.step === "invite") return <Shell title="Nail POS"><h1 className="h2">This invite link doesn&apos;t work</h1><div className="cap lead">Ask the salon owner to send it again.</div></Shell>;
+  if (SMS_ON && db && db.status !== "open" && s.step === "invite") return <Shell title="Nail POS">
+    <h1 className="h2">{db.status === "expired" ? "This invite has ended" : "You already joined"}</h1>
+    <div className="cap lead">{db.status === "expired" ? "Ask the owner to send a new one." : "Sign in with your phone number."}</div>
+    {db.status === "used" && <button className="btn primary block" type="button" onClick={() => router.push("/login")}>Sign in</button>}
+  </Shell>;
+
   switch (s.step) {
+    case "verify":
+      return <Shell title="Nail POS" back="invite">
+        <PhoneCodeLogin phone={phone} setPhone={setPhone} title={s.lang === "Tiếng Việt" ? "Xác nhận số điện thoại" : "Confirm your phone"}
+          lead={`${s.lang === "Tiếng Việt" ? "Số mà chủ tiệm đã nhập, kết thúc bằng" : "The number the owner added, ending in"} ${db?.phone_last4 ?? ""}.`}
+          onDone={async () => {
+            const mine = await myMemberships();
+            const m = mine.find((x) => x.salon_name === invite.salon) ?? mine[0];
+            if (!m) { setErr("This phone isn't on the invite. Use the number the owner added."); return; }
+            setS((p) => ({ ...p, salonId: m.salon_id }));
+            go("lang");
+          }} />
+        {err && <div className="hint err" role="alert">{err}</div>}
+      </Shell>;
     case "invite":
       return <Shell title="Nail POS">
         <div className="bubble">{invite.salon}: Hi {first}! {invite.owner} added you to Nail POS.</div>
@@ -87,7 +136,7 @@ export default function StaffJoin({ invite }: { invite: Invite }) {
           <div className="row"><span className="g">{t.name}</span><b>{invite.name}</b></div>
           <div className="row"><span className="g">{t.role}</span><b>{invite.role}</b></div>
         </div>
-        <button className="btn primary block" type="button" onClick={() => go("lang")}>{t.yes}</button>
+        <button className="btn primary block" type="button" onClick={() => go(SMS_ON ? "verify" : "lang")}>{t.yes}</button>
         <button className="btn ghost block" type="button" onClick={() => go("notme")}>{t.notMe}</button>
       </Shell>;
     case "notme":
@@ -138,7 +187,7 @@ export default function StaffJoin({ invite }: { invite: Invite }) {
         <div className="cap lead" style={{ textAlign: "center" }}>{invite.salon} · {invite.role} · {s.lang}</div>
         <div className="group"><div className="row m"><span className="g"><span className="cap">{t.clockHow}</span><b style={{ fontWeight: 600 }}>{t.clockWhere}</b></span></div></div>
         <div className="cap">{t.nothing}</div>
-        <button className="btn primary block" type="button" onClick={() => go("home")}>{t.home}</button>
+        <button className="btn primary block" type="button" onClick={() => (SMS_ON ? router.push("/t") : go("home"))}>{t.home}</button>
       </Shell>;
     case "home":
       return <Shell title={t.tabs[0]} tabs>

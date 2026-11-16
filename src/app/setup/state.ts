@@ -2,6 +2,7 @@ import { defaultHours, NAIL_TEMPLATE, type Hours, type PayType, type Role, type 
 
 export type SetupState = {
   stage: "signup" | "code" | "wizard";
+  salonId: string; // made on this device (uuid) so saving is safe to repeat
   step: number;
   ownerName: string;
   ownerPhone: string;
@@ -31,6 +32,7 @@ export const SETUP_KEY = "nailpos.setup.v1";
 
 export const initialSetup = (): SetupState => ({
   stage: "signup",
+  salonId: "",
   step: 0,
   ownerName: "",
   ownerPhone: "",

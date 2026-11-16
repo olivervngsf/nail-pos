@@ -2,7 +2,10 @@
 /* eslint-disable react/jsx-key -- step views return a [footer, body] pair, not a list */
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { getSupabase } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import PhoneCodeLogin from "@/components/PhoneCodeLogin";
+import { SMS_ON, homeFor, isSignedIn, myMemberships } from "@/lib/auth";
+import { queueSave, withIds } from "./sync";
 import { SyncPill } from "@/components/kit";
 import { useStored } from "@/lib/useStored";
 import {
@@ -24,13 +27,25 @@ export default function SetupWizard() {
     timer.current = setTimeout(() => setToast(null), 3500);
   };
 
+  // Stable ids for the database, and skip sign-in when this device is already signed in.
+  useEffect(() => {
+    if (!ready) return;
+    if (!s.salonId || s.menu.some((m) => !m.id) || s.staff.some((p) => !p.id)) setS((p) => withIds(p));
+    if (s.stage !== "wizard") void isSignedIn().then((yes) => { if (yes) setS((p) => ({ ...withIds(p), stage: "wizard" })); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
+  // Save to the database (through the offline queue) every time the step changes.
+  useEffect(() => {
+    if (ready && s.stage === "wizard") queueSave(withIds(s));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, s.stage, s.step]);
+
   if (!ready) return <div className="wiz" aria-busy="true" />;
-  if (s.stage === "signup") return <Signup s={s} set={set} />;
-  if (s.stage === "code") return <Code s={s} set={set} />;
+  if (s.stage !== "wizard") return <SignIn s={s} set={set} />;
   return <Wizard s={s} set={set} say={say} toast={toast} setToast={setToast} reset={reset} />;
 }
 
-/* ---------- sign up ---------- */
+/* ---------- sign up / sign in ---------- */
 function Centered({ children }: { children: React.ReactNode }) {
   return (
     <main style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
@@ -39,98 +54,42 @@ function Centered({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Real text codes (Supabase phone login via Twilio Verify) turn on with NEXT_PUBLIC_SMS_LOGIN=on.
-// Off = test version: any 6 digits work.
-const SMS_ON = process.env.NEXT_PUBLIC_SMS_LOGIN === "on";
-const e164 = (phone: string) => "+1" + phone.replace(/\D/g, "").replace(/^1/, "");
-
-async function sendCode(phone: string): Promise<string | null> {
-  if (!SMS_ON) return null;
-  const sb = getSupabase();
-  if (!sb) return "Can't reach our server. Check internet and try again.";
-  const { error } = await sb.auth.signInWithOtp({ phone: e164(phone) });
-  return error ? "Couldn't send the text. Check the number and try again." : null;
-}
-
-function Signup({ s, set }: { s: SetupState; set: Set }) {
-  const [tried, setTried] = useState(false);
-  const [busy, setBusy] = useState(false);
+function SignIn({ s, set }: { s: SetupState; set: Set }) {
+  const router = useRouter();
   const [err, setErr] = useState("");
-  const bad = !phoneOk(s.ownerPhone);
-  const go = async () => {
-    setTried(true);
-    if (bad) return;
-    setBusy(true); setErr("");
-    const e = await sendCode(s.ownerPhone);
-    setBusy(false);
-    if (e) setErr(e); else set((p) => ({ ...p, stage: "code" }));
-  };
-  return (
-    <Centered>
-      <div className="logo">NP</div>
-      <h1 className="h1">Start your salon</h1>
-      <p className="cap lead" style={{ margin: 0 }}>Your phone number is your login. We text you a code. No password.</p>
-      <div>
-        <label className="lbl" htmlFor="on">Your name</label>
-        <input className="inp" id="on" autoComplete="name" value={s.ownerName} onChange={(e) => set((p) => ({ ...p, ownerName: e.target.value }))} />
-      </div>
-      <div>
-        <label className="lbl" htmlFor="ph">Your mobile number</label>
-        <input className={`inp ${tried && bad ? "err" : ""}`} id="ph" inputMode="tel" autoComplete="tel" placeholder="(408) 555-0110"
-          value={s.ownerPhone} onChange={(e) => set((p) => ({ ...p, ownerPhone: fmtPhone(e.target.value) }))} />
-        {tried && bad && <div className="hint err">Enter a 10-digit US mobile number.</div>}
-      </div>
-      <div>
-        <label className="lbl" htmlFor="em">Email (for receipts and backups)</label>
-        <input className="inp" id="em" type="email" autoComplete="email" value={s.ownerEmail} onChange={(e) => set((p) => ({ ...p, ownerEmail: e.target.value }))} />
-      </div>
-      {err && <div className="hint err" role="alert" style={{ margin: 0 }}>{err}</div>}
-      <button className="btn primary block" type="button" disabled={busy} onClick={go}>
-        {busy ? "Sending…" : "Text me a code"}
-      </button>
-      <div className="cap">Free 30-day pilot. One flat monthly price after that.</div>
-    </Centered>
-  );
-}
-
-function Code({ s, set }: { s: SetupState; set: Set }) {
-  const [code, setCode] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
-  const [resent, setResent] = useState(false);
-  const enter = () => set((p) => ({ ...p, stage: "wizard", staff: p.staff.length ? p.staff : [{ name: p.ownerName || "Owner", phone: p.ownerPhone, role: "Owner", status: "You" }] }));
-  const verify = async () => {
+  const enter = (salonId?: string) => set((p) => ({
+    ...p, stage: "wizard", salonId: salonId ?? p.salonId,
+    staff: p.staff.length ? p.staff : [{ id: crypto.randomUUID(), name: p.ownerName || "Owner", phone: p.ownerPhone, role: "Owner", status: "You" }],
+  }));
+  const done = async () => {
     if (!SMS_ON) return enter();
-    const sb = getSupabase();
-    if (!sb) return setErr("Can't reach our server. Check internet and try again.");
-    setBusy(true); setErr("");
-    const { error } = await sb.auth.verifyOtp({ phone: e164(s.ownerPhone), token: code, type: "sms" });
-    setBusy(false);
-    if (error) { setErr("That code didn't work. Check the text and try again."); setCode(""); } else enter();
+    try {
+      const owned = (await myMemberships()).find((m) => m.role === "owner");
+      if (owned && owned.setup_step >= 9) return router.replace("/today");
+      if (owned) return enter(owned.salon_id); // keep setting up the salon you already started
+      const other = (await myMemberships())[0];
+      if (other) return router.replace(homeFor([other]));
+      enter();
+    } catch (e) { setErr((e as Error).message); }
   };
   return (
     <Centered>
-      <h1 className="h1">Enter the 6-digit code</h1>
-      <p className="cap lead" style={{ margin: 0 }}>Sent to {s.ownerPhone}</p>
-      <input className={`inp otp ${err ? "err" : ""}`} inputMode="numeric" autoComplete="one-time-code" maxLength={6} aria-label="6-digit code"
-        placeholder="––––––" data-1p-ignore data-lpignore="true"
-        value={code} onChange={(e) => { setErr(""); setCode(e.target.value.replace(/\D/g, "").slice(0, 6)); }} autoFocus />
-      {err && <div className="hint err" role="alert" style={{ margin: 0 }}>{err}</div>}
-      {!SMS_ON && (
-        <div className="demo" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <span style={{ flex: 1, minWidth: 180 }}>Test version: texting isn&apos;t on yet. Type any 6 numbers.</span>
-          <button type="button" className="btn sm" onClick={() => setCode("123456")}>Fill test code</button>
-        </div>
-      )}
-      <button className="btn primary block" type="button" disabled={code.length !== 6 || busy} onClick={verify}>
-        {busy ? "Checking…" : "Verify"}
-      </button>
-      {SMS_ON && (
-        <button className="btn ghost" type="button" disabled={resent} onClick={async () => { setResent(true); const e = await sendCode(s.ownerPhone); if (e) setErr(e); setTimeout(() => setResent(false), 30000); }}>
-          {resent ? "Code sent again" : "Send a new code"}
-        </button>
-      )}
-      <button className="btn ghost" type="button" onClick={() => set((p) => ({ ...p, stage: "signup" }))}>Change number</button>
+      <div className="logo" style={{ margin: 0 }}>NP</div>
+      <PhoneCodeLogin
+        phone={s.ownerPhone} setPhone={(v) => set((p) => ({ ...p, ownerPhone: v }))} onDone={done} title="Start your salon"
+        extra={<>
+          <div>
+            <label className="lbl" htmlFor="on">Your name</label>
+            <input className="inp" id="on" autoComplete="name" value={s.ownerName} onChange={(e) => set((p) => ({ ...p, ownerName: e.target.value }))} />
+          </div>
+          <div>
+            <label className="lbl" htmlFor="em">Email (for receipts and backups)</label>
+            <input className="inp" id="em" type="email" autoComplete="email" value={s.ownerEmail} onChange={(e) => set((p) => ({ ...p, ownerEmail: e.target.value }))} />
+          </div>
+        </>}
+      />
+      {err && <div className="hint err" role="alert">{err}</div>}
+      <div className="cap">Free 30-day pilot. One flat monthly price after that. Already have an account? <Link href="/login">Sign in</Link></div>
     </Centered>
   );
 }
@@ -299,7 +258,7 @@ const Services: StepView = ({ s, set, say, next }) => {
         </table>
       </div>
       <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-        <button className="btn" type="button" onClick={() => set((p) => ({ ...p, menu: [...p.menu, { cat: "Add-ons", name: "", minutes: 15, priceCents: 0, on: true }] }))}>+ Add a service</button>
+        <button className="btn" type="button" onClick={() => set((p) => ({ ...p, menu: [...p.menu, { id: crypto.randomUUID(), cat: "Add-ons", name: "", minutes: 15, priceCents: 0, on: true }] }))}>+ Add a service</button>
         <span className="cap">Orange minutes = please double-check. Change anything later in Settings · Services.</span>
       </div>
     </>];
@@ -362,13 +321,16 @@ function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
   const [n, setN] = useState<NewStaff>(blank);
   const [tried, setTried] = useState(false);
   const [copied, setCopied] = useState("");
-  const link = (code: string, name: string, role: string) =>
-    `${typeof window !== "undefined" ? window.location.origin : ""}/join/${code}?n=${encodeURIComponent(name)}&r=${encodeURIComponent(role)}&s=${encodeURIComponent(s.salonName || "Your salon")}&o=${encodeURIComponent((s.ownerName || "the owner").split(" ")[0])}`;
+  const link = (code: string, name: string, role: string) => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    if (SMS_ON) return `${origin}/join/${code}`; // invite details come from the database
+    return `${origin}/join/${code}?n=${encodeURIComponent(name)}&r=${encodeURIComponent(role)}&s=${encodeURIComponent(s.salonName || "Your salon")}&o=${encodeURIComponent((s.ownerName || "the owner").split(" ")[0])}`;
+  };
   const bad = !n.name.trim() || !phoneOk(n.phone);
   const invite = () => {
     setTried(true);
     if (bad) return;
-    const added = { name: n.name.trim(), phone: n.phone, role: n.role, pay: n.pay, status: "Invited" as const, inviteCode: newInviteCode() };
+    const added = { id: crypto.randomUUID(), name: n.name.trim(), phone: n.phone, role: n.role, pay: n.pay, status: "Invited" as const, inviteCode: newInviteCode() };
     set((p) => ({ ...p, staff: [...p.staff, added] }));
     setOpen(false); setN(blank); setTried(false);
     say(`Invite ready for ${added.name} · ${added.phone}`, () => set((p) => ({ ...p, staff: p.staff.filter((x) => x.inviteCode !== added.inviteCode) })));
@@ -553,7 +515,7 @@ const Ready: StepView = ({ s, go }) => {
       </div>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
         <button className="btn" type="button" onClick={() => go(2)}>Staff</button>
-        <Link className="btn primary" href="/">Open Today</Link>
+        <Link className="btn primary" href={SMS_ON ? "/today" : "/"} onClick={() => queueSave(s)}>Open Today</Link>
       </div>
     </div>
   )];

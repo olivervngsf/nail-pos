@@ -62,8 +62,8 @@ docs/                specs (this folder)
 | # | Milestone | Status |
 |---|---|---|
 | M0 | Foundation (repo, kit, shell, auth, RLS, offline, CI) | Done (Nov 16): kit.css is the one stylesheet (`npm run kit:sync`), React kit components + `/kit`, `people`/`devices`/`audit_log` + salon-wall test passing, offline queue (IndexedDB) + sync pill, EN/VI (next-intl), Sentry wired (off until DSN), CI (lint, types, unit, build, Playwright desktop+phone, RLS). Left for later: staging + live Supabase projects, Sentry DSN, DATABASE_URL secret for CI RLS run |
-| M1 | Salon setup (owner sign-up, info, services, staff + invites) | Partly: all 10 screens live at `/setup`, saved on device only. To do: save to Supabase, invites from DB + real texts, AI menu import |
-| M2 | PIN + clock-in, switch person | Partly: `/join/[code]` screens (language, PIN with weak/mismatch, photo, home). To do: PIN hashed on server, clock events, switch person, at-salon check |
+| M1 | Salon setup (owner sign-up, info, services, staff + invites) | Mostly (session 1, Nov 17): sign-in by text code, setup saves to Supabase via the offline queue (`save_setup`), invites read from the DB (`get_invite`). To do: invite texts (needs Twilio number), AI menu import, resume setup on a second device |
+| M2 | PIN + clock-in, switch person | Done (session 1): join → confirm phone → PIN hashed on server (weak refused) → home `/t`; salon device (`register_device`), switch person + clock by PIN on `/today` (5 wrong = 5 min lock, 2 min idle lock), clock from own phone. To do: "at the salon" check (Wi-Fi/location) |
 | M3 | Checkout: tickets, tip, cash, receipts | Not started |
 | M4 | Payments: Stripe Connect, S710 reader, pay link, webhooks | Not started |
 | M5 | Gift cards + discounts | Not started |
