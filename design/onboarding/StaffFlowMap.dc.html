@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Staff setup flow map</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.lane{display:flex;align-items:stretch;gap:0}
+.box{width:168px;flex:none;padding:12px 14px;border-radius:14px;background:#fff;box-shadow:var(--shadow);font-size:14px;line-height:19px;box-sizing:border-box}
+.box b{display:block;font-size:15px;margin-bottom:2px}
+.box.ok{box-shadow:0 0 0 2px #2F9E44,var(--shadow)}
+.arr{width:34px;flex:none;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:18px}
+.lbl2{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
+.wi{padding:12px 14px;border-radius:14px;background:#fff;border:1px solid var(--line);font-size:14px;line-height:19px}
+.wi b{display:block;margin-bottom:2px}
+.wi .to{color:var(--ink-soft);font-size:13px;margin-top:4px}
+</style>
+</helmet>
+<div style="width:1800px;height:844px;box-sizing:border-box;padding:36px 40px;background:var(--surface);display:flex;flex-direction:column;gap:26px">
+  <div style="display:flex;align-items:baseline;gap:16px">
+    <div class="h1">Staff setup — every step and every "what if"</div>
+    <div class="cap">Owner on the salon computer/iPad · staff on their own phone · same rules for Android and iPhone</div>
+  </div>
+
+  <div>
+    <div class="lbl2">Owner · Step 4 "Your team"</div>
+    <div class="lane">
+      <div class="box"><b>Tap "+ Add staff"</b>Form slides in on the right (fade).</div><div class="arr">→</div>
+      <div class="box"><b>Fill in</b>Name, cell, role, pay type + rate (stepper). Button stays grey until valid.</div><div class="arr">→</div>
+      <div class="box"><b>"Add + text invite"</b>Form closes. New row appears at bottom, green flash.</div><div class="arr">→</div>
+      <div class="box"><b>"Sending text…"</b>Orange pulsing dot on the row (~1 s).</div><div class="arr">→</div>
+      <div class="box"><b>"Text sent"</b>Dark toast: "Invite texted to Lan · Undo" — 6 s bar drains.</div><div class="arr">→</div>
+      <div class="box"><b>Tap the row</b>Detail: role, pay, 4-step invite timeline, Resend / Set up on this iPad / Remove.</div><div class="arr">→</div>
+      <div class="box ok"><b>"PIN set ✓"</b>Row tag turns green when staff finish. Owner never waits — Continue anytime.</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="lbl2">Staff · their phone (no app)</div>
+    <div class="lane">
+      <div class="box"><b>Text arrives</b>"Mai Nails added you to Nail POS. Tap to set your PIN."</div><div class="arr">→</div>
+      <div class="box"><b>Is this you?</b>Name, salon, role, pay. "Yes, that's me" / "Not me".</div><div class="arr">→</div>
+      <div class="box"><b>Pick language</b>English / Tiếng Việt. Everything after switches.</div><div class="arr">→</div>
+      <div class="box"><b>Make PIN</b>4 dots fill as they tap. Too easy (1111, 1234) → shake + "Pick another".</div><div class="arr">→</div>
+      <div class="box"><b>Type it again</b>No match → shake + "PINs don't match", back to Make PIN.</div><div class="arr">→</div>
+      <div class="box ok"><b>PIN saved ✓</b>Owner's list updates to "PIN set ✓".</div><div class="arr">→</div>
+      <div class="box ok"><b>Clock in</b>Big round button on the salon iPad → joins today's turn list.</div>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column">
+    <div class="lbl2">What if…</div>
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px">
+      <div class="wi"><b>Phone typo / not 10 digits</b>Red line under the field. Add stays grey.<div class="to">→ fix number</div></div>
+      <div class="wi"><b>Number already on the team</b>"This number already belongs to Kim." Add blocked.<div class="to">→ open Kim instead</div></div>
+      <div class="wi"><b>Owner added the wrong person</b>Tap Undo in the toast (6 s) — row and text are cancelled.<div class="to">→ later: Remove from salon</div></div>
+      <div class="wi"><b>Text never arrives</b>Detail → Resend text (old link stops working).<div class="to">→ or Set up on this iPad (QR)</div></div>
+      <div class="wi"><b>Staff has no texting / old phone</b>"Set up on this iPad": QR or set PIN right there with the owner.<div class="to">→ same PIN steps</div></div>
+      <div class="wi"><b>Not opened after 24 h</b>One automatic reminder text. Row shows "Text sent" until done.<div class="to">→ owner can Resend</div></div>
+      <div class="wi"><b>Tapped "Not me"</b>Link turns off. Owner sees "Wrong number" on the row.<div class="to">→ owner fixes number, resends</div></div>
+      <div class="wi"><b>Already uses Nail POS at another salon</b>Same account (one phone = one person). They set a PIN for this salon only.<div class="to">→ salons never see each other's data</div></div>
+      <div class="wi"><b>Booth renter</b>After PIN: "Connect your own Stripe" step. Rent is charged weekly.<div class="to">→ their card money goes to them</div></div>
+      <div class="wi"><b>Forgot PIN later</b>Owner/manager → staff detail → Reset PIN. Old PIN off at once, new text sent.<div class="to">→ same PIN steps</div></div>
+    </div>
+    <div class="cap" style="margin-top:12px">Removed staff lose access at once; their past tickets, tips and pay stay on record (nothing is deleted). Proposal to confirm: invite links expire after 7 days.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1800,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

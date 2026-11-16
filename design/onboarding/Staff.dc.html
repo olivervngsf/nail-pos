@@ -13,8 +13,29 @@
 <helmet>
 <style>
 body{margin:0}
-.paybtn{flex:1;height:64px;border-radius:12px;border:1px solid var(--line);background:#fff;font:inherit;text-align:left;padding:0 12px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;gap:2px;transition:border-color .2s,background .2s}
+.paybtn{flex:1;height:60px;border-radius:12px;border:1px solid var(--line);background:#fff;font:inherit;text-align:left;padding:0 12px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;gap:2px;transition:border-color .2s,background .2s}
 .paybtn.on{border:2px solid #1C1C1E;background:#F5F5F7}
+.segb{height:30px;padding:0 14px;border-radius:8px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;transition:background .2s,color .2s}
+.segb.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.rowbtn{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border:0;border-bottom:1px solid var(--line);background:#fff;font:inherit;font-size:16px;color:var(--ink);text-align:left;cursor:pointer;transition:background .25s}
+.rowbtn:last-child{border-bottom:0}
+.rowbtn:hover{background:#FAFAFB}
+.rowbtn.sel{background:var(--surface)}
+.rowbtn.new{animation:fadeUp .45s var(--ease) both, flash 1.6s ease .2s}
+@keyframes flash{0%{background:#EAF5EC}100%{background:#fff}}
+.err{font-size:13px;color:var(--red);margin-top:6px}
+.inp.bad{border-color:var(--red)}
+.addbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;border-radius:14px;border:1.5px dashed var(--muted);background:transparent;font:inherit;font-size:16px;font-weight:600;color:var(--ink);cursor:pointer;transition:background .2s}
+.addbtn:hover{background:#fff}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.tl{display:flex;gap:12px;align-items:flex-start;padding:8px 0}
+.tl .d{width:18px;height:18px;border-radius:50%;flex:none;margin-top:2px;box-sizing:border-box}
+.toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);min-width:420px;background:#1C1C1E;color:#fff;border-radius:14px;padding:12px 12px 12px 18px;display:flex;align-items:center;gap:12px;font-size:15px;box-shadow:0 12px 32px rgba(0,0,0,.25);overflow:hidden;animation:fadeUp .35s var(--ease) both}
+.toast button{height:36px;padding:0 14px;border-radius:10px;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.drain{position:absolute;left:0;bottom:0;height:3px;background:rgba(255,255,255,.5);animation:drain 6s linear both}
+@keyframes drain{from{width:100%}to{width:0}}
+.stepper{display:flex;align-items:center;gap:8px}
+.stepper button{width:40px;height:40px;border-radius:10px;border:0;background:var(--fill);font:inherit;font-size:20px;cursor:pointer}
 </style>
 </helmet>
 <div class="wiz">
@@ -24,45 +45,120 @@ body{margin:0}
     <sc-for list="{{steps}}" as="s" hint-placeholder-count="10">
       <div class="{{s.cls}}"><span class="n">{{s.n}}</span>{{s.label}}</div>
     </sc-for>
-    <div class="help">About 1 hour. Everything saves as you go — stop anytime and come back.</div>
+    <div class="help">Add everyone who clocks in or takes payments. Staff can finish their PIN later — you don't have to wait.</div>
   </aside>
-  <div class="main">
+  <div class="main" style="position:relative">
     <div class="body" style="flex-direction:row;gap:24px">
-      <section style="flex:1;display:flex;flex-direction:column;gap:16px;min-width:0">
+      <section style="flex:1;display:flex;flex-direction:column;gap:14px;min-width:0">
         <div class="eyebrow in">Step 4 of 10</div>
         <div class="h1 in">Your team</div>
-        <div class="cap in" style="font-size:15px;margin-top:-8px">Each person gets a text to set their own 4-digit PIN.</div>
+        <div class="cap in" style="font-size:15px;margin-top:-6px">Tap a person to see their invite. {{summary}}</div>
         <div class="group in2">
-          <div class="row"><div class="av">M</div><div class="grow"><div style="font-weight:600">Mai (you)</div><div class="cap">Owner</div></div><span class="tag">Owner</span></div>
-          <div class="row"><div class="av">H</div><div class="grow"><div style="font-weight:600">Hạnh</div><div class="cap num">Front desk · $16.50/hr</div></div><span class="tag jade">PIN set</span></div>
-          <div class="row"><div class="av">K</div><div class="grow"><div style="font-weight:600">Kim</div><div class="cap">Commission 60%</div></div><span class="tag jade">PIN set</span></div>
-          <div class="row"><div class="av">N</div><div class="grow"><div style="font-weight:600">Ngọc</div><div class="cap">Commission 60%</div></div><span class="tag">Text sent</span></div>
-          <div class="row"><div class="av">T</div><div class="grow"><div style="font-weight:600">Tuyết</div><div class="cap">Booth renter · $250/wk</div></div><span class="tag">Text sent</span></div>
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+            <button class="{{r.cls}}" type="button" onClick="{{r.open}}">
+              <div class="av">{{r.init}}</div>
+              <div class="grow"><div style="font-weight:600">{{r.name}}</div><div class="cap">{{r.sub}}</div></div>
+              <sc-if value="{{r.sending}}" hint-placeholder-val="{{false}}"><span class="tag" style="gap:6px"><span class="dot pulse" style="background:var(--orange)"></span>Sending text…</span></sc-if>
+              <sc-if value="{{r.notSending}}" hint-placeholder-val="{{true}}"><span class="{{r.tagCls}}">{{r.tag}}</span></sc-if>
+              <span class="cap" aria-hidden="true">›</span>
+            </button>
+          </sc-for>
         </div>
+        <sc-if value="{{vIntro}}" hint-placeholder-val="{{true}}">
+          <button class="addbtn fade" type="button" onClick="{{openAdd}}">+ Add staff</button>
+        </sc-if>
       </section>
-      <section class="card in3" style="width:400px;padding:22px;display:flex;flex-direction:column;gap:14px;align-self:flex-start">
-        <div class="h2">Add staff</div>
-        <div><label class="lbl" for="sn">Name</label><input class="inp" id="sn" value="Hạnh Lê"></div>
-        <div><label class="lbl" for="sc">Cell phone</label><input class="inp num" id="sc" value="(408) 555-0177"></div>
-        <div>
-          <div class="lbl">Role</div>
-          <div class="seg"><span>Front desk</span><span class="on">Nail staff</span><span>Manager</span></div>
-        </div>
-        <div>
-          <div class="lbl">How they're paid</div>
-          <div style="display:flex;gap:8px">
-            <sc-for list="{{pays}}" as="p" hint-placeholder-count="3">
-              <button class="{{p.cls}}" type="button" onClick="{{p.pick}}"><span style="font-weight:600;font-size:14px">{{p.label}}</span><span class="cap" style="font-size:12px">{{p.sub}}</span></button>
-            </sc-for>
+
+      <section style="width:400px;flex:none">
+        <sc-if value="{{vIntro}}" hint-placeholder-val="{{true}}">
+          <div class="card fade" style="padding:22px;display:flex;flex-direction:column;gap:12px">
+            <div class="h2">How staff join</div>
+            <div class="tl"><span class="d" style="background:#1C1C1E"></span><div><b>1. You add them</b><div class="cap">Name, cell phone, role, how they're paid.</div></div></div>
+            <div class="tl"><span class="d" style="background:#1C1C1E"></span><div><b>2. They get a text</b><div class="cap">A link from Mai Nails. No app to download.</div></div></div>
+            <div class="tl"><span class="d" style="background:#1C1C1E"></span><div><b>3. They make a 4-digit PIN</b><div class="cap">And pick English or Tiếng Việt.</div></div></div>
+            <div class="tl"><span class="d" style="background:#2F9E44"></span><div><b>4. Ready to clock in</b><div class="cap">You see "PIN set" here.</div></div></div>
           </div>
-        </div>
-        <div class="fade" style="padding:12px 14px;border-radius:12px;background:var(--surface);font-size:14px;line-height:20px">{{payNote}}</div>
-        <button class="btn primary" type="button" style="height:48px;font-size:16px">Add + text PIN invite</button>
+        </sc-if>
+
+        <sc-if value="{{vAdd}}" hint-placeholder-val="{{false}}">
+          <div class="card fade" style="padding:22px;display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;align-items:center"><div class="h2" style="flex:1">Add staff</div><button class="btn ghost" type="button" onClick="{{cancel}}" style="height:32px;padding:0 10px">Cancel</button></div>
+            <div><label class="lbl" for="sn">Name they go by</label><input class="inp" id="sn" value="{{f.name}}" onChange="{{setName}}" placeholder="e.g. Lan"></div>
+            <div>
+              <label class="lbl" for="sc">Cell phone (gets the invite text)</label>
+              <input class="{{phoneCls}}" id="sc" value="{{f.phone}}" onChange="{{setPhone}}" inputmode="tel" placeholder="(408) 555-0100">
+              <sc-if value="{{phoneErr}}" hint-placeholder-val="{{false}}"><div class="err fade">{{phoneErrText}}</div></sc-if>
+            </div>
+            <div>
+              <div class="lbl">Role</div>
+              <div class="seg"><sc-for list="{{roles}}" as="o" hint-placeholder-count="3"><button class="{{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div>
+            </div>
+            <div>
+              <div class="lbl">How they're paid</div>
+              <div style="display:flex;gap:8px">
+                <sc-for list="{{pays}}" as="p" hint-placeholder-count="3">
+                  <button class="{{p.cls}}" type="button" onClick="{{p.pick}}"><span style="font-weight:600;font-size:14px">{{p.label}}</span><span class="cap" style="font-size:12px">{{p.sub}}</span></button>
+                </sc-for>
+              </div>
+            </div>
+            <div class="fade" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:var(--surface)">
+              <div style="flex:1;font-size:14px;line-height:19px">{{payNote}}</div>
+              <div class="stepper"><button type="button" onClick="{{dec}}" aria-label="Less">−</button><span class="num" style="min-width:64px;text-align:center;font-weight:700">{{rateText}}</span><button type="button" onClick="{{inc}}" aria-label="More">+</button></div>
+            </div>
+            <button class="btn primary" type="button" onClick="{{add}}" disabled="{{cantAdd}}" style="height:48px;font-size:16px">Add + text invite</button>
+            <div class="cap" style="text-align:center">They get: "Mai Nails added you to Nail POS. Tap to set your PIN."</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{vDetail}}" hint-placeholder-val="{{false}}">
+          <div class="card fade" style="padding:22px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="av lg">{{d.init}}</div>
+              <div style="flex:1"><div class="h2">{{d.name}}</div><div class="cap num">{{d.phone}}</div></div>
+              <button class="btn ghost" type="button" onClick="{{closeDetail}}" style="height:32px;padding:0 10px">Close</button>
+            </div>
+            <div class="group" style="box-shadow:none;border:1px solid var(--line)">
+              <div class="row"><div class="grow">Role</div><span class="cap">{{d.role}}</span></div>
+              <div class="row"><div class="grow">Pay</div><span class="cap">{{d.pay}}</span></div>
+            </div>
+            <div class="eyebrow" style="margin-top:4px">Invite</div>
+            <div>
+              <sc-for list="{{d.timeline}}" as="t" hint-placeholder-count="4">
+                <div class="tl"><span class="d" style="{{t.dot}}"></span><div style="flex:1"><div style="{{t.textStyle}}">{{t.label}}</div></div><span class="cap num">{{t.time}}</span></div>
+              </sc-for>
+            </div>
+            <sc-if value="{{d.waiting}}" hint-placeholder-val="{{true}}">
+              <div style="display:flex;flex-direction:column;gap:8px" class="fade">
+                <div style="display:flex;gap:8px">
+                  <button class="btn" type="button" onClick="{{resend}}" style="flex:1">Resend text</button>
+                  <button class="btn" type="button" onClick="{{showQr}}" style="flex:1">Set up on this iPad</button>
+                </div>
+                <div class="cap">No text? They can scan a code on the salon iPad, or set the PIN here with you.</div>
+                <button class="btn ghost" type="button" onClick="{{simulate}}" style="border:1px dashed var(--muted)">Demo: they finish on their phone →</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{d.isDone}}" hint-placeholder-val="{{false}}">
+              <div class="fade" style="display:flex;gap:8px">
+                <button class="btn" type="button" onClick="{{resetPin}}" style="flex:1">Reset PIN</button>
+                <button class="btn" type="button" style="flex:1">Change pay</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{d.canRemove}}" hint-placeholder-val="{{true}}">
+              <button class="btn ghost" type="button" onClick="{{remove}}" style="color:var(--red)">Remove from salon</button>
+            </sc-if>
+          </div>
+        </sc-if>
       </section>
     </div>
+
+    <sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+      <div class="toast"><span style="flex:1">{{toast}}</span><sc-if value="{{toastUndo}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{undo}}">Undo</button></sc-if><span class="drain"></span></div>
+    </sc-if>
+
     <div class="foot">
       <a class="btn ghost" href="Services.dc.html">Back</a>
       <span class="sp"></span>
+      <span class="cap">{{footNote}}</span>
       <span class="pill ok"><span class="dot"></span>Saved</span>
       <a class="btn primary" href="Payments.dc.html" style="width:200px">Continue</a>
     </div>
@@ -71,20 +167,113 @@ body{margin:0}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
-  constructor(p){ super(p); this.state = { pay: 0 }; }
+  constructor(p){
+    super(p);
+    this.state = {
+      view: 'intro', sel: null, toast: null, toastUndo: false, lastAdded: null, newId: null,
+      f: { name: 'Lan', phone: '(408) 555-0188', role: 1, pay: 0, rate: 60 },
+      staff: [
+        { id: 1, name: 'Mai (you)', init: 'M', phone: '(408) 555-0110', role: 'Owner', pay: 'Owner', status: 'owner' },
+        { id: 2, name: 'Hạnh', init: 'H', phone: '(408) 555-0177', role: 'Front desk', pay: 'Hourly · $16.50/hr', status: 'pin', t: ['Nov 15, 9:40 AM', '9:40 AM', '9:52 AM', '9:53 AM'] },
+        { id: 3, name: 'Kim', init: 'K', phone: '(408) 555-0123', role: 'Nail staff', pay: 'Commission · 60%', status: 'pin', t: ['Nov 15, 9:41 AM', '9:41 AM', '10:05 AM', '10:06 AM'] },
+        { id: 4, name: 'Ngọc', init: 'N', phone: '(408) 555-0145', role: 'Nail staff', pay: 'Commission · 60%', status: 'sent', t: ['Nov 15, 9:42 AM', '9:42 AM', '', ''] }
+      ]
+    };
+    this.timers = [];
+  }
+  componentWillUnmount(){ this.timers.forEach(clearTimeout); }
+  later(fn, ms){ this.timers.push(setTimeout(fn, ms)); }
+  flash(text, undo){
+    this.setState({ toast: text, toastUndo: !!undo });
+    const stamp = text;
+    this.later(() => { if (this.state.toast === stamp) this.setState({ toast: null }); }, 6000);
+  }
+  patch(id, obj){ this.setState({ staff: this.state.staff.map((s) => s.id === id ? Object.assign({}, s, obj) : s) }); }
   renderVals() {
+    const S = this.state, f = S.f;
     const cur = 3;
     const names = ['Sign up','Salon info','Services','Staff + PIN','Payments','Card reader','Printer','Salon device','Clients','$1 test'];
-    const opts = [
-      { label: 'Commission', sub: '% of services', note: 'Staff keeps 60% of service price (change per person). Tips are 100% theirs. Shows on their payout sheet.' },
-      { label: 'Hourly', sub: '+ optional %', note: 'Hourly pay from clock-in. We flag minimum wage, overtime and missed breaks — you stay in control.' },
-      { label: 'Booth renter', sub: 'pays rent', note: 'Separate pay type. Their card payments go to their own Stripe account; you charge weekly rent.' }
+    const roleNames = ['Front desk', 'Nail staff', 'Manager'];
+    const payOpts = [
+      { label: 'Commission', sub: '% of services', note: 'Share of each service price. Tips are always 100% theirs.', unit: '%', step: 5, min: 30, max: 80 },
+      { label: 'Hourly', sub: '+ optional %', note: 'Paid from clock-in. We flag min wage, overtime and breaks.', unit: '$/hr', step: 0.5, min: 16.5, max: 40 },
+      { label: 'Booth renter', sub: 'pays rent', note: 'They connect their own Stripe after the PIN. You charge weekly rent.', unit: '$/wk', step: 25, min: 100, max: 600 }
     ];
+    const po = payOpts[f.pay];
+    const rateText = f.pay === 0 ? f.rate + '%' : f.pay === 1 ? '$' + Number(f.rate).toFixed(2) : '$' + f.rate;
+    const digits = (f.phone || '').replace(/\D/g, '');
+    const dup = S.staff.find((s) => s.phone.replace(/\D/g, '') === digits);
+    let phoneErrText = '';
+    if (digits.length > 0 && digits.length < 10) phoneErrText = 'Enter a 10-digit cell number.';
+    else if (dup) phoneErrText = 'This number already belongs to ' + dup.name.replace(' (you)', '') + '.';
+    const cantAdd = !f.name.trim() || digits.length !== 10 || !!dup;
+    const setF = (o) => this.setState({ f: Object.assign({}, f, o) });
+
+    const tagOf = { owner: ['Owner', 'tag'], pin: ['PIN set ✓', 'tag jade'], sent: ['Text sent', 'tag'], opened: ['Opened link', 'tag'], sending: ['', 'tag'] };
+    const rows = S.staff.map((s) => ({
+      init: s.init, name: s.name, sub: s.status === 'owner' ? 'Owner · PIN set' : s.role + ' · ' + s.pay.split(' · ')[1],
+      sending: s.status === 'sending', notSending: s.status !== 'sending',
+      tag: tagOf[s.status][0], tagCls: tagOf[s.status][1],
+      cls: 'rowbtn' + (S.sel === s.id && S.view === 'detail' ? ' sel' : '') + (S.newId === s.id ? ' new' : ''),
+      open: () => this.setState({ view: 'detail', sel: s.id })
+    }));
+
+    const sel = S.staff.find((s) => s.id === S.sel) || S.staff[1];
+    const steps4 = ['Added by Mai', 'Invite text sent', 'Opened the link', 'PIN set — can clock in'];
+    const reached = { owner: 4, pin: 4, opened: 3, sent: 2, sending: 1 }[sel.status];
+    const d = {
+      init: sel.init, name: sel.name, phone: sel.phone, role: sel.role, pay: sel.pay,
+      waiting: sel.status === 'sent' || sel.status === 'opened' || sel.status === 'sending',
+      isDone: sel.status === 'pin',
+      canRemove: sel.status !== 'owner',
+      timeline: steps4.map((label, i) => ({
+        label, time: (sel.t && sel.t[i]) || (i < reached ? 'just now' : ''),
+        dot: i < reached ? 'background:#1C1C1E' : (i === reached ? 'border:2px solid #E8590C' : 'border:2px solid #C7C7CC'),
+        textStyle: i < reached ? '' : 'color:#8E8E93'
+      }))
+    };
+
+    const pending = S.staff.filter((s) => s.status === 'sent' || s.status === 'opened' || s.status === 'sending').length;
     return {
       steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
       pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
-      pays: opts.map((o, i) => ({ label: o.label, sub: o.sub, cls: this.state.pay === i ? 'paybtn on' : 'paybtn', pick: () => this.setState({ pay: i }) })),
-      payNote: opts[this.state.pay].note
+      rows, d, f, rateText, payNote: po.note,
+      summary: S.staff.length + ' people.',
+      footNote: pending ? pending + ' invite' + (pending > 1 ? 's' : '') + ' waiting — they can finish later' : 'Everyone is set',
+      vIntro: S.view === 'intro', vAdd: S.view === 'add', vDetail: S.view === 'detail',
+      phoneErr: !!phoneErrText, phoneErrText, phoneCls: phoneErrText ? 'inp num bad' : 'inp num',
+      cantAdd,
+      roles: roleNames.map((r, i) => ({ label: r, cls: f.role === i ? 'segb on' : 'segb', pick: () => setF({ role: i }) })),
+      pays: payOpts.map((o, i) => ({ label: o.label, sub: o.sub, cls: f.pay === i ? 'paybtn on' : 'paybtn', pick: () => setF({ pay: i, rate: [60, 16.5, 250][i] }) })),
+      inc: () => setF({ rate: Math.min(po.max, +(f.rate + po.step).toFixed(2)) }),
+      dec: () => setF({ rate: Math.max(po.min, +(f.rate - po.step).toFixed(2)) }),
+      setName: (e) => setF({ name: e.target.value }),
+      setPhone: (e) => setF({ phone: e.target.value }),
+      openAdd: () => this.setState({ view: 'add' }),
+      cancel: () => this.setState({ view: 'intro' }),
+      closeDetail: () => this.setState({ view: 'intro', sel: null }),
+      add: () => {
+        if (cantAdd) return;
+        const id = Date.now();
+        const payLabel = po.label + ' · ' + rateText + (f.pay === 0 ? '' : '');
+        const person = { id, name: f.name.trim(), init: f.name.trim()[0].toUpperCase(), phone: f.phone, role: roleNames[f.role], pay: payLabel, status: 'sending', t: ['just now', '', '', ''] };
+        this.setState({ staff: S.staff.concat([person]), view: 'intro', newId: id, lastAdded: id, f: { name: '', phone: '', role: 1, pay: 0, rate: 60 } });
+        this.later(() => {
+          this.patch(id, { status: 'sent', t: ['just now', 'just now', '', ''] });
+          this.flash('Invite texted to ' + person.name + ' · ' + person.phone, true);
+        }, 1200);
+      },
+      undo: () => this.setState({ staff: this.state.staff.filter((s) => s.id !== this.state.lastAdded), toast: null, view: 'intro' }),
+      resend: () => this.flash('Sent again to ' + sel.name + '. The old link stops working.', false),
+      showQr: () => this.flash('QR shown on this iPad — ' + sel.name + ' scans it to set a PIN.', false),
+      simulate: () => {
+        const id = sel.id;
+        this.patch(id, { status: 'opened', t: [sel.t[0], sel.t[1] || 'just now', 'just now', ''] });
+        this.later(() => { this.patch(id, { status: 'pin', t: [sel.t[0], sel.t[1] || 'just now', 'just now', 'just now'] }); this.flash(sel.name + ' set a PIN and can clock in.', false); }, 1600);
+      },
+      resetPin: () => { this.patch(sel.id, { status: 'sent', t: [sel.t[0], 'just now', '', ''] }); this.flash('Old PIN turned off. New invite texted to ' + sel.name + '.', false); },
+      remove: () => { this.setState({ staff: S.staff.filter((s) => s.id !== sel.id), view: 'intro', sel: null }); this.flash(sel.name + ' removed. Their past tickets and pay stay on record.', false); },
+      hasToast: !!S.toast, toast: S.toast, toastUndo: S.toastUndo
     };
   }
 }
