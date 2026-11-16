@@ -6,13 +6,14 @@
 
 ## Three kinds of rivals leave one shared gap: money nobody can see
 
-**Nail-specific POS (Zota, Mango, Fastboy, NailSoft, plus new web brands)**
+**Nail-specific POS (Zota, Mango, Fastboy, NailSoft, ABC Salon System, plus new web brands)**
 - These are our direct rivals on turns and Vietnamese. Zota is said to be strong in high-volume Vietnamese salons, but a rival calls it "a register with a check-in screen, not a business platform" ([Zenoti](https://www.zenoti.com/thecheckin/nail-salon-software-comparison)).
 - They are payments-led. Zota's Android app is published by a payments company ([Google Play](https://play.google.com/store/apps/details?id=com.payfirstsolutions.pos&hl=en_US)), Fastboy is sold through merchant-services resellers ([On Fire](https://www.onfiremerchantservices.com/fastboy-go-check-in/)), and Zota quotes prices only through sales ([twizzlo](https://twizzlo.com/articles/nail-salon-pos/)).
 - Reported prices **[unverified]**:
   - Fastboy Go POS from $50/month, but payroll, timekeeping and the calendar are **not** in Basic ([Fastboy](https://en.fastboy.com/go-pos/); [Capterra](https://www.capterra.com/p/10040943/Go-Checkin-POS/))
   - Mango $49–299/month plus a $149–249 setup fee and a 3-month minimum ([Tilavon, a competitor](https://tilavon.com/compare/mango-pos))
   - NailSoft from $99.95/month ([Zenoti](https://www.zenoti.com/thecheckin/nail-salon-software-comparison))
+  - ABC Salon System (MAC Marketing, Vietnamese): $40/month software-only "Full Features", unlimited staff, texts 2¢ each; hardware bundles PRO-X3 $288, PRO-X4 $380, PROMAX-5 $475/month (PRO-X3 promo $160–170/month for year 1); 30-day free trial. Features: tickets, turn list, payroll, reviews, offline, ABC Go phone app for owner/staff pay. An App Store review reports missing services, lost tips and wrong earnings ([ABC pricing](https://abcsalonsystem.com/pricing); [App Store](https://apps.apple.com/us/app/abc-salon-system-go/id6449681664)). Its $40 basic plan backs our $49 flat price. Full note: `docs/abc-salon-system.md`.
 - New entrants already pitch Vietnamese, turns and low prices: TLNA from $59/month ([SourceForge](https://sourceforge.net/software/product/TLNA-POS/)), Tilavon, Galaxy Access, and Astra (claims 1.80% for nail salons, from its own page) ([Astra](https://astraposonline.com/best-pos-system-for-nail-salons.html)). **Vietnamese alone is not a moat.**
 
 **General salon/spa software (Fresha, Vagaro, Booksy, GlossGenius, Boulevard, Booker)**
@@ -184,7 +185,7 @@
 1. Sign 2–3 pilot salons, California first if possible.
 2. Interview each pilot owner and 2–3 techs: current POS, card rate, cash discount, contract end and exit fee, how techs are paid, card vs cash share, top pay fights.
 3. Build the fee calculator and a one-page Vietnamese comparison: us vs Square vs their current system.
-4. Confirm rival prices directly: Zota, Mango, Fastboy, NailSoft, TLNA quotes, plus Square and Fresha pages.
+4. Confirm rival prices directly: Zota, Mango, Fastboy, NailSoft, TLNA, ABC Salon System (demo call: what the $40 plan leaves out, card rate, contract, leased vs owned hardware), plus Square and Fresha pages.
 5. Hire a lawyer for: surcharge rules by state, CA AB 1513/1514, Terms/privacy/DPA, Stripe Connect role.
 6. Set up texting: decide Twilio vs Telnyx, check ISV 10DLC rules, write consent and STOP wording in English and Vietnamese.
 7. Draft the pilot offer and written promises (no contract, export any time), and set up a Zalo support group.
