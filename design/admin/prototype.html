@@ -396,7 +396,7 @@ function screen(){ if (S.dev==='phone') return phone();
   if (S.out) return signedOut();
   return `<div class="app" style="position:relative">${S.me?meMenu():''}${rail()}<div class="col" style="position:relative">${v}${S.toast?`<div class="toastbox"><div class="toast" style="position:static;transform:none"><span>${S.toast}</span></div></div>`:''}</div></div>`; }
 function fit(){ const f=$('#frame'),h=$('#holder'),w=S.dev==='phone'?390:1280,ht=S.dev==='phone'?844:800,sc=Math.min(1,(window.innerWidth-32)/w); f.style.width=w+'px'; f.style.height=ht+'px'; f.style.transform='scale('+sc+')'; h.style.width=w*sc+'px'; h.style.height=ht*sc+'px'; }
-const VI_EXACT = {
+const VI_EXACT = {'2 min':'2 phút','All 6':'Tất cả 6',
 'Salons':'Tiệm','Add salon':'Thêm tiệm','Signed in as':'Đang đăng nhập:','Elang · admin':'Elang · quản trị','Oliver · admin':'Oliver · quản trị','Live · all normal':'Đang chạy · mọi thứ bình thường',
 'Active salons':'Tiệm đang dùng','+1 invited':'+1 đã mời','Pilot · Paid':'Dùng thử · Trả phí','1 pilot ends in 6 days':'1 tiệm hết dùng thử sau 6 ngày','Our income · month':'Thu nhập của mình · tháng','2 × $49 · no card markup':'2 × $49 · không thu thêm phí thẻ',
 'Card volume · week':'Tiền thẻ · tuần','▲ 8% · goes to salons':'▲ 8% · tiền vào thẳng tiệm','At risk':'Có nguy cơ bỏ','Bella Nails · tickets ▼ 60%':'Bella Nails · hoá đơn ▼ 60%',
@@ -428,7 +428,7 @@ const VI_EXACT = {
 const VI_PART = [
 ['Reader back online · alert cleared','Máy thẻ đã kết nối lại · đã xoá cảnh báo'],['since yesterday','từ hôm qua'],[' · in salons\' activity logs',' · trong nhật ký các tiệm'],
 ['re-paired reader','đã kết nối lại máy thẻ'],['Reader online ✓','Máy thẻ đã kết nối ✓'],['(text)','(tin nhắn)'],[' · phone code',' · mã qua điện thoại'],
-[' · Pilot',' · Dùng thử'],[' · Paid',' · Trả phí'],[' · Invited',' · Đã mời'],['Hide ›','Ẩn ›'],['View ›','Xem ›'],['Manage ›','Quản lý ›'],[' min',' phút'],
+[' · Pilot',' · Dùng thử'],[' · Paid',' · Trả phí'],[' · Invited',' · Đã mời'],['Hide ›','Ẩn ›'],['View ›','Xem ›'],['Manage ›','Quản lý ›'],
 ['Sends a one-time invite link by text, email or both. The owner opens it, signs up and becomes the owner. Their data is walled off from day one.','Gửi link mời dùng một lần qua tin nhắn, email hoặc cả hai. Chủ tiệm mở link, đăng ký và trở thành chủ. Dữ liệu được tách riêng từ ngày đầu.'],
 ['They tap “Allow support for 24 hours” in their app.','Họ bấm “Cho phép hỗ trợ 24 giờ” trong ứng dụng.'],['Off. To see ','Đang tắt. Muốn xem màn hình của '],["' screens, ask ",', hãy hỏi '],
 ['Sent by text + in their app. Nothing opens until they say yes.','Đã gửi qua tin nhắn + trong ứng dụng. Không mở gì cho đến khi họ đồng ý.'],

@@ -118,6 +118,15 @@
    "title": "A9 · Tap your photo → my account",
    "is_interactive": true,
    "page": "spec"
+  },
+  "Ad10PhoneAccount.dc.html": {
+   "x": 14590,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "A10 · Phone: tap E → my account",
+   "is_interactive": true,
+   "page": "spec"
   }
  },
  "order": [
@@ -131,7 +140,8 @@
   "Ad6System.dc.html",
   "Ad7Phone.dc.html",
   "Ad8Activity.dc.html",
-  "Ad9Account.dc.html"
+  "Ad9Account.dc.html",
+  "Ad10PhoneAccount.dc.html"
  ],
  "notes": {
   "t1": {
