@@ -182,3 +182,25 @@ The grey "TAPS" sticky under each board lists what every button does, including 
 5. Onboarding 1 → 10, then S1–S2.
 6. Check each screen side by side with the live board in Play: spacing, sizes, text, every state and animation in sections 4–6.
 7. Turn on "reduce motion" on the device and check everything still reads.
+
+## Calendar gestures + motion (desktop + phone) — Nov 16
+
+Pattern source: Apple Calendar (iOS/macOS), Notion Calendar. Board: Booking, page 5 (G1–G7) + desk page D2–D13.
+
+| Gesture | Desktop | Phone | Result | Motion |
+|---|---|---|---|---|
+| Look | Hover a booking | — | Peek card | Fade 0.18 s |
+| View | Click | Tap | Desktop: peek → Details side panel. Phone: bottom sheet | Panel slides in 0.3 s; sheet up 0.3 s, ease (0.2,0.8,0.2,1) |
+| Pick up | Mouse down + move | Hold 0.4 s | Block turns ink, lifts; others fade to 45%; handles show | Scale 1.02 + shadow, 0.18 s; light haptic (phone) |
+| Move | Drag body | Drag after hold | Snaps 15 min; time label follows; dashed outline where it was | Follows pointer 1:1; snap tick haptic |
+| Resize | Drag bottom edge (cursor ns-resize) | Drag top-left / bottom-right handle (44 px touch area) | Live start/end + length; min 15 min | 15-min guide lines fade in |
+| Change day | Drag onto another day column (Week view) | Hold at screen edge 0.6 s | Jumps one day | Day slides 0.25 s |
+| Auto-scroll | Near top/bottom 48 px | Same | Scrolls while dragging | Speed grows near edge |
+| Drop | Mouse up | Let go | Saves; toast 6 s: Undo + "Text client the new time?" | Spring settle 0.25 s |
+| Cancel | Esc, or drop on the outline | Drop on the outline | Nothing changes | Back to place 0.2 s |
+| Clash | Drop on another booking | Same | Both side by side + Alert; nothing else moves | — |
+| Create | Click empty (45 min) or drag empty | Hold empty spot, or + button | New ink block with handles → card / sheet (phone number first) | Pop 0.2 s |
+| Navigate | ‹ › / ← →, T = today, N = new, / = search | Swipe left/right = day; pull down = today; pinch = hour height 40–96 px | — | — |
+| Keyboard | Arrow ↑↓ moves selected 15 min; Shift+↑↓ resizes; ⌘Z undo | — | — | — |
+
+Rules: every change is saved offline first and synced; every move can be undone; clients are texted only after the front desk says yes; reduced motion = fades only (no scale, no spring).

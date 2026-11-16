@@ -558,6 +558,78 @@
       "title": "D13 · Repeat booking",
       "is_interactive": true,
       "page": "desk"
+    },
+    "CalPhone.dc.html": {
+      "x": 2930,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Calendar on phone (gestures)",
+      "is_interactive": true,
+      "page": "overview"
+    },
+    "Mg1Idle.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G1 · Day on the phone",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg2View.dc.html": {
+      "x": 830,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G2 · Tap → view",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg3Lift.dc.html": {
+      "x": 1660,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G3 · Hold → pick up",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg4Resize.dc.html": {
+      "x": 2490,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G4 · Drag a handle → change length",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg5Move.dc.html": {
+      "x": 3320,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G5 · Drag the block → move",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg6Drop.dc.html": {
+      "x": 4150,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G6 · Let go → saved + Undo",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg7New.dc.html": {
+      "x": 4980,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G7 · Hold an empty spot → new booking",
+      "is_interactive": true,
+      "page": "mobile"
     }
   },
   "createdOnFiles": {
@@ -597,7 +669,8 @@
     "c3",
     "d2",
     "st1",
-    "st2"
+    "st2",
+    "mg"
   ],
   "notes": {
     "c1": {
@@ -714,6 +787,14 @@
       "w": 240,
       "x": 0,
       "y": 3400
+    },
+    "mg": {
+      "x": 0,
+      "y": -300,
+      "text": "Calendar on phone: tap, hold, drag, resize (G1–G7)",
+      "kind": "title1",
+      "maxW": 5730,
+      "page": "mobile"
     }
   },
   "order": [
@@ -778,7 +859,15 @@
     "Pg3Google.dc.html",
     "Cd11Phone.dc.html",
     "Cd12Details.dc.html",
-    "Cd13Repeat.dc.html"
+    "Cd13Repeat.dc.html",
+    "CalPhone.dc.html",
+    "Mg1Idle.dc.html",
+    "Mg2View.dc.html",
+    "Mg3Lift.dc.html",
+    "Mg4Resize.dc.html",
+    "Mg5Move.dc.html",
+    "Mg6Drop.dc.html",
+    "Mg7New.dc.html"
   ],
   "pages": [
     {
@@ -796,6 +885,10 @@
     {
       "id": "staff",
       "name": "4 · Staff books on own phone — step by step"
+    },
+    {
+      "id": "mobile",
+      "name": "5 · Calendar on phone — gestures + motion"
     }
   ],
   "title": "Nail POS — Booking Flow"

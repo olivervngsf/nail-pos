@@ -262,6 +262,15 @@
       "w": 390,
       "x": 2720,
       "y": 4800
+    },
+    "CalPhone.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Calendar on phone (gestures)",
+      "w": 390,
+      "x": 3190,
+      "y": 4800
     }
   },
   "createdOnFiles": {
@@ -340,7 +349,7 @@
     "s1": {
       "fill": "orange",
       "page": "overview",
-      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Calendar + Checkout = same screens as their own boards, here so the left menu clicks through\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nLAST SYNCED: Nov 16, 2026 - Checkout v31, Booking v16, Numbers, Client History, Tech App v2 (real salon menu prices)\nRule: any change on a flow board is copied here the same day.\n\nSame look as Checkout / Booking: compact, calm, English first.",
+      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Calendar + Checkout = same screens as their own boards, here so the left menu clicks through\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nLAST SYNCED: Nov 16, 2026 - Booking v19 (phone call, details panel, repeat, phone gestures), kit v3\nRule: any change on a flow board is copied here the same day.\n\nSame look as Checkout / Booking: compact, calm, English first.",
       "w": 420,
       "x": -520,
       "y": 0
@@ -420,7 +429,8 @@
     "StaffBook.dc.html",
     "Numbers.dc.html",
     "ClientHistory.dc.html",
-    "TechApp.dc.html"
+    "TechApp.dc.html",
+    "CalPhone.dc.html"
   ],
   "pages": [
     {
