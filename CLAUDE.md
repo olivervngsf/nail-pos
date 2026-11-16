@@ -50,9 +50,10 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Devices: desktop (front desk, owner) + phones iOS/Android (techs, clients). Design both. Every feature must work on both iOS and Android (web app now; later phone app from one shared codebase for both).
 - Printing: desktop to USB/Wi-Fi receipt printer; Android web can use Bluetooth; iPhone web can't (needs Bluefy) — don't depend on it.
 - Texting: Twilio or Telnyx; one local number per salon; A2P 10DLC registration; consent + STOP; email backup. Spec in PRD "Texting and phone numbers".
-- Payments: Stripe QR code / pay link now, optional Stripe card reader; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
+- Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi readers (WisePOS E ~$249); $59 M2 needs our phone app (OPEN: Oliver to pick). QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
+- V1 card reader: WisePOS E (works with web app now) vs M2 (needs phone app first)
 - Pilot salons (2–3)
 - How pilot salons pay techs today
 - Final monthly price (testing ~$39–49 in pilot)
