@@ -63,7 +63,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - V1 card reader: Stripe S710 (~$299, works with web app now; WisePOS E discontinued) vs M2 (~$59, needs phone app first)
 - Pilot salons (2–3)
 - How pilot salons pay techs today
-- Final monthly price (testing ~$39–49 in pilot)
+- Final monthly price (testing ~$39–49 in pilot). New input Nov 16: pricing deck proposes $199/mo flat for 25+ staff salons ($149 with $100K+/mo card volume), 5,000 texts, 0.20–0.30% card markup — conflicts with 1–20 tech target + no-markup decision. Options: 2 plans (small ~$49–79 / large $199). Decide with Elang.
 
 ## Decision log
 - 2026-11-14: PRD drafted; V1 = checkout, payout sheet, language toggle.
