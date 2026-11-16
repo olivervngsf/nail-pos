@@ -27,7 +27,7 @@
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":750,"height":844}}'>
 class Component extends DCLogic {
   renderVals() {
-    const P = [[200, 128, "Text from the salon's own number with a short link. No app to download."], [195, 196, "Tap the link → opens in their phone's browser (iPhone or Android)."]];
+    const P = [[200, 128, "Text from the salon's own number with a short link. No app to download."], [195, 196, "Tap the link → opens in their phone's browser (iPhone or Android)."], [195, 260, "Personal, one-time link: only for this person's phone number. Used once → it stops working. Forwarded to someone else → they must enter a code texted to the invited number, so it can't be used by anyone else. (Proposal: expires after 7 days; owner can Resend.)"]];
     return { yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }
