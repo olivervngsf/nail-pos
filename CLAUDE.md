@@ -53,6 +53,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); $59 M2 needs our phone app (OPEN: Oliver to pick). QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
+- Stripe Connect type: Standard vs Express (lean Express); confirm with Stripe before building
 - V1 card reader: Stripe S710 (~$299, works with web app now; WisePOS E discontinued) vs M2 (~$59, needs phone app first)
 - Pilot salons (2–3)
 - How pilot salons pay techs today
@@ -69,6 +70,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Desktop + mobile design; printing from desktop; iOS web Bluetooth printing not relied on.
 - 2026-11-14: Oliver's built calendar page = base front desk design; 10 gaps listed on the Screens board.
 - 2026-11-15: Insight, not autopilot for turns (Gap conflict #3 settled).
+- 2026-11-16: Each salon has its own Stripe account linked to our platform (Connect); money goes straight to salon; card fees pass-through; we earn only the flat monthly subscription. Stripe events (payments, fees, refunds, disputes, payouts) saved next to tickets by ticket # → insights (who earns how much, staff KPIs, daily money truth). Spec: System Design doc.
 - 2026-11-16: Product supports both Android and iOS equally (web app + later one phone app for both, incl. Tap to Pay).
 - 2026-11-16: System design: one person = one account (phone); membership links person to salon + role + PIN; salon devices use name + PIN; every row has salon_id + row-level security; money in cents; nothing deleted; Stripe Connect, salon's own account, webhook confirms paid; daily money report = zero surprises.
 - 2026-11-16: Owner dashboard (top 5 KPIs, facts only) joins V1.
