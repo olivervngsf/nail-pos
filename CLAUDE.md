@@ -73,6 +73,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Market research: https://claude.ai/artifact/UUbqTu5wKNkBxShMVfTqYU (unverified, needs web access) · board https://claude.ai/artifact/Rzu7quesSz9RxryAFvAJrh
 - Affinity map (draft, 5 clusters): docs/affinity-map.md
 - Tools reference list (options, not selected yet): docs/tools-reference.md
+- Client data ideas (bring clients back, show care; after V1): Hub "Ideas" + board https://claude.ai/artifact/FGuDonq7GNmEeAgTWfbjKh
 - Close an issue when its checklist is done; note big calls in the decision log
 
 ## How we work
