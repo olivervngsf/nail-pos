@@ -4,7 +4,7 @@ Read this first every session. Keep it short; link out for detail.
 
 ## What we're building
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
-- Angle: fair, clear pay for techs + Tap to Pay on iPhone (no card terminal).
+- Angle: fair, clear pay for techs + Tap to Pay on iPhone and Android (no card terminal).
 - Team: Oliver = product/design/build. Elang = sales, client care.
 
 ## Source docs (live, in claude.ai)
@@ -47,7 +47,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Data: Supabase
 - Web hosting: Vercel
 - Build: web app first (owner computer + shared salon iPad/phone), deployed on Vercel
-- Devices: desktop (front desk, owner) + phones iOS/Android (techs, clients). Design both.
+- Devices: desktop (front desk, owner) + phones iOS/Android (techs, clients). Design both. Every feature must work on both iOS and Android (web app now; later phone app from one shared codebase for both).
 - Printing: desktop to USB/Wi-Fi receipt printer; Android web can use Bluetooth; iPhone web can't (needs Bluefy) — don't depend on it.
 - Texting: Twilio or Telnyx; one local number per salon; A2P 10DLC registration; consent + STOP; email backup. Spec in PRD "Texting and phone numbers".
 - Payments: Stripe QR code / pay link now, optional Stripe card reader; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
@@ -68,6 +68,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Desktop + mobile design; printing from desktop; iOS web Bluetooth printing not relied on.
 - 2026-11-14: Oliver's built calendar page = base front desk design; 10 gaps listed on the Screens board.
 - 2026-11-15: Insight, not autopilot for turns (Gap conflict #3 settled).
+- 2026-11-16: Product supports both Android and iOS equally (web app + later one phone app for both, incl. Tap to Pay).
 - 2026-11-16: System design: one person = one account (phone); membership links person to salon + role + PIN; salon devices use name + PIN; every row has salon_id + row-level security; money in cents; nothing deleted; Stripe Connect, salon's own account, webhook confirms paid; daily money report = zero surprises.
 - 2026-11-16: Owner dashboard (top 5 KPIs, facts only) joins V1.
 - 2026-11-16: Payroll = V1 insights + export; real payroll later via embedded partner (e.g. Check, Gusto Embedded); never build tax filing ourselves.
