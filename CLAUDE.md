@@ -17,6 +17,7 @@ Read this first every session. Keep it short; link out for detail.
 - Login: `NEXT_PUBLIC_SMS_LOGIN=on` = real text codes (Supabase phone auth, Twilio Verify configured in the Supabase dashboard); unset = any 6 digits.
 - Test version stubs (marked with dashed `.demo` notes in UI): SMS code when SMS_LOGIN is off, menu reading (AI), Stripe Connect, reader pairing, $1 test, CSV import, invite texts. Replace each with the real thing in its build step.
 - Design source for onboarding: prototype https://claude.ai/artifact/BYMHXFQTM4Bs9oug6i8ThB · Build plan https://claude.ai/artifact/5XZtVDjQktSiyhes4V69wZ
+- Full V1 technical plan (roles, screens, ~30 tables, back end, loyalty + gift card rules, 7-step build order, open decisions): https://claude.ai/artifact/CYXvzLj1wTvLvxqKt76HsQ — read before building any step.
 
 ## What we're building
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
