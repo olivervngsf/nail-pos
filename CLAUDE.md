@@ -41,6 +41,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Scale: 50 salons x 20 staff; data walled per salon; works offline.
 - Insight, not autopilot: turn board/calendar show facts (turns, $ today, free-at, skills, requests); owner/manager/front desk decides who's next; optional one-tap reason.
 - Every ticket shows tip + any card fee; nothing taken silently.
+- Tips: salon never keeps any part; card fee on tips can't be deducted in CA/MN (setting locked by state); owners/managers never in tip pools; monthly cash-tip report per tech. Booth renters = separate pay type, paid into their own Stripe account. License expiry alerts. PRD "Booth rental, tip rules and tech licenses", issue #23.
 - Target: Vietnamese walk-in salons, 1–20 techs (appointment salons later).
 - Edge cases table lives in the PRD.
 
@@ -56,6 +57,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); $59 M2 needs our phone app (OPEN: Oliver to pick). QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
+- California nail booth rental: manicurist AB5 exemption appears ended Jan 1 2025 — verify; ask pilot salons if they have renters
 - Stripe Connect type: Standard vs Express (lean Express); confirm with Stripe before building
 - V1 card reader: Stripe S710 (~$299, works with web app now; WisePOS E discontinued) vs M2 (~$59, needs phone app first)
 - Pilot salons (2–3)
