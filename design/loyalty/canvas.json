@@ -38,8 +38,17 @@
    "is_interactive": true,
    "page": "overview"
   },
-  "LoyaltyPhone.dc.html": {
+  "LoyaltyPack.dc.html": {
    "x": 2720,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "Checkout · package + perk",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "LoyaltyPhone.dc.html": {
+   "x": 4080,
    "y": 0,
    "w": 390,
    "h": 844,
@@ -47,48 +56,93 @@
    "is_interactive": true,
    "page": "overview"
   },
-  "Ly0Off.dc.html": {
+  "Ly0Home.dc.html": {
    "x": 0,
    "y": 0,
    "w": 1640,
    "h": 800,
-   "title": "L1 · Loyalty off: one-tap start",
+   "title": "L1 · Loyalty home: 4 programs",
    "is_interactive": true,
    "page": "spec"
   },
-  "Ly1Setup.dc.html": {
+  "Ly1Points.dc.html": {
    "x": 1720,
    "y": 0,
    "w": 1640,
    "h": 800,
-   "title": "L2 · Set the rules",
+   "title": "L2 · Points or punch card",
    "is_interactive": true,
    "page": "spec"
   },
-  "Ly2Ready.dc.html": {
+  "Ly2Packs.dc.html": {
    "x": 3440,
    "y": 0,
    "w": 1640,
    "h": 800,
-   "title": "L3 · Checkout: reward ready",
+   "title": "L3 · Packages (pay upfront)",
    "is_interactive": true,
    "page": "spec"
   },
-  "Ly3Used.dc.html": {
+  "Ly3Perks.dc.html": {
    "x": 5160,
    "y": 0,
    "w": 1640,
    "h": 800,
-   "title": "L4 · Reward used",
+   "title": "L4 · Automatic perks",
    "is_interactive": true,
    "page": "spec"
   },
-  "Ly4Phone.dc.html": {
+  "Ly4Refer.dc.html": {
    "x": 6880,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L5 · Referral rewards",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly5Msg.dc.html": {
+   "x": 8600,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L6 · Where clients see it (cost)",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly6Ready.dc.html": {
+   "x": 10320,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L7 · Checkout: reward ready",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly7Used.dc.html": {
+   "x": 12040,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L8 · Reward used",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly8Pack.dc.html": {
+   "x": 13760,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L9 · Package + perk at checkout",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly9Phone.dc.html": {
+   "x": 15480,
    "y": 0,
    "w": 750,
    "h": 844,
-   "title": "L5 · Client sees points (from the text link)",
+   "title": "L10 · Client sees points + referral link",
    "is_interactive": true,
    "page": "spec"
   }
@@ -96,12 +150,18 @@
  "order": [
   "Loyalty.dc.html",
   "LoyaltyPay.dc.html",
+  "LoyaltyPack.dc.html",
   "LoyaltyPhone.dc.html",
-  "Ly0Off.dc.html",
-  "Ly1Setup.dc.html",
-  "Ly2Ready.dc.html",
-  "Ly3Used.dc.html",
-  "Ly4Phone.dc.html"
+  "Ly0Home.dc.html",
+  "Ly1Points.dc.html",
+  "Ly2Packs.dc.html",
+  "Ly3Perks.dc.html",
+  "Ly4Refer.dc.html",
+  "Ly5Msg.dc.html",
+  "Ly6Ready.dc.html",
+  "Ly7Used.dc.html",
+  "Ly8Pack.dc.html",
+  "Ly9Phone.dc.html"
  ],
  "notes": {
   "t1": {
@@ -109,7 +169,7 @@
    "y": -300,
    "text": "Loyalty",
    "kind": "title1",
-   "maxW": 3110,
+   "maxW": 4470,
    "page": "overview"
   },
   "s1": {
@@ -118,14 +178,14 @@
    "w": 420,
    "fill": "orange",
    "page": "overview",
-   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nPROPOSAL for V1.1 (not in V1 scope). Confirm with Elang.\nPoints by phone number, no app or card. Reward never auto-applied. Staff paid on full price; tips untouched.\nSample prices from a real salon menu (Cosmo Nails)."
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nRole: owner (admin). OPEN: V1 or V1.1? Proposal: V1 = points + gift cards (zero extra cost); packages, perks, referrals in V1.1. Decide with Elang.\nNo app or card: phone number = loyalty card. Rewards asked, perks shown + removable. Staff paid on full price; tips untouched.\nSample prices from a real salon menu (Cosmo Nails)."
   },
   "t2": {
    "x": 0,
    "y": -300,
    "text": "Step by step (with notes)",
    "kind": "title1",
-   "maxW": 7630,
+   "maxW": 16230,
    "page": "spec"
   }
  },

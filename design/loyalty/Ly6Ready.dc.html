@@ -13,13 +13,13 @@
 <div class="af">
   <div class="af-screen">
     <dc-import name="LoyaltyPay" applied="{{no}}" hint-size="1280px,800px"></dc-import>
-    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="3"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
   </div>
   <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
-    <div class="eyebrow">Annotations · L3 · Front desk</div>
+    <div class="eyebrow">Annotations · L7 · Front desk</div>
     <div class="af-title">Checkout: reward ready</div>
-    <sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
-    <div class="af-next">Use $10 → L4</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="3"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Use $10 → L8</div>
   </div></sc-if></aside>
 </div>
 </x-dc>
@@ -27,7 +27,7 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [[888, 252, "Client panel shows points + a green tag when a reward is ready."], [1170, 252, "Use $10: asks first. Never applied automatically."], [112, 102, "Ticket lines as normal."], [112, 754, "Charge shows the total."]];
+    const P = [[888, 252, "Client panel shows points + a green tag when a reward is ready."], [1170, 252, "Use $10: asks first. Never applied automatically."], [112, 754, "Charge shows the total."]];
     return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), zero: 0, three: 3, yes: true, no: false, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }

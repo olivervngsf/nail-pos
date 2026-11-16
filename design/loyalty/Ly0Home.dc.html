@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Set the rules</title>
+<title>Loyalty home: 4 programs</title>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="pos.css">
 <link rel="stylesheet" href="annot.css">
@@ -12,14 +12,14 @@
 <helmet><style>body{margin:0}</style></helmet>
 <div class="af">
   <div class="af-screen">
-    <dc-import name="Loyalty" on="{{yes}}" hint-size="1280px,800px"></dc-import>
+    <dc-import name="Loyalty" tab="home" hint-size="1280px,800px"></dc-import>
     <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="7"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
   </div>
   <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
-    <div class="eyebrow">Annotations · L2 · Owner</div>
-    <div class="af-title">Set the rules</div>
+    <div class="eyebrow">Annotations · L1 · Owner (admin)</div>
+    <div class="af-title">Loyalty home: 4 programs</div>
     <sc-for list="{{pins}}" as="p" hint-placeholder-count="7"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
-    <div class="af-next">Client pays → L3</div>
+    <div class="af-next">Tap a program → L2–L6</div>
   </div></sc-if></aside>
 </div>
 </x-dc>
@@ -27,7 +27,7 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [[1235, 28, "On / off any time. Off keeps everyone's points."], [112, 150, "Points (1 per $1, before tip) or Visits (punch card). One choice."], [112, 300, "Reward size with − / + in $5 steps."], [112, 393, "Extras: birthday $5, never expire, refer a friend."], [112, 560, "Who pays: salon's share. Staff paid on full price; tips untouched (fair pay rule)."], [728, 130, "Live preview of the text + receipt line clients get."], [728, 400, "Results after 30 days: members, rewards used, came-back rate members vs others."]];
+    const P = [[1130, 28, "Owner only (and managers the owner allows). Our platform admin can switch Loyalty on per salon/plan; the owner sets the rules."], [112, 94, "Tabs: Overview · Points / punch card · Packages · Perks · Referrals · Messages."], [112, 150, "Points or punch card, tied to the phone number."], [668, 150, "Packages: bundles paid upfront, balance tracked at checkout."], [112, 316, "Perks: birthday, rebook before leaving, VIP tiers. Added to the ticket by itself, removable."], [668, 316, "Referrals: link + code; both get $10."], [112, 490, "Results: members, package money paid upfront, came-back rate members vs others."]];
     return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), zero: 0, three: 3, yes: true, no: false, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }
