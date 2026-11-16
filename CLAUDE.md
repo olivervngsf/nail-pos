@@ -49,7 +49,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Devices: desktop (front desk, owner) + phones iOS/Android (techs, clients). Design both.
 - Printing: desktop to USB/Wi-Fi receipt printer; Android web can use Bluetooth; iPhone web can't (needs Bluefy) — don't depend on it.
 - Texting: Twilio or Telnyx; one local number per salon; A2P 10DLC registration; consent + STOP; email backup. Spec in PRD "Texting and phone numbers".
-- Payments: Stripe QR code / pay link now, optional Stripe card reader; Tap to Pay later in a native iPhone app (issue #11)
+- Payments: Stripe QR code / pay link now, optional Stripe card reader; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
 - Pilot salons (2–3)
