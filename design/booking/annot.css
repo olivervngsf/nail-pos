@@ -20,3 +20,7 @@
 .pin.static::after{display:none}
 .af-toggle{align-self:flex-start;height:30px;padding:0 12px;border-radius:999px;border:1px solid #E5E5EA;background:#fff;font:600 12px -apple-system,BlinkMacSystemFont,sans-serif;color:#1C1C1E;cursor:pointer}
 .af-body{display:flex;flex-direction:column;gap:12px;flex:1;min-height:0}
+/* Wide frame for the 1440x900 calendar: screen 1440 + notes 360 = 1800x900 */
+.afw{width:1800px;height:900px;display:flex;background:#F5F5F7}
+.afw-screen{position:relative;width:1440px;height:900px;flex:none;overflow:hidden}
+.afw .af-notes{height:900px}
