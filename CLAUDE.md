@@ -27,7 +27,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 4. PIN login + clock-in; print own earnings by PIN. Clock-in: front desk name + PIN or own phone at salon only (location/Wi-Fi); clock-in joins turn list; auto clock-out; manager-approved fixes; offline (PRD "Clock-in: where and when", issue #3)
 5. Client profile by phone number (visits, last service/tech, notes, gift card)
 6. Turn list for walk-ins (moved into V1)
-7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12). Each salon gets its own booking page on our domain (book.[domain]/salon-city; QR, Google, social; booking source tracked); later deals, deposits, AI booking helper (PRD "Salon booking page", issue #32)
+7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12). Each salon gets its own booking page on our domain (book.[domain]/salon-city; QR, Google, social; booking source tracked); later deals, deposits, AI booking helper (PRD "Salon booking page", issue #32, screens on Screens 2 bottom)
 8. Owner dashboard: top 5 KPIs (sales vs last week, avg ticket, return rate + lost regulars, sales per tech per hour, walk-in wait + walk-outs); full list in PRD "Owner KPIs" (issue #16)
 - Salon setup (demo → first payment in ~1 week; 1-hour setup day, 10 steps incl. Connect payments): PRD "Salon setup", board https://claude.ai/artifact/1wByQp7c3nViD27dsqJqgD, issue #20
 - Basics: salon setup, staff + pay rates, service menu from a nail template, owner login
