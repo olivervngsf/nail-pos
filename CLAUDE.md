@@ -5,7 +5,7 @@ Read this first every session. Keep it short; link out for detail.
 ## What we're building
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
 - Angle: fair, clear pay for techs + Tap to Pay on iPhone and Android (no card terminal).
-- Team: Oliver = product/design/build. Elang = sales, client care.
+- Team (working agreement, not final yet; aligned with Elang Nov 16): Elang = product direction + features ("designs the building: how many floors, what's on each floor") + sales, client care. Oliver = solid foundation, build and design (how it works and looks).
 
 ## Source docs (live, in claude.ai)
 - Hub (decisions, ideas, research, next steps): https://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU
@@ -57,6 +57,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); $59 M2 needs our phone app (OPEN: Oliver to pick). QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
+- Final team roles (current working agreement in "What we're building")
 - California nail booth rental: manicurist AB5 exemption appears ended Jan 1 2025 — verify; ask pilot salons if they have renters
 - Stripe Connect type: Standard vs Express (lean Express); confirm with Stripe before building
 - V1 card reader: Stripe S710 (~$299, works with web app now; WisePOS E discontinued) vs M2 (~$59, needs phone app first)
