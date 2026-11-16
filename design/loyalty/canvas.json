@@ -11,6 +11,10 @@
  },
  "pages": [
   {
+   "id": "doc",
+   "name": "0 · How it works (doc)"
+  },
+  {
    "id": "overview",
    "name": "1 · Overview — clickable screens"
   },
@@ -275,6 +279,41 @@
    "title": "G10 · Lost card: lock + replace",
    "is_interactive": true,
    "page": "gift"
+  },
+  "GiftList.dc.html": {
+   "x": 4550,
+   "y": 2300,
+   "w": 1280,
+   "h": 800,
+   "title": "Owner · all gift card codes",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Gc11List.dc.html": {
+   "x": 16310,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G11 · All codes: sold or not, used or not",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc12Make.dc.html": {
+   "x": 18030,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G12 · Make codes for plastic cards",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "HowItWorks.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 2600,
+   "title": "Gift cards + loyalty: how it works (doc)",
+   "page": "doc"
   }
  },
  "order": [
@@ -305,7 +344,11 @@
   "Gc07UseFound.dc.html",
   "Gc08UseSplit.dc.html",
   "Gc09Refused.dc.html",
-  "Gc10Lost.dc.html"
+  "Gc10Lost.dc.html",
+  "GiftList.dc.html",
+  "Gc11List.dc.html",
+  "Gc12Make.dc.html",
+  "HowItWorks.dc.html"
  ],
  "notes": {
   "t1": {
@@ -345,7 +388,7 @@
    "y": -300,
    "text": "Gift cards: setup, sell, use, refuse, lost (G1–G10)",
    "kind": "title1",
-   "maxW": 16230,
+   "maxW": 19670,
    "page": "gift"
   },
   "sg": {
@@ -355,6 +398,14 @@
    "fill": "orange",
    "page": "overview",
    "text": "How it works (roles, codes, money): https://claude.ai/artifact/GKRwnoiAkv5pTHk8rQFUby\n\nA card is worth $0 until it is sold and paid at this salon. Codes: digital = made at the sale (16 chars, random, check letter); plastic = printed, scanned into stock first. Every use: staff PIN + ledger."
+  },
+  "dl": {
+   "x": 1360,
+   "y": 0,
+   "w": 420,
+   "fill": "orange",
+   "page": "doc",
+   "text": "Live doc (edit + comments): https://claude.ai/artifact/GKRwnoiAkv5pTHk8rQFUby\n\nThis page is a copy for quick review. If they differ, the live doc wins."
   }
  },
  "designSystems": [

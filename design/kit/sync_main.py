@@ -12,7 +12,7 @@ COPY = [('checkout', 'Main', 'Checkout', 'Checkout', ''), ('checkout', 'Pay', 'P
         ('checkout', 'Done', 'Done', 'Checkout', ''), ('checkout', 'Profile', 'Profile', None, ''),
         ('checkout', 'PhoneQR', 'PhoneQR', None, ''), ('checkout', 'PhoneClientPay', 'PhoneClientPay', None, ''),
         ('checkout', 'PhoneClientReceipt', 'PhoneClientReceipt', None, ''),
-        ('booking', 'StaffBook', 'StaffBook', None, ''), ('booking', 'CalPhone', 'CalPhone', None, ''),
+        ('booking', 'StaffBook', 'StaffBook', None, ''), ('booking', 'CalPhone', 'CalPhone', None, ''), ('booking', 'CalWeek', 'CalWeek', None, ''), ('booking', 'CalMonth', 'CalMonth', None, ''),
         ('b_numbers', 'Main', 'Numbers', 'Today', ''), ('b_history', 'Client', 'ClientHistory', 'Clients', ''), ('b_tech', 'Tech', 'TechApp', None, ''),
         ('booking', 'Cal', 'Cal', 'Calendar', 'position:absolute;left:0;top:0;bottom:0;box-sizing:border-box')]
 M = f'{R}/main/project/'

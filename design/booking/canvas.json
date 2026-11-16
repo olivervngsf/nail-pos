@@ -630,6 +630,60 @@
       "title": "G7 · Hold an empty spot → new booking",
       "is_interactive": true,
       "page": "mobile"
+    },
+    "CalWeek.dc.html": {
+      "x": 3400,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "Calendar · Week",
+      "is_interactive": true,
+      "page": "overview"
+    },
+    "CalMonth.dc.html": {
+      "x": 4920,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "Calendar · Month",
+      "is_interactive": true,
+      "page": "overview"
+    },
+    "Cw1Week.dc.html": {
+      "x": 11280,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "W1 · Week view",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cw2Drag.dc.html": {
+      "x": 13160,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "W2 · Drag to another day",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cm1Month.dc.html": {
+      "x": 15040,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "M1 · Month view",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cm2More.dc.html": {
+      "x": 16920,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "M2 · Tap “+N more” → the whole day",
+      "is_interactive": true,
+      "page": "desk"
     }
   },
   "createdOnFiles": {
@@ -867,7 +921,13 @@
     "Mg4Resize.dc.html",
     "Mg5Move.dc.html",
     "Mg6Drop.dc.html",
-    "Mg7New.dc.html"
+    "Mg7New.dc.html",
+    "CalWeek.dc.html",
+    "CalMonth.dc.html",
+    "Cw1Week.dc.html",
+    "Cw2Drag.dc.html",
+    "Cm1Month.dc.html",
+    "Cm2More.dc.html"
   ],
   "pages": [
     {

@@ -135,7 +135,7 @@ body{margin:0}
     <button class="mbtn" type="button" aria-label="Previous day" style="background:transparent">‹</button>
     <button class="mbtn" type="button">Today</button>
     <button class="mbtn" type="button" aria-label="Next day" style="background:transparent">›</button>
-    <div class="seg"><span class="on">Day</span><span>Week</span><span>Month</span></div>
+    <div class="seg"><span class="on">Day</span><a href="CalWeek.dc.html" style="text-decoration:none"><span>Week</span></a><a href="CalMonth.dc.html" style="text-decoration:none"><span>Month</span></a></div>
     <span style="flex:1"></span>
     <div style="width:280px;height:36px;border-radius:10px;background:#EFEFF2;display:flex;align-items:center;gap:8px;padding:0 10px;font-size:13px;color:#5C5C5E;box-sizing:border-box">Search client, phone, staff<span style="flex:1"></span><span class="kbd">/</span></div>
     <button class="mbtn" type="button" onClick="{{openAlerts}}" aria-label="Alerts" style="{{alertBtnStyle}}"><span style="display:inline-flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 003.4 0"/></svg>Alerts<span class="acount">{{alertCount}}</span></span></button>

@@ -271,6 +271,24 @@
       "w": 390,
       "x": 3190,
       "y": 4800
+    },
+    "CalWeek.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Calendar · Week",
+      "w": 1440,
+      "x": 2880,
+      "y": 2200
+    },
+    "CalMonth.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Calendar · Month",
+      "w": 1440,
+      "x": 4400,
+      "y": 2200
     }
   },
   "createdOnFiles": {
@@ -349,7 +367,7 @@
     "s1": {
       "fill": "orange",
       "page": "overview",
-      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Calendar + Checkout = same screens as their own boards, here so the left menu clicks through\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nLAST SYNCED: Nov 16, 2026 - Booking v19 (phone call, details panel, repeat, phone gestures), kit v3\nRule: any change on a flow board is copied here the same day.\n\nSame look as Checkout / Booking: compact, calm, English first.",
+      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Calendar + Checkout = same screens as their own boards, here so the left menu clicks through\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nLAST SYNCED: Nov 16, 2026 - Booking v20 (Week + Month views), kit v3\nRule: any change on a flow board is copied here the same day.\n\nSame look as Checkout / Booking: compact, calm, English first.",
       "w": 420,
       "x": -520,
       "y": 0
@@ -430,7 +448,9 @@
     "Numbers.dc.html",
     "ClientHistory.dc.html",
     "TechApp.dc.html",
-    "CalPhone.dc.html"
+    "CalPhone.dc.html",
+    "CalWeek.dc.html",
+    "CalMonth.dc.html"
   ],
   "pages": [
     {
