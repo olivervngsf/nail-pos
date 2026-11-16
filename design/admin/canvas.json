@@ -79,7 +79,7 @@
    "y": 0,
    "w": 1640,
    "h": 800,
-   "title": "A5 · Add a salon → invite link",
+   "title": "A5 · Add a salon → invite by text + email, resend",
    "is_interactive": true,
    "page": "spec"
   },
@@ -100,6 +100,15 @@
    "title": "A7 · Alerts on Elang’s phone",
    "is_interactive": true,
    "page": "spec"
+  },
+  "Ad8Activity.dc.html": {
+   "x": 11150,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "A8 · Activity log per salon",
+   "is_interactive": true,
+   "page": "spec"
   }
  },
  "order": [
@@ -111,7 +120,8 @@
   "Ad4Support.dc.html",
   "Ad5NewSalon.dc.html",
   "Ad6System.dc.html",
-  "Ad7Phone.dc.html"
+  "Ad7Phone.dc.html",
+  "Ad8Activity.dc.html"
  ],
  "notes": {
   "t1": {

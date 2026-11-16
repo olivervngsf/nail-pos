@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Add a salon → invite link</title>
+<title>Add a salon → invite by text + email</title>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="pos.css">
 <link rel="stylesheet" href="annot.css">
@@ -13,13 +13,13 @@
 <div class="af">
   <div class="af-screen">
     <dc-import name="Admin" view="new" invite="{{yes}}" role="elang" hint-size="1280px,800px"></dc-import>
-    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="5"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
   </div>
   <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
     <div class="eyebrow">Annotations · A5</div>
-    <div class="af-title">Add a salon → invite link</div>
-    <sc-for list="{{pins}}" as="p" hint-placeholder-count="5"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
-    <div class="af-next">Owner signs up → salon shows on Salons with 0/10 setup.</div>
+    <div class="af-title">Add a salon → invite by text + email</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Owner signs up → salon shows on Salons with 0/10 setup; the invite turns “Signed up ✓”.</div>
   </div></sc-if></aside>
 </div>
 </x-dc>
@@ -27,7 +27,7 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [[137, 232, "Salon name, state, owner name + cell. The cell number is the owner’s login."], [137, 384, "Plan: Pilot (free 30 days) or Paid ($49/mo)."], [137, 470, "Make invite link → one-time link + QR, ends in 14 days. Text it to the owner."], [657, 91, "What happens when the owner opens it: salon made with its own data wall, defaults, 10-step setup."], [657, 326, "Invites list: not opened / signed up, so Elang can follow up."]];
+    const P = [[137, 243, "Salon, state, owner name, cell and email."], [137, 399, "Owner email: backup channel, and the login code if they have no cell."], [137, 472, "Plan: Pilot (free 30 days) or Paid ($49/mo)."], [137, 543, "Send by text, email or both (default both). At least one must stay on."], [137, 667, "Sent: link + QR, a ✓ line per channel. Resend text / Resend email, Copy link."], [657, 135, "Owner opens it from the text or the email, signs in with a phone code (email code if no cell)."], [657, 327, "Invites list: Not opened / Expired / Signed up ✓."], [1029, 401, "Resend = a new link; the old one stops working right away."], [1175, 449, "Links end after 14 days → Expired. Resend brings it back to Not opened."]];
     return { yes: true, show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }

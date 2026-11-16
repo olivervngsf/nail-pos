@@ -25,4 +25,4 @@ Each route matches a board artboard. Build the clean screen; the annotated frame
 | checkout loyalty panel | front desk | LoyaltyPay, LoyaltyPack | L7–L9 | M12 |
 | `/c/[salon]` (client page) | client phone | LoyaltyPhone, ClientCards, GiftPhone | L10, G6, G13–G16 | M12 |
 | `/t` (tech app) | tech phone | Tech App · Tech; Booking · StaffBook | T1–T4, S1–S7 | M13 |
-| `/admin` | us (Oliver admin, Elang support) | Founder Admin · Admin, AdminPhone | A1–A7 | M14 |
+| `/admin` | us (Oliver admin, Elang support) | Founder Admin · Admin, AdminPhone | A1–A8 | M14 |

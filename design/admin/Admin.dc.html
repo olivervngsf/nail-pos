@@ -35,6 +35,9 @@ body{margin:0}
 .logl:last-child{border-bottom:0}
 .logl .t{width:64px;color:var(--ink-soft);flex:none;font-variant-numeric:tabular-nums}
 .badge{min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;margin-left:2px}
+.invr{display:flex;flex-direction:column;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.invr:last-child{border-bottom:0}
+.toastb{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:20}
 .inv{display:flex;gap:16px;align-items:center;padding:14px;border-radius:14px;background:var(--surface)}
 .qr{width:92px;height:92px;flex:none;border-radius:10px;background:#fff;display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:8px;box-sizing:border-box}
 .qr i{background:var(--ink);border-radius:1px}.qr i.o{background:transparent}
@@ -49,7 +52,7 @@ body{margin:0}
     <div style="flex:1"></div>
     <a href="#" aria-label="Signed in"><span class="av" style="width:32px;height:32px">{{meInit}}</span></a>
   </nav>
-  <div class="col">
+  <div class="col" style="position:relative">
     <header class="bar">
       <div class="title">{{title}}</div>
       <span class="cap">Demo · signed in as</span>
@@ -114,10 +117,12 @@ body{margin:0}
           <div class="hrow"><span class="k">Texting</span><span class="v">(713) 555-0199 · 10DLC approved · 412 texts this month</span><span class="tag jade">OK</span></div>
           <div class="hrow"><span class="k">App errors (24 h)</span><span class="v">2 · “Reader not found” at checkout</span><span class="tag warn">2</span></div>
         </div>
-        <div class="group">
-          <div class="hrow" style="font-weight:600">Call notes (Elang)</div>
-          <div class="hrow"><span class="k">Nov 16 · 12:20 PM</span><span class="v">Called Tom: reader unplugged after cleaning. Plugged in, waiting to come back.</span></div>
-          <div class="hrow"><span class="k">Nov 2 · 9:05 AM</span><span class="v">Week-4 review: happy, asks for Vietnamese receipts.</span></div>
+        <div class="group" style="flex:1;min-height:0;display:flex;flex-direction:column">
+          <div class="hrow" style="font-weight:600;gap:8px"><span style="flex:1">Activity log · everything that happened</span>
+            <div class="seg"><sc-for list="{{actF}}" as="f" hint-placeholder-count="6"><span class="{{f.cls}}" onClick="{{f.pick}}" style="cursor:pointer;padding:0 9px">{{f.label}}</span></sc-for></div></div>
+          <div style="flex:1;overflow:auto">
+            <sc-for list="{{acts}}" as="e" hint-placeholder-count="6"><div class="hrow" style="min-height:38px;font-size:14px"><span class="k" style="width:130px;font-size:13px">{{e.t}}</span><span class="{{e.cls}}" style="width:62px;justify-content:center;flex:none">{{e.k}}</span><span class="v">{{e.x}}</span><span class="cap">{{e.who}}</span></div></sc-for>
+          </div>
         </div>
       </div>
       <div style="width:360px;flex:none;display:flex;flex-direction:column;gap:12px">
@@ -149,37 +154,44 @@ body{margin:0}
 
     <sc-if value="{{vNew}}" hint-placeholder-val="{{false}}">
     <main style="flex:1;display:flex;gap:24px;padding:24px 32px;min-height:0">
-      <div class="card pad" style="width:520px;flex:none;gap:14px;padding:22px 24px;align-self:flex-start">
+      <div class="card pad" style="width:520px;flex:none;gap:12px;padding:20px 24px;align-self:flex-start">
         <div class="h2">Add a salon</div>
-        <div class="cap" style="font-size:14px;margin-top:-6px">Makes a one-time invite link. The owner signs up by phone and becomes the owner. Their data is walled off from day one.</div>
+        <div class="cap" style="font-size:14px;margin-top:-6px">Sends a one-time invite link by text, email or both. The owner opens it, signs up and becomes the owner. Their data is walled off from day one.</div>
         <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
           <div><label class="lbl" for="a1">Salon name</label><input class="inp" id="a1" value="Queen Nails" style="height:44px;font-size:16px"></div>
           <div><label class="lbl" for="a2">State</label><input class="inp" id="a2" value="TX" style="height:44px;font-size:16px"></div>
           <div><label class="lbl" for="a3">Owner name</label><input class="inp" id="a3" value="Hoa Pham" style="height:44px;font-size:16px"></div>
           <div><label class="lbl" for="a4">Owner cell</label><input class="inp" id="a4" value="(512) 555-0161" style="height:44px;font-size:16px"></div>
+          <div style="grid-column:span 2"><label class="lbl" for="a5">Owner email</label><input class="inp" id="a5" value="hoa.queennails@gmail.com" style="height:44px;font-size:16px"></div>
         </div>
         <div><span class="lbl">Plan</span><div class="seg"><sc-for list="{{plans}}" as="p" hint-placeholder-count="2"><span class="{{p.cls}}" onClick="{{p.pick}}" style="cursor:pointer">{{p.label}}</span></sc-for></div></div>
-        <sc-if value="{{noInvite}}" hint-placeholder-val="{{true}}"><button class="btn primary" type="button" onClick="{{makeInvite}}" style="height:48px;font-size:16px">Make invite link</button></sc-if>
+        <div><span class="lbl">Send the invite by</span><div style="display:flex;gap:8px"><sc-for list="{{vias}}" as="c" hint-placeholder-count="2"><button class="{{c.cls}}" type="button" onClick="{{c.flip}}" aria-pressed="{{c.on}}">{{c.label}}</button></sc-for></div><div class="cap" style="margin-top:6px">Both is best: text gets read fast, email is the backup.</div></div>
+        <sc-if value="{{noInvite}}" hint-placeholder-val="{{true}}"><button class="btn primary" type="button" onClick="{{makeInvite}}" style="height:48px;font-size:16px">Send invite</button></sc-if>
         <sc-if value="{{hasInvite}}" hint-placeholder-val="{{false}}">
           <div class="inv fade"><div class="qr"><sc-for list="{{qr}}" as="q" hint-placeholder-count="49"><i class="{{q}}"></i></sc-for></div>
-            <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><b>nailpos.app/s/Q7M2K</b><span class="cap">Works once · ends in 14 days</span>
-              <div style="display:flex;gap:6px"><button class="abtn dark" type="button">Text it to Hoa</button><button class="abtn" type="button">Copy link</button></div></div></div>
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><b>nailpos.app/s/{{code}}</b>
+              <sc-for list="{{sentLines}}" as="l" hint-placeholder-count="2"><span style="font-size:13px">✓ {{l}}</span></sc-for><span class="cap">Works once · ends in 14 days</span>
+              <div style="display:flex;gap:6px"><sc-if value="{{viaText}}" hint-placeholder-val="{{true}}"><button class="abtn" type="button" onClick="{{resendNewText}}">Resend text</button></sc-if><sc-if value="{{viaEmail}}" hint-placeholder-val="{{true}}"><button class="abtn" type="button" onClick="{{resendNewEmail}}">Resend email</button></sc-if><button class="abtn" type="button">Copy link</button></div></div></div>
         </sc-if>
       </div>
       <div style="flex:1;display:flex;flex-direction:column;gap:12px">
-        <b style="font-size:16px">What happens when Hoa opens it</b>
+        <b style="font-size:16px">What happens when the owner opens it</b>
         <div class="group">
-          <div class="hrow"><span class="k">1 · Sign up</span><span class="v">Phone code, no password</span></div>
-          <div class="hrow"><span class="k">2 · Salon made</span><span class="v">Own salon_id (own wall) · Hoa = owner</span></div>
+          <div class="hrow"><span class="k">1 · Sign up</span><span class="v">Opens the link from text or email · phone code (email code if no cell) · no password</span></div>
+          <div class="hrow"><span class="k">2 · Salon made</span><span class="v">Own salon_id (own data wall) · they become owner</span></div>
           <div class="hrow"><span class="k">3 · Defaults</span><span class="v">Time zone, receipt, EN/VI, nail service template</span></div>
           <div class="hrow"><span class="k">4 · Setup checklist</span><span class="v">10 steps start · progress shows on Salons</span></div>
         </div>
         <div class="group">
-          <div class="hrow" style="font-weight:600">Invites</div>
-          <sc-for list="{{invites}}" as="i" hint-placeholder-count="2"><div class="hrow"><span class="v"><b>{{i.n}}</b> <span class="cap">{{i.o}}</span></span><span class="{{i.cls}}">{{i.s}}</span></div></sc-for>
+          <div class="hrow" style="font-weight:600">Invites<span class="cap" style="font-weight:400;margin-left:auto">Resend = new link, old one stops working</span></div>
+          <sc-for list="{{invites}}" as="i" hint-placeholder-count="3"><div class="invr">
+            <div style="display:flex;align-items:center;gap:8px"><span style="flex:1;min-width:0"><b>{{i.n}}</b> <span class="cap">{{i.o}}</span></span><span class="{{i.cls}}">{{i.s}}</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><span class="cap" style="flex:1">{{i.sent}}</span><sc-if value="{{i.canText}}" hint-placeholder-val="{{true}}"><button class="abtn" type="button" onClick="{{i.rText}}">Resend text</button></sc-if><sc-if value="{{i.canEmail}}" hint-placeholder-val="{{true}}"><button class="abtn" type="button" onClick="{{i.rEmail}}">Resend email</button></sc-if></div>
+          </div></sc-for>
         </div>
       </div>
     </main>
+    <sc-if value="{{hasNote}}" hint-placeholder-val="{{false}}"><div class="toastb"><div class="toast" style="position:static;transform:none"><span>{{noteText}}</span></div></div></sc-if>
     </sc-if>
 
     <sc-if value="{{vSystem}}" hint-placeholder-val="{{false}}">
@@ -206,10 +218,10 @@ body{margin:0}
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["salons","salon","new","system"],"default":"salons"},"role":{"editor":"enum","options":["elang","oliver"],"default":"elang"},"access":{"editor":"enum","options":["none","wait","on"],"default":"none"},"invite":{"editor":"boolean","default":false},"filter":{"editor":"enum","options":["all","action","pilot"],"default":"all"},"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["salons","salon","new","system"],"default":"salons"},"role":{"editor":"enum","options":["elang","oliver"],"default":"elang"},"access":{"editor":"enum","options":["none","wait","on"],"default":"none"},"invite":{"editor":"boolean","default":false},"note":{"editor":null},"actF":{"editor":"enum","options":["all","setup","money","device","support","note"],"default":"all"},"filter":{"editor":"enum","options":["all","action","pilot"],"default":"all"},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
   constructor(p){ super(p); p = p || {};
-    this.state = { view: p.view || 'salons', role: p.role || 'elang', access: p.access || 'none', invite: !!p.invite, plan: 'pilot', filter: p.filter || 'all', handled: {} };
+    this.state = { view: p.view || 'salons', role: p.role || 'elang', access: p.access || 'none', invite: !!p.invite, actF: p.actF || 'all', plan: 'pilot', via: { text: true, email: true }, sentAgain: {}, expiredFixed: false, note: p.note || '', filter: p.filter || 'all', handled: {} };
   }
   renderVals() {
     const S = this.state, admin = S.role === 'oliver';
@@ -262,8 +274,37 @@ class Component extends DCLogic {
       lockText: S.access === 'on' ? 'Support mode: you can see screens Tom can see. Every tap is logged.' : 'Hidden: client names + phones, each tech’s pay, notes. Only totals show.',
       log: [['12:34 PM', 'Tom allowed support for 24 h'], ['12:35 PM', 'Elang opened Checkout · Settings'], ['12:37 PM', 'Elang re-paired reader “Front desk”'], ['12:38 PM', 'Reader online ✓']].map((l) => ({ t: l[0], x: l[1] })),
       plans: [['pilot', 'Pilot · free 30 days'], ['paid', 'Paid · $49/mo']].map((p) => ({ label: p[1], cls: S.plan === p[0] ? 'on' : '', pick: () => this.setState({ plan: p[0] }) })),
-      noInvite: !S.invite, hasInvite: S.invite, makeInvite: () => this.setState({ invite: true }), qr: qrBits,
-      invites: [['Queen Nails', '· Hoa Pham · sent Nov 16', 'Not opened', 'tag grey'], ['Lily Nail Spa', '· Vy Ngo · Nov 10', 'Signed up ✓', 'tag jade']].map((i) => ({ n: i[0], o: i[1], s: i[2], cls: i[3] })),
+      noInvite: !S.invite, hasInvite: S.invite, makeInvite: () => this.setState({ invite: true, note: 'Invite sent by ' + ['text', 'email'].filter((c) => S.via[c]).join(' + ') + ' to Hoa' }), qr: qrBits,
+      vias: [['text', 'Text message'], ['email', 'Email']].map((c) => ({ on: !!S.via[c[0]], cls: S.via[c[0]] ? 'chip on' : 'chip', label: (S.via[c[0]] ? '✓ ' : '') + c[1],
+        flip: () => { const n = Object.assign({}, S.via); n[c[0]] = !n[c[0]]; if (n.text || n.email) this.setState({ via: n }); } })),
+      code: S.sentAgain.new ? 'R4T8N' : 'Q7M2K',
+      sentLines: [S.via.text ? 'Texted to (512) 555-0161' : null, S.via.email ? 'Emailed to hoa.queennails@gmail.com' : null].filter(Boolean),
+      viaText: S.via.text, viaEmail: S.via.email,
+      resendNewText: () => this.setState({ sentAgain: Object.assign({}, S.sentAgain, { new: true }), note: 'New link texted. The old link stops working.' }),
+      resendNewEmail: () => this.setState({ sentAgain: Object.assign({}, S.sentAgain, { new: true }), note: 'New link emailed. The old link stops working.' }),
+      hasNote: !!S.note, noteText: S.note,
+      actF: [['all', 'All'], ['setup', 'Setup'], ['money', 'Money'], ['device', 'Devices'], ['support', 'Support'], ['note', 'Notes']].map((f) => ({ label: f[1], cls: S.actF === f[0] ? 'on' : '', pick: () => this.setState({ actF: f[0] }) })),
+      acts: [].concat(S.access === 'on' ? [['Today · 12:38 PM', 'device', 'Reader “Front desk” back online', 'system'], ['Today · 12:37 PM', 'support', 'Elang re-paired reader “Front desk”', 'Elang'], ['Today · 12:34 PM', 'support', 'Tom allowed support for 24 h', 'Tom']] : S.access === 'wait' ? [['Today · 12:31 PM', 'support', 'Asked Tom for 24-hour support access', 'Elang']] : [], [
+        ['Today · 12:20 PM', 'note', 'Called Tom: reader unplugged after cleaning', 'Elang'],
+        ['Today · 10:12 AM', 'device', 'Card reader “Front desk” went offline', 'system'],
+        ['Today · 9:02 AM', 'setup', 'Salon opened · 5 staff clocked in', 'system'],
+        ['Nov 15 · 7:40 PM', 'money', 'Day closed · $2,410 · cash matched', 'Tom'],
+        ['Nov 12', 'money', 'Stripe payout $8,112 to bank ••4410', 'Stripe'],
+        ['Nov 2 · 9:05 AM', 'note', 'Week-4 review: happy, wants Vietnamese receipts', 'Elang'],
+        ['Oct 2 · 3:15 PM', 'setup', 'Setup done 10/10 · $1 test paid + refunded', 'Tom'],
+        ['Oct 2 · 2:05 PM', 'money', 'Stripe connected + verified', 'Tom'],
+        ['Oct 2 · 1:20 PM', 'setup', 'Tom signed up from the invite (text)', 'Tom'],
+        ['Sep 30', 'setup', 'Invite sent by text + email', 'Elang']
+      ]).filter((e) => S.actF === 'all' || e[1] === S.actF).map((e) => ({ t: e[0], k: { setup: 'Setup', money: 'Money', device: 'Device', support: 'Support', note: 'Note' }[e[1]], cls: 'tag ' + ({ device: e[2].indexOf('offline') >= 0 ? 'bad' : 'grey', support: 'jade', note: 'warn' }[e[1]] || 'grey'), x: e[2], who: e[3] })),
+      invites: [
+        ['q', 'Queen Nails', '· Hoa Pham · Austin, TX', 'Sent Nov 16 · 9:10 AM by text + email', 'Not opened', 'tag grey', true, true],
+        ['p', 'Pho Ever Nails', '· Minh Tran · Plano, TX', 'Sent Oct 29 by email · link ended', 'Expired', 'tag warn', false, true],
+        ['l', 'Lily Nail Spa', '· Vy Ngo · San Jose, CA', 'Sent Nov 10 by text', 'Signed up ✓', 'tag jade', false, false]
+      ].map((i) => { const again = S.sentAgain[i[0]];
+        return { n: i[1], o: i[2], sent: again ? 'Sent again just now by ' + again : i[3], s: again && i[4] === 'Expired' ? 'Not opened' : i[4], cls: again && i[4] === 'Expired' ? 'tag grey' : i[5],
+          canText: i[6], canEmail: i[7],
+          rText: () => this.setState({ sentAgain: Object.assign({}, S.sentAgain, { [i[0]]: 'text' }), note: 'New link texted to ' + i[1] + '. The old link stops working.' }),
+          rEmail: () => this.setState({ sentAgain: Object.assign({}, S.sentAgain, { [i[0]]: 'email' }), note: 'New link emailed to ' + i[1] + '. The old link stops working.' }) }; }),
       checks: [['Backups', 'daily + point-in-time · restore test Nov 1', 'OK', 'tag jade'], ['Data walls test', 'every change · 2 fake salons', 'Pass', 'tag jade'], ['Sentry alerts', '7 errors · 0 new types', 'OK', 'tag jade'], ['Uptime checks', 'app + Stripe webhook', 'OK', 'tag jade'], ['2-step login', 'Oliver ✓ · Elang ✓', 'OK', 'tag jade'], ['Texting 10DLC', '1 salon pending (Lily)', 'Wait', 'tag warn']].map((c) => ({ n: c[0], d: c[1], s: c[2], cls: c[3] })),
       costs: [['Supabase', '$25'], ['Vercel', '$20'], ['Twilio (texts + numbers)', '$31'], ['Sentry', '$0'], ['Domain + email', '$8'], ['Stripe', '$0 (salons pay their fees)']].map((c) => ({ n: c[0], v: c[1] }))
     };

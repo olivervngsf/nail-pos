@@ -27,7 +27,7 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [[105, 95, "‹ Salons goes back to the list."], [105, 176, "Totals only: tickets and $. No client names, no tech pay."], [105, 305, "Health rows: Stripe account, card reader, printer, salon devices, texting, app errors. Red / orange = act now."], [105, 540, "Call notes: what Elang and the owner said. Visible to us only."], [914, 125, "Support access is OFF by default."], [918, 198, "Ask Tom for 24-hour access → he gets a text + a prompt in his app (A3)."], [912, 272, "Hidden by default: client names + phones, each tech’s pay, notes."], [918, 378, "Quick actions: call, text in Vietnamese, resend Stripe link, add a call note."]];
+    const P = [[105, 95, "‹ Salons goes back to the list."], [105, 176, "Totals only: tickets and $. No client names, no tech pay."], [105, 305, "Health rows: Stripe account, card reader, printer, salon devices, texting, app errors. Red / orange = act now."], [105, 540, "Activity log: every event for this salon, newest first (A8). Totals only."], [914, 125, "Support access is OFF by default."], [918, 198, "Ask Tom for 24-hour access → he gets a text + a prompt in his app (A3)."], [912, 272, "Hidden by default: client names + phones, each tech’s pay, notes."], [918, 378, "Quick actions: call, text in Vietnamese, resend Stripe link, add a call note."]];
     return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }
