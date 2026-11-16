@@ -240,7 +240,7 @@ body{background:var(--stage);color:var(--ink);margin:0;font-family:"Inter",-appl
 .otp{display:flex;gap:8px}.otp span{width:46px;height:56px;border-radius:12px;border:1.5px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}
 .picks3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .picks2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.svc td,.svc th{text-align:left}.svc td.r,.svc th.r{text-align:right}
+.svc td,.svc th{text-align:left}.ed{width:100%;height:36px;border:1px solid transparent;border-radius:8px;background:transparent;padding:0 8px;font:inherit;color:inherit;box-sizing:border-box}.ed:hover{border-color:var(--line);background:#fff}.ed:focus{border-color:var(--ink);background:#fff;outline:none}.ed.r{text-align:right}.svc td.r,.svc th.r{text-align:right}
 .spin{width:36px;height:36px;border-radius:50%;border:3px solid var(--fill);border-top-color:var(--ink);animation:sp 0.9s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .stripe{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
@@ -265,7 +265,7 @@ const $ = (s) => document.querySelector(s);
 const STEPS = ['Salon info','Services','Staff + PIN','Connect payments','Card reader','Printer','This device','Clients','Test $1','Ready'];
 const MENU = [['Pedicures','Regular spa pedicure',45,38],['Pedicures','Deluxe spa pedicure',50,48],['Pedicures','Collagen spa pedicure',60,68],['Manicures','Regular manicure',30,30],['Gel color','Gel color manicure',45,45],['Gel color','Gel color pedicure',60,53],['Gel color','Gel color change - hands',30,30],['Add-ons','French tip',10,7],['Enhancements','Acrylic full set',75,48],['Enhancements','Acrylic fill-in',45,38],['Enhancements','Pink and white',75,70],['Enhancements','Builder gel',75,68],['Dipping','Dipping powder - no tips',60,48],['Waxing','Eyebrows',15,12]];
 let S;
-function reset(){ S = { flow:'owner', o:'signup', step:0, svc:'choose', svcWay:'link', staff:[{n:'Mai Nguyen',r:'Owner',s:'You'}], drawer:false, role:'Tech', pay:'Commission 60%', stripe:'start', reader:'start', printer:'', printed:false, device:'Front desk', clients:'', test:'start', state:'CA', toast:'', p:'sms', pin:'', pin1:'', pinErr:'', lang:'English', clocked:false, newName:'Linh Tran', newPhone:'(408) 555-0177' }; }
+function reset(){ S = { flow:'owner', o:'signup', step:0, svc:'choose', svcWay:'link', staff:[{n:'Mai Nguyen',r:'Owner',s:'You'}], drawer:false, role:'Tech', pay:'Commission 60%', stripe:'start', reader:'start', printer:'', printed:false, device:'Front desk', clients:'', test:'start', state:'CA', toast:'', p:'sms', pin:'', pin1:'', pinErr:'', lang:'English', clocked:false, newName:'Linh Tran', newPhone:'(408) 555-0177', menu: MENU.map((m,i)=>({c:m[0],n:m[1],min:m[2],price:m[3],on:true,flag:i===2||i===10})) }; }
 reset();
 
 function toast(t){ S.toast = t; render(); clearTimeout(window._tt); window._tt = setTimeout(() => { S.toast=''; render(); }, 3500); }
@@ -301,10 +301,17 @@ function stInfo(){ const notes = {CA:'California: card fees can never be taken f
   <div><span class="lbl">Open days</span><div style="display:flex;gap:8px;flex-wrap:wrap">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i)=>`<button type="button" class="chip ${i<6?'on':''}">${d} ${i<6?'9–7':'10–5'}</button>`).join('')}</div></div>`); }
 function stServices(){
   if (S.svc==='reading') return wiz(`<div class="center" style="flex-direction:column;gap:14px"><div class="spin"></div><div class="h2">Reading your menu…</div><div class="cap">cosmonailswildwood.com/services · finding names, minutes and prices</div></div>`,{lock:true});
-  if (S.svc==='review') return wiz(`<div style="display:flex;align-items:baseline;gap:12px"><div class="h1">Check your services</div><span class="cap">42 found · showing 14 · 2 need a look</span></div>
-  <div class="group" style="overflow:auto;max-height:470px"><table class="dtable svc"><thead><tr><th></th><th>Category</th><th>Service</th><th class="r">Minutes</th><th class="r">Price</th></tr></thead><tbody>
-  ${MENU.map((m,i)=>`<tr><td><input type="checkbox" checked aria-label="Keep ${esc(m[1])}"></td><td class="cap">${m[0]}</td><td><b style="font-weight:600">${m[1]}</b>${i===2||i===10?' <span class="tag" style="background:var(--orange-soft);color:#B5470A">check minutes</span>':''}</td><td class="r">${m[2]}</td><td class="r">$${m[3]}</td></tr>`).join('')}</tbody></table></div>
-  <div class="cap">AI fills minutes it can't read with a guess and marks them. You can change anything later in Settings · Services.</div>`,{label:'Save 42 services'});
+  if (S.svc==='review'){ const kept=S.menu.filter((m)=>m.on).length+28, look=S.menu.filter((m)=>m.on&&m.flag).length;
+  return wiz(`<div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><div class="h1">Check your services</div><span class="cap">${kept} of ${S.menu.length+28} kept · showing ${S.menu.length}${look?` · ${look} need a look`:' · all checked ✓'}</span></div>
+  <div class="cap" style="margin-top:-6px">Tap any name, minutes or price to change it. Untick to leave a service out.</div>
+  <div class="group" style="overflow:auto;max-height:430px"><table class="dtable svc"><thead><tr><th style="width:40px"></th><th style="width:150px">Category</th><th>Service</th><th class="r" style="width:110px">Minutes</th><th class="r" style="width:120px">Price $</th><th style="width:44px"></th></tr></thead><tbody>
+  ${S.menu.map((m,i)=>`<tr style="${m.on?'':'opacity:.4'}"><td><input type="checkbox" ${m.on?'checked':''} data-edit="${i}:on" aria-label="Keep ${esc(m.n)}"></td>
+   <td><input class="ed" data-edit="${i}:c" value="${esc(m.c)}" aria-label="Category"></td>
+   <td style="display:flex;align-items:center;gap:8px"><input class="ed" style="font-weight:600;flex:1" data-edit="${i}:n" value="${esc(m.n)}" placeholder="Service name" aria-label="Service name">${m.flag?'<span class="tag" style="background:var(--orange-soft);color:#B5470A;white-space:nowrap">check minutes</span>':''}</td>
+   <td class="r"><input class="ed r" style="${m.flag?'border-color:#F0A36B;background:#FFF6EF':''}" inputmode="numeric" data-edit="${i}:min" value="${m.min}" aria-label="Minutes"></td>
+   <td class="r"><input class="ed r" inputmode="decimal" data-edit="${i}:price" value="${m.price}" aria-label="Price"></td>
+   <td><button type="button" class="btn ghost" data-act="delSvc:${i}" aria-label="Remove ${esc(m.n)}" style="height:32px;padding:0 8px">✕</button></td></tr>`).join('')}</tbody></table></div>
+  <div style="display:flex;gap:10px;align-items:center"><button class="btn" type="button" data-act="addSvc">+ Add a service</button><span class="cap">AI guessed minutes it couldn't read (orange). Change anything later in Settings · Services.</span></div>`,{label:'Save '+kept+' services'}); }
   return wiz(`<div class="h1">Add your services</div><div class="cap" style="font-size:15px">The fastest way: give us your menu. We read it for you.</div>
   <div class="picks3">${[['photo','Photo of your menu','Take a photo of the price board'],['link','Website link','We read your services page'],['tpl','Nail salon template','40 common services, edit prices']].map((w)=>`<button type="button" class="pick ${S.svcWay===w[0]?'on':''}" data-act="svcWay:${w[0]}"><b>${w[1]}</b><span class="cap">${w[2]}</span></button>`).join('')}</div>
   ${S.svcWay==='link'?`<div><label class="lbl" for="url">Your website</label><input class="inp" id="url" value="cosmonailswildwood.com/services"></div>`:S.svcWay==='photo'?`<div class="card pad" style="align-items:center;border:1.5px dashed #C7C7CC;box-shadow:none"><b>Drop a photo here or take one</b><span class="cap">JPG or PNG · clear and straight works best</span></div>`:`<div class="cap">Starts with 40 services (manicure, pedicure, gel, acrylic, dip, waxing). Then edit prices.</div>`}`,{nextAct:'svcRead',label:'Read my menu'}); }
@@ -375,6 +382,8 @@ function act(a){ const [k,v] = a.split(/:(.*)/s);
   else if (k==='back'){ if (S.step>0) S.step--; }
   else if (k==='svcWay'){ S.svcWay=v; }
   else if (k==='svcRead'){ if (S.svc==='review'){ S.step++; } else { S.svc='reading'; render(); setTimeout(()=>{ S.svc='review'; render(); }, 1300); return; } }
+  else if (k==='addSvc'){ S.menu.push({c:'Add-ons',n:'',min:15,price:0,on:true,flag:false}); render(); const ins=document.querySelectorAll('[data-edit$=":n"]'); ins[ins.length-1].focus(); return; }
+  else if (k==='delSvc'){ const m=S.menu.splice(+v,1)[0]; render(); toast('Removed '+(m.n||'service')); return; }
   else if (k==='drawer'){ S.drawer=true; }
   else if (k==='closeDrawer'){ S.drawer=false; }
   else if (k==='role'){ S.role=v; } else if (k==='pay'){ S.pay=v; }
@@ -393,8 +402,10 @@ function act(a){ const [k,v] = a.split(/:(.*)/s);
   render(); }
 document.addEventListener('click', (e) => { const el = e.target.closest('[data-act]'); if (!el) return; e.preventDefault(); act(el.getAttribute('data-act')); });
 document.addEventListener('keydown', (e) => { if ((e.key==='Enter'||e.key===' ') && e.target.matches('[role=tab][data-act]')){ e.preventDefault(); act(e.target.getAttribute('data-act')); } });
-document.addEventListener('input', (e) => { const k = e.target.getAttribute('data-in'); if (k) S[k] = e.target.value; });
-document.addEventListener('change', (e) => { if (e.target.getAttribute('data-change')==='state'){ S.state = e.target.value; render(); } });
+document.addEventListener('input', (e) => { const k = e.target.getAttribute('data-in'); if (k) S[k] = e.target.value;
+  const ed = e.target.getAttribute('data-edit'); if (ed && !ed.endsWith(':on')){ const [i,f]=ed.split(':'); S.menu[+i][f]=e.target.value; if (f==='min') S.menu[+i].flag=false; } });
+document.addEventListener('focusout', (e) => { if (e.target.matches('[data-edit$=":min"]')) { const r=e.relatedTarget; render(); if (r&&r.getAttribute&&r.getAttribute('data-edit')){ const n=document.querySelector(`[data-edit="${r.getAttribute('data-edit')}"]`); if(n) n.focus(); } } });
+document.addEventListener('change', (e) => { const ed=e.target.getAttribute('data-edit'); if (ed&&ed.endsWith(':on')){ S.menu[+ed.split(':')[0]].on=e.target.checked; render(); return; } if (e.target.getAttribute('data-change')==='state'){ S.state = e.target.value; render(); } });
 window.addEventListener('resize', fit);
 render();
 </script>
