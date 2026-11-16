@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import PhoneCodeLogin from "@/components/PhoneCodeLogin";
 import { SMS_ON, homeFor, isSignedIn, myMemberships } from "@/lib/auth";
 import { queueSave, withIds } from "./sync";
+import { importMenu, shrinkPhoto } from "./menuImport";
 import { SyncPill } from "@/components/kit";
 import { useStored } from "@/lib/useStored";
 import {
@@ -268,9 +269,23 @@ const Services: StepView = ({ s, set, say, next }) => {
     ["link", "Website link", "We read your services page"],
     ["tpl", "Nail salon template", "Common services, edit prices"],
   ] as const;
-  const read = () => {
+  const read = async () => {
+    if (s.svcWay === "tpl" || !SMS_ON) {
+      set((p) => ({ ...p, svcStage: "reading" }));
+      setTimeout(() => set((p) => ({ ...p, svcStage: "review" })), 1200);
+      return;
+    }
+    if (s.svcWay === "link" && !s.website.trim()) return say("Type your website first.");
+    if (s.svcWay === "photo" && !pendingPhoto) return say("Take or choose a photo of your menu first.");
     set((p) => ({ ...p, svcStage: "reading" }));
-    setTimeout(() => set((p) => ({ ...p, svcStage: "review" })), 1200);
+    try {
+      const r = await importMenu(s.svcWay === "link" ? { url: s.website.trim() } : pendingPhoto!);
+      set((p) => ({ ...p, menu: r.services, svcStage: "review" }));
+      say(`Found ${r.services.length} services${r.note ? ` · ${r.note}` : ""}`);
+    } catch (e) {
+      set((p) => ({ ...p, svcStage: "choose" }));
+      say((e as Error).message);
+    }
   };
   return [{ label: s.svcWay === "tpl" ? "Use the template" : "Read my menu", onNext: read }, <>
     <H1>Add your services</H1>
@@ -283,11 +298,10 @@ const Services: StepView = ({ s, set, say, next }) => {
       ))}
     </div>
     {s.svcWay === "link" && <div><label className="lbl" htmlFor="url">Your website</label><input className="inp" id="url" inputMode="url" placeholder="yoursalon.com/services" value={s.website} onChange={(e) => set((p) => ({ ...p, website: e.target.value }))} /></div>}
-    {s.svcWay === "photo" && <label className="card pad" style={{ alignItems: "center", border: "1.5px dashed #C7C7CC", boxShadow: "none", cursor: "pointer" }}>
-      <b>Take a photo or choose one</b><span className="cap">JPG or PNG · clear and straight works best</span>
-      <input type="file" accept="image/*" capture="environment" style={{ display: "none" }} />
-    </label>}
-    {s.svcWay !== "tpl" && <div className="demo">Test version: menu reading (AI) comes later. For now you get the nail template to edit.</div>}
+    {s.svcWay === "photo" && <PhotoPick />}
+    {s.svcWay !== "tpl" && (SMS_ON
+      ? <div className="cap">We read names, prices and minutes for you. You check them on the next screen. About 20 seconds.</div>
+      : <div className="demo">Test version: menu reading needs sign-in. Here you get the nail template to edit.</div>)}
     {s.svcWay === "tpl" && <div className="cap">Starts with manicure, pedicure, gel, acrylic, dip and waxing. Then edit prices.</div>}
   </>];
 };
@@ -301,6 +315,25 @@ function TimeSelect({ label, value, onChange }: { label: string; value: string; 
     <select className="inp tm" aria-label={label} value={value} onChange={(e) => onChange(e.target.value)}>
       {TIMES.map((t) => <option key={t} value={t}>{fmtTime(t)}</option>)}
     </select>
+  );
+}
+
+let pendingPhoto: { image: string; mediaType: string } | null = null;
+function PhotoPick() {
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+  return (
+    <label className="card pad" style={{ alignItems: "center", border: "1.5px dashed #C7C7CC", boxShadow: "none", cursor: "pointer" }}>
+      <b>{busy ? "Getting the photo ready…" : name ? `✓ ${name}` : "Take a photo or choose one"}</b>
+      <span className="cap">{name ? "Tap to pick a different photo" : "JPG or PNG · clear and straight works best"}</span>
+      <input type="file" accept="image/*" style={{ display: "none" }} data-testid="menu-photo" onChange={async (e) => {
+        const f = e.target.files?.[0];
+        if (!f) return;
+        setBusy(true);
+        try { pendingPhoto = await shrinkPhoto(f); setName(f.name); } catch { setName(""); pendingPhoto = null; }
+        setBusy(false);
+      }} />
+    </label>
   );
 }
 

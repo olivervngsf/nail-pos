@@ -14,13 +14,15 @@
     "test:rls": "node scripts/test-rls.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.9.0",
     "@sentry/nextjs": "^11.13.0",
     "@supabase/supabase-js": "^2.119.0",
     "dexie": "^4.4.7",
     "next": "15.5.29",
     "next-intl": "^4.15.1",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
