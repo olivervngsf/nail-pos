@@ -72,3 +72,19 @@ test("staff joins in Vietnamese, weak PIN refused, then clocks in", async ({ pag
   await page.getByRole("button", { name: "Chấm công vào" }).click();
   await expect(page.getByText("Đã chấm công")).toBeVisible();
 });
+
+test("setup wizard has its layout (side steps on desktop, top bar on phone)", async ({ page }, info) => {
+  await page.goto("/setup");
+  await page.fill("#ph", "4085550110");
+  await page.getByRole("button", { name: "Text me a code" }).click();
+  await page.getByRole("button", { name: "Fill test code" }).click();
+  await page.getByRole("button", { name: "Verify" }).click();
+  await expect(page.locator(".wiz")).toHaveCSS("display", "flex");
+  if (info.project.name === "desktop") {
+    await expect(page.locator(".side")).toHaveCSS("width", "288px");
+    await expect(page.locator(".st.now")).toHaveCSS("font-weight", "600");
+  } else {
+    await expect(page.locator(".mtop")).toHaveCSS("display", "flex");
+  }
+  await expect(page.locator(".foot")).toHaveCSS("position", "sticky");
+});

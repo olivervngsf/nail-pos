@@ -2,6 +2,7 @@
    1) a small reset, 2) real-screen sizing (the kit draws fixed 1280x800 / 390x844 board frames),
    3) app-only pieces the kit doesn't have yet. Never restyle a kit component here. */
 @import "../styles/kit.css";
+@import "../styles/setup.css";
 
 /* 1. reset */
 *, *::before, *::after { box-sizing: border-box; }

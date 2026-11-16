@@ -16,7 +16,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Kit is in sync with design/kit/kit.css
-        run: npm run kit:sync && git diff --exit-code src/styles/kit.css
+        run: npm run kit:sync && git diff --exit-code src/styles/
       - run: npm run lint
       - run: npm run typecheck
       - name: Unit tests (money, offline queue, translations)
