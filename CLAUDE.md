@@ -20,7 +20,7 @@ Read this first every session. Keep it short; link out for detail.
 Docs win over this file if they disagree. Update this file when a big decision lands.
 
 ## V1 scope
-1. Checkout in the web app: cash or card by Stripe QR code / pay link; receipt by printer, text or email; gift cards (sell + use, plastic + text, no expiry) + $/% discounts (issue #14, PRD "Gift cards and discounts")
+1. Checkout in the web app: cash or card on a Stripe card reader (every V1 salon; QR code / pay link as backup); receipt by printer, text or email; gift cards (sell + use, plastic + text, no expiry) + $/% discounts (issue #14, PRD "Gift cards and discounts")
 2. Tech payout sheet: earnings + tips per tech, cash vs card, check/cash payout split, printable; payroll insights (min wage, overtime, breaks) + export to Gusto/QuickBooks (issue #15)
 3. Vietnamese (staff) / English (customer) toggle
 4. PIN login + clock-in; print own earnings by PIN
@@ -49,7 +49,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Devices: desktop (front desk, owner) + phones iOS/Android (techs, clients). Design both.
 - Printing: desktop to USB/Wi-Fi receipt printer; Android web can use Bluetooth; iPhone web can't (needs Bluefy) — don't depend on it.
 - Texting: Twilio or Telnyx; one local number per salon; A2P 10DLC registration; consent + STOP; email backup. Spec in PRD "Texting and phone numbers".
-- Payments: Stripe QR code / pay link now, optional Stripe card reader; Tap to Pay later in a native iPhone app (issue #11)
+- Payments: Stripe card reader (M2) in every V1 setup, QR code / pay link as backup; card fee = Stripe's rate passed through, no markup; Tap to Pay later in a native iPhone app (issue #11)
 
 ## Open questions
 - Pilot salons (2–3)
@@ -70,6 +70,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-16: Owner dashboard (top 5 KPIs, facts only) joins V1.
 - 2026-11-16: Payroll = V1 insights + export; real payroll later via embedded partner (e.g. Check, Gusto Embedded); never build tax filing ourselves.
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
+- 2026-11-16: Stripe card reader in every V1 setup (QR / pay link costs salons ~20% more). Card fee = Stripe pass-through, no markup at launch; revisit at ~50 salons. Research: reports/Nail POS market pricing and design.md
 
 ## Tracking
 - Build Tracker (status per feature, build order): https://claude.ai/artifact/6DjfxMPXy64uDX8YZdCCnt — keep in sync with GitHub Issues
