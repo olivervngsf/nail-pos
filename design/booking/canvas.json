@@ -531,6 +531,33 @@
       "title": "D2c · Long staff list",
       "is_interactive": true,
       "page": "desk"
+    },
+    "Cd11Phone.dc.html": {
+      "x": 5640,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "D11 · Phone call booking",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cd12Details.dc.html": {
+      "x": 7520,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "D12 · Booking details panel",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cd13Repeat.dc.html": {
+      "x": 9400,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "D13 · Repeat booking",
+      "is_interactive": true,
+      "page": "desk"
     }
   },
   "createdOnFiles": {
@@ -748,7 +775,10 @@
     "Cd10Booked.dc.html",
     "Pg1Main.dc.html",
     "Pg2Upload.dc.html",
-    "Pg3Google.dc.html"
+    "Pg3Google.dc.html",
+    "Cd11Phone.dc.html",
+    "Cd12Details.dc.html",
+    "Cd13Repeat.dc.html"
   ],
   "pages": [
     {

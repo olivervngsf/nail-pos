@@ -55,3 +55,27 @@ Every booking keeps its **source** (Google, website, Instagram, text link, QR, p
 - How far ahead (proposal 30 days), buffer between bookings (proposal 0–15 min per service), last booking time before close.
 - Group max (proposal 6), and whether a group needs the same start time.
 - Photo moderation: owner only uploads; client inspiration photos stay private to the salon.
+
+## 6. Best practice per channel (Nov 16, from Notion Calendar + Apple Calendar review)
+
+What the calendar apps do well and we copy:
+- **Side details panel** (Notion): click a booking, details open on the right, the calendar stays visible. No full-screen form.
+- **Start → end + length** in one line ("2:00 PM → 2:45 PM · 45 min").
+- **Repeat dialog**: Every [N] weeks/months, On [day], Ends never / after N / on date (Notion + Apple). For nails = standing appointments for regulars.
+- **Reminders per event**: our version is text reminders (1 day + 2 h before), salon default, changeable per booking.
+- **Month view with "N more"** and a mini month with week numbers on the left; Day / Week / Month switch; Today + ‹ › keys.
+- What we skip: tasks, flags, priorities, time zones, "urgent alarms", conferencing — not for a salon.
+
+| Channel | Who starts | First field | Steps | Confirmation | Source tag |
+|---|---|---|---|---|---|
+| Walk-in | Client at kiosk, or front desk "+ Walk-in" | Phone number (kiosk) | Kiosk: phone → services → ticket # (3 taps). Goes to Waitlist; front desk drags onto a staff (turn list = facts). | Text "You're #3, about 15 min" | Walk-in / Kiosk |
+| Phone call | Front desk | **Phone number first** | + Book (N) or click a slot → From: Phone call → number → usual service + tech prefilled → time → Book + text (4 taps) | Text sent while still on the call | Phone call |
+| In person (at the desk, rebook) | Front desk at checkout | Client already on the ticket | "Rebook before leaving" → same service/tech, usual gap → 1 tap; optional Repeat | Text + on receipt | Rebook at checkout |
+| Online (Google / website / Instagram / QR / text link) | Client | Service | Booking page: service → add-ons → staff (or anyone) → time → phone → done. Returning client by phone. | Text + email; reply C to confirm | Online · channel name |
+| Text reply | Client replies R / time | — | Front desk sees it in Alerts → offers times → books | Text | Text |
+| Staff phone | Tech | Client (my regulars) | My day → + Book → client → service → my free times → book | Text from salon number | Staff phone · name |
+| Repeat / standing | Front desk or tech | From any booking | Details → Repeat → every 3 weeks on Tue → Done | One text listing all dates | Same as the first booking |
+
+Rules for all channels: one calendar; nothing moves by itself (clashes become Alerts); reminders 1 day + 2 h; no-show counted on the profile; every booking keeps its source for reports (Numbers: new clients by source).
+
+Built on the Booking board: D11 phone call card (From + phone first + Repeat), D12 details panel, D13 repeat dialog. Next: Week + Month views (not drawn yet).

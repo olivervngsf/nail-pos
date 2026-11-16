@@ -28,7 +28,7 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [[722, 419, "Clients work the same way: type name or phone → top 3 matches; regulars of the picked staff first."], [722, 660, "Who shows only staff FREE then + “Next turn” + “More ›”. With 20 staff the card stays short."], [1070, 380, "All staff: search by name; free first (green), then busy with “busy until 2:15”, then not in (greyed)."], [1070, 534, "Busy can still be picked (owner's call); it shows as an overlap on the calendar. Not in = can't pick."]];
+    const P = [[722, 461, "Clients work the same way: type name or phone → top 3 matches; regulars of the picked staff first."], [722, 702, "Who shows only staff FREE then + “Next turn” + “More ›”. With 20 staff the card stays short."], [1070, 380, "All staff: search by name; free first (green), then busy with “busy until 2:15”, then not in (greyed)."], [1070, 534, "Busy can still be picked (owner's call); it shows as an overlap on the calendar. Not in = can't pick."]];
     return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }

@@ -28,7 +28,7 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [[722, 592, "Card shows only the TOP 4 services for this client (her usual first) + “All 15 ›”. Real menus have 40+; the card never grows."], [1070, 380, "All services opens a list beside the card (card stays). Search: type 2 letters → matches across names (gel, pedi…)."], [1070, 443, "Category tabs: All · Manicure · Pedicure · Enhancements · Add-ons. Grouped list with length + price."], [1070, 535, "Her usual is tagged. Tap a service → it's picked, length updates, list closes."]];
+    const P = [[722, 634, "Card shows only the TOP 4 services for this client (her usual first) + “All 15 ›”. Real menus have 40+; the card never grows."], [1070, 380, "All services opens a list beside the card (card stays). Search: type 2 letters → matches across names (gel, pedi…)."], [1070, 443, "Category tabs: All · Manicure · Pedicure · Enhancements · Add-ons. Grouped list with length + price."], [1070, 535, "Her usual is tagged. Tap a service → it's picked, length updates, list closes."]];
     return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }

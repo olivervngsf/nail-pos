@@ -79,6 +79,15 @@ body{margin:0}
 .now::before{content:"";position:absolute;left:0;top:-4px;width:10px;height:10px;border-radius:50%;background:#E03131}
 .nowlbl{position:absolute;left:318px;font-size:11px;font-weight:700;color:#E03131;transform:translateY(-7px)}
 .qcard .chip{height:32px;padding:0 11px;font-size:13px}
+.insp{position:absolute;right:0;top:56px;bottom:0;width:380px;background:#fff;box-shadow:-12px 0 40px rgba(28,28,30,.16);z-index:12;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;animation:slideIn .3s cubic-bezier(.2,.8,.2,1) both}
+.insp .row{cursor:default}
+.insp button.row{width:100%;border:0;background:#fff;font:inherit;text-align:left;cursor:pointer}
+.rdlg{position:absolute;left:500px;top:200px;width:440px;background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(28,28,30,.28);z-index:14;padding:20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px;animation:popin .2s ease both}
+.rdlg .day{width:36px;height:36px;border-radius:50%;border:1px solid #E5E5EA;background:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.rdlg .day.on{background:#1C1C1E;color:#fff;border-color:#1C1C1E}
+.rdlg .rad{display:flex;align-items:center;gap:10px;height:34px;font-size:15px;border:0;background:transparent;font-family:inherit;cursor:pointer;padding:0}
+.rdlg .rad i{width:18px;height:18px;border-radius:50%;border:1.5px solid #C7C7CC;box-sizing:border-box}
+.rdlg .rad.on i{border:5px solid #1C1C1E}
 .qpanel{max-height:560px;z-index:11}
 .qlist{flex:1;min-height:0;overflow:auto;margin:0 -4px;padding:0 4px}
 .opt.off{opacity:.45;cursor:not-allowed}
@@ -226,14 +235,15 @@ body{margin:0}
     <div class="qcard" style="{{popStyle}}" role="dialog" aria-label="New booking">
       <div style="display:flex;align-items:center"><b style="flex:1;font-size:16px">New booking</b><button class="mbtn" type="button" onClick="{{closeAll}}" style="background:transparent" aria-label="Close">✕</button></div>
       <div style="display:flex;align-items:center;gap:6px;font-size:14px"><b class="num">{{popTime}}</b><span class="cap">· {{popStaff}}</span><span style="flex:1"></span><button class="mbtn" type="button" onClick="{{durDown}}" aria-label="Shorter" style="width:30px;height:28px">−</button><span class="cap num" style="min-width:44px;text-align:center">{{popDur}}</span><button class="mbtn" type="button" onClick="{{durUp}}" aria-label="Longer" style="width:30px;height:28px">+</button></div>
-      <input value="{{popClientName}}" placeholder="Client name or phone" aria-label="Client" style="height:42px;border-radius:10px;border:1.5px solid #1C1C1E;padding:0 12px;font:inherit;font-size:15px">
+      <div style="display:flex;gap:6px;align-items:center"><span class="cap" style="width:40px">From</span><sc-for list="{{srcs}}" as="c" hint-placeholder-count="3"><button class="{{c.cls}}" type="button" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+      <input value="{{popClientName}}" placeholder="Phone number first (or name)" aria-label="Client" style="height:42px;border-radius:10px;border:1.5px solid #1C1C1E;padding:0 12px;font:inherit;font-size:15px">
       <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{popClients}}" as="k" hint-placeholder-count="3"><button class="{{k.cls}}" type="button" onClick="{{k.pick}}">{{k.label}}</button></sc-for></div>
       <sc-if value="{{popHint}}" hint-placeholder-val="{{false}}"><div class="cap fade" style="background:#F5F5F7;border-radius:8px;padding:6px 8px">Lan usually: <b>Gel with Kim</b> · every 4 weeks · sensitive skin</div></sc-if>
       <div style="display:flex;align-items:baseline"><span class="eyebrow" style="flex:1">Service · top for this client</span></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{popSvcs}}" as="s" hint-placeholder-count="4"><button class="{{s.cls}}" type="button" onClick="{{s.pick}}">{{s.label}}</button></sc-for><button class="chip" type="button" onClick="{{allSvc}}" style="color:#5C5C5E">All {{svcCount}} ›</button></div>
       <div class="eyebrow">Who · free at this time</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{popWho}}" as="w" hint-placeholder-count="4"><button class="{{w.cls}}" type="button" onClick="{{w.pick}}">{{w.label}}</button></sc-for><button class="chip" type="button" onClick="{{allStaff}}" style="color:#5C5C5E">More ›</button></div>
-      <div class="cap">Next turn: Tuyết — free now, fewest clients today.</div>
+      <div style="display:flex;gap:8px;font-size:13px"><button class="mbtn" type="button" onClick="{{openRepeat}}" style="height:30px;font-size:13px">Repeat: {{repLabel}} ›</button><span class="cap" style="align-self:center">Text reminder 1 day + 2 h before</span></div>
       <div style="display:flex;gap:8px;margin-top:2px"><button class="mbtn" type="button" onClick="{{closeAll}}" style="flex:1;height:42px">Cancel</button><button class="mbtn pri" type="button" onClick="{{popBook}}" style="{{popBookStyle}}">Book + text</button></div>
     </div>
   </sc-if>
@@ -260,6 +270,36 @@ body{margin:0}
       </sc-if>
     </div>
   </sc-if>
+  <sc-if value="{{hasInsp}}" hint-placeholder-val="{{false}}">
+    <aside class="insp" aria-label="Booking details">
+      <div style="display:flex;align-items:center;gap:10px;height:40px"><span class="av">{{ip.init}}</span><span style="flex:1;min-width:0"><b style="font-size:17px">{{ip.name}}</b><span class="cap" style="display:block">{{ip.phone}} · {{ip.visits}}</span></span><span class="tag" style="{{ip.tagStyle}}">{{ip.status}}</span><button class="mbtn" type="button" onClick="{{closeInsp}}" aria-label="Close" style="background:transparent">✕</button></div>
+      <div class="group">
+        <div class="row s"><span class="g">When</span><b class="num">{{ip.when}}</b></div>
+        <div class="row s"><span class="g">Date</span><b>Mon, Nov 16</b></div>
+        <div class="row s"><span class="g">With</span><b>{{ip.staff}}</b></div>
+        <div class="row s"><span class="g">Service</span><b>{{ip.svc}}</b></div>
+      </div>
+      <div class="group">
+        <button class="row s" type="button" onClick="{{openRepeat}}"><span class="g">Repeat</span><b>{{ip.repeat}}</b><span class="cap">›</span></button>
+        <div class="row s"><span class="g">Reminders</span><b>Text 1 day + 2 h before</b></div>
+        <div class="row s"><span class="g">Booked from</span><b>{{ip.src}}</b></div>
+      </div>
+      <div class="cap" style="background:#F5F5F7;border-radius:10px;padding:8px 10px;font-size:13px;line-height:18px">{{ip.note}}</div>
+      <div style="flex:1"></div>
+      <div style="display:flex;gap:8px"><button class="mbtn pri" type="button" style="flex:2;height:44px">Check in</button><button class="mbtn" type="button" style="flex:1;height:44px">Move</button><button class="mbtn" type="button" style="flex:1;height:44px">No-show</button></div>
+    </aside>
+  </sc-if>
+  <sc-if value="{{hasRepeat}}" hint-placeholder-val="{{false}}">
+    <div class="rdlg" role="dialog" aria-label="Repeat">
+      <b style="font-size:18px">Repeat booking</b>
+      <div style="display:flex;align-items:center;gap:10px;font-size:15px">Every <span class="stepper"><button class="btn" type="button" onClick="{{repDn}}" aria-label="Less">−</button><b>{{rep.n}}</b><button class="btn" type="button" onClick="{{repUp}}" aria-label="More">+</button></span><div class="seg"><sc-for list="{{repUnits}}" as="u" hint-placeholder-count="2"><span class="{{u.cls}}" onClick="{{u.pick}}" style="cursor:pointer">{{u.label}}</span></sc-for></div></div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="width:40px;font-size:15px">On</span><sc-for list="{{repDays}}" as="d" hint-placeholder-count="7"><button class="{{d.cls}}" type="button" onClick="{{d.pick}}">{{d.label}}</button></sc-for></div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:15px"><span style="flex:1">Same staff + same time</span><button class="sw on" type="button" aria-label="Same staff and time"></button></div>
+      <div style="display:flex;flex-direction:column"><span class="cap">Ends</span><sc-for list="{{repEnds}}" as="e" hint-placeholder-count="3"><button class="{{e.cls}}" type="button" onClick="{{e.pick}}"><i></i>{{e.label}}</button></sc-for></div>
+      <div style="background:#F5F5F7;border-radius:12px;padding:10px 12px;font-size:14px;line-height:20px"><b>Next: {{repNext}}</b><span class="cap" style="display:block">Kim is free for all of them ✓ · a clash later shows as an Alert, nothing moves by itself</span></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end"><button class="mbtn" type="button" onClick="{{closeRepeat}}" style="height:40px;padding:0 18px">Cancel</button><button class="mbtn pri" type="button" onClick="{{saveRepeat}}" style="height:40px;padding:0 22px">Done</button></div>
+    </div>
+  </sc-if>
   <sc-if value="{{hasCover}}" hint-placeholder-val="{{false}}">
     <div class="peek" style="left:1000px;top:226px;width:320px" role="dialog" aria-label="Cover for Hoa">
       <b style="font-size:15px">Hoa is 24 min late</b>
@@ -278,36 +318,36 @@ body{margin:0}
   </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["day","create","drag","peek","move","waitdrop","cover","alerts","alert","booked","filter","createsvc","createstaff"],"default":"day"},"$preview":{"width":1440,"height":900}}'>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["day","create","drag","peek","move","waitdrop","cover","alerts","alert","booked","filter","createsvc","createstaff","inspect","repeat","phone"],"default":"day"},"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
   constructor(p){
     super(p);
     const A = [
-      [0, 9.5, 10.25, 'Tracy', 'Gel', 'paid', 'Paid · Card', 'called'],
-      [0, 10.5, 11.25, 'Jessica', 'Gel + removal', 'paid', 'Paid · Card', 'online'],
-      [0, 12, 12.75, 'Hailey', 'Fill + paint', 'ready', 'Ready for bill · $55', 'called', 1],
-      [0, 13.25, 14.25, 'Tiffany', 'Full set', 'chair', 'In the chair', 'called'],
+      [0, 9.5, 10.25, 'Tracy', 'Gel color mani', 'paid', 'Paid · Card', 'called'],
+      [0, 10.5, 11.25, 'Jessica', 'Gel color + removal', 'paid', 'Paid · Card', 'online'],
+      [0, 12, 12.75, 'Hailey', 'Fill-in + French tip', 'ready', 'Ready for bill · $55', 'called', 1],
+      [0, 13.25, 14.25, 'Tiffany', 'Acrylic full set', 'chair', 'In the chair', 'called'],
       [0, 13.5, 14, 'Mai', 'Polish change', 'conf walk', 'Walk-in', 'walk-in'],
-      [0, 15, 15.75, 'Sofia', 'Dip', 'unconf', '? Not confirmed', 'online'],
-      [0, 16, 16.75, 'Brittany', 'Fill', 'conf', '✓ Confirmed', 'online'],
-      [1, 9, 9.75, 'Hannah', 'Pedi', 'paid walk', 'Paid · Cash', 'walk-in'],
+      [0, 15, 15.75, 'Sofia', 'Dip powder', 'unconf', '? Not confirmed', 'online'],
+      [0, 16, 16.75, 'Brittany', 'Acrylic fill-in', 'conf', '✓ Confirmed', 'online'],
+      [1, 9, 9.75, 'Hannah', 'Spa pedicure', 'paid walk', 'Paid · Cash', 'walk-in'],
       [1, 10, 11, 'Susan', 'Pedi + callus', 'paid', 'Paid · Cash', 'online'],
-      [1, 13, 14, 'Fiona', 'Deluxe pedi', 'chair', 'In the chair', 'called'],
+      [1, 13, 14, 'Fiona', 'Deluxe spa pedicure', 'chair', 'In the chair', 'called'],
       [1, 15, 15.75, 'Kayla', 'Spa pedi', 'conf', '✓ Confirmed', 'online'],
-      [2, 9, 10, 'Emily', 'Full set', 'paid', 'Paid · Card', 'online'],
-      [2, 10.75, 11.5, 'Kim L.', 'Dip', 'paid walk', 'Paid · Card', 'walk-in'],
-      [2, 12, 12.75, 'Rosa', 'Gel', 'ready', 'Ready for bill · $45', 'online'],
-      [2, 14.5, 15.5, 'Rose', 'Full set', 'conf', '✓ Confirmed', 'online', 1],
-      [2, 15.75, 16.5, 'Ashley', 'Dip', 'risk', 'No-show risk · 2 missed', 'called'],
-      [3, 13.5, 14.25, 'Nina', 'Gel', 'conf', '✓ Confirmed', 'online', 1],
+      [2, 9, 10, 'Emily', 'Acrylic full set', 'paid', 'Paid · Card', 'online'],
+      [2, 10.75, 11.5, 'Kim L.', 'Dip powder', 'paid walk', 'Paid · Card', 'walk-in'],
+      [2, 12, 12.75, 'Rosa', 'Gel color mani', 'ready', 'Ready for bill · $45', 'online'],
+      [2, 14.5, 15.5, 'Rose', 'Acrylic full set', 'conf', '✓ Confirmed', 'online', 1],
+      [2, 15.75, 16.5, 'Ashley', 'Dip powder', 'risk', 'No-show risk · 2 missed', 'called'],
+      [3, 13.5, 14.25, 'Nina', 'Gel color mani', 'conf', '✓ Confirmed', 'online', 1],
       [3, 14.5, 15.25, 'Hannah P.', 'Pedi + callus', 'conf walk', 'Walk-in', 'walk-in'],
-      [4, 11.25, 12, 'Ana', 'Fill', 'paid', 'Paid · Cash', 'called'],
+      [4, 11.25, 12, 'Ana', 'Acrylic fill-in', 'paid', 'Paid · Cash', 'called'],
       [4, 13.25, 14.25, 'Brianna', 'Gel + art', 'chair', 'In the chair', 'online', 1],
-      [4, 14.75, 15.5, 'Jess', 'Fill', 'conf', '✓ Confirmed', 'online'],
+      [4, 14.75, 15.5, 'Jess', 'Acrylic fill-in', 'conf', '✓ Confirmed', 'online'],
       [4, 15.75, 16.75, 'Hailey R.', 'Gel + paint', 'conf', '✓ Confirmed', 'called'],
-      [4, 17, 18, 'Fiona M.', 'Full set', 'cancel', '✕ Cancelled', 'called']
+      [4, 17, 18, 'Fiona M.', 'Acrylic full set', 'cancel', '✕ Cancelled', 'called']
     ].map((a, i) => ({ id: i, col: a[0], s: a[1], e: a[2], name: a[3], svc: a[4], st: a[5], status: a[6], src: a[7], star: !!a[8] }));
-    this.state = { appts: A, prev: null, pop: null, peek: null, drag: null, move: null, cover: false, toast: null, toastUndo: true, filter: null, waitDrag: null, wait: [['Susan', 'B12', 'Pedi', 18], ['Kayla', 'B13', 'Gel', 8], ['Sofia', 'B14', 'Fill', 3]], flash: null, hoaCovered: false };
+    this.state = { appts: A, prev: null, pop: null, peek: null, drag: null, move: null, cover: false, toast: null, toastUndo: true, filter: null, waitDrag: null, wait: [['Susan', 'B12', 'Spa pedicure', 18], ['Kayla', 'B13', 'Gel color mani', 8], ['Sofia', 'B14', 'Acrylic fill-in', 3]], flash: null, hoaCovered: false };
     const sc = (p && p.scenario) || 'day';
     if (sc === 'create') this.state.pop = { col: 0, s: 16.75, e: 17.5, client: 0, svc: 0, who: 1 };
     if (sc === 'createsvc') this.state.pop = { col: 1, s: 15.5, e: 16.25, client: 0, svc: 0, who: 1, panel: 'svc' };
@@ -319,8 +359,12 @@ class Component extends DCLogic {
     if (sc === 'cover') this.state.cover = true;
     if (sc === 'alert') { this.state.filter = 'overlap'; this.state.toast = 'Showing the overlap at Kim 1:30 PM. Drag one booking to another time or staff to fix it.'; this.state.toastUndo = false; }
     if (sc === 'alerts') this.state.alerts = true;
+    this.state.rep = { n: 3, unit: 'weeks', day: 'Tu', ends: 'never', on: false };
+    if (sc === 'inspect') this.state.insp = 5;
+    if (sc === 'repeat') { this.state.insp = 5; this.state.repOpen = true; }
+    if (sc === 'phone') { this.state.pop = { col: 0, s: 16.75, e: 17.5, client: 0, svc: 0, who: 0, src: 'phone' }; }
     if (sc === 'filter') this.state.filter = 'unconf';
-    if (sc === 'booked') { this.state.appts = A.concat([{ id: 99, col: 0, s: 16.75, e: 17.5, name: 'Lan Tran', svc: 'Gel', st: 'conf', status: 'Text sent', src: 'front desk' }]); this.state.flash = 99; this.state.toast = 'Booked Lan Tran · Gel · Kim 4:45 PM · confirmation texted'; }
+    if (sc === 'booked') { this.state.appts = A.concat([{ id: 99, col: 0, s: 16.75, e: 17.5, name: 'Lan Tran', svc: 'Gel color mani', st: 'conf', status: 'Text sent', src: 'front desk' }]); this.state.flash = 99; this.state.toast = 'Booked Lan Tran · Gel · Kim 4:45 PM · confirmation texted'; }
   }
   componentWillUnmount(){ clearTimeout(this.t); }
   say(msg, undo){ this.setState({ toast: msg, toastUndo: undo !== false }); clearTimeout(this.t); this.t = setTimeout(() => this.setState({ toast: null }), 6000); }
@@ -398,8 +442,8 @@ class Component extends DCLogic {
     const ghost = S.drag ? S.drag : null;
     const actions = pk ? [
       pk.st.indexOf('ready') >= 0 ? ['Take payment', 'mbtn pri'] : (pk.st.indexOf('paid') >= 0 ? ['View receipt', 'mbtn'] : ['Check in', 'mbtn pri']),
-      ['Text', 'mbtn'], ['Move', 'mbtn'], ['Cancel', 'mbtn']
-    ].map((x) => ({ label: x[0], cls: x[1], go: () => { this.setState({ peek: null, peekPinned: null }); if (x[0] === 'Text') this.say('Texted ' + pk.name + ': “See you at ' + fmt(pk.s) + '”', false); if (x[0] === 'Check in') { this.setState({ prev: S.appts, appts: S.appts.map((a) => (a.id === pk.id ? Object.assign({}, a, { st: 'chair', status: 'In the chair' }) : a)), flash: pk.id }); this.say(pk.name + ' checked in · ticket started'); } } })) : [];
+      ['Text', 'mbtn'], ['Details', 'mbtn'], ['Cancel', 'mbtn']
+    ].map((x) => ({ label: x[0], cls: x[1], go: () => { this.setState({ peek: null, peekPinned: null }); if (x[0] === 'Details') { this.setState({ insp: pk.id }); return; } if (x[0] === 'Text') this.say('Texted ' + pk.name + ': “See you at ' + fmt(pk.s) + '”', false); if (x[0] === 'Check in') { this.setState({ prev: S.appts, appts: S.appts.map((a) => (a.id === pk.id ? Object.assign({}, a, { st: 'chair', status: 'In the chair' }) : a)), flash: pk.id }); this.say(pk.name + ' checked in · ticket started'); } } })) : [];
     return {
       waitCount: S.wait.length,
       wait: S.wait.map((w, i) => ({ name: w[0], code: w[1], svc: w[2], min: w[3], waitStyle: w[3] >= 15 ? 'color:#B5470A;font-weight:600' : 'color:#5C5C5E', cls: 'wcard' + (S.waitDrag === i ? ' dragging' : ''), start: (e) => { try { e.dataTransfer.setData('text/plain', w[0]); } catch (x) {} this.setState({ waitDrag: i }); }, end: () => this.setState({ waitDrag: null, drag: null }) })),
@@ -446,8 +490,19 @@ class Component extends DCLogic {
       upnext: [['Tuyết', 'FREE', 'open 36 min · 3 turns', 1, '#2F9E44', 'free', 2, 13.75], ['Ngọc', 'BUSY', 'free 2:00 · 3 turns', 1, '#E03131', '', 1, 14], ['Linh', 'BUSY', 'free 2:15 · 2 turns', 1, '#E03131', '', 4, 14.25], ['Kim', 'BUSY', 'free 2:15 · 4 turns', 1, '#E03131', '', 0, 14.25], ['Hoa', 'NOT IN', '24 min late · 0 turns', 0, '#8E8E93', 'out', 3, 0]]
         .map((u) => ({ name: u[0], tag: u[1], sub: u[2], canBook: !!u[3], dot: 'width:8px;height:8px;border-radius:50%;flex:none;background:' + u[4], tagStyle: 'font-size:10px;font-weight:700;color:' + (u[1] === 'FREE' ? '#1F7A33' : u[1] === 'BUSY' ? '#C92A2A' : '#5C5C5E'), cls: 'ucard ' + u[5], book: () => this.setState({ pop: { col: u[6], s: u[7], e: u[7] + 0.75, client: null, svc: null, who: u[6] }, peek: null }) })),
       showAlert: () => this.setState({ filter: S.filter === 'overlap' ? null : 'overlap' }),
-      anyFloat: !!(P || S.cover || S.alerts || S.peekPinned != null),
-      closeAll: () => this.setState({ pop: null, cover: false, alerts: false, peek: null, peekPinned: null }),
+      anyFloat: !!(P || S.cover || S.alerts || S.repOpen || S.peekPinned != null),
+      closeAll: () => this.setState({ pop: null, cover: false, alerts: false, repOpen: false, peek: null, peekPinned: null }),
+      srcs: [['Phone call', 'phone'], ['Walk-in', 'walk'], ['In person', 'desk']].map((c) => ({ label: c[0], cls: 'chip' + (P && (P.src || 'phone') === c[1] ? ' on' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { src: c[1] }) }) })),
+      repLabel: S.rep.on ? 'every ' + S.rep.n + ' ' + S.rep.unit : 'No',
+      openRepeat: () => this.setState({ repOpen: true }), closeRepeat: () => this.setState({ repOpen: false }), saveRepeat: () => { this.setState({ repOpen: false, rep: Object.assign({}, S.rep, { on: true }) }); this.say('Repeats every ' + S.rep.n + ' ' + S.rep.unit + ' on ' + S.rep.day + ' · confirmation texted', false); },
+      hasRepeat: !!S.repOpen, rep: S.rep,
+      repUp: () => this.setState({ rep: Object.assign({}, S.rep, { n: Math.min(12, S.rep.n + 1) }) }), repDn: () => this.setState({ rep: Object.assign({}, S.rep, { n: Math.max(1, S.rep.n - 1) }) }),
+      repUnits: ['weeks', 'months'].map((u) => ({ label: u, cls: S.rep.unit === u ? 'on' : '', pick: () => this.setState({ rep: Object.assign({}, S.rep, { unit: u }) }) })),
+      repDays: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => ({ label: d, cls: 'day' + (S.rep.day === d ? ' on' : ''), pick: () => this.setState({ rep: Object.assign({}, S.rep, { day: d }) }) })),
+      repEnds: [['never', 'Never'], ['after', 'After 6 visits'], ['on', 'On a date: Jun 1, 2027']].map((e) => ({ label: e[1], cls: 'rad' + (S.rep.ends === e[0] ? ' on' : ''), pick: () => this.setState({ rep: Object.assign({}, S.rep, { ends: e[0] }) }) })),
+      repNext: S.rep.unit === 'weeks' ? (S.rep.n === 3 ? 'Dec 8 · Dec 29 · Jan 19' : S.rep.n === 2 ? 'Dec 1 · Dec 15 · Dec 29' : S.rep.n === 4 ? 'Dec 15 · Jan 12 · Feb 9' : 'every ' + S.rep.n + ' weeks') : 'Dec 15 · Jan 19 · Feb 16',
+      hasInsp: S.insp != null, closeInsp: () => this.setState({ insp: null }),
+      ip: (() => { const a = S.appts.find((x) => x.id === S.insp) || S.appts[0]; return { init: a.name[0], name: a.name, phone: '(408) 555-01' + (10 + a.id), visits: a.star ? 'regular · 14 visits' : '3 visits', status: a.status, tagStyle: a.st.indexOf('conf') === 0 || a.st.indexOf('chair') >= 0 ? 'background:#EAF5EC' : 'background:#FDEEE6', when: fmt(a.s) + ' → ' + fmt(a.e) + ' · ' + Math.round((a.e - a.s) * 60) + ' min', staff: staffN[a.col], svc: a.svc, repeat: S.rep.on || a.star ? 'Every ' + S.rep.n + ' weeks on Tue' : "Doesn't repeat", src: a.src === 'online' ? 'Online · Google' : a.src === 'walk-in' ? 'Walk-in' : a.src === 'called' ? 'Phone call' : 'Front desk', note: a.star ? 'Asked for ' + staffN[a.col] + '. Likes short almond, nude pink.' : 'No notes yet. Add a note so every staff sees it.' }; })(),
       openAlerts: () => this.setState({ alerts: !S.alerts, pop: null, peek: null }), alertsOpen: !!S.alerts, alertCount: S.hoaCovered ? 1 : 2,
       alertBtnStyle: 'background:' + (S.alerts ? '#1C1C1E;color:#fff' : '#FDEEE6;color:#B5470A'),
       alShow: () => { this.setState({ alerts: false, filter: 'overlap' }); this.say('Showing the overlap at Kim 1:30 PM. Drag one booking to another time or staff to fix it.', false); },
