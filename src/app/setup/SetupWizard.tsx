@@ -74,8 +74,12 @@ function Code({ s, set }: { s: SetupState; set: Set }) {
       <h1 className="h1">Enter the 6-digit code</h1>
       <p className="cap lead" style={{ margin: 0 }}>Sent to {s.ownerPhone}</p>
       <input className="inp otp" inputMode="numeric" autoComplete="one-time-code" maxLength={6} aria-label="6-digit code"
+        placeholder="––––––" data-1p-ignore data-lpignore="true"
         value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} autoFocus />
-      <div className="demo">Test version: texting isn&apos;t on yet. Any 6 digits work.</div>
+      <div className="demo" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <span style={{ flex: 1, minWidth: 180 }}>Test version: texting isn&apos;t on yet. Type any 6 numbers.</span>
+        <button type="button" className="btn sm" onClick={() => setCode("123456")}>Fill test code</button>
+      </div>
       <button className="btn primary block" type="button" disabled={code.length !== 6}
         onClick={() => set((p) => ({ ...p, stage: "wizard", staff: p.staff.length ? p.staff : [{ name: p.ownerName || "Owner", phone: p.ownerPhone, role: "Owner", status: "You" }] }))}>
         Verify
