@@ -87,7 +87,35 @@ body{margin:0}
                 </div>
               </sc-for>
             </div>
-            <button class="btn ghost" type="button" onClick="{{back}}" style="align-self:flex-start">Cancel</button>
+            <div style="display:flex;gap:8px">
+              <button class="btn ghost" type="button" onClick="{{back}}">Cancel</button>
+              <button class="btn ghost" type="button" onClick="{{blur}}" style="border:1px dashed var(--muted)">Demo: blurry photo</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{vBlurry}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;gap:40px;align-items:center">
+          <div class="photo" role="img" aria-label="Blurry photo of the menu" style="filter:blur(3px);opacity:.8">
+            <div style="text-align:center;font-size:16px;font-weight:700;margin-bottom:8px">MAI NAILS</div>
+            <div class="ln"><span>Regular Mani</span><span>20</span></div>
+            <div class="ln"><span>Gel Mani</span><span>35</span></div>
+            <div class="ln"><span>Spa Pedi</span><span>30</span></div>
+            <div class="ln"><span>Deluxe Pedi</span><span>55</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;max-width:440px">
+            <span class="pill warn" style="align-self:flex-start"><span aria-hidden="true">▲</span>Couldn't read it</span>
+            <div class="h1">That photo is hard to read</div>
+            <div class="group">
+              <div class="row">Get closer — fill the screen with the menu</div>
+              <div class="row">Avoid glare from lights or glass</div>
+              <div class="row">Hold still, or upload a photo / PDF instead</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn primary" type="button" onClick="{{snap}}" style="height:48px;font-size:16px">Retake photo</button>
+              <button class="btn" type="button" onClick="{{useTemplate}}" style="height:48px">Use nail template</button>
+            </div>
           </div>
         </div>
       </sc-if>
@@ -127,9 +155,9 @@ body{margin:0}
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["choose","reading","ai","blurry","tpl"],"default":"choose"},"read":{"editor":null},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
-  constructor(p){ super(p); this.state = { mode: 'choose', read: 0, off: {} }; }
+  constructor(p){ super(p); const m = (p && p.mode) || 'choose'; this.state = { mode: m, read: (p && p.read) || 0, off: m === 'tpl' ? { 5: true } : {} }; }
   componentWillUnmount(){ clearInterval(this.t); }
   renderVals() {
     const S = this.state, cur = 2;
@@ -166,7 +194,8 @@ class Component extends DCLogic {
     return {
       steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
       pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
-      vChoose: S.mode === 'choose', vReading: S.mode === 'reading', vList: listing,
+      vChoose: S.mode === 'choose', vReading: S.mode === 'reading', vList: listing, vBlurry: S.mode === 'blurry',
+      blur: () => { clearInterval(this.t); this.setState({ mode: 'blurry' }); },
       reads: readSteps.map((label, i) => ({ label, ok: i < S.read, wait: i >= S.read })),
       listTitle: isAi ? 'We read 8 services from your menu' : 'Your service menu',
       listSub: isAi ? 'Check the orange ones, then Continue. Nothing is live until you do.' : 'Turn off what you don’t do and type your prices.',

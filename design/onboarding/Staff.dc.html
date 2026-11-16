@@ -165,7 +165,7 @@ body{margin:0}
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["intro","add","error","sent","detail","done"],"default":"intro"},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
   constructor(p){
     super(p);
@@ -180,6 +180,15 @@ class Component extends DCLogic {
       ]
     };
     this.timers = [];
+    const sc = p && p.scenario;
+    if (sc === 'add') this.state.view = 'add';
+    if (sc === 'error') { this.state.view = 'add'; this.state.f = Object.assign({}, this.state.f, { phone: '(408) 555-01' }); }
+    if (sc === 'sent') {
+      this.state.staff = this.state.staff.concat([{ id: 9, name: 'Lan', init: 'L', phone: '(408) 555-0188', role: 'Nail staff', pay: 'Commission · 60%', status: 'sent', t: ['just now', 'just now', '', ''] }]);
+      this.state.newId = 9; this.state.lastAdded = 9; this.state.toast = 'Invite texted to Lan · (408) 555-0188'; this.state.toastUndo = true;
+    }
+    if (sc === 'detail') { this.state.view = 'detail'; this.state.sel = 4; }
+    if (sc === 'done') { this.state.view = 'detail'; this.state.sel = 3; }
   }
   componentWillUnmount(){ this.timers.forEach(clearTimeout); }
   later(fn, ms){ this.timers.push(setTimeout(fn, ms)); }

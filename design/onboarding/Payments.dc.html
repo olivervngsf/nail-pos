@@ -103,9 +103,9 @@ body{margin:0}
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"s":{"editor":"int","min":0,"max":3,"default":0},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
-  constructor(p){ super(p); this.state = { s: 0 }; }
+  constructor(p){ super(p); this.state = { s: (p && p.s) || 0 }; }
   componentWillUnmount(){ clearTimeout(this.t); }
   renderVals() {
     const cur = 4, s = this.state.s;
