@@ -1,0 +1,91 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-16T23:10:00Z"
+ },
+ "title": "Nail POS — Client History",
+ "launch": {
+  "view": "canvas",
+  "page": "overview"
+ },
+ "pages": [
+  {
+   "id": "overview",
+   "name": "1 · Overview — clickable screens"
+  },
+  {
+   "id": "spec",
+   "name": "2 · Step by step (with notes)"
+  }
+ ],
+ "boards": {
+  "Client.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "Client history",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Ch1Profile.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "H1 · Client profile + history",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ch2Visit.dc.html": {
+   "x": 1720,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "H2 · Another visit opened",
+   "is_interactive": true,
+   "page": "spec"
+  }
+ },
+ "order": [
+  "Client.dc.html",
+  "Ch1Profile.dc.html",
+  "Ch2Visit.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "Client History",
+   "kind": "title1",
+   "maxW": 1280,
+   "page": "overview"
+  },
+  "s1": {
+   "x": -520,
+   "y": 0,
+   "w": 420,
+   "fill": "orange",
+   "page": "overview",
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nClient profile by phone: visits, photos, notes, gift card, points, next visit.\nBook again pre-fills the usual service + tech.\nSample services/prices from a real salon menu (Cosmo Nails)."
+  },
+  "t2": {
+   "x": 0,
+   "y": -300,
+   "text": "Step by step (with notes)",
+   "kind": "title1",
+   "maxW": 3360,
+   "page": "spec"
+  }
+ },
+ "designSystems": [
+  {
+   "title": "Nail POS Design System",
+   "namespace": "nailpos",
+   "artifact": "https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n",
+   "version": null,
+   "copiedAt": "2026-11-16T23:10:00Z"
+  }
+ ]
+}

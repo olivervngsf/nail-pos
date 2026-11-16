@@ -235,6 +235,33 @@
       "w": 390,
       "x": 7320,
       "y": 3500
+    },
+    "Numbers.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Owner Numbers (KPIs)",
+      "w": 1280,
+      "x": 0,
+      "y": 4800
+    },
+    "ClientHistory.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Client history",
+      "w": 1280,
+      "x": 1360,
+      "y": 4800
+    },
+    "TechApp.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Tech app · Home + Schedule",
+      "w": 390,
+      "x": 2720,
+      "y": 4800
     }
   },
   "createdOnFiles": {
@@ -270,7 +297,8 @@
     "r0",
     "r1",
     "r2",
-    "r3"
+    "r3",
+    "t5"
   ],
   "notes": {
     "r0": {
@@ -312,7 +340,7 @@
     "s1": {
       "fill": "orange",
       "page": "overview",
-      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Calendar + Checkout = same screens as their own boards, here so the left menu clicks through\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nLAST SYNCED: Nov 16, 2026 - Checkout v30, Booking v13 (staff phone booking, shared kit), Inter font\nRule: any change on a flow board is copied here the same day.\n\nSame look as Checkout / Booking: compact, calm, English first.",
+      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Calendar + Checkout = same screens as their own boards, here so the left menu clicks through\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nLAST SYNCED: Nov 16, 2026 - Checkout v31, Booking v16, Numbers, Client History, Tech App v2 (real salon menu prices)\nRule: any change on a flow board is copied here the same day.\n\nSame look as Checkout / Booking: compact, calm, English first.",
       "w": 420,
       "x": -520,
       "y": 0
@@ -352,6 +380,15 @@
       "w": 240,
       "x": 0,
       "y": 3230
+    },
+    "t5": {
+      "kind": "title1",
+      "maxW": 3110,
+      "page": "overview",
+      "text": "Numbers · Client history · Tech app",
+      "w": 240,
+      "x": 0,
+      "y": 4530
     }
   },
   "order": [
@@ -380,7 +417,10 @@
     "Cd5Done.dc.html",
     "Me1Profile.dc.html",
     "Me2Support.dc.html",
-    "StaffBook.dc.html"
+    "StaffBook.dc.html",
+    "Numbers.dc.html",
+    "ClientHistory.dc.html",
+    "TechApp.dc.html"
   ],
   "pages": [
     {

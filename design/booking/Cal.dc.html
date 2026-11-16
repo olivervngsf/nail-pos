@@ -386,8 +386,8 @@ class Component extends DCLogic {
     const pkPos = pk ? { left: 368 + pk.col * CW + (pk.col >= 3 ? -296 : CW + 4), top: Math.min(560, 224 + (pk.s - T0) * HH) } : null;
     const P = S.pop;
     const clients = [['Lan Tran', 'regular'], ['Jen Park', ''], ['+ New', '']];
-    const svcs = [['Gel', 0.75, 'Manicure', 35], ['Pedi', 0.75, 'Pedicure', 35], ['Full set', 1.25, 'Enhancements', 55], ['Fill', 0.75, 'Enhancements', 40], ['Dip', 1, 'Enhancements', 45], ['Deluxe', 1, 'Pedicure', 50], ['Art', 0.25, 'Add-ons', 10], ['Classic mani', 0.5, 'Manicure', 20], ['Deluxe mani', 0.75, 'Manicure', 35], ['Jelly spa pedi', 1, 'Pedicure', 55], ['Gel-X', 1.25, 'Enhancements', 60], ['Removal', 0.25, 'Enhancements', 10], ['French tip', 0.25, 'Add-ons', 8], ['Chrome', 0.25, 'Add-ons', 10], ['Paraffin', 0.25, 'Add-ons', 10]];
-    const TOP = [0, 3, 1, 4], CATS = ['All', 'Manicure', 'Pedicure', 'Enhancements', 'Add-ons'];
+    const svcs = [['Gel color mani', 0.75, 'Manicure', 45], ['Spa pedicure', 0.75, 'Pedicure', 38], ['Acrylic full set', 1.25, 'Enhancements', 48], ['Acrylic fill-in', 0.75, 'Enhancements', 38], ['Dip, no tips', 1, 'Enhancements', 48], ['Deluxe spa pedi', 1, 'Pedicure', 48], ['French tip', 0.25, 'Add-ons', 7], ['Regular manicure', 0.5, 'Manicure', 30], ['Gel color change', 0.5, 'Manicure', 30], ['Gel color pedicure', 1, 'Pedicure', 53], ['Collagen spa pedi', 1, 'Pedicure', 68], ['Pink & white', 1.25, 'Enhancements', 70], ['Builder gel', 1.25, 'Enhancements', 68], ['Polish change', 0.25, 'Add-ons', 17], ['Eyebrow wax', 0.25, 'Waxing', 12]];
+    const TOP = [0, 3, 1, 4], CATS = ['All', 'Manicure', 'Pedicure', 'Enhancements', 'Add-ons', 'Waxing'];
     const STAFF = [[2, 'Tuyết', 'Free now · 3 turns', 'free'], [1, 'Ngọc', 'Busy until 2:00 · 3 turns', 'busy'], [4, 'Linh', 'Busy until 2:15 · 2 turns', 'busy'], [0, 'Kim', 'Busy until 2:15 · 4 turns', 'busy'], [3, 'Hoa', 'Not in · 24 min late', 'out']];
     const popLeft = P ? (P.col >= 3 ? 368 + P.col * CW - 346 : 368 + (P.col + 1) * CW + 8) : 0;
     const popTop = P ? Math.max(64, Math.min(900 - 600, 224 + (P.s - T0) * HH - 40)) : 0;

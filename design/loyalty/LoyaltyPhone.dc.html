@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My points</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.pbar2{height:10px;border-radius:5px;background:var(--fill);overflow:hidden}
+.pbar2 span{display:block;height:100%;width:72%;background:var(--jade);border-radius:5px}
+.hr2{display:flex;align-items:center;min-height:48px;padding:0 16px;border-bottom:1px solid var(--line);font-size:15px;font-variant-numeric:tabular-nums}
+.hr2:last-child{border-bottom:0}
+</style>
+</helmet>
+<div class="phone">
+  <div class="pbar">Mai Nails</div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:16px">
+    <div class="card" style="height:196px;padding:18px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px">
+      <div class="cap">Hi Lan, you have</div>
+      <div class="money">372 points</div>
+      <div class="tag jade" style="align-self:flex-start">+52 today</div>
+      <div class="pbar2" style="margin-top:6px"><span></span></div>
+      <div class="cap">28 more points to your next $10 reward</div>
+    </div>
+    <div class="card" style="height:92px;padding:14px 18px;box-sizing:border-box;display:flex;align-items:center;gap:12px">
+      <span class="ico" style="background:var(--jade-soft);color:#1F7A33"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 21V7M12 7a3 3 0 10-3-3c0 1.7 3 3 3 3zm0 0a3 3 0 113-3c0 1.7-3 3-3 3z"/></svg></span>
+      <div style="flex:1"><b>$10 reward ready</b><div class="cap">Just give your phone number at checkout</div></div>
+    </div>
+    <div class="eyebrow" style="margin-top:4px">History</div>
+    <div class="group">
+      <div class="hr2"><span style="flex:1">Nov 3 · Gel color mani + French</span><b>+52</b></div>
+      <div class="hr2"><span style="flex:1">Oct 13 · Gel color manicure</span><b>+45</b></div>
+      <div class="hr2"><span style="flex:1">Sep 1 · Gel mani & pedicure</span><b>+83</b></div>
+      <div class="hr2"><span style="flex:1;color:#1F7A33">Jun 28 · $10 reward used</span><b style="color:#1F7A33">−100</b></div>
+    </div>
+    <div style="flex:1"></div>
+    <a class="btn primary block" href="#">Book my next visit</a>
+    <div class="cap" style="text-align:center">Opened from a text link · no app, no account</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

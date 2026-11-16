@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Loyalty program</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.lc{padding:16px 18px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px}
+.lr{display:flex;align-items:center;gap:12px;min-height:44px;font-size:15px}
+.stp{display:inline-flex;align-items:center;gap:6px}
+.stp .btn{width:36px;height:36px;padding:0}
+.bub{background:var(--fill);border-radius:18px 18px 18px 6px;padding:10px 14px;font-size:14px;line-height:20px;max-width:360px}
+.rs3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
+.rs3 b{display:block;font-size:22px;line-height:28px;font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="LoyaltyPay.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a class="on" href="Loyalty.dc.html" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar"><a class="btn ghost" href="#" style="height:36px;padding:0 10px">‹ Settings</a><div class="title">Loyalty program</div><sc-if value="{{on}}" hint-placeholder-val="{{true}}"><span class="pill ok"><span class="dot"></span>On · saved</span></sc-if><button class="{{swCls}}" type="button" onClick="{{toggle}}" aria-label="Loyalty on or off"></button></header>
+    <sc-if value="{{off}}" hint-placeholder-val="{{false}}"><main class="fade" style="flex:1;display:flex;align-items:center;justify-content:center">
+      <div class="card" style="width:560px;padding:32px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px;text-align:center;align-items:center">
+        <span class="ico" style="width:56px;height:56px;border-radius:16px;background:var(--jade-soft);color:#1F7A33"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 11c0 5.5-7 10-7 10z"/></svg></span>
+        <div class="h2">Bring regulars back</div>
+        <div class="cap" style="font-size:15px;line-height:22px">Clients earn points by phone number, no app or card. Points show on the receipt and in a text. You decide the reward.</div>
+        <button class="btn primary" type="button" onClick="{{toggle}}" style="padding:0 28px">Turn on loyalty</button>
+        <div class="cap">Proposal for V1.1 · confirm with Elang</div>
+      </div>
+    </main></sc-if>
+    <sc-if value="{{on}}" hint-placeholder-val="{{true}}"><main class="fade" style="flex:1;display:flex;gap:16px;padding:20px 24px;min-height:0">
+      <section style="width:600px;display:flex;flex-direction:column;gap:12px">
+        <div class="card lc" style="height:156px"><div class="eyebrow">How clients earn</div>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><sc-for list="{{types}}" as="t" hint-placeholder-count="2"><button class="{{t.cls}}" type="button" onClick="{{t.pick}}"><b>{{t.n}}</b><span class="cap">{{t.d}}</span></button></sc-for></div>
+        </div>
+        <div class="card lc" style="height:112px"><div class="eyebrow">Reward</div>
+          <div class="lr"><span style="flex:1">{{ruleText}}</span><span class="stp"><button class="btn" type="button" onClick="{{dn}}" aria-label="Less">−</button><b class="num" style="min-width:56px;text-align:center">{{rewardLabel}}</b><button class="btn" type="button" onClick="{{up}}" aria-label="More">+</button></span></div>
+        </div>
+        <div class="group" style="height:152px">
+          <div class="row" style="min-height:50px"><span class="grow">Birthday month: $5 off<span class="cap" style="display:block">Text on the 1st of their birthday month</span></span><button class="sw on" type="button" aria-label="Birthday reward"></button></div>
+          <div class="row" style="min-height:50px"><span class="grow">Points never expire</span><button class="sw on" type="button" aria-label="Never expire"></button></div>
+          <div class="row" style="min-height:50px"><span class="grow">Refer a friend: 50 points each</span><button class="sw" type="button" aria-label="Referral"></button></div>
+        </div>
+        <div class="card lc" style="height:108px"><div class="eyebrow">Who pays for the reward</div>
+          <div style="font-size:14px;line-height:20px">The discount comes off the salon's share. <b>Staff are paid on the full price</b> and keep 100% of tips. (Owner setting: Pay rules · Discounts.)</div>
+        </div>
+      </section>
+      <section style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="card lc" style="height:268px"><div class="eyebrow">What clients see</div>
+          <div class="bub">Mai Nails: Thanks Lan! You earned 52 pts today. You have 372 pts — your $10 reward is ready next visit. Reply STOP to opt out.</div>
+          <div class="group" style="box-shadow:none;border:1px solid var(--line)"><div class="row" style="min-height:40px;font-size:14px"><span class="grow">Receipt · Loyalty</span><b class="num">+52 pts · 372 total</b></div><div class="row" style="min-height:40px;font-size:14px"><span class="grow">Next reward</span><span class="tag jade">$10 ready</span></div></div>
+          <div class="cap">Same phone number = same points, at any visit. No app, no card.</div>
+        </div>
+        <div class="card lc" style="flex:1"><div class="eyebrow">Results · last 30 days</div>
+          <div class="rs3"><div><b>212</b><span class="cap">members</span></div><div><b>38</b><span class="cap">rewards used · $380</span></div><div><b>71%</b><span class="cap">members came back<br>vs 48% others</span></div></div>
+          <div class="cap">Facts only. Shows on Numbers too.</div>
+        </div>
+      </section>
+    </main></sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"on":{"editor":"boolean","default":true},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { on: !(p && p.on === false), type: 'points', r: 10 }; }
+  renderVals() {
+    const S = this.state, pts = S.type === 'points';
+    return {
+      on: S.on, off: !S.on, toggle: () => this.setState({ on: !S.on }), swCls: 'sw' + (S.on ? ' on' : ''),
+      types: [['points', 'Points', '1 point per $1 spent (before tip)'], ['visits', 'Visits', 'Punch card: every 10th visit gets a reward']].map((t) => ({ n: t[1], d: t[2], cls: 'pick' + (S.type === t[0] ? ' on' : ''), pick: () => this.setState({ type: t[0] }) })),
+      ruleText: pts ? '100 points = reward of' : '10th visit = reward of', rewardLabel: '$' + S.r,
+      up: () => this.setState({ r: Math.min(50, S.r + 5) }), dn: () => this.setState({ r: Math.max(5, S.r - 5) })
+    };
+  }
+}
+</script>
+</body>
+</html>

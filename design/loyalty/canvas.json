@@ -1,0 +1,141 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-16T23:10:00Z"
+ },
+ "title": "Nail POS — Loyalty",
+ "launch": {
+  "view": "canvas",
+  "page": "overview"
+ },
+ "pages": [
+  {
+   "id": "overview",
+   "name": "1 · Overview — clickable screens"
+  },
+  {
+   "id": "spec",
+   "name": "2 · Step by step (with notes)"
+  }
+ ],
+ "boards": {
+  "Loyalty.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "Owner · Loyalty settings",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "LoyaltyPay.dc.html": {
+   "x": 1360,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "Checkout · use a reward",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "LoyaltyPhone.dc.html": {
+   "x": 2720,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Client · my points (text link)",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Ly0Off.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L1 · Loyalty off: one-tap start",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly1Setup.dc.html": {
+   "x": 1720,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L2 · Set the rules",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly2Ready.dc.html": {
+   "x": 3440,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L3 · Checkout: reward ready",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly3Used.dc.html": {
+   "x": 5160,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L4 · Reward used",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly4Phone.dc.html": {
+   "x": 6880,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "L5 · Client sees points (from the text link)",
+   "is_interactive": true,
+   "page": "spec"
+  }
+ },
+ "order": [
+  "Loyalty.dc.html",
+  "LoyaltyPay.dc.html",
+  "LoyaltyPhone.dc.html",
+  "Ly0Off.dc.html",
+  "Ly1Setup.dc.html",
+  "Ly2Ready.dc.html",
+  "Ly3Used.dc.html",
+  "Ly4Phone.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "Loyalty",
+   "kind": "title1",
+   "maxW": 3110,
+   "page": "overview"
+  },
+  "s1": {
+   "x": -520,
+   "y": 0,
+   "w": 420,
+   "fill": "orange",
+   "page": "overview",
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nPROPOSAL for V1.1 (not in V1 scope). Confirm with Elang.\nPoints by phone number, no app or card. Reward never auto-applied. Staff paid on full price; tips untouched.\nSample prices from a real salon menu (Cosmo Nails)."
+  },
+  "t2": {
+   "x": 0,
+   "y": -300,
+   "text": "Step by step (with notes)",
+   "kind": "title1",
+   "maxW": 7630,
+   "page": "spec"
+  }
+ },
+ "designSystems": [
+  {
+   "title": "Nail POS Design System",
+   "namespace": "nailpos",
+   "artifact": "https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n",
+   "version": null,
+   "copiedAt": "2026-11-16T23:10:00Z"
+  }
+ ]
+}

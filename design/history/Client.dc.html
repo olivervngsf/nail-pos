@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Client history</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.st{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;text-align:center}
+.st b{display:block;font-size:20px;line-height:26px;font-variant-numeric:tabular-nums}
+.vr{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:0 16px;border:0;border-bottom:1px solid var(--line);background:var(--paper);font:inherit;text-align:left;cursor:pointer;color:var(--ink);box-sizing:border-box}
+.vr:hover{background:#FAFAFB}
+.vr.on{background:var(--surface)}
+.vr .d{width:74px;font-size:13px;font-weight:600;color:var(--ink-soft)}
+.vr .g{flex:1;min-width:0}
+.vr .g b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vr .m{text-align:right;font-variant-numeric:tabular-nums;font-size:15px;font-weight:600}
+.vx{display:flex;gap:16px;padding:14px 16px 16px 102px;border-bottom:1px solid var(--line);background:var(--surface)}
+.ph{width:72px;height:72px;border-radius:12px;flex:none}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a class="on" href="Client.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="#" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar"><a class="btn ghost" href="#" style="height:36px;padding:0 10px">‹ Clients</a><div class="title">Lan Tran</div><span class="pill ok"><span class="dot"></span>Saved</span><button class="btn" type="button" style="height:38px;font-size:15px">Text</button><button class="btn primary" type="button" style="height:38px;font-size:15px;padding:0 16px">Book again</button></header>
+    <main style="flex:1;display:flex;gap:16px;padding:20px 24px;min-height:0">
+      <section style="width:380px;display:flex;flex-direction:column;gap:12px">
+        <div class="card" style="height:148px;padding:16px 18px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:12px"><span class="av lg">L</span><div><div class="h2">Lan Tran</div><div class="cap num">(408) 555-0142 · lan.t@gmail.com</div></div></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag jade">Regular</span><span class="tag">Gel color mani</span><span class="tag">Usually Kim</span><span class="tag">Since Mar 2024</span></div>
+          <div class="cap">Texts: yes · Language: English</div>
+        </div>
+        <div class="card st" style="height:80px;padding:14px 10px;box-sizing:border-box"><div><b>24</b><span class="cap">visits</span></div><div><b>$1,320</b><span class="cap">spent</span></div><div><b>$55</b><span class="cap">avg</span></div><div><b>3.4 wk</b><span class="cap">comes every</span></div></div>
+        <div class="card" style="height:112px;padding:12px 16px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px"><div class="eyebrow">Notes (staff see these)</div><div style="font-size:14px;line-height:20px"><b style="color:#C92A2A">Sensitive skin</b> · no acetone soak, use gentle remover.</div><div style="font-size:14px;line-height:20px">Likes nude / pink. Short almond. Chats in Vietnamese with Kim.</div></div>
+        <div class="group" style="height:104px"><div class="row" style="min-height:52px"><span class="grow">Gift card ••4411</span><b class="num">$25.00</b></div><div class="row" style="min-height:52px"><span class="grow">Loyalty <span class="cap">· 320 pts</span></span><span class="tag jade">$10 reward ready</span></div></div>
+        <div class="card" style="height:72px;padding:12px 16px;box-sizing:border-box"><div class="eyebrow">Next visit</div><div style="font-size:15px;margin-top:4px"><b>Tue, Nov 24 · 2:00 PM</b> · Gel with Kim · <span style="color:#1F7A33;font-weight:600">confirmed</span></div></div>
+      </section>
+      <section style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div style="display:flex;gap:8px;height:36px"><sc-for list="{{filters}}" as="f" hint-placeholder-count="5"><button class="{{f.cls}}" type="button" onClick="{{f.pick}}">{{f.label}}</button></sc-for><span style="flex:1"></span><span class="cap" style="align-self:center">24 visits · newest first</span></div>
+        <div class="group" style="flex:1;min-height:0;overflow:hidden">
+          <sc-for list="{{visits}}" as="v" hint-placeholder-count="7">
+            <button class="{{v.cls}}" type="button" onClick="{{v.pick}}"><span class="d">{{v.date}}</span><span class="av" style="width:30px;height:30px;font-size:12px">{{v.init}}</span><span class="g"><b>{{v.svc}}</b><span class="cap">{{v.sub}}</span></span><span class="m">{{v.total}}<span class="cap" style="display:block;font-weight:400">{{v.tip}}</span></span></button>
+            <sc-if value="{{v.open}}" hint-placeholder-val="{{false}}"><div class="vx fade">
+              <div style="display:flex;gap:8px"><span class="ph" style="background:#F2D7D9"></span><span class="ph" style="background:#E9C9B9"></span><span class="ph" style="background:#EFE3DA"></span></div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:20px"><b>Kim's note</b><span>Nude pink (OPI Bubble Bath), short almond. Skin a bit red at cuticles → gentle remover next time.</span><span class="cap">Paid card · Gel color manicure $45 + French tip $7 = $52 · tip $10 (card) · card fee $1.72 shown</span></div>
+            </div></sc-if>
+          </sc-for>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"open":{"editor":"int","default":0},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { open: (p && p.open != null) ? p.open : 0, f: 'All visits' }; }
+  renderVals() {
+    const S = this.state;
+    const V = [['Nov 3', 'K', 'Gel color manicure + French tip', 'Kim · 55 min · 3 photos', '$52.00', 'tip $10'], ['Oct 13', 'K', 'Gel color manicure', 'Kim · 45 min', '$45.00', 'tip $9'], ['Sep 22', 'L', 'Gel color change - hands', 'Linh (Kim off) · 30 min', '$30.00', 'tip $6'], ['Sep 1', 'K', 'Gel color manicure & regular pedicure', 'Kim · 95 min · gift card $20 used', '$83.00', 'tip $16'], ['Aug 9', 'K', 'Gel color manicure', 'Kim · 45 min', '$45.00', 'tip $9'], ['Jul 19', 'K', 'Gel color manicure + French tip', 'Kim · 55 min · 2 photos', '$52.00', 'tip $10'], ['Jun 28', 'K', 'Gel color manicure', 'Kim · 45 min · loyalty $10 used', '$35.00', 'tip $9']];
+    return {
+      filters: ['All visits', 'Photos', 'Notes', 'Payments', 'Texts'].map((f) => ({ label: f, cls: 'chip' + (S.f === f ? ' on' : ''), pick: () => this.setState({ f }) })),
+      visits: V.map((v, i) => ({ date: v[0], init: v[1], svc: v[2], sub: v[3], total: v[4], tip: v[5], open: S.open === i, cls: 'vr' + (S.open === i ? ' on' : ''), pick: () => this.setState({ open: S.open === i ? -1 : i }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>
