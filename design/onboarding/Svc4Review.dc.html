@@ -15,12 +15,12 @@
 <div class="af">
   <div class="af-screen">
     <dc-import name="Services" mode="ai" hint-size="1280px,800px"></dc-import>
-    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="6"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
   </div>
   <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
     <div class="eyebrow">Annotations · 3d</div>
     <div class="af-title">Check what AI read</div>
-    <sc-for list="{{pins}}" as="p" hint-placeholder-count="6"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
     <div class="af-next">Nothing is saved or live until “Looks right · Continue” → Step 4 Staff.</div>
   </div></sc-if></aside>
 </div>
@@ -29,14 +29,7 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [
-      [372, 198, 'Switch: turn a service off → row dims to 45%, count below updates.'],
-      [600, 198, '“read as …” shows the original words from the photo so the owner can trust the match.'],
-      [1010, 380, 'Orange ▲ tag = AI unsure (e.g. “50+” price, guessed time). Tells exactly what to check.'],
-      [1150, 410, 'Price field turns orange for unsure rows; tap → number pad.'],
-      [1190, 100, 'Retake photo → back to 3a.'],
-      [1190, 762, 'Continue label becomes “Looks right · Continue”.']
-    ];
+    const P = [[350, 118, "Everything is editable: tap a name, minutes or price and type over it."], [372, 167, "Switch: turn a service off → row dims, count below updates."], [437, 184, "“read as …” shows the original words from the photo so the owner can trust the match."], [716, 379, "Orange ▲ tag = AI unsure (e.g. “50+” price, guessed time). Says exactly what to check."], [1066, 405, "The unsure box turns orange: price (“50+”) or minutes (time guessed). Fix it → orange goes away."], [1180, 194, "✕ removes a service from the list (undo with a toast)."], [356, 600, "+ Add a service adds a blank row, cursor in the name."], [1090, 92, "Retake photo → back to 3a."], [964, 736, "Continue label becomes “Looks right · Continue”."]];
     return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }

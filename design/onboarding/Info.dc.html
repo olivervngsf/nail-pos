@@ -11,7 +11,23 @@
 <body>
 <x-dc>
 <helmet>
-<style>body{margin:0}</style>
+<style>body{margin:0}
+.chip{height:32px;padding:0 12px;font-size:13px}
+.tbtn{height:36px;min-width:96px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
+.tbtn:hover{border-color:#C7C7CC}.tbtn.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.tbtn.bad{border-color:#E03131;color:#E03131}
+.tscrim{position:fixed;inset:0;z-index:30}
+.tpop{position:absolute;left:0;z-index:31;width:264px;background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.05);padding:12px;display:flex;flex-direction:column;gap:10px;animation:tpIn .16s ease-out;box-sizing:border-box}
+@keyframes tpIn{from{opacity:0;transform:translateY(4px) scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tpop{animation:none}}
+.tpop .seg{padding:2px}.tpop .seg span{padding:0 8px;font-size:13px;cursor:pointer;justify-content:center;flex:1}
+.tp-l{font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+.tp-h{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.tp-h button{height:34px;border:0;border-radius:10px;background:var(--fill);font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
+.tp-h button.on{background:var(--ink);color:#fff}
+.hsum{font-size:13px;color:var(--ink-soft);margin-left:auto;white-space:nowrap}
+.hsum.bad{color:#E03131;font-weight:600}
+</style>
 </helmet>
 <div class="wiz">
   <aside class="side">
@@ -26,58 +42,109 @@
     <div class="body">
       <div class="eyebrow in">Step 2 of 10</div>
       <div class="h1 in">About your salon</div>
-      <div class="in2" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:820px">
+      <div style="display:grid;grid-template-columns:400px 440px;gap:24px;align-items:start">
+      <div class="in2" style="display:flex;flex-direction:column;gap:14px">
         <div><label class="lbl" for="nm">Salon name</label><input class="inp" id="nm" value="Mai Nails"></div>
         <div><label class="lbl" for="sp">Salon phone (clients see this)</label><input class="inp num" id="sp" value="(408) 555-0100"></div>
-        <div style="grid-column:span 2"><label class="lbl" for="ad">Address</label><input class="inp" id="ad" value="1234 Story Rd, San Jose, CA 95122"></div>
-      </div>
-      <div class="in2">
-        <div class="lbl">Open days</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="chip on">Mon</span><span class="chip on">Tue</span><span class="chip on">Wed</span><span class="chip on">Thu</span><span class="chip on">Fri</span><span class="chip on">Sat</span><span class="chip">Sun</span>
-          <span class="cap" style="align-self:center;margin-left:8px">9:30 AM – 7:00 PM · change per day later</span>
+        <div><label class="lbl" for="ad">Address</label><input class="inp" id="ad" value="1234 Story Rd, San Jose, CA 95122"></div>
+        <div>
+          <div class="lbl">Which state?</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+            <sc-for list="{{states}}" as="s" hint-placeholder-count="4">
+              <button class="{{s.cls}}" type="button" onClick="{{s.pick}}">{{s.label}}</button>
+            </sc-for>
+          </div>
+          <div class="card fade" style="padding:12px 14px;display:flex;gap:12px;align-items:flex-start">
+            <div class="ico" style="flex:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg></div>
+            <div>
+              <div style="font-weight:600;font-size:15px">{{ruleTitle}}</div>
+              <div class="cap" style="font-size:13px;line-height:18px;margin-top:2px">{{ruleBody}}</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="in3">
-        <div class="lbl">Which state?</div>
-        <div style="display:flex;gap:8px;margin-bottom:12px">
-          <sc-for list="{{states}}" as="s" hint-placeholder-count="4">
-            <button class="{{s.cls}}" type="button" onClick="{{s.pick}}">{{s.label}}</button>
+        <div style="display:flex;align-items:center;margin-bottom:6px"><span class="lbl" style="flex:1;margin:0">Open hours</span><button class="btn ghost" type="button" onClick="{{copyMon}}" style="height:30px;font-size:13px;padding:0 10px">Copy Monday to all open days</button></div>
+        <div class="group" style="overflow:visible">
+          <sc-for list="{{hours}}" as="h" hint-placeholder-count="7">
+            <div class="row" style="{{h.rowStyle}}">
+              <span style="width:38px;font-weight:600">{{h.d}}</span>
+              <button class="{{h.tcls}}" type="button" onClick="{{h.flip}}" aria-label="{{h.d}} open"></button>
+              <sc-if value="{{h.on}}" hint-placeholder-val="{{true}}">
+                <span style="position:relative"><button class="{{h.oCls}}" type="button" onClick="{{h.openO}}">{{h.o}}</button>
+                  <sc-if value="{{h.popO}}" hint-placeholder-val="{{false}}"><div class="tscrim" onClick="{{closeTp}}"></div><div class="tpop" style="{{h.popPos}}">
+                    <div class="tp-l">{{tpLabel}}</div>
+                    <div class="tp-h"><sc-for list="{{tpHours}}" as="x" hint-placeholder-count="12"><button class="{{x.cls}}" type="button" onClick="{{x.pick}}">{{x.n}}</button></sc-for></div>
+                    <div style="display:flex;gap:6px"><div class="seg" style="flex:1"><sc-for list="{{tpMins}}" as="x" hint-placeholder-count="4"><span class="{{x.cls}}" onClick="{{x.pick}}">{{x.n}}</span></sc-for></div><div class="seg"><sc-for list="{{tpAp}}" as="x" hint-placeholder-count="2"><span class="{{x.cls}}" onClick="{{x.pick}}">{{x.n}}</span></sc-for></div></div>
+                    <button class="btn primary" type="button" onClick="{{closeTp}}" style="height:38px;font-size:14px;width:100%;box-sizing:border-box">Done · {{tpNow}}</button>
+                  </div></sc-if></span>
+                <span class="cap">to</span>
+                <span style="position:relative"><button class="{{h.cCls}}" type="button" onClick="{{h.openC}}">{{h.c}}</button>
+                  <sc-if value="{{h.popC}}" hint-placeholder-val="{{false}}"><div class="tscrim" onClick="{{closeTp}}"></div><div class="tpop" style="{{h.popPosC}}">
+                    <div class="tp-l">{{tpLabel}}</div>
+                    <div class="tp-h"><sc-for list="{{tpHours}}" as="x" hint-placeholder-count="12"><button class="{{x.cls}}" type="button" onClick="{{x.pick}}">{{x.n}}</button></sc-for></div>
+                    <div style="display:flex;gap:6px"><div class="seg" style="flex:1"><sc-for list="{{tpMins}}" as="x" hint-placeholder-count="4"><span class="{{x.cls}}" onClick="{{x.pick}}">{{x.n}}</span></sc-for></div><div class="seg"><sc-for list="{{tpAp}}" as="x" hint-placeholder-count="2"><span class="{{x.cls}}" onClick="{{x.pick}}">{{x.n}}</span></sc-for></div></div>
+                    <button class="btn primary" type="button" onClick="{{closeTp}}" style="height:38px;font-size:14px;width:100%;box-sizing:border-box">Done · {{tpNow}}</button>
+                  </div></sc-if></span>
+                <span class="{{h.sumCls}}">{{h.sum}}</span>
+              </sc-if>
+              <sc-if value="{{h.off}}" hint-placeholder-val="{{false}}"><span class="cap">Closed</span></sc-if>
+            </div>
           </sc-for>
         </div>
-        <div class="card fade" style="padding:16px 18px;display:flex;gap:14px;align-items:flex-start;max-width:820px">
-          <div class="ico" style="flex:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg></div>
-          <div>
-            <div style="font-weight:600;font-size:16px">{{ruleTitle}}</div>
-            <div class="cap" style="font-size:14px;line-height:20px;margin-top:2px">{{ruleBody}}</div>
-          </div>
-        </div>
+        <div class="cap" style="margin-top:8px;line-height:18px">Booking page, calendar and reminders use these hours. Holidays and one-off days: Settings · Hours.</div>
+      </div>
       </div>
     </div>
     <div class="foot">
       <a class="btn ghost" href="Main.dc.html">Back</a>
       <span class="sp"></span>
       <span class="pill ok"><span class="dot"></span>Saved</span>
-      <a class="btn primary" href="Services.dc.html" style="width:200px">Continue</a>
+      <a class="btn primary" href="Services.dc.html" style="{{contStyle}}">Continue</a>
     </div>
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"at":{"editor":"enum","options":["main","picker","error"],"default":"main"},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
-  constructor(p){ super(p); this.state = { st: 'CA' }; }
+  constructor(p){ super(p); const at=(p&&p.at)||'main';
+    const hours=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i)=>({d,on:i<6,o:'9:30 AM',c:'7:00 PM'}));
+    if (at==='error') hours[2].c='8:00 AM';
+    this.state = { st: 'CA', hours, tp: at==='picker' ? '0:c' : '' }; }
   renderVals() {
-    const cur = 1;
+    const S=this.state, cur = 1;
     const names = ['Sign up','Salon info','Services','Staff + PIN','Payments','Card reader','Printer','Salon device','Clients','$1 test'];
-    const locked = this.state.st === 'CA' || this.state.st === 'MN';
+    const locked = S.st === 'CA' || S.st === 'MN';
+    const pt=(t)=>{const [hm,ap]=t.split(' ');const [h,m]=hm.split(':').map(Number);return {h,m,ap};};
+    const mins=(t)=>{const x=pt(t);let h=x.h%12;if(x.ap==='PM')h+=12;return h*60+x.m;};
+    const fmt=(x)=>x.h+':'+String(x.m).padStart(2,'0')+' '+x.ap;
+    const setH=(i,f,v)=>{const hs=S.hours.map((h)=>Object.assign({},h));hs[i][f]=v;this.setState({hours:hs});};
+    const [ti,tf]=S.tp?S.tp.split(':'):[null,null];
+    const curT=S.tp?pt(S.hours[+ti][tf]):{h:0,m:0,ap:''};
+    const change=(k,v)=>{const x=Object.assign({},curT);x[k]=v;if(k==='h'){ if(v===12||v<=5) x.ap='PM'; else if(tf==='o') x.ap='AM'; } setH(+ti,tf,fmt(x));};
+    const bad=S.hours.some((h)=>h.on&&mins(h.c)<=mins(h.o));
     return {
       steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
       pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
-      states: ['CA', 'TX', 'MN', 'Other'].map((s) => ({ label: s === 'CA' ? 'California' : s === 'TX' ? 'Texas' : s === 'MN' ? 'Minnesota' : 'Other state', cls: this.state.st === s ? 'chip on' : 'chip', pick: () => this.setState({ st: s }) })),
+      states: ['CA', 'TX', 'MN', 'Other'].map((s) => ({ label: s === 'CA' ? 'California' : s === 'TX' ? 'Texas' : s === 'MN' ? 'Minnesota' : 'Other state', cls: S.st === s ? 'chip on' : 'chip', pick: () => this.setState({ st: s }) })),
       ruleTitle: locked ? 'Tip rules locked by state law' : 'Tip rules set to our safe default',
       ruleBody: locked
         ? 'Staff always get 100% of tips. The card fee on tips is paid by the salon and can’t be changed here. Owners and managers are never in tip pools.'
-        : 'Staff get 100% of tips and the salon pays the card fee on tips. You can change who pays that fee later in Settings — it always shows on the ticket.'
+        : 'Staff get 100% of tips and the salon pays the card fee on tips. You can change who pays that fee later in Settings — it always shows on the ticket.',
+      hours: S.hours.map((h,i)=>{ const d=mins(h.c)-mins(h.o), wrong=h.on&&d<=0;
+        return { d:h.d, on:h.on, off:!h.on, o:h.o, c:h.c, rowStyle:'gap:10px;min-height:46px;padding-top:5px;padding-bottom:5px'+(h.on?'':';opacity:.55'),
+          tcls:h.on?'toggle on':'toggle', flip:()=>setH(i,'on',!h.on),
+          oCls:S.tp===i+':o'?'tbtn on':'tbtn', cCls:S.tp===i+':c'?'tbtn on':(wrong?'tbtn bad':'tbtn'),
+          openO:()=>this.setState({tp:S.tp===i+':o'?'':i+':o'}), openC:()=>this.setState({tp:S.tp===i+':c'?'':i+':c'}),
+          popO:S.tp===i+':o', popC:S.tp===i+':c', popPos:i>=4?'bottom:44px':'top:44px', popPosC:(i>=4?'bottom:44px':'top:44px')+';left:auto;right:0',
+          sum: wrong?'Check times':((d/60).toFixed(d%60?1:0)+' h'), sumCls: wrong?'hsum bad':'hsum' }; }),
+      copyMon:()=>{const m=S.hours[0];this.setState({hours:S.hours.map((h)=>h.on?Object.assign({},h,{o:m.o,c:m.c}):h)});},
+      closeTp:()=>this.setState({tp:''}),
+      tpLabel: tf==='o'?'Opens':'Closes', tpNow: S.tp?S.hours[+ti][tf]:'',
+      tpHours:[6,7,8,9,10,11,12,1,2,3,4,5].map((n)=>({n,cls:curT.h===n?'on':'',pick:()=>change('h',n)})),
+      tpMins:[0,15,30,45].map((n)=>({n:':'+String(n).padStart(2,'0'),cls:curT.m===n?'on':'',pick:()=>change('m',n)})),
+      tpAp:['AM','PM'].map((n)=>({n,cls:curT.ap===n?'on':'',pick:()=>change('ap',n)})),
+      contStyle: bad ? 'width:200px;opacity:.35;pointer-events:none' : 'width:200px'
     };
   }
 }

@@ -13,14 +13,14 @@
 <helmet><style>body{margin:0}</style></helmet>
 <div class="afp">
   <div class="afp-screen">
-    <dc-import name="StaffClockIn" on="{{yes}}" hint-size="390px,844px"></dc-import>
+    <dc-import name="StaffClockIn" where="salon" on="{{yes}}" hint-size="390px,844px"></dc-import>
     <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="3"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
   </div>
   <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
     <div class="eyebrow">Annotations · S·12</div>
     <div class="af-title">Clocked in</div>
     <sc-for list="{{pins}}" as="p" hint-placeholder-count="3"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
-    <div class="af-next">Staff onboarding done.</div>
+    <div class="af-next">Done. Front desk sees Kim on the turn list.</div>
   </div></sc-if></aside>
 </div>
 </x-dc>
@@ -28,7 +28,7 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [[195, 260, "Button turns white with a green ring: “Clocked in ✓”."], [195, 470, "Details fade in: clock-in time, turn # in line, first appointment."], [195, 600, "Tap again = clock out (break / end of day)."]];
+    const P = [[106, 303, "Button turns white with a green ring: “Clocked in ✓”."], [40, 488, "Details fade in: clock-in time, turn # in line, first appointment."], [72, 586, "Tap again = clock out (break / end of day)."]];
     return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }

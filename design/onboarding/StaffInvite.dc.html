@@ -103,11 +103,16 @@ body{margin:0}
       </sc-if>
 
       <sc-if value="{{sDone}}" hint-placeholder-val="{{false}}">
-        <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:50px;text-align:center">
+        <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:28px;text-align:center;width:100%">
           <div class="pop" style="width:76px;height:76px;border-radius:50%;background:var(--jade-soft);border:2px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:34px">✓</div>
           <div class="h2">{{doneTitle}}</div>
           <div class="cap" style="font-size:15px;line-height:21px">{{doneBody}}</div>
-          <a class="btn primary" href="StaffClockIn.dc.html" style="width:260px;margin-top:10px">{{doneCta}}</a>
+          <div class="group" style="width:100%;text-align:left">
+            <div class="row" style="flex-direction:column;align-items:flex-start;gap:2px;padding-top:10px;padding-bottom:10px"><span class="cap">{{shiftL}}</span><b style="font-weight:600">{{shiftV}}</b></div>
+            <div class="row" style="flex-direction:column;align-items:flex-start;gap:2px;padding-top:10px;padding-bottom:10px"><span class="cap">{{howL}}</span><b style="font-weight:600">{{howV}}</b></div>
+          </div>
+          <div class="cap" style="text-align:left;width:100%;line-height:19px">{{laterT}}</div>
+          <a class="btn primary" href="StaffClockIn.dc.html" style="width:100%;box-sizing:border-box;height:52px;font-size:17px">{{doneCta}}</a>
           <button class="btn ghost" type="button" onClick="{{restart}}">Start demo over</button>
         </div>
       </sc-if>
@@ -134,8 +139,8 @@ class Component extends DCLogic {
   renderVals() {
     const S = this.state, vi = S.lang === 'vi';
     const T = vi
-      ? { create: 'Tạo mã PIN 4 số', confirm: 'Nhập lại mã PIN', hint: 'Dùng để chấm công và xem lương.', weak: 'Dễ đoán quá. Chọn số khác.', nomatch: 'Hai mã không khớp. Thử lại.', doneT: 'Đã lưu mã PIN', doneB: 'Dùng mã này trên iPad của tiệm để chấm công.', cta: 'Tiếp tục' }
-      : { create: 'Make a 4-digit PIN', confirm: 'Type it again', hint: 'You use it to clock in and see your pay.', weak: 'Too easy to guess. Pick another.', nomatch: "PINs don't match. Try again.", doneT: 'PIN saved', doneB: 'Use it on the salon iPad to clock in.', cta: 'Continue' };
+      ? { create: 'Tạo mã PIN 4 số', confirm: 'Nhập lại mã PIN', hint: 'Dùng để chấm công và xem lương.', weak: 'Dễ đoán quá. Chọn số khác.', nomatch: 'Hai mã không khớp. Thử lại.', doneT: 'Xong rồi!', doneB: 'Mai Nails · Thợ · Đã lưu mã PIN', shiftL: 'Ca làm tiếp theo', shiftV: 'Th 3, 17/11 · 9:00 – 19:00', howL: 'Cách chấm công', howV: 'Tại tiệm: trên điện thoại này hoặc iPad của tiệm bằng mã PIN', later: 'Không cần làm gì thêm. Có thể đóng lại và quay lại bất cứ lúc nào.', cta: 'Mở trang chính' }
+      : { create: 'Make a 4-digit PIN', confirm: 'Type it again', hint: 'You use it to clock in and see your pay.', weak: 'Too easy to guess. Pick another.', nomatch: "PINs don't match. Try again.", doneT: "You're all set", doneB: 'Mai Nails · Tech · PIN saved', shiftL: 'Your next shift', shiftV: 'Tue, Nov 17 · 9:00 AM – 7:00 PM', howL: 'How to clock in', howV: 'At the salon: this phone, or the salon iPad with your PIN', later: 'Nothing else to do now. Close this any time and come back later.', cta: 'Open my Home' };
     const order = { confirm: 1, lang: 2, pin: 3, photo: 4, done: 5 };
     const PH = vi
       ? { t: 'Thêm ảnh của bạn', b: 'Khách và đồng nghiệp nhận ra bạn trên danh sách lượt và trang đặt lịch. Có thể làm sau.', take: 'Chụp ảnh', lib: 'Chọn từ thư viện', skip: 'Để sau' }
@@ -176,7 +181,7 @@ class Component extends DCLogic {
         aria: l === '⌫' ? 'Delete' : 'Digit ' + l,
         press: l === '⌫' ? () => this.setState({ pin: S.pin.slice(0, -1) }) : () => press(l)
       })),
-      doneTitle: T.doneT, doneBody: T.doneB, doneCta: T.cta,
+      doneTitle: T.doneT, doneBody: T.doneB, doneCta: T.cta, shiftL: T.shiftL, shiftV: T.shiftV, howL: T.howL, howV: T.howV, laterT: T.later,
       openLink: () => this.setState({ step: 'confirm' }),
       yes: () => this.setState({ step: 'lang' }),
       notMe: () => this.setState({ step: 'notme' }),

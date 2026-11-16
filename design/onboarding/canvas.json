@@ -104,7 +104,7 @@
   "StaffClockIn.dc.html": {
    "h": 844,
    "is_interactive": true,
-   "title": "S2 · First clock-in",
+   "title": "S2 · Home → clock in only at the salon",
    "w": 390,
    "x": 470,
    "y": 1450,
@@ -321,21 +321,21 @@
    "y": 2950,
    "w": 750,
    "h": 844,
-   "title": "S·10 All set",
+   "title": "S·10 All set: next shift + how to clock in",
    "is_interactive": true,
    "page": "staff"
   },
   "Sj11ClockIn.dc.html": {
-   "x": 8300,
+   "x": 9130,
    "y": 2950,
    "w": 750,
    "h": 844,
-   "title": "S·11 Clock in",
+   "title": "S·11 At the salon: clock in",
    "is_interactive": true,
    "page": "staff"
   },
   "Sj12ClockedIn.dc.html": {
-   "x": 9130,
+   "x": 9960,
    "y": 2950,
    "w": 750,
    "h": 844,
@@ -349,6 +349,42 @@
    "w": 1640,
    "h": 800,
    "title": "3f · Or: paste your website link → AI imports all services",
+   "is_interactive": true,
+   "page": "owner"
+  },
+  "Sj10bHome.dc.html": {
+   "x": 8300,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·10b Home at home: clock-in waits",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Inf1Hours.dc.html": {
+   "x": 0,
+   "y": 4500,
+   "w": 1640,
+   "h": 800,
+   "title": "2a · Open hours per day",
+   "is_interactive": true,
+   "page": "owner"
+  },
+  "Inf2Picker.dc.html": {
+   "x": 1720,
+   "y": 4500,
+   "w": 1640,
+   "h": 800,
+   "title": "2b · Tap a time → small picker",
+   "is_interactive": true,
+   "page": "owner"
+  },
+  "Inf3Error.dc.html": {
+   "x": 3440,
+   "y": 4500,
+   "w": 1640,
+   "h": 800,
+   "title": "2c · If close is before open → red, Continue off",
    "is_interactive": true,
    "page": "owner"
   }
@@ -485,7 +521,7 @@
   },
   "n9": {
    "fill": "gray",
-   "text": "TAPS · Staff phone (try it in Play)\n• Tap link in text → “Is this you?” (name, salon, role, pay)\n• Not me → link turned off, owner told\n• Yes → pick English / Tiếng Việt (switches every screen after)\n• PIN: dots fill per tap; ⌫ deletes; 1111/1234 → shake “Too easy”\n• Type again: mismatch → shake, start over; match → PIN saved ✓\n• Continue → Clock in: big button → “Clocked in ✓”, turn # and first appointment fade in; tap again = clock out\n• OPEN: 4-digit PIN or phone number — confirm with Elang",
+   "text": "TAPS · Staff phone (try it in Play)\n• Tap link in text → “Is this you?” (name, salon, role, pay)\n• Not me → link turned off, owner told\n• Yes → pick English / Tiếng Việt (switches every screen after)\n• PIN: dots fill per tap; ⌫ deletes; 1111/1234 → shake “Too easy”\n• Type again: mismatch → shake, start over; match → PIN saved ✓\n• All set → next shift + how to clock in (no clock-in push; most join from home)\n• Open my Home → at home: Clock in grey “opens at the salon, 15 min before shift”; at the salon: big button → “Clocked in ✓”, turn # + first appointment; tap again = clock out\n• OPEN: 4-digit PIN or phone number — confirm with Elang",
    "w": 860,
    "x": 940,
    "y": 1450,
@@ -588,9 +624,13 @@
   "Sj08Mismatch.dc.html",
   "Sj09Photo.dc.html",
   "Sj10Done.dc.html",
+  "Sj10bHome.dc.html",
   "Sj11ClockIn.dc.html",
   "Sj12ClockedIn.dc.html",
-  "Svc6Link.dc.html"
+  "Svc6Link.dc.html",
+  "Inf1Hours.dc.html",
+  "Inf2Picker.dc.html",
+  "Inf3Error.dc.html"
  ],
  "pages": [
   {
