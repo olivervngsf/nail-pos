@@ -20,3 +20,6 @@
 .pin.static::after{display:none}
 .af-toggle{align-self:flex-start;height:30px;padding:0 12px;border-radius:999px;border:1px solid #E5E5EA;background:#fff;font:600 12px -apple-system,BlinkMacSystemFont,sans-serif;color:#1C1C1E;cursor:pointer}
 .af-body{display:flex;flex-direction:column;gap:12px;flex:1;min-height:0}
+
+/* v3: no scrollbars inside frames */
+html,body{overflow:hidden}

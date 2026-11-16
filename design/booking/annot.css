@@ -28,3 +28,6 @@
 .afk{width:1384px;height:768px;display:flex;background:#F5F5F7}
 .afk-screen{position:relative;width:1024px;height:768px;flex:none;overflow:hidden}
 .afk .af-notes{height:768px}
+
+/* v3: no scrollbars inside frames */
+html,body{overflow:hidden}
