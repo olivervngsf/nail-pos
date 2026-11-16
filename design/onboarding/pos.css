@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=block");
 /* Nail POS — checkout look: compact, calm, Apple-like. Colors from Nail Salon OS DS. */
 :root{
   --ink:#1C1C1E; --ink-soft:#5C5C5E; --muted:#8E8E93; --line:#E5E5EA;

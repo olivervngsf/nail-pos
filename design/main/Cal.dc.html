@@ -78,7 +78,7 @@ body{margin:0}
 .now{position:absolute;left:-6px;right:0;height:2px;background:#E03131;pointer-events:none;z-index:2}
 .now::before{content:"";position:absolute;left:0;top:-4px;width:10px;height:10px;border-radius:50%;background:#E03131}
 .nowlbl{position:absolute;left:318px;font-size:11px;font-weight:700;color:#E03131;transform:translateY(-7px)}
-.pop{position:absolute;width:340px;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:10;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px;animation:popin .22s cubic-bezier(.2,.8,.2,1) both;cursor:default}
+.qcard{position:absolute;width:340px;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:10;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px;animation:popin .22s cubic-bezier(.2,.8,.2,1) both;cursor:default}
 @keyframes popin{from{opacity:0;transform:scale(.96) translateY(4px)}to{opacity:1;transform:none}}
 .chip{height:32px;padding:0 12px;border-radius:999px;border:1px solid #E5E5EA;background:#fff;font:inherit;font-size:13px;font-weight:600;color:#1C1C1E;cursor:pointer;transition:background .15s,color .15s}
 .chip.on{background:#1C1C1E;border-color:#1C1C1E;color:#fff}
@@ -218,7 +218,7 @@ body{margin:0}
   </sc-if>
 
   <sc-if value="{{hasPop}}" hint-placeholder-val="{{false}}">
-    <div class="pop" style="{{popStyle}}" role="dialog" aria-label="New booking">
+    <div class="qcard" style="{{popStyle}}" role="dialog" aria-label="New booking">
       <div style="display:flex;align-items:center"><b style="flex:1;font-size:16px">New booking</b><button class="mbtn" type="button" onClick="{{closeAll}}" style="background:transparent" aria-label="Close">✕</button></div>
       <div style="display:flex;align-items:center;gap:6px;font-size:14px"><b class="num">{{popTime}}</b><span class="cap">· {{popStaff}}</span><span style="flex:1"></span><button class="mbtn" type="button" onClick="{{durDown}}" aria-label="Shorter" style="width:30px;height:28px">−</button><span class="cap num" style="min-width:44px;text-align:center">{{popDur}}</span><button class="mbtn" type="button" onClick="{{durUp}}" aria-label="Longer" style="width:30px;height:28px">+</button></div>
       <input value="{{popClientName}}" placeholder="Client name or phone" aria-label="Client" style="height:42px;border-radius:10px;border:1.5px solid #1C1C1E;padding:0 12px;font:inherit;font-size:15px">
