@@ -20,8 +20,9 @@ body{margin:0}
 .ch{display:flex;align-items:center;gap:12px;min-height:58px;padding:0 14px;border-bottom:1px solid #E5E5EA;font-size:14px}
 .ch:last-child{border-bottom:0}
 .bar{height:8px;border-radius:4px;background:#1C1C1E}
-.sheet{position:absolute;top:0;right:0;bottom:0;width:440px;background:#fff;box-shadow:-12px 0 40px rgba(28,28,30,.16);z-index:6;padding:22px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;animation:fadeIn .3s ease both}
-.scrim{position:absolute;inset:0;background:rgba(28,28,30,.22);z-index:5;border:0;padding:0}
+
+
+.drawer{padding:22px;box-sizing:border-box;gap:12px}
 </style>
 </helmet>
 <div class="app" style="position:relative">
@@ -88,7 +89,7 @@ body{margin:0}
   </div>
   <sc-if value="{{googleOpen}}" hint-placeholder-val="{{false}}">
     <button class="scrim" type="button" onClick="{{close}}" aria-label="Close"></button>
-    <div class="sheet" role="dialog" aria-label="Connect Google">
+    <div class="drawer" role="dialog" aria-label="Connect Google">
       <div style="display:flex;align-items:center"><b class="h2" style="flex:1">Book from Google</b><button class="btn ghost" type="button" onClick="{{close}}" style="height:32px">Close</button></div>
       <div style="font-size:15px;line-height:22px;color:var(--ink-soft)">Clients who find Mai Nails on Google Maps or Search get a “Book online” button that opens your booking page.</div>
       <div class="group" style="box-shadow:none;border:1px solid #E5E5EA">

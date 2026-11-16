@@ -16,7 +16,7 @@ body{margin:0}
 .rail2 a{width:60px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border-radius:10px;font-size:11px;color:#5C5C5E;text-decoration:none}
 .rail2 a.on{background:#EFEFF2;color:#1C1C1E;font-weight:600}
 .top{position:absolute;left:76px;right:0;top:0;height:56px;display:flex;align-items:center;gap:10px;padding:0 16px;background:rgba(245,245,247,.85);backdrop-filter:blur(20px);border-bottom:1px solid #E5E5EA;box-sizing:border-box}
-.banner{position:absolute;left:76px;right:0;top:56px;height:34px;display:flex;align-items:center;gap:10px;padding:0 16px;background:#FDEEE6;border-bottom:1px solid #F4C9AF;font-size:13px;box-sizing:border-box;animation:fadeIn .4s ease both}
+
 .left{position:absolute;left:76px;top:90px;bottom:0;width:240px;border-right:1px solid #E5E5EA;background:#FAFAFB;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px}
 .right{position:absolute;right:0;top:90px;bottom:0;width:240px;border-left:1px solid #E5E5EA;background:#FAFAFB;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px}
 .wcard{background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 0.5px 0 rgba(0,0,0,.04),0 2px 8px rgba(28,28,30,.06);cursor:grab;font-size:13px;line-height:18px;transition:transform .15s,box-shadow .2s}
@@ -80,9 +80,9 @@ body{margin:0}
 .nowlbl{position:absolute;left:318px;font-size:11px;font-weight:700;color:#E03131;transform:translateY(-7px)}
 .qcard{position:absolute;width:340px;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:10;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px;animation:popin .22s cubic-bezier(.2,.8,.2,1) both;cursor:default}
 @keyframes popin{from{opacity:0;transform:scale(.96) translateY(4px)}to{opacity:1;transform:none}}
-.chip{height:32px;padding:0 12px;border-radius:999px;border:1px solid #E5E5EA;background:#fff;font:inherit;font-size:13px;font-weight:600;color:#1C1C1E;cursor:pointer;transition:background .15s,color .15s}
-.chip.on{background:#1C1C1E;border-color:#1C1C1E;color:#fff}
-.chip.sug{border-style:dashed}
+
+
+
 .peek{position:absolute;width:290px;background:#fff;border-radius:14px;box-shadow:0 14px 40px rgba(28,28,30,.2),0 0 0 1px rgba(0,0,0,.04);z-index:9;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:18px;animation:popin .18s ease both;cursor:default}
 .acount{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#E8590C;color:#fff;font-size:11px;line-height:18px;box-sizing:border-box}
 .alp{position:absolute;right:16px;top:58px;width:380px;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:11;padding:8px 0;animation:popin .2s cubic-bezier(.2,.8,.2,1) both}
@@ -94,12 +94,13 @@ body{margin:0}
 .alr.done{opacity:.5}
 .mbtn{height:34px;padding:0 10px;border-radius:10px;border:0;background:#EFEFF2;font:inherit;font-size:13px;font-weight:600;color:#1C1C1E;cursor:pointer}
 .mbtn.pri{background:#1C1C1E;color:#fff}
-.toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);min-width:420px;background:#1C1C1E;color:#fff;border-radius:14px;padding:11px 12px 11px 18px;display:flex;align-items:center;gap:12px;font-size:14px;box-shadow:0 12px 32px rgba(0,0,0,.25);z-index:20;overflow:hidden;animation:fadeUp .3s cubic-bezier(.2,.8,.2,1) both}
-.toast button{height:32px;padding:0 14px;border-radius:9px;border:0;background:rgba(255,255,255,.16);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+
+
 .drain{position:absolute;left:0;bottom:0;height:3px;background:rgba(255,255,255,.5);animation:drain 6s linear both}
 @keyframes drain{from{width:100%}to{width:0}}
 .kbd{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;border-radius:5px;border:1px solid #D1D1D6;font-size:11px;font-weight:600;color:#5C5C5E;background:#fff}
 .scrim0{position:absolute;inset:0;z-index:8;background:transparent;border:0;padding:0;cursor:default}
+.banner{position:absolute;left:76px;right:0;top:56px}
 </style>
 </helmet>
 <div class="cal">

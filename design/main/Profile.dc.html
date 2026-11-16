@@ -12,21 +12,21 @@
 <helmet>
 <style>
 body{margin:0}
-.opt{display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border:0;border-bottom:1px solid #E5E5EA;background:#FFFFFF;font:inherit;font-size:17px;color:#1C1C1E;width:100%;text-align:left;cursor:pointer}
-.opt:last-child{border-bottom:0}
+
+
 .check{margin-left:auto;font-weight:700;color:#1C1C1E;transition:opacity .25s}
 .photo-btn{position:relative;width:88px;height:88px;border-radius:50%;border:0;padding:0;background:#EFEFF2;cursor:pointer;font:inherit}
 .photo-btn .badge{position:absolute;right:-2px;bottom:-2px;width:30px;height:30px;border-radius:50%;background:#1C1C1E;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px #F5F5F7}
 .ph{width:100%;height:100%;border-radius:50%;overflow:hidden;display:block}
-.scrim{position:absolute;inset:0;background:rgba(28,28,30,.3);animation:fadeIn .25s ease both;z-index:5}
-.sheet{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;display:flex;flex-direction:column;gap:8px;animation:sheetUp .35s cubic-bezier(.2,.8,.2,1) both}
+
+.acts{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;display:flex;flex-direction:column;gap:8px;animation:sheetUp .35s cubic-bezier(.2,.8,.2,1) both}
 @keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
 .sgroup{background:#fff;border-radius:16px;overflow:hidden}
 .sbtn{width:100%;height:58px;border:0;border-bottom:1px solid #E5E5EA;background:#fff;font:inherit;font-size:18px;color:#1C1C1E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
 .sbtn:last-child{border-bottom:0}
 .crop{position:absolute;inset:0;background:#000;z-index:7;display:flex;flex-direction:column;animation:fadeIn .3s ease both}
 .ring{width:280px;height:280px;border-radius:50%;box-shadow:0 0 0 2000px rgba(0,0,0,.55);border:2px solid #fff;overflow:hidden}
-.toast{position:absolute;left:16px;right:16px;bottom:24px;background:#1C1C1E;color:#fff;border-radius:14px;padding:14px 16px;font-size:15px;z-index:8;animation:fadeUp .35s var(--ease) both}
+
 </style>
 </helmet>
 <div class="phone" style="position:relative">
@@ -71,7 +71,7 @@ body{margin:0}
 
   <sc-if value="{{vSheet}}" hint-placeholder-val="{{false}}">
     <div class="scrim" onClick="{{close}}"></div>
-    <div class="sheet" role="dialog" aria-label="{{t.change}}">
+    <div class="acts" role="dialog" aria-label="{{t.change}}">
       <div class="sgroup">
         <div style="padding:14px 16px;text-align:center;font-size:13px;color:#5C5C5E;border-bottom:1px solid #E5E5EA">{{t.who}}</div>
         <button class="sbtn" type="button" onClick="{{toCrop}}">{{t.take}}</button>

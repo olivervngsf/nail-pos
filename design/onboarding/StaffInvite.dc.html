@@ -19,7 +19,7 @@ body{margin:0}
 .dots{display:flex;gap:16px;margin:6px 0}
 .dots.shake{animation:shake .4s}
 @keyframes shake{0%,100%{transform:none}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-.sheet{flex:1;margin-top:14px;background:var(--paper);border-radius:24px 24px 0 0;box-shadow:0 -6px 24px rgba(28,28,30,.08);display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px 20px 24px}
+.panel{flex:1;margin-top:14px;background:var(--paper);border-radius:24px 24px 0 0;box-shadow:0 -6px 24px rgba(28,28,30,.08);display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px 20px 24px}
 .bar4{display:flex;gap:6px;width:100%}
 .bar4 span{flex:1;height:4px;border-radius:2px;background:var(--fill);transition:background .4s}
 .bar4 span.on{background:var(--ink)}
@@ -39,7 +39,7 @@ body{margin:0}
   </sc-if>
 
   <sc-if value="{{inApp}}" hint-placeholder-val="{{false}}">
-    <div class="sheet fade">
+    <div class="panel fade">
       <div class="bar4"><sc-for list="{{bars}}" as="b" hint-placeholder-count="4"><span class="{{b}}"></span></sc-for></div>
 
       <sc-if value="{{sConfirm}}" hint-placeholder-val="{{true}}">

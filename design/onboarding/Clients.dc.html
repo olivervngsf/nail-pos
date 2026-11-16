@@ -13,8 +13,8 @@
 <helmet>
 <style>
 body{margin:0}
-.opt{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:18px;border:1px solid var(--line);background:#fff;font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s}
-.opt.on{border:2px solid #1C1C1E;box-shadow:var(--shadow)}
+.pick{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:18px;border:1px solid var(--line);background:#fff;font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.pick.on{border:2px solid #1C1C1E;box-shadow:var(--shadow)}
 </style>
 </helmet>
 <div class="wiz">
@@ -80,7 +80,7 @@ class Component extends DCLogic {
     return {
       steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
       pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
-      opts: list.map((o, i) => ({ title: o.title, body: o.body, cls: this.state.o === i ? 'opt on' : 'opt', pick: () => this.setState({ o: i }) })),
+      opts: list.map((o, i) => ({ title: o.title, body: o.body, cls: this.state.o === i ? 'pick on' : 'pick', pick: () => this.setState({ o: i }) })),
       showImport: this.state.o === 0,
       showFresh: this.state.o !== 0
     };
