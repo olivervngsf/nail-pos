@@ -1,0 +1,25 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-11-16T18:30:00Z"},
+  "title": "Nail POS — Main Screens",
+  "launch": {"view": "canvas", "page": "overview"},
+  "pages": [
+    {"id": "overview", "name": "1 · Overview — clickable screens"},
+    {"id": "spec", "name": "2 · Step by step (with notes)"}
+  ],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1280, "h": 800, "title": "Today (home) — owner", "is_interactive": true, "page": "overview"},
+    "Clients.dc.html": {"x": 1360, "y": 0, "w": 1280, "h": 800, "title": "Clients (CRM)", "is_interactive": true, "page": "overview"},
+    "CloseDay.dc.html": {"x": 0, "y": 1100, "w": 1280, "h": 800, "title": "Close day", "is_interactive": true, "page": "overview"},
+    "Me.dc.html": {"x": 1360, "y": 1100, "w": 1280, "h": 800, "title": "Profile + settings", "is_interactive": true, "page": "overview"}
+  },
+  "order": ["Main.dc.html", "Clients.dc.html", "CloseDay.dc.html", "Me.dc.html"],
+  "notes": {
+    "t1": {"x": 0, "y": -300, "text": "Today · Clients", "kind": "title1", "maxW": 2640, "page": "overview"},
+    "t2": {"x": 0, "y": 830, "text": "Close day · Profile", "kind": "title1", "maxW": 2640, "page": "overview"},
+    "s1": {"x": -520, "y": 0, "w": 420, "fill": "orange", "page": "overview", "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nSame look as Checkout / Booking: compact, calm, English first."}
+  },
+  "designSystems": [
+    {"title": "Nail Salon OS Design System", "namespace": "nailsalonosdesignsystem_afaa02", "artifact": "https://claude.ai/artifact/FAPieCxsXFJvSAyzgZ4b2L", "version": null, "copiedAt": "2026-11-16T18:30:00Z"}
+  ]
+}

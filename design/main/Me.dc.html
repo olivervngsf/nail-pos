@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Profile and settings</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.opt{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:0 16px;border:0;border-bottom:1px solid #E5E5EA;background:#fff;font:inherit;font-size:15px;color:#1C1C1E;text-align:left;cursor:pointer}
+.opt:last-child{border-bottom:0}
+.opt:hover{background:#FAFAFB}
+.photo{position:relative;width:96px;height:96px;border-radius:50%;border:0;background:#E9D7CB;cursor:pointer;padding:0;font:inherit}
+.badge{position:absolute;right:0;bottom:0;width:32px;height:32px;border-radius:50%;background:#1C1C1E;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px #fff}
+.sw{width:44px;height:26px;border-radius:13px;background:#D1D1D6;position:relative;border:0;cursor:pointer;flex:none;transition:background .25s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .25s var(--ease)}
+.sw.on{background:#2F9E44}
+.sw.on::after{transform:translateX(18px)}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="Main.dc.html">Today</a><a href="#">Calendar</a><a href="#">Checkout</a><a href="Clients.dc.html">Clients</a><a href="CloseDay.dc.html">Close day</a>
+    <div style="flex:1"></div>
+    <a class="on" href="#" aria-label="My profile"><span class="av" style="background:#E9D7CB">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar"><div class="title">{{t.title}}</div><span class="pill ok"><span class="dot"></span>{{t.saved}}</span></header>
+    <main style="flex:1;display:flex;gap:20px;padding:20px 24px;min-height:0">
+      <section style="width:420px;display:flex;flex-direction:column;gap:14px">
+        <div class="card in" style="padding:20px;display:flex;align-items:center;gap:16px">
+          <button class="photo" type="button" aria-label="Change profile photo"><svg viewBox="0 0 88 88" width="96" height="96" role="img" aria-label="Profile photo of Mai" style="border-radius:50%"><rect width="88" height="88" fill="#E9D7CB"/><circle cx="44" cy="36" r="17" fill="#B78F7B"/><path d="M14 88c4-18 16-27 30-27s26 9 30 27z" fill="#8C6A5A"/><path d="M27 34c0-14 9-21 17-21s19 6 18 23c-4-9-10-12-17-12s-14 3-18 10z" fill="#2B2220"/></svg><span class="badge" aria-hidden="true">✎</span></button>
+          <div style="flex:1"><div class="h2">Mai Nguyễn</div><div class="cap">{{t.role}} · Mai Nails</div><div class="cap num">(408) 555-0110 · mai.owner@gmail.com</div></div>
+        </div>
+        <div class="in2">
+          <div class="eyebrow" style="margin:0 0 6px 6px">{{t.lang}}</div>
+          <div class="group">
+            <button class="opt" type="button" onClick="{{en}}">English<span style="margin-left:auto;font-weight:700;{{enS}}">✓</span></button>
+            <button class="opt" type="button" onClick="{{vi}}">Tiếng Việt<span style="margin-left:auto;font-weight:700;{{viS}}">✓</span></button>
+          </div>
+          <div class="cap" style="margin:6px">{{t.langNote}}</div>
+        </div>
+        <div class="group in3">
+          <button class="opt" type="button">{{t.pin}}<span class="cap" style="margin-left:auto">•••• ›</span></button>
+          <button class="opt" type="button">{{t.notif}}<span class="cap" style="margin-left:auto">Text + email ›</span></button>
+          <button class="opt" type="button">{{t.earn}}<span class="cap" style="margin-left:auto">›</span></button>
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn block" type="button" style="color:#E03131">{{t.out}}</button>
+      </section>
+      <section style="flex:1;display:flex;flex-direction:column;gap:14px;min-width:0">
+        <div class="in2">
+          <div class="eyebrow" style="margin:0 0 6px 6px">{{t.salon}}</div>
+          <div class="group" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+            <sc-for list="{{links}}" as="l" hint-placeholder-count="10"><button class="opt" type="button" style="border-right:1px solid #E5E5EA"><span class="grow"><b style="font-weight:600">{{l.n}}</b><span class="cap" style="display:block;font-size:12px">{{l.s}}</span></span><span class="cap">›</span></button></sc-for>
+          </div>
+        </div>
+        <div class="card in3" style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px"><span style="flex:1"><b style="font-size:16px">{{t.support}}</b><span class="cap" style="display:block;font-size:13px">{{t.supportNote}}</span></span><button class="{{swCls}}" type="button" onClick="{{toggle}}" aria-label="Allow support access"></button></div>
+          <sc-if value="{{supportOn}}" hint-placeholder-val="{{false}}"><div class="fade" style="padding:10px 12px;border-radius:12px;background:#FDEEE6;font-size:13px;line-height:19px"><b>On until tomorrow 7:05 PM (24 h).</b> Elang can see setup and settings to help — not client phone numbers, notes or staff pay. Every view is logged below.</div></sc-if>
+          <div class="cap">Log: Nov 2 · Elang · 35 min · fixed printer setting</div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"support":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { lang: 'en', sup: !!(p && p.support) }; }
+  renderVals() {
+    const S = this.state, vi = S.lang === 'vi';
+    const t = vi
+      ? { title: 'Hồ sơ & cài đặt', saved: 'Đã lưu', role: 'Chủ tiệm', lang: 'Ngôn ngữ', langNote: 'Chỉ đổi màn hình của bạn. Khách thấy ngôn ngữ riêng.', pin: 'Đổi mã PIN', notif: 'Thông báo', earn: 'Báo cáo ngày', out: 'Đổi người', salon: 'Cài đặt tiệm (chủ tiệm)', support: 'Cho phép hỗ trợ truy cập', supportNote: 'Nhóm Nail POS xem để giúp bạn trong 24 giờ, có ghi lại.' }
+      : { title: 'Profile & settings', saved: 'Saved', role: 'Owner', lang: 'Language', langNote: 'Only changes your screens. Clients see their own language.', pin: 'Change PIN', notif: 'Notifications', earn: 'Daily report', out: 'Switch person', salon: 'Salon settings (owner only)', support: 'Allow support access', supportNote: 'Lets the Nail POS team look in to help for 24 hours. Every view is logged.' };
+    return {
+      t,
+      en: () => this.setState({ lang: 'en' }), vi: () => this.setState({ lang: 'vi' }),
+      enS: vi ? 'opacity:0' : 'opacity:1', viS: vi ? 'opacity:1' : 'opacity:0',
+      links: [['Salon info', 'Name, address, hours'], ['Services', '44 · online on/off'], ['Staff + pay', '5 people · PINs · roles'], ['Booking page', 'Photos, Google, rules'], ['Payments', 'Stripe connected · Chase ••6789'], ['Devices', 'Reader · printer · iPads'], ['Texting', 'Salon number · templates'], ['Tip rules', 'Locked for California'], ['Plan + billing', 'Pilot · free until Dec 16'], ['Data + export', 'Gusto · QuickBooks · download']].map((l) => ({ n: l[0], s: l[1] })),
+      supportOn: S.sup, swCls: 'sw' + (S.sup ? ' on' : ''), toggle: () => this.setState({ sup: !S.sup })
+    };
+  }
+}
+</script>
+</body>
+</html>

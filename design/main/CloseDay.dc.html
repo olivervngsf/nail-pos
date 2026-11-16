@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Close day</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.stp{display:flex;align-items:center;gap:10px;width:100%;height:46px;padding:0 10px;border-radius:10px;border:0;background:transparent;font:inherit;font-size:14px;color:#5C5C5E;cursor:pointer;text-align:left}
+.stp.on{background:#EFEFF2;color:#1C1C1E;font-weight:600}
+.stp.done{color:#1C1C1E}
+.stp .n{width:24px;height:24px;border-radius:50%;border:1.5px solid #C7C7CC;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex:none}
+.stp.done .n{background:#1C1C1E;border-color:#1C1C1E;color:#fff}
+.stp.on .n{border-color:#1C1C1E;color:#1C1C1E}
+.den{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border-bottom:1px solid #E5E5EA;font-size:15px}
+.den:last-child{border-bottom:0}
+.qty{width:64px;height:34px;border-radius:9px;border:1px solid #E5E5EA;text-align:center;font:inherit;font-size:15px}
+.mini{height:30px;width:30px;border-radius:9px;border:0;background:#EFEFF2;font:inherit;font-size:16px;cursor:pointer}
+table{border-collapse:collapse;width:100%}
+th{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#5C5C5E;text-align:right;padding:8px 0;border-bottom:1px solid #E5E5EA}
+th:first-child,td:first-child{text-align:left}
+td{font-size:15px;padding:11px 0;border-bottom:1px solid #E5E5EA;text-align:right;font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="Main.dc.html">Today</a><a href="#">Calendar</a><a href="#">Checkout</a><a href="Clients.dc.html">Clients</a><a class="on" href="#">Close day</a>
+    <div style="flex:1"></div>
+    <a href="Me.dc.html" aria-label="My profile"><span class="av">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar">
+      <div class="title">Close day <span class="cap">· Mon, Nov 16 · 7:05 PM</span></div>
+      <span class="pill ok"><span class="dot"></span>Saved</span>
+      <div class="who"><div class="av">M</div>Mai · Owner</div>
+    </header>
+    <main style="flex:1;display:flex;gap:18px;padding:18px 24px;min-height:0">
+      <aside style="width:210px;display:flex;flex-direction:column;gap:4px">
+        <sc-for list="{{steps}}" as="s" hint-placeholder-count="5"><button class="{{s.cls}}" type="button" onClick="{{s.go}}"><span class="n">{{s.n}}</span>{{s.label}}</button></sc-for>
+        <div style="flex:1"></div>
+        <div class="cap">Takes about 5 minutes. Front desk can start; owner or manager PIN to finish.</div>
+      </aside>
+
+      <section class="card" style="flex:1;padding:20px 22px;display:flex;flex-direction:column;gap:12px;min-width:0">
+        <sc-if value="{{vOpen}}" hint-placeholder-val="{{true}}">
+          <div class="fade" style="display:flex;flex-direction:column;gap:12px;flex:1">
+            <div class="h2">1 · Tickets still open</div>
+            <div class="cap" style="font-size:14px;margin-top:-6px">Every ticket must be paid or left open with a reason before closing.</div>
+            <div class="group" style="box-shadow:none;border:1px solid #E5E5EA">
+              <sc-for list="{{openT}}" as="t" hint-placeholder-count="2">
+                <div class="row" style="min-height:58px"><span class="av">{{t.init}}</span><span class="grow"><b>{{t.name}}</b><span class="cap" style="display:block">{{t.sub}}</span></span><b class="num" style="margin-right:8px">{{t.amt}}</b><sc-if value="{{t.open}}" hint-placeholder-val="{{true}}"><button class="btn primary" type="button" onClick="{{t.pay}}" style="height:38px;font-size:14px">Take payment</button><button class="btn" type="button" onClick="{{t.leave}}" style="height:38px;font-size:14px">Leave open</button></sc-if><sc-if value="{{t.resolved}}" hint-placeholder-val="{{false}}"><span class="tag jade fade">{{t.state}}</span></sc-if></div>
+              </sc-for>
+            </div>
+            <div style="flex:1"></div>
+            <button class="btn primary" type="button" onClick="{{toCount}}" style="{{openNext}}">Next: count cash</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{vCount}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="display:flex;gap:16px;flex:1;min-height:0">
+            <div style="flex:1;display:flex;flex-direction:column;gap:10px;min-width:0">
+              <div class="h2">2 · Count the cash drawer</div>
+              <div class="group" style="box-shadow:none;border:1px solid #E5E5EA">
+                <sc-for list="{{dens}}" as="d" hint-placeholder-count="6"><div class="den"><span style="width:60px;font-weight:600">{{d.label}}</span><button class="mini" type="button" onClick="{{d.dec}}" aria-label="Less">−</button><input class="qty num" value="{{d.q}}" aria-label="{{d.label}} count"><button class="mini" type="button" onClick="{{d.inc}}" aria-label="More">+</button><span class="grow"></span><span class="num">{{d.sum}}</span></div></sc-for>
+              </div>
+            </div>
+            <div style="width:270px;display:flex;flex-direction:column;gap:10px">
+              <div class="card" style="padding:14px;background:#F5F5F7;box-shadow:none;display:flex;flex-direction:column;gap:6px;font-size:14px">
+                <div class="line"><span>Starting cash</span><span>$150.00</span></div>
+                <div class="line"><span>Cash taken today</span><span>$410.00</span></div>
+                <div class="line"><span>Cash tips paid out</span><span>−$0.00</span></div>
+                <div class="sep"></div>
+                <div class="line" style="font-weight:600"><span>Should be in drawer</span><span>$560.00</span></div>
+                <div class="line" style="font-weight:600"><span>You counted</span><span>{{counted}}</span></div>
+              </div>
+              <div class="card fade" style="{{diffBox}}"><b style="font-size:16px">{{diffTitle}}</b><span class="cap" style="display:block;font-size:13px">{{diffSub}}</span></div>
+              <sc-if value="{{isShort}}" hint-placeholder-val="{{false}}"><div class="fade" style="display:flex;gap:6px;flex-wrap:wrap"><span class="cap" style="width:100%">Reason (optional, saved to the report)</span><button class="btn" type="button" style="height:32px;font-size:13px">Gave change wrong</button><button class="btn" type="button" style="height:32px;font-size:13px">Not sure</button><button class="btn" type="button" style="height:32px;font-size:13px">Count again</button></div></sc-if>
+              <div style="flex:1"></div>
+              <button class="btn primary block" type="button" onClick="{{toCard}}">Next: card total</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{vCard}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="display:flex;flex-direction:column;gap:12px;flex:1">
+            <div class="h2">3 · Card money — checked with Stripe</div>
+            <div class="group" style="box-shadow:none;border:1px solid #E5E5EA">
+              <div class="row"><span class="grow">Card payments on tickets</span><b class="num">28 · $1,520.40</b></div>
+              <div class="row"><span class="grow">Confirmed by Stripe</span><b class="num">28 · $1,520.40</b><span class="tag jade">✓ matches</span></div>
+              <div class="row"><span class="grow">Card fees (salon pays)</span><b class="num">−$43.62</b></div>
+              <div class="row"><span class="grow">Refunds · disputes</span><b class="num">$0.00 · 0</b></div>
+              <div class="row" style="font-weight:600"><span class="grow">To your bank · Wed, Nov 18</span><b class="num">$1,476.78</b></div>
+            </div>
+            <div class="cap">If a number doesn't match, the row turns orange and shows which ticket.</div>
+            <div style="flex:1"></div>
+            <button class="btn primary" type="button" onClick="{{toTips}}">Next: tips per staff</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{vTips}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="display:flex;flex-direction:column;gap:12px;flex:1">
+            <div class="h2">4 · Tips per staff</div>
+            <table>
+              <thead><tr><th>Staff</th><th>Card tips</th><th>Cash tips</th><th>Fee on tips</th><th>Total tips</th></tr></thead>
+              <tbody><sc-for list="{{tips}}" as="t" hint-placeholder-count="5"><tr><td>{{t.name}}</td><td>{{t.card}}</td><td>{{t.cash}}</td><td>$0.00</td><td><b>{{t.total}}</b></td></tr></sc-for></tbody>
+            </table>
+            <div class="cap">Staff keep 100% of tips. Card fee on tips is paid by the salon (locked in CA). Cash tips go on the monthly cash-tip report.</div>
+            <div style="flex:1"></div>
+            <button class="btn primary" type="button" onClick="{{finish}}">Close day (manager PIN)</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{vDone}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:12px;padding-top:40px;text-align:center;flex:1">
+            <div class="pop" style="width:84px;height:84px;border-radius:50%;background:var(--jade-soft);border:2px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:38px">✓</div>
+            <div class="h1" style="font-size:30px">Day closed</div>
+            <div class="cap" style="font-size:15px">Report texted to Mai · saved for payroll · locked (changes need owner PIN)</div>
+            <div style="display:flex;gap:8px;margin-top:6px"><button class="btn" type="button">Print report</button><button class="btn" type="button">Print staff slips</button><a class="btn" href="#">Open payout sheet</a></div>
+          </div>
+        </sc-if>
+      </section>
+
+      <aside class="card" style="width:300px;padding:16px 18px;display:flex;flex-direction:column;gap:7px;font-size:14px;align-self:flex-start">
+        <b style="font-size:16px">Money today</b>
+        <div class="line"><span>Services</span><span>$1,642.00</span></div>
+        <div class="line"><span>Discounts</span><span>−$38.00</span></div>
+        <div class="line"><span>Gift cards sold</span><span>$100.00</span></div>
+        <div class="line"><span>Tips</span><span>$286.00</span></div>
+        <div class="sep"></div>
+        <div class="eyebrow" style="margin-top:4px">Paid by</div>
+        <div class="line"><span>Card (28)</span><span>$1,520.40</span></div>
+        <div class="line"><span>Cash (11)</span><span>$410.00</span></div>
+        <div class="line"><span>Gift card</span><span>$60.00</span></div>
+        <div class="sep"></div>
+        <div class="line"><span>Card fees</span><span>−$43.62</span></div>
+        <div class="line" style="font-weight:600"><span>To bank Wed</span><span>$1,476.78</span></div>
+        <div class="cap">Every number links to its tickets.</div>
+      </aside>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"step":{"editor":"enum","options":["open","count","short","card","tips","done"],"default":"open"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){
+    super(p);
+    const st = (p && p.step) || 'open';
+    this.state = { v: st === 'short' ? 'count' : st, t: st === 'open' ? {} : { 0: 'Paid · card', 1: 'Left open · pays tomorrow' }, q: st === 'short' ? [2, 2, 8, 5, 6, 18] : [2, 2, 8, 5, 6, 20] };
+  }
+  renderVals() {
+    const S = this.state;
+    const order = ['open', 'count', 'card', 'tips', 'done'];
+    const idx = order.indexOf(S.v);
+    const den = [100, 50, 20, 10, 5, 1];
+    const counted = S.q.reduce((a, q, i) => a + q * den[i], 0);
+    const diff = counted - 560;
+    const ot = [['H', 'Hailey', 'Fill + paint · Kim · ready since 12:45', '$55.00'], ['R', 'Rosa', 'Gel · Tuyết · ready since 12:50', '$45.00']];
+    const allResolved = ot.every((x, i) => S.t[i]);
+    const setQ = (i, d) => { const q = S.q.slice(); q[i] = Math.max(0, q[i] + d); this.setState({ q }); };
+    return {
+      steps: ['Open tickets', 'Count cash', 'Card total', 'Tips per staff', 'Close'].map((l, i) => ({ label: l, n: i < idx ? '✓' : String(i + 1), cls: 'stp' + (i === idx ? ' on' : (i < idx ? ' done' : '')), go: () => { if (i <= idx) this.setState({ v: order[i] }); } })),
+      vOpen: S.v === 'open', vCount: S.v === 'count', vCard: S.v === 'card', vTips: S.v === 'tips', vDone: S.v === 'done',
+      openT: ot.map((x, i) => ({ init: x[0], name: x[1], sub: x[2], amt: x[3], open: !S.t[i], resolved: !!S.t[i], state: S.t[i] || '', pay: () => { const t = Object.assign({}, S.t); t[i] = 'Paid · card'; this.setState({ t }); }, leave: () => { const t = Object.assign({}, S.t); t[i] = 'Left open · pays tomorrow'; this.setState({ t }); } })),
+      openNext: allResolved ? '' : 'opacity:.35;pointer-events:none',
+      toCount: () => this.setState({ v: 'count' }),
+      dens: den.map((d, i) => ({ label: '$' + d, q: S.q[i], sum: '$' + (S.q[i] * d).toFixed(2), inc: () => setQ(i, 1), dec: () => setQ(i, -1) })),
+      counted: '$' + counted.toFixed(2),
+      isShort: diff !== 0,
+      diffTitle: diff === 0 ? '✓ Drawer matches' : (diff < 0 ? 'Short $' + (-diff).toFixed(2) : 'Over $' + diff.toFixed(2)),
+      diffSub: diff === 0 ? 'Nothing to explain.' : 'Saved on the report with who counted. Not taken from anyone’s pay.',
+      diffBox: 'padding:14px;box-shadow:none;' + (diff === 0 ? 'background:#EAF5EC' : 'background:#FDEEE6'),
+      toCard: () => this.setState({ v: 'card' }), toTips: () => this.setState({ v: 'tips' }), finish: () => this.setState({ v: 'done' }),
+      tips: [['Kim', 74, 16], ['Ngọc', 52, 20], ['Tuyết', 38, 12], ['Linh', 50, 14], ['Hoa', 0, 10]].map((t) => ({ name: t[0], card: '$' + t[1].toFixed(2), cash: '$' + t[2].toFixed(2), total: '$' + (t[1] + t[2]).toFixed(2) }))
+    };
+  }
+}
+</script>
+</body>
+</html>
