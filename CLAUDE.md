@@ -50,10 +50,10 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Devices: desktop (front desk, owner) + phones iOS/Android (techs, clients). Design both. Every feature must work on both iOS and Android (web app now; later phone app from one shared codebase for both).
 - Printing: desktop to USB/Wi-Fi receipt printer; Android web can use Bluetooth; iPhone web can't (needs Bluefy) — don't depend on it.
 - Texting: Twilio or Telnyx; one local number per salon; A2P 10DLC registration; consent + STOP; email backup. Spec in PRD "Texting and phone numbers".
-- Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi readers (WisePOS E ~$249); $59 M2 needs our phone app (OPEN: Oliver to pick). QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
+- Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); $59 M2 needs our phone app (OPEN: Oliver to pick). QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
-- V1 card reader: WisePOS E (works with web app now) vs M2 (needs phone app first)
+- V1 card reader: Stripe S710 (~$299, works with web app now; WisePOS E discontinued) vs M2 (~$59, needs phone app first)
 - Pilot salons (2–3)
 - How pilot salons pay techs today
 - Final monthly price (testing ~$39–49 in pilot)
@@ -81,6 +81,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Market research: https://claude.ai/artifact/UUbqTu5wKNkBxShMVfTqYU (unverified, needs web access) · board https://claude.ai/artifact/Rzu7quesSz9RxryAFvAJrh
 - Affinity map (draft, 5 clusters): docs/affinity-map.md
 - Tools reference list (options, not selected yet): docs/tools-reference.md
+- Hardware shopping list (Amazon links, readers from Stripe): docs/hardware-shopping-list.md
 - Client data ideas (bring clients back, show care; after V1): Hub "Ideas" + board https://claude.ai/artifact/FGuDonq7GNmEeAgTWfbjKh
 - Close an issue when its checklist is done; note big calls in the decision log
 
