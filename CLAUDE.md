@@ -93,6 +93,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Affinity map (draft, 5 clusters): docs/affinity-map.md
 - Tools reference list (options, not selected yet): docs/tools-reference.md
 - Hardware shopping list (Amazon links, readers from Stripe): docs/hardware-shopping-list.md
+- Later: tech profile page, like LinkedIn for nail techs (tech-owned, portfolio, verified reviews + license, Book Now; private phone hidden): PRD "Future vision", issue #27
 - Client data ideas (bring clients back, show care; after V1): Hub "Ideas" + board https://claude.ai/artifact/FGuDonq7GNmEeAgTWfbjKh
 - Close an issue when its checklist is done; note big calls in the decision log
 
