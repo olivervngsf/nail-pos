@@ -247,6 +247,10 @@ body{background:var(--stage);color:var(--ink);margin:0;font-family:"Inter",-appl
 @media (prefers-reduced-motion:reduce){.tpop{animation:none}}
 .tpop .seg{padding:2px}.tpop .seg span{padding:0 9px;font-size:13px}
 .proto-sw{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1.5px dashed #C7C7CC;border-radius:12px}
+.daychip{width:48px;height:32px;border-radius:999px;border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;flex:none}
+.daychip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.drawer .tbtn{min-width:100px;height:36px;font-size:14px;padding:0 8px}
+.warnb .tbtn{border-color:#F0A36B;background:#FFF6EF}.badb .tbtn{border-color:#E03131;color:#E03131}
 .tp-l{font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
 .tp-h{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .tp-h button{height:36px;border:0;border-radius:10px;background:var(--fill);font:inherit;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer}
@@ -278,16 +282,17 @@ const TIMES = []; for (let m=6*60; m<=23*60; m+=30){ const h=Math.floor(m/60), m
 const tmin = (t) => { const [hm,ap]=t.split(' '); let [h,m]=hm.split(':').map(Number); if (ap==='PM'&&h!==12) h+=12; if (ap==='AM'&&h===12) h=0; return h*60+m; };
 const parseT = (t) => { const [hm,ap]=t.split(' '); const [h,m]=hm.split(':').map(Number); return {h,m,ap}; };
 const hrs = (h) => { const d=tmin(h.c)-tmin(h.o); return (d/60).toFixed(d%60?1:0).replace('.0','')+' h'; };
-function tbtn(i,f,t){ const open=S.tp===i+':'+f, p=parseT(t), up=i>=4;
-  return `<span style="position:relative"><button type="button" class="tbtn ${open?'on':''}" data-act="tp:${i}:${f}" aria-haspopup="dialog" aria-expanded="${open}" aria-label="${S.hours[i].d} ${f==='o'?'opens':'closes'} ${t}">${t}</button>${open?`<div class="tscrim" data-act="tpClose"></div><div class="tpop" role="dialog" aria-label="Pick a time" style="${up?'bottom:46px':'top:46px'}">
-   <div class="tp-l">${f==='o'?'Opens':'Closes'}</div>
+const TPSRC = () => S.shiftFor!=null ? S.shDraft : S.hours;
+function tbtn(i,f,t){ const open=S.tp===i+':'+f, p=parseT(t), up=i>=4, sh=S.shiftFor!=null, pos=(up?'bottom:46px':'top:46px')+(sh&&f==='c'?';left:auto;right:0':'');
+  return `<span style="position:relative"><button type="button" class="tbtn ${open?'on':''}" data-act="tp:${i}:${f}" aria-haspopup="dialog" aria-expanded="${open}" aria-label="${TPSRC()[i].d} ${f==='o'?(sh?'starts':'opens'):(sh?'ends':'closes')} ${t}">${t}</button>${open?`<div class="tscrim" data-act="tpClose"></div><div class="tpop" role="dialog" aria-label="Pick a time" style="${pos}">
+   <div class="tp-l">${sh?(f==='o'?'Starts':'Ends')+' · '+TPSRC()[i].d:(f==='o'?'Opens':'Closes')}</div>
    <div class="tp-h">${[6,7,8,9,10,11,12,1,2,3,4,5].map((h)=>`<button type="button" class="${p.h===h?'on':''}" data-act="tph:${h}">${h}</button>`).join('')}</div>
    <div style="display:flex;gap:8px"><div class="seg" style="flex:1">${[0,15,30,45].map((m)=>`<span class="${p.m===m?'on':''}" data-act="tpm:${m}" style="cursor:pointer;flex:1;justify-content:center">:${String(m).padStart(2,'0')}</span>`).join('')}</div>
    <div class="seg">${['AM','PM'].map((x)=>`<span class="${p.ap===x?'on':''}" data-act="tpa:${x}" style="cursor:pointer">${x}</span>`).join('')}</div></div>
    <button type="button" class="btn primary block" data-act="tpClose" style="height:40px;font-size:15px">Done · ${t}</button></div>`:''}</span>`; }
 const MENU = [['Pedicures','Regular spa pedicure',45,38],['Pedicures','Deluxe spa pedicure',50,48],['Pedicures','Collagen spa pedicure',60,68],['Manicures','Regular manicure',30,30],['Gel color','Gel color manicure',45,45],['Gel color','Gel color pedicure',60,53],['Gel color','Gel color change - hands',30,30],['Add-ons','French tip',10,7],['Enhancements','Acrylic full set',75,48],['Enhancements','Acrylic fill-in',45,38],['Enhancements','Pink and white',75,70],['Enhancements','Builder gel',75,68],['Dipping','Dipping powder - no tips',60,48],['Waxing','Eyebrows',15,12]];
 let S;
-function reset(){ S = { flow:'owner', o:'signup', step:0, svc:'choose', svcWay:'link', staff:[{n:'Mai Nguyen',r:'Owner',s:'You'}], drawer:false, role:'Tech', pay:'Commission 60%', stripe:'start', reader:'start', printer:'', printed:false, device:'Front desk', clients:'', test:'start', state:'CA', toast:'', p:'sms', pin:'', pin1:'', pinErr:'', lang:'English', clocked:false, newName:'Linh Tran', where:'home', newPhone:'(408) 555-0177', hours: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i)=>({d, on:true, o:i<6?'9:00 AM':'10:00 AM', c:i<6?'7:00 PM':'5:00 PM'})), menu: MENU.map((m,i)=>({c:m[0],n:m[1],min:m[2],price:m[3],on:true,flag:i===2||i===10})) }; }
+function reset(){ S = { flow:'owner', o:'signup', step:0, svc:'choose', svcWay:'link', staff:[{n:'Mai Nguyen',r:'Owner',s:'You'}], drawer:false, role:'Tech', pay:'Commission 60%', stripe:'start', reader:'start', printer:'', printed:false, device:'Front desk', clients:'', test:'start', state:'CA', toast:'', p:'sms', pin:'', pin1:'', pinErr:'', lang:'English', clocked:false, newName:'Linh Tran', where:'home', newPhone:'(408) 555-0177', hours: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i)=>({d, on:true, o:i<6?'9:00 AM':'10:00 AM', c:i<6?'7:00 PM':'5:00 PM'})), menu: MENU.map((m,i)=>({c:m[0],n:m[1],min:m[2],price:m[3],on:true,flag:i===2||i===10})), shiftFor:null, shDraft:null }; S.staff[0].shifts=S.hours.map((h)=>Object.assign({},h)); }
 reset();
 
 function toast(t){ S.toast = t; render(); clearTimeout(window._tt); window._tt = setTimeout(() => { S.toast=''; render(); }, 3500); }
@@ -312,7 +317,7 @@ function wiz(inner, opts){ opts = opts || {}; const pct = Math.round(S.step/9*10
   <div class="help">Stuck? Elang is on call today: (408) 555-0199. Your progress saves after every step.</div></aside>
   <div class="main" style="position:relative"><div class="body">${inner}</div>
   <div class="foot"><button class="btn ghost" type="button" data-act="back" ${S.step===0?'disabled':''}>Back</button><span class="sp"></span>${opts.skip?`<button class="btn ghost" type="button" data-act="next">Skip for now</button>`:''}<button class="btn primary" type="button" data-act="${opts.nextAct||'next'}" ${opts.lock?'disabled style="opacity:.4"':''} style="padding:0 28px">${opts.label||'Continue'}</button></div>
-  ${S.drawer?staffDrawer():''}${S.toast?`<div class="toastbox"><div class="toast" style="position:static;transform:none"><span style="flex:1">${S.toast}</span>${S.toast.startsWith('Invite')?`<button type="button" data-act="undoInvite">Undo</button>`:''}</div></div>`:''}</div></div>`; }
+  ${S.drawer?staffDrawer():''}${S.shiftFor!=null?shiftDrawer():''}${S.toast?`<div class="toastbox"><div class="toast" style="position:static;transform:none"><span style="flex:1">${S.toast}</span>${S.toast.startsWith('Invite')?`<button type="button" data-act="undoInvite">Undo</button>`:''}</div></div>`:''}</div></div>`; }
 function stInfo(){ const notes = {CA:'California: card fees can never be taken from tips. This setting is locked.',TX:'Texas: you may pass the card fee on tips to staff, shown on their payout sheet.',FL:'Florida: you may pass the card fee on tips to staff, shown on their payout sheet.',NY:'New York: tips go to staff in full; fee rules set for you.'};
   return wiz(`<div class="h1">Tell us about your salon</div><div class="picks2" style="gap:16px">
   <div><label class="lbl" for="sn">Salon name</label><input class="inp" id="sn" value="Mai Nails"></div>
@@ -342,9 +347,23 @@ function stServices(){
   <div class="picks3">${[['photo','Photo of your menu','Take a photo of the price board'],['link','Website link','We read your services page'],['tpl','Nail salon template','40 common services, edit prices']].map((w)=>`<button type="button" class="pick ${S.svcWay===w[0]?'on':''}" data-act="svcWay:${w[0]}"><b>${w[1]}</b><span class="cap">${w[2]}</span></button>`).join('')}</div>
   ${S.svcWay==='link'?`<div><label class="lbl" for="url">Your website</label><input class="inp" id="url" value="cosmonailswildwood.com/services"></div>`:S.svcWay==='photo'?`<div class="card pad" style="align-items:center;border:1.5px dashed #C7C7CC;box-shadow:none"><b>Drop a photo here or take one</b><span class="cap">JPG or PNG · clear and straight works best</span></div>`:`<div class="cap">Starts with 40 services (manicure, pedicure, gel, acrylic, dip, waxing). Then edit prices.</div>`}`,{nextAct:'svcRead',label:'Read my menu'}); }
 function stStaff(){ return wiz(`<div class="h1">Add your staff</div><div class="cap" style="font-size:15px">Each person gets a text with a one-time link. They set their own 4-digit PIN.</div>
-  <div class="group">${S.staff.map((p)=>`<div class="row m"><span class="av">${p.n[0]}</span><span class="g"><b style="font-weight:600">${esc(p.n)}</b><span class="cap">${p.r}${p.pay?' · '+p.pay:''}</span></span><span class="tag ${p.s==='You'?'':'jade'}" style="${p.s==='You'?'':'background:var(--orange-soft);color:#B5470A'}">${p.s}</span></div>`).join('')}</div>
+  <div class="group">${S.staff.map((p,idx)=>`<div class="row m"><span class="av">${p.n[0]}</span><span class="g"><b style="font-weight:600">${esc(p.n)}</b><span class="cap">${p.r}${p.pay?' · '+p.pay:''}</span></span><button type="button" class="btn ghost" data-act="shifts:${idx}" style="height:34px;font-size:13px;padding:0 10px">Shifts · ${shiftSum(p.shifts)} ›</button><span class="tag ${p.s==='You'?'':'jade'}" style="${p.s==='You'?'':'background:var(--orange-soft);color:#B5470A'}">${p.s}</span></div>`).join('')}</div>
   <div style="display:flex;gap:10px"><button class="btn" type="button" data-act="drawer">+ Add staff</button>${S.staff.length>1?`<button class="btn ghost" type="button" data-act="flow:staff">See what ${esc(S.staff[S.staff.length-1].n.split(' ')[0])} gets on their phone ›</button>`:''}</div>
+  <div class="cap">Shifts start as your salon hours. Tap Shifts to change days and times.</div>
   <div class="cap">OPEN: 4-digit PIN or staff phone number to log in? Confirm with Elang. Designed with PIN.</div>`,{label:S.staff.length>1?'Continue':'Continue (add later)'}); }
+const shiftSum = (sh) => { const on=sh.filter((h)=>h.on&&tmin(h.c)>tmin(h.o)); const m=on.reduce((a,h)=>a+tmin(h.c)-tmin(h.o),0); return on.length+' days · '+(m/60).toFixed(m%60?1:0)+' h/wk'; };
+function shiftDrawer(){ const p=S.staff[S.shiftFor], D=S.shDraft, first=p.n.split(' ')[0];
+  const bad=D.some((h)=>h.on&&tmin(h.c)<=tmin(h.o));
+  const outside=D.filter((h,i)=>{ const sal=S.hours[i]; return h.on&&tmin(h.c)>tmin(h.o)&&(!sal.on||tmin(h.o)<tmin(sal.o)||tmin(h.c)>tmin(sal.c)); }).map((h)=>h.d);
+  const tot=D.filter((h)=>h.on&&tmin(h.c)>tmin(h.o)).reduce((a,h)=>a+tmin(h.c)-tmin(h.o),0);
+  return `<div class="scrim" data-act="closeShifts"></div><div class="drawer"><div class="drawer-h"><span class="av">${p.n[0]}</span><span style="flex:1;display:flex;flex-direction:column;line-height:20px">${esc(first)}'s shifts<span class="cap" style="font-weight:400">${shiftSum(D)}${tot>40*60?' · over 40 h = overtime':''}</span></span><button class="btn ghost" type="button" data-act="closeShifts" aria-label="Close">✕</button></div>
+  <div class="drawer-b" style="overflow:visible;gap:0"><button class="btn ghost" type="button" data-act="shSalon" style="align-self:flex-start;height:32px;font-size:13px;padding:0 10px;margin-bottom:6px">Same as salon hours</button>
+  ${D.map((h,i)=>{ const sal=S.hours[i], wrong=h.on&&tmin(h.c)<=tmin(h.o), early=h.on&&!wrong&&(!sal.on||tmin(h.o)<tmin(sal.o)), late=h.on&&!wrong&&(!sal.on||tmin(h.c)>tmin(sal.c));
+    return `<div style="display:flex;align-items:center;gap:8px;min-height:50px;border-bottom:1px solid var(--line)"><button type="button" class="daychip ${h.on?'on':''}" data-act="shDay:${i}" aria-pressed="${h.on}">${h.d}</button>
+    ${h.on?`<span class="${early?'warnb':''}">${tbtn(i,'o',h.o)}</span><span class="cap">to</span><span class="${wrong?'badb':late?'warnb':''}">${tbtn(i,'c',h.c)}</span><span class="cap" style="margin-left:auto;white-space:nowrap;${wrong?'color:#E03131;font-weight:600':''}">${wrong?'Check times':hrs(h)}</span>`:`<span class="cap">${sal.on?'Off':'Off · salon closed'}</span>`}</div>`; }).join('')}
+  ${outside.length?`<div class="cap" style="color:#B5470A;margin-top:10px;line-height:18px">▲ ${outside.join(', ')}: outside salon hours. OK for early or late bookings — the booking page still uses salon hours.</div>`:''}
+  <div class="cap" style="margin-top:10px">${esc(first)} sees these in the app. Clock-in opens 15 min before each shift.</div></div>
+  <div class="drawer-f"><button class="btn ghost" type="button" data-act="closeShifts">Cancel</button><button class="btn primary" type="button" data-act="saveShifts" ${bad?'disabled style="flex:1;height:48px;font-size:16px;opacity:.4"':'style="flex:1;height:48px;font-size:16px"'}>Save shifts</button></div></div>`; }
 function staffDrawer(){ return `<div class="scrim" data-act="closeDrawer"></div><div class="drawer"><div class="drawer-h"><span style="flex:1">Add staff</span><button class="btn ghost" type="button" data-act="closeDrawer" aria-label="Close">✕</button></div>
   <div class="drawer-b"><div><label class="lbl" for="nn">Name</label><input class="inp" id="nn" data-in="newName" value="${esc(S.newName)}"></div>
   <div><label class="lbl" for="np">Mobile number (we text the invite)</label><input class="inp" id="np" data-in="newPhone" value="${esc(S.newPhone)}"></div>
@@ -417,25 +436,30 @@ function act(a){ const [k,v] = a.split(/:(.*)/s);
   if (k==='flow'){ S.flow=v; if (v==='staff'&&S.p==='clock'&&S.clocked){} }
   else if (k==='restart'){ reset(); }
   else if (k==='o'){ S.o=v; }
-  else if (k==='go'){ S.tp=''; S.step=+v; S.drawer=false; }
+  else if (k==='go'){ S.tp=''; S.shiftFor=null; S.step=+v; S.drawer=false; }
   else if (k==='next'){ if (S.step<9) S.step++; S.drawer=false; }
   else if (k==='back'){ if (S.step>0) S.step--; }
   else if (k==='svcWay'){ S.svcWay=v; }
   else if (k==='svcRead'){ if (S.svc==='review'){ S.step++; } else { S.svc='reading'; render(); setTimeout(()=>{ S.svc='review'; render(); }, 1300); return; } }
   else if (k==='tp'){ S.tp = S.tp===v ? '' : v; }
   else if (k==='tpClose'){ S.tp=''; }
-  else if (k==='tph'||k==='tpm'||k==='tpa'){ const [i,f]=S.tp.split(':'), t=parseT(S.hours[+i][f]);
+  else if (k==='tph'||k==='tpm'||k==='tpa'){ const [i,f]=S.tp.split(':'), src=TPSRC(), t=parseT(src[+i][f]);
     if (k==='tph'){ t.h=+v; t.ap = (+v>=6&&+v<=11) ? (f==='o'?'AM':t.ap) : (+v===12||+v<=5 ? 'PM' : t.ap); }
     if (k==='tpm') t.m=+v; if (k==='tpa') t.ap=v;
-    S.hours[+i][f]=t.h+':'+String(t.m).padStart(2,'0')+' '+t.ap; }
+    src[+i][f]=t.h+':'+String(t.m).padStart(2,'0')+' '+t.ap; }
   else if (k==='dayOn'){ S.hours[+v].on=!S.hours[+v].on; }
   else if (k==='copyHours'){ const m=S.hours[0]; S.hours.forEach((h)=>{ if (h.on){ h.o=m.o; h.c=m.c; } }); render(); toast('Copied Monday '+m.o+' – '+m.c+' to all open days'); return; }
   else if (k==='addSvc'){ S.menu.push({c:'Add-ons',n:'',min:15,price:0,on:true,flag:false}); render(); const ins=document.querySelectorAll('[data-edit$=":n"]'); ins[ins.length-1].focus(); return; }
   else if (k==='delSvc'){ const m=S.menu.splice(+v,1)[0]; render(); toast('Removed '+(m.n||'service')); return; }
+  else if (k==='shifts'){ S.shiftFor=+v; S.tp=''; S.shDraft=S.staff[+v].shifts.map((h)=>Object.assign({},h)); }
+  else if (k==='closeShifts'){ S.shiftFor=null; S.tp=''; }
+  else if (k==='shDay'){ S.shDraft[+v].on=!S.shDraft[+v].on; }
+  else if (k==='shSalon'){ S.shDraft=S.hours.map((h)=>Object.assign({},h)); }
+  else if (k==='saveShifts'){ if (S.shDraft.some((h)=>h.on&&tmin(h.c)<=tmin(h.o))) return; const p=S.staff[S.shiftFor]; p.shifts=S.shDraft; S.shiftFor=null; S.tp=''; render(); toast('Shifts saved for '+p.n.split(' ')[0]+' · '+shiftSum(p.shifts)); return; }
   else if (k==='drawer'){ S.drawer=true; }
   else if (k==='closeDrawer'){ S.drawer=false; }
   else if (k==='role'){ S.role=v; } else if (k==='pay'){ S.pay=v; }
-  else if (k==='invite'){ S.staff.push({n:S.newName||'New staff', r:S.role, pay:S.pay, s:'Invite sent · waiting'}); S.drawer=false; render(); toast('Invite sent to '+(S.newName||'staff')+' · '+S.newPhone); S.newName=['Kim Le','Ngoc Pham','Tuyet Vo'][S.staff.length%3]; return; }
+  else if (k==='invite'){ S.staff.push({n:S.newName||'New staff', r:S.role, pay:S.pay, s:'Invite sent · waiting', shifts:S.hours.map((h)=>Object.assign({},h))}); S.drawer=false; render(); toast('Invite sent to '+(S.newName||'staff')+' · '+S.newPhone); S.newName=['Kim Le','Ngoc Pham','Tuyet Vo'][S.staff.length%3]; return; }
   else if (k==='undoInvite'){ S.staff.pop(); S.toast=''; }
   else if (k==='stripeGo'){ S.stripe='stripe'; } else if (k==='stripeDone'){ S.stripe='done'; }
   else if (k==='readerDone'){ S.reader='done'; }
