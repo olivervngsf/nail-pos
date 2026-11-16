@@ -31,7 +31,7 @@ Boards: Checkout https://claude.ai/artifact/ArXa9za1gubGLWzEUH6GLw · Onboarding
 **Goal:** staff join from the invite, set a PIN, clock in; anyone can switch person on a shared device.
 **Design:** Onboarding StaffInvite Sj01–Sj12 (confirm, not me, language, PIN, weak PIN, mismatch, photo, done, clock-in); Checkout Profile Pr1–Pr4 (photo).
 **Data:** `memberships.pin_hash`, `clock_events`, `people.photo_url`, `people.language`.
-**Build steps:** invite link → confirm salon → language → PIN (rules: no 1234/1111, confirm) → photo (anyone uploads own) → done; clock in/out by PIN; "Switch person" keypad on every desk screen; 5 wrong PINs = 1 min wait.
+**Build steps:** invite link → confirm salon → language → PIN (rules: no 1234/1111, confirm) → photo (anyone uploads own) → done; done screen shows next shift + how to clock in (no clock-in push: staff often join from home); clock in/out by PIN only at the salon (salon device, or own phone on salon Wi-Fi/location), opens 15 min before shift; "Switch person" keypad on every desk screen; 5 wrong PINs = 1 min wait.
 **Done when:** Sj flow passes in Playwright incl. weak + mismatch; clock events show on Close day later; PIN never stored in plain text.
 
 ## M3 · Checkout (no card yet)

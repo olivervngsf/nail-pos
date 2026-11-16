@@ -90,6 +90,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - California nail booth rental: manicurist AB5 exemption appears ended Jan 1 2025 — verify; ask pilot salons if they have renters
 - Stripe Connect type: Standard vs Express (lean Express); confirm with Stripe before building
 - V1 card reader: Stripe S710 (~$299, works with web app now; WisePOS E discontinued) vs M2 (~$59, needs phone app first)
+- Clock-in from own phone: how to prove "at the salon" (salon Wi-Fi, GPS, or salon devices only)? Prototype assumes Wi-Fi/location, opens 15 min before shift. Confirm with Elang.
 - Pilot salons (2–3)
 - How pilot salons pay techs today
 - Final monthly price (testing ~$39–49 in pilot). New input Nov 16: pricing deck proposes $199/mo flat for 25+ staff salons ($149 with $100K+/mo card volume), 5,000 texts, 0.20–0.30% card markup — conflicts with 1–20 tech target + no-markup decision. Options: 2 plans (small ~$49–79 / large $199). Decide with Elang.

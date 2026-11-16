@@ -246,6 +246,7 @@ body{background:var(--stage);color:var(--ink);margin:0;font-family:"Inter",-appl
 @keyframes tpIn{from{opacity:0;transform:translateY(4px) scale(.98)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.tpop{animation:none}}
 .tpop .seg{padding:2px}.tpop .seg span{padding:0 9px;font-size:13px}
+.proto-sw{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1.5px dashed #C7C7CC;border-radius:12px}
 .tp-l{font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
 .tp-h{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .tp-h button{height:36px;border:0;border-radius:10px;background:var(--fill);font:inherit;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer}
@@ -286,7 +287,7 @@ function tbtn(i,f,t){ const open=S.tp===i+':'+f, p=parseT(t), up=i>=4;
    <button type="button" class="btn primary block" data-act="tpClose" style="height:40px;font-size:15px">Done · ${t}</button></div>`:''}</span>`; }
 const MENU = [['Pedicures','Regular spa pedicure',45,38],['Pedicures','Deluxe spa pedicure',50,48],['Pedicures','Collagen spa pedicure',60,68],['Manicures','Regular manicure',30,30],['Gel color','Gel color manicure',45,45],['Gel color','Gel color pedicure',60,53],['Gel color','Gel color change - hands',30,30],['Add-ons','French tip',10,7],['Enhancements','Acrylic full set',75,48],['Enhancements','Acrylic fill-in',45,38],['Enhancements','Pink and white',75,70],['Enhancements','Builder gel',75,68],['Dipping','Dipping powder - no tips',60,48],['Waxing','Eyebrows',15,12]];
 let S;
-function reset(){ S = { flow:'owner', o:'signup', step:0, svc:'choose', svcWay:'link', staff:[{n:'Mai Nguyen',r:'Owner',s:'You'}], drawer:false, role:'Tech', pay:'Commission 60%', stripe:'start', reader:'start', printer:'', printed:false, device:'Front desk', clients:'', test:'start', state:'CA', toast:'', p:'sms', pin:'', pin1:'', pinErr:'', lang:'English', clocked:false, newName:'Linh Tran', newPhone:'(408) 555-0177', hours: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i)=>({d, on:true, o:i<6?'9:00 AM':'10:00 AM', c:i<6?'7:00 PM':'5:00 PM'})), menu: MENU.map((m,i)=>({c:m[0],n:m[1],min:m[2],price:m[3],on:true,flag:i===2||i===10})) }; }
+function reset(){ S = { flow:'owner', o:'signup', step:0, svc:'choose', svcWay:'link', staff:[{n:'Mai Nguyen',r:'Owner',s:'You'}], drawer:false, role:'Tech', pay:'Commission 60%', stripe:'start', reader:'start', printer:'', printed:false, device:'Front desk', clients:'', test:'start', state:'CA', toast:'', p:'sms', pin:'', pin1:'', pinErr:'', lang:'English', clocked:false, newName:'Linh Tran', where:'home', newPhone:'(408) 555-0177', hours: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i)=>({d, on:true, o:i<6?'9:00 AM':'10:00 AM', c:i<6?'7:00 PM':'5:00 PM'})), menu: MENU.map((m,i)=>({c:m[0],n:m[1],min:m[2],price:m[3],on:true,flag:i===2||i===10})) }; }
 reset();
 
 function toast(t){ S.toast = t; render(); clearTimeout(window._tt); window._tt = setTimeout(() => { S.toast=''; render(); }, 3500); }
@@ -390,7 +391,21 @@ function staffScreen(){ const p = S.p, first = name().split(' ')[0];
   if (p==='lang') return phone(`<div class="sms" style="gap:14px"><div class="h2">Your language</div><div class="cap">Only your screens. Clients see their own.</div><div class="group">${['English','Tiếng Việt'].map((l)=>`<button type="button" class="opt ${S.lang===l?'on':''}" data-act="lang:${l}"><span class="g">${l}</span><span>${S.lang===l?'✓':''}</span></button>`).join('')}</div><button class="btn primary block" type="button" data-act="p:pin">Continue</button></div>`,'Nail POS','confirm');
   if (p==='pin'||p==='pin2') return phone(`<div class="sms" style="gap:8px;align-items:stretch"><div class="h2" style="text-align:center">${p==='pin'?'Make a 4-digit PIN':'Type it again'}</div><div class="cap" style="text-align:center">${p==='pin'?'You use it to clock in and check out. Not 1234 or 1111.':'To be sure.'}</div>${keypad()}</div>`,'Your PIN','lang');
   if (p==='photo') return phone(`<div class="sms" style="gap:14px;align-items:center;text-align:center"><div class="h2">Add your photo</div><div style="width:120px;height:120px;border-radius:50%;background:#E9D7CB;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:700;color:#8C6A5A">${first[0]}</div><div class="cap">Clients and the front desk see it on the calendar. You can change it any time.</div><button class="btn block" type="button" data-act="p:done">Take a photo</button><button class="btn block" type="button" data-act="p:done">Choose from library</button><button class="btn ghost block" type="button" data-act="p:done">Skip</button></div>`,'Photo','pin');
-  if (p==='done') return phone(`<div class="sms" style="gap:14px;align-items:center;text-align:center"><div class="ok">✓</div><div class="h2">You're in, ${first}</div><div class="cap" style="font-size:15px">Mai Nails · ${S.role} · ${S.lang}</div><button class="btn primary block" type="button" data-act="p:clock">Clock in now</button></div>`,'Nail POS');
+  if (p==='done') return phone(`<div class="sms" style="gap:14px;align-items:center;text-align:center"><div class="ok">✓</div><div class="h2">You're all set, ${first}</div><div class="cap" style="font-size:15px">Mai Nails · ${S.role} · ${S.lang}</div>
+   <div class="group" style="width:100%;text-align:left"><div class="row m"><span class="g"><span class="cap">Your next shift</span><b style="font-weight:600">Tue, Nov 17 · 9:00 AM – 7:00 PM</b></span></div>
+   <div class="row m"><span class="g"><span class="cap">How to clock in</span><b style="font-weight:600">At the salon: this phone, or the front desk iPad with your PIN</b></span></div></div>
+   <div class="cap" style="text-align:left;width:100%">Nothing else to do now. You can close this and come back any time: nailpos.app</div>
+   <button class="btn primary block" type="button" data-act="p:home">Open my Home</button></div>`,'Nail POS');
+  if (p==='home'){ const atSalon=S.where==='salon';
+   return phone(`<div class="sms" style="gap:12px;padding-bottom:80px">
+   <div class="proto-sw"><span class="cap">Prototype: Linh is</span><div class="seg" style="flex:1">${[['home','At home'],['salon','At the salon']].map((w)=>`<span class="${S.where===w[0]?'on':''}" data-act="where:${w[0]}" style="cursor:pointer;flex:1;justify-content:center">${w[1]}</span>`).join('')}</div></div>
+   <div><div class="cap">${atSalon?'Tue, Nov 17 · 8:52 AM':'Mon, Nov 16 · 8:40 PM'}</div><div class="h2">Hi ${first}</div></div>
+   ${S.clocked?`<div class="card pad" style="flex-direction:row;align-items:center;gap:12px"><div class="ok" style="width:40px;height:40px;font-size:20px">✓</div><div><b>Clocked in 8:52 AM</b><div class="cap">Mai Nails · shift until 7:00 PM</div></div></div>`:
+   atSalon?`<div class="card pad" style="gap:10px"><b style="font-size:17px">Shift starts 9:00 AM</b><div class="cap">You're at Mai Nails (salon Wi-Fi).</div><button class="btn primary block" type="button" data-act="clockin">Clock in</button></div>`:
+   `<div class="card pad" style="gap:10px"><div class="cap">Next shift</div><b style="font-size:17px">Tomorrow · 9:00 AM – 7:00 PM</b><button class="btn block" type="button" disabled style="opacity:.45">Clock in</button><div class="cap">Opens when you're at Mai Nails, 15 min before your shift.</div></div>`}
+   <div class="group"><div class="row m"><span class="g">Today's earnings</span><b>$0.00</b></div><div class="row m"><span class="g">My clients today</span><b>${atSalon?'3 booked':'—'}</b></div><div class="row m"><span class="g">My photo · language · PIN</span><span class="cap">Me ›</span></div></div>
+   <button class="btn ghost block" type="button" data-act="flow:owner">Back to the owner's setup</button></div>
+   <div class="ptabs">${['Home','Schedule','Book','Earnings','Me'].map((t,i)=>`<button type="button" class="${i===0?'on':''}">${t}</button>`).join('')}</div>`,'Home'); }
   if (p==='clock') return phone(`<div class="sms" style="gap:14px;align-items:center;text-align:center">${S.clocked?`<div class="ok">✓</div><div class="h2">Clocked in 9:02 AM</div><div class="cap">Have a good day. Your clients and earnings are on Home.</div><button class="btn block" type="button" data-act="flow:owner">Back to the owner's setup</button>`:`<div class="h2">Clock in</div><div class="cap">Mai Nails · Mon, Nov 16 · 9:02 AM</div><button class="btn primary block" type="button" data-act="clockin">Clock in</button>`}</div>`,'Clock in'); }
 
 /* ---------- render + events ---------- */
@@ -431,7 +446,8 @@ function act(a){ const [k,v] = a.split(/:(.*)/s);
   else if (k==='lang'){ S.lang=v; }
   else if (k==='k'){ if (v==='del'){ S.pin=S.pin.slice(0,-1); } else if (S.pin.length<4){ S.pin+=v; S.pinErr=''; }
     if (S.pin.length===4){ render(); setTimeout(()=>{ if (S.p==='pin'){ if (['1234','1111','0000','1212'].includes(S.pin)){ S.pinErr='Too easy to guess. Try another.'; S.pin=''; } else { S.pin1=S.pin; S.pin=''; S.p='pin2'; } } else { if (S.pin===S.pin1){ S.p='photo'; } else { S.pinErr="Didn't match. Start again."; S.pin=''; S.p='pin'; } } render(); }, 250); return; } }
-  else if (k==='clockin'){ S.clocked=true; }
+  else if (k==='clockin'){ S.clocked=true; render(); toast('Clocked in 8:52 AM · Mai Nails'); return; }
+  else if (k==='where'){ S.where=v; S.clocked=false; }
   render(); }
 document.addEventListener('click', (e) => { const el = e.target.closest('[data-act]'); if (!el) return; e.preventDefault(); act(el.getAttribute('data-act')); });
 document.addEventListener('keydown', (e) => { if (e.key==='Escape'&&S.tp){ S.tp=''; render(); return; } if ((e.key==='Enter'||e.key===' ') && e.target.matches('[role=tab][data-act],[role=switch][data-act]')){ e.preventDefault(); act(e.target.getAttribute('data-act')); } });
