@@ -27,7 +27,7 @@ Read this first every session. Keep it short; link out for detail.
 - ONE LOOK (Oliver, Nov 16): every board + the app use the Nail POS Design System https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n ; code source = `design/kit/` (`kit.css` tokens+components, `tokens.json`, `rail.py` menu, `annot.css` frames). Font = Inter (Google). README: `design/kit/README.md`. Golden screen = Checkout · Ticket. Never hand-make a menu, bar, button or chip. After each flow: consistency check across all boards. User flags drift with comments starting "Look:".
 - ALWAYS re-check annotations when a screen changes (Oliver, Nov 16): recompute every pin position + note text for each frame that imports the changed screen; pins sit just left of their target, never on text. Spec frames stay still (annot.css v4: no animation/hover inside frames).
 - ALWAYS keep Main Screens up to date (Oliver, Nov 16): after ANY change on a flow board (checkout, booking, …), run `design/kit/sync_main.py` and republish Main Screens; bump its "Last synced" date on the sticky note.
-- Founder Admin board (Oliver admin + Elang support: salon health, alerts, 24-h owner-granted support access, add salon by invite, System): https://claude.ai/artifact/UsefYEihqDQ2Vg7iU6cSzN (click-through prototype https://claude.ai/artifact/TPaTwbTtYaYLYkahK8b3fQ ), source `design/admin/`
+- Founder Admin board (Oliver + Elang, both admins: salon health, alerts, 24-h owner-granted support access, add salon by invite, System): https://claude.ai/artifact/UsefYEihqDQ2Vg7iU6cSzN (click-through prototype https://claude.ai/artifact/TPaTwbTtYaYLYkahK8b3fQ ), source `design/admin/`
 - Boards: Main screens (Today, Clients, Close day, Profile + copies of Calendar and Checkout) https://claude.ai/artifact/WHUqC6j8z4GLg6r8j3Acs5
 - Building UI: follow `docs/design-spec.md` (tokens, components, motion, every screen + interaction) and the exact source in `design/<flow>/` (`.dc.html` + `pos.css`/`setup.css`). Pixel match; re-copy files into `design/` if the boards change.
 
@@ -65,7 +65,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Core principle (Oliver, top priority): fast, consistent, reliable. Works on strong, weak or no internet — every screen loads fast, actions save offline and sync later, nothing lost.
 - Users: senior Vietnamese staff, low tech. Phone number first, email second (both collected), no extra apps.
 - PIN for staff actions. Big buttons, one job per screen.
-- Roles: owner, manager, front desk, tech, customer — each sees only their part. Platform roles (us): admin (Oliver), support (Elang).
+- Roles: owner, manager, front desk, tech, customer — each sees only their part. Platform roles (us): Oliver and Elang are both admins (Nov 16).
 - Salons own their account + data; we run the platform. Founder Admin = salon health, not private data; support access only when owner allows (24 h, logged). Issue #21.
 - Scale: 50 salons x 20 staff; data walled per salon; works offline.
 - Insight, not autopilot: turn board/calendar show facts (turns, $ today, free-at, skills, requests); owner/manager/front desk decides who's next; optional one-tap reason.
@@ -119,6 +119,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-16: System design: one person = one account (phone); membership links person to salon + role + PIN; salon devices use name + PIN; every row has salon_id + row-level security; money in cents; nothing deleted; Stripe Connect, salon's own account, webhook confirms paid; daily money report = zero surprises.
 - 2026-11-16: Owner dashboard (top 5 KPIs, facts only) joins V1.
 - 2026-11-16: Payroll = V1 insights + export; real payroll later via embedded partner (e.g. Check, Gusto Embedded); never build tax filing ourselves.
+- 2026-11-16: Elang is an admin too (same Founder Admin access as Oliver, incl. System + costs).
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
 
 ## Tracking

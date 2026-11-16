@@ -88,7 +88,7 @@
    "y": 0,
    "w": 1640,
    "h": 800,
-   "title": "A6 · System (Oliver, admin only)",
+   "title": "A6 · System (both admins)",
    "is_interactive": true,
    "page": "spec"
   },
@@ -148,7 +148,7 @@
    "w": 420,
    "fill": "orange",
    "page": "overview",
-   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nFor us, not salons. Oliver = admin (app + costs), Elang = support (salons).\nShows salon health, never private data. Support access only when the owner allows: 24 h, logged.\nSpec: System Design “Founder Admin” + “Running smooth” (issues #21, #22). Build = M14.\n\nTry it in Play: switch Elang / Oliver, tap a salon, Ask Tom → Demo: Tom allows, Add salon → Make invite link."
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nFor us, not salons. Oliver + Elang = both admins (everything here, incl. System + costs).\nShows salon health, never private data. Support access only when the owner allows: 24 h, logged.\nSpec: System Design “Founder Admin” + “Running smooth” (issues #21, #22). Build = M14.\n\nTry it in Play: switch Elang / Oliver (both admin), tap a salon, Ask Tom → Demo: Tom allows, Add salon → Make invite link."
   },
   "t2": {
    "x": 0,

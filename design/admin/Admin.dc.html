@@ -66,7 +66,7 @@ body{margin:0}
       <div class="hrow"><span class="k" style="width:120px">Language</span><div class="seg"><sc-for list="{{meLangs}}" as="l" hint-placeholder-count="2"><span class="{{l.cls}}" onClick="{{l.pick}}" style="cursor:pointer">{{l.label}}</span></sc-for></div></div>
       <div class="hrow"><span class="k" style="width:120px">Alerts to me</span><span class="v">Text + push · quiet 10 PM–7 AM</span><button class="{{alertSw}}" type="button" onClick="{{flipAlerts}}" aria-label="Alerts to me"></button></div>
       <div class="hrow"><span class="k" style="width:120px">My actions today</span><span class="v">{{meActs}}</span><span class="cap">View ›</span></div>
-      <sc-if value="{{isAdmin}}" hint-placeholder-val="{{false}}"><div class="hrow"><span class="k" style="width:120px">Team</span><span class="v">Oliver (admin) · Elang (support)</span><span class="cap">Manage ›</span></div></sc-if>
+      <sc-if value="{{isAdmin}}" hint-placeholder-val="{{false}}"><div class="hrow"><span class="k" style="width:120px">Team</span><span class="v">Oliver (admin) · Elang (admin)</span><span class="cap">Manage ›</span></div></sc-if>
       <div style="padding:12px 16px;display:flex;gap:8px"><button class="abtn" type="button" style="flex:1;height:38px">Help + shortcuts</button><button class="abtn" type="button" style="flex:1;height:38px;color:var(--red)">Sign out</button></div>
     </div>
   </sc-if>
@@ -242,7 +242,7 @@ class Component extends DCLogic {
     this.state = { view: p.view || 'salons', role: p.role || 'elang', access: p.access || 'none', invite: !!p.invite, actF: p.actF || 'all', plan: 'pilot', via: { text: true, email: true }, sentAgain: {}, expiredFixed: false, note: p.note || '', filter: p.filter || 'all', handled: {}, me: !!p.me, lang: 'en', alerts: true };
   }
   renderVals() {
-    const S = this.state, admin = S.role === 'oliver';
+    const S = this.state, admin = true, isOliver = S.role === 'oliver';
     const I = (d) => d;
     const ic = {
       salons: '▦', alerts: '!', new: '+', system: '⚙'
@@ -266,14 +266,14 @@ class Component extends DCLogic {
     const qrBits = '1111111100000110111011011101101110110000011111111'.split('').map((b, i) => (((i * 7 + 3) % 5 === 0) !== (b === '1')) ? '' : 'o');
     return {
       title: { salons: 'Salons', salon: 'Salon', new: 'Add a salon', system: 'System (admin)' }[S.view],
-      meInit: admin ? 'O' : 'E', meOpen: S.me, toggleMe: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ me: !S.me }); },
-      meName: admin ? 'Oliver' : 'Elang', meRole: admin ? 'Admin' : 'Support', mePhone: admin ? '(415) 555-0101 · phone code' : '(408) 555-0199 · phone code',
+      meInit: isOliver ? 'O' : 'E', meOpen: S.me, toggleMe: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ me: !S.me }); },
+      meName: isOliver ? 'Oliver' : 'Elang', meRole: 'Admin', mePhone: isOliver ? '(415) 555-0101 · phone code' : '(408) 555-0199 · phone code',
       meLangs: [['en', 'English'], ['vi', 'Tiếng Việt']].map((l) => ({ label: l[1], cls: S.lang === l[0] ? 'on' : '', pick: () => this.setState({ lang: l[0] }) })),
       alertSw: S.alerts ? 'toggle on' : 'toggle', flipAlerts: () => this.setState({ alerts: !S.alerts }),
-      meActs: admin ? '3 · in activity logs' : '7 calls + notes · in activity logs',
+      meActs: isOliver ? '3 · in activity logs' : '7 calls + notes · in activity logs',
       navSalons: S.view === 'salons' || S.view === 'salon' ? 'on' : '', navNew: S.view === 'new' ? 'on' : '', navSystem: S.view === 'system' ? 'on' : '',
       goSalons: go('salons'), goNew: go('new'), goSystem: go('system'), isAdmin: admin, hasBadge: A.length > 0, badge: A.length,
-      roles: [['elang', 'Elang · support'], ['oliver', 'Oliver · admin']].map((r) => ({ label: r[1], cls: S.role === r[0] ? 'on' : '', pick: () => this.setState({ role: r[0], view: r[0] === 'elang' && S.view === 'system' ? 'salons' : S.view }) })),
+      roles: [['elang', 'Elang · admin'], ['oliver', 'Oliver · admin']].map((r) => ({ label: r[1], cls: S.role === r[0] ? 'on' : '', pick: () => this.setState({ role: r[0], view: r[0] === 'elang' && S.view === 'system' ? 'salons' : S.view }) })),
       vSalons: S.view === 'salons', vSalon: S.view === 'salon', vNew: S.view === 'new', vSystem: S.view === 'system' && admin,
       biz: [
         ['Active salons', '5', '+1 invited', 'cap'], ['Pilot · Paid', '3 · 2', '1 pilot ends in 6 days', 'cap'],

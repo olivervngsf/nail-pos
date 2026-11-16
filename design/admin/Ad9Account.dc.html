@@ -27,7 +27,7 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [[100, 448, "Tap your photo at the bottom of the menu → your account card: name + role (admin or support)."], [100, 513, "Signed in with your phone: a code each time, no password."], [100, 560, "2-step login is on for both of us (Running smooth, issue #22)."], [100, 607, "Language for our own screens: English or Tiếng Việt."], [100, 654, "Alerts to me: text + phone push, with quiet hours. Off = alerts only show here."], [100, 701, "My actions today: everything I did is also in each salon’s activity log."], [104, 755, "Help + shortcuts, Sign out. Oliver (admin) also sees Team: add or remove support people."]];
+    const P = [[100, 402, "Tap your photo at the bottom of the menu → your account card: name + role (both of us are Admin)."], [100, 467, "Signed in with your phone: a code each time, no password."], [100, 514, "2-step login is on for both of us (Running smooth, issue #22)."], [100, 561, "Language for our own screens: English or Tiếng Việt."], [100, 608, "Alerts to me: text + phone push, with quiet hours. Off = alerts only show here."], [100, 655, "My actions today: everything I did is also in each salon’s activity log."], [104, 755, "Help + shortcuts, Sign out. Team (above): both admins can add or remove team members."]];
     return { yes: true, show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }

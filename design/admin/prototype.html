@@ -246,7 +246,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,[tabindex]:focus-visibl
   <h1>Nail POS · Founder Admin prototype</h1>
   <div class="seg" role="tablist"><span id="t-desk" class="on" data-act="dev:desk" role="tab" tabindex="0" style="cursor:pointer">Desktop</span><span id="t-phone" data-act="dev:phone" role="tab" tabindex="0" style="cursor:pointer">Elang's phone</span></div>
   <button class="btn" type="button" data-act="restart" style="height:36px;font-size:14px">Start over</button>
-  <span class="cap">For Oliver (admin) and Elang (support). Sample salons and numbers. Nothing is sent. Try: open an alert, ask for support access, add a salon, switch to Oliver to see System.</span>
+  <span class="cap">For Oliver and Elang (both admins). Sample salons and numbers. Nothing is sent. Try: open an alert, ask for support access, add a salon, open System, tap your photo.</span>
 </div>
 <div class="stage"><div id="holder" style="position:relative"><div class="frame" id="frame"></div></div></div>
 
@@ -289,29 +289,29 @@ function toast(t){ S.toast=t; render(); clearTimeout(tm); tm=setTimeout(()=>{S.t
 const byId=(id)=>S.salons.find((s)=>s.id===id);
 const now=()=>{ const d=new Date(); let h=d.getHours(), m=d.getMinutes(); return ((h+11)%12+1)+':'+String(m).padStart(2,'0')+(h<12?' AM':' PM'); };
 
-function rail(){ const admin=S.role==='oliver', n=S.alerts.length;
+function rail(){ const admin=true, n=S.alerts.length;
   const it=(v,label,icon,badge)=>`<a class="${S.view===v||(v==='salons'&&S.view==='salon')?'on':''}" data-act="go:${v}" tabindex="0" role="button">${SV(icon)}${badge?`<span class="badge">${badge}</span>`:''}${label}</a>`;
   return `<nav class="rail" aria-label="Admin menu"><div class="logo" style="background:#1C1C1E;color:#fff">NP</div>
   ${it('salons','Salons','<path d="M3 10l9-6 9 6"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',n)}
   ${it('new','Add salon','<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>')}
   ${admin?it('system','System','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>'):''}
-  <div style="flex:1"></div><button type="button" class="mebtn" data-act="me" aria-label="My account menu" aria-expanded="${S.me}"><span class="av" style="width:32px;height:32px">${admin?'O':'E'}</span></button></nav>`; }
-function meMenu(){ const admin=S.role==='oliver', mine=(S.mine[S.role]||[]), vi=S.lang==='vi';
+  <div style="flex:1"></div><button type="button" class="mebtn" data-act="me" aria-label="My account menu" aria-expanded="${S.me}"><span class="av" style="width:32px;height:32px">${S.role==='oliver'?'O':'E'}</span></button></nav>`; }
+function meMenu(){ const admin=true, mine=(S.mine[S.role]||[]), vi=S.lang==='vi';
   const T=vi?{acc:'Tài khoản',signed:'Đăng nhập bằng',two:'Đăng nhập 2 bước',lang:'Ngôn ngữ',al:'Báo động cho tôi',mine:'Việc tôi làm hôm nay',team:'Nhóm',help:'Trợ giúp + phím tắt',out:'Đăng xuất'}:{acc:'My account',signed:'Signed in with',two:'2-step login',lang:'Language',al:'Alerts to me',mine:'My actions today',team:'Team',help:'Help + shortcuts',out:'Sign out'};
   return `<div class="mescrim" data-act="me"></div><div class="mepop" role="dialog" aria-label="${T.acc}">
-  <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)"><span class="av lg">${admin?'O':'E'}</span><div style="flex:1"><b style="font-size:16px">${admin?'Oliver':'Elang'}</b><div class="cap">${admin?'Admin':'Support'} · Nail POS team</div></div><button class="abtn" type="button" data-act="me" aria-label="Close">✕</button></div>
-  <div class="hrow"><span class="k" style="width:130px">${T.signed}</span><span class="v">${admin?'(415) 555-0101':'(408) 555-0199'} · phone code</span></div>
+  <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)"><span class="av lg">${S.role==='oliver'?'O':'E'}</span><div style="flex:1"><b style="font-size:16px">${S.role==='oliver'?'Oliver':'Elang'}</b><div class="cap">Admin · Nail POS team</div></div><button class="abtn" type="button" data-act="me" aria-label="Close">✕</button></div>
+  <div class="hrow"><span class="k" style="width:130px">${T.signed}</span><span class="v">${S.role==='oliver'?'(415) 555-0101':'(408) 555-0199'} · phone code</span></div>
   <div class="hrow"><span class="k" style="width:130px">${T.two}</span><span class="v">On · authenticator app</span><span class="tag jade">On</span></div>
   <div class="hrow"><span class="k" style="width:130px">${T.lang}</span><div class="seg">${[['en','English'],['vi','Tiếng Việt']].map((l)=>`<span class="${S.lang===l[0]?'on':''}" data-act="lang:${l[0]}" tabindex="0" role="button" style="cursor:pointer">${l[1]}</span>`).join('')}</div></div>
   <div class="hrow"><span class="k" style="width:130px">${T.al}</span><span class="v">${S.alertsOn?'Text + push · quiet 10 PM–7 AM':'Off · only shown here'}</span><button class="toggle ${S.alertsOn?'on':''}" type="button" data-act="alertsMe" aria-label="${T.al}" aria-pressed="${S.alertsOn}"></button></div>
   <button type="button" class="hrow merow" data-act="mineOpen"><span class="k" style="width:130px">${T.mine}</span><span class="v">${mine.length} · in salons' activity logs</span><span class="cap">${S.mineOpen?'Hide':'View'} ›</span></button>
   ${S.mineOpen?`<div style="max-height:150px;overflow:auto;background:var(--surface)">${mine.map((m)=>`<div class="hrow" style="min-height:34px;font-size:13px"><span class="k" style="width:70px;font-size:12px">${m[0]}</span><span class="v"><b>${esc(m[1])}</b> · ${esc(m[2])}</span></div>`).join('')||'<div class="hrow cap" style="min-height:34px">Nothing yet today. Calls, notes and support actions show here.</div>'}</div>`:''}
-  ${admin?`<button type="button" class="hrow merow" data-act="teamOpen"><span class="k" style="width:130px">${T.team}</span><span class="v">Oliver (admin) · Elang (support)</span><span class="cap">${S.teamOpen?'Hide':'Manage'} ›</span></button>
-   ${S.teamOpen?`<div style="background:var(--surface)"><div class="hrow" style="min-height:38px;font-size:14px"><span class="v"><b>Oliver</b> · admin · 2-step ✓</span><span class="cap">You</span></div><div class="hrow" style="min-height:38px;font-size:14px"><span class="v"><b>Elang</b> · support · 2-step ✓</span><button class="abtn" type="button" data-act="teamMsg:Elang">Remove</button></div><div class="hrow" style="min-height:42px"><button class="abtn dark" type="button" data-act="teamMsg:add">+ Add support person</button></div></div>`:''}`:''}
+  ${admin?`<button type="button" class="hrow merow" data-act="teamOpen"><span class="k" style="width:130px">${T.team}</span><span class="v">Oliver (admin) · Elang (admin)</span><span class="cap">${S.teamOpen?'Hide':'Manage'} ›</span></button>
+   ${S.teamOpen?`<div style="background:var(--surface)"><div class="hrow" style="min-height:38px;font-size:14px"><span class="v"><b>Oliver</b> · admin · 2-step ✓</span><span class="cap">${S.role==='oliver'?'You':''}</span></div><div class="hrow" style="min-height:38px;font-size:14px"><span class="v"><b>Elang</b> · admin · 2-step ✓</span><button class="abtn" type="button" data-act="teamMsg:Elang">Remove</button></div><div class="hrow" style="min-height:42px"><button class="abtn dark" type="button" data-act="teamMsg:add">+ Add team member</button></div></div>`:''}`:''}
   <div style="padding:12px 16px;display:flex;gap:8px"><button class="abtn" type="button" data-act="help" style="flex:1;height:38px">${T.help}</button><button class="abtn" type="button" data-act="signout" style="flex:1;height:38px;color:var(--red)">${T.out}</button></div></div>`; }
 function signedOut(){ return `<div class="app" style="align-items:center;justify-content:center"><div class="card pad" style="width:400px;padding:28px;gap:14px"><div class="logo" style="background:#1C1C1E;color:#fff;margin:0">NP</div><div class="h1">Nail POS Admin</div><div class="cap" style="font-size:15px">Only for the Nail POS team. Phone code + 2-step login.</div><div><label class="lbl" for="sp">Your phone</label><input class="inp" id="sp" value="${S.role==='oliver'?'(415) 555-0101':'(408) 555-0199'}" style="height:44px"></div><button class="btn primary" type="button" data-act="signin" style="height:48px;font-size:16px">Send me a code</button><div class="cap">Signed out. Support sessions you opened were ended and logged.</div></div></div>`; }
 function bar(title){ return `<header class="bar"><div class="title">${title}</div><span class="cap">Signed in as</span>
-  <div class="seg">${[['elang','Elang · support'],['oliver','Oliver · admin']].map((r)=>`<span class="${S.role===r[0]?'on':''}" data-act="role:${r[0]}" tabindex="0" role="button" style="cursor:pointer">${r[1]}</span>`).join('')}</div>
+  <div class="seg">${[['elang','Elang · admin'],['oliver','Oliver · admin']].map((r)=>`<span class="${S.role===r[0]?'on':''}" data-act="role:${r[0]}" tabindex="0" role="button" style="cursor:pointer">${r[1]}</span>`).join('')}</div>
   <span class="pill ok"><span class="dot"></span>Live · all normal</span></header>`; }
 
 function salonsView(){ const active=S.salons.filter((s)=>s.plan!=='Invited').length, inv=S.salons.length-active;
@@ -377,7 +377,7 @@ function newView(){ const f=S.form;
     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="cap" style="flex:1;min-width:180px">Sent ${i.sent} by ${i.via.map((v)=>v==='text'?'text':'email').join(' + ')}${i.status==='Expired'?' · link ended':''}</span>${i.status.startsWith('Signed')?'':`${i.phone?`<button class="abtn" type="button" data-act="resend:${i.id}:text">Resend text</button>`:''}${i.email?`<button class="abtn" type="button" data-act="resend:${i.id}:email">Resend email</button>`:''}`}</div></div>`).join('')}</div>
   </div></main>`; }
 
-function systemView(){ return `${bar('System (admin only)')}<main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 24px;min-height:0">
+function systemView(){ return `${bar('System')}<main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 24px;min-height:0">
   <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">${[['Uptime · 30 days','99.98%','1 short blip Nov 9','cap'],['App errors · 24 h','7','5 salons · 0 lost data','cap'],['Stripe messages','1,284','0 failed · all matched','up'],['Our costs · Nov','$84','vs $98 income','cap']].map((k)=>`<div class="stat" style="cursor:default"><span class="cap">${k[0]}</span><span class="v">${k[1]}</span><span class="${k[3]}" style="font-size:12px">${k[2]}</span></div>`).join('')}</div>
   <div style="display:flex;gap:16px;flex:1;min-height:0"><div class="group" style="flex:1"><div class="hrow" style="font-weight:600">Running smooth checks</div>
    ${[['Backups','daily + point-in-time · restore test Nov 1','OK','tag jade'],['Data walls test','every change · 2 fake salons','Pass','tag jade'],['Sentry alerts','7 errors · 0 new types','OK','tag jade'],['Uptime checks','app + Stripe webhook','OK','tag jade'],['2-step login','Oliver ✓ · Elang ✓','OK','tag jade'],['Texting 10DLC','1 salon pending (Lily)','Wait','tag warn']].map((c)=>`<div class="hrow"><span class="v">${c[0]}</span><span class="cap">${c[1]}</span><span class="${c[3]}">${c[2]}</span></div>`).join('')}</div>
@@ -391,13 +391,84 @@ function phone(){ return `<div class="phone" style="position:relative"><div clas
   ${S.toast?`<div class="toast"><span style="flex:1">${S.toast}</span></div>`:''}</div>`; }
 
 function screen(){ if (S.dev==='phone') return phone();
-  if (S.view==='system'&&S.role!=='oliver') S.view='salons';
+  
   const v={salons:salonsView,salon:salonView,new:newView,system:systemView}[S.view]();
   if (S.out) return signedOut();
   return `<div class="app" style="position:relative">${S.me?meMenu():''}${rail()}<div class="col" style="position:relative">${v}${S.toast?`<div class="toastbox"><div class="toast" style="position:static;transform:none"><span>${S.toast}</span></div></div>`:''}</div></div>`; }
 function fit(){ const f=$('#frame'),h=$('#holder'),w=S.dev==='phone'?390:1280,ht=S.dev==='phone'?844:800,sc=Math.min(1,(window.innerWidth-32)/w); f.style.width=w+'px'; f.style.height=ht+'px'; f.style.transform='scale('+sc+')'; h.style.width=w*sc+'px'; h.style.height=ht*sc+'px'; }
+const VI_EXACT = {
+'Salons':'Tiệm','Add salon':'Thêm tiệm','Signed in as':'Đang đăng nhập:','Elang · admin':'Elang · quản trị','Oliver · admin':'Oliver · quản trị','Live · all normal':'Đang chạy · mọi thứ bình thường',
+'Active salons':'Tiệm đang dùng','+1 invited':'+1 đã mời','Pilot · Paid':'Dùng thử · Trả phí','1 pilot ends in 6 days':'1 tiệm hết dùng thử sau 6 ngày','Our income · month':'Thu nhập của mình · tháng','2 × $49 · no card markup':'2 × $49 · không thu thêm phí thẻ',
+'Card volume · week':'Tiền thẻ · tuần','▲ 8% · goes to salons':'▲ 8% · tiền vào thẳng tiệm','At risk':'Có nguy cơ bỏ','Bella Nails · tickets ▼ 60%':'Bella Nails · hoá đơn ▼ 60%',
+'Salon health':'Tình trạng tiệm','All':'Tất cả','Needs action':'Cần xử lý','Pilot':'Dùng thử','Paid':'Trả phí','Invited':'Đã mời','Salon':'Tiệm','Setup':'Cài đặt','Today':'Hôm nay','Stripe':'Stripe','Texts':'Tin nhắn','Health':'Tình trạng',
+'Payouts on':'Đang chuyển tiền','Approved':'Đã duyệt','Good':'Tốt','Reader offline':'Máy thẻ mất kết nối','Needs owner ID':'Cần giấy tờ chủ tiệm','Verified':'Đã xác minh','Pending':'Đang chờ','Setup stuck':'Kẹt cài đặt','Not yet':'Chưa có','Invite sent':'Đã gửi lời mời','Support on':'Đang hỗ trợ',
+'Health only. Client names, phones, tech pay and notes stay hidden unless the owner allows support.':'Chỉ xem tình trạng. Tên, số điện thoại khách, lương thợ và ghi chú được giấu, trừ khi chủ tiệm cho phép hỗ trợ.',
+'Alerts · call before they notice':'Cảnh báo · gọi trước khi tiệm thấy','Open salon':'Mở tiệm','Handled':'Đã xử lý','All clear ✓':'Không có gì ✓','No salons match.':'Không có tiệm nào khớp.',
+'Card reader offline 2 h. Cards can’t be taken on it.':'Máy thẻ mất kết nối 2 giờ. Không quẹt thẻ được.','Stripe needs the owner’s ID. Payouts paused.':'Stripe cần giấy tờ chủ tiệm. Tạm dừng chuyển tiền.',
+'Setup stuck at step 6 (Card reader) for 3 days.':'Kẹt ở bước 6 (máy thẻ) đã 3 ngày.','Tickets down 60% vs last month. At risk.':'Hoá đơn giảm 60% so với tháng trước. Có nguy cơ bỏ.',
+'Search salon or city':'Tìm tiệm hoặc thành phố','‹ Salons':'‹ Tiệm','done':'xong','in progress':'đang làm','This month':'Tháng này','card + cash':'thẻ + tiền mặt','Last sync':'Đồng bộ lần cuối','3 failed today':'3 lần lỗi hôm nay','all synced':'đã đồng bộ hết','no tickets yet':'chưa có hoá đơn',
+'Stripe account':'Tài khoản Stripe','Card reader':'Máy thẻ','Printer':'Máy in','Salon devices':'Thiết bị của tiệm','Texting':'Tin nhắn','App errors (24 h)':'Lỗi ứng dụng (24 giờ)','Offline':'Mất kết nối','OK':'OK','Check':'Kiểm tra','Quiet':'Ít dùng','Not set':'Chưa cài',
+'Activity log · everything that happened':'Nhật ký · mọi việc đã xảy ra','Money':'Tiền','Devices':'Thiết bị','Support':'Hỗ trợ','Notes':'Ghi chú','Note':'Ghi chú','Device':'Thiết bị','Add note':'Thêm ghi chú','Nothing yet.':'Chưa có gì.','system':'hệ thống',
+'Support access':'Quyền hỗ trợ','Hidden: client names + phones, each tech’s pay, notes. Only totals show.':'Được giấu: tên + số điện thoại khách, lương từng thợ, ghi chú. Chỉ hiện tổng số.',
+'Quick actions':'Thao tác nhanh','Text in Vietnamese':'Nhắn tin tiếng Việt','Resend Stripe link':'Gửi lại link Stripe','Cancel request':'Huỷ yêu cầu','End now':'Kết thúc ngay','On':'Bật','Open their screens':'Mở màn hình của tiệm','Re-pair the card reader':'Kết nối lại máy thẻ',
+'Add a salon':'Thêm tiệm','Salon name':'Tên tiệm','State':'Tiểu bang','Owner name':'Tên chủ tiệm','Owner cell':'Số di động chủ tiệm','Owner email':'Email chủ tiệm','Plan':'Gói','Pilot · free 30 days':'Dùng thử · miễn phí 30 ngày','Paid · $49/mo':'Trả phí · $49/tháng',
+'Send the invite by':'Gửi lời mời qua','✓ Text message':'✓ Tin nhắn','Text message':'Tin nhắn','✓ Email':'✓ Email','Both is best: text gets read fast, email is the backup.':'Cả hai là tốt nhất: tin nhắn được đọc nhanh, email để dự phòng.','Send invite':'Gửi lời mời',
+'What happens when the owner opens it':'Khi chủ tiệm mở link','1 · Sign up':'1 · Đăng ký','2 · Salon made':'2 · Tạo tiệm','3 · Defaults':'3 · Cài sẵn','4 · Setup checklist':'4 · Danh sách cài đặt',
+'Opens the link from text or email · phone code (email code if no cell) · no password':'Mở link từ tin nhắn hoặc email · mã qua điện thoại (mã qua email nếu không có di động) · không cần mật khẩu',
+'Own salon_id (own data wall) · they become owner':'Mã tiệm riêng (dữ liệu tách riêng) · họ là chủ tiệm','Time zone, receipt, EN/VI, nail service template':'Múi giờ, hoá đơn, Anh/Việt, mẫu dịch vụ nail','10 steps start · progress shows on Salons':'Bắt đầu 10 bước · tiến độ hiện ở trang Tiệm',
+'Invites':'Lời mời','Resend = new link, old one stops working':'Gửi lại = link mới, link cũ hết dùng được','Not opened':'Chưa mở','Expired':'Hết hạn','Signed up ✓':'Đã đăng ký ✓','Resend text':'Gửi lại tin nhắn','Resend email':'Gửi lại email','Works once · ends in 14 days':'Dùng một lần · hết hạn sau 14 ngày','Copy link':'Chép link','Add another salon':'Thêm tiệm khác',
+'System':'Hệ thống','Uptime · 30 days':'Thời gian chạy · 30 ngày','1 short blip Nov 9':'1 lần gián đoạn ngắn 9/11','App errors · 24 h':'Lỗi ứng dụng · 24 giờ','5 salons · 0 lost data':'5 tiệm · không mất dữ liệu','Stripe messages':'Tin từ Stripe','0 failed · all matched':'0 lỗi · khớp hết','Our costs · Nov':'Chi phí của mình · tháng 11','vs $98 income':'so với thu $98',
+'Running smooth checks':'Kiểm tra vận hành','Backups':'Sao lưu','daily + point-in-time · restore test Nov 1':'hằng ngày + theo thời điểm · thử khôi phục 1/11','Data walls test':'Kiểm tra tách dữ liệu','every change · 2 fake salons':'mỗi lần thay đổi · 2 tiệm giả','Pass':'Đạt','Sentry alerts':'Cảnh báo Sentry','7 errors · 0 new types':'7 lỗi · 0 loại mới','Uptime checks':'Kiểm tra hoạt động','app + Stripe webhook':'ứng dụng + webhook Stripe','2-step login':'Đăng nhập 2 bước','Texting 10DLC':'Đăng ký tin nhắn 10DLC','1 salon pending (Lily)':'1 tiệm đang chờ (Lily)','Wait':'Chờ',
+'Costs this month':'Chi phí tháng này','Twilio (texts + numbers)':'Twilio (tin nhắn + số)','Domain + email':'Tên miền + email','$0 · salons pay their fees':'$0 · tiệm tự trả phí','Spending alerts on every service':'Có cảnh báo chi tiêu cho mọi dịch vụ',
+'Admin · Nail POS team':'Quản trị · nhóm Nail POS','Support · Nail POS team':'Hỗ trợ · nhóm Nail POS','Signed in with':'Đăng nhập bằng','On · authenticator app':'Bật · ứng dụng xác thực','Language':'Ngôn ngữ','Alerts to me':'Báo động cho tôi','Text + push · quiet 10 PM–7 AM':'Tin nhắn + thông báo · im lặng 22h–7h','Off · only shown here':'Tắt · chỉ hiện ở đây',
+'My actions today':'Việc tôi làm hôm nay','Nothing yet today. Calls, notes and support actions show here.':'Hôm nay chưa có gì. Cuộc gọi, ghi chú và việc hỗ trợ sẽ hiện ở đây.','Team':'Nhóm','Oliver (admin) · Elang (admin)':'Oliver (quản trị) · Elang (hỗ trợ)','You':'Bạn','Remove':'Gỡ','+ Add team member':'+ Thêm người hỗ trợ','Help + shortcuts':'Trợ giúp + phím tắt','Sign out':'Đăng xuất',
+'Nail POS Admin':'Quản trị Nail POS','Only for the Nail POS team. Phone code + 2-step login.':'Chỉ dành cho nhóm Nail POS. Mã qua điện thoại + đăng nhập 2 bước.','Your phone':'Số điện thoại của bạn','Send me a code':'Gửi mã cho tôi','Signed out. Support sessions you opened were ended and logged.':'Đã đăng xuất. Các phiên hỗ trợ bạn mở đã kết thúc và được ghi lại.',
+'Admin · Alerts':'Quản trị · Cảnh báo','Alerts':'Cảnh báo','Waiting for':'Đang chờ','Log · Tom sees this too':'Nhật ký · Tom cũng thấy','Support mode · Golden Nails':'Chế độ hỗ trợ · Golden Nails'
+};
+const VI_PART = [
+['Reader back online · alert cleared','Máy thẻ đã kết nối lại · đã xoá cảnh báo'],['since yesterday','từ hôm qua'],[' · in salons\' activity logs',' · trong nhật ký các tiệm'],
+['re-paired reader','đã kết nối lại máy thẻ'],['Reader online ✓','Máy thẻ đã kết nối ✓'],['(text)','(tin nhắn)'],[' · phone code',' · mã qua điện thoại'],
+[' · Pilot',' · Dùng thử'],[' · Paid',' · Trả phí'],[' · Invited',' · Đã mời'],['Hide ›','Ẩn ›'],['View ›','Xem ›'],['Manage ›','Quản lý ›'],[' min',' phút'],
+['Sends a one-time invite link by text, email or both. The owner opens it, signs up and becomes the owner. Their data is walled off from day one.','Gửi link mời dùng một lần qua tin nhắn, email hoặc cả hai. Chủ tiệm mở link, đăng ký và trở thành chủ. Dữ liệu được tách riêng từ ngày đầu.'],
+['They tap “Allow support for 24 hours” in their app.','Họ bấm “Cho phép hỗ trợ 24 giờ” trong ứng dụng.'],['Off. To see ','Đang tắt. Muốn xem màn hình của '],["' screens, ask ",', hãy hỏi '],
+['Sent by text + in their app. Nothing opens until they say yes.','Đã gửi qua tin nhắn + trong ứng dụng. Không mở gì cho đến khi họ đồng ý.'],
+['every action is logged and shown to','mọi thao tác được ghi lại và cho xem:'],['left · turns off by itself','còn lại · tự tắt'],[' left',' còn lại'],
+['Support mode: you see what ','Chế độ hỗ trợ: bạn thấy những gì '],[' sees. Every tap is logged.',' thấy. Mọi lần bấm đều được ghi lại.'],
+['Ask ','Xin '],[' for 24-hour access',' quyền 24 giờ'],['Demo: ','Thử: '],[' allows →',' đồng ý →'],['Waiting for ','Đang chờ '],
+['Add a note: what did ','Thêm ghi chú: '],[' say?',' đã nói gì?'],
+['Called ','Đã gọi '],['Call ','Gọi '],['Calling ','Đang gọi '],['Request sent to ','Đã gửi yêu cầu cho '],[' by text + in their app',' qua tin nhắn + trong ứng dụng'],
+['Asked ','Đã xin '],[' for 24-hour support access',' quyền hỗ trợ 24 giờ'],[' allowed support for 24 h',' đã cho phép hỗ trợ 24 giờ'],['Support mode ended','Đã tắt chế độ hỗ trợ'],
+['Re-paired reader','Đã kết nối lại máy thẻ'],['(support mode)','(chế độ hỗ trợ)'],['back online','đã kết nối lại'],['went offline','mất kết nối'],['Card reader','Máy thẻ'],
+['Alert marked handled: ','Đã xử lý cảnh báo: '],['Marked handled','Đã đánh dấu xử lý'],['(logged)','(đã ghi lại)'],['Sent a text in Vietnamese','Đã nhắn tin tiếng Việt'],['Resent the Stripe ID link','Đã gửi lại link giấy tờ Stripe'],
+['Salon opened','Tiệm mở cửa'],['staff clocked in','thợ đã chấm công'],['Day closed','Đóng sổ cuối ngày'],['cash matched','tiền mặt khớp'],['Stripe payout','Stripe chuyển tiền'],[' to bank ',' vào ngân hàng '],
+['Week-4 review: happy, wants Vietnamese receipts','Đánh giá tuần 4: hài lòng, muốn hoá đơn tiếng Việt'],['Week-2 call: loves the turn list','Gọi tuần 2: rất thích danh sách lượt'],
+['Setup done 10/10','Cài đặt xong 10/10'],['$1 test paid + refunded','thử $1 đã trả + hoàn tiền'],['Stripe connected + verified','Đã kết nối + xác minh Stripe'],['signed up from the invite','đã đăng ký từ lời mời'],
+['Invite sent by text + email','Đã gửi lời mời qua tin nhắn + email'],['Invite sent by email','Đã gửi lời mời qua email'],['Invite sent by text','Đã gửi lời mời qua tin nhắn'],['not opened yet','chưa mở'],
+['reader unplugged after cleaning','máy thẻ bị rút điện khi dọn dẹp'],['Reader shipped; arrives Monday','Đã gửi máy thẻ; thứ Hai tới'],['Step 5 done: Connect payments','Xong bước 5: Kết nối thanh toán'],['Steps 1–4 done (info, services, staff)','Xong bước 1–4 (thông tin, dịch vụ, thợ)'],
+['Stripe needs owner ID · payouts paused','Stripe cần giấy tờ chủ tiệm · tạm dừng chuyển tiền'],['Tickets down 60% vs last month','Hoá đơn giảm 60% so với tháng trước'],['Front desk iPad last used','iPad quầy dùng lần cuối'],
+['Connected · verified · payouts daily to','Đã kết nối · đã xác minh · chuyển tiền hằng ngày vào'],['Connected · verified · no payments yet','Đã kết nối · đã xác minh · chưa có thanh toán'],['Connected · Stripe needs a photo ID · payouts paused','Đã kết nối · Stripe cần ảnh giấy tờ · tạm dừng chuyển tiền'],['Connected · verified · payouts daily','Đã kết nối · đã xác minh · chuyển tiền hằng ngày'],
+['offline since','mất kết nối từ'],[' · online',' · đang kết nối'],['3 failed syncs (saved, will retry)','3 lần đồng bộ lỗi (đã lưu, sẽ thử lại)'],['10DLC approved','10DLC đã duyệt'],['10DLC registration pending (5–10 days)','Đăng ký 10DLC đang chờ (5–10 ngày)'],
+['“Reader not found” at checkout','“Không tìm thấy máy thẻ” khi thanh toán'],['Not paired yet (setup step 6)','Chưa kết nối (bước cài đặt 6)'],['last used 2 days ago','dùng lần cuối 2 ngày trước'],
+['tickets · ','hoá đơn · '],[' total',' tổng'],['since ','từ '],['Owner ','Chủ tiệm '],['/mo','/tháng'],
+['since yesterday','từ hôm qua'],['last step Nov 13','bước cuối 13/11'],['this month','tháng này'],[' open',' mở'],[' to call',' cần gọi'],[' salons',' tiệm'],
+['Today · ','Hôm nay · '],['Yesterday · ','Hôm qua · '],['This month','Tháng này'],['2 days ago','2 ngày trước'],
+['Sent again just now by ','Vừa gửi lại qua '],['Sent ','Đã gửi '],[' by text + email',' qua tin nhắn + email'],[' by email',' qua email'],[' by text',' qua tin nhắn'],['link ended','link đã hết hạn'],
+['Texted to ','Đã nhắn tới '],['Emailed to ','Đã email tới '],['New link ','Link mới '],['texted to','đã nhắn tới'],['emailed to','đã email tới'],['The old link stops working.','Link cũ hết dùng được.'],
+['Invite sent by ','Đã gửi lời mời qua '],[' to ',' cho '],
+[' · in salons\' activity logs',' · trong nhật ký các tiệm'],[' · admin · 2-step ✓',' · quản trị · 2 bước ✓'],[' · support · 2-step ✓',' · hỗ trợ · 2 bước ✓'],
+['Signed in as ','Đăng nhập '],[' (admin)',' (quản trị)'],
+['Shortcuts: / search · A alerts · N add salon · Esc close','Phím tắt: / tìm · A cảnh báo · N thêm tiệm · Esc đóng'],['Code sent · signed back in (demo)','Đã gửi mã · đã đăng nhập lại (thử)'],
+['Reader back online · alert cleared','Máy thẻ đã kết nối lại · đã xoá cảnh báo'],['Support mode off. The log stays with the owner.','Đã tắt hỗ trợ. Nhật ký vẫn lưu cho chủ tiệm.'],
+['Đã đổi sang Tiếng Việt (màn hình của bạn).','Đã đổi sang Tiếng Việt (mọi màn hình).'],
+[' setup',' cài đặt'],['stuck','kẹt'],
+];
+function viText(s){ const t=s.trim(); if(!t) return s; if (VI_EXACT[t]) return s.replace(t,VI_EXACT[t]); let o=s; for (const [a,b] of VI_PART) if (o.includes(a)) o=o.split(a).join(b); return o; }
+function translateVI(root){ const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); const ns=[]; let n; while(n=w.nextNode()) ns.push(n);
+  ns.forEach((x)=>{ if (x.parentElement&&x.parentElement.closest('[data-notr]')) return; const v=viText(x.textContent); if (v!==x.textContent) x.textContent=v; });
+  root.querySelectorAll('[placeholder]').forEach((e)=>{ e.placeholder=viText(e.placeholder); }); }
+
 function render(){ const a=document.activeElement, keep=a&&a.getAttribute&&(a.getAttribute('data-in')||a.getAttribute('data-form')), pos=keep?a.selectionStart:0;
-  $('#frame').innerHTML=screen(); $('#t-desk').className=S.dev==='desk'?'on':''; $('#t-phone').className=S.dev==='phone'?'on':''; fit();
+  $('#frame').innerHTML=screen(); if (S.lang==='vi') translateVI($('#frame')); $('#t-desk').className=S.dev==='desk'?'on':''; $('#t-phone').className=S.dev==='phone'?'on':''; fit();
   if (keep){ const n=document.querySelector(`[data-in="${keep}"],[data-form="${keep}"]`); if(n){ n.focus(); try{n.setSelectionRange(pos,pos);}catch(e){} } } }
 function addLog(id,t){ (S.log[id]=S.log[id]||[]).push([now(),t]); }
 function act2(id,kind,text,who){ (S.acts[id]=S.acts[id]||[]).unshift(['Today · '+now(),kind,text,who||(S.role==='oliver'?'Oliver':'Elang')]); if(!who){ const s=byId(id); (S.mine[S.role]=S.mine[S.role]||[]).unshift([now(),s?s.name:'',text]); } }
@@ -406,15 +477,15 @@ function act(x){ const i=x.indexOf(':'), k=i<0?x:x.slice(0,i), v=i<0?'':x.slice(
   else if (k==='restart') reset();
   else if (k==='go'){ S.view=v; S.noteDraft=''; }
   else if (k==='me'){ S.me=!S.me; S.mineOpen=false; S.teamOpen=false; }
-  else if (k==='lang'){ S.lang=v; toast(v==='vi'?'Đã đổi sang Tiếng Việt (màn hình của bạn).':'Switched to English (your screens).'); return; }
+  else if (k==='lang'){ S.lang=v; toast(v==='vi'?'Đã đổi sang Tiếng Việt (mọi màn hình).':'Switched to English (all screens).'); return; }
   else if (k==='alertsMe'){ S.alertsOn=!S.alertsOn; toast(S.alertsOn?'Alerts to you: text + push on':'Alerts to you off · they still show on Salons'); return; }
   else if (k==='mineOpen') S.mineOpen=!S.mineOpen;
   else if (k==='teamOpen') S.teamOpen=!S.teamOpen;
-  else if (k==='teamMsg'){ toast(v==='add'?'Invite a support person by phone + email · they must turn on 2-step login':'Removing Elang ends their access right away (logged). Demo: not removed.'); return; }
+  else if (k==='teamMsg'){ toast(v==='add'?'Invite a team member by phone + email · they must turn on 2-step login':'Removing ends their access right away (logged). Demo: not removed.'); return; }
   else if (k==='help'){ S.me=false; toast('Shortcuts: / search · A alerts · N add salon · Esc close'); return; }
   else if (k==='signout'){ S.me=false; S.out=true; for (const id in S.access){ if (S.access[id]==='on') S.access[id]='none'; } }
   else if (k==='signin'){ S.out=false; toast('Code sent · signed back in (demo)'); return; }
-  else if (k==='role'){ S.role=v; toast(v==='oliver'?'Signed in as Oliver (admin): System tab shows.':'Signed in as Elang (support).'); return; }
+  else if (k==='role'){ S.role=v; toast('Signed in as '+(v==='oliver'?'Oliver':'Elang')+' (admin)'); return; }
   else if (k==='filter') S.filter=v;
   else if (k==='open'){ S.actF='all'; S.sel=v; S.view='salon'; S.dev='desk'; S.noteDraft=''; }
   else if (k==='actF') S.actF=v;
