@@ -109,6 +109,15 @@
    "title": "A8 · Activity log per salon",
    "is_interactive": true,
    "page": "spec"
+  },
+  "Ad9Account.dc.html": {
+   "x": 12870,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "A9 · Tap your photo → my account",
+   "is_interactive": true,
+   "page": "spec"
   }
  },
  "order": [
@@ -121,7 +130,8 @@
   "Ad5NewSalon.dc.html",
   "Ad6System.dc.html",
   "Ad7Phone.dc.html",
-  "Ad8Activity.dc.html"
+  "Ad8Activity.dc.html",
+  "Ad9Account.dc.html"
  ],
  "notes": {
   "t1": {
