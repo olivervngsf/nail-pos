@@ -11,32 +11,11 @@
 <helmet>
 <style>
 body{margin:0}
-.tabs{position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;border-top:1px solid var(--line);background:rgba(255,255,255,.92)}
-.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:transparent;font:inherit;font-size:11px;color:var(--ink-soft);cursor:pointer}
-.tabs button.on{color:var(--ink);font-weight:600}
 .tw{position:absolute;left:0;right:0;top:52px;bottom:64px;overflow:hidden}
 .hc{display:flex;flex-direction:column;gap:12px;padding:16px}
 .qt{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .qt .tile{padding:14px;height:76px;box-sizing:border-box;gap:4px;font-size:14px}
-.pb3{height:6px;border-radius:3px;background:rgba(47,158,68,.18);overflow:hidden}
-.pb3 span{display:block;height:100%;background:var(--jade)}
-.tl2{position:absolute;left:0;right:0;top:108px;height:600px}
-.hl2{position:absolute;left:12px;width:34px;font-size:11px;color:var(--ink-soft);transform:translateY(-7px)}
-.hr3{position:absolute;left:52px;right:16px;height:1px;background:var(--line)}
-.bk2{position:absolute;left:56px;right:16px;border-radius:10px;padding:6px 10px;box-sizing:border-box;border:1px solid var(--line);background:var(--paper);font-size:13px;line-height:17px;overflow:hidden;cursor:pointer;text-align:left;font-family:inherit;color:var(--ink)}
-.bk2 b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bk2 .cap{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bk2.paid{background:var(--surface);color:var(--muted)}
-.bk2.chair{background:var(--jade-soft);border:1.5px solid var(--jade)}
-.bk2.unconf{background:repeating-linear-gradient(135deg,#FFF4EC 0 6px,#fff 6px 12px);border-color:#F4C9AF}
-.bk2.free{border-style:dashed;background:transparent;color:#1F7A33;font-weight:600}
-.nowl{position:absolute;left:46px;right:16px;height:2px;background:var(--red)}
-.wk{display:flex;align-items:center;gap:12px;min-height:66px;padding:0 16px;border-bottom:1px solid var(--line);font-size:15px}
-.wk:last-child{border-bottom:0}
-.wk .dd{width:48px;text-align:center}
-.wk .dd b{display:block;font-size:18px}
-.wb{height:8px;border-radius:4px;background:var(--fill);overflow:hidden;margin-top:6px}
-.wb span{display:block;height:100%;background:var(--ink)}
+.tl2{top:108px;height:600px}
 </style>
 </helmet>
 <div class="phone" style="position:relative">
@@ -50,7 +29,7 @@ body{margin:0}
     </div>
     <div class="card" style="height:84px;padding:12px 16px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px;background:var(--jade-soft)">
       <div style="display:flex;align-items:center;gap:10px"><span style="flex:1"><b>In chair: Kayla</b><span class="cap" style="display:block">Acrylic fill-in · 40 min · usual 60</span></span><button class="btn" type="button" style="height:34px;font-size:14px;background:#fff">Done</button></div>
-      <div class="pb3"><span style="width:66%"></span></div>
+      <div class="prog-bar thin tint"><span style="width:66%"></span></div>
     </div>
     <div class="card" style="height:72px;padding:12px 16px;box-sizing:border-box;display:flex;align-items:center;gap:10px">
       <span style="flex:1"><b>Next 3:15 · Sofia</b><span class="cap" style="display:block;color:#B5470A">Dipping powder · not confirmed</span></span><button class="btn" type="button" style="height:34px;font-size:14px">Text</button>
@@ -68,13 +47,13 @@ body{margin:0}
     <div style="display:flex;align-items:center;gap:10px;padding:12px 16px 0;height:36px"><div class="seg"><sc-for list="{{views}}" as="v" hint-placeholder-count="2"><span class="{{v.cls}}" onClick="{{v.pick}}" style="cursor:pointer">{{v.label}}</span></sc-for></div><span style="flex:1"></span><span class="cap">{{rangeLabel}}</span></div>
     <sc-if value="{{vDay}}" hint-placeholder-val="{{true}}">
       <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;height:40px;box-sizing:border-box"><button class="btn ghost" type="button" aria-label="Day before" style="height:32px;width:32px;padding:0">‹</button><b style="flex:1;text-align:center">Mon, Nov 16 · 5 clients</b><button class="btn ghost" type="button" aria-label="Day after" style="height:32px;width:32px;padding:0">›</button></div>
-      <div class="tl2">
-        <sc-for list="{{hours}}" as="h" hint-placeholder-count="10"><span class="hl2" style="{{h.top}}">{{h.t}}</span><span class="hr3" style="{{h.top}}"></span></sc-for>
+      <div class="dtl tl2">
+        <sc-for list="{{hours}}" as="h" hint-placeholder-count="10"><span class="dtl-h" style="{{h.top}}">{{h.t}}</span><span class="dtl-line" style="{{h.top}}"></span></sc-for>
         <sc-for list="{{blocks}}" as="b" hint-placeholder-count="6"><button class="{{b.cls}}" type="button" style="{{b.style}}" onClick="{{b.pick}}"><b>{{b.n}}</b><span class="cap">{{b.s}}</span></button></sc-for>
-        <span class="nowl" style="top:271px"></span>
+        <span class="dtl-now" style="top:271px"></span>
       </div>
     </sc-if>
-    <sc-if value="{{vWeek}}" hint-placeholder-val="{{false}}"><div style="padding:12px 16px"><div class="group"><sc-for list="{{week}}" as="w" hint-placeholder-count="7"><div class="wk"><span class="dd"><span class="cap">{{w.d}}</span><b>{{w.n}}</b></span><span style="flex:1"><b style="font-size:15px">{{w.c}}</b><span class="cap" style="display:block">{{w.s}}</span><div class="wb"><span style="{{w.bar}}"></span></div></span></div></sc-for></div><div class="cap" style="margin-top:10px">Bar = how full your day is. Tap a day → Day view.</div></div></sc-if>
+    <sc-if value="{{vWeek}}" hint-placeholder-val="{{false}}"><div style="padding:12px 16px"><div class="group"><sc-for list="{{week}}" as="w" hint-placeholder-count="7"><div class="row l" style="min-height:66px"><span style="width:48px;text-align:center"><span class="cap">{{w.d}}</span><b style="display:block;font-size:18px">{{w.n}}</b></span><span style="flex:1"><b style="font-size:15px">{{w.c}}</b><span class="cap" style="display:block">{{w.s}}</span><div class="prog-bar ink" style="margin-top:6px"><span style="{{w.bar}}"></span></div></span></div></sc-for></div><div class="cap" style="margin-top:10px">Bar = how full your day is. Tap a day → Day view.</div></div></sc-if>
   </div></sc-if>
 
   <sc-if value="{{vDetail}}" hint-placeholder-val="{{false}}"><div class="scrim"></div><div class="sheet" style="bottom:72px">
@@ -88,7 +67,7 @@ body{margin:0}
     <button class="btn ghost block" type="button" onClick="{{toDay}}">Close</button>
   </div></sc-if>
 
-  <nav class="tabs" aria-label="Tech menu"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="5"><button class="{{t.cls}}" type="button" onClick="{{t.pick}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{t.icon}}"/></svg>{{t.label}}</button></sc-for></nav>
+  <nav class="ptabs" aria-label="Tech menu"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="5"><button class="{{t.cls}}" type="button" onClick="{{t.pick}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{t.icon}}"/></svg>{{t.label}}</button></sc-for></nav>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["home","day","week","detail"],"default":"home"},"$preview":{"width":390,"height":844}}'>
@@ -107,7 +86,7 @@ class Component extends DCLogic {
       rangeLabel: v === 'week' ? 'Nov 16–22' : 'Today',
       views: [['Day', 'day'], ['Week', 'week']].map((x) => ({ label: x[0], cls: (v === x[1] || (x[1] === 'day' && v === 'detail')) ? 'on' : '', pick: go(x[1]) })),
       hours: [9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7].map((h, i) => ({ t: h + (i < 3 ? 'a' : 'p'), top: 'top:' + (i * 58) + 'px' })),
-      blocks: B.map((b) => ({ n: b[2], s: b[3], cls: 'bk2 ' + b[4], style: 'top:' + (Y(b[0]) + 1) + 'px;height:' + (Y(b[1]) - Y(b[0]) - 2) + 'px', pick: b[2] === 'Sofia' ? go('detail') : () => {} })),
+      blocks: B.map((b) => ({ n: b[2], s: b[3], cls: 'dtl-bk ' + b[4], style: 'top:' + (Y(b[0]) + 1) + 'px;height:' + (Y(b[1]) - Y(b[0]) - 2) + 'px', pick: b[2] === 'Sofia' ? go('detail') : () => {} })),
       week: [['Mon', '16', '5 clients · $260 booked', 'Today', 70], ['Tue', '17', '3 clients · $150', '1 open gap 2–4', 45], ['Wed', '18', 'Day off', '', 0], ['Thu', '19', '6 clients · $310', 'Full', 90], ['Fri', '20', '5 clients · $275', '', 75], ['Sat', '21', '7 clients · $380', 'Busy day', 100], ['Sun', '22', '2 clients · $90', '10–3', 30]].map((w) => ({ d: w[0], n: w[1], c: w[2], s: w[3], bar: 'width:' + w[4] + '%' })),
       tabs: ['Home', 'Schedule', 'Book', 'Earnings', 'Me'].map((t) => ({ label: t, icon: tabIcons[t], cls: tabOf[v] === t ? 'on' : '', pick: t === 'Home' ? go('home') : t === 'Schedule' ? go('day') : () => {} }))
     };

@@ -11,11 +11,6 @@
 <helmet>
 <style>
 body{margin:0}
-.tl{display:flex;align-items:center;min-height:52px;padding:0 16px;border-bottom:1px solid var(--line);font-size:16px;font-variant-numeric:tabular-nums}
-.tl:last-child{border-bottom:0}
-.tl.minus{color:#1F7A33}
-.pbar2{height:8px;border-radius:4px;background:var(--fill);overflow:hidden}
-.pbar2 span{display:block;height:100%;background:var(--jade);border-radius:4px}
 </style>
 </helmet>
 <div class="app">
@@ -34,14 +29,14 @@ body{margin:0}
     <main style="flex:1;display:flex;gap:16px;padding:20px 24px;min-height:0">
       <section style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0">
         <div class="group">
-          <div class="tl"><span style="flex:1">Gel color manicure · Kim</span><span>$45.00</span></div>
-          <div class="tl"><span style="flex:1">French tip · Kim</span><span>$7.00</span></div>
-          <sc-if value="{{applied}}" hint-placeholder-val="{{false}}"><div class="tl minus fade"><span style="flex:1">Loyalty reward (100 pts)</span><span>−$10.00</span></div></sc-if>
+          <div class="row"><span style="flex:1">Gel color manicure · Kim</span><span>$45.00</span></div>
+          <div class="row"><span style="flex:1">French tip · Kim</span><span>$7.00</span></div>
+          <sc-if value="{{applied}}" hint-placeholder-val="{{false}}"><div class="row minus fade"><span style="flex:1">Loyalty reward (100 pts)</span><span>−$10.00</span></div></sc-if>
         </div>
         <div class="group">
-          <div class="tl"><span style="flex:1" class="cap">Subtotal</span><span>{{sub}}</span></div>
-          <div class="tl"><span style="flex:1" class="cap">Tip (on reader)</span><span class="cap">added next</span></div>
-          <div class="tl"><b style="flex:1;font-size:18px">Total</b><b style="font-size:22px">{{total}}</b></div>
+          <div class="row"><span style="flex:1" class="cap">Subtotal</span><span>{{sub}}</span></div>
+          <div class="row"><span style="flex:1" class="cap">Tip (on reader)</span><span class="cap">added next</span></div>
+          <div class="row"><b style="flex:1;font-size:18px">Total</b><b style="font-size:22px">{{total}}</b></div>
         </div>
         <div class="cap">Kim is paid on the full $52.00. The $10 comes off the salon's share.</div>
         <div style="flex:1"></div>
@@ -51,7 +46,7 @@ body{margin:0}
         <div class="card" style="padding:16px 18px;display:flex;align-items:center;gap:12px"><span class="av lg">L</span><div style="flex:1"><div class="h2">Lan Tran</div><div class="cap">Regular · 24 visits · usually Kim</div></div></div>
         <div class="card" style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
           <div style="display:flex;align-items:center"><b style="flex:1;font-size:16px">Loyalty</b><span class="num cap">{{ptsLabel}}</span></div>
-          <div class="pbar2"><span style="{{barStyle}}"></span></div>
+          <div class="prog-bar"><span style="{{barStyle}}"></span></div>
           <sc-if value="{{ready}}" hint-placeholder-val="{{true}}"><div style="display:flex;align-items:center;gap:10px"><span class="tag jade">$10 reward ready</span><span style="flex:1"></span><button class="btn" type="button" onClick="{{apply}}" style="background:#2F9E44;color:#fff">Use $10</button></div></sc-if>
           <sc-if value="{{applied}}" hint-placeholder-val="{{false}}"><div class="fade" style="display:flex;align-items:center;gap:10px"><span class="cap" style="flex:1">Reward used. Lan earns <b>+42 pts</b> on today's $42 after reward.</span><button class="btn ghost" type="button" onClick="{{undo}}">Undo</button></div></sc-if>
           <div class="cap">Ask: "Do you want to use your $10 today or save it?"</div>

@@ -129,3 +129,67 @@ a{color:var(--ink)} a:hover{color:var(--ink-soft)}
 /* Empty state */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:40px;text-align:center;color:var(--ink-soft)}
 .empty .h2{color:var(--ink)}
+
+/* ===== v3 shared components (Nov 16) ===== */
+/* Rows: one row style, 5 sizes. Use inside .group. .g = grows, its .cap drops to a 2nd line */
+.row.xs{min-height:40px;font-size:14px}
+.row.s{min-height:48px;font-size:15px}
+.row.m{min-height:56px;font-size:15px}
+.row.l{min-height:64px;font-size:15px}
+.row .g{flex:1;min-width:0}
+.row .g .cap{display:block}
+.row.minus{color:#1F7A33}
+.row.free{background:repeating-linear-gradient(135deg,#F7FBF8 0 6px,#fff 6px 12px)}
+.row.now{background:var(--jade-soft)}
+/* Card with padding + stacked content */
+.card.pad{padding:16px 18px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px}
+/* Trend words */
+.up{color:#1F7A33;font-weight:600;font-size:13px}
+.down{color:#B5470A;font-weight:600;font-size:13px}
+/* Stat: tappable KPI tile; stat-grid: numbers side by side inside a card */
+.stat{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:16px;border:0;background:var(--paper);box-shadow:var(--shadow);font:inherit;text-align:left;cursor:pointer;color:var(--ink);box-sizing:border-box}
+.stat.on{box-shadow:0 0 0 2px var(--ink),var(--shadow)}
+.stat .v{font-size:26px;line-height:32px;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
+.stat-grid{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:10px;text-align:center}
+.stat-grid b{display:block;font-size:22px;line-height:28px;font-variant-numeric:tabular-nums}
+/* Progress bar: .thin 6 · default 8 · .thick 10; .ink fill; .tint track on green cards */
+.prog-bar{height:8px;border-radius:5px;background:var(--fill);overflow:hidden}
+.prog-bar span{display:block;height:100%;background:var(--jade);border-radius:inherit}
+.prog-bar.thin{height:6px}
+.prog-bar.thick{height:10px}
+.prog-bar.ink span{background:var(--ink)}
+.prog-bar.tint{background:rgba(47,158,68,.18)}
+/* Stepper: − value + */
+.stepper{display:inline-flex;align-items:center;gap:6px}
+.stepper .btn{width:36px;height:36px;padding:0}
+.stepper b{min-width:56px;text-align:center;font-variant-numeric:tabular-nums}
+/* Message bubble: preview of a text the client gets */
+.bubble{background:var(--fill);border-radius:18px 18px 18px 6px;padding:10px 14px;font-size:14px;line-height:20px}
+/* Data table: numbers right-aligned, first column left */
+.dtable{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.dtable th{height:36px;text-align:right;font-size:12px;font-weight:600;color:var(--ink-soft);padding:0 14px;border-bottom:1px solid var(--line)}
+.dtable td{height:40px;text-align:right;padding:0 14px;border-bottom:1px solid var(--line)}
+.dtable tr:last-child td{border-bottom:0}
+.dtable th:first-child,.dtable td:first-child{text-align:left}
+/* Mini bar chart: this period (ink) vs last (grey) */
+.minibars{display:flex;align-items:flex-end;gap:10px;height:190px}
+.minibars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.minibars .b i{display:block;width:100%;border-radius:6px 6px 0 0;background:var(--ink)}
+.minibars .b i.last{background:#D1D1D6}
+.minibars .b span{font-size:12px;color:var(--ink-soft)}
+/* Phone tab bar (tech app): 64px, bottom */
+.ptabs{position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;border-top:1px solid var(--line);background:rgba(255,255,255,.92)}
+.ptabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:transparent;font:inherit;font-size:11px;color:var(--ink-soft);cursor:pointer}
+.ptabs button.on{color:var(--ink);font-weight:600}
+/* Phone day timeline: 58px per hour; blocks share the calendar's states */
+.dtl{position:absolute;left:0;right:0}
+.dtl-h{position:absolute;left:12px;width:34px;font-size:11px;color:var(--ink-soft);transform:translateY(-7px)}
+.dtl-line{position:absolute;left:52px;right:16px;height:1px;background:var(--line)}
+.dtl-bk{position:absolute;left:56px;right:16px;border-radius:10px;padding:6px 10px;box-sizing:border-box;border:1px solid var(--line);background:var(--paper);font-size:13px;line-height:17px;overflow:hidden;cursor:pointer;text-align:left;font-family:inherit;color:var(--ink)}
+.dtl-bk b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dtl-bk .cap{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dtl-bk.paid{background:var(--surface);color:var(--muted)}
+.dtl-bk.chair{background:var(--jade-soft);border:1.5px solid var(--jade)}
+.dtl-bk.unconf{background:repeating-linear-gradient(135deg,#FFF4EC 0 6px,#fff 6px 12px);border-color:#F4C9AF}
+.dtl-bk.free{border-style:dashed;background:transparent;color:#1F7A33;font-weight:600}
+.dtl-now{position:absolute;left:46px;right:16px;height:2px;background:var(--red)}

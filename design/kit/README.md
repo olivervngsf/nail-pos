@@ -13,7 +13,7 @@ Golden screen: **Checkout · Ticket** (`design/checkout/Main.dc.html`).
 | `annot.css` | Spec frames: `.af` 1640×800, `.afp` phone, `.afw` calendar, `.afk` kiosk; pins + notes toggle | Every screen gets one |
 | `setup.css` | Setup wizard shell | Setup only |
 
-Components (same names in the live system and later as React components): LeftMenu, TopBar, PhoneBar, SetupSteps, Button, Segmented, Chip, Field, Switch, PinKeypad, ListGroup, Card, StatusPill, Avatar, Drawer, Sheet, Toast, Banner, Annotation.
+Components (same names in the live system and later as React components): LeftMenu, TopBar, PhoneBar, PhoneTabs, SetupSteps, Button, Segmented, Chip, Field, Switch, Stepper, PinKeypad, ListGroup, Rows (xs/s/default/m/l), Card (+ .card.pad), StatusPill, Avatar, StatTile, ProgressBar, DataTable, MiniBars, DayTimeline, MessageBubble, Drawer, Sheet, Toast, Banner, Annotation.
 
 New screen: link `kit.css` (+ `annot.css`), menu from `rail.py`, use only kit classes; screen `<style>` = layout only.
 Changing the look: edit `kit.css` here first, then the live system, then re-copy into each board.

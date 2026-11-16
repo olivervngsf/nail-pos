@@ -11,10 +11,6 @@
 <helmet>
 <style>
 body{margin:0}
-.tl{display:flex;align-items:center;min-height:52px;padding:0 16px;border-bottom:1px solid var(--line);font-size:16px;font-variant-numeric:tabular-nums}
-.tl:last-child{border-bottom:0}
-.tl.minus{color:#1F7A33}
-.tl .x{margin-left:10px;height:30px;padding:0 10px;font-size:13px}
 </style>
 </helmet>
 <div class="app">
@@ -33,13 +29,13 @@ body{margin:0}
     <main style="flex:1;display:flex;gap:16px;padding:20px 24px;min-height:0">
       <section style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0">
         <div class="group">
-          <div class="tl"><span style="flex:1">Regular spa pedicure · Kim</span><span>$38.00</span></div>
-          <div class="tl"><span style="flex:1">French tip · Kim</span><span>$7.00</span></div>
-          <sc-if value="{{used}}" hint-placeholder-val="{{true}}"><div class="tl minus fade"><span style="flex:1">Pedicure package · visit 4 of 6</span><span>−$38.00</span></div></sc-if>
-          <sc-if value="{{bday}}" hint-placeholder-val="{{true}}"><div class="tl minus fade"><span style="flex:1">Birthday month perk (added by itself)</span><span>−$5.00</span><button class="btn x" type="button" onClick="{{noBday}}">Remove</button></div></sc-if>
+          <div class="row"><span style="flex:1">Regular spa pedicure · Kim</span><span>$38.00</span></div>
+          <div class="row"><span style="flex:1">French tip · Kim</span><span>$7.00</span></div>
+          <sc-if value="{{used}}" hint-placeholder-val="{{true}}"><div class="row minus fade"><span style="flex:1">Pedicure package · visit 4 of 6</span><span>−$38.00</span></div></sc-if>
+          <sc-if value="{{bday}}" hint-placeholder-val="{{true}}"><div class="row minus fade"><span style="flex:1">Birthday month perk (added by itself)</span><span>−$5.00</span><button class="btn" style="margin-left:10px;height:30px;padding:0 10px;font-size:13px" type="button" onClick="{{noBday}}">Remove</button></div></sc-if>
         </div>
         <div class="group">
-          <div class="tl"><b style="flex:1;font-size:18px">Total</b><b style="font-size:22px">{{total}}</b></div>
+          <div class="row"><b style="flex:1;font-size:18px">Total</b><b style="font-size:22px">{{total}}</b></div>
         </div>
         <div class="cap">Kim is paid the full $38 + $7 for this visit. Package and perk come off the salon's share.</div>
         <div class="card" style="padding:14px 16px;display:flex;align-items:center;gap:12px">

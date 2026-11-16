@@ -11,11 +11,7 @@
 <helmet>
 <style>
 body{margin:0}
-.st{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;text-align:center}
-.st b{display:block;font-size:20px;line-height:26px;font-variant-numeric:tabular-nums}
-.vr{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:0 16px;border:0;border-bottom:1px solid var(--line);background:var(--paper);font:inherit;text-align:left;cursor:pointer;color:var(--ink);box-sizing:border-box}
-.vr:hover{background:#FAFAFB}
-.vr.on{background:var(--surface)}
+.vr{min-height:64px}
 .vr .d{width:74px;font-size:13px;font-weight:600;color:var(--ink-soft)}
 .vr .g{flex:1;min-width:0}
 .vr .g b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -44,7 +40,7 @@ body{margin:0}
           <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="tag jade">Regular</span><span class="tag">Gel color mani</span><span class="tag">Usually Kim</span><span class="tag">Since Mar 2024</span></div>
           <div class="cap">Texts: yes · Language: English</div>
         </div>
-        <div class="card st" style="height:80px;padding:14px 10px;box-sizing:border-box"><div><b>24</b><span class="cap">visits</span></div><div><b>$1,320</b><span class="cap">spent</span></div><div><b>$55</b><span class="cap">avg</span></div><div><b>3.4 wk</b><span class="cap">comes every</span></div></div>
+        <div class="card stat-grid" style="--n:4;height:80px;padding:14px 10px;box-sizing:border-box"><div><b>24</b><span class="cap">visits</span></div><div><b>$1,320</b><span class="cap">spent</span></div><div><b>$55</b><span class="cap">avg</span></div><div><b>3.4 wk</b><span class="cap">comes every</span></div></div>
         <div class="card" style="height:112px;padding:12px 16px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px"><div class="eyebrow">Notes (staff see these)</div><div style="font-size:14px;line-height:20px"><b style="color:#C92A2A">Sensitive skin</b> · no acetone soak, use gentle remover.</div><div style="font-size:14px;line-height:20px">Likes nude / pink. Short almond. Chats in Vietnamese with Kim.</div></div>
         <div class="group" style="height:104px"><div class="row" style="min-height:52px"><span class="grow">Gift card ••4411</span><b class="num">$25.00</b></div><div class="row" style="min-height:52px"><span class="grow">Loyalty <span class="cap">· 320 pts</span></span><span class="tag jade">$10 reward ready</span></div></div>
         <div class="card" style="height:72px;padding:12px 16px;box-sizing:border-box"><div class="eyebrow">Next visit</div><div style="font-size:15px;margin-top:4px"><b>Tue, Nov 24 · 2:00 PM</b> · Gel with Kim · <span style="color:#1F7A33;font-weight:600">confirmed</span></div></div>
@@ -73,7 +69,7 @@ class Component extends DCLogic {
     const V = [['Nov 3', 'K', 'Gel color manicure + French tip', 'Kim · 55 min · 3 photos', '$52.00', 'tip $10'], ['Oct 13', 'K', 'Gel color manicure', 'Kim · 45 min', '$45.00', 'tip $9'], ['Sep 22', 'L', 'Gel color change - hands', 'Linh (Kim off) · 30 min', '$30.00', 'tip $6'], ['Sep 1', 'K', 'Gel color manicure & regular pedicure', 'Kim · 95 min · gift card $20 used', '$83.00', 'tip $16'], ['Aug 9', 'K', 'Gel color manicure', 'Kim · 45 min', '$45.00', 'tip $9'], ['Jul 19', 'K', 'Gel color manicure + French tip', 'Kim · 55 min · 2 photos', '$52.00', 'tip $10'], ['Jun 28', 'K', 'Gel color manicure', 'Kim · 45 min · loyalty $10 used', '$35.00', 'tip $9']];
     return {
       filters: ['All visits', 'Photos', 'Notes', 'Payments', 'Texts'].map((f) => ({ label: f, cls: 'chip' + (S.f === f ? ' on' : ''), pick: () => this.setState({ f }) })),
-      visits: V.map((v, i) => ({ date: v[0], init: v[1], svc: v[2], sub: v[3], total: v[4], tip: v[5], open: S.open === i, cls: 'vr' + (S.open === i ? ' on' : ''), pick: () => this.setState({ open: S.open === i ? -1 : i }) }))
+      visits: V.map((v, i) => ({ date: v[0], init: v[1], svc: v[2], sub: v[3], total: v[4], tip: v[5], open: S.open === i, cls: 'opt vr' + (S.open === i ? ' on' : ''), pick: () => this.setState({ open: S.open === i ? -1 : i }) }))
     };
   }
 }

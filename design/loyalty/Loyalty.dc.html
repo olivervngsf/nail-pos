@@ -11,22 +11,6 @@
 <helmet>
 <style>
 body{margin:0}
-.lc{padding:16px 18px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px}
-.lt{display:flex;flex-direction:column;gap:6px;padding:18px;height:150px;box-sizing:border-box;border-radius:20px;border:0;background:var(--paper);box-shadow:var(--shadow);font:inherit;text-align:left;cursor:pointer;color:var(--ink)}
-.lt .top{display:flex;align-items:center;gap:10px}
-.lt .ico{width:36px;height:36px;border-radius:10px}
-.lr{display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line);font-size:15px}
-.lr:last-child{border-bottom:0}
-.lr .g{flex:1;min-width:0}
-.lr .g .cap{display:block}
-.stp{display:inline-flex;align-items:center;gap:6px}
-.stp .btn{width:36px;height:36px;padding:0}
-.bub{background:var(--fill);border-radius:18px 18px 18px 6px;padding:10px 14px;font-size:14px;line-height:20px}
-.rs3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
-.rs3 b{display:block;font-size:22px;line-height:28px;font-variant-numeric:tabular-nums}
-.kv2{display:flex;align-items:center;min-height:48px;padding:0 16px;border-bottom:1px solid var(--line);font-size:15px}
-.kv2:last-child{border-bottom:0}
-.kv2 span{flex:1}
 </style>
 </helmet>
 <div class="app">
@@ -47,26 +31,26 @@ body{margin:0}
 
       <sc-if value="{{tHome}}" hint-placeholder-val="{{true}}"><div class="fade" style="display:flex;flex-direction:column;gap:16px">
         <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px">
-          <sc-for list="{{progs}}" as="p" hint-placeholder-count="4"><button class="lt" type="button" onClick="{{p.go}}"><div class="top"><span class="ico" style="{{p.icoStyle}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{p.icon}}"/></svg></span><b style="flex:1;font-size:17px">{{p.n}}</b><span class="{{p.tagCls}}">{{p.state}}</span></div><span class="cap" style="font-size:14px;line-height:20px">{{p.d}}</span><span style="font-size:14px;font-weight:600">{{p.s}}</span></button></sc-for>
+          <sc-for list="{{progs}}" as="p" hint-placeholder-count="4"><button class="tile" type="button" style="height:150px;box-sizing:border-box;border:0;font:inherit;text-align:left;cursor:pointer" onClick="{{p.go}}"><div style="display:flex;align-items:center;gap:10px"><span class="ico" style="width:36px;height:36px;border-radius:10px;{{p.icoStyle}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{p.icon}}"/></svg></span><b style="flex:1;font-size:17px">{{p.n}}</b><span class="{{p.tagCls}}">{{p.state}}</span></div><span class="cap" style="font-size:14px;line-height:20px">{{p.d}}</span><span style="font-size:14px;font-weight:600">{{p.s}}</span></button></sc-for>
         </div>
-        <div class="card lc" style="height:150px"><div class="eyebrow">Results · last 30 days</div>
-          <div class="rs3"><div><b>212</b><span class="cap">members earning</span></div><div><b>$1,140</b><span class="cap">packages sold (paid upfront)</span></div><div><b>71%</b><span class="cap">members came back vs 48% others</span></div></div>
+        <div class="card pad" style="height:150px"><div class="eyebrow">Results · last 30 days</div>
+          <div class="stat-grid"><div><b>212</b><span class="cap">members earning</span></div><div><b>$1,140</b><span class="cap">packages sold (paid upfront)</span></div><div><b>71%</b><span class="cap">members came back vs 48% others</span></div></div>
         </div>
         <div class="cap">Everything here runs inside checkout: no extra app for clients, no card to carry. Their phone number is their loyalty card.</div>
       </div></sc-if>
 
       <sc-if value="{{tPoints}}" hint-placeholder-val="{{false}}"><div class="fade" style="display:flex;gap:16px">
         <div style="width:600px;display:flex;flex-direction:column;gap:12px">
-          <div class="card lc" style="height:156px"><div class="eyebrow">How clients earn</div>
+          <div class="card pad" style="height:156px"><div class="eyebrow">How clients earn</div>
             <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"><sc-for list="{{types}}" as="t" hint-placeholder-count="2"><button class="{{t.cls}}" type="button" onClick="{{t.pick}}"><b>{{t.n}}</b><span class="cap">{{t.d}}</span></button></sc-for></div>
           </div>
-          <div class="card lc" style="height:112px"><div class="eyebrow">Reward</div>
-            <div style="display:flex;align-items:center;gap:12px;min-height:44px;font-size:15px"><span style="flex:1">{{ruleText}}</span><span class="stp"><button class="btn" type="button" onClick="{{dn}}" aria-label="Less">−</button><b class="num" style="min-width:56px;text-align:center">{{rewardLabel}}</b><button class="btn" type="button" onClick="{{up}}" aria-label="More">+</button></span></div>
+          <div class="card pad" style="height:112px"><div class="eyebrow">Reward</div>
+            <div style="display:flex;align-items:center;gap:12px;min-height:44px;font-size:15px"><span style="flex:1">{{ruleText}}</span><span class="stepper"><button class="btn" type="button" onClick="{{dn}}" aria-label="Less">−</button><b>{{rewardLabel}}</b><button class="btn" type="button" onClick="{{up}}" aria-label="More">+</button></span></div>
           </div>
-          <div class="group"><div class="lr"><span class="g">Points never expire</span><button class="sw on" type="button" aria-label="Never expire"></button></div><div class="lr"><span class="g">Earn on the service price only<span class="cap">Not on tips, tax or gift cards</span></span><button class="sw on" type="button" aria-label="Service only"></button></div></div>
+          <div class="group"><div class="row m"><span class="g">Points never expire</span><button class="sw on" type="button" aria-label="Never expire"></button></div><div class="row m"><span class="g">Earn on the service price only<span class="cap">Not on tips, tax or gift cards</span></span><button class="sw on" type="button" aria-label="Service only"></button></div></div>
         </div>
-        <div class="card lc" style="flex:1;height:340px"><div class="eyebrow">What clients see (receipt + email, free)</div>
-          <div class="bub">Mai Nails: Thanks Lan! +52 points today. You have 372 — your $10 reward is ready next visit.</div>
+        <div class="card pad" style="flex:1;height:340px"><div class="eyebrow">What clients see (receipt + email, free)</div>
+          <div class="bubble">Mai Nails: Thanks Lan! +52 points today. You have 372 — your $10 reward is ready next visit.</div>
           <div class="cap">Texts are optional (Messages tab). Receipt + email cost nothing.</div>
         </div>
       </div></sc-if>
@@ -74,18 +58,18 @@ body{margin:0}
       <sc-if value="{{tPacks}}" hint-placeholder-val="{{false}}"><div class="fade" style="display:flex;gap:16px">
         <div style="width:600px;display:flex;flex-direction:column;gap:12px">
           <div class="group">
-            <sc-for list="{{packs}}" as="k" hint-placeholder-count="3"><div class="lr" style="min-height:68px"><span class="g"><b>{{k.n}}</b><span class="cap">{{k.d}}</span></span><span class="tag jade">{{k.sold}}</span></div></sc-for>
+            <sc-for list="{{packs}}" as="k" hint-placeholder-count="3"><div class="row l" style="min-height:68px"><span class="g"><b>{{k.n}}</b><span class="cap">{{k.d}}</span></span><span class="tag jade">{{k.sold}}</span></div></sc-for>
           </div>
           <button class="btn block" type="button">+ New package</button>
           <div class="cap">Sold at checkout like any item. Money is paid upfront; each visit uses one. Balance shows on the client's profile and at checkout.</div>
         </div>
-        <div class="card lc" style="flex:1"><div class="eyebrow">Edit · Spa pedicure package</div>
+        <div class="card pad" style="flex:1"><div class="eyebrow">Edit · Spa pedicure package</div>
           <div class="group" style="box-shadow:none;border:1px solid var(--line)">
-            <div class="kv2"><span>Service</span><b>Regular spa pedicure ($38)</b></div>
-            <div class="kv2"><span>Visits</span><b>5 paid + 1 free = 6</b></div>
-            <div class="kv2"><span>Price</span><b class="num">$190.00 <span class="cap" style="font-weight:400">· worth $228, saves $38</span></b></div>
-            <div class="kv2"><span>Use within</span><b>Never expires</b></div>
-            <div class="kv2"><span>Tech is paid when used</span><b>Full $38 per visit</b></div>
+            <div class="row s"><span class="g">Service</span><b>Regular spa pedicure ($38)</b></div>
+            <div class="row s"><span class="g">Visits</span><b>5 paid + 1 free = 6</b></div>
+            <div class="row s"><span class="g">Price</span><b class="num">$190.00 <span class="cap" style="font-weight:400">· worth $228, saves $38</span></b></div>
+            <div class="row s"><span class="g">Use within</span><b>Never expires</b></div>
+            <div class="row s"><span class="g">Tech is paid when used</span><b>Full $38 per visit</b></div>
           </div>
           <div class="cap">Owner setting: pay techs on full price (fair) or on package price ($31.67). Shown on the payout sheet either way.</div>
         </div>
@@ -93,13 +77,13 @@ body{margin:0}
 
       <sc-if value="{{tPerks}}" hint-placeholder-val="{{false}}"><div class="fade" style="display:flex;gap:16px">
         <div class="group" style="width:600px;align-self:flex-start">
-          <div class="lr" style="min-height:64px"><span class="g"><b>Birthday month</b><span class="cap">$5 off any visit in their birthday month</span></span><button class="sw on" type="button" aria-label="Birthday"></button></div>
-          <div class="lr" style="min-height:64px"><span class="g"><b>Rebook before leaving</b><span class="cap">$5 off the next visit if booked at checkout</span></span><button class="sw on" type="button" aria-label="Rebook"></button></div>
-          <div class="lr" style="min-height:64px"><span class="g"><b>VIP Silver</b><span class="cap">Spends $500 in 12 months → 5% off every visit</span></span><button class="sw on" type="button" aria-label="Silver"></button></div>
-          <div class="lr" style="min-height:64px"><span class="g"><b>VIP Gold</b><span class="cap">Spends $1,000 in 12 months → 10% off every visit</span></span><button class="sw" type="button" aria-label="Gold"></button></div>
-          <div class="lr" style="min-height:64px"><span class="g"><b>Only one perk per visit</b><span class="cap">The biggest one wins; never stack</span></span><button class="sw on" type="button" aria-label="One perk"></button></div>
+          <div class="row l"><span class="g"><b>Birthday month</b><span class="cap">$5 off any visit in their birthday month</span></span><button class="sw on" type="button" aria-label="Birthday"></button></div>
+          <div class="row l"><span class="g"><b>Rebook before leaving</b><span class="cap">$5 off the next visit if booked at checkout</span></span><button class="sw on" type="button" aria-label="Rebook"></button></div>
+          <div class="row l"><span class="g"><b>VIP Silver</b><span class="cap">Spends $500 in 12 months → 5% off every visit</span></span><button class="sw on" type="button" aria-label="Silver"></button></div>
+          <div class="row l"><span class="g"><b>VIP Gold</b><span class="cap">Spends $1,000 in 12 months → 10% off every visit</span></span><button class="sw" type="button" aria-label="Gold"></button></div>
+          <div class="row l"><span class="g"><b>Only one perk per visit</b><span class="cap">The biggest one wins; never stack</span></span><button class="sw on" type="button" aria-label="One perk"></button></div>
         </div>
-        <div class="card lc" style="flex:1;align-self:flex-start"><div class="eyebrow">How perks show up</div>
+        <div class="card pad" style="flex:1;align-self:flex-start"><div class="eyebrow">How perks show up</div>
           <div style="font-size:15px;line-height:22px">Added to the ticket <b>by itself</b> as its own line, e.g. <b>“Birthday month −$5.00”</b>. The front desk sees it and can remove it. Nothing is taken or given silently.</div>
           <div class="cap">Perk discounts come off the salon's share. Techs are paid on full price and keep 100% of tips.</div>
         </div>
@@ -107,27 +91,27 @@ body{margin:0}
 
       <sc-if value="{{tRefer}}" hint-placeholder-val="{{false}}"><div class="fade" style="display:flex;gap:16px">
         <div style="width:600px;display:flex;flex-direction:column;gap:12px">
-          <div class="group"><div class="lr" style="min-height:64px"><span class="g"><b>Refer a friend</b><span class="cap">Each client gets their own link + code</span></span><button class="sw on" type="button" aria-label="Referrals"></button></div>
-            <div class="lr"><span class="g">Friend gets</span><b>$10 off first visit</b></div>
-            <div class="lr"><span class="g">Client who shared gets</span><b>$10 off next visit</b></div>
-            <div class="lr"><span class="g">Counts when</span><b>Friend's first visit is paid</b></div></div>
-          <div class="card lc"><div class="eyebrow">Example link</div><div style="font-size:16px"><b>mainails.app/r/LAN42</b> <span class="cap">· code LAN42</span></div><div class="cap">On the receipt, the points page and the booking page. Opens booking with the $10 already shown.</div></div>
+          <div class="group"><div class="row l"><span class="g"><b>Refer a friend</b><span class="cap">Each client gets their own link + code</span></span><button class="sw on" type="button" aria-label="Referrals"></button></div>
+            <div class="row m"><span class="g">Friend gets</span><b>$10 off first visit</b></div>
+            <div class="row m"><span class="g">Client who shared gets</span><b>$10 off next visit</b></div>
+            <div class="row m"><span class="g">Counts when</span><b>Friend's first visit is paid</b></div></div>
+          <div class="card pad"><div class="eyebrow">Example link</div><div style="font-size:16px"><b>mainails.app/r/LAN42</b> <span class="cap">· code LAN42</span></div><div class="cap">On the receipt, the points page and the booking page. Opens booking with the $10 already shown.</div></div>
         </div>
-        <div class="card lc" style="flex:1;align-self:flex-start"><div class="eyebrow">Last 30 days</div>
-          <div class="rs3"><div><b>18</b><span class="cap">links shared</span></div><div><b>11</b><span class="cap">new clients came</span></div><div><b>$220</b><span class="cap">given in rewards</span></div></div>
+        <div class="card pad" style="flex:1;align-self:flex-start"><div class="eyebrow">Last 30 days</div>
+          <div class="stat-grid"><div><b>18</b><span class="cap">links shared</span></div><div><b>11</b><span class="cap">new clients came</span></div><div><b>$220</b><span class="cap">given in rewards</span></div></div>
           <div class="cap">New clients without paying a marketplace fee (Fresha takes ~20% on new clients).</div>
         </div>
       </div></sc-if>
 
       <sc-if value="{{tMsg}}" hint-placeholder-val="{{false}}"><div class="fade" style="display:flex;gap:16px">
         <div class="group" style="width:600px;align-self:flex-start">
-          <div class="lr" style="min-height:64px"><span class="g"><b>On the receipt</b><span class="cap">Points, package balance, referral link · free</span></span><button class="sw on" type="button" aria-label="Receipt"></button></div>
-          <div class="lr" style="min-height:64px"><span class="g"><b>Email after each visit</b><span class="cap">Free</span></span><button class="sw on" type="button" aria-label="Email"></button></div>
-          <div class="lr" style="min-height:64px"><span class="g"><b>Text when a reward is ready</b><span class="cap">Few texts · about 1¢ each</span></span><button class="sw on" type="button" aria-label="Text reward"></button></div>
-          <div class="lr" style="min-height:64px"><span class="g"><b>Text after every visit</b><span class="cap">Many texts · adds cost</span></span><button class="sw" type="button" aria-label="Text every visit"></button></div>
+          <div class="row l"><span class="g"><b>On the receipt</b><span class="cap">Points, package balance, referral link · free</span></span><button class="sw on" type="button" aria-label="Receipt"></button></div>
+          <div class="row l"><span class="g"><b>Email after each visit</b><span class="cap">Free</span></span><button class="sw on" type="button" aria-label="Email"></button></div>
+          <div class="row l"><span class="g"><b>Text when a reward is ready</b><span class="cap">Few texts · about 1¢ each</span></span><button class="sw on" type="button" aria-label="Text reward"></button></div>
+          <div class="row l"><span class="g"><b>Text after every visit</b><span class="cap">Many texts · adds cost</span></span><button class="sw" type="button" aria-label="Text every visit"></button></div>
         </div>
-        <div class="card lc" style="flex:1;align-self:flex-start"><div class="eyebrow">Cost this month (estimate)</div>
-          <div class="rs3"><div><b>$0</b><span class="cap">receipt + email</span></div><div><b>~40</b><span class="cap">reward texts</span></div><div><b>~$0.40</b><span class="cap">text cost</span></div></div>
+        <div class="card pad" style="flex:1;align-self:flex-start"><div class="eyebrow">Cost this month (estimate)</div>
+          <div class="stat-grid"><div><b>$0</b><span class="cap">receipt + email</span></div><div><b>~40</b><span class="cap">reward texts</span></div><div><b>~$0.40</b><span class="cap">text cost</span></div></div>
           <div class="cap">Only clients who said yes to texts get them. STOP always works.</div>
         </div>
       </div></sc-if>
