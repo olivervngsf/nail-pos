@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Online booking page</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.web{width:1280px;height:800px;background:#F5F5F7;overflow:hidden;display:flex;flex-direction:column;font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;color:#1C1C1E}
+.hdr{display:flex;gap:20px;align-items:center;padding:18px 48px 14px;background:#fff;border-bottom:1px solid #E5E5EA;flex:none}
+.ph{width:86px;height:64px;border-radius:12px;flex:none;display:flex;align-items:flex-end;padding:6px;box-sizing:border-box;font-size:10px;font-weight:600;color:rgba(255,255,255,.95)}
+.steps{display:flex;gap:18px;font-size:13px;font-weight:600;color:#8E8E93}
+.steps span.on{color:#1C1C1E}
+.steps b{display:inline-flex;width:20px;height:20px;border-radius:50%;background:#E5E5EA;color:#5C5C5E;align-items:center;justify-content:center;font-size:11px;margin-right:6px}
+.steps span.on b{background:#1C1C1E;color:#fff}
+.steps span.done b{background:#2F9E44;color:#fff}
+.body{flex:1;display:flex;gap:20px;padding:20px 48px;min-height:0}
+.main{flex:1;background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0;overflow:hidden}
+.cart{width:330px;flex:none;background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:20px;display:flex;flex-direction:column;gap:10px;align-self:flex-start}
+.cchip{height:36px;padding:0 14px;border-radius:999px;border:1px solid #E5E5EA;background:#fff;font:inherit;font-size:14px;font-weight:600;color:#1C1C1E;cursor:pointer;flex:none}
+.cchip.on{background:#1C1C1E;border-color:#1C1C1E;color:#fff}
+.svc{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:14px;border:1px solid #E5E5EA;background:#fff;font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,background .2s}
+.svc:hover{background:#FAFAFB}
+.svc.on{border:2px solid #1C1C1E;padding:11px 13px}
+.circ{width:24px;height:24px;border-radius:50%;border:1.5px solid #C7C7CC;box-sizing:border-box;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;transition:background .2s}
+.svc.on .circ{background:#1C1C1E;border-color:#1C1C1E}
+.addon{display:flex;gap:8px;flex-wrap:wrap;padding:4px 14px 6px 50px;animation:fadeUp .3s var(--ease) both}
+.door{display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:16px;border:1px solid #E5E5EA;background:#fff;font:inherit;text-align:left;cursor:pointer;width:100%;transition:border-color .2s,transform .2s}
+.door:hover{border-color:#1C1C1E;transform:translateY(-1px)}
+.stf{display:flex;flex-direction:column;align-items:center;gap:6px;width:96px;padding:12px 6px;border-radius:14px;border:1px solid #E5E5EA;background:#fff;font:inherit;font-size:13px;cursor:pointer}
+.stf.on{border:2px solid #1C1C1E}
+.day{flex:1;height:62px;border-radius:14px;border:1px solid #E5E5EA;background:#fff;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+.day.on{background:#1C1C1E;color:#fff;border-color:#1C1C1E}
+.slot{height:42px;border-radius:12px;border:1px solid #E5E5EA;background:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.slot.on{background:#1C1C1E;color:#fff;border-color:#1C1C1E}
+
+.guest{height:34px;padding:0 14px;border-radius:999px;border:0;background:#EFEFF2;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.guest.on{background:#1C1C1E;color:#fff}
+</style>
+</helmet>
+<div class="web">
+  <div class="hdr">
+    <div class="logo" style="width:56px;height:56px;border-radius:14px;font-size:18px;margin:0">MN</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Mai Nails</div>
+      <div class="cap" style="font-size:13px">★ 4.8 (222 Google reviews) · 1234 Story Rd, San Jose · (408) 555-0100</div>
+      <div class="cap" style="font-size:13px"><b style="color:#1F7A33">Open now</b> · until 7 PM · Sun closed · <a href="#">Directions</a></div>
+    </div>
+    <div style="display:flex;gap:6px" aria-label="Salon photos">
+      <div class="ph" style="background:#C9A79A">Salon</div><div class="ph" style="background:#B07C8E">Gel art</div><div class="ph" style="background:#8C9C88">Pedi chairs</div><div class="ph" style="background:#D7B88F">Nail art</div><div class="ph" style="background:#6E7A8C">+ 12</div>
+    </div>
+  </div>
+
+  <sc-if value="{{vDoor}}" hint-placeholder-val="{{false}}">
+    <div class="body fade" style="justify-content:center;align-items:flex-start;padding-top:40px">
+      <div style="width:620px;display:flex;flex-direction:column;gap:14px">
+        <div class="h1" style="font-size:34px">Book a visit</div>
+        <button class="door" type="button" onClick="{{forMe}}"><span class="ico">◯</span><span style="flex:1"><b style="font-size:17px">Book for me</b><span class="cap" style="display:block">One person · pick your services</span></span><span class="cap">›</span></button>
+        <button class="door" type="button" onClick="{{forGroup}}"><span class="ico">◎</span><span style="flex:1"><b style="font-size:17px">Book a group</b><span class="cap" style="display:block">2–6 people · friends, bridal, mom &amp; daughter</span></span><span class="cap">›</span></button>
+        <div class="cap" style="text-align:center;margin-top:20px">Came from Google, Instagram or our text? Same page — no account, no app.</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{vFlow}}" hint-placeholder-val="{{true}}">
+    <div class="body">
+      <div class="main">
+        <div class="steps"><sc-for list="{{steps}}" as="s" hint-placeholder-count="4"><span class="{{s.cls}}"><b>{{s.n}}</b>{{s.label}}</span></sc-for></div>
+
+        <sc-if value="{{isGroup}}" hint-placeholder-val="{{false}}">
+          <div style="display:flex;align-items:center;gap:8px"><span class="cap">Guests:</span><sc-for list="{{guests}}" as="g" hint-placeholder-count="2"><button class="{{g.cls}}" type="button" onClick="{{g.pick}}">{{g.label}}</button></sc-for><button class="guest" type="button" onClick="{{addGuest}}">+ Add guest</button></div>
+        </sc-if>
+
+        <sc-if value="{{vServices}}" hint-placeholder-val="{{true}}">
+          <div class="fade" style="display:flex;flex-direction:column;gap:10px;min-height:0">
+            <div class="inp" style="display:flex;align-items:center;color:#8E8E93">Search services</div>
+            <div style="display:flex;gap:8px;overflow:hidden"><sc-for list="{{cats}}" as="c" hint-placeholder-count="7"><button class="{{c.cls}}" type="button" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+            <div style="display:flex;flex-direction:column;gap:8px;overflow:hidden">
+              <sc-for list="{{svcs}}" as="s" hint-placeholder-count="5">
+                <button class="{{s.cls}}" type="button" onClick="{{s.toggle}}"><span class="circ">{{s.check}}</span><span style="flex:1"><b style="font-size:15px">{{s.name}}</b><span class="cap" style="display:block">{{s.time}}</span></span><b class="num" style="font-size:16px">{{s.price}}</b></button>
+                <sc-if value="{{s.showAddons}}" hint-placeholder-val="{{false}}"><div class="addon"><span class="cap" style="align-self:center">Add-ons:</span><sc-for list="{{s.addons}}" as="a" hint-placeholder-count="3"><button class="{{a.cls}}" type="button" onClick="{{a.pick}}" style="height:32px;font-size:13px">{{a.label}}</button></sc-for></div></sc-if>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{vStaff}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="display:flex;flex-direction:column;gap:14px">
+            <div class="h2">Who would you like?</div>
+            <sc-for list="{{picked}}" as="p" hint-placeholder-count="2">
+              <div style="display:flex;flex-direction:column;gap:8px"><b>{{p.name}}</b>
+                <div style="display:flex;gap:8px"><sc-for list="{{p.staff}}" as="t" hint-placeholder-count="4"><button class="{{t.cls}}" type="button" onClick="{{t.pick}}"><span class="av" style="width:44px;height:44px;font-size:16px">{{t.init}}</span><b>{{t.name}}</b><span class="cap" style="font-size:11px">{{t.sub}}</span></button></sc-for></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{vTime}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center"><div class="h2" style="flex:1">Pick a time</div><span class="tag jade">Next available: today 3:00 PM</span></div>
+            <div style="display:flex;gap:8px"><sc-for list="{{days}}" as="d" hint-placeholder-count="7"><button class="{{d.cls}}" type="button" onClick="{{d.pick}}"><span style="font-size:12px;opacity:.7">{{d.dow}}</span><b>{{d.n}}</b></button></sc-for></div>
+            <div class="eyebrow">Afternoon</div>
+            <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px"><sc-for list="{{slots}}" as="s" hint-placeholder-count="6"><button class="{{s.cls}}" type="button" onClick="{{s.pick}}">{{s.t}}</button></sc-for></div>
+            <div class="cap">{{timeNote}}</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{vDetails}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="h2">Your details</div>
+              <label class="cap" for="wp">Cell phone</label><input class="inp num" id="wp" value="(408) 555-0142">
+              <div class="card fade" style="padding:12px 14px;background:#EAF5EC;box-shadow:none;font-size:14px">Welcome back, <b>Lan</b>! Name filled in. Last time: Gel manicure with Kim.</div>
+              <label class="cap" for="wn">Name</label><input class="inp" id="wn" value="Lan Tran">
+              <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px"><span class="circ" style="background:#1C1C1E;border-color:#1C1C1E">✓</span>Text me a confirmation + reminder. Reply STOP anytime.</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="h2">Show us what you want <span class="cap" style="font-weight:400">(optional)</span></div>
+              <button type="button" style="height:150px;border-radius:16px;border:1.5px dashed #C7C7CC;background:#FAFAFB;font:inherit;color:#5C5C5E;cursor:pointer">+ Add an inspiration photo<br><span class="cap">Only the salon sees it</span></button>
+              <label class="cap" for="wt">Note for your nail tech</label><input class="inp" id="wt" value="Almond shape, short">
+              <div class="cap">Change or cancel up to 2 hours before. No card needed.</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{vDone}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:12px;padding-top:40px;text-align:center">
+            <div class="pop" style="width:80px;height:80px;border-radius:50%;background:var(--jade-soft);border:2px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:36px">✓</div>
+            <div class="h1" style="font-size:30px">You're booked, Lan</div>
+            <div class="cap" style="font-size:15px">Confirmation texted to (408) 555-0142 · {{whenLine}}</div>
+            <div style="display:flex;gap:8px;margin-top:8px"><button class="btn" type="button">Add to calendar</button><button class="btn" type="button">Directions</button><button class="btn ghost" type="button" onClick="{{restart}}">Book again</button></div>
+          </div>
+        </sc-if>
+      </div>
+
+      <aside class="cart">
+        <div style="display:flex;align-items:center"><b style="font-size:18px;flex:1">Your visit</b><span class="cap">{{guestLabel}}</span></div>
+        <sc-if value="{{cartEmpty}}" hint-placeholder-val="{{true}}"><div class="cap">Nothing picked yet</div></sc-if>
+        <sc-for list="{{cart}}" as="c" hint-placeholder-count="2">
+          <div style="display:flex;gap:8px;font-size:14px;line-height:19px;animation:fadeUp .3s var(--ease) both"><span style="flex:1"><b>{{c.name}}</b><span class="cap" style="display:block">{{c.sub}}</span></span><span class="num">{{c.price}}</span></div>
+        </sc-for>
+        <sc-if value="{{cartFull}}" hint-placeholder-val="{{false}}">
+          <div class="sep"></div>
+          <div class="line"><span>Total time</span><b>{{totalTime}}</b></div>
+          <div class="line" style="font-size:16px"><span>Total</span><b>{{total}}</b></div>
+          <div class="cap">Tip and any card fee are added at the salon.</div>
+        </sc-if>
+        <button class="btn primary block" type="button" onClick="{{next}}" style="{{nextStyle}}">{{nextLabel}}</button>
+        <sc-if value="{{canBack}}" hint-placeholder-val="{{false}}"><button class="btn ghost block" type="button" onClick="{{back}}">Back</button></sc-if>
+      </aside>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"at":{"editor":"enum","options":["door","services","addon","group","staff","time","details","done"],"default":"door"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){
+    super(p);
+    const at = (p && p.at) || 'door';
+    this.state = { v: at === 'door' ? 'door' : (at === 'addon' || at === 'group' ? 'services' : at), group: at === 'group', guest: 0, guests: at === 'group' ? 2 : 1, cat: at === 'group' ? 0 : 1, sel: { 0: [], 1: [] }, addons: {}, staff: {}, day: 0, slot: null };
+    if (at !== 'door' && at !== 'services') this.state.sel = { 0: [11], 1: at === 'group' ? [21] : [] };
+    if (at === 'services') this.state.sel = { 0: [], 1: [] };
+    if (at === 'addon' || ['staff', 'time', 'details', 'done'].indexOf(at) >= 0) { this.state.sel = { 0: [11, 22], 1: [] }; this.state.addons = { 11: [0] }; }
+    if (at === 'group') this.state.sel = { 0: [11], 1: [21] };
+    if (['time', 'details', 'done'].indexOf(at) >= 0) this.state.staff = { 11: 'Kim', 22: 'Anyone' };
+    if (['details', 'done'].indexOf(at) >= 0) this.state.slot = 1;
+  }
+  renderVals() {
+    const S = this.state;
+    const cats = ['Combos', 'Manicures', 'Pedicures', 'Gel', 'Acrylic', 'Dip', 'Waxing'];
+    const all = {
+      0: [[1, 'Manicure + spa pedicure', 60, 55, ''], [2, 'Gel manicure + spa pedicure', 75, 75, ''], [3, 'Gel manicure + gel pedicure', 90, 90, '']],
+      1: [[10, 'Regular manicure', 30, 20, ''], [11, 'Gel manicure', 45, 35, 'a'], [12, 'Dip powder (no tips)', 60, 45, '']],
+      2: [[20, 'Regular spa pedicure', 40, 30, ''], [21, 'Deluxe spa pedicure', 50, 45, 'a'], [22, 'Gel pedicure', 55, 50, '']],
+      3: [[11, 'Gel manicure', 45, 35, 'a'], [30, 'Gel color change — hands', 30, 25, '']],
+      4: [[40, 'Acrylic full set', 75, 48, 'a'], [41, 'Acrylic fill-in', 45, 38, '']],
+      5: [[12, 'Dip powder (no tips)', 60, 45, ''], [50, 'Dip with tips', 75, 55, '']],
+      6: [[60, 'Eyebrows', 15, 12, ''], [61, 'Full legs', 45, 75, 'from']]
+    };
+    const flat = {}; Object.keys(all).forEach((k) => all[k].forEach((r) => { flat[r[0]] = r; }));
+    const addonList = [['French tip', 7], ['Nail art', 5, 'from'], ['Gel removal', 10]];
+    const hm = (m) => (m >= 60 ? Math.floor(m / 60) + ' hr' + (m % 60 ? ' ' + (m % 60) + ' min' : '') : m + ' min');
+    const money = (n, from) => (from ? 'from $' : '$') + n;
+    const g = S.guest, sel = S.sel[g] || [];
+    const setSel = (ids) => { const o = Object.assign({}, S.sel); o[g] = ids; this.setState({ sel: o }); };
+    const order = ['services', 'staff', 'time', 'details'];
+    const idx = order.indexOf(S.v);
+    const items = []; [0, 1].forEach((gi) => { if (gi < S.guests) (S.sel[gi] || []).forEach((id) => { const r = flat[id]; items.push({ gi, id, r }); (S.addons[id] || []).forEach((ai) => items.push({ gi, id: id + '-a' + ai, addon: addonList[ai] })); }); });
+    const totalMin = items.reduce((a, it) => a + (it.r ? it.r[2] : 10), 0);
+    const total = items.reduce((a, it) => a + (it.r ? it.r[3] : it.addon[1]), 0);
+    const hasFrom = items.some((it) => (it.r && it.r[4] === 'from') || (it.addon && it.addon[2]));
+    const times = ['2:00', '3:00', '3:15', '4:30', '5:00', '6:00'];
+    const days = [['Today', 16], ['Tue', 17], ['Wed', 18], ['Thu', 19], ['Fri', 20], ['Sat', 21], ['Mon', 23]];
+    const staffOpts = [['Anyone', '★', 'soonest'], ['Kim', 'K', 'gel + art'], ['Ngọc', 'N', 'pedicures'], ['Linh', 'L', 'acrylic']];
+    const nextLabel = { services: 'Continue', staff: 'Continue', time: 'Continue', details: 'Book ' + (S.group ? 'for ' + S.guests : '') }[S.v] || 'Continue';
+    const canNext = (S.v === 'services' && items.length) || S.v === 'staff' || (S.v === 'time' && S.slot != null) || S.v === 'details';
+    return {
+      vDoor: S.v === 'door', vFlow: S.v !== 'door',
+      forMe: () => this.setState({ v: 'services', group: false, guests: 1 }), forGroup: () => this.setState({ v: 'services', group: true, guests: 2, guest: 0 }),
+      steps: ['Services', 'Staff', 'Time', 'Details'].map((l, i) => ({ n: i < idx || S.v === 'done' ? '✓' : String(i + 1), label: l, cls: i === idx ? 'on' : (i < idx || S.v === 'done' ? 'done' : '') })),
+      isGroup: S.group && S.v === 'services',
+      guests: [0, 1].slice(0, S.guests).map((i) => ({ label: i === 0 ? 'You' : 'Guest ' + (i + 1), cls: 'guest' + (S.guest === i ? ' on' : ''), pick: () => this.setState({ guest: i }) })),
+      addGuest: () => this.setState({ guests: Math.min(6, S.guests + 1) }),
+      vServices: S.v === 'services', vStaff: S.v === 'staff', vTime: S.v === 'time', vDetails: S.v === 'details', vDone: S.v === 'done',
+      cats: cats.map((c, i) => ({ label: c, cls: 'cchip' + (S.cat === i ? ' on' : ''), pick: () => this.setState({ cat: i }) })),
+      svcs: (all[S.cat] || []).map((r) => {
+        const on = sel.indexOf(r[0]) >= 0;
+        return {
+          name: r[1], time: hm(r[2]), price: money(r[3], r[4] === 'from'), check: on ? '✓' : '', cls: 'svc' + (on ? ' on' : ''),
+          toggle: () => setSel(on ? sel.filter((x) => x !== r[0]) : sel.concat([r[0]])),
+          showAddons: on && r[4] === 'a',
+          addons: addonList.map((a, ai) => { const has = (S.addons[r[0]] || []).indexOf(ai) >= 0; return { label: (has ? '✓ ' : '+ ') + a[0] + ' ' + (a[2] ? 'from ' : '') + '$' + a[1], cls: 'cchip' + (has ? ' on' : ''), pick: () => { const cur = S.addons[r[0]] || []; const o = Object.assign({}, S.addons); o[r[0]] = has ? cur.filter((x) => x !== ai) : cur.concat([ai]); this.setState({ addons: o }); } }; })
+        };
+      }),
+      picked: (S.sel[0] || []).map((id) => ({ name: flat[id][1], staff: staffOpts.map((t) => ({ init: t[1], name: t[0], sub: t[2], cls: 'stf' + ((S.staff[id] || 'Anyone') === t[0] ? ' on' : ''), pick: () => { const o = Object.assign({}, S.staff); o[id] = t[0]; this.setState({ staff: o }); } })) })),
+      days: days.map((d, i) => ({ dow: d[0], n: d[1], cls: 'day' + (S.day === i ? ' on' : ''), pick: () => this.setState({ day: i, slot: null }) })),
+      slots: times.map((t, i) => ({ t, cls: 'slot' + (S.slot === i ? ' on' : ''), pick: () => this.setState({ slot: i }) })),
+      timeNote: 'Times fit all ' + items.length + ' items back to back (' + hm(totalMin) + ').' + (S.group ? ' Your group starts together with 2 staff.' : ''),
+      cart: items.map((it) => ({ name: it.r ? it.r[1] : '+ ' + it.addon[0], sub: (S.guests > 1 ? (it.gi === 0 ? 'You · ' : 'Guest 2 · ') : '') + (it.r ? hm(it.r[2]) + (S.staff[it.id] ? ' · ' + S.staff[it.id] : '') : 'add-on'), price: it.r ? money(it.r[3], it.r[4] === 'from') : '$' + it.addon[1] })),
+      cartEmpty: !items.length, cartFull: !!items.length,
+      totalTime: hm(totalMin), total: (hasFrom ? 'from ' : '') + '$' + total,
+      guestLabel: S.guests > 1 ? S.guests + ' people' : '',
+      whenLine: days[S.day][0] + ' · ' + times[S.slot == null ? 1 : S.slot] + ' PM',
+      nextLabel, nextStyle: canNext ? '' : 'opacity:.35;pointer-events:none',
+      next: () => this.setState({ v: S.v === 'details' ? 'done' : order[idx + 1] }),
+      canBack: idx > 0, back: () => this.setState({ v: order[idx - 1] }),
+      restart: () => this.setState({ v: 'door', sel: { 0: [], 1: [] }, addons: {}, staff: {}, slot: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

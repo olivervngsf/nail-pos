@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Client booking link</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+
+
+
+
+.day{flex:1;height:64px;border-radius:14px;border:1px solid var(--line);background:#fff;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--ink);transition:background .2s,color .2s}
+.day.on{background:#1C1C1E;color:#fff;border-color:#1C1C1E}
+.day.closed{opacity:.35;cursor:not-allowed}
+.slot{height:44px;border-radius:12px;border:1px solid var(--line);background:#fff;font:inherit;font-size:15px;font-weight:600;cursor:pointer;color:var(--ink);transition:background .2s,color .2s}
+.slot.on{background:#1C1C1E;color:#fff;border-color:#1C1C1E}
+.prog{display:flex;gap:6px;padding:12px 20px 0}
+.prog span{flex:1;height:4px;border-radius:2px;background:var(--fill)}
+.prog span.on{background:var(--ink)}
+
+.chk{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:20px;padding:12px 14px;border-radius:14px;background:#fff;border:1px solid var(--line)}
+.box{width:22px;height:22px;border-radius:6px;background:#1C1C1E;color:#fff;display:flex;align-items:center;justify-content:center;flex:none;font-size:13px}
+</style>
+</helmet>
+<div class="phone">
+  <div class="pbar" style="justify-content:space-between;padding:0 12px">
+    <sc-if value="{{canBack}}" hint-placeholder-val="{{false}}"><button class="btn ghost" type="button" onClick="{{back}}" style="height:36px;padding:0 8px">‹ Back</button></sc-if>
+    <sc-if value="{{noBack}}" hint-placeholder-val="{{true}}"><span style="width:70px"></span></sc-if>
+    <span>Mai Nails</span>
+    <span style="width:70px;text-align:right" class="cap">{{stepText}}</span>
+  </div>
+  <sc-if value="{{showProg}}" hint-placeholder-val="{{true}}"><div class="prog"><sc-for list="{{bars}}" as="b" hint-placeholder-count="4"><span class="{{b}}"></span></sc-for></div></sc-if>
+
+  <sc-if value="{{vService}}" hint-placeholder-val="{{true}}">
+    <div class="fade" style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 20px;overflow:hidden">
+      <div><div class="h1" style="font-size:26px">Book a visit</div><div class="cap" style="font-size:14px">1234 Story Rd, San Jose · Open today until 7 PM</div></div>
+      <div class="seg" style="display:flex"><span class="on" style="flex:1;justify-content:center">Hands</span><span style="flex:1;justify-content:center">Feet</span><span style="flex:1;justify-content:center">Enhance</span></div>
+      <div class="group">
+        <sc-for list="{{services}}" as="s" hint-placeholder-count="5">
+          <button class="opt" type="button" onClick="{{s.pick}}"><span class="grow"><b style="font-weight:600">{{s.name}}</b><span class="cap" style="display:block">{{s.min}} min</span></span><span class="num" style="font-weight:600">{{s.price}}</span><span class="cap">›</span></button>
+        </sc-for>
+      </div>
+      <div class="cap" style="text-align:center">Prices may change for long nails or extra design.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{vStaff}}" hint-placeholder-val="{{false}}">
+    <div class="fade" style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 20px">
+      <div class="h1" style="font-size:24px">Who would you like?</div>
+      <div class="group">
+        <sc-for list="{{staff}}" as="p" hint-placeholder-count="4">
+          <button class="opt" type="button" onClick="{{p.pick}}"><span class="av" style="width:44px;height:44px">{{p.init}}</span><span class="grow"><b style="font-weight:600">{{p.name}}</b><span class="cap" style="display:block">{{p.sub}}</span></span><span class="cap">›</span></button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{vTime}}" hint-placeholder-val="{{false}}">
+    <div class="fade" style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 20px">
+      <div class="h1" style="font-size:24px">Pick a time</div>
+      <div class="cap" style="margin-top:-8px">{{svcLine}}</div>
+      <div style="display:flex;gap:6px"><sc-for list="{{days}}" as="d" hint-placeholder-count="5"><button class="{{d.cls}}" type="button" onClick="{{d.pick}}"><span class="cap" style="{{d.capStyle}}">{{d.dow}}</span><b style="font-size:17px">{{d.num}}</b></button></sc-for></div>
+      <div class="eyebrow">Afternoon</div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><sc-for list="{{slots}}" as="s" hint-placeholder-count="6"><button class="{{s.cls}}" type="button" onClick="{{s.pick}}">{{s.t}}</button></sc-for></div>
+      <div class="cap">Only times when {{staffName}} is free are shown.</div>
+      <div style="flex:1"></div>
+      <button class="btn primary block" type="button" onClick="{{toDetails}}" style="{{nextStyle}}">Next</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{vDetails}}" hint-placeholder-val="{{false}}">
+    <div class="fade" style="flex:1;display:flex;flex-direction:column;gap:12px;padding:18px 20px">
+      <div class="h1" style="font-size:24px">Your details</div>
+      <div class="card" style="padding:12px 14px;font-size:14px;line-height:20px">{{summary}}</div>
+      <div><label class="lbl" for="bn" style="font-size:13px;font-weight:600;color:var(--ink-soft)">Name</label><input class="inp" id="bn" value="Lan Tran"></div>
+      <div><label class="lbl" for="bp" style="font-size:13px;font-weight:600;color:var(--ink-soft)">Cell phone</label><input class="inp num" id="bp" value="(408) 555-0142"></div>
+      <div class="chk"><span class="box" aria-hidden="true">✓</span><span>Text me a confirmation and a reminder. Reply STOP anytime.</span></div>
+      <div class="cap">No account, no app. We'll text a code only if this number is new.</div>
+      <div style="flex:1"></div>
+      <button class="btn primary block" type="button" onClick="{{confirm}}">Book {{timeShort}}</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{vDone}}" hint-placeholder-val="{{false}}">
+    <div class="fade" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 20px 24px;text-align:center">
+      <div class="pop" style="width:76px;height:76px;border-radius:50%;background:var(--jade-soft);border:2px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:34px">✓</div>
+      <div class="h1" style="font-size:26px">You're booked</div>
+      <div class="cap" style="font-size:15px">Confirmation texted to (408) 555-0142</div>
+      <div class="group" style="width:100%;text-align:left;margin-top:8px">
+        <div class="row"><span class="grow">When</span><b>{{whenLine}}</b></div>
+        <div class="row"><span class="grow">Service</span><b>{{svcName}}</b></div>
+        <div class="row"><span class="grow">With</span><b>{{staffName}}</b></div>
+        <div class="row"><span class="grow">Where</span><span class="cap">1234 Story Rd</span></div>
+      </div>
+      <div style="flex:1"></div>
+      <button class="btn block" type="button">Add to calendar</button>
+      <button class="btn ghost block" type="button" onClick="{{toManage}}">Change or cancel</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{vManage}}" hint-placeholder-val="{{false}}">
+    <div class="fade" style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 20px">
+      <div class="h1" style="font-size:24px">Your appointment</div>
+      <div class="group">
+        <div class="row"><span class="grow">When</span><b>{{whenLine}}</b></div>
+        <div class="row"><span class="grow">Service</span><b>{{svcName}}</b></div>
+        <div class="row"><span class="grow">With</span><b>{{staffName}}</b></div>
+      </div>
+      <button class="btn block" type="button" onClick="{{toTime}}" style="height:52px">Pick another time</button>
+      <button class="btn block" type="button" onClick="{{cancelIt}}" style="height:52px;color:#E03131">Cancel appointment</button>
+      <div class="cap">Please change or cancel at least 2 hours before. The salon is told right away.</div>
+      <sc-if value="{{cancelled}}" hint-placeholder-val="{{false}}"><div class="card fade" style="padding:14px;text-align:center;font-weight:600">Cancelled · Mai Nails was told ✓</div></sc-if>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"at":{"editor":"enum","options":["service","staff","time","details","done","manage"],"default":"service"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){
+    super(p);
+    const at = (p && p.at) || 'service';
+    const gel = { name: 'Gel manicure', min: 45, price: 35 };
+    const kim = { name: 'Kim', init: 'K' };
+    this.state = { v: at, svc: at === 'service' ? null : gel, staff: at === 'service' || at === 'staff' ? null : kim, day: 1, slot: at === 'time' ? null : 1, cancelled: false };
+  }
+  renderVals() {
+    const S = this.state;
+    const order = ['service', 'staff', 'time', 'details'];
+    const idx = order.indexOf(S.v);
+    const svcs = [['Gel manicure', 45, 35], ['Regular manicure', 30, 20], ['Dip powder', 60, 45], ['Gel polish change', 30, 25], ['Nail design (add-on)', 15, 5]];
+    const staff = [{ name: 'Anyone', init: '★', sub: 'Soonest time · 2:00 PM' }, { name: 'Kim', init: 'K', sub: 'Gel + designs · next 3:00 PM' }, { name: 'Ngọc', init: 'N', sub: 'Pedicures · next 4:00 PM' }, { name: 'Linh', init: 'L', sub: 'Acrylic · next 3:15 PM' }];
+    const days = [['Mon', 16, true], ['Tue', 17, true], ['Wed', 18, true], ['Thu', 19, true], ['Fri', 20, true]];
+    const times = ['2:00', '3:00', '3:15', '4:30', '5:00', '6:00'];
+    const svcName = S.svc ? S.svc.name : 'Gel manicure', staffName = S.staff ? S.staff.name : 'Kim';
+    const t = times[S.slot == null ? 1 : S.slot] + ' PM';
+    const d = days[S.day];
+    return {
+      canBack: idx > 0 || S.v === 'manage', noBack: !(idx > 0 || S.v === 'manage'),
+      back: () => this.setState({ v: S.v === 'manage' ? 'done' : order[idx - 1] }),
+      stepText: idx >= 0 ? (idx + 1) + ' of 4' : '',
+      showProg: idx >= 0, bars: [0, 1, 2, 3].map((i) => (i <= idx ? 'on' : '')),
+      vService: S.v === 'service', vStaff: S.v === 'staff', vTime: S.v === 'time', vDetails: S.v === 'details', vDone: S.v === 'done', vManage: S.v === 'manage',
+      services: svcs.map((s) => ({ name: s[0], min: s[1], price: '$' + s[2], pick: () => this.setState({ svc: { name: s[0], min: s[1], price: s[2] }, v: 'staff' }) })),
+      staff: staff.map((p) => Object.assign({}, p, { pick: () => this.setState({ staff: p, v: 'time' }) })),
+      svcLine: svcName + ' · ' + (S.svc ? S.svc.min : 45) + ' min · with ' + staffName,
+      days: days.map((x, i) => ({ dow: x[0], num: x[1], cls: S.day === i ? 'day on' : 'day', capStyle: S.day === i ? 'color:#D1D1D6' : '', pick: () => this.setState({ day: i, slot: null }) })),
+      slots: times.map((x, i) => ({ t: x, cls: S.slot === i ? 'slot on' : 'slot', pick: () => this.setState({ slot: i }) })),
+      staffName, svcName,
+      nextStyle: S.slot == null ? 'opacity:.35;pointer-events:none' : '',
+      toDetails: () => this.setState({ v: 'details' }),
+      summary: svcName + ' with ' + staffName + ' · ' + d[0] + ', Nov ' + d[1] + ' at ' + t,
+      timeShort: d[0] + ' ' + t,
+      confirm: () => this.setState({ v: 'done' }),
+      whenLine: d[0] + ', Nov ' + d[1] + ' · ' + t,
+      toManage: () => this.setState({ v: 'manage', cancelled: false }),
+      toTime: () => this.setState({ v: 'time', slot: null }),
+      cancelIt: () => this.setState({ cancelled: true }),
+      cancelled: S.cancelled
+    };
+  }
+}
+</script>
+</body>
+</html>

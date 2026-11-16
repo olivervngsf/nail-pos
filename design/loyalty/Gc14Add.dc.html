@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add a gift card: type or scan</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="afp">
+  <div class="afp-screen">
+    <dc-import name="ClientCards" step="add" hint-size="390px,844px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+  </div>
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
+    <div class="eyebrow">Annotations · G14 · Client phone</div>
+    <div class="af-title">Add a gift card: type or scan</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Add card → G15 · wrong → G16</div>
+  </div></sc-if></aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":750,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
+  renderVals() {
+    const P = [[46, 206, "Type the code (spaces and dashes don't matter) — the check digit catches typos as they type."], [46, 264, "Or scan the card's barcode with the camera."], [46, 346, "Says what we check and that it links to their phone."], [46, 802, "Add card."]];
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), zero: 0, three: 3, yes: true, no: false, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

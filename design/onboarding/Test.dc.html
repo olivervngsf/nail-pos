@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>$1 test and ready</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="setup.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>body{margin:0}</style>
+</helmet>
+<div class="wiz">
+  <aside class="side">
+    <div class="brand"><div class="logo" style="margin:0">N</div>Salon setup</div>
+    <div class="prog"><span style="{{pct}}"></span></div>
+    <sc-for list="{{steps}}" as="s" hint-placeholder-count="10">
+      <div class="{{s.cls}}"><span class="n">{{s.n}}</span>{{s.label}}</div>
+    </sc-for>
+    <div class="help">Elang is on call your whole first day. Pilot check-in at week 4.</div>
+  </aside>
+  <div class="main">
+    <div class="body" style="align-items:center;justify-content:center;text-align:center">
+      <sc-if value="{{idle}}" hint-placeholder-val="{{true}}">
+        <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:16px;max-width:560px">
+          <div class="eyebrow">Step 10 of 10</div>
+          <div class="h1" style="font-size:40px;line-height:46px">One last check: a $1 test</div>
+          <div style="font-size:17px;line-height:25px;color:var(--ink-soft)">Tap your own card on the reader. We charge $1, print a receipt, then refund it right away — so you know money really reaches your bank.</div>
+          <button class="btn primary" type="button" onClick="{{run}}" style="width:260px">Charge $1.00</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{running}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;flex-direction:column;align-items:stretch;gap:0;width:480px;text-align:left">
+          <div class="h2" style="text-align:center;margin-bottom:16px">Testing…</div>
+          <div class="group">
+            <sc-for list="{{checks}}" as="c" hint-placeholder-count="4">
+              <div class="row">
+                <sc-if value="{{c.ok}}" hint-placeholder-val="{{false}}"><span class="pop" style="width:24px;height:24px;border-radius:50%;background:#1C1C1E;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px">✓</span></sc-if>
+                <sc-if value="{{c.wait}}" hint-placeholder-val="{{true}}"><span class="pulse" style="width:24px;height:24px;border-radius:50%;border:2px solid #C7C7CC;box-sizing:border-box"></span></sc-if>
+                <div class="grow">{{c.label}}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ready}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:16px;max-width:620px">
+          <div class="pop" style="width:84px;height:84px;border-radius:50%;background:var(--jade-soft);border:2px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:38px">✓</div>
+          <div class="h1" style="font-size:40px;line-height:46px">Mai Nails is ready.</div>
+          <div style="font-size:17px;color:var(--ink-soft)">$1 charged and refunded. Your first real client can pay now.</div>
+          <div class="group" style="width:100%;text-align:left">
+            <div class="row"><div class="grow">Services</div><span class="cap">6 on</span></div>
+            <div class="row"><div class="grow">Team</div><span class="cap">5 people · 3 PINs set, 2 invites waiting</span></div>
+            <div class="row"><div class="grow">Payments</div><span class="cap">Stripe connected · Chase ••6789</span></div>
+            <div class="row"><div class="grow">Devices</div><span class="cap">Reader · printer · front desk iPad</span></div>
+            <div class="row"><div class="grow">Clients</div><span class="cap">412 imported</span></div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn ghost" type="button" onClick="{{again}}">Run test again</button>
+            <a class="btn primary" href="#" style="width:260px">Open front desk</a>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { s: 0 }; }
+  componentWillUnmount(){ clearInterval(this.t); }
+  renderVals() {
+    const s = this.state.s;
+    const cur = s >= 5 ? 10 : 9;
+    const names = ['Sign up','Salon info','Services','Staff + PIN','Payments','Card reader','Printer','Salon device','Clients','$1 test'];
+    const labels = ['$1.00 charged on the reader', 'Receipt printed', 'Stripe confirmed — money is on its way', '$1.00 refunded'];
+    return {
+      steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
+      pct: 'width:' + (cur >= 10 ? 100 : 95) + '%',
+      idle: s === 0, running: s > 0 && s < 5, ready: s >= 5,
+      checks: labels.map((label, i) => ({ label, ok: i < s, wait: i >= s })),
+      run: () => {
+        this.setState({ s: 1 });
+        clearInterval(this.t);
+        this.t = setInterval(() => {
+          if (this.state.s >= 5) { clearInterval(this.t); return; }
+          this.setState({ s: this.state.s + 1 });
+        }, 900);
+      },
+      again: () => this.setState({ s: 0 })
+    };
+  }
+}
+</script>
+</body>
+</html>

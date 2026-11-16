@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Staff: person waiting on invite</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="setup.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Staff" scenario="detail" hint-size="1280px,800px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="7"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+  </div>
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
+    <div class="eyebrow">Annotations · 4e</div>
+    <div class="af-title">Person detail — invite not finished</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="7"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">When staff finish on their phone (S1) → 4f. Close → back to team list.</div>
+  </div></sc-if></aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
+  renderVals() {
+    const P = [[356, 338, "Selected person’s row is tinted grey."], [842, 256, "Shifts row: days + hours a week → opens their shifts (4g)."], [846, 376, "Invite timeline: Added → Text sent → Opened → PIN set. Done = black dot + time; next = orange ring; later = grey."], [842, 500, "Resend text → toast “Sent again. The old link stops working.”"], [1022, 500, "Set up on this iPad → QR on screen, or set the PIN here with the owner (for staff without texting)."], [842, 596, "Demo only: plays the staff finishing → “Opened link” → “PIN set ✓”."], [946, 652, "Remove from salon (red) → row gone; toast: past tickets and pay stay on record."]];
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

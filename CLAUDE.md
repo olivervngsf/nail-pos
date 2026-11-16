@@ -7,17 +7,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Read this first every session. Keep it short; link out for detail.
 
 ## Code (Next.js 15 App Router + TypeScript, Supabase, Vercel)
+- **Building the product:** start at `docs/build/README.md` (stack, rules, milestone status). The user says "Build M<n>" → follow `docs/build/milestones.md` § M<n>, the boards/frames it lists, `docs/build/schema.sql`, `docs/build/screens.md`, `docs/design-spec.md`; tick the Status table when done. Full V1 plan (the "why" + open decisions) is the artifact linked below; `docs/build/` is the "how".
 - Commands: `npm run dev` (localhost:3000) · `npm run build` (also runs lint + typecheck; must pass before push) · `npm run lint` · `npm run typecheck`. No test runner yet; check flows by clicking through with Playwright (pre-installed) against `npx next start`.
 - Branches: `main` = production (Vercel auto-deploys); every other branch/PR gets a Vercel preview link.
 - Env: `.env.example` → `.env.local`. Only `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` so far; values live in Vercel. Never commit secrets.
 - Supabase: test project `nail-pos-test` (id `eoamccaeovuahveytbnr`, us-west-1). Live project not created yet (free-plan limit; add before pilot). Schema changes = new file in `supabase/migrations/` (timestamp name) + apply to the test project; never edit an applied migration. Every salon table has `salon_id` + RLS via `is_member()` / `is_admin()`; new salon via `create_salon()` RPC. Run Supabase security advisors after DDL.
-- Styling: design tokens + shared component classes (`.btn`, `.card`, `.group`, `.row`, `.pick`, `.chip`, `.sw`, `.inp`, keypad, drawer, toast, wizard shell, phone shell) live in `src/app/globals.css`, ported from the prototype's Nail Salon OS design system. Reuse them; one version per component. Tailwind is installed but not used yet.
+- Styling: today `src/app/globals.css` holds a port of the prototype styles (`.btn`, `.card`, `.group`, `.row`, `.pick`, `.chip`, `.sw`, `.inp`, keypad, drawer, toast, wizard + phone shells). Target (M0): `design/kit/kit.css` as the one global stylesheet + React components per kit piece; replace the port then. Tailwind is installed but not used.
 - Offline-first: client state via `useStored` (`src/lib/useStored.ts`) = useState saved to localStorage on every change. `getSupabase()` (`src/lib/supabase/client.ts`) returns null if env missing; app must still work.
 - Routes: `/` start · `/setup` owner salon setup (sign up → code → 10 steps; `src/app/setup/` — `state.ts` shape, `SetupWizard.tsx` one StepView per step returning `[footer, body]`) · `/join/[code]` staff joins on phone (EN/VI, PIN, clock-in; invite details ride in query `n,r,s,o` until invites are read from Supabase). Shared data/helpers: `src/lib/onboarding/data.ts` (steps, nail template menu, state tip rules, phone/time/money format).
 - Login: `NEXT_PUBLIC_SMS_LOGIN=on` = real text codes (Supabase phone auth, Twilio Verify configured in the Supabase dashboard); unset = any 6 digits.
 - Test version stubs (marked with dashed `.demo` notes in UI): SMS code when SMS_LOGIN is off, menu reading (AI), Stripe Connect, reader pairing, $1 test, CSV import, invite texts. Replace each with the real thing in its build step.
 - Design source for onboarding: prototype https://claude.ai/artifact/BYMHXFQTM4Bs9oug6i8ThB · Build plan https://claude.ai/artifact/5XZtVDjQktSiyhes4V69wZ
-- Full V1 technical plan (roles, screens, ~30 tables, back end, loyalty + gift card rules, 7-step build order, open decisions): https://claude.ai/artifact/CYXvzLj1wTvLvxqKt76HsQ — read before building any step.
+- Full V1 technical plan (roles + permissions, screens, tables, back end, loyalty + gift card rules, milestones M0–M14, open decisions): https://claude.ai/artifact/CYXvzLj1wTvLvxqKt76HsQ
+
+## Designing flows in Claude Design
+- Start from: Experience map (journeys + screen states) → Screens board (low-fi) → Screens 2 (new screens). Don't invent flows that aren't in the PRD/V1 scope.
+- One flow per session, in V1 order: checkout → payout sheet → PIN + clock-in → turn list → booking/calendar → client profile → owner dashboard → salon setup.
+- Base front desk look = Oliver's built calendar page (fix the 10 gaps on the Screens board).
+- Every flow shows: desktop (front desk/owner) + phone (tech/client); VN staff / EN customer text; offline + syncing state; PIN step for staff actions; who (role) sees it.
+- Each screen: big buttons, one job, money in plain $ with tip + card fee shown.
+- ALWAYS annotate (Oliver, Nov 16): every screen gets an annotated spec frame (numbered orange pins sitting just left of the target, never on text + an Annotations panel with a Hide/Show notes button and a `notes` tweak). Keep clean clickable screens separate for Play (page 1 "Overview"); spec frames on later pages. Show flows as a row of step frames incl. error states. Pattern: `design/*/annot.css` + `Stf*.dc.html`.
+- When a flow is done: add a row to the Hub table, a "Back to: Nail POS Hub" link in it, and update the Build Tracker.
+- Look (set Nov 16): English first (EN/VI switch in each person's profile), compact Apple-like, client (CRM) panel on checkout, soft fade-in motion, off with reduced motion.
+- More boards (Nov 16): Owner Numbers https://claude.ai/artifact/VUcpxhN5Se3WCWmELNrGsY · Client History https://claude.ai/artifact/Qe5suDyUKWiPmF7zgmb53k · Loyalty (V1.1 proposal) https://claude.ai/artifact/7JTHZUnaHsDpjSEk1fzLPY · Tech App https://claude.ai/artifact/LeqWAswV7AE9AcZhmZzcdM · staff self-booking = Booking board page 4. One flow = one Claude Design board.
+- Sample data: use the real salon menu (Cosmo Nails, cosmonailswildwood.com/services) for service names + prices.
+- Done flows: Checkout https://claude.ai/artifact/ArXa9za1gubGLWzEUH6GLw · Onboarding https://claude.ai/artifact/1A5maZvg44WyCY5gugLVym (click-through prototype https://claude.ai/artifact/BYMHXFQTM4Bs9oug6i8ThB , source `design/onboarding/prototype.html`) · Booking https://claude.ai/artifact/VHeTS9Sd81pm1KbTNj9KUb (merged calendar + booking page + kiosk; channels: docs/booking-channels.md)
+- ONE LOOK (Oliver, Nov 16): every board + the app use the Nail POS Design System https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n ; code source = `design/kit/` (`kit.css` tokens+components, `tokens.json`, `rail.py` menu, `annot.css` frames). Font = Inter (Google). README: `design/kit/README.md`. Golden screen = Checkout · Ticket. Never hand-make a menu, bar, button or chip. After each flow: consistency check across all boards. User flags drift with comments starting "Look:".
+- ALWAYS re-check annotations when a screen changes (Oliver, Nov 16): recompute every pin position + note text for each frame that imports the changed screen; pins sit just left of their target, never on text. Spec frames stay still (annot.css v4: no animation/hover inside frames).
+- ALWAYS keep Main Screens up to date (Oliver, Nov 16): after ANY change on a flow board (checkout, booking, …), run `design/kit/sync_main.py` and republish Main Screens; bump its "Last synced" date on the sticky note.
+- Boards: Main screens (Today, Clients, Close day, Profile + copies of Calendar and Checkout) https://claude.ai/artifact/WHUqC6j8z4GLg6r8j3Acs5
+- Building UI: follow `docs/design-spec.md` (tokens, components, motion, every screen + interaction) and the exact source in `design/<flow>/` (`.dc.html` + `pos.css`/`setup.css`). Pixel match; re-copy files into `design/` if the boards change.
 
 ## What we're building
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
@@ -44,7 +63,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 4. PIN login + clock-in; print own earnings by PIN. Clock-in: front desk name + PIN or own phone at salon only (location/Wi-Fi); clock-in joins turn list; auto clock-out; manager-approved fixes; offline (PRD "Clock-in: where and when", issue #3)
 5. Client profile by phone number (visits, last service/tech, notes, gift card)
 6. Turn list for walk-ins (moved into V1)
-7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12)
+7. Booking + day calendar (issue #12): calendar = Oliver's built calendar + drag/peek/waitlist/cover; staff quick-book (4 taps); booking page for every channel (Google, website/social, text links, QR) with salon photos, multi-service cart, combos/add-ons, groups, returning client by phone; walk-in check-in iPad; text confirm/reminders. All → one calendar, source kept per booking. docs/booking-channels.md
 8. Owner dashboard: top 5 KPIs (sales vs last week, avg ticket, return rate + lost regulars, sales per tech per hour, walk-in wait + walk-outs); full list in PRD "Owner KPIs" (issue #16)
 - Salon setup (demo → first payment in ~1 week; 1-hour setup day, 10 steps incl. Connect payments): PRD "Salon setup", board https://claude.ai/artifact/1wByQp7c3nViD27dsqJqgD, issue #20
 - Basics: salon setup, staff + pay rates, service menu from a nail template, owner login
@@ -74,13 +93,19 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); $59 M2 needs our phone app (OPEN: Oliver to pick). QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
+- Reserve with Google ("Book online" on Maps): V1 or V1.1? Needs Google partner approval — start early (issue #18)
+- Staff login: 4-digit PIN (designed now) or staff's phone number? Confirm with Elang (affects staff invite, clock-in, switch person, print earnings, reset PIN)
 - Final team roles (current working agreement in "What we're building")
 - California nail booth rental: manicurist AB5 exemption appears ended Jan 1 2025 — verify; ask pilot salons if they have renters
 - Stripe Connect type: Standard vs Express (lean Express); confirm with Stripe before building
 - V1 card reader: Stripe S710 (~$299, works with web app now; WisePOS E discontinued) vs M2 (~$59, needs phone app first)
+- Clock-in from own phone: how to prove "at the salon" (salon Wi-Fi, GPS, or salon devices only)? Prototype assumes Wi-Fi/location, opens 15 min before shift. Confirm with Elang.
 - Pilot salons (2–3)
 - How pilot salons pay techs today
 - Final monthly price (testing ~$39–49 in pilot). New input Nov 16: pricing deck proposes $199/mo flat for 25+ staff salons ($149 with $100K+/mo card volume), 5,000 texts, 0.20–0.30% card markup — conflicts with 1–20 tech target + no-markup decision. Options: 2 plans (small ~$49–79 / large $199). Decide with Elang. Board: https://claude.ai/artifact/UYUEeU5J5sWsTfAaWHE9EE, issue #25, PRD "Pricing and launch"
+
+- Gift cards + loyalty how-it-works (roles, codes, steps, money): https://claude.ai/artifact/GKRwnoiAkv5pTHk8rQFUby
+- Loyalty in V1? Research (Nov 16): points/punch card, prepaid packages, auto perks (birthday, rebook, VIP), referrals = near-zero cost, high switching cost. Proposal: V1 = points + gift cards (receipt/email only, $0); packages, perks, referrals in V1.1. Decide with Elang. Board: https://claude.ai/artifact/7JTHZUnaHsDpjSEk1fzLPY
 
 ## Decision log
 - 2026-11-14: PRD drafted; V1 = checkout, payout sheet, language toggle.

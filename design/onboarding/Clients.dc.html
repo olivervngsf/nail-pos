@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bring in clients</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="setup.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.pick{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:18px;border:1px solid var(--line);background:#fff;font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.pick.on{border:2px solid #1C1C1E;box-shadow:var(--shadow)}
+</style>
+</helmet>
+<div class="wiz">
+  <aside class="side">
+    <div class="brand"><div class="logo" style="margin:0">N</div>Salon setup</div>
+    <div class="prog"><span style="{{pct}}"></span></div>
+    <sc-for list="{{steps}}" as="s" hint-placeholder-count="10">
+      <div class="{{s.cls}}"><span class="n">{{s.n}}</span>{{s.label}}</div>
+    </sc-for>
+    <div class="help">Your client list belongs to your salon. We never sell it, share it or market to it.</div>
+  </aside>
+  <div class="main">
+    <div class="body">
+      <div class="eyebrow in">Step 9 of 10</div>
+      <div class="h1 in">Bring in your clients</div>
+      <div class="in2" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+        <sc-for list="{{opts}}" as="o" hint-placeholder-count="3">
+          <button class="{{o.cls}}" type="button" onClick="{{o.pick}}"><span style="font-size:17px;font-weight:600">{{o.title}}</span><span class="cap" style="font-size:14px;line-height:20px">{{o.body}}</span></button>
+        </sc-for>
+      </div>
+      <sc-if value="{{showImport}}" hint-placeholder-val="{{true}}">
+        <div class="card fade" style="padding:20px 22px;display:flex;flex-direction:column;gap:14px;max-width:860px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="ico">⇪</div>
+            <div style="flex:1"><div style="font-weight:600">clients-export.csv</div><div class="cap">From your old POS · read just now</div></div>
+            <a class="btn ghost" href="#" style="height:36px">Change file</a>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center">
+            <div style="background:var(--surface);border-radius:12px;padding:12px"><div class="money" style="font-size:26px">412</div><div class="cap">clients found</div></div>
+            <div style="background:var(--surface);border-radius:12px;padding:12px"><div class="money" style="font-size:26px">380</div><div class="cap">with a phone</div></div>
+            <div style="background:var(--surface);border-radius:12px;padding:12px"><div class="money" style="font-size:26px">12</div><div class="cap">duplicates merged</div></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--orange-soft);font-size:14px;line-height:20px">
+            <span aria-hidden="true" style="font-weight:700">▲</span>
+            <span>Imported clients get <b>no marketing texts</b> until they say yes. Receipts and appointment reminders are fine.</span>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{showFresh}}" hint-placeholder-val="{{false}}">
+        <div class="card fade" style="padding:20px 22px;max-width:860px;font-size:16px;line-height:23px">Clients are added at checkout by phone number. Their visits, favorite staff and notes build up from day one.</div>
+      </sc-if>
+    </div>
+    <div class="foot">
+      <a class="btn ghost" href="Hardware.dc.html">Back</a>
+      <span class="sp"></span>
+      <span class="pill ok"><span class="dot"></span>Saved</span>
+      <a class="btn primary" href="Test.dc.html" style="width:200px">Continue</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { o: 0 }; }
+  renderVals() {
+    const cur = 8;
+    const names = ['Sign up','Salon info','Services','Staff + PIN','Payments','Card reader','Printer','Salon device','Clients','$1 test'];
+    const list = [
+      { title: 'Upload a file', body: 'Export from your old POS (CSV or Excel). We match names and phones.' },
+      { title: 'We help type them in', body: 'Paper client book? Send photos and our team helps enter them.' },
+      { title: 'Start fresh', body: 'Add clients at checkout by phone number as they come in.' }
+    ];
+    return {
+      steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
+      pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
+      opts: list.map((o, i) => ({ title: o.title, body: o.body, cls: this.state.o === i ? 'pick on' : 'pick', pick: () => this.setState({ o: i }) })),
+      showImport: this.state.o === 0,
+      showFresh: this.state.o !== 0
+    };
+  }
+}
+</script>
+</body>
+</html>
