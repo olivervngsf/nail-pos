@@ -7,6 +7,7 @@ import {
   ROLE_LABEL, SMS_ON, forgetDevice, getDevice, isSignedIn, makeSalonDevice, myMemberships, pinMessage, rpc, signOut,
   type Device, type Membership, type PinResult, type Role,
 } from "@/lib/auth";
+import { getActing, setActing as shareActing, touchActing } from "@/lib/desk";
 import { Avatar, Button, Card, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Row, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 
 type Staff = { membership_id: string; display_name: string; role: Role; joined: boolean; has_pin: boolean; locked: boolean; clocked_in: boolean; last_clock: string | null };
@@ -21,6 +22,9 @@ export default function TodayDesk() {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [device, setDevice] = useState<Device | null>(null);
   const [acting, setActing] = useState<Acting | null>(null);
+  // Shared with checkout (same device): who is working the desk.
+  useEffect(() => { setActing(getActing()); }, []);
+  useEffect(() => { shareActing(acting); }, [acting]);
   const [pinFor, setPinFor] = useState<{ s: Staff; purpose: "switch" | "clock" } | null>(null);
   const [pinErr, setPinErr] = useState("");
   const [switching, setSwitching] = useState(false);
@@ -56,6 +60,7 @@ export default function TodayDesk() {
   // Salon device: the acting person signs out after 2 minutes idle.
   const touch = useCallback(() => {
     clearTimeout(idle.current);
+    touchActing();
     idle.current = setTimeout(() => setActing(null), IDLE_MS);
   }, []);
   useEffect(() => { if (acting) touch(); return () => clearTimeout(idle.current); }, [acting, touch]);

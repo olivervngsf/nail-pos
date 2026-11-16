@@ -89,3 +89,26 @@ button:disabled { cursor: not-allowed; }
 /* "+" starting-price toggle next to a price (setup services) */
 .plus { width: 30px; height: 30px; flex: none; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); font: inherit; font-size: 16px; font-weight: 700; color: var(--muted); cursor: pointer; }
 .plus.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+/* checkout (Checkout board: ticket left, client panel / keypad right; stacks on phone) */
+.ck-main { flex: 1; display: flex; gap: 20px; padding: 20px 24px; min-height: 0; align-items: stretch; }
+.ck-left { flex: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.ck-aside { width: 320px; flex: none; padding: 20px; display: flex; flex-direction: column; gap: 14px; align-self: flex-start; }
+.ck-keys { width: 340px; flex: none; display: flex; flex-direction: column; gap: 12px; }
+@media (max-width: 900px) {
+  .ck-main { flex-direction: column; padding: 16px; }
+  .ck-aside, .ck-keys { width: 100%; align-self: stretch; }
+}
+.receipt-print { display: none; }
+@media print {
+  @page { size: 80mm auto; margin: 4mm; }
+  body * { visibility: hidden; }
+  .receipt-print, .receipt-print * { visibility: visible; }
+  .receipt-print { display: block; position: absolute; left: 0; top: 0; width: 72mm; font: 12px/1.45 ui-monospace, Menlo, monospace; color: #000; }
+  .receipt-print .rl { display: flex; justify-content: space-between; gap: 8px; }
+  .receipt-print hr { border: 0; border-top: 1px dashed #000; margin: 6px 0; }
+}
+@media (max-width: 640px) {
+  .bar { gap: 8px; padding: 0 12px; }
+  .bar .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; font-size: 16px; }
+  .bar .who { display: none; }
+}

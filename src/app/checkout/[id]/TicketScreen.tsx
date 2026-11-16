@@ -1,0 +1,496 @@
+"use client";
+// Checkout · one ticket (Checkout board Tk1–Tk7, Pay, Cash Cs1–Cs2, Done, An5 receipt).
+// Saved on this device after every tap; sent to the server through the outbox (works offline).
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useFormatter, useTranslations } from "next-intl";
+import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
+import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
+import { formatCents, parseDollars, percentOf } from "@/lib/money";
+import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
+import { useDesk, getActing, touchActing, type Desk, type DeskService } from "@/lib/desk";
+import { logReceipt, putTicket, useTicket } from "@/lib/checkout/store";
+import { blockers, changeCents, quickCash, splitTipByPrice, staffOn, ticketLabel, totals, type Discount, type ServiceLine, type Ticket } from "@/lib/checkout/ticket";
+
+const uuid = () => crypto.randomUUID();
+const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+const $ = formatCents;
+
+type Step = "ticket" | "pay" | "cash";
+
+export default function TicketScreen({ id }: { id: string }) {
+  const t = useTranslations("checkout");
+  const router = useRouter();
+  const { desk, err } = useDesk();
+  const [ticket, ready] = useTicket(id);
+  const [step, setStep] = useState<Step>("ticket");
+  const [toast, setToast] = useState("");
+  const say = useCallback((s: string) => { setToast(s); setTimeout(() => setToast(""), 3500); }, []);
+
+  if (err) return <Centered><h1 className="h2">Something went wrong</h1><p className="hint err">{err}</p><Button onClick={() => location.reload()}>Try again</Button></Centered>;
+  if (!desk || !ready) return <div className="app" aria-busy="true" />;
+  if (!ticket) return <Centered><h1 className="h2">{t("none")}</h1><Button variant="primary" onClick={() => router.push("/checkout")}>{t("title")}</Button></Centered>;
+
+  const save = (patch: Partial<Ticket>, now = false) => { touchActing(); putTicket({ ...ticket, ...patch }, { now }); };
+  const acting = getActing();
+  const who = acting ? { name: acting.name, role: acting.role } : { name: desk.me.display_name, role: desk.me.role };
+  const title = ticket.status === "paid" ? `${t("ticket", { n: ticketLabel(ticket) })} · ${t("paid")}` : step === "pay" ? t("howPay") : step === "cash" ? t("cash") : t("ticket", { n: ticketLabel(ticket) });
+
+  return (
+    <div className="app" onPointerDown={touchActing}>
+      <LeftMenu active="Checkout" salonInitials={initials(desk.salonName)} me={who.name[0]} />
+      <div className="col">
+        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {ticket.status === "open" && step !== "ticket" && <Button variant="ghost" size="sm" onClick={() => setStep(step === "cash" ? "pay" : "ticket")}>‹ {t("back")}</Button>}
+          {ticket.status === "open" && step === "ticket" && <Button variant="ghost" size="sm" onClick={() => router.push("/checkout")}>‹ {t("title")}</Button>}
+          {title}
+        </span>}>
+          <SyncPill />
+          <span className="who"><Avatar name={who.name} />{who.name} · {ROLE_LABEL[who.role]}</span>
+        </TopBar>
+        <OfflineBanner />
+        {desk.mode === "demo" && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
+        {ticket.status === "paid" ? <Done desk={desk} ticket={ticket} say={say} />
+          : step === "pay" ? <Pay ticket={ticket} onCash={() => setStep("cash")} />
+          : step === "cash" ? <Cash desk={desk} ticket={ticket} save={save} />
+          : <Build desk={desk} ticket={ticket} save={save} onCharge={() => setStep("pay")} />}
+      </div>
+      {toast && <Toast>{toast}</Toast>}
+    </div>
+  );
+}
+
+/* ---------- 1. Build the ticket ---------- */
+type SaveFn = (patch: Partial<Ticket>, now?: boolean) => void;
+
+function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; save: SaveFn; onCharge: () => void }) {
+  const t = useTranslations("checkout");
+  const [sheet, setSheet] = useState<null | { kind: "service" } | { kind: "staff"; svc?: DeskService; lineId?: string } | { kind: "discount" }>(null);
+  const [noteOpen, setNoteOpen] = useState(!!ticket.note);
+  const sum = totals(ticket);
+  const block = blockers(ticket);
+
+  const setLine = (lineId: string, patch: Partial<ServiceLine>) => save({ lines: ticket.lines.map((l) => (l.id === lineId ? { ...l, ...patch } : l)) });
+
+  const pickStaff = (staffId: string, staffName: string) => {
+    if (!sheet || sheet.kind !== "staff") return;
+    if (sheet.lineId) setLine(sheet.lineId, { staffId, staffName });
+    else if (sheet.svc) {
+      const s = sheet.svc;
+      save({ lines: [...ticket.lines, { id: uuid(), serviceId: s.id, name: s.name, minutes: s.minutes, cents: s.cents, priceFrom: s.priceFrom, staffId, staffName }] });
+    }
+    setSheet(null);
+  };
+
+  return (
+    <main className="ck-main">
+      <section className="ck-left">
+        <div className="h1">{t("services")}</div>
+        <div className="group" data-testid="lines">
+          {ticket.lines.map((l) => (
+            <div className="row" key={l.id} data-testid="line">
+              <button type="button" className="av" style={{ border: 0, cursor: "pointer" }} aria-label={l.staffName ?? t("whoDoes")} onClick={() => setSheet({ kind: "staff", lineId: l.id })}>{l.staffName ? initials(l.staffName) : "?"}</button>
+              <div className="grow">
+                <div style={{ fontWeight: 600 }}>{l.name}</div>
+                {l.staffName
+                  ? <div className="cap">{l.staffName} · {l.minutes} min</div>
+                  : <button type="button" className="cap" style={{ border: 0, background: "none", padding: 0, color: "var(--orange)", cursor: "pointer", font: "inherit" }} onClick={() => setSheet({ kind: "staff", lineId: l.id })}>{t("needStaff")}</button>}
+              </div>
+              {l.priceFrom
+                ? <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                    <MoneyInput cents={l.cents} label={`${l.name}: ${t("finalPrice")}`} warn={!l.priceSet} onChange={(c) => setLine(l.id, { cents: c, priceSet: true })} />
+                    {!l.priceSet && <span className="cap">{t("fromPrice", { amount: $(l.cents) })}+</span>}
+                  </span>
+                : <span className="num" style={{ fontWeight: 600 }}>{$(l.cents)}</span>}
+              <Button variant="ghost" size="sm" aria-label={`${t("remove")} ${l.name}`} onClick={() => save({ lines: ticket.lines.filter((x) => x.id !== l.id) })}>✕</Button>
+            </div>
+          ))}
+          <button className="opt" type="button" data-testid="add-service" onClick={() => setSheet({ kind: "service" })} style={{ color: "var(--ink-soft)" }}>
+            <div className="av" style={{ background: "transparent", border: "1px dashed var(--muted)" }}>+</div><div className="grow">{t("addService")}</div>
+          </button>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <Button onClick={() => setSheet({ kind: "discount" })} disabled={!sum.subtotal}>{t("discountBtn")}</Button>
+          <Button variant="ghost" onClick={() => setNoteOpen(true)}>{t("note")}</Button>
+        </div>
+        {noteOpen && <textarea className="inp" aria-label={t("note")} placeholder={t("notePh")} rows={2} style={{ height: "auto", padding: 12, resize: "vertical" }}
+          value={ticket.note} onChange={(e) => save({ note: e.target.value })} />}
+        <div style={{ flex: 1 }} />
+        <div className="card" style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>
+          <div className="line"><span>{t("subtotal")}</span><span>{$(sum.subtotal)}</span></div>
+          {ticket.discount && <div className="line fade" data-testid="discount-line"><span>{t("discountLine", { reason: ticket.discount.reason })}{ticket.discount.kind === "pct" ? ` ${ticket.discount.value}%` : ""}{ticket.discount.approvedBy && <span className="cap"> · {ticket.discount.approvedBy}</span>}</span><span>−{$(sum.discount)}</span></div>}
+          <div className="sep" />
+          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 160 }}><div className="cap">{t("dueNow")}</div><div className="money fade" data-testid="due">{$(sum.due)}</div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "stretch", minWidth: 220 }}>
+              <Button variant="primary" data-testid="charge" disabled={block.length > 0} onClick={onCharge}>{t("charge", { amount: $(sum.due) })}</Button>
+              {block.length > 0 && <span className="cap" style={{ textAlign: "center" }}>{t(block[0] === "empty" ? "needService" : block[0] === "staff" ? "needStaff" : "needPrice")}</span>}
+            </div>
+          </div>
+        </div>
+      </section>
+      <ClientPanel desk={desk} ticket={ticket} save={save} />
+
+      {sheet?.kind === "service" && <ServiceDrawer desk={desk} onClose={() => setSheet(null)} onPick={(svc) => setSheet({ kind: "staff", svc })} />}
+      {sheet?.kind === "staff" && <StaffDrawer desk={desk} title={sheet.svc?.name ?? ticket.lines.find((l) => l.id === sheet.lineId)?.name ?? ""}
+        onBack={sheet.svc ? () => setSheet({ kind: "service" }) : undefined} onClose={() => setSheet(null)} onPick={pickStaff} />}
+      {sheet?.kind === "discount" && <DiscountDrawer desk={desk} subtotal={sum.subtotal} current={ticket.discount} onClose={() => setSheet(null)}
+        onApply={(d) => { save({ discount: d }); setSheet(null); }} />}
+    </main>
+  );
+}
+
+function ServiceDrawer({ desk, onClose, onPick }: { desk: Desk; onClose: () => void; onPick: (s: DeskService) => void }) {
+  const t = useTranslations("checkout");
+  const [q, setQ] = useState("");
+  const list = desk.services.filter((s) => (s.name + " " + s.cat).toLowerCase().includes(q.trim().toLowerCase()));
+  return (
+    <Drawer title={t("addService")} onClose={onClose}>
+      <input className="inp" autoFocus placeholder={t("search")} aria-label={t("search")} value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="eyebrow">{t("pickService")}</div>
+      <ListGroup>
+        {list.map((s) => (
+          <button key={s.id} className="opt" type="button" onClick={() => onPick(s)}>
+            <div className="grow"><div style={{ fontWeight: 600 }}>{s.name}</div><div className="cap">{s.cat} · {s.minutes} min</div></div>
+            <span className="num">{$(s.cents)}{s.priceFrom ? "+" : ""}</span>
+          </button>
+        ))}
+      </ListGroup>
+    </Drawer>
+  );
+}
+
+function StaffDrawer({ desk, title, onBack, onClose, onPick }: { desk: Desk; title: string; onBack?: () => void; onClose: () => void; onPick: (id: string, name: string) => void }) {
+  const t = useTranslations("checkout");
+  const staff = [...desk.staff].sort((a, b) => Number(b.clockedIn) - Number(a.clockedIn) || Number(b.role === "tech") - Number(a.role === "tech"));
+  return (
+    <Drawer title={title} onClose={onClose}>
+      {onBack && <Button variant="ghost" size="sm" onClick={onBack} style={{ alignSelf: "flex-start" }}>‹ {t("back")}</Button>}
+      <div className="eyebrow">{t("whoDoes")}</div>
+      <div className="cap" style={{ marginTop: -8 }}>{t("factsOnly")}</div>
+      <ListGroup>
+        {staff.map((s) => (
+          <button key={s.id} className="opt" type="button" data-testid={`pick-${s.name}`} onClick={() => onPick(s.id, s.name)}>
+            <Avatar name={s.name} />
+            <div className="grow"><div style={{ fontWeight: 600 }}>{s.name} <span className="cap" style={{ fontWeight: 400 }}>{s.role !== "tech" ? ROLE_LABEL[s.role] : ""}</span></div>
+              <div className="cap">{t("turns", { count: s.turns })}{s.centsToday ? ` · ${t("today", { amount: $(s.centsToday) })}` : ""}</div></div>
+            {s.clockedIn ? <Tag tone="jade">{t("clockedIn")}</Tag> : <Tag>{t("notIn")}</Tag>}
+          </button>
+        ))}
+      </ListGroup>
+    </Drawer>
+  );
+}
+
+const DISC_OPTS: { kind: "amt" | "pct"; value: number; label: string }[] = [
+  { kind: "amt", value: 500, label: "$5" }, { kind: "amt", value: 1000, label: "$10" }, { kind: "pct", value: 10, label: "10%" }, { kind: "pct", value: 15, label: "15%" },
+];
+const REASONS = ["rRegular", "rBirthday", "rFix", "rOther"] as const;
+
+function DiscountDrawer({ desk, subtotal, current, onClose, onApply }: { desk: Desk; subtotal: number; current?: Discount; onClose: () => void; onApply: (d: Discount | undefined) => void }) {
+  const t = useTranslations("checkout");
+  const [opt, setOpt] = useState(0);
+  const [reason, setReason] = useState(0);
+  const [approver, setApprover] = useState<string | null>(null);
+  const [ok, setOk] = useState<{ approvalId?: string; name: string } | null>(null);
+  const [pinErr, setPinErr] = useState("");
+  const o = DISC_OPTS[opt];
+  const off = Math.min(subtotal, o.kind === "pct" ? percentOf(subtotal, o.value) : o.value);
+  const managers = desk.staff.filter((s) => s.role === "owner" || s.role === "manager");
+  const meIsAdmin = desk.me.role === "owner" || desk.me.role === "manager";
+
+  const check = async (pin: string) => {
+    setPinErr("");
+    if (desk.mode === "demo") return setOk({ name: managers[0]?.name ?? "Mai" });
+    if (!navigator.onLine) return setPinErr(t("pinOffline"));
+    try {
+      const r = await rpc<PinResult & { approval_id?: string }>("approve_discount", { p_salon: desk.salonId, p_device: desk.device!.id, p_membership: approver, p_pin: pin });
+      if (!r.ok) return setPinErr((r.reason as string) === "not_manager" ? t("notManager") : pinMessage(r));
+      setOk({ approvalId: r.approval_id, name: r.name ?? "" });
+    } catch { setPinErr(t("pinOffline")); }
+  };
+  const selfOk = async () => {
+    setPinErr("");
+    if (!navigator.onLine) return setPinErr(t("pinOffline"));
+    try {
+      const r = await rpc<PinResult & { approval_id?: string }>("approve_discount", { p_salon: desk.salonId });
+      if (!r.ok) return setPinErr(t("notManager"));
+      setOk({ approvalId: r.approval_id, name: r.name ?? desk.me.display_name });
+    } catch { setPinErr(t("pinOffline")); }
+  };
+
+  return (
+    <Drawer title={t("discount")} onClose={onClose} footer={<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <Button variant="primary" block data-testid="apply-discount" disabled={!ok}
+        onClick={() => onApply({ id: current?.id ?? uuid(), kind: o.kind, value: o.value, reason: t(REASONS[reason]), approvalId: ok?.approvalId, approvedBy: ok?.name })}>{t("applyDiscount")}</Button>
+      {current && <Button variant="ghost" block onClick={() => onApply(undefined)}>{t("removeDiscount")}</Button>}
+    </div>}>
+      <div className="eyebrow">{t("amount")}</div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{DISC_OPTS.map((d, i) => <Chip key={d.label} on={opt === i} onClick={() => setOpt(i)}>{d.label}</Chip>)}</div>
+      <div className="line" style={{ fontSize: 16 }}><span>{t("takesOff")}</span><b>−{$(off)}</b></div>
+      <div className="eyebrow">{t("reason")}</div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{REASONS.map((r, i) => <Chip key={r} on={reason === i} onClick={() => setReason(i)}>{t(r)}</Chip>)}</div>
+      <div className="eyebrow">{t("managerPin")}</div>
+      {ok ? <div className="note" data-testid="approved">{t("approvedBy", { name: ok.name })}</div>
+        : desk.mode === "live" && !desk.device ? (meIsAdmin
+          ? <><span className="cap">{t("selfApprove", { role: ROLE_LABEL[desk.me.role] })}</span><Button onClick={() => void selfOk()}>OK</Button></>
+          : <span className="hint err">{t("notManager")}</span>)
+        : desk.mode === "live" && !approver ? <>
+            <span className="cap">{t("whoApproves")}</span>
+            <ListGroup>{managers.map((m) => <button key={m.id} type="button" className="opt" onClick={() => setApprover(m.id)}><Avatar name={m.name} />{m.name}<span className="cap">{ROLE_LABEL[m.role]}</span></button>)}</ListGroup>
+          </>
+        : <><span className="cap">{t("pinHint")}</span><PinKeypad error={pinErr} onDone={(p) => void check(p)} /></>}
+      {pinErr && (ok || (desk.mode === "live" && !desk.device)) && <span className="hint err">{pinErr}</span>}
+      <div className="cap">{t("commissionNote")}</div>
+    </Drawer>
+  );
+}
+
+/* Client panel (CRM): phone first. */
+type Found = { client_id: string; name: string; notes: string; visits: number; avg_cents: number; last_visit: string | null; last_services: string | null };
+
+function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save: SaveFn }) {
+  const t = useTranslations("checkout");
+  const f = useFormatter();
+  const [phone, setPhone] = useState(ticket.client?.phone ? fmtPhone(ticket.client.phone) : "");
+  const [name, setName] = useState(ticket.client?.name ?? "");
+  const [found, setFound] = useState<Found | null | "offline">(null);
+
+  useEffect(() => {
+    if (!phoneOk(phone) || desk.mode !== "live") { setFound(null); return; }
+    if (!navigator.onLine) { setFound("offline"); return; }
+    let stop = false;
+    void rpc<Found[]>("client_lookup", { p_salon: desk.salonId, p_phone: e164(phone) })
+      .then((r) => { if (stop) return; setFound(r[0] ?? null); if (r[0]?.name && !name) setName(r[0].name); })
+      .catch(() => !stop && setFound("offline"));
+    return () => { stop = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phone, desk.mode, desk.salonId]);
+
+  const commit = (p: string, n: string) => save({ client: phoneOk(p) ? { phone: e164(p), name: n.trim() } : n.trim() ? { phone: "", name: n.trim() } : undefined });
+  const c = found && found !== "offline" ? found : null;
+
+  return (
+    <aside className="card ck-aside">
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div className="av lg">{name ? initials(name) : "?"}</div>
+        <div style={{ flex: 1, minWidth: 0 }}><div className="h2">{name || t("walkIn")}</div><div className="cap num">{phone || t("client")}</div></div>
+        {c && c.visits > 2 ? <Tag tone="jade">{t("rRegular")}</Tag> : phoneOk(phone) && !c && found !== "offline" ? <Tag>{t("newClient")}</Tag> : null}
+      </div>
+      <Field id="cphone" label={t("clientPhone")} inputMode="tel" autoComplete="off" value={phone}
+        onChange={(e) => { const p = fmtPhone(e.target.value); setPhone(p); commit(p, name); }} />
+      <Field id="cname" label={t("clientName")} autoComplete="off" value={name} onChange={(e) => { setName(e.target.value); commit(phone, e.target.value); }} />
+      {found === "offline" && <div className="cap">{t("lookupOffline")}</div>}
+      {c && <>
+        <div className="grid3" style={{ gap: 8, textAlign: "center" }}>
+          <Stat v={String(c.visits)} l={t("visits")} />
+          <Stat v={c.visits ? $(Number(c.avg_cents)).replace(/\.00$/, "") : "—"} l={t("avgTicket")} />
+          <Stat v={c.last_visit ? f.dateTime(new Date(c.last_visit), { month: "short", day: "numeric" }) : "—"} l={t("lastVisit", { date: "" }).replace(/ · $/, "")} />
+        </div>
+        {c.last_services && <div><div className="eyebrow" style={{ marginBottom: 6 }}>{t("lastVisit", { date: c.last_visit ? f.dateTime(new Date(c.last_visit), { month: "short", day: "numeric" }) : "" })}</div><div style={{ fontSize: 15 }}>{c.last_services}</div></div>}
+        {c.notes && <div><div className="eyebrow" style={{ marginBottom: 6 }}>{t("notes")}</div><div style={{ fontSize: 15, background: "var(--surface)", borderRadius: 12, padding: "10px 12px" }}>{c.notes}</div></div>}
+      </>}
+      {phoneOk(phone) && !c && found === null && desk.mode === "live" && <div className="cap">{t("noVisits")}</div>}
+    </aside>
+  );
+}
+const Stat = ({ v, l }: { v: string; l: string }) => <div style={{ background: "var(--surface)", borderRadius: 12, padding: "10px 4px" }}><div className="num" style={{ fontSize: 20, fontWeight: 700 }}>{v}</div><div className="cap">{l}</div></div>;
+
+/* ---------- 2. How is the client paying? ---------- */
+function Pay({ ticket, onCash }: { ticket: Ticket; onCash: () => void }) {
+  const t = useTranslations("checkout");
+  const sum = totals(ticket);
+  const soon = (title: string, sub: string, fee: string) => (
+    <div className="tile" aria-disabled="true" style={{ opacity: 0.55 }}>
+      <div className="h2">{title}</div><div style={{ fontSize: 15 }}>{sub}</div><div className="cap num">{fee}</div><div className="demo">{t("comingS3")}</div>
+    </div>
+  );
+  return (
+    <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, padding: "24px 16px" }}>
+      <div style={{ textAlign: "center" }}>
+        <div className="cap">{t("ticket", { n: ticketLabel(ticket) })}{ticket.client?.name ? ` · ${ticket.client.name}` : ""}</div>
+        <div className="money" style={{ fontSize: 56, lineHeight: "64px" }}>{$(sum.due)}</div>
+        <div className="cap">{t("plusTip")}</div>
+      </div>
+      <div className="grid2" style={{ width: "100%", maxWidth: 880, gap: 16 }}>
+        {soon(t("reader"), t("readerSub"), t("readerFee"))}
+        <button type="button" className="tile" data-testid="pay-cash" onClick={onCash} style={{ border: 0, font: "inherit", textAlign: "left", cursor: "pointer" }}>
+          <div className="h2">{t("cash")}</div><div style={{ fontSize: 15 }}>{t("cashSub")}</div><div className="cap">{t("cashFee")}</div>
+        </button>
+        {soon(t("qr"), t("qrSub"), t("qrFee"))}
+        {soon(t("split"), t("splitSub"), "")}
+      </div>
+    </main>
+  );
+}
+
+/* ---------- 3. Cash (Cs1 change, Cs2 short) ---------- */
+function Cash({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save: SaveFn }) {
+  const t = useTranslations("checkout");
+  const sum = totals(ticket);
+  const staff = staffOn(ticket.lines);
+  const [typed, setTyped] = useState("");
+  const [tipAll, setTipAll] = useState("");
+  const given = parseDollars(typed) ?? 0;
+  const diff = changeCents(sum.total, given);
+  const short = !typed || diff < 0;
+  const quick = useMemo(() => quickCash(sum.total), [sum.total]);
+
+  const key = (k: string) => setTyped((v) => (k === "del" ? v.slice(0, -1) : k === "." && v.includes(".") ? v : /\.\d{2}$/.test(v) ? v : (v + k).replace(/^0+(?=\d)/, "")));
+  const setTip = (id: string, cents: number) => save({ tips: { ...ticket.tips, [id]: cents } });
+  const received = () => {
+    const a = getActing();
+    save({ status: "paid", payment: { id: uuid(), method: "cash", givenCents: given, at: new Date().toISOString(), takenBy: a?.membership_id ?? desk.me.membership_id } }, true);
+  };
+
+  return (
+    <main className="ck-main">
+      <section className="card ck-left" style={{ padding: "24px 28px", gap: 18 }}>
+        <div className="line"><span style={{ fontSize: 17 }}>{t("due")}</span><span className="num" style={{ fontSize: 20, fontWeight: 600 }}>{$(sum.due)}</span></div>
+        {sum.tip > 0 && <div className="line"><span>{t("tips")}</span><span>{$(sum.tip)}</span></div>}
+        <div className="line"><span style={{ fontSize: 17, fontWeight: 600 }}>{t("total")}</span><span className="money" style={{ fontSize: 28 }} data-testid="cash-total">{$(sum.total)}</span></div>
+        <div>
+          <div className="eyebrow" style={{ marginBottom: 8 }}>{t("clientGave")}</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 8 }}>
+            {quick.map((v) => <Chip key={v} on={given === v && !!typed} className="num" style={{ height: 48, justifyContent: "center" }} onClick={() => setTyped((v / 100).toFixed(v % 100 ? 2 : 0))}>{$(v).replace(/\.00$/, "")}</Chip>)}
+          </div>
+        </div>
+        <div data-testid="change-box" data-short={short} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 20px", borderRadius: 16, background: short && typed ? "var(--orange-soft)" : "var(--surface)" }}>
+          <span style={{ fontSize: 17, fontWeight: 600 }}>{short ? t("stillDue") : t("change")}
+            {typed && short && <span className="cap" style={{ display: "block", fontWeight: 400 }}>{t("notEnough", { amount: $(given) })}</span>}</span>
+          <span className="money fade" style={{ fontSize: 40, color: short && typed ? "var(--orange)" : undefined }} data-testid="change">{$(Math.abs(typed ? diff : sum.total))}</span>
+        </div>
+        <div className="sep" />
+        <div>
+          <div className="eyebrow" style={{ marginBottom: 4 }}>{t("cashTips")}</div>
+          <div className="cap" style={{ marginBottom: 10 }}>{t("cashTipsSub")}</div>
+          <div className="group" style={{ boxShadow: "none", border: "1px solid var(--line)" }}>
+            {staff.map((s) => (
+              <div className="row" key={s.id}><Avatar name={s.name} /><label className="grow" htmlFor={`tip-${s.id}`}>{s.name}</label>
+                <span style={{ width: 120 }}><MoneyInput id={`tip-${s.id}`} cents={ticket.tips[s.id] ?? 0} label={`${t("cashTip")} ${s.name}`} onChange={(c) => setTip(s.id, c)} /></span></div>
+            ))}
+          </div>
+          {staff.length > 1 && <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
+            <input className="inp" style={{ width: 120, height: 40 }} inputMode="decimal" placeholder="$0" aria-label={t("splitTip")} value={tipAll} onChange={(e) => setTipAll(e.target.value.replace(/[^\d.]/g, ""))} />
+            <Button size="sm" onClick={() => { const c = parseDollars(tipAll); if (c != null) save({ tips: splitTipByPrice(c, ticket.lines) }); }}>{t("splitTip")}</Button>
+          </div>}
+        </div>
+        <div className="cap">{t("offlineOk")}</div>
+      </section>
+      <section className="ck-keys">
+        <div className="inp num" aria-live="polite" style={{ height: 56, display: "flex", alignItems: "center", justifyContent: "flex-end", fontSize: 26, fontWeight: 600 }} data-testid="typed">{typed ? `$${typed}` : "$0"}</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 10 }}>
+          {["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "del"].map((k) => (
+            <button key={k} type="button" className="key" aria-label={k === "del" ? t("del") : k} onClick={() => key(k)}>{k === "del" ? "⌫" : k}</button>
+          ))}
+        </div>
+        <div style={{ flex: 1 }} />
+        <Button variant="primary" block data-testid="cash-received" disabled={short} onClick={received}>{t("cashReceived")}</Button>
+      </section>
+    </main>
+  );
+}
+
+/* ---------- 4. Paid + receipt ---------- */
+function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: string) => void }) {
+  const t = useTranslations("checkout");
+  const router = useRouter();
+  const sum = totals(ticket);
+  const staff = staffOn(ticket.lines);
+  const given = ticket.payment?.givenCents ?? sum.total;
+  const [email, setEmail] = useState<string | null>(null);
+  const newTicket = () => {
+    const id = uuid();
+    const a = getActing();
+    putTicket({ id, salonId: desk.salonId, status: "open", createdAt: new Date().toISOString(), lines: [], tips: {}, note: "", openedBy: a?.membership_id ?? desk.me.membership_id, deviceId: desk.device?.id });
+    router.push(`/checkout/${id}`);
+  };
+
+  return (
+    <main className="ck-main">
+      <section className="card ck-left" style={{ padding: "24px 28px", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div className="okmark pop" aria-hidden>✓</div>
+          <div>
+            <div className="money" data-testid="paid-total">{t("paidCash", { amount: $(sum.total) })}</div>
+            <div className="cap num">{t("paidLine", { services: $(sum.due), tip: $(sum.tip) })}</div>
+          </div>
+        </div>
+        <div style={{ overflowX: "auto" }}>
+          <table className="num svc">
+            <thead><tr><th>{t("staff")}</th><th className="r">{t("service")}</th><th className="r">{t("cashTip")}</th></tr></thead>
+            <tbody>{staff.map((s) => (
+              <tr key={s.id}><td><span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}><Avatar name={s.name} />{s.name} · {ticket.lines.filter((l) => l.staffId === s.id).map((l) => l.name).join(", ")}</span></td>
+                <td className="r">{$(s.cents)}</td><td className="r">{$(ticket.tips[s.id] ?? 0)}</td></tr>
+            ))}</tbody>
+          </table>
+        </div>
+        <div className="cap">{t("tipNote")}</div>
+        <div style={{ marginTop: "auto", padding: "16px 18px", borderRadius: 16, background: "var(--surface)", display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="eyebrow">{t("money")}</div>
+          <div className="line"><span>{t("cashTaken")}</span><span>{$(given)}</span></div>
+          <div className="line"><span>{t("changeGiven")}</span><span>−{$(given - sum.total)}</span></div>
+          <div className="line"><span>{t("tipsToStaff")}</span><span>−{$(sum.tip)}</span></div>
+          <div className="sep" />
+          <div className="line" style={{ fontWeight: 600, fontSize: 16 }}><span>{t("salonKeeps")}</span><span data-testid="salon-keeps">{$(sum.due)}</span></div>
+        </div>
+      </section>
+      <section className="ck-keys" style={{ gap: 10 }}>
+        <div className="h2">{t("receipt")}</div>
+        <div className="group">
+          <button type="button" className="opt" data-testid="receipt-print" onClick={() => { logReceipt(ticket, "print"); setTimeout(() => window.print(), 50); say(t("printed")); }}>{t("print")}<span className="grow" /><span className="cap">›</span></button>
+          <button type="button" className="opt" onClick={() => { if (!ticket.client?.phone) return say(t("noPhone")); logReceipt(ticket, "text", ticket.client.phone); say(t("textLater")); }}>
+            {t("text")}<span className="grow" /><span className="cap num">{ticket.client?.phone ? fmtPhone(ticket.client.phone) : ""} ›</span></button>
+          <button type="button" className="opt" onClick={() => setEmail("")}>{t("email")}<span className="grow" /><span className="cap">›</span></button>
+          <button type="button" className="opt" style={{ color: "var(--ink-soft)" }} onClick={() => logReceipt(ticket, "none")}>{t("noReceipt")}</button>
+        </div>
+        {email !== null && <div style={{ display: "flex", gap: 8 }}>
+          <input className="inp" type="email" placeholder={t("emailPh")} aria-label={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Button disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => { logReceipt(ticket, "email", email); setEmail(null); say(t("textLater")); }}>{t("send")}</Button>
+        </div>}
+        {ticket.receipt && <div className="cap">✓ {t(ticket.receipt === "none" ? "noReceipt" : ticket.receipt)}</div>}
+        <div className="cap">{t("receiptLang")}</div>
+        <div style={{ flex: 1 }} />
+        <Button variant="primary" block data-testid="new-ticket" onClick={newTicket}>{t("newTicket")}</Button>
+      </section>
+      <PrintReceipt desk={desk} ticket={ticket} />
+    </main>
+  );
+}
+
+/** Receipt for the receipt printer (80 mm): only visible when printing. */
+function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
+  const t = useTranslations("checkout");
+  const f = useFormatter();
+  const sum = totals(ticket);
+  const given = ticket.payment?.givenCents ?? sum.total;
+  return (
+    <div className="receipt-print" aria-hidden>
+      <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16 }}>{desk.salonName}</div>
+      <div style={{ textAlign: "center" }}>{t("receiptFor")} {ticketLabel(ticket)} · {f.dateTime(new Date(ticket.payment?.at ?? ticket.createdAt), { dateStyle: "medium", timeStyle: "short" })}</div>
+      {ticket.client?.name && <div style={{ textAlign: "center" }}>{t("thanks", { name: `, ${ticket.client.name}` })}</div>}
+      <hr />
+      {ticket.lines.map((l) => <div key={l.id} className="rl"><span>{l.name}{l.staffName ? ` · ${l.staffName}` : ""}</span><span>{$(l.cents)}</span></div>)}
+      {sum.discount > 0 && <div className="rl"><span>{t("discountLine", { reason: ticket.discount?.reason ?? "" })}</span><span>−{$(sum.discount)}</span></div>}
+      {Object.entries(ticket.tips).filter(([, c]) => c > 0).map(([id, c]) => <div key={id} className="rl"><span>{t("cashTip")} · {ticket.lines.find((l) => l.staffId === id)?.staffName}</span><span>{$(c)}</span></div>)}
+      <hr />
+      <div className="rl" style={{ fontWeight: 700 }}><span>{t("total")}</span><span>{$(sum.total)}</span></div>
+      <div className="rl"><span>{t("cash")}</span><span>{$(given)}</span></div>
+      <div className="rl"><span>{t("change")}</span><span>{$(given - sum.total)}</span></div>
+      <div className="rl"><span>Card fee</span><span>$0.00</span></div>
+    </div>
+  );
+}
+
+/* Money box: type dollars, saved as cents on blur. */
+function MoneyInput({ cents, onChange, label, id, warn }: { cents: number; onChange: (c: number) => void; label: string; id?: string; warn?: boolean }) {
+  const [txt, setTxt] = useState(cents ? (cents / 100).toFixed(cents % 100 ? 2 : 0) : "");
+  useEffect(() => setTxt(cents ? (cents / 100).toFixed(cents % 100 ? 2 : 0) : ""), [cents]);
+  return <input id={id} className={`ed r num${warn ? " flag" : ""}`} style={{ width: 96 }} inputMode="decimal" aria-label={label} placeholder="$0" value={txt}
+    onChange={(e) => setTxt(e.target.value.replace(/[^\d.]/g, ""))}
+    onBlur={() => onChange(parseDollars(txt || "0") ?? 0)} />;
+}
+
+function Centered({ children }: { children: React.ReactNode }) {
+  return <main style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}><div className="card pad" style={{ maxWidth: 420, width: "100%", padding: 28, gap: 12 }}>{children}</div></main>;
+}
