@@ -152,6 +152,7 @@ The grey "TAPS" sticky under each board lists what every button does, including 
 - Imported clients get no marketing texts until they opt in; STOP always works.
 
 ## 8. Not designed yet / known gaps (decide before building)
+- **OPEN — confirm with Elang:** staff login = 4-digit PIN (what's drawn) or the staff's phone number. Touches Staff step 4, S1 staff phone, S2 clock-in, Switch person, Print my earnings, Reset PIN, Profile. Don't build PIN screens until decided.
 - Split payment, refunds, selling a gift card, discount sheet, add-service sheet, client profile full page.
 - Cash keypad is visual only; quick amounts work.
 - Icons on the Devices screen use text glyphs (▭ ⎙ ▢); replace with line icons in the same style.
