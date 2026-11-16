@@ -41,7 +41,7 @@ It is not "basic / pro / max" of the POS. It is 3 layers stacked on one $40 soft
 - **Year-1 cost for a salon:**
   - Software + cheapest kit (PAX A920, monthly): $40 + $160 = **$200/mo, ~$2,400 year 1**.
   - PRO-X3: **$3,456 year 1**. PROMAX-5: **$5,700 year 1**.
-  - Us: $49/mo + $59 Stripe reader on their own iPad/phone = **~$650 year 1**.
+  - Us: $49/mo + Stripe S710 reader (~$299) on their own iPad/computer = **~$887 year 1**.
 - **Card processing:** rate not listed. PAX and Clover terminals are usually tied to one processor, so a salon may be locked to theirs. Ask.
 - **After year 1:** "full service for the 1st year" — price for year 2 not listed. Ask.
 - **They ship fast:** changelog shows weekly updates in Oct 2026 (staff action log, VIP/Warning/Blacklist clients, hourly commission view, decimal hours, manager ticket permissions). Not a sleepy rival.
@@ -57,7 +57,7 @@ It is not "basic / pro / max" of the POS. It is 3 layers stacked on one $40 soft
 - Their check-in "prevents sending SMS to customers who are not satisfied" and "limits bad reviews". Asking only happy clients for reviews ("review gating") is against Google's review rules and may be a risk under the FTC review rule. We should not copy it. Elang: check with the lawyer.
 
 ## Where we can beat them
-1. **Hardware cost.** ~$59 reader + the salon's own iPad vs $1,900–2,500. Lead the pitch with "year 1: ~$650 vs ~$2,400".
+1. **Hardware cost.** ~$299 S710 reader + the salon's own iPad vs $1,900–2,500. Lead the pitch with "year 1: ~$890 vs ~$2,400". (Later, with our phone app, the $59 M2 reader drops this to ~$650.)
 2. **Pay techs can trust.** Their #1 complaint is lost tips and split tips going to one tech. Ours: split tip by tech, every ticket change logged, tech sees own earnings any time on their phone.
 3. **Works from anywhere.** Owner sees today's sales, calendar and payroll remotely (their app can't).
 4. **Gift card report** in V1: sold, outstanding, redeemed.

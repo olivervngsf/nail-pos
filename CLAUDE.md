@@ -53,11 +53,10 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Printing: desktop to USB/Wi-Fi receipt printer; Android web can use Bluetooth; iPhone web can't (needs Bluefy) — don't depend on it.
 - Texting: Twilio or Telnyx; one local number per salon; A2P 10DLC registration; consent + STOP; email backup. Spec in PRD "Texting and phone numbers".
 - Ops (before pilot, issue #22): dev/staging/live; Supabase backups + restore test; DB changes via GitHub; data-wall tests; Sentry + uptime alerts; 2-step login + password manager everywhere; secrets only in Vercel/Supabase; spending alerts; terms/privacy/texting consent. Spec: System Design "Running smooth".
-- Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); $59 M2 needs our phone app (OPEN: Oliver to pick). QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
+- Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); V1 = S710 (Oliver, Nov 16); $59 M2 when our phone app ships. QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
 - Stripe Connect type: Standard vs Express (lean Express); confirm with Stripe before building
-- V1 card reader: Stripe S710 (~$299, works with web app now; WisePOS E discontinued) vs M2 (~$59, needs phone app first)
 - Pilot salons (2–3)
 - How pilot salons pay techs today
 - Final monthly price (testing ~$39–49 in pilot)
@@ -83,6 +82,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-16: Payroll = V1 insights + export; real payroll later via embedded partner (e.g. Check, Gusto Embedded); never build tax filing ourselves.
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
 - 2026-11-16: Stripe card reader in every V1 setup (QR / pay link costs salons ~20% more). Card fee = Stripe pass-through, no markup at launch; revisit at ~50 salons. Research: reports/Nail POS market pricing and design.md
+- 2026-11-16: V1 card reader = Stripe S710 (~$299, works with the web app); M2 ($59) when the phone app ships. Year 1 for a salon ≈ $887 ($49×12 + S710) vs ~$2,400 for ABC Salon System's cheapest setup.
 
 ## Tracking
 - Build Tracker (status per feature, build order): https://claude.ai/artifact/6DjfxMPXy64uDX8YZdCCnt — keep in sync with GitHub Issues

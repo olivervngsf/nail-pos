@@ -13,7 +13,7 @@
   - Fastboy Go POS from $50/month, but payroll, timekeeping and the calendar are **not** in Basic ([Fastboy](https://en.fastboy.com/go-pos/); [Capterra](https://www.capterra.com/p/10040943/Go-Checkin-POS/))
   - Mango $49–299/month plus a $149–249 setup fee and a 3-month minimum ([Tilavon, a competitor](https://tilavon.com/compare/mango-pos))
   - NailSoft from $99.95/month ([Zenoti](https://www.zenoti.com/thecheckin/nail-salon-software-comparison))
-  - [ABC Salon System](https://abcsalonsystem.com/en/) (MAC Marketing, Vietnamese): **[verified on their site]** $40/month software, all features, unlimited staff, texts 2¢ each. Hardware extra: $1,900–2,500, or $160–210/month for 12 months. Or "full service for the 1st year" packages that add a marketing agency: PRO-X3 $288, PRO-X4 $380 (best seller), PROMAX-5 $475/month. 30-day trial, no contract on software. Year 1 for a salon: ~$2,400 (software + cheapest kit) vs ~$650 for us. ABC Go app: 3.0 stars (22); a tech reports lost services and tips and a two-tech tip put on one ticket ([ABC pricing](https://abcsalonsystem.com/en/pricing); [App Store](https://apps.apple.com/us/app/abc-salon-system-go/id6449681664)). Its $40 software confirms our price point. Full note: `docs/abc-salon-system.md`.
+  - [ABC Salon System](https://abcsalonsystem.com/en/) (MAC Marketing, Vietnamese): **[verified on their site]** $40/month software, all features, unlimited staff, texts 2¢ each. Hardware extra: $1,900–2,500, or $160–210/month for 12 months. Or "full service for the 1st year" packages that add a marketing agency: PRO-X3 $288, PRO-X4 $380 (best seller), PROMAX-5 $475/month. 30-day trial, no contract on software. Year 1 for a salon: ~$2,400 (software + cheapest kit) vs ~$887 for us ($49/mo + S710 reader). ABC Go app: 3.0 stars (22); a tech reports lost services and tips and a two-tech tip put on one ticket ([ABC pricing](https://abcsalonsystem.com/en/pricing); [App Store](https://apps.apple.com/us/app/abc-salon-system-go/id6449681664)). Its $40 software confirms our price point. Full note: `docs/abc-salon-system.md`.
 - New entrants already pitch Vietnamese, turns and low prices: TLNA from $59/month ([SourceForge](https://sourceforge.net/software/product/TLNA-POS/)), Tilavon, Galaxy Access, and Astra (claims 1.80% for nail salons, from its own page) ([Astra](https://astraposonline.com/best-pos-system-for-nail-salons.html)). **Vietnamese alone is not a moat.**
 
 **General salon/spa software (Fresha, Vagaro, Booksy, GlossGenius, Boulevard, Booker)**
@@ -173,7 +173,7 @@
 
 **Oliver (product, design, build)**
 1. Model Stripe options: "Stripe handles pricing" (salon pays Stripe directly, we pay no Connect fees) vs platform pricing. Confirm current rates on stripe.com.
-2. Make an optional card reader (M2 / WisePOS E) part of V1 onboarding. Consider bringing Tap to Pay forward (issue #11).
+2. Make a card reader part of V1 onboarding: Stripe S710 (~$299) works with the web app now (WisePOS E discontinued); the $59 M2 needs our phone app. Consider bringing Tap to Pay forward (issue #11).
 3. Put the fee line on every ticket and payout, including fees on tips. Build the multi-tech tip split as a core feature.
 4. Add a state-aware cash discount / surcharge setting, off by default (blocked in CT/MA, capped in CO/OK, all-in pricing in CA).
 5. Build CA pay modes: an employee mode with rest-time pay fields, and a contractor mode (AB 1514) to check with a lawyer.
