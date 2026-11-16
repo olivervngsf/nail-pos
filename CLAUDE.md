@@ -29,6 +29,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 6. Turn list for walk-ins (moved into V1)
 7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12)
 8. Owner dashboard: top 5 KPIs (sales vs last week, avg ticket, return rate + lost regulars, sales per tech per hour, walk-in wait + walk-outs); full list in PRD "Owner KPIs" (issue #16)
+- Salon setup (demo → first payment in ~1 week; 1-hour setup day, 10 steps incl. Connect payments): PRD "Salon setup", board https://claude.ai/artifact/1wByQp7c3nViD27dsqJqgD, issue #20
 - Basics: salon setup, staff + pay rates, service menu from a nail template, owner login
 
 ## Design rules
@@ -70,6 +71,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Desktop + mobile design; printing from desktop; iOS web Bluetooth printing not relied on.
 - 2026-11-14: Oliver's built calendar page = base front desk design; 10 gaps listed on the Screens board.
 - 2026-11-15: Insight, not autopilot for turns (Gap conflict #3 settled).
+- 2026-11-16: Salon setup plan: demo → hardware + texting registration → 1-hour setup day (sign up, info, services, staff+PIN, Connect payments, reader, printer, salon device, clients, $1 test) → Elang on call day 1 → week-4 pilot review.
 - 2026-11-16: Each salon has its own Stripe account linked to our platform (Connect); money goes straight to salon; card fees pass-through; we earn only the flat monthly subscription. Stripe events (payments, fees, refunds, disputes, payouts) saved next to tickets by ticket # → insights (who earns how much, staff KPIs, daily money truth). Spec: System Design doc.
 - 2026-11-16: Product supports both Android and iOS equally (web app + later one phone app for both, incl. Tap to Pay).
 - 2026-11-16: System design: one person = one account (phone); membership links person to salon + role + PIN; salon devices use name + PIN; every row has salon_id + row-level security; money in cents; nothing deleted; Stripe Connect, salon's own account, webhook confirms paid; daily money report = zero surprises.
