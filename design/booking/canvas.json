@@ -26,7 +26,7 @@
  "boards": {
   "Main.dc.html": {
    "x": 0,
-   "y": 1300,
+   "y": 3700,
    "w": 1280,
    "h": 800,
    "title": "Earlier version — 4-tap drawer (kept for reference)",
@@ -38,7 +38,7 @@
    "y": 0,
    "w": 390,
    "h": 844,
-   "title": "Client booking link (phone)",
+   "title": "Client booking (phone, simple) — see BookWeb for the full page",
    "is_interactive": true,
    "page": "overview"
   },
@@ -284,6 +284,176 @@
    "title": "D10 · Booked + Undo",
    "is_interactive": true,
    "page": "desk"
+  },
+  "Channels.dc.html": {
+   "x": 0,
+   "y": 1300,
+   "w": 1600,
+   "h": 760,
+   "title": "Where bookings come from → one calendar",
+   "page": "overview"
+  },
+  "BookWeb.dc.html": {
+   "x": 0,
+   "y": 2500,
+   "w": 1280,
+   "h": 800,
+   "title": "Booking page (web) — from Google, website, Instagram, QR, texts",
+   "page": "overview",
+   "is_interactive": true
+  },
+  "PageSettings.dc.html": {
+   "x": 1360,
+   "y": 2500,
+   "w": 1280,
+   "h": 800,
+   "title": "Owner: Booking page settings (photos, channels, rules)",
+   "page": "overview",
+   "is_interactive": true
+  },
+  "Kiosk.dc.html": {
+   "x": 2720,
+   "y": 2500,
+   "w": 1024,
+   "h": 768,
+   "title": "Walk-in check-in iPad",
+   "page": "overview",
+   "is_interactive": true
+  },
+  "Wb1Door.dc.html": {
+   "x": 0,
+   "y": -1300,
+   "w": 1640,
+   "h": 800,
+   "title": "W1 · Start: me or group",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Wb2Services.dc.html": {
+   "x": 1720,
+   "y": -1300,
+   "w": 1640,
+   "h": 800,
+   "title": "W2 · Pick services",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Wb3Addon.dc.html": {
+   "x": 3440,
+   "y": -1300,
+   "w": 1640,
+   "h": 800,
+   "title": "W3 · Add-ons + Your visit",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Wb4Group.dc.html": {
+   "x": 5160,
+   "y": -1300,
+   "w": 1640,
+   "h": 800,
+   "title": "W4 · Group booking",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Wb5Staff.dc.html": {
+   "x": 6880,
+   "y": -1300,
+   "w": 1640,
+   "h": 800,
+   "title": "W5 · Pick staff",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Wb6Time.dc.html": {
+   "x": 8600,
+   "y": -1300,
+   "w": 1640,
+   "h": 800,
+   "title": "W6 · Pick time",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Wb7Details.dc.html": {
+   "x": 10320,
+   "y": -1300,
+   "w": 1640,
+   "h": 800,
+   "title": "W7 · Phone · welcome back · photo",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Wb8Done.dc.html": {
+   "x": 12040,
+   "y": -1300,
+   "w": 1640,
+   "h": 800,
+   "title": "W8 · Booked",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Ki1Welcome.dc.html": {
+   "x": 0,
+   "y": -2900,
+   "w": 1384,
+   "h": 768,
+   "title": "K1 · Welcome + wait time",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Ki2Phone.dc.html": {
+   "x": 1464,
+   "y": -2900,
+   "w": 1384,
+   "h": 768,
+   "title": "K2 · Phone",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Ki3Services.dc.html": {
+   "x": 2928,
+   "y": -2900,
+   "w": 1384,
+   "h": 768,
+   "title": "K3 · What today?",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Ki4Done.dc.html": {
+   "x": 4392,
+   "y": -2900,
+   "w": 1384,
+   "h": 768,
+   "title": "K4 · Ticket + text",
+   "page": "client",
+   "is_interactive": true
+  },
+  "Pg1Main.dc.html": {
+   "x": 0,
+   "y": -2800,
+   "w": 1640,
+   "h": 800,
+   "title": "P1 · Booking page settings",
+   "page": "desk",
+   "is_interactive": true
+  },
+  "Pg2Upload.dc.html": {
+   "x": 1720,
+   "y": -2800,
+   "w": 1640,
+   "h": 800,
+   "title": "P2 · Upload photos",
+   "page": "desk",
+   "is_interactive": true
+  },
+  "Pg3Google.dc.html": {
+   "x": 3440,
+   "y": -2800,
+   "w": 1640,
+   "h": 800,
+   "title": "P3 · Connect Google",
+   "page": "desk",
+   "is_interactive": true
   }
  },
  "order": [
@@ -315,7 +485,26 @@
   "Cd07Cover.dc.html",
   "Cd08Filter.dc.html",
   "Cd09Alert.dc.html",
-  "Cd10Booked.dc.html"
+  "Cd10Booked.dc.html",
+  "Channels.dc.html",
+  "BookWeb.dc.html",
+  "PageSettings.dc.html",
+  "Kiosk.dc.html",
+  "Wb1Door.dc.html",
+  "Wb2Services.dc.html",
+  "Wb3Addon.dc.html",
+  "Wb4Group.dc.html",
+  "Wb5Staff.dc.html",
+  "Wb6Time.dc.html",
+  "Wb7Details.dc.html",
+  "Wb8Done.dc.html",
+  "Ki1Welcome.dc.html",
+  "Ki2Phone.dc.html",
+  "Ki3Services.dc.html",
+  "Ki4Done.dc.html",
+  "Pg1Main.dc.html",
+  "Pg2Upload.dc.html",
+  "Pg3Google.dc.html"
  ],
  "notes": {
   "t1": {
@@ -332,7 +521,7 @@
    "w": 420,
    "fill": "orange",
    "page": "overview",
-   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nV1 booking (issue #12)\n• Base = Oliver's built calendar (waitlist, up next, counts, cover) + Apple/Notion/Google patterns (drag to create/move/resize, peek, shortcuts)\n• Day calendar: staff columns, facts only (insight, not autopilot)\n• Staff quick-add in 4 taps: slot → client → service → Book\n• Online booking link for clients (no app, no account)\n• Text confirm + reminder; reply C / R; STOP always works\n• English first; VI in each person's profile\n• Page 2 = front desk frame by frame (with notes)\n• Page 3 = client booking link frame by frame\n\nOpen\n• Deposit / no-show fee? (not in V1)\n• How far ahead clients can book (proposal 30 days)\n• Reminder timing (proposal 24 h + 2 h)"
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nV1 booking (issue #12)\n• Base = Oliver's built calendar (waitlist, up next, counts, cover) + Apple/Notion/Google patterns (drag to create/move/resize, peek, shortcuts)\n• Day calendar: staff columns, facts only (insight, not autopilot)\n• Staff quick-add in 4 taps: slot → client → service → Book\n• Online booking link for clients (no app, no account)\n• Text confirm + reminder; reply C / R; STOP always works\n• English first; VI in each person's profile\n• Page 2 = front desk frame by frame (with notes)\n• Page 3 = client booking link frame by frame\n• Every way to book: Google, website/social, text links, QR, phone, at the salon, walk-in kiosk, groups → one calendar (docs/booking-channels.md)\n\nOpen\n• Reserve with Google: V1 or V1.1? (issue #18)\n• Deposit / no-show fee? (not in V1)\n• How far ahead clients can book (proposal 30 days)\n• Reminder timing (proposal 24 h + 2 h)"
   },
   "d1": {
    "x": 0,
@@ -345,14 +534,14 @@
   "c1": {
    "x": 0,
    "y": -300,
-   "text": "Client booking link — on their phone, step by step",
+   "text": "Simple phone booking + texts (C1–C8)",
    "kind": "title1",
    "maxW": 6560,
    "page": "client"
   },
   "t9": {
    "x": 0,
-   "y": 1000,
+   "y": 3400,
    "text": "Earlier version",
    "kind": "title1",
    "maxW": 1280,
@@ -364,6 +553,46 @@
    "text": "Merged calendar — every interaction (with notes)",
    "kind": "title1",
    "maxW": 18720,
+   "page": "desk"
+  },
+  "t2": {
+   "x": 0,
+   "y": 1000,
+   "text": "Every way to book",
+   "kind": "title1",
+   "maxW": 1600,
+   "page": "overview"
+  },
+  "t3": {
+   "x": 0,
+   "y": 2200,
+   "text": "Booking page · owner settings · walk-in kiosk",
+   "kind": "title1",
+   "maxW": 3744,
+   "page": "overview"
+  },
+  "c2": {
+   "x": 0,
+   "y": -1600,
+   "text": "Booking page (from Google, website, Instagram…) — step by step",
+   "kind": "title1",
+   "maxW": 13680,
+   "page": "client"
+  },
+  "c3": {
+   "x": 0,
+   "y": -3200,
+   "text": "Walk-in check-in iPad — step by step",
+   "kind": "title1",
+   "maxW": 5776,
+   "page": "client"
+  },
+  "d2": {
+   "x": 0,
+   "y": -3100,
+   "text": "Owner — booking page settings",
+   "kind": "title1",
+   "maxW": 5080,
    "page": "desk"
   }
  },

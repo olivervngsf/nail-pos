@@ -19,7 +19,7 @@ Read this first every session. Keep it short; link out for detail.
 - ALWAYS annotate (Oliver, Nov 16): every screen gets an annotated spec frame (numbered orange pins sitting just left of the target, never on text + an Annotations panel with a Hide/Show notes button and a `notes` tweak). Keep clean clickable screens separate for Play (page 1 "Overview"); spec frames on later pages. Show flows as a row of step frames incl. error states. Pattern: `design/*/annot.css` + `Stf*.dc.html`.
 - When a flow is done: add a row to the Hub table, a "Back to: Nail POS Hub" link in it, and update the Build Tracker.
 - Look (set Nov 16): English first (EN/VI switch in each person's profile), compact Apple-like, client (CRM) panel on checkout, soft fade-in motion, off with reduced motion.
-- Done flows: Checkout https://claude.ai/artifact/ArXa9za1gubGLWzEUH6GLw · Onboarding https://claude.ai/artifact/1A5maZvg44WyCY5gugLVym
+- Done flows: Checkout https://claude.ai/artifact/ArXa9za1gubGLWzEUH6GLw · Onboarding https://claude.ai/artifact/1A5maZvg44WyCY5gugLVym · Booking https://claude.ai/artifact/VHeTS9Sd81pm1KbTNj9KUb (merged calendar + booking page + kiosk; channels: docs/booking-channels.md)
 - Building UI: follow `docs/design-spec.md` (tokens, components, motion, every screen + interaction) and the exact source in `design/<flow>/` (`.dc.html` + `pos.css`/`setup.css`). Pixel match; re-copy files into `design/` if the boards change.
 
 ## What we're building
@@ -47,7 +47,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 4. PIN login + clock-in; print own earnings by PIN
 5. Client profile by phone number (visits, last service/tech, notes, gift card)
 6. Turn list for walk-ins (moved into V1)
-7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12)
+7. Booking + day calendar (issue #12): calendar = Oliver's built calendar + drag/peek/waitlist/cover; staff quick-book (4 taps); booking page for every channel (Google, website/social, text links, QR) with salon photos, multi-service cart, combos/add-ons, groups, returning client by phone; walk-in check-in iPad; text confirm/reminders. All → one calendar, source kept per booking. docs/booking-channels.md
 8. Owner dashboard: top 5 KPIs (sales vs last week, avg ticket, return rate + lost regulars, sales per tech per hour, walk-in wait + walk-outs); full list in PRD "Owner KPIs" (issue #16)
 - Salon setup (demo → first payment in ~1 week; 1-hour setup day, 10 steps incl. Connect payments): PRD "Salon setup", board https://claude.ai/artifact/1wByQp7c3nViD27dsqJqgD, issue #20
 - Basics: salon setup, staff + pay rates, service menu from a nail template, owner login
@@ -77,6 +77,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); $59 M2 needs our phone app (OPEN: Oliver to pick). QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
+- Reserve with Google ("Book online" on Maps): V1 or V1.1? Needs Google partner approval — start early (issue #18)
 - Staff login: 4-digit PIN (designed now) or staff's phone number? Confirm with Elang (affects staff invite, clock-in, switch person, print earnings, reset PIN)
 - Final team roles (current working agreement in "What we're building")
 - California nail booth rental: manicurist AB5 exemption appears ended Jan 1 2025 — verify; ask pilot salons if they have renters

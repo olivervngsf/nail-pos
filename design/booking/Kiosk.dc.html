@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Walk-in check-in iPad</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.kio{width:1024px;height:768px;background:#F5F5F7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;color:#1C1C1E;position:relative}
+.big{min-width:360px;height:72px;border-radius:20px;border:0;background:#1C1C1E;color:#fff;font:inherit;font-size:22px;font-weight:700;cursor:pointer;padding:0 32px}
+.k{width:96px;height:72px;border-radius:18px;border:0;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08);font:inherit;font-size:28px;font-weight:500;cursor:pointer}
+.tile{width:200px;height:110px;border-radius:20px;border:1px solid #E5E5EA;background:#fff;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:19px;font-weight:700}
+.tile.on{border:3px solid #1C1C1E}
+.lang{position:absolute;top:20px;right:24px;display:flex;gap:6px}
+</style>
+</helmet>
+<div class="kio">
+  <div class="lang"><button class="btn" type="button" style="height:40px">English</button><button class="btn ghost" type="button" style="height:40px">Tiếng Việt</button><button class="btn ghost" type="button" style="height:40px">Español</button></div>
+  <sc-if value="{{vWelcome}}" hint-placeholder-val="{{true}}">
+    <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center">
+      <div class="logo" style="width:84px;height:84px;border-radius:22px;font-size:28px;margin:0">MN</div>
+      <div class="h1" style="font-size:44px;line-height:50px">Welcome to Mai Nails</div>
+      <div style="font-size:20px;color:#5C5C5E">Wait now: about <b style="color:#1C1C1E">15 min</b> · 3 people ahead</div>
+      <button class="big" type="button" onClick="{{start}}">Check in</button>
+      <div class="cap" style="font-size:15px">Have an appointment? Tap Check in too — we'll find it.</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{vPhone}}" hint-placeholder-val="{{false}}">
+    <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:16px">
+      <div class="h1" style="font-size:34px">Your cell phone</div>
+      <div class="num" style="font-size:40px;font-weight:700;letter-spacing:2px">(408) 555-01<span style="color:#C7C7CC">__</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,96px);gap:12px"><sc-for list="{{keys}}" as="k" hint-placeholder-count="12"><button class="k" type="button" onClick="{{toSvc}}">{{k}}</button></sc-for></div>
+      <div class="cap" style="font-size:14px">We text you when it's your turn. Reply STOP anytime.</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{vSvc}}" hint-placeholder-val="{{false}}">
+    <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:18px">
+      <div class="h1" style="font-size:34px">Hi Lan! What today?</div>
+      <div class="card" style="padding:12px 18px;box-shadow:none;background:#EAF5EC;font-size:16px">Same as last time? <b>Gel manicure with Kim</b></div>
+      <div style="display:grid;grid-template-columns:repeat(4,200px);gap:12px"><sc-for list="{{tiles}}" as="t" hint-placeholder-count="8"><button class="{{t.cls}}" type="button" onClick="{{t.pick}}">{{t.label}}<span class="cap" style="font-size:13px;font-weight:500">{{t.sub}}</span></button></sc-for></div>
+      <div style="display:flex;gap:12px;align-items:center"><span style="font-size:17px">Want someone?</span><button class="btn" type="button">Anyone</button><button class="btn" type="button" style="background:#1C1C1E;color:#fff">Kim</button><button class="btn" type="button">Ngọc</button></div>
+      <button class="big" type="button" onClick="{{done}}">Check in</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{vDone}}" hint-placeholder-val="{{false}}">
+    <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center">
+      <div class="pop" style="width:96px;height:96px;border-radius:50%;background:var(--jade-soft);border:3px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:44px">✓</div>
+      <div class="h1" style="font-size:40px">You're #4 · ticket B15</div>
+      <div style="font-size:20px;color:#5C5C5E">About 20 min. Have a seat — we'll text you.</div>
+      <div class="cap" style="font-size:15px">Front desk sees you on the waitlist now. This screen resets in 10 s.</div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"at":{"editor":"enum","options":["welcome","phone","services","done"],"default":"welcome"},"$preview":{"width":1024,"height":768}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { v: (p && p.at) || 'welcome', pick: 1 }; }
+  renderVals() {
+    const S = this.state;
+    return {
+      vWelcome: S.v === 'welcome', vPhone: S.v === 'phone', vSvc: S.v === 'services', vDone: S.v === 'done',
+      start: () => this.setState({ v: 'phone' }), toSvc: () => this.setState({ v: 'services' }), done: () => this.setState({ v: 'done' }),
+      keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '✓'],
+      tiles: [['Manicure', 'from $20'], ['Gel manicure', '$35'], ['Pedicure', 'from $30'], ['Gel pedicure', '$50'], ['Full set', 'from $48'], ['Fill-in', 'from $38'], ['Dip', 'from $45'], ['Not sure', 'ask at desk']]
+        .map((t, i) => ({ label: t[0], sub: t[1], cls: 'tile' + (S.pick === i ? ' on' : ''), pick: () => this.setState({ pick: i }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

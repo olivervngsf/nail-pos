@@ -24,3 +24,7 @@
 .afw{width:1800px;height:900px;display:flex;background:#F5F5F7}
 .afw-screen{position:relative;width:1440px;height:900px;flex:none;overflow:hidden}
 .afw .af-notes{height:900px}
+/* iPad kiosk frame: screen 1024x768 + notes 360 = 1384x768 */
+.afk{width:1384px;height:768px;display:flex;background:#F5F5F7}
+.afk-screen{position:relative;width:1024px;height:768px;flex:none;overflow:hidden}
+.afk .af-notes{height:768px}

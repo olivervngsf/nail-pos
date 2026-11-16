@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Where bookings come from</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.src{width:300px;padding:12px 14px;border-radius:14px;background:#fff;box-shadow:var(--shadow);font-size:14px;line-height:19px;box-sizing:border-box}
+.src b{display:block;font-size:15px}
+.hub{width:300px;padding:18px;border-radius:18px;background:#fff;box-shadow:0 0 0 2px #1C1C1E,var(--shadow);font-size:14px;line-height:20px;box-sizing:border-box}
+.arrow{color:#8E8E93;font-size:28px;display:flex;align-items:center;justify-content:center;width:60px}
+.tagx{display:inline-block;margin-top:6px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#EFEFF2}
+.tagx.new{background:#FDEEE6;color:#B5470A}
+</style>
+</helmet>
+<div style="width:1600px;height:760px;box-sizing:border-box;padding:32px 40px;background:#F5F5F7;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:14px"><div class="h1">Where bookings come from → one calendar</div><span class="cap">Every booking keeps its source</span></div>
+  <div style="display:flex;gap:0;align-items:center;flex:1">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="src"><b>Google Maps / Search</b>“Book online” on the salon's listing<br><span class="tagx new">NEW · V1 or V1.1?</span></div>
+      <div class="src"><b>Website · Instagram · Facebook · TikTok</b>“Book now” button / bio link<br><span class="tagx new">NEW</span></div>
+      <div class="src"><b>Text links</b>Confirmation, reminder, “time for a fill”</div>
+      <div class="src"><b>QR</b>Counter poster, every receipt</div>
+    </div>
+    <div class="arrow">→</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="hub"><b style="font-size:17px">Booking page</b>Photos, rating, hours · services + combos + add-ons · Your visit cart · group · staff · time · phone (welcome back) · inspiration photo<br><span class="tagx">W1–W8</span></div>
+    </div>
+    <div class="arrow">→</div>
+    <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div class="hub" style="width:320px;background:#1C1C1E;color:#fff;box-shadow:var(--shadow)"><b style="font-size:19px">One calendar</b><span style="opacity:.8">Front desk sees every booking with its source, status and texts. Nothing is double-booked.</span><br><span class="tagx" style="background:rgba(255,255,255,.15);color:#fff">D1–D10</span></div>
+      <div class="cap">→ texts: confirmation, reminder (reply C / R), “we're ready”</div>
+    </div>
+    <div class="arrow">←</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="src"><b>Phone call</b>Front desk quick-book card (4 taps)</div>
+      <div class="src"><b>At the salon</b>“Book next visit” after paying</div>
+      <div class="src"><b>Walk-in</b>Check-in iPad at the door → waitlist → drag onto a staff<br><span class="tagx new">NEW · K1–K4</span></div>
+      <div class="src"><b>Owner settings</b>Photos, online services, rules, channels<br><span class="tagx new">NEW · P1–P3</span></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":760}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>
