@@ -13,14 +13,14 @@ Read this first every session. Keep it short; link out for detail.
 - Ideas & Monthly Plan: https://claude.ai/artifact/P8oW1dX4CFQT3tjy8DdaUN
 - Running costs (software, hardware, AI, people; estimates to verify): https://claude.ai/artifact/UioTSft9RRanZRPN9j7qom · board https://claude.ai/artifact/F5RmPXxLS8CRMZEZCeY9jr
 - Experience map (journeys + screen states): https://claude.ai/artifact/Sj5wvmx7KvFTutrJ8k3dDS
-- Whiteboards: experience map (journeys only) https://claude.ai/artifact/PZuEnZcu9UvNHJ1MXWN8Gr · screens (ONE board, low-fi, all screens; ~770/800 items, keep new screens compact) https://claude.ai/artifact/LHG1YGcM7KyLU8WJ9ht7ME · how it works https://claude.ai/artifact/4doaYFSTWrB5vAeA3Z7SAD · feature map https://claude.ai/artifact/4p51HNLiiGwj6dGZL3XgZx
+- Whiteboards: experience map (journeys only) https://claude.ai/artifact/PZuEnZcu9UvNHJ1MXWN8Gr · screens (ONE board, low-fi, all screens; ~787/800 items, nearly full, keep new screens compact) https://claude.ai/artifact/LHG1YGcM7KyLU8WJ9ht7ME · how it works https://claude.ai/artifact/4doaYFSTWrB5vAeA3Z7SAD · feature map https://claude.ai/artifact/4p51HNLiiGwj6dGZL3XgZx
 - Keep docs, whiteboards and this file in sync when scope or stack changes.
 - Every new note/whiteboard: add a row to the Hub table + a "Back to: Nail POS Hub" link in it.
 
 Docs win over this file if they disagree. Update this file when a big decision lands.
 
 ## V1 scope
-1. Checkout in the web app: cash or card by Stripe QR code / pay link; receipt by printer, text or email
+1. Checkout in the web app: cash or card by Stripe QR code / pay link; receipt by printer, text or email; gift cards (sell + use, plastic + text, no expiry) + $/% discounts (issue #14, PRD "Gift cards and discounts")
 2. Tech payout sheet: earnings + tips per tech, cash vs card, check/cash payout split, printable
 3. Vietnamese (staff) / English (customer) toggle
 4. PIN login + clock-in; print own earnings by PIN
@@ -66,6 +66,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Desktop + mobile design; printing from desktop; iOS web Bluetooth printing not relied on.
 - 2026-11-14: Oliver's built calendar page = base front desk design; 10 gaps listed on the Screens board.
 - 2026-11-15: Insight, not autopilot for turns (Gap conflict #3 settled).
+- 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
 
 ## Tracking
 - Build Tracker (status per feature, build order): https://claude.ai/artifact/6DjfxMPXy64uDX8YZdCCnt — keep in sync with GitHub Issues
