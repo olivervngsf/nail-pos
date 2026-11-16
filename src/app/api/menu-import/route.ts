@@ -89,11 +89,13 @@ export async function POST(req: Request) {
       messages: [{ role: "user", content }],
     });
     if (res.stop_reason === "refusal" || !res.parsed_output) return fail(422, "Couldn't read that menu. Try a clearer photo or the nail template.");
+    // ALL-CAPS menus read badly on screens: "REGULAR SPA PEDICURE" → "Regular Spa Pedicure". Mixed case is kept as written.
+    const nice = (t: string) => t.replace(/\b[A-Z][A-Z']{2,}\b/g, (w) => w[0] + w.slice(1).toLowerCase());
     const services = res.parsed_output.services
       .filter((s) => s.name.trim() && s.price_dollars >= 0)
       .map((s) => ({
-        cat: s.category.trim() || "Services",
-        name: s.name.trim(),
+        cat: nice(s.category.trim()) || "Services",
+        name: nice(s.name.trim()),
         minutes: Math.min(300, Math.max(5, Math.round(s.minutes / 5) * 5)),
         priceCents: Math.round(s.price_dollars * 100),
         flag: s.minutes_guessed,
