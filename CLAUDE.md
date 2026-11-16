@@ -21,7 +21,8 @@ Read this first every session. Keep it short; link out for detail.
 - Look (set Nov 16): English first (EN/VI switch in each person's profile), compact Apple-like, client (CRM) panel on checkout, soft fade-in motion, off with reduced motion.
 - Done flows: Checkout https://claude.ai/artifact/ArXa9za1gubGLWzEUH6GLw · Onboarding https://claude.ai/artifact/1A5maZvg44WyCY5gugLVym · Booking https://claude.ai/artifact/VHeTS9Sd81pm1KbTNj9KUb (merged calendar + booking page + kiosk; channels: docs/booking-channels.md)
 - ONE LOOK (Oliver, Nov 16): every board + the app use the Nail POS Design System https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n ; code source = `design/kit/` (`kit.css` tokens+components, `tokens.json`, `rail.py` menu, `annot.css` frames). Font = Inter (Google). README: `design/kit/README.md`. Golden screen = Checkout · Ticket. Never hand-make a menu, bar, button or chip. After each flow: consistency check across all boards. User flags drift with comments starting "Look:".
-- Boards: Main screens (Today, Clients, Close day, Profile) https://claude.ai/artifact/WHUqC6j8z4GLg6r8j3Acs5
+- ALWAYS keep Main Screens up to date (Oliver, Nov 16): after ANY change on a flow board (checkout, booking, …), run `design/kit/sync_main.py` and republish Main Screens; bump its "Last synced" date on the sticky note.
+- Boards: Main screens (Today, Clients, Close day, Profile + copies of Calendar and Checkout) https://claude.ai/artifact/WHUqC6j8z4GLg6r8j3Acs5
 - Building UI: follow `docs/design-spec.md` (tokens, components, motion, every screen + interaction) and the exact source in `design/<flow>/` (`.dc.html` + `pos.css`/`setup.css`). Pixel match; re-copy files into `design/` if the boards change.
 
 ## What we're building
