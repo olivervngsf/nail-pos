@@ -13,7 +13,7 @@ Read this first every session. Keep it short; link out for detail.
 - Ideas & Monthly Plan: https://claude.ai/artifact/P8oW1dX4CFQT3tjy8DdaUN
 - Running costs (software, hardware, AI, people; estimates to verify): https://claude.ai/artifact/UioTSft9RRanZRPN9j7qom · board https://claude.ai/artifact/F5RmPXxLS8CRMZEZCeY9jr
 - Experience map (journeys + screen states): https://claude.ai/artifact/Sj5wvmx7KvFTutrJ8k3dDS
-- Whiteboards: experience map (journeys only) https://claude.ai/artifact/PZuEnZcu9UvNHJ1MXWN8Gr · screens (ONE board, low-fi, all screens; ~788/800 items, nearly full; merge old text before adding) https://claude.ai/artifact/LHG1YGcM7KyLU8WJ9ht7ME · how it works https://claude.ai/artifact/4doaYFSTWrB5vAeA3Z7SAD · feature map https://claude.ai/artifact/4p51HNLiiGwj6dGZL3XgZx
+- Whiteboards: experience map (journeys only) https://claude.ai/artifact/PZuEnZcu9UvNHJ1MXWN8Gr · screens (ONE board, low-fi, all screens; ~797/800 items, FULL; merge old text before adding) https://claude.ai/artifact/LHG1YGcM7KyLU8WJ9ht7ME · how it works https://claude.ai/artifact/4doaYFSTWrB5vAeA3Z7SAD · feature map https://claude.ai/artifact/4p51HNLiiGwj6dGZL3XgZx
 - Keep docs, whiteboards and this file in sync when scope or stack changes.
 - Every new note/whiteboard: add a row to the Hub table + a "Back to: Nail POS Hub" link in it.
 
@@ -27,6 +27,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 5. Client profile by phone number (visits, last service/tech, notes, gift card)
 6. Turn list for walk-ins (moved into V1)
 7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12)
+8. Owner dashboard: top 5 KPIs (sales vs last week, avg ticket, return rate + lost regulars, sales per tech per hour, walk-in wait + walk-outs); full list in PRD "Owner KPIs" (issue #16)
 - Basics: salon setup, staff + pay rates, service menu from a nail template, owner login
 
 ## Design rules
@@ -66,6 +67,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Desktop + mobile design; printing from desktop; iOS web Bluetooth printing not relied on.
 - 2026-11-14: Oliver's built calendar page = base front desk design; 10 gaps listed on the Screens board.
 - 2026-11-15: Insight, not autopilot for turns (Gap conflict #3 settled).
+- 2026-11-16: Owner dashboard (top 5 KPIs, facts only) joins V1.
 - 2026-11-16: Payroll = V1 insights + export; real payroll later via embedded partner (e.g. Check, Gusto Embedded); never build tax filing ourselves.
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
 
