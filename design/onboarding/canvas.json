@@ -86,7 +86,7 @@
   "Services.dc.html": {
    "h": 800,
    "is_interactive": true,
-   "title": "3 · Services from nail template",
+   "title": "3 · Services — link, photo or template",
    "w": 1280,
    "x": 2720,
    "y": 0,
@@ -342,6 +342,15 @@
    "title": "S·12 Clocked in",
    "is_interactive": true,
    "page": "staff"
+  },
+  "Svc6Link.dc.html": {
+   "x": 8600,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "3f · Or: paste your website link → AI imports all services",
+   "is_interactive": true,
+   "page": "owner"
   }
  },
  "createdOnFiles": {
@@ -394,8 +403,8 @@
   },
   "f2": {
    "kind": "title1",
-   "maxW": 8520,
-   "text": "Step 3 Services — snap your menu flow",
+   "maxW": 10240,
+   "text": "Step 3 Services — website link, photo or template",
    "w": 240,
    "x": 0,
    "y": -300,
@@ -428,7 +437,7 @@
   },
   "n3": {
    "fill": "gray",
-   "text": "TAPS · Services (try it in Play)\n• Snap your menu → camera / upload photo or PDF → “Reading your menu…” (green scan line + 4 checks tick)\n• Result list: each row shows what AI read (“read as Gel Mani”); unsure ones orange ▲ (e.g. “50+”, guessed time)\n• Retake photo → back to choose; blurry photo → “Couldn't read it — try closer, less glare”\n• Start from a nail template → template list instead\n• Switch → service off: row dims, count updates; price field → number pad\n• Looks right · Continue → saved; Continue grey until a list exists",
+   "text": "TAPS · Services (try it in Play)\n• Paste your website link → AI reads every service + price → grouped list with orange checks (no times, “$45+”, full set / fill-in split, combos → packages, add-ons, non-nail services)\n• Snap your menu → camera / upload photo or PDF → “Reading your menu…” (green scan line + 4 checks tick)\n• Result list: each row shows what AI read (“read as Gel Mani”); unsure ones orange ▲ (e.g. “50+”, guessed time)\n• Retake photo → back to choose; blurry photo → “Couldn't read it — try closer, less glare”\n• Start from a nail template → template list instead\n• Switch → service off: row dims, count updates; price field → number pad\n• Looks right · Continue → saved; Continue grey until a list exists",
    "w": 620,
    "x": 2720,
    "y": 840,
@@ -580,7 +589,8 @@
   "Sj09Photo.dc.html",
   "Sj10Done.dc.html",
   "Sj11ClockIn.dc.html",
-  "Sj12ClockedIn.dc.html"
+  "Sj12ClockedIn.dc.html",
+  "Svc6Link.dc.html"
  ],
  "pages": [
   {

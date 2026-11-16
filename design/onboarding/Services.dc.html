@@ -42,9 +42,15 @@ body{margin:0}
       <sc-if value="{{vChoose}}" hint-placeholder-val="{{true}}">
         <div class="fade" style="display:flex;flex-direction:column;gap:18px">
           <div class="h1">Add your service menu</div>
-          <div class="cap" style="font-size:15px;margin-top:-10px">No typing needed — snap your menu and we fill it in.</div>
-          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:860px">
-            <button class="pick main" type="button" onClick="{{snap}}">
+          <div class="cap" style="font-size:15px;margin-top:-10px">No typing needed — paste your website link or snap your menu, and we fill it in.</div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:880px">
+            <button class="pick main" type="button" onClick="{{fromLink}}">
+              <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg></span>
+              <span class="h2">Paste your website link</span>
+              <span style="font-size:15px;color:var(--ink-soft)">Your services page, Yelp or booking page. AI reads every service and price.</span>
+              <input value="yoursalon.com/services" aria-label="Website link" style="height:40px;border-radius:10px;border:1px solid var(--line);padding:0 10px;font:inherit;font-size:14px;margin-top:4px">
+            </button>
+            <button class="pick" type="button" onClick="{{snap}}">
               <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
               <span class="h2">Snap your menu</span>
               <span style="font-size:15px;color:var(--ink-soft)">Take a photo of your price board or menu (or upload a picture / PDF). AI reads names, prices and times.</span>
@@ -55,6 +61,36 @@ body{margin:0}
               <span class="h2">Start from a nail template</span>
               <span style="font-size:15px;color:var(--ink-soft)">Common nail services with starting prices. Turn off what you don't do, type your prices.</span>
             </button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{vLink}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:flex-end;gap:16px">
+            <div style="flex:1"><div class="h1">We found 44 services in 7 groups</div><div class="cap" style="font-size:15px;margin-top:4px">From yoursalon.com/services · check the orange ones, then Continue. Nothing is live until you do.</div></div>
+            <button class="btn" type="button" onClick="{{back}}">Use another way</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="tag" style="background:var(--orange-soft);height:28px;padding:0 10px">▲ All 44 have no time listed — we guessed</span>
+            <span class="tag" style="background:var(--orange-soft);height:28px;padding:0 10px">▲ 6 have 2 prices (full set / fill-in) — split in 2</span>
+            <span class="tag" style="background:var(--orange-soft);height:28px;padding:0 10px">▲ 8 say “$45+” — starting price</span>
+            <span class="tag" style="height:28px;padding:0 10px">4 combos → packages</span>
+            <span class="tag" style="height:28px;padding:0 10px">1 add-on</span>
+            <span class="tag" style="height:28px;padding:0 10px">12 waxing &amp; tinting — not nails: keep?</span>
+          </div>
+          <div class="group" style="max-width:940px">
+            <sc-for list="{{linkRows}}" as="r" hint-placeholder-count="9">
+              <sc-if value="{{r.isHead}}" hint-placeholder-val="{{false}}"><div style="padding:8px 16px;background:#FAFAFB;border-bottom:1px solid var(--line)" class="eyebrow">{{r.head}}</div></sc-if>
+              <sc-if value="{{r.isRow}}" hint-placeholder-val="{{true}}">
+                <div class="row" style="min-height:46px;font-size:15px">
+                  <span class="toggle on" aria-hidden="true"></span>
+                  <div class="grow"><b style="font-weight:600">{{r.name}}</b> <span class="cap">{{r.kind}}</span></div>
+                  <sc-if value="{{r.flag}}" hint-placeholder-val="{{false}}"><span class="tag" style="background:var(--orange-soft)">▲ {{r.flagText}}</span></sc-if>
+                  <span class="num" style="width:90px;text-align:right;font-weight:600">{{r.price}}</span>
+                </div>
+              </sc-if>
+            </sc-for>
           </div>
         </div>
       </sc-if>
@@ -155,7 +191,7 @@ body{margin:0}
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["choose","reading","ai","blurry","tpl"],"default":"choose"},"read":{"editor":null},"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["choose","link","reading","ai","blurry","tpl"],"default":"choose"},"read":{"editor":null},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
   constructor(p){ super(p); const m = (p && p.mode) || 'choose'; this.state = { mode: m, read: (p && p.read) || 0, off: m === 'tpl' ? { 5: true } : {} }; }
   componentWillUnmount(){ clearInterval(this.t); }
@@ -191,10 +227,20 @@ class Component extends DCLogic {
     const readSteps = ['Found 8 services in 3 groups', 'Matched names to nail services', 'Read prices and guessed times', 'Flagged 2 to check'];
     const nFlags = isAi ? ai.filter((r) => r[5]).length : 0;
     const listing = S.mode === 'ai' || S.mode === 'tpl';
+    const anyList = listing || S.mode === 'link';
     return {
       steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
       pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
-      vChoose: S.mode === 'choose', vReading: S.mode === 'reading', vList: listing, vBlurry: S.mode === 'blurry',
+      vChoose: S.mode === 'choose', vReading: S.mode === 'reading', vList: listing, vBlurry: S.mode === 'blurry', vLink: S.mode === 'link',
+      fromLink: () => { clearInterval(this.t); this.setState({ mode: 'link' }); },
+      linkRows: [
+        ['h', 'Pedicures · 5'], ['Regular spa pedicure', '', '$38', 'Time guessed: 40 min'], ['Organic spa pedicure', '', '$85', ''],
+        ['h', 'Gel color · 7'], ['Gel color manicure', '', '$45', ''], ['Gel manicure + gel pedicure', '· combo → package of 2', '$98', ''],
+        ['h', 'Add-ons · 3'], ['French tip', '· add-on', '+$7', 'Was “$7 Extra”'],
+        ['h', 'Nail enhancements · 12'], ['Acrylic — full set', '', '$48', 'Split from 2 prices'], ['Acrylic — fill-in', '', '$38', 'Split from 2 prices'],
+        ['h', 'Waxing & tinting · 12 (not nails)'], ['Full legs', '', 'from $75', 'Said “$75+” — set starting price'],
+        ['h', 'Skipped · 1'], ['Special events / parties', '· no price', '—', 'Not imported — add later']
+      ].map((r) => r[0] === 'h' ? { isHead: true, isRow: false, head: r[1] } : { isHead: false, isRow: true, name: r[0], kind: r[1], price: r[2], flag: !!r[3], flagText: r[3] }),
       blur: () => { clearInterval(this.t); this.setState({ mode: 'blurry' }); },
       reads: readSteps.map((label, i) => ({ label, ok: i < S.read, wait: i >= S.read })),
       listTitle: isAi ? 'We read 8 services from your menu' : 'Your service menu',
@@ -202,8 +248,8 @@ class Component extends DCLogic {
       switchLabel: isAi ? 'Retake photo' : 'Snap menu instead',
       rows, count: rows.filter((r, i) => !off[i]).length,
       flags: isAi ? nFlags + ' to check' : 'edit anytime in Settings',
-      contStyle: listing ? 'width:220px' : 'width:220px;opacity:.35;pointer-events:none',
-      contLabel: isAi ? 'Looks right · Continue' : 'Continue',
+      contStyle: anyList ? 'width:220px' : 'width:220px;opacity:.35;pointer-events:none',
+      contLabel: isAi || S.mode === 'link' ? 'Looks right · Continue' : 'Continue',
       snap: () => {
         this.setState({ mode: 'reading', read: 0 });
         clearInterval(this.t);

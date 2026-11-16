@@ -1,0 +1,253 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-16T17:45:00Z"
+ },
+ "title": "Nail POS — Booking Flow",
+ "launch": {
+  "view": "canvas",
+  "page": "overview"
+ },
+ "pages": [
+  {
+   "id": "overview",
+   "name": "1 · Overview — clickable screens"
+  },
+  {
+   "id": "desk",
+   "name": "2 · Front desk — step by step"
+  },
+  {
+   "id": "client",
+   "name": "3 · Client booking link — step by step"
+  }
+ ],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "Day calendar + quick-add (4 taps)",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "BookPhone.dc.html": {
+   "x": 1360,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Client booking link (phone)",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Sms.dc.html": {
+   "x": 1830,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Texts: confirm + reminder",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Bk1Day.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "B1 · Day calendar",
+   "is_interactive": true,
+   "page": "desk"
+  },
+  "Bk2Client.dc.html": {
+   "x": 1720,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "B2 · Tap slot → pick client",
+   "is_interactive": true,
+   "page": "desk"
+  },
+  "Bk3Service.dc.html": {
+   "x": 3440,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "B3 · Pick service",
+   "is_interactive": true,
+   "page": "desk"
+  },
+  "Bk4Review.dc.html": {
+   "x": 5160,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "B4 · Check → Book (4th tap)",
+   "is_interactive": true,
+   "page": "desk"
+  },
+  "Bk5Conflict.dc.html": {
+   "x": 6880,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "B5 · If it overlaps",
+   "is_interactive": true,
+   "page": "desk"
+  },
+  "Bk6Booked.dc.html": {
+   "x": 8600,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "B6 · Booked + Undo",
+   "is_interactive": true,
+   "page": "desk"
+  },
+  "Bk7Detail.dc.html": {
+   "x": 10320,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "B7 · Tap a booking → details",
+   "is_interactive": true,
+   "page": "desk"
+  },
+  "Cl1Service.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "C1 · Pick service",
+   "is_interactive": true,
+   "page": "client"
+  },
+  "Cl2Staff.dc.html": {
+   "x": 830,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "C2 · Pick staff",
+   "is_interactive": true,
+   "page": "client"
+  },
+  "Cl3Time.dc.html": {
+   "x": 1660,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "C3 · Pick time",
+   "is_interactive": true,
+   "page": "client"
+  },
+  "Cl4Details.dc.html": {
+   "x": 2490,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "C4 · Name + phone",
+   "is_interactive": true,
+   "page": "client"
+  },
+  "Cl5Done.dc.html": {
+   "x": 3320,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "C5 · Booked",
+   "is_interactive": true,
+   "page": "client"
+  },
+  "Cl6Manage.dc.html": {
+   "x": 4150,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "C6 · Change / cancel",
+   "is_interactive": true,
+   "page": "client"
+  },
+  "Cl7Texts.dc.html": {
+   "x": 4980,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "C7 · Confirm + reminder texts",
+   "is_interactive": true,
+   "page": "client"
+  },
+  "Cl8Confirmed.dc.html": {
+   "x": 5810,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "C8 · Replied C",
+   "is_interactive": true,
+   "page": "client"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "BookPhone.dc.html",
+  "Sms.dc.html",
+  "Bk1Day.dc.html",
+  "Bk2Client.dc.html",
+  "Bk3Service.dc.html",
+  "Bk4Review.dc.html",
+  "Bk5Conflict.dc.html",
+  "Bk6Booked.dc.html",
+  "Bk7Detail.dc.html",
+  "Cl1Service.dc.html",
+  "Cl2Staff.dc.html",
+  "Cl3Time.dc.html",
+  "Cl4Details.dc.html",
+  "Cl5Done.dc.html",
+  "Cl6Manage.dc.html",
+  "Cl7Texts.dc.html",
+  "Cl8Confirmed.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "Booking — front desk + client link",
+   "kind": "title1",
+   "maxW": 2220,
+   "page": "overview"
+  },
+  "s1": {
+   "x": -520,
+   "y": 0,
+   "w": 420,
+   "fill": "orange",
+   "page": "overview",
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nV1 booking (issue #12)\n• Day calendar: staff columns, facts only (insight, not autopilot)\n• Staff quick-add in 4 taps: slot → client → service → Book\n• Online booking link for clients (no app, no account)\n• Text confirm + reminder; reply C / R; STOP always works\n• English first; VI in each person's profile\n• Page 2 = front desk frame by frame (with notes)\n• Page 3 = client booking link frame by frame\n\nOpen\n• Deposit / no-show fee? (not in V1)\n• How far ahead clients can book (proposal 30 days)\n• Reminder timing (proposal 24 h + 2 h)"
+  },
+  "d1": {
+   "x": 0,
+   "y": -300,
+   "text": "Front desk — book in 4 taps, every state",
+   "kind": "title1",
+   "maxW": 11960,
+   "page": "desk"
+  },
+  "c1": {
+   "x": 0,
+   "y": -300,
+   "text": "Client booking link — on their phone, step by step",
+   "kind": "title1",
+   "maxW": 6560,
+   "page": "client"
+  }
+ },
+ "designSystems": [
+  {
+   "title": "Nail Salon OS Design System",
+   "namespace": "nailsalonosdesignsystem_afaa02",
+   "artifact": "https://claude.ai/artifact/FAPieCxsXFJvSAyzgZ4b2L",
+   "version": null,
+   "copiedAt": "2026-11-16T17:45:00Z"
+  }
+ ]
+}
