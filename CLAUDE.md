@@ -1,6 +1,16 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # Nail POS — project memory
 
 Read this first every session. Keep it short; link out for detail.
+
+## Repo state (2026-11-16)
+- No app code yet: repo = this file + `docs/` (affinity map, tools list, hardware list). No build, lint or test commands exist.
+- Planning lives in claude.ai artifacts (links below), not in the repo. Read them with the Artifact tool (`action: read`), not web fetch.
+- When the first code lands: add build/dev/test/single-test commands and a short architecture map here.
+- Supabase + Vercel + Stripe + GitHub MCP tools are connected in Claude sessions; use them for infra setup instead of asking the user to click through dashboards.
 
 ## What we're building
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
