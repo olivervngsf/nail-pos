@@ -30,37 +30,46 @@ body{margin:0}
     <a class="on" href="GiftSetup.dc.html" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
   </nav>
   <div class="col">
-    <header class="bar"><a class="btn ghost" href="#" style="height:36px;padding:0 10px">‹ Gift cards</a><div class="title">All gift card codes</div><button class="btn" type="button" style="height:36px;font-size:14px">Export CSV</button><button class="btn primary" type="button" onClick="{{openGen}}" style="height:38px;font-size:14px;padding:0 14px">Make codes for printing</button></header>
+    <header class="bar"><a class="btn ghost" href="GiftSetup.dc.html" style="height:36px;padding:0 10px">‹ Gift cards</a><div class="title">All gift card codes</div><button class="btn" type="button" style="height:36px;font-size:14px">Export CSV</button><button class="btn primary" type="button" onClick="{{openGen}}" style="height:38px;font-size:14px;padding:0 14px">Make + print cards</button></header>
     <main style="flex:1;display:flex;flex-direction:column;gap:12px;padding:20px 24px;min-height:0">
       <div style="display:flex;gap:8px;align-items:center;height:36px"><sc-for list="{{filters}}" as="f" hint-placeholder-count="6"><button class="{{f.cls}}" type="button" onClick="{{f.pick}}">{{f.label}}</button></sc-for><span style="flex:1"></span><input class="inp" placeholder="Last 4, phone or name" aria-label="Search codes" style="width:240px;height:36px;font-size:14px"></div>
       <div class="group" style="flex:1;min-height:0;overflow:hidden">
         <table class="dtable"><thead><tr><th>Card</th><th>Made by</th><th>Status</th><th class="r">Balance</th><th>Sold</th><th>To / from</th><th>Last used</th></tr></thead>
-        <tbody><sc-for list="{{rows}}" as="r" hint-placeholder-count="12"><tr><td><b class="code">•••• {{r.l4}}</b> <span class="cap">{{r.kind}}</span></td><td class="cap">{{r.src}}</td><td><span class="stt" style="{{r.sty}}">{{r.st}}</span></td><td class="r"><b>{{r.bal}}</b></td><td>{{r.sold}}</td><td>{{r.to}}</td><td>{{r.used}}</td></tr></sc-for></tbody></table>
+        <tbody><sc-for list="{{rows}}" as="r" hint-placeholder-count="12"><tr><td><b class="code">•••• {{r.l4}}</b> <span class="cap">{{r.kind}}</span><sc-if value="{{r.canRe}}" hint-placeholder-val="{{false}}"> <button class="btn" type="button" onClick="{{r.re}}" style="height:24px;font-size:12px;padding:0 8px;margin-left:6px">Back to stock</button></sc-if></td><td class="cap">{{r.src}}</td><td><span class="stt" style="{{r.sty}}">{{r.st}}</span></td><td class="r"><b>{{r.bal}}</b></td><td>{{r.sold}}</td><td>{{r.to}}</td><td>{{r.used}}</td></tr></sc-for></tbody></table>
       </div>
       <div class="cap" style="display:flex;gap:18px"><span><b style="color:#1C1C1E">$2,340 owed</b> on 61 active cards</span><span>186 plastic in stock ($0)</span><span>412 used up</span><span>3 locked / replaced</span><span>Full codes are hidden; tap a row for details + history</span></div>
     </main>
   </div>
   <sc-if value="{{showGen}}" hint-placeholder-val="{{false}}"><div class="scrim"></div><div class="dlg" role="dialog" aria-label="Make codes for printing">
-    <b style="font-size:18px">Make codes for plastic cards</b>
-    <div class="cap" style="font-size:14px">The system makes the numbers; you send the file to the card printer. Nobody types or invents a code.</div>
+    <b style="font-size:18px">Make + print gift cards</b>
+    <div class="cap" style="font-size:14px">The system makes every number. Pick how to print it:</div>
+    <div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ways}}" as="w" hint-placeholder-count="3"><button class="{{w.cls}}" type="button" onClick="{{w.pick}}" style="padding:12px 14px;border-radius:14px"><b>{{w.n}}</b><span class="cap">{{w.d}}</span></button></sc-for></div>
     <div style="display:flex;align-items:center;gap:12px;font-size:15px"><span style="flex:1">How many cards</span><span class="stepper"><button class="btn" type="button" aria-label="Less">−</button><b>200</b><button class="btn" type="button" aria-label="More">+</button></span></div>
-    <div class="group" style="box-shadow:none;border:1px solid var(--line)"><div class="row s"><span class="g">First</span><span class="code">MAIN 4821 7730 0193</span></div><div class="row s"><span class="g">Last</span><span class="code">MAIN 9046 2215 8870</span></div></div>
-    <div class="cap">Random, not in order. Added now as <b>In stock, $0</b>; a printed card only gets money when it is sold at checkout.</div>
-    <div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" type="button" onClick="{{closeGen}}">Cancel</button><button class="btn primary" type="button" onClick="{{closeGen}}" style="height:44px;font-size:15px">Make 200 + download for printer</button></div>
+        <div class="cap">Random, not in order. Added now as <b>In stock, $0</b>; a printed card only gets money when it is sold at checkout.</div>
+    <div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" type="button" onClick="{{closeGen}}">Cancel</button><button class="btn primary" type="button" onClick="{{closeGen}}" style="height:44px;font-size:15px">{{genBtn}}</button></div>
+  </div></sc-if>
+  <sc-if value="{{showRe}}" hint-placeholder-val="{{false}}"><div class="scrim"></div><div class="dlg" style="top:200px" role="dialog" aria-label="Put back in stock">
+    <b style="font-size:18px">Put card •••• 0131 back in stock?</b>
+    <div class="group" style="box-shadow:none;border:1px solid var(--line)"><div class="row s"><span class="g">Now</span><b>Used up · $0.00</b></div><div class="row s"><span class="g">History</span><span class="cap">Sold Sep 2 by Kim · used up Oct 30 · Ruby Tran</span></div></div>
+    <div class="cap" style="font-size:14px;line-height:20px">It becomes <b>In stock, $0</b> and is unlinked from Ruby's phone. Its old sales stay in history. Only plastic cards with $0 can go back; a card with money left must be used or replaced first.</div>
+    <div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" type="button" onClick="{{closeRe}}">Cancel</button><button class="btn primary" type="button" onClick="{{closeRe}}" style="height:44px;font-size:15px">Put back in stock</button></div>
   </div></sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"gen":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"gen":{"editor":"boolean","default":false},"recycle":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
-  constructor(p){ super(p); this.state = { f: 'All', gen: !!(p && p.gen) }; }
+  constructor(p){ super(p); this.state = { f: 'All', gen: !!(p && p.gen), re: !!(p && p.recycle), w: 'printer' }; }
   renderVals() {
     const S = this.state;
     const ST = { 'In stock': 'background:#EFEFF2;color:#1C1C1E', 'Active': 'background:#EAF5EC;color:#1F7A33', 'Used up': 'background:#F5F5F7;color:#5C5C5E', 'Locked': 'background:#FCEAEA;color:#C92A2A', 'Replaced': 'background:#F5F5F7;color:#5C5C5E', 'Voided': 'background:#F5F5F7;color:#5C5C5E' };
-    const R = [['2T4F', 'digital', 'System, at sale', 'Active', '$50.00', 'Nov 2 · Linh', 'Mai Pham ← Lan Tran', '—'], ['8MQD', 'digital', 'System, at sale', 'Active', '$35.00', 'Nov 10 · Kim', 'Thu Le (replaced 2T7A)', 'Nov 12'], ['0147', 'plastic', 'System, printed', 'Active', '$100.00', 'Nov 15 · Linh', 'Walk-in (no phone)', '—'], ['9XRA', 'digital', 'System, at sale', 'Active', '$12.50', 'Oct 3 · Ngọc', 'Anna Kim', 'Nov 9'], ['0148', 'plastic', 'System, printed', 'In stock', '$0.00', '—', '—', '—'], ['0149', 'plastic', 'System, printed', 'In stock', '$0.00', '—', '—', '—'], ['K2PW', 'digital', 'System, at sale', 'Used up', '$0.00', 'Sep 20 · Linh', 'Jen Park', 'Nov 1'], ['2T7A', 'digital', 'System, at sale', 'Replaced', '$0.00', 'Oct 28 · Kim', 'Thu Le → 8MQD', '—'], ['0102', 'plastic', 'System, printed', 'Locked', '$40.00', 'Oct 2 · Hoa', 'Ruby Tran (lost Nov 14)', 'Oct 30'], ['H7NB', 'digital', 'System, at sale', 'Voided', '$0.00', 'Nov 6 · Linh', 'sale undone same day', '—'], ['MGR1', 'old paper', 'Owner, migrated', 'Active', '$25.00', 'Added Nov 1 · Mai', 'old certificate #118', '—'], ['Q4VC', 'digital', 'System, at sale', 'Used up', '$0.00', 'Aug 30 · Kim', 'Mia Do', 'Oct 15']];
+    const R = [['2T4F', 'digital', 'System, at sale', 'Active', '$50.00', 'Nov 2 · Linh', 'Mai Pham ← Lan Tran', '—'], ['8MQD', 'digital', 'System, at sale', 'Active', '$35.00', 'Nov 10 · Kim', 'Thu Le (replaced 2T7A)', 'Nov 12'], ['0147', 'plastic', 'System, printed', 'Active', '$100.00', 'Nov 15 · Linh', 'Walk-in (no phone)', '—'], ['9XRA', 'digital', 'System, at sale', 'Active', '$12.50', 'Oct 3 · Ngọc', 'Anna Kim', 'Nov 9'], ['0148', 'plastic', 'System, printed', 'In stock', '$0.00', '—', '—', '—'], ['0149', 'plastic', 'System, printed', 'In stock', '$0.00', '—', '—', '—'], ['K2PW', 'digital', 'System, at sale', 'Used up', '$0.00', 'Sep 20 · Linh', 'Jen Park', 'Nov 1'], ['2T7A', 'digital', 'System, at sale', 'Replaced', '$0.00', 'Oct 28 · Kim', 'Thu Le → 8MQD', '—'], ['0102', 'plastic', 'System, printed', 'Locked', '$40.00', 'Oct 2 · Hoa', 'Ruby Tran (lost Nov 14)', 'Oct 30'], ['H7NB', 'digital', 'System, at sale', 'Voided', '$0.00', 'Nov 6 · Linh', 'sale undone same day', '—'], ['MGR1', 'old paper', 'Owner, migrated', 'Active', '$25.00', 'Added Nov 1 · Mai', 'old certificate #118', '—'], ['Q4VC', 'digital', 'System, at sale', 'Used up', '$0.00', 'Aug 30 · Kim', 'Mia Do', 'Oct 15'], ['0131', 'plastic', 'System, printed', 'Used up', '$0.00', 'Sep 2 · Kim', 'Ruby Tran', 'Oct 30']];
     const keep = (r) => S.f === 'All' || r[3] === S.f || (S.f === 'Locked / replaced' && (r[3] === 'Locked' || r[3] === 'Replaced'));
     return {
       filters: [['All', 662], ['Active', 61], ['In stock', 186], ['Used up', 412], ['Locked / replaced', 3]].map((f) => ({ label: f[0] + ' ' + f[1], cls: 'chip' + (S.f === f[0] ? ' on' : ''), pick: () => this.setState({ f: f[0] }) })),
-      rows: R.filter(keep).map((r) => ({ l4: r[0], kind: r[1], src: r[2], st: r[3], sty: ST[r[3]], bal: r[4], sold: r[5], to: r[6], used: r[7] })),
+      rows: R.filter(keep).map((r) => ({ canRe: r[1] === 'plastic' && r[3] === 'Used up', re: () => this.setState({ re: true }), l4: r[0], kind: r[1], src: r[2], st: r[3], sty: ST[r[3]], bal: r[4], sold: r[5], to: r[6], used: r[7] })),
+      showRe: S.re, closeRe: () => this.setState({ re: false }),
+      ways: [['printer', 'Plastic cards from a card printer', 'Download a file of numbers + barcodes for the printer'], ['sticker', 'Stickers for blank cards', 'Print code + QR labels on the label printer, stick on any card'], ['paper', 'Paper card on the receipt printer', 'Prints right away at the desk: salon name, amount, code + QR']].map((w) => ({ n: w[1], d: w[2], cls: 'pick' + (S.w === w[0] ? ' on' : ''), pick: () => this.setState({ w: w[0] }) })),
+      genBtn: S.w === 'printer' ? 'Make 200 + download file' : S.w === 'sticker' ? 'Make 50 + print stickers' : 'Make 1 + print now',
       showGen: S.gen, openGen: () => this.setState({ gen: true }), closeGen: () => this.setState({ gen: false })
     };
   }

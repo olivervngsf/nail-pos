@@ -27,12 +27,12 @@ body{margin:0}
   </nav>
   <div class="col">
     <header class="bar"><div class="title">Checkout · Ticket #1062</div><span class="pill ok"><span class="dot"></span>Online</span><div class="who"><span class="av">L</span>Linh</div></header>
-    <sc-if value="{{paid}}" hint-placeholder-val="{{false}}"><div class="banner ok" style="height:44px;font-size:14px"><b>Paid $95.00.</b> Gift card •••• 2T4F is now Active · $50 · text sent to (408) 555-0199.</div></sc-if>
+    <sc-if value="{{paid}}" hint-placeholder-val="{{false}}"><div class="banner ok" style="height:44px;font-size:14px"><b>Paid $95.00.</b> Gift card •••• 2T4F is now Active · $50 · text sent to (408) 555-0199. <a href="GiftPhone.dc.html" style="font-weight:700;margin-left:8px">See what Mai gets ›</a></div></sc-if>
     <main style="flex:1;display:flex;gap:16px;padding:20px 24px;min-height:0">
       <section style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0">
         <div class="group">
           <div class="row"><span class="g">Gel color manicure · Kim</span><span class="num">$45.00</span></div>
-          <sc-if value="{{hasLine}}" hint-placeholder-val="{{true}}"><div class="row fade"><span class="g">Gift card •••• 2T4F · {{kindLabel}}<span class="cap">No tech · no points · no tip</span></span><span class="num">$50.00</span></div></sc-if>
+          <sc-if value="{{hasLine}}" hint-placeholder-val="{{true}}"><div class="row fade"><span class="g">{{lineLabel}}<span class="cap">No tech · no points · no tip</span></span><span class="num">$50.00</span></div></sc-if>
         </div>
         <div class="group"><div class="row"><b class="g" style="font-size:18px">Total</b><b class="num" style="font-size:22px">{{total}}</b></div></div>
         <div class="cap">The card turns Active only when this ticket is paid. Not paid = the card stays $0.</div>
@@ -41,10 +41,11 @@ body{margin:0}
       </section>
       <aside style="width:380px;display:flex;flex-direction:column;gap:12px">
         <div class="card pad">
-          <div class="eyebrow">Sell a gift card</div>
+          <div class="eyebrow">Gift card</div>
           <div style="display:flex;gap:8px"><button class="chip" type="button">$25</button><button class="chip on" type="button">$50</button><button class="chip" type="button">$100</button><button class="chip" type="button">Custom</button></div>
           <div class="seg" style="align-self:flex-start"><sc-for list="{{kinds}}" as="k" hint-placeholder-count="2"><span class="{{k.cls}}" onClick="{{k.pick}}" style="cursor:pointer">{{k.label}}</span></sc-for></div>
           <sc-if value="{{digital}}" hint-placeholder-val="{{true}}"><div style="display:flex;flex-direction:column;gap:8px"><label class="lbl" style="margin:0">Send to (phone or email)</label><input class="inp" value="(408) 555-0199" aria-label="Send to"><div class="cap">From Lan · “Happy birthday, Mai!”</div></div></sc-if>
+          <sc-if value="{{reload}}" hint-placeholder-val="{{false}}"><div style="display:flex;flex-direction:column;gap:8px"><div class="scanbox">Scan, type the code, or find by phone</div><div style="background:var(--surface);border-radius:10px;padding:10px 12px;font-size:14px;line-height:20px"><b>•••• 0147 · plastic · Active</b><span class="cap" style="display:block">Balance $12.00 → after adding $50: <b style="color:#1C1C1E">$62.00</b> · linked to Lan Tran</span></div></div></sc-if>
           <sc-if value="{{plastic}}" hint-placeholder-val="{{false}}"><div style="display:flex;flex-direction:column;gap:8px"><div class="scanbox">Scan the card now</div><div style="background:var(--jade-soft);border-radius:10px;padding:8px 10px;font-size:14px">•••• 0147 found · In stock, $0 ✓</div></div></sc-if>
           <button class="btn block" type="button" onClick="{{add}}">Add to ticket</button>
         </div>
@@ -54,15 +55,15 @@ body{margin:0}
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"step":{"editor":"enum","options":["pick","ready","paid"],"default":"ready"},"kind":{"editor":"enum","options":["digital","plastic"],"default":"digital"},"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"step":{"editor":"enum","options":["pick","ready","paid"],"default":"ready"},"kind":{"editor":"enum","options":["digital","plastic","reload"],"default":"digital"},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { s: (p && p.step) || 'ready', k: (p && p.kind) || 'digital' }; }
   renderVals() {
     const S = this.state, line = S.s !== 'pick';
     return { hasLine: line, paid: S.s === 'paid', total: line ? '$95.00' : '$45.00', payLabel: S.s === 'paid' ? 'Print or text receipt' : 'Charge ' + (line ? '$95.00' : '$45.00'),
       pay: () => this.setState({ s: 'paid' }), add: () => this.setState({ s: 'ready' }),
-      digital: S.k === 'digital', plastic: S.k === 'plastic', kindLabel: S.k === 'digital' ? 'digital' : 'plastic',
-      kinds: [['Digital', 'digital'], ['Plastic', 'plastic']].map((x) => ({ label: x[0], cls: S.k === x[1] ? 'on' : '', pick: () => this.setState({ k: x[1] }) })) };
+      digital: S.k === 'digital', plastic: S.k === 'plastic', reload: S.k === 'reload', lineLabel: S.k === 'reload' ? 'Add money to gift card •••• 0147' : 'Gift card •••• ' + (S.k === 'plastic' ? '0147 · plastic' : '2T4F · digital'),
+      kinds: [['New digital', 'digital'], ['New plastic', 'plastic'], ['Add money', 'reload']].map((x) => ({ label: x[0], cls: S.k === x[1] ? 'on' : '', pick: () => this.setState({ k: x[1] }) })) };
   }
 }
 </script>

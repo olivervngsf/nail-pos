@@ -34,6 +34,7 @@ body{margin:0}
           <sc-if value="{{used}}" hint-placeholder-val="{{false}}"><div class="row minus fade"><span class="g">Gift card •••• 2T4F<span class="cap">Balance after: $0.00</span></span><span class="num">−$50.00</span></div></sc-if>
         </div>
         <div class="group"><div class="row"><b class="g" style="font-size:18px">{{leftLabel}}</b><b class="num" style="font-size:22px">{{left}}</b></div></div>
+        <sc-if value="{{used}}" hint-placeholder-val="{{false}}"><a href="GiftList.dc.html" class="cap" style="font-weight:700">Owner: see this card in All codes ›</a></sc-if>
         <div class="cap">Kim is paid on the full $83. Points are earned on the service ($83), not on how it was paid.</div>
         <div style="flex:1"></div>
         <div style="display:flex;gap:10px"><button class="btn primary" type="button" style="flex:1">{{payBtn}}</button><button class="btn" type="button" style="height:52px;flex:none;padding:0 22px">Cash</button></div>

@@ -359,6 +359,33 @@
    "title": "G16 · Card refused, plain reason",
    "is_interactive": true,
    "page": "gift"
+  },
+  "Gc17Reload.dc.html": {
+   "x": 23070,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G17 · Add money to an existing card (reload)",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc18Print.dc.html": {
+   "x": 24790,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G18 · Make + print gift cards (3 ways)",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc19Recycle.dc.html": {
+   "x": 26510,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G19 · Reuse a plastic card (back to stock)",
+   "is_interactive": true,
+   "page": "gift"
   }
  },
  "order": [
@@ -398,7 +425,10 @@
   "Gc13Cards.dc.html",
   "Gc14Add.dc.html",
   "Gc15Added.dc.html",
-  "Gc16Error.dc.html"
+  "Gc16Error.dc.html",
+  "Gc17Reload.dc.html",
+  "Gc18Print.dc.html",
+  "Gc19Recycle.dc.html"
  ],
  "notes": {
   "t1": {
@@ -436,9 +466,9 @@
   "tg2": {
    "x": 0,
    "y": -300,
-   "text": "Gift cards: setup, sell, use, refuse, lost, code list, client adds a card (G1–G16)",
+   "text": "Gift cards: setup, sell, reload, use, refuse, lost, codes, print, reuse, client adds (G1–G19)",
    "kind": "title1",
-   "maxW": 22990,
+   "maxW": 28150,
    "page": "gift"
   },
   "sg": {
@@ -456,6 +486,14 @@
    "fill": "orange",
    "page": "doc",
    "text": "Live doc (edit + comments): https://claude.ai/artifact/GKRwnoiAkv5pTHk8rQFUby\n\nThis page is a copy for quick review. If they differ, the live doc wins."
+  },
+  "play": {
+   "x": -520,
+   "y": -300,
+   "w": 420,
+   "fill": "green",
+   "page": "overview",
+   "text": "CLICK-THROUGH PROTOTYPE\nPress Play on “Owner · Loyalty settings” and follow the links:\nLoyalty → Gift cards › → All codes › (Make + print, Back to stock) → Checkout (menu) → sell, add money → Paid → See what Mai gets › → Open my client page › → Add a gift card → At the salon › → Use $50 → Owner: All codes ›\nLoyalty path: Checkout reward → Next client: package + perk › → What the client sees › → My gift cards ›"
   }
  },
  "designSystems": [
