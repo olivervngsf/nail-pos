@@ -14,21 +14,22 @@
 <div class="afp">
   <div class="afp-screen">
     <dc-import name="StaffInvite" at="pin" hint-size="390px,844px"></dc-import>
-    <sc-for list="{{pins}}" as="p" hint-placeholder-count="3"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="3"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
   </div>
-  <aside class="af-notes">
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
     <div class="eyebrow">Annotations · S·5</div>
     <div class="af-title">Make a 4-digit PIN</div>
     <sc-for list="{{pins}}" as="p" hint-placeholder-count="3"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
     <div class="af-next">4th digit → check: too easy → S·6, else → S·7. OPEN: PIN or phone number — confirm with Elang.</div>
-  </aside>
+  </div></sc-if></aside>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":750,"height":844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":750,"height":844}}'>
 class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
     const P = [[195, 140, "What it's for: clock in + see pay."], [195, 172, "4 dots fill as they tap (2 shown)."], [195, 380, "Big round keys (64 px), press shrinks slightly. ⌫ deletes."]];
-    return { yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }
 </script>

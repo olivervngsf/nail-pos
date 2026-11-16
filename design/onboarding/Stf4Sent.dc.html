@@ -15,18 +15,19 @@
 <div class="af">
   <div class="af-screen">
     <dc-import name="Staff" scenario="sent" hint-size="1280px,800px"></dc-import>
-    <sc-for list="{{pins}}" as="p" hint-placeholder-count="5"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="5"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
   </div>
-  <aside class="af-notes">
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
     <div class="eyebrow">Annotations · 4d</div>
     <div class="af-title">Invite sent</div>
     <sc-for list="{{pins}}" as="p" hint-placeholder-count="5"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
     <div class="af-next">Next → 4e: tap any person to see their invite.</div>
-  </aside>
+  </div></sc-if></aside>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":1640,"height":800}}'>
 class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
     const P = [
       [372, 404, 'New row slides up at the bottom with a soft green flash (1.6 s).'],
@@ -35,7 +36,7 @@ class Component extends DCLogic {
       [960, 676, 'Undo (within 6 s) → row removed and the text cancelled.'],
       [900, 762, 'Footer updates: “N invites waiting — they can finish later”.']
     ];
-    return { pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }
 </script>

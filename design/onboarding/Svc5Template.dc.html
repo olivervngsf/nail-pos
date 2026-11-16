@@ -15,18 +15,19 @@
 <div class="af">
   <div class="af-screen">
     <dc-import name="Services" mode="tpl" hint-size="1280px,800px"></dc-import>
-    <sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
   </div>
-  <aside class="af-notes">
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
     <div class="eyebrow">Annotations · 3e</div>
     <div class="af-title">Nail template list</div>
     <sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
     <div class="af-next">Continue → Step 4 Staff. Services can be edited later in Settings.</div>
-  </aside>
+  </div></sc-if></aside>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":1640,"height":800}}'>
 class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
     const P = [
       [372, 432, 'Starts with common nail services; one is off by default to show the switch.'],
@@ -34,7 +35,7 @@ class Component extends DCLogic {
       [1190, 100, 'Snap menu instead → back to 3a.'],
       [620, 546, '+ Add a service → edit sheet (name, time, price, who can do it). Count updates live.']
     ];
-    return { pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }
 </script>

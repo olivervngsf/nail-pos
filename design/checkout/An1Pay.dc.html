@@ -14,21 +14,22 @@
 <div class="af">
   <div class="af-screen">
     <dc-import name="Pay"  hint-size="1280px,800px"></dc-import>
-    <sc-for list="{{pins}}" as="p" hint-placeholder-count="6"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="6"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
   </div>
-  <aside class="af-notes">
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
     <div class="eyebrow">Annotations · 2</div>
     <div class="af-title">Choose how to pay</div>
     <sc-for list="{{pins}}" as="p" hint-placeholder-count="6"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
     <div class="af-next">Reader offline → Card tile greys out with “Reader offline · use QR or cash”.</div>
-  </aside>
+  </div></sc-if></aside>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":1640,"height":800}}'>
 class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
     const P = [[520, 230, "Big amount due ($65.00) + “+ tip”: the client's tip is added on the reader or pay link."], [250, 330, "Card reader → sends the amount to the reader at once (3a). Fee shown on the tile: 2.7% + 5¢, salon pays."], [700, 330, "Cash → Cash screen (3b). No fee, works offline."], [250, 530, "QR / pay link → QR on the salon phone + optional text link (P1). Backup when the reader is down."], [700, 530, "Split → part cash, part card (not designed yet)."], [110, 28, "‹ Ticket → back, nothing charged. Tiles lift slightly on hover."]];
-    return { yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }
 </script>
