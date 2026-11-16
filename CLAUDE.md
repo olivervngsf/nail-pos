@@ -84,6 +84,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-16: System design: one person = one account (phone); membership links person to salon + role + PIN; salon devices use name + PIN; every row has salon_id + row-level security; money in cents; nothing deleted; Stripe Connect, salon's own account, webhook confirms paid; daily money report = zero surprises.
 - 2026-11-16: Owner dashboard (top 5 KPIs, facts only) joins V1.
 - 2026-11-16: Payroll = V1 insights + export; real payroll later via embedded partner (e.g. Check, Gusto Embedded); never build tax filing ourselves.
+- 2026-11-16: Login codes = one shared Twilio Verify service "Nail POS" (VAb56fc1d9860fc18f78f1c4190af9d2a3) for all salons/people. Salon customer texts = separate local number per salon + A2P 10DLC, set up per salon on setup day (Claude to help; issue #26). Next: plug Verify into Supabase Phone auth.
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
 
 ## Tracking
