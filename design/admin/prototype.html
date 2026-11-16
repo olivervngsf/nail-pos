@@ -227,6 +227,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 .logl{display:flex;gap:10px;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}.logl:last-child{border-bottom:0}.logl .t{width:64px;color:var(--ink-soft);flex:none}
 .qr{width:92px;height:92px;flex:none;border-radius:10px;background:#fff;display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:8px;box-sizing:border-box}
 .qr i{background:var(--ink);border-radius:1px}.qr i.o{background:transparent}
+.mebtn{border:0;background:transparent;padding:4px;border-radius:50%;cursor:pointer}.mebtn:hover .av{box-shadow:0 0 0 2px var(--line)}
+.mescrim{position:absolute;inset:0;z-index:30}
+.mepop{position:absolute;left:84px;bottom:14px;width:440px;background:#fff;border-radius:18px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.05);z-index:31;overflow:hidden;animation:fadeIn .2s ease}
+.mepop .hrow{min-height:46px;font-size:14px}
+.merow{width:100%;border:0;border-bottom:1px solid var(--line);background:#fff;font:inherit;text-align:left;color:var(--ink);cursor:pointer}.merow:hover{background:#FAFAFB}
 .toastbox{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:20}
 .pa{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:12px 14px;display:flex;flex-direction:column;gap:8px;animation:fadeIn .3s ease}
 .pa .r{display:flex;gap:8px}.pa .r button{flex:1;height:42px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
@@ -278,7 +283,7 @@ function seedActs(){ return {
  lily:[['Nov 13 · 2:00 PM','note','Reader shipped; arrives Monday','Elang'],['Nov 13 · 11:30 AM','setup','Step 5 done: Connect payments','Vy'],['Nov 11','setup','Steps 1–4 done (info, services, staff)','Vy'],['Nov 10 · 6:20 PM','setup','Vy signed up from the invite (text)','Vy'],['Nov 10','setup','Invite sent by text','Elang']],
  bella:[['This month','money','Tickets down 60% vs last month','system'],['2 days ago','device','Front desk iPad last used','system'],['Sep 20','setup','Setup done 10/10','Kim']],
  queen:[['Nov 16 · 9:10 AM','setup','Invite sent by text + email · not opened yet','Elang']]}; }
-function reset(){ S={dev:'desk',view:'salons',role:'elang',sel:null,filter:'all',q:'',alerts:ALERTS0.map((a)=>a.slice()),salons:seed(),access:{},left:{},log:{},plan:'pilot',invite:null,form:{n:'Lotus Nails',st:'TX',o:'Anh Le',p:'(512) 555-0174',e:'anh.lotusnails@gmail.com'},via:{text:true,email:true},invites:[{id:'i1',salon:'Queen Nails',owner:'Hoa Pham',city:'Austin, TX',phone:'(512) 555-0161',email:'hoa.queennails@gmail.com',via:['text','email'],sent:'Nov 16 · 9:10 AM',status:'Not opened'},{id:'i2',salon:'Pho Ever Nails',owner:'Minh Tran',city:'Plano, TX',phone:'',email:'minh@phoevernails.com',via:['email'],sent:'Oct 29',status:'Expired'},{id:'i3',salon:'Lily Nail Spa',owner:'Vy Ngo',city:'San Jose, CA',phone:'(408) 555-0133',email:'',via:['text'],sent:'Nov 10',status:'Signed up ✓'}],toast:'',noteDraft:'',actF:'all',acts:seedActs()}; }
+function reset(){ S={dev:'desk',view:'salons',role:'elang',sel:null,filter:'all',q:'',alerts:ALERTS0.map((a)=>a.slice()),salons:seed(),access:{},left:{},log:{},plan:'pilot',invite:null,form:{n:'Lotus Nails',st:'TX',o:'Anh Le',p:'(512) 555-0174',e:'anh.lotusnails@gmail.com'},via:{text:true,email:true},invites:[{id:'i1',salon:'Queen Nails',owner:'Hoa Pham',city:'Austin, TX',phone:'(512) 555-0161',email:'hoa.queennails@gmail.com',via:['text','email'],sent:'Nov 16 · 9:10 AM',status:'Not opened'},{id:'i2',salon:'Pho Ever Nails',owner:'Minh Tran',city:'Plano, TX',phone:'',email:'minh@phoevernails.com',via:['email'],sent:'Oct 29',status:'Expired'},{id:'i3',salon:'Lily Nail Spa',owner:'Vy Ngo',city:'San Jose, CA',phone:'(408) 555-0133',email:'',via:['text'],sent:'Nov 10',status:'Signed up ✓'}],toast:'',noteDraft:'',actF:'all',acts:seedActs(),me:false,lang:'en',alertsOn:true,mine:{},mineOpen:false,teamOpen:false,out:false}; }
 reset();
 function toast(t){ S.toast=t; render(); clearTimeout(tm); tm=setTimeout(()=>{S.toast='';render();},3200); }
 const byId=(id)=>S.salons.find((s)=>s.id===id);
@@ -290,7 +295,21 @@ function rail(){ const admin=S.role==='oliver', n=S.alerts.length;
   ${it('salons','Salons','<path d="M3 10l9-6 9 6"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',n)}
   ${it('new','Add salon','<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>')}
   ${admin?it('system','System','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>'):''}
-  <div style="flex:1"></div><span class="av" style="width:32px;height:32px">${admin?'O':'E'}</span></nav>`; }
+  <div style="flex:1"></div><button type="button" class="mebtn" data-act="me" aria-label="My account menu" aria-expanded="${S.me}"><span class="av" style="width:32px;height:32px">${admin?'O':'E'}</span></button></nav>`; }
+function meMenu(){ const admin=S.role==='oliver', mine=(S.mine[S.role]||[]), vi=S.lang==='vi';
+  const T=vi?{acc:'Tài khoản',signed:'Đăng nhập bằng',two:'Đăng nhập 2 bước',lang:'Ngôn ngữ',al:'Báo động cho tôi',mine:'Việc tôi làm hôm nay',team:'Nhóm',help:'Trợ giúp + phím tắt',out:'Đăng xuất'}:{acc:'My account',signed:'Signed in with',two:'2-step login',lang:'Language',al:'Alerts to me',mine:'My actions today',team:'Team',help:'Help + shortcuts',out:'Sign out'};
+  return `<div class="mescrim" data-act="me"></div><div class="mepop" role="dialog" aria-label="${T.acc}">
+  <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)"><span class="av lg">${admin?'O':'E'}</span><div style="flex:1"><b style="font-size:16px">${admin?'Oliver':'Elang'}</b><div class="cap">${admin?'Admin':'Support'} · Nail POS team</div></div><button class="abtn" type="button" data-act="me" aria-label="Close">✕</button></div>
+  <div class="hrow"><span class="k" style="width:130px">${T.signed}</span><span class="v">${admin?'(415) 555-0101':'(408) 555-0199'} · phone code</span></div>
+  <div class="hrow"><span class="k" style="width:130px">${T.two}</span><span class="v">On · authenticator app</span><span class="tag jade">On</span></div>
+  <div class="hrow"><span class="k" style="width:130px">${T.lang}</span><div class="seg">${[['en','English'],['vi','Tiếng Việt']].map((l)=>`<span class="${S.lang===l[0]?'on':''}" data-act="lang:${l[0]}" tabindex="0" role="button" style="cursor:pointer">${l[1]}</span>`).join('')}</div></div>
+  <div class="hrow"><span class="k" style="width:130px">${T.al}</span><span class="v">${S.alertsOn?'Text + push · quiet 10 PM–7 AM':'Off · only shown here'}</span><button class="toggle ${S.alertsOn?'on':''}" type="button" data-act="alertsMe" aria-label="${T.al}" aria-pressed="${S.alertsOn}"></button></div>
+  <button type="button" class="hrow merow" data-act="mineOpen"><span class="k" style="width:130px">${T.mine}</span><span class="v">${mine.length} · in salons' activity logs</span><span class="cap">${S.mineOpen?'Hide':'View'} ›</span></button>
+  ${S.mineOpen?`<div style="max-height:150px;overflow:auto;background:var(--surface)">${mine.map((m)=>`<div class="hrow" style="min-height:34px;font-size:13px"><span class="k" style="width:70px;font-size:12px">${m[0]}</span><span class="v"><b>${esc(m[1])}</b> · ${esc(m[2])}</span></div>`).join('')||'<div class="hrow cap" style="min-height:34px">Nothing yet today. Calls, notes and support actions show here.</div>'}</div>`:''}
+  ${admin?`<button type="button" class="hrow merow" data-act="teamOpen"><span class="k" style="width:130px">${T.team}</span><span class="v">Oliver (admin) · Elang (support)</span><span class="cap">${S.teamOpen?'Hide':'Manage'} ›</span></button>
+   ${S.teamOpen?`<div style="background:var(--surface)"><div class="hrow" style="min-height:38px;font-size:14px"><span class="v"><b>Oliver</b> · admin · 2-step ✓</span><span class="cap">You</span></div><div class="hrow" style="min-height:38px;font-size:14px"><span class="v"><b>Elang</b> · support · 2-step ✓</span><button class="abtn" type="button" data-act="teamMsg:Elang">Remove</button></div><div class="hrow" style="min-height:42px"><button class="abtn dark" type="button" data-act="teamMsg:add">+ Add support person</button></div></div>`:''}`:''}
+  <div style="padding:12px 16px;display:flex;gap:8px"><button class="abtn" type="button" data-act="help" style="flex:1;height:38px">${T.help}</button><button class="abtn" type="button" data-act="signout" style="flex:1;height:38px;color:var(--red)">${T.out}</button></div></div>`; }
+function signedOut(){ return `<div class="app" style="align-items:center;justify-content:center"><div class="card pad" style="width:400px;padding:28px;gap:14px"><div class="logo" style="background:#1C1C1E;color:#fff;margin:0">NP</div><div class="h1">Nail POS Admin</div><div class="cap" style="font-size:15px">Only for the Nail POS team. Phone code + 2-step login.</div><div><label class="lbl" for="sp">Your phone</label><input class="inp" id="sp" value="${S.role==='oliver'?'(415) 555-0101':'(408) 555-0199'}" style="height:44px"></div><button class="btn primary" type="button" data-act="signin" style="height:48px;font-size:16px">Send me a code</button><div class="cap">Signed out. Support sessions you opened were ended and logged.</div></div></div>`; }
 function bar(title){ return `<header class="bar"><div class="title">${title}</div><span class="cap">Signed in as</span>
   <div class="seg">${[['elang','Elang · support'],['oliver','Oliver · admin']].map((r)=>`<span class="${S.role===r[0]?'on':''}" data-act="role:${r[0]}" tabindex="0" role="button" style="cursor:pointer">${r[1]}</span>`).join('')}</div>
   <span class="pill ok"><span class="dot"></span>Live · all normal</span></header>`; }
@@ -374,17 +393,27 @@ function phone(){ return `<div class="phone" style="position:relative"><div clas
 function screen(){ if (S.dev==='phone') return phone();
   if (S.view==='system'&&S.role!=='oliver') S.view='salons';
   const v={salons:salonsView,salon:salonView,new:newView,system:systemView}[S.view]();
-  return `<div class="app">${rail()}<div class="col" style="position:relative">${v}${S.toast?`<div class="toastbox"><div class="toast" style="position:static;transform:none"><span>${S.toast}</span></div></div>`:''}</div></div>`; }
+  if (S.out) return signedOut();
+  return `<div class="app" style="position:relative">${S.me?meMenu():''}${rail()}<div class="col" style="position:relative">${v}${S.toast?`<div class="toastbox"><div class="toast" style="position:static;transform:none"><span>${S.toast}</span></div></div>`:''}</div></div>`; }
 function fit(){ const f=$('#frame'),h=$('#holder'),w=S.dev==='phone'?390:1280,ht=S.dev==='phone'?844:800,sc=Math.min(1,(window.innerWidth-32)/w); f.style.width=w+'px'; f.style.height=ht+'px'; f.style.transform='scale('+sc+')'; h.style.width=w*sc+'px'; h.style.height=ht*sc+'px'; }
 function render(){ const a=document.activeElement, keep=a&&a.getAttribute&&(a.getAttribute('data-in')||a.getAttribute('data-form')), pos=keep?a.selectionStart:0;
   $('#frame').innerHTML=screen(); $('#t-desk').className=S.dev==='desk'?'on':''; $('#t-phone').className=S.dev==='phone'?'on':''; fit();
   if (keep){ const n=document.querySelector(`[data-in="${keep}"],[data-form="${keep}"]`); if(n){ n.focus(); try{n.setSelectionRange(pos,pos);}catch(e){} } } }
 function addLog(id,t){ (S.log[id]=S.log[id]||[]).push([now(),t]); }
-function act2(id,kind,text,who){ (S.acts[id]=S.acts[id]||[]).unshift(['Today · '+now(),kind,text,who||(S.role==='oliver'?'Oliver':'Elang')]); }
+function act2(id,kind,text,who){ (S.acts[id]=S.acts[id]||[]).unshift(['Today · '+now(),kind,text,who||(S.role==='oliver'?'Oliver':'Elang')]); if(!who){ const s=byId(id); (S.mine[S.role]=S.mine[S.role]||[]).unshift([now(),s?s.name:'',text]); } }
 function act(x){ const i=x.indexOf(':'), k=i<0?x:x.slice(0,i), v=i<0?'':x.slice(i+1);
   if (k==='dev') S.dev=v; else if (k==='devnew'){ S.dev='desk'; S.view='new'; }
   else if (k==='restart') reset();
   else if (k==='go'){ S.view=v; S.noteDraft=''; }
+  else if (k==='me'){ S.me=!S.me; S.mineOpen=false; S.teamOpen=false; }
+  else if (k==='lang'){ S.lang=v; toast(v==='vi'?'Đã đổi sang Tiếng Việt (màn hình của bạn).':'Switched to English (your screens).'); return; }
+  else if (k==='alertsMe'){ S.alertsOn=!S.alertsOn; toast(S.alertsOn?'Alerts to you: text + push on':'Alerts to you off · they still show on Salons'); return; }
+  else if (k==='mineOpen') S.mineOpen=!S.mineOpen;
+  else if (k==='teamOpen') S.teamOpen=!S.teamOpen;
+  else if (k==='teamMsg'){ toast(v==='add'?'Invite a support person by phone + email · they must turn on 2-step login':'Removing Elang ends their access right away (logged). Demo: not removed.'); return; }
+  else if (k==='help'){ S.me=false; toast('Shortcuts: / search · A alerts · N add salon · Esc close'); return; }
+  else if (k==='signout'){ S.me=false; S.out=true; for (const id in S.access){ if (S.access[id]==='on') S.access[id]='none'; } }
+  else if (k==='signin'){ S.out=false; toast('Code sent · signed back in (demo)'); return; }
   else if (k==='role'){ S.role=v; toast(v==='oliver'?'Signed in as Oliver (admin): System tab shows.':'Signed in as Elang (support).'); return; }
   else if (k==='filter') S.filter=v;
   else if (k==='open'){ S.actF='all'; S.sel=v; S.view='salon'; S.dev='desk'; S.noteDraft=''; }
@@ -419,7 +448,7 @@ function act(x){ const i=x.indexOf(':'), k=i<0?x:x.slice(0,i), v=i<0?'':x.slice(
   render(); }
 setInterval(()=>{ let ch=false; for (const id in S.access){ if (S.access[id]==='on'){ const [h,m]=S.left[id].match(/\d+/g).map(Number); const t=h*60+m-1; S.left[id]=Math.floor(t/60)+' h '+String(t%60).padStart(2,'0')+' m'; ch=true; } } if (ch&&!document.activeElement.matches('input')) render(); },60000);
 document.addEventListener('click',(e)=>{ const el=e.target.closest('[data-act]'); if(!el||el.disabled) return; e.preventDefault(); act(el.getAttribute('data-act')); });
-document.addEventListener('keydown',(e)=>{ if ((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=tab][data-act],[role=button][data-act]')){ e.preventDefault(); act(e.target.getAttribute('data-act')); } if (e.key==='Enter'&&e.target.matches('[data-in="noteDraft"]')){ act('addNote:'+S.sel); } });
+document.addEventListener('keydown',(e)=>{ if (e.key==='Escape'&&S.me){ S.me=false; render(); return; } if ((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=tab][data-act],[role=button][data-act]')){ e.preventDefault(); act(e.target.getAttribute('data-act')); } if (e.key==='Enter'&&e.target.matches('[data-in="noteDraft"]')){ act('addNote:'+S.sel); } });
 document.addEventListener('input',(e)=>{ const k=e.target.getAttribute('data-in'); if(k){ S[k]=e.target.value; if(k==='q') render(); } const f=e.target.getAttribute('data-form'); if(f) S.form[f]=e.target.value; });
 window.addEventListener('resize',fit);
 render();
