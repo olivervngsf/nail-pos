@@ -240,7 +240,17 @@ body{background:var(--stage);color:var(--ink);margin:0;font-family:"Inter",-appl
 .otp{display:flex;gap:8px}.otp span{width:46px;height:56px;border-radius:12px;border:1.5px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}
 .picks3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .picks2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.svc td,.svc th{text-align:left}.hsel{width:130px;height:38px;padding:0 10px;font-size:15px}.ed{width:100%;height:36px;border:1px solid transparent;border-radius:8px;background:transparent;padding:0 8px;font:inherit;color:inherit;box-sizing:border-box}.ed:hover{border-color:var(--line);background:#fff}.ed:focus{border-color:var(--ink);background:#fff;outline:none}.ed.r{text-align:right}.svc td.r,.svc th.r{text-align:right}
+.svc td,.svc th{text-align:left}.tbtn{height:38px;min-width:112px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}.tbtn:hover{border-color:#C7C7CC}.tbtn.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.tscrim{position:fixed;inset:0;z-index:30}
+.tpop{position:absolute;left:0;z-index:31;width:272px;background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.05);padding:12px;display:flex;flex-direction:column;gap:10px;animation:tpIn .16s ease-out}
+@keyframes tpIn{from{opacity:0;transform:translateY(4px) scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tpop{animation:none}}
+.tpop .seg{padding:2px}.tpop .seg span{padding:0 9px;font-size:13px}
+.tp-l{font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.tp-h{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.tp-h button{height:36px;border:0;border-radius:10px;background:var(--fill);font:inherit;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer}
+.tp-h button:hover{background:#E5E5EA}.tp-h button.on{background:var(--ink);color:#fff}
+.hsel{width:130px;height:38px;padding:0 10px;font-size:15px}.ed{width:100%;height:36px;border:1px solid transparent;border-radius:8px;background:transparent;padding:0 8px;font:inherit;color:inherit;box-sizing:border-box}.ed:hover{border-color:var(--line);background:#fff}.ed:focus{border-color:var(--ink);background:#fff;outline:none}.ed.r{text-align:right}.svc td.r,.svc th.r{text-align:right}
 .spin{width:36px;height:36px;border-radius:50%;border:3px solid var(--fill);border-top-color:var(--ink);animation:sp 0.9s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .stripe{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
@@ -265,6 +275,15 @@ const $ = (s) => document.querySelector(s);
 const STEPS = ['Salon info','Services','Staff + PIN','Connect payments','Card reader','Printer','This device','Clients','Test $1','Ready'];
 const TIMES = []; for (let m=6*60; m<=23*60; m+=30){ const h=Math.floor(m/60), mm=m%60; TIMES.push(((h+11)%12+1)+':'+String(mm).padStart(2,'0')+(h<12?' AM':' PM')); }
 const tmin = (t) => { const [hm,ap]=t.split(' '); let [h,m]=hm.split(':').map(Number); if (ap==='PM'&&h!==12) h+=12; if (ap==='AM'&&h===12) h=0; return h*60+m; };
+const parseT = (t) => { const [hm,ap]=t.split(' '); const [h,m]=hm.split(':').map(Number); return {h,m,ap}; };
+const hrs = (h) => { const d=tmin(h.c)-tmin(h.o); return (d/60).toFixed(d%60?1:0).replace('.0','')+' h'; };
+function tbtn(i,f,t){ const open=S.tp===i+':'+f, p=parseT(t), up=i>=4;
+  return `<span style="position:relative"><button type="button" class="tbtn ${open?'on':''}" data-act="tp:${i}:${f}" aria-haspopup="dialog" aria-expanded="${open}" aria-label="${S.hours[i].d} ${f==='o'?'opens':'closes'} ${t}">${t}</button>${open?`<div class="tscrim" data-act="tpClose"></div><div class="tpop" role="dialog" aria-label="Pick a time" style="${up?'bottom:46px':'top:46px'}">
+   <div class="tp-l">${f==='o'?'Opens':'Closes'}</div>
+   <div class="tp-h">${[6,7,8,9,10,11,12,1,2,3,4,5].map((h)=>`<button type="button" class="${p.h===h?'on':''}" data-act="tph:${h}">${h}</button>`).join('')}</div>
+   <div style="display:flex;gap:8px"><div class="seg" style="flex:1">${[0,15,30,45].map((m)=>`<span class="${p.m===m?'on':''}" data-act="tpm:${m}" style="cursor:pointer;flex:1;justify-content:center">:${String(m).padStart(2,'0')}</span>`).join('')}</div>
+   <div class="seg">${['AM','PM'].map((x)=>`<span class="${p.ap===x?'on':''}" data-act="tpa:${x}" style="cursor:pointer">${x}</span>`).join('')}</div></div>
+   <button type="button" class="btn primary block" data-act="tpClose" style="height:40px;font-size:15px">Done · ${t}</button></div>`:''}</span>`; }
 const MENU = [['Pedicures','Regular spa pedicure',45,38],['Pedicures','Deluxe spa pedicure',50,48],['Pedicures','Collagen spa pedicure',60,68],['Manicures','Regular manicure',30,30],['Gel color','Gel color manicure',45,45],['Gel color','Gel color pedicure',60,53],['Gel color','Gel color change - hands',30,30],['Add-ons','French tip',10,7],['Enhancements','Acrylic full set',75,48],['Enhancements','Acrylic fill-in',45,38],['Enhancements','Pink and white',75,70],['Enhancements','Builder gel',75,68],['Dipping','Dipping powder - no tips',60,48],['Waxing','Eyebrows',15,12]];
 let S;
 function reset(){ S = { flow:'owner', o:'signup', step:0, svc:'choose', svcWay:'link', staff:[{n:'Mai Nguyen',r:'Owner',s:'You'}], drawer:false, role:'Tech', pay:'Commission 60%', stripe:'start', reader:'start', printer:'', printed:false, device:'Front desk', clients:'', test:'start', state:'CA', toast:'', p:'sms', pin:'', pin1:'', pinErr:'', lang:'English', clocked:false, newName:'Linh Tran', newPhone:'(408) 555-0177', hours: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i)=>({d, on:true, o:i<6?'9:00 AM':'10:00 AM', c:i<6?'7:00 PM':'5:00 PM'})), menu: MENU.map((m,i)=>({c:m[0],n:m[1],min:m[2],price:m[3],on:true,flag:i===2||i===10})) }; }
@@ -301,9 +320,9 @@ function stInfo(){ const notes = {CA:'California: card fees can never be taken f
   <div><label class="lbl" for="ss">State</label><select class="inp" id="ss" data-change="state">${['CA','TX','FL','NY'].map((s)=>`<option ${S.state===s?'selected':''}>${s}</option>`).join('')}</select></div></div>
   <div style="border-radius:12px;padding:10px 14px;font-size:14px;background:#E8F6EC;color:#1E6B34;font-weight:500">${notes[S.state]}</div>
   <div><div style="display:flex;align-items:center;gap:10px"><span class="lbl" style="flex:1;margin:0">Open hours</span><button type="button" class="btn ghost" data-act="copyHours" style="height:32px;font-size:14px">Copy Monday to all open days</button></div>
-  <div class="group" style="margin-top:6px">${S.hours.map((h,i)=>`<div class="row s" style="gap:12px;${h.on?'':'opacity:.55'}"><span style="width:44px;font-weight:600">${h.d}</span>
+  <div class="group" style="margin-top:6px;overflow:visible">${S.hours.map((h,i)=>`<div class="row s" style="gap:12px;${h.on?'':'opacity:.55'}"><span style="width:44px;font-weight:600">${h.d}</span>
    <span class="sw ${h.on?'on':''}" role="switch" aria-checked="${h.on}" aria-label="${h.d} open" tabindex="0" data-act="dayOn:${i}" style="cursor:pointer"></span>
-   ${h.on?`<select class="inp hsel" data-hour="${i}:o" aria-label="${h.d} opens">${TIMES.map((t)=>`<option ${t===h.o?'selected':''}>${t}</option>`).join('')}</select><span class="cap">to</span><select class="inp hsel" data-hour="${i}:c" aria-label="${h.d} closes">${TIMES.map((t)=>`<option ${t===h.c?'selected':''}>${t}</option>`).join('')}</select>${tmin(h.c)<=tmin(h.o)?'<span class="hint err" style="margin:0">Closes before it opens</span>':''}`:'<span class="cap">Closed</span>'}</div>`).join('')}</div>
+   ${h.on?`${tbtn(i,'o',h.o)}<span class="cap">to</span>${tbtn(i,'c',h.c)}${tmin(h.c)<=tmin(h.o)?'<span class="hint err" style="margin:0">Closes before it opens</span>':`<span class="cap">${hrs(h)}</span>`}`:'<span class="cap">Closed</span>'}</div>`).join('')}</div>
   <div class="cap" style="margin-top:6px">Booking page, calendar and reminders use these hours. Holidays and one-off changes: Settings · Hours.</div></div>`,{lock:S.hours.some((h)=>h.on&&tmin(h.c)<=tmin(h.o))}); }
 function stServices(){
   if (S.svc==='reading') return wiz(`<div class="center" style="flex-direction:column;gap:14px"><div class="spin"></div><div class="h2">Reading your menu…</div><div class="cap">cosmonailswildwood.com/services · finding names, minutes and prices</div></div>`,{lock:true});
@@ -383,11 +402,17 @@ function act(a){ const [k,v] = a.split(/:(.*)/s);
   if (k==='flow'){ S.flow=v; if (v==='staff'&&S.p==='clock'&&S.clocked){} }
   else if (k==='restart'){ reset(); }
   else if (k==='o'){ S.o=v; }
-  else if (k==='go'){ S.step=+v; S.drawer=false; }
+  else if (k==='go'){ S.tp=''; S.step=+v; S.drawer=false; }
   else if (k==='next'){ if (S.step<9) S.step++; S.drawer=false; }
   else if (k==='back'){ if (S.step>0) S.step--; }
   else if (k==='svcWay'){ S.svcWay=v; }
   else if (k==='svcRead'){ if (S.svc==='review'){ S.step++; } else { S.svc='reading'; render(); setTimeout(()=>{ S.svc='review'; render(); }, 1300); return; } }
+  else if (k==='tp'){ S.tp = S.tp===v ? '' : v; }
+  else if (k==='tpClose'){ S.tp=''; }
+  else if (k==='tph'||k==='tpm'||k==='tpa'){ const [i,f]=S.tp.split(':'), t=parseT(S.hours[+i][f]);
+    if (k==='tph'){ t.h=+v; t.ap = (+v>=6&&+v<=11) ? (f==='o'?'AM':t.ap) : (+v===12||+v<=5 ? 'PM' : t.ap); }
+    if (k==='tpm') t.m=+v; if (k==='tpa') t.ap=v;
+    S.hours[+i][f]=t.h+':'+String(t.m).padStart(2,'0')+' '+t.ap; }
   else if (k==='dayOn'){ S.hours[+v].on=!S.hours[+v].on; }
   else if (k==='copyHours'){ const m=S.hours[0]; S.hours.forEach((h)=>{ if (h.on){ h.o=m.o; h.c=m.c; } }); render(); toast('Copied Monday '+m.o+' – '+m.c+' to all open days'); return; }
   else if (k==='addSvc'){ S.menu.push({c:'Add-ons',n:'',min:15,price:0,on:true,flag:false}); render(); const ins=document.querySelectorAll('[data-edit$=":n"]'); ins[ins.length-1].focus(); return; }
@@ -409,7 +434,7 @@ function act(a){ const [k,v] = a.split(/:(.*)/s);
   else if (k==='clockin'){ S.clocked=true; }
   render(); }
 document.addEventListener('click', (e) => { const el = e.target.closest('[data-act]'); if (!el) return; e.preventDefault(); act(el.getAttribute('data-act')); });
-document.addEventListener('keydown', (e) => { if ((e.key==='Enter'||e.key===' ') && e.target.matches('[role=tab][data-act],[role=switch][data-act]')){ e.preventDefault(); act(e.target.getAttribute('data-act')); } });
+document.addEventListener('keydown', (e) => { if (e.key==='Escape'&&S.tp){ S.tp=''; render(); return; } if ((e.key==='Enter'||e.key===' ') && e.target.matches('[role=tab][data-act],[role=switch][data-act]')){ e.preventDefault(); act(e.target.getAttribute('data-act')); } });
 document.addEventListener('input', (e) => { const k = e.target.getAttribute('data-in'); if (k) S[k] = e.target.value;
   const ed = e.target.getAttribute('data-edit'); if (ed && !ed.endsWith(':on')){ const [i,f]=ed.split(':'); S.menu[+i][f]=e.target.value; if (f==='min') S.menu[+i].flag=false; } });
 document.addEventListener('focusout', (e) => { if (e.target.matches('[data-edit$=":min"]')) { const r=e.relatedTarget; render(); if (r&&r.getAttribute&&r.getAttribute('data-edit')){ const n=document.querySelector(`[data-edit="${r.getAttribute('data-edit')}"]`); if(n) n.focus(); } } });
