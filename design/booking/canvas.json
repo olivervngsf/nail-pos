@@ -268,16 +268,16 @@
    "page": "desk"
   },
   "Cd09Alert.dc.html": {
-   "x": 15040,
+   "x": 16920,
    "y": -1300,
    "w": 1800,
    "h": 900,
-   "title": "D9 · Overlap shown",
+   "title": "D9b · Alerts → Show: overlap highlighted",
    "is_interactive": true,
    "page": "desk"
   },
   "Cd10Booked.dc.html": {
-   "x": 16920,
+   "x": 18800,
    "y": -1300,
    "w": 1800,
    "h": 900,
@@ -454,6 +454,15 @@
    "title": "P3 · Connect Google",
    "page": "desk",
    "is_interactive": true
+  },
+  "Cd09aAlerts.dc.html": {
+   "x": 15040,
+   "y": -1300,
+   "w": 1800,
+   "h": 900,
+   "title": "D9a · Tap Alerts → list with icons",
+   "is_interactive": true,
+   "page": "desk"
   }
  },
  "order": [
@@ -484,6 +493,7 @@
   "Cd06WaitDrop.dc.html",
   "Cd07Cover.dc.html",
   "Cd08Filter.dc.html",
+  "Cd09aAlerts.dc.html",
   "Cd09Alert.dc.html",
   "Cd10Booked.dc.html",
   "Channels.dc.html",
@@ -552,7 +562,7 @@
    "y": -1600,
    "text": "Merged calendar — every interaction (with notes)",
    "kind": "title1",
-   "maxW": 18720,
+   "maxW": 20600,
    "page": "desk"
   },
   "t2": {
@@ -597,6 +607,13 @@
   }
  },
  "designSystems": [
+  {
+   "artifact": "https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n",
+   "copiedAt": "2026-11-16T22:30:00Z",
+   "namespace": "NailPOS",
+   "title": "Nail POS Design System",
+   "version": null
+  },
   {
    "title": "Nail Salon OS Design System",
    "namespace": "nailsalonosdesignsystem_afaa02",

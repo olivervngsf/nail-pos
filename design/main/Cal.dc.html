@@ -45,7 +45,14 @@ body{margin:0}
 .lateCol{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,rgba(232,89,12,.06) 0 6px,transparent 6px 12px);pointer-events:none}
 .bk{position:absolute;border-radius:8px;padding:4px 7px;box-sizing:border-box;border:1px solid #E5E5EA;background:#fff;overflow:hidden;cursor:grab;font-size:12px;line-height:15px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:box-shadow .2s,opacity .25s,top .25s cubic-bezier(.2,.8,.2,1),left .25s cubic-bezier(.2,.8,.2,1),height .2s}
 .bk:hover{box-shadow:0 6px 16px rgba(28,28,30,.14);z-index:3}
-.bk b{font-size:12.5px}
+.bk b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk .s{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk.sm .m,.bk.half .m{display:none}
+.bk.xs{padding:0 7px;display:flex;align-items:center;gap:6px}
+.bk.xs b{flex:1;min-width:0}
+.bk.xs .m{display:none}
+.bk.xs .s{flex:none;max-width:45%;font-size:11px}
+.bk.half.xs .s{display:none}
 .bk .m{color:#5C5C5E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .bk .s{display:block;font-weight:600}
 .bk.paid{background:#F5F5F7;border-color:#ECECEF;color:#8E8E93}
@@ -53,6 +60,7 @@ body{margin:0}
 .bk.conf .s{color:#1F7A33}
 .bk.chair{background:#EAF5EC;border:1.5px solid #2F9E44}
 .bk.chair .s{color:#1F7A33}
+.bk .pb{position:absolute;left:0;bottom:0;height:3px;background:#2F9E44;border-radius:0 2px 0 0;transition:width .6s}
 .bk.unconf{background:repeating-linear-gradient(135deg,#FFF4EC 0 6px,#fff 6px 12px);border-color:#F4C9AF}
 .bk.unconf .s,.bk.risk .s,.bk.ready .s{color:#B5470A}
 .bk.ready{border:1.5px solid #E8590C}
@@ -76,6 +84,14 @@ body{margin:0}
 .chip.on{background:#1C1C1E;border-color:#1C1C1E;color:#fff}
 .chip.sug{border-style:dashed}
 .peek{position:absolute;width:290px;background:#fff;border-radius:14px;box-shadow:0 14px 40px rgba(28,28,30,.2),0 0 0 1px rgba(0,0,0,.04);z-index:9;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:18px;animation:popin .18s ease both;cursor:default}
+.acount{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#E8590C;color:#fff;font-size:11px;line-height:18px;box-sizing:border-box}
+.alp{position:absolute;right:16px;top:58px;width:380px;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:11;padding:8px 0;animation:popin .2s cubic-bezier(.2,.8,.2,1) both}
+.alp .ah{display:flex;align-items:center;padding:8px 16px 10px;font-size:15px;font-weight:700}
+.alr{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #E5E5EA}
+.alr .ai{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.alr .at{flex:1;min-width:0;font-size:13px;line-height:18px}
+.alr .at b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alr.done{opacity:.5}
 .mbtn{height:34px;padding:0 10px;border-radius:10px;border:0;background:#EFEFF2;font:inherit;font-size:13px;font-weight:600;color:#1C1C1E;cursor:pointer}
 .mbtn.pri{background:#1C1C1E;color:#fff}
 .toast{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);min-width:420px;background:#1C1C1E;color:#fff;border-radius:14px;padding:11px 12px 11px 18px;display:flex;align-items:center;gap:12px;font-size:14px;box-shadow:0 12px 32px rgba(0,0,0,.25);z-index:20;overflow:hidden;animation:fadeUp .3s cubic-bezier(.2,.8,.2,1) both}
@@ -106,12 +122,12 @@ body{margin:0}
     <div class="seg"><span class="on">Day</span><span>Week</span><span>Month</span></div>
     <span style="flex:1"></span>
     <div style="width:280px;height:36px;border-radius:10px;background:#EFEFF2;display:flex;align-items:center;gap:8px;padding:0 10px;font-size:13px;color:#5C5C5E;box-sizing:border-box">Search client, phone, staff<span style="flex:1"></span><span class="kbd">/</span></div>
-    <button class="mbtn" type="button" onClick="{{showAlert}}" style="background:#FDEEE6;color:#B5470A">Alerts 2</button>
+    <button class="mbtn" type="button" onClick="{{openAlerts}}" aria-label="Alerts" style="{{alertBtnStyle}}"><span style="display:inline-flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 003.4 0"/></svg>Alerts<span class="acount">{{alertCount}}</span></span></button>
     <button class="btn primary" type="button" onClick="{{newBook}}" style="height:38px;font-size:15px;padding:0 16px">+ Book <span class="kbd" style="margin-left:6px;background:transparent;color:#D1D1D6;border-color:#5C5C5E">N</span></button>
   </div>
 
   <div class="banner">
-    <span style="font-weight:700;color:#B5470A">▲ Overlap: Kim 1:30–2:00 PM</span><span>Tiffany and Mai are both with Kim — nobody was moved.</span>
+    <span style="display:inline-flex;align-items:center;gap:6px;font-weight:700;color:#B5470A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg>Overlap: Kim 1:30–2:00 PM</span><span>Tiffany and Mai are both with Kim — nobody was moved.</span>
     <button class="mbtn" type="button" onClick="{{showAlert}}" style="height:26px;background:#fff">Show</button>
     <span style="flex:1"></span>
     <span class="cap">Hoa is 24 min late · 2 bookings need cover</span>
@@ -166,7 +182,7 @@ body{margin:0}
     <sc-for list="{{blocks}}" as="b" hint-placeholder-count="20">
       <div class="{{b.cls}}" style="{{b.style}}" onMouseDown="{{b.down}}" onMouseEnter="{{b.enter}}" onMouseLeave="{{b.leave}}">
         <b>{{b.star}}{{b.name}}</b><span class="m">{{b.meta}}</span><span class="s">{{b.status}}</span>
-        <span class="rs" onMouseDown="{{b.rdown}}"></span>
+        <sc-if value="{{b.timed}}" hint-placeholder-val="{{false}}"><span class="pb" style="{{b.pbStyle}}"></span></sc-if><span class="rs" onMouseDown="{{b.rdown}}"></span>
       </div>
     </sc-for>
     <sc-if value="{{hasGhost}}" hint-placeholder-val="{{false}}"><div class="bk ghost" style="{{ghostStyle}}"><b>{{ghostLabel}}</b></div></sc-if>
@@ -217,6 +233,14 @@ body{margin:0}
     </div>
   </sc-if>
 
+  <sc-if value="{{alertsOpen}}" hint-placeholder-val="{{false}}">
+    <div class="alp" role="dialog" aria-label="Alerts">
+      <div class="ah"><span style="flex:1">Alerts · {{alertCount}}</span><span class="cap" style="font-weight:400">Today</span></div>
+      <div class="alr"><span class="ai" style="background:#FDEEE6;color:#B5470A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg></span><span class="at"><b>Overlap: Kim 1:30–2:00 PM</b>Tiffany and Mai are both with Kim. Nobody was moved.</span><button class="mbtn" type="button" onClick="{{alShow}}">Show</button></div>
+      <div class="{{hoaRowCls}}"><span class="ai" style="background:#FDEEE6;color:#B5470A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="at"><b>{{hoaTitle}}</b>{{hoaSub}}</span><sc-if value="{{hoaLateNow}}" hint-placeholder-val="{{true}}"><button class="mbtn" type="button" onClick="{{alCover}}" style="background:#E8590C;color:#fff">Cover</button></sc-if></div>
+      <div class="cap" style="padding:10px 16px 4px;border-top:1px solid #E5E5EA">Alerts are facts only. You decide what to do; nothing moves on its own.</div>
+    </div>
+  </sc-if>
   <sc-if value="{{hasCover}}" hint-placeholder-val="{{false}}">
     <div class="peek" style="left:1000px;top:226px;width:320px" role="dialog" aria-label="Cover for Hoa">
       <b style="font-size:15px">Hoa is 24 min late</b>
@@ -235,7 +259,7 @@ body{margin:0}
   </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["day","create","drag","peek","move","waitdrop","cover","alert","booked","filter"],"default":"day"},"$preview":{"width":1440,"height":900}}'>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["day","create","drag","peek","move","waitdrop","cover","alerts","alert","booked","filter"],"default":"day"},"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
   constructor(p){
     super(p);
@@ -272,7 +296,8 @@ class Component extends DCLogic {
     if (sc === 'move') this.state.move = { id: 21, col: 4, s: 16.5, e: 17.5, moved: true, dy: 0 };
     if (sc === 'waitdrop') { this.state.waitDrag = 0; this.state.drag = { col: 2, s: 13, e: 13.75, label: 'Susan · Pedi' }; }
     if (sc === 'cover') this.state.cover = true;
-    if (sc === 'alert') this.state.filter = 'overlap';
+    if (sc === 'alert') { this.state.filter = 'overlap'; this.state.toast = 'Showing the overlap at Kim 1:30 PM. Drag one booking to another time or staff to fix it.'; this.state.toastUndo = false; }
+    if (sc === 'alerts') this.state.alerts = true;
     if (sc === 'filter') this.state.filter = 'unconf';
     if (sc === 'booked') { this.state.appts = A.concat([{ id: 99, col: 0, s: 16.75, e: 17.5, name: 'Lan Tran', svc: 'Gel', st: 'conf', status: 'Text sent', src: 'front desk' }]); this.state.flash = 99; this.state.toast = 'Booked Lan Tran · Gel · Kim 4:45 PM · confirmation texted'; }
   }
@@ -288,15 +313,18 @@ class Component extends DCLogic {
     const ap = S.appts.map((a) => (S.hoaCovered && a.col === 3 ? Object.assign({}, a, { col: a.name === 'Nina' ? 2 : 1 }) : a));
     const lanes = {}; ap.forEach((a) => { ap.forEach((b) => { if (a.id !== b.id && a.col === b.col && a.st.indexOf('cancel') < 0 && b.st.indexOf('cancel') < 0 && a.s < b.e && b.s < a.e) { lanes[a.id] = a.s <= b.s && a.id < b.id ? 0 : 1; } }); });
     const match = { unconf: (a) => a.st.indexOf('unconf') >= 0, conf: (a) => a.st.indexOf('conf') === 0, chair: (a) => a.st.indexOf('chair') >= 0, ready: (a) => a.st.indexOf('ready') >= 0, cancel: (a) => a.st.indexOf('cancel') >= 0, walk: (a) => a.src === 'walk-in', online: (a) => a.src === 'online', star: (a) => a.star, overlap: (a) => lanes[a.id] != null, risk: (a) => a.st.indexOf('risk') >= 0 };
+    const SAT = { Tiffany: 13.37, Fiona: 13.083, Brianna: 13.5 }, NOW = 13.667;
     const blocks = ap.map((a) => {
       const mv = S.move && S.move.id === a.id ? S.move : null;
       const col = mv ? mv.col : a.col, s = mv ? mv.s : a.s, e = mv ? mv.e : a.e;
       const lane = lanes[a.id], w = lane == null ? CW - 6 : (CW - 8) / 2;
       const left = col * CW + 3 + (lane === 1 ? (CW - 8) / 2 + 2 : 0);
       const dim = S.filter && !match[S.filter](a);
+      const hpx = Math.max(22, (e - s) * HH - 2), fit = hpx < 36 ? ' xs' : hpx < 56 ? ' sm' : '';
       return {
-        name: a.name, star: a.star ? '★ ' : '', meta: a.svc + ' · ' + fmt(a.s).replace(' AM', '').replace(' PM', '') + ' · ' + a.src, status: a.status,
-        cls: 'bk ' + a.st + (dim ? ' dim' : '') + (S.flash === a.id ? ' flash' : '') + (mv ? ' moving' : ''),
+        name: a.name, star: a.star ? '★ ' : '', meta: a.svc + ' · ' + fmt(a.s).replace(' AM', '').replace(' PM', '') + ' · ' + a.src, status: (a.st.indexOf('chair') >= 0 && SAT[a.name]) ? 'In chair ' + Math.round((NOW - SAT[a.name]) * 60) + ' min · usual ' + Math.round((a.e - a.s) * 60) : a.status,
+        timed: a.st.indexOf('chair') >= 0 && !!SAT[a.name], pbStyle: SAT[a.name] ? 'width:' + Math.min(100, Math.round((NOW - SAT[a.name]) / (a.e - a.s) * 100)) + '%' : '',
+        cls: 'bk ' + a.st + fit + (lane == null ? '' : ' half') + (dim ? ' dim' : '') + (S.flash === a.id ? ' flash' : '') + (mv ? ' moving' : ''),
         style: 'left:' + left + 'px;width:' + w + 'px;top:' + ((s - T0) * HH + 1) + 'px;height:' + Math.max(22, (e - s) * HH - 2) + 'px' + (mv ? ';box-shadow:0 14px 30px rgba(28,28,30,.25);z-index:6;cursor:grabbing' : ''),
         down: (ev) => { ev.stopPropagation(); const p = pos({ currentTarget: ev.currentTarget.parentNode, clientX: ev.clientX, clientY: ev.clientY }); this.setState({ move: { id: a.id, col: a.col, s: a.s, e: a.e, dy: p.y - (a.s - T0) * HH, sy: p.y, moved: false }, peek: null, pop: null }); },
         rdown: (ev) => { ev.stopPropagation(); this.setState({ move: { id: a.id, col: a.col, s: a.s, e: a.e, resize: true, moved: false } }); },
@@ -389,8 +417,13 @@ class Component extends DCLogic {
       upnext: [['Tuyết', 'FREE', 'open 36 min · 3 turns', 1, '#2F9E44', 'free', 2, 13.75], ['Ngọc', 'BUSY', 'free 2:00 · 3 turns', 1, '#E03131', '', 1, 14], ['Linh', 'BUSY', 'free 2:15 · 2 turns', 1, '#E03131', '', 4, 14.25], ['Kim', 'BUSY', 'free 2:15 · 4 turns', 1, '#E03131', '', 0, 14.25], ['Hoa', 'NOT IN', '24 min late · 0 turns', 0, '#8E8E93', 'out', 3, 0]]
         .map((u) => ({ name: u[0], tag: u[1], sub: u[2], canBook: !!u[3], dot: 'width:8px;height:8px;border-radius:50%;flex:none;background:' + u[4], tagStyle: 'font-size:10px;font-weight:700;color:' + (u[1] === 'FREE' ? '#1F7A33' : u[1] === 'BUSY' ? '#C92A2A' : '#5C5C5E'), cls: 'ucard ' + u[5], book: () => this.setState({ pop: { col: u[6], s: u[7], e: u[7] + 0.75, client: null, svc: null, who: u[6] }, peek: null }) })),
       showAlert: () => this.setState({ filter: S.filter === 'overlap' ? null : 'overlap' }),
-      anyFloat: !!(P || S.cover || S.peekPinned != null),
-      closeAll: () => this.setState({ pop: null, cover: false, peek: null, peekPinned: null }),
+      anyFloat: !!(P || S.cover || S.alerts || S.peekPinned != null),
+      closeAll: () => this.setState({ pop: null, cover: false, alerts: false, peek: null, peekPinned: null }),
+      openAlerts: () => this.setState({ alerts: !S.alerts, pop: null, peek: null }), alertsOpen: !!S.alerts, alertCount: S.hoaCovered ? 1 : 2,
+      alertBtnStyle: 'background:' + (S.alerts ? '#1C1C1E;color:#fff' : '#FDEEE6;color:#B5470A'),
+      alShow: () => { this.setState({ alerts: false, filter: 'overlap' }); this.say('Showing the overlap at Kim 1:30 PM. Drag one booking to another time or staff to fix it.', false); },
+      alCover: () => this.setState({ alerts: false, cover: true }),
+      hoaLateNow: !S.hoaCovered, hoaRowCls: 'alr' + (S.hoaCovered ? ' done' : ''), hoaTitle: S.hoaCovered ? 'Hoa: both bookings covered' : 'Hoa is 24 min late', hoaSub: S.hoaCovered ? 'Nina → Tuyết, Hannah P. → Ngọc · clients texted' : '2 bookings need cover: Nina 1:30, Hannah P. 2:30',
       hasToast: !!S.toast, toast: S.toast, toastUndo: S.toastUndo,
       undo: () => { if (S.prev) this.setState({ appts: S.prev, prev: null, toast: null }); else this.setState({ toast: null }); }
     };
