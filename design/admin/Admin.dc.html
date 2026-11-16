@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Founder Admin</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.tag.warn{background:var(--orange-soft);color:#B5470A}
+.tag.bad{background:#FCE8E8;color:#C92A2A}
+.tag.grey{background:var(--fill);color:var(--ink-soft)}
+.sh{display:grid;grid-template-columns:170px 104px 92px 118px 84px 1fr;gap:10px;align-items:center;padding:0 14px}
+.srh{height:34px;font-size:12px;font-weight:600;color:var(--ink-soft);border-bottom:1px solid var(--line)}
+.srow{display:grid;grid-template-columns:170px 104px 92px 118px 84px 1fr;gap:10px;align-items:center;padding:0 14px;min-height:56px;border-bottom:1px solid var(--line);font-size:14px;cursor:pointer}
+.srow .g{display:flex;flex-direction:column;align-items:flex-start;line-height:18px;min-width:0}
+.srow:hover{background:#FAFAFB}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line)}
+.alert:last-child{border-bottom:0}
+.alert .ic{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.alert .ic.bad{background:#FCE8E8;color:#C92A2A}.alert .ic.warn{background:var(--orange-soft);color:#B5470A}
+.abtn{height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
+.abtn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.hrow{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 16px;border-bottom:1px solid var(--line);font-size:15px}
+.hrow:last-child{border-bottom:0}
+.hrow .k{width:150px;color:var(--ink-soft);font-size:14px;flex:none}
+.hrow .v{flex:1;min-width:0}
+.lock{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--surface);font-size:13px;color:var(--ink-soft)}
+.support{border:2px solid var(--jade)}
+.logl{display:flex;gap:10px;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
+.logl:last-child{border-bottom:0}
+.logl .t{width:64px;color:var(--ink-soft);flex:none;font-variant-numeric:tabular-nums}
+.badge{min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;margin-left:2px}
+.inv{display:flex;gap:16px;align-items:center;padding:14px;border-radius:14px;background:var(--surface)}
+.qr{width:92px;height:92px;flex:none;border-radius:10px;background:#fff;display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:8px;box-sizing:border-box}
+.qr i{background:var(--ink);border-radius:1px}.qr i.o{background:transparent}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Admin menu">
+    <div class="logo" style="background:#1C1C1E;color:#fff">NP</div>
+    <a class="{{navSalons}}" href="#" onClick="{{goSalons}}"><span style="position:relative;display:flex"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg><sc-if value="{{hasBadge}}" hint-placeholder-val="{{true}}"><span class="badge" style="position:absolute;left:16px;top:-8px">{{badge}}</span></sc-if></span>Salons</a>
+    <a class="{{navNew}}" href="#" onClick="{{goNew}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Add salon</a>
+    <sc-if value="{{isAdmin}}" hint-placeholder-val="{{false}}"><a class="{{navSystem}}" href="#" onClick="{{goSystem}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>System</a></sc-if>
+    <div style="flex:1"></div>
+    <a href="#" aria-label="Signed in"><span class="av" style="width:32px;height:32px">{{meInit}}</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar">
+      <div class="title">{{title}}</div>
+      <span class="cap">Demo · signed in as</span>
+      <div class="seg"><sc-for list="{{roles}}" as="r" hint-placeholder-count="2"><span class="{{r.cls}}" onClick="{{r.pick}}" style="cursor:pointer">{{r.label}}</span></sc-for></div>
+      <span class="pill ok"><span class="dot"></span>Live · all systems normal</span>
+    </header>
+
+    <sc-if value="{{vSalons}}" hint-placeholder-val="{{true}}">
+    <main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 24px;min-height:0">
+      <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px">
+        <sc-for list="{{biz}}" as="k" hint-placeholder-count="5"><div class="stat" style="cursor:default"><span class="cap">{{k.l}}</span><span class="v">{{k.v}}</span><span class="{{k.cls}}" style="font-size:12px">{{k.s}}</span></div></sc-for>
+      </div>
+      <div style="display:flex;gap:16px;flex:1;min-height:0">
+        <div class="group" style="flex:1;min-width:0;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px 6px"><b style="flex:1;font-size:16px">Salon health</b>
+            <div class="seg"><sc-for list="{{filters}}" as="f" hint-placeholder-count="3"><span class="{{f.cls}}" onClick="{{f.pick}}" style="cursor:pointer">{{f.label}}</span></sc-for></div></div>
+          <div class="sh srh"><span>Salon</span><span>Setup</span><span style="text-align:right">Today</span><span>Stripe</span><span>Texts</span><span>Health</span></div>
+          <sc-for list="{{salons}}" as="s" hint-placeholder-count="6"><div class="{{s.rcls}}" onClick="{{s.open}}">
+            <div class="g"><b>{{s.name}}</b><span class="cap">{{s.where}} · {{s.plan}}</span></div>
+            <div class="g" style="gap:4px"><span class="cap">{{s.setupT}}</span><div class="prog-bar thin" style="width:90px"><span style="{{s.setupW}}"></span></div></div>
+            <span style="text-align:right;font-variant-numeric:tabular-nums">{{s.today}}</span>
+            <span><span class="{{s.stripeCls}}">{{s.stripe}}</span></span>
+            <span><span class="{{s.textCls}}">{{s.text}}</span></span>
+            <span><span class="{{s.hCls}}">{{s.health}}</span></span>
+          </div></sc-for>
+          <div style="flex:1"></div>
+          <div class="cap" style="padding:8px 14px;border-top:1px solid var(--line)">Health only. Client names, phones, tech pay and notes stay hidden unless the owner allows support.</div>
+        </div>
+        <div class="group" style="width:340px;flex:none;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;padding:12px 14px 8px"><b style="flex:1;font-size:16px">Alerts · call before they notice</b><span class="tag bad">{{openAlerts}}</span></div>
+          <sc-for list="{{alerts}}" as="a" hint-placeholder-count="4"><div class="alert">
+            <span class="{{a.icCls}}">{{a.icon}}</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px"><div><b style="font-size:14px">{{a.salon}}</b><div style="font-size:14px;line-height:19px">{{a.text}}</div><span class="cap">{{a.when}}</span></div>
+              <div style="display:flex;gap:6px"><button class="abtn dark" type="button" onClick="{{a.open}}">{{a.cta}}</button><button class="abtn" type="button" onClick="{{a.done}}">Handled</button></div></div>
+          </div></sc-for>
+          <sc-if value="{{noAlerts}}" hint-placeholder-val="{{false}}"><div class="cap" style="padding:20px 14px;text-align:center">All clear ✓</div></sc-if>
+        </div>
+      </div>
+    </main>
+    </sc-if>
+
+    <sc-if value="{{vSalon}}" hint-placeholder-val="{{false}}">
+    <sc-if value="{{supportOn}}" hint-placeholder-val="{{false}}"><div class="banner ok"><b>Support mode · Golden Nails</b><span>{{supportLeft}} left · every action is logged and shown to Tom</span><span style="flex:1"></span><button class="abtn" type="button" onClick="{{endSupport}}">End now</button></div></sc-if>
+    <main style="flex:1;display:flex;gap:16px;padding:16px 24px;min-height:0">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="abtn" type="button" onClick="{{back}}">‹ Salons</button>
+          <div style="flex:1"><div class="h2">Golden Nails</div><div class="cap">Houston, TX · Paid · $49/mo since Oct 2 · Owner Tom Tran · (713) 555-0142</div></div>
+          <span class="tag bad">Problem</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px">
+          <div class="stat" style="cursor:default"><span class="cap">Setup</span><span class="v">10/10</span><span class="cap">done Oct 2</span></div>
+          <div class="stat" style="cursor:default"><span class="cap">Today</span><span class="v">18</span><span class="cap">tickets · $964 total</span></div>
+          <div class="stat" style="cursor:default"><span class="cap">This month</span><span class="v">$31.4K</span><span class="up" style="font-size:12px">▲ 6% vs Oct</span></div>
+          <div class="stat" style="cursor:default"><span class="cap">Last sync</span><span class="v">2 min</span><span class="down" style="font-size:12px">3 failed today</span></div>
+        </div>
+        <div class="group">
+          <div class="hrow"><span class="k">Stripe account</span><span class="v">Connected · verified · payouts on (daily to bank ••4410)</span><span class="tag jade">OK</span></div>
+          <div class="hrow"><span class="k">Card reader</span><span class="v">S710 “Front desk” · offline since 10:12 AM (2 h)</span><span class="tag bad">Offline</span></div>
+          <div class="hrow"><span class="k">Printer</span><span class="v">Epson TM-m30III · online</span><span class="tag jade">OK</span></div>
+          <div class="hrow"><span class="k">Salon devices</span><span class="v">Front desk iPad · online · 3 failed syncs (saved on device, will retry)</span><span class="tag warn">Check</span></div>
+          <div class="hrow"><span class="k">Texting</span><span class="v">(713) 555-0199 · 10DLC approved · 412 texts this month</span><span class="tag jade">OK</span></div>
+          <div class="hrow"><span class="k">App errors (24 h)</span><span class="v">2 · “Reader not found” at checkout</span><span class="tag warn">2</span></div>
+        </div>
+        <div class="group">
+          <div class="hrow" style="font-weight:600">Call notes (Elang)</div>
+          <div class="hrow"><span class="k">Nov 16 · 12:20 PM</span><span class="v">Called Tom: reader unplugged after cleaning. Plugged in, waiting to come back.</span></div>
+          <div class="hrow"><span class="k">Nov 2 · 9:05 AM</span><span class="v">Week-4 review: happy, asks for Vietnamese receipts.</span></div>
+        </div>
+      </div>
+      <div style="width:360px;flex:none;display:flex;flex-direction:column;gap:12px">
+        <div class="{{accCardCls}}" style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+          <b style="font-size:16px">Support access</b>
+          <sc-if value="{{accNone}}" hint-placeholder-val="{{true}}">
+            <div class="cap" style="font-size:14px;line-height:20px">Off. To see Golden Nails' screens, ask Tom. He taps “Allow support for 24 hours” in his app.</div>
+            <button class="btn primary" type="button" onClick="{{ask}}" style="height:44px;font-size:15px">Ask Tom for 24-hour access</button>
+          </sc-if>
+          <sc-if value="{{accWait}}" hint-placeholder-val="{{false}}">
+            <div style="display:flex;align-items:center;gap:8px"><span class="dot pulse" style="background:var(--orange)"></span><b style="font-size:14px">Waiting for Tom</b></div>
+            <div class="cap" style="font-size:14px;line-height:20px">Sent by text + in his app at 12:31 PM. Nothing opens until he says yes.</div>
+            <div style="display:flex;gap:8px"><button class="abtn" type="button" onClick="{{cancelAsk}}">Cancel request</button><button class="abtn" type="button" onClick="{{simAllow}}" style="border-style:dashed">Demo: Tom allows →</button></div>
+          </sc-if>
+          <sc-if value="{{accOn}}" hint-placeholder-val="{{false}}">
+            <div style="display:flex;align-items:center;gap:8px"><span class="tag jade">On</span><b style="font-size:14px">{{supportLeft}} left · turns off by itself</b></div>
+            <button class="btn" type="button" style="height:40px;font-size:14px">Open Golden Nails' screens</button>
+            <div class="eyebrow">Log · Tom sees this too</div>
+            <div><sc-for list="{{log}}" as="l" hint-placeholder-count="4"><div class="logl"><span class="t">{{l.t}}</span><span>{{l.x}}</span></div></sc-for></div>
+          </sc-if>
+        </div>
+        <div class="lock"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg><span>{{lockText}}</span></div>
+        <div class="card pad"><b style="font-size:15px">Quick actions</b>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="abtn" type="button">Call Tom</button><button class="abtn" type="button">Text in Vietnamese</button><button class="abtn" type="button">Resend Stripe link</button><button class="abtn" type="button">Add call note</button></div>
+        </div>
+      </div>
+    </main>
+    </sc-if>
+
+    <sc-if value="{{vNew}}" hint-placeholder-val="{{false}}">
+    <main style="flex:1;display:flex;gap:24px;padding:24px 32px;min-height:0">
+      <div class="card pad" style="width:520px;flex:none;gap:14px;padding:22px 24px;align-self:flex-start">
+        <div class="h2">Add a salon</div>
+        <div class="cap" style="font-size:14px;margin-top:-6px">Makes a one-time invite link. The owner signs up by phone and becomes the owner. Their data is walled off from day one.</div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+          <div><label class="lbl" for="a1">Salon name</label><input class="inp" id="a1" value="Queen Nails" style="height:44px;font-size:16px"></div>
+          <div><label class="lbl" for="a2">State</label><input class="inp" id="a2" value="TX" style="height:44px;font-size:16px"></div>
+          <div><label class="lbl" for="a3">Owner name</label><input class="inp" id="a3" value="Hoa Pham" style="height:44px;font-size:16px"></div>
+          <div><label class="lbl" for="a4">Owner cell</label><input class="inp" id="a4" value="(512) 555-0161" style="height:44px;font-size:16px"></div>
+        </div>
+        <div><span class="lbl">Plan</span><div class="seg"><sc-for list="{{plans}}" as="p" hint-placeholder-count="2"><span class="{{p.cls}}" onClick="{{p.pick}}" style="cursor:pointer">{{p.label}}</span></sc-for></div></div>
+        <sc-if value="{{noInvite}}" hint-placeholder-val="{{true}}"><button class="btn primary" type="button" onClick="{{makeInvite}}" style="height:48px;font-size:16px">Make invite link</button></sc-if>
+        <sc-if value="{{hasInvite}}" hint-placeholder-val="{{false}}">
+          <div class="inv fade"><div class="qr"><sc-for list="{{qr}}" as="q" hint-placeholder-count="49"><i class="{{q}}"></i></sc-for></div>
+            <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><b>nailpos.app/s/Q7M2K</b><span class="cap">Works once · ends in 14 days</span>
+              <div style="display:flex;gap:6px"><button class="abtn dark" type="button">Text it to Hoa</button><button class="abtn" type="button">Copy link</button></div></div></div>
+        </sc-if>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:12px">
+        <b style="font-size:16px">What happens when Hoa opens it</b>
+        <div class="group">
+          <div class="hrow"><span class="k">1 · Sign up</span><span class="v">Phone code, no password</span></div>
+          <div class="hrow"><span class="k">2 · Salon made</span><span class="v">Own salon_id (own wall) · Hoa = owner</span></div>
+          <div class="hrow"><span class="k">3 · Defaults</span><span class="v">Time zone, receipt, EN/VI, nail service template</span></div>
+          <div class="hrow"><span class="k">4 · Setup checklist</span><span class="v">10 steps start · progress shows on Salons</span></div>
+        </div>
+        <div class="group">
+          <div class="hrow" style="font-weight:600">Invites</div>
+          <sc-for list="{{invites}}" as="i" hint-placeholder-count="2"><div class="hrow"><span class="v"><b>{{i.n}}</b> <span class="cap">{{i.o}}</span></span><span class="{{i.cls}}">{{i.s}}</span></div></sc-for>
+        </div>
+      </div>
+    </main>
+    </sc-if>
+
+    <sc-if value="{{vSystem}}" hint-placeholder-val="{{false}}">
+    <main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 24px;min-height:0">
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+        <div class="stat" style="cursor:default"><span class="cap">Uptime · 30 days</span><span class="v">99.98%</span><span class="cap">1 short blip Nov 9</span></div>
+        <div class="stat" style="cursor:default"><span class="cap">App errors · 24 h</span><span class="v">7</span><span class="cap">5 salons · 0 lost data</span></div>
+        <div class="stat" style="cursor:default"><span class="cap">Stripe messages</span><span class="v">1,284</span><span class="up" style="font-size:12px">0 failed · all matched</span></div>
+        <div class="stat" style="cursor:default"><span class="cap">Our costs · Nov</span><span class="v">$84</span><span class="cap">vs $98 income</span></div>
+      </div>
+      <div style="display:flex;gap:16px;flex:1;min-height:0">
+        <div class="group" style="flex:1">
+          <div class="hrow" style="font-weight:600">Checks (Running smooth)</div>
+          <sc-for list="{{checks}}" as="c" hint-placeholder-count="6"><div class="hrow"><span class="v">{{c.n}}</span><span class="cap">{{c.d}}</span><span class="{{c.cls}}">{{c.s}}</span></div></sc-for>
+        </div>
+        <div class="group" style="width:360px;flex:none">
+          <div class="hrow" style="font-weight:600">Costs this month</div>
+          <sc-for list="{{costs}}" as="c" hint-placeholder-count="6"><div class="hrow"><span class="v">{{c.n}}</span><b>{{c.v}}</b></div></sc-for>
+          <div class="hrow"><span class="v cap">Spending alerts on every service</span></div>
+        </div>
+      </div>
+    </main>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["salons","salon","new","system"],"default":"salons"},"role":{"editor":"enum","options":["elang","oliver"],"default":"elang"},"access":{"editor":"enum","options":["none","wait","on"],"default":"none"},"invite":{"editor":"boolean","default":false},"filter":{"editor":"enum","options":["all","action","pilot"],"default":"all"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); p = p || {};
+    this.state = { view: p.view || 'salons', role: p.role || 'elang', access: p.access || 'none', invite: !!p.invite, plan: 'pilot', filter: p.filter || 'all', handled: {} };
+  }
+  renderVals() {
+    const S = this.state, admin = S.role === 'oliver';
+    const I = (d) => d;
+    const ic = {
+      salons: '▦', alerts: '!', new: '+', system: '⚙'
+    };
+    const go = (v) => (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ view: v }); };
+    const A = [
+      ['a1', 'bad', '!', 'Golden Nails', 'Card reader offline 2 h. Cards can’t be taken on it.', 'since 10:12 AM · Houston', 'Open salon'],
+      ['a2', 'warn', '$', 'Cosmo Nails', 'Stripe needs the owner’s ID. Payouts paused.', 'since yesterday · Wildwood, MO', 'Open salon'],
+      ['a3', 'warn', '…', 'Lily Nail Spa', 'Setup stuck at step 6 (Card reader) for 3 days.', 'last step Nov 13', 'Open salon'],
+      ['a4', 'warn', '▼', 'Bella Nails', 'Tickets down 60% vs last month. At risk.', 'this month · Sacramento', 'Open salon']
+    ].filter((a) => !S.handled[a[0]]);
+    const SAL = [
+      ['Mai Nails', 'Campbell, CA', 'Pilot', 10, '31 · $1,842', 'Payouts on', 'tag jade', 'Approved', 'tag jade', 'Good', 'tag jade', 'pilot'],
+      ['Golden Nails', 'Houston, TX', 'Paid', 10, '18 · $964', 'Payouts on', 'tag jade', 'Approved', 'tag jade', 'Reader offline', 'tag bad', 'action'],
+      ['Cosmo Nails', 'Wildwood, MO', 'Pilot', 10, '22 · $1,210', 'Needs owner ID', 'tag warn', 'Approved', 'tag jade', 'Needs action', 'tag warn', 'action pilot'],
+      ['Lily Nail Spa', 'San Jose, CA', 'Pilot', 6, '—', 'Verified', 'tag jade', 'Pending', 'tag warn', 'Setup stuck', 'tag warn', 'action pilot'],
+      ['Bella Nails', 'Sacramento, CA', 'Paid', 10, '4 · $212', 'Payouts on', 'tag jade', 'Approved', 'tag jade', 'At risk', 'tag warn', 'action'],
+      ['Queen Nails', 'Austin, TX', 'Invited', 0, '—', 'Not yet', 'tag grey', 'Not yet', 'tag grey', 'Invite sent', 'tag grey', 'pilot']
+    ].filter((s) => S.filter === 'all' || s[11].indexOf(S.filter) >= 0);
+    const left = S.access === 'on' ? '23 h 52 m' : '';
+    const qrBits = '1111111100000110111011011101101110110000011111111'.split('').map((b, i) => (((i * 7 + 3) % 5 === 0) !== (b === '1')) ? '' : 'o');
+    return {
+      title: { salons: 'Salons', salon: 'Salon', new: 'Add a salon', system: 'System (admin)' }[S.view],
+      meInit: admin ? 'O' : 'E',
+      navSalons: S.view === 'salons' || S.view === 'salon' ? 'on' : '', navNew: S.view === 'new' ? 'on' : '', navSystem: S.view === 'system' ? 'on' : '',
+      goSalons: go('salons'), goNew: go('new'), goSystem: go('system'), isAdmin: admin, hasBadge: A.length > 0, badge: A.length,
+      roles: [['elang', 'Elang · support'], ['oliver', 'Oliver · admin']].map((r) => ({ label: r[1], cls: S.role === r[0] ? 'on' : '', pick: () => this.setState({ role: r[0], view: r[0] === 'elang' && S.view === 'system' ? 'salons' : S.view }) })),
+      vSalons: S.view === 'salons', vSalon: S.view === 'salon', vNew: S.view === 'new', vSystem: S.view === 'system' && admin,
+      biz: [
+        ['Active salons', '5', '+1 invited', 'cap'], ['Pilot · Paid', '3 · 2', '1 pilot ends in 6 days', 'cap'],
+        ['Our income · month', '$98', '2 × $49 · no card markup', 'cap'], ['Card volume · week', '$41.2K', '▲ 8% · goes to salons', 'up'],
+        ['At risk', '1', 'Bella Nails · tickets ▼ 60%', 'down']
+      ].map((k) => ({ l: k[0], v: k[1], s: k[2], cls: k[3] })),
+      filters: [['all', 'All 6'], ['action', 'Needs action'], ['pilot', 'Pilot']].map((f) => ({ label: f[1], cls: S.filter === f[0] ? 'on' : '', pick: () => this.setState({ filter: f[0] }) })),
+      salons: SAL.map((s) => ({ name: s[0], where: s[1], plan: s[2], setupT: s[3] + '/10' + (s[3] === 6 ? ' · stuck' : ''), setupW: 'width:' + s[3] * 10 + '%',
+        today: s[4], stripe: s[5], stripeCls: s[6], text: s[7], textCls: s[8], health: s[9], hCls: s[10],
+        rcls: 'srow', open: () => this.setState({ view: 'salon' }) })),
+      alerts: A.map((a) => ({ icCls: 'ic ' + a[1], icon: a[2], salon: a[3], text: a[4], when: a[5], cta: a[6],
+        open: () => this.setState({ view: 'salon' }), done: () => { const h = Object.assign({}, S.handled); h[a[0]] = true; this.setState({ handled: h }); } })),
+      openAlerts: A.length + ' open', noAlerts: A.length === 0,
+      back: () => this.setState({ view: 'salons' }),
+      supportOn: S.access === 'on', supportLeft: left,
+      accNone: S.access === 'none', accWait: S.access === 'wait', accOn: S.access === 'on',
+      accCardCls: S.access === 'on' ? 'card support' : 'card',
+      ask: () => this.setState({ access: 'wait' }), cancelAsk: () => this.setState({ access: 'none' }), simAllow: () => this.setState({ access: 'on' }),
+      endSupport: () => this.setState({ access: 'none' }),
+      lockText: S.access === 'on' ? 'Support mode: you can see screens Tom can see. Every tap is logged.' : 'Hidden: client names + phones, each tech’s pay, notes. Only totals show.',
+      log: [['12:34 PM', 'Tom allowed support for 24 h'], ['12:35 PM', 'Elang opened Checkout · Settings'], ['12:37 PM', 'Elang re-paired reader “Front desk”'], ['12:38 PM', 'Reader online ✓']].map((l) => ({ t: l[0], x: l[1] })),
+      plans: [['pilot', 'Pilot · free 30 days'], ['paid', 'Paid · $49/mo']].map((p) => ({ label: p[1], cls: S.plan === p[0] ? 'on' : '', pick: () => this.setState({ plan: p[0] }) })),
+      noInvite: !S.invite, hasInvite: S.invite, makeInvite: () => this.setState({ invite: true }), qr: qrBits,
+      invites: [['Queen Nails', '· Hoa Pham · sent Nov 16', 'Not opened', 'tag grey'], ['Lily Nail Spa', '· Vy Ngo · Nov 10', 'Signed up ✓', 'tag jade']].map((i) => ({ n: i[0], o: i[1], s: i[2], cls: i[3] })),
+      checks: [['Backups', 'daily + point-in-time · restore test Nov 1', 'OK', 'tag jade'], ['Data walls test', 'every change · 2 fake salons', 'Pass', 'tag jade'], ['Sentry alerts', '7 errors · 0 new types', 'OK', 'tag jade'], ['Uptime checks', 'app + Stripe webhook', 'OK', 'tag jade'], ['2-step login', 'Oliver ✓ · Elang ✓', 'OK', 'tag jade'], ['Texting 10DLC', '1 salon pending (Lily)', 'Wait', 'tag warn']].map((c) => ({ n: c[0], d: c[1], s: c[2], cls: c[3] })),
+      costs: [['Supabase', '$25'], ['Vercel', '$20'], ['Twilio (texts + numbers)', '$31'], ['Sentry', '$0'], ['Domain + email', '$8'], ['Stripe', '$0 (salons pay their fees)']].map((c) => ({ n: c[0], v: c[1] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

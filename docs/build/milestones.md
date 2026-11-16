@@ -103,7 +103,7 @@ Boards: Checkout https://claude.ai/artifact/ArXa9za1gubGLWzEUH6GLw · Onboarding
 **Done when:** a tech sees only their own clients and money; works on iPhone + Android browsers.
 
 ## M14 · Pilot-ready
-**Design:** System Design doc "Running smooth" + "Founder Admin" (issues #21, #22).
+**Design:** Founder Admin board https://claude.ai/artifact/UsefYEihqDQ2Vg7iU6cSzN A1–A7 (`design/admin/`); System Design doc "Running smooth" + "Founder Admin" (issues #21, #22).
 **Build steps:** backups + restore test; data-wall test suite in CI; uptime + Sentry alerts; spending alerts; 2-step login for owners; Founder Admin (salon health only); support access granted by owner (24 h, logged); terms, privacy, text consent.
 **Done when:** restore test done; a support session is logged and expires; checklist in System Design all ticked.
 

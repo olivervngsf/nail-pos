@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin on phone</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.tag.warn{background:var(--orange-soft);color:#B5470A}
+.tag.bad{background:#FCE8E8;color:#C92A2A}
+.pa{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.pa .r{display:flex;gap:8px}
+.pa button{flex:1;height:40px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
+.pa button.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+</style>
+</helmet>
+<div class="phone" style="position:relative">
+  <div class="pbar" style="justify-content:space-between;padding:0 16px"><span style="width:32px"></span><span>Admin · Alerts</span><div class="av">E</div></div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding:12px 16px 80px;overflow:hidden">
+    <div style="display:flex;align-items:baseline;gap:8px"><b style="font-size:20px;flex:1">{{count}} to call</b><span class="cap">5 salons · 1 invited</span></div>
+    <sc-for list="{{alerts}}" as="a" hint-placeholder-count="4"><div class="pa">
+      <div style="display:flex;align-items:center;gap:8px"><b style="flex:1">{{a.salon}}</b><span class="{{a.cls}}">{{a.tag}}</span></div>
+      <div style="font-size:15px;line-height:20px">{{a.text}}</div>
+      <div class="r"><button class="dark" type="button">Call {{a.owner}}</button><button type="button" onClick="{{a.done}}">Handled</button></div>
+    </div></sc-for>
+    <sc-if value="{{none}}" hint-placeholder-val="{{false}}"><div class="cap" style="text-align:center;padding:24px">All clear ✓</div></sc-if>
+  </div>
+  <div class="ptabs"><button type="button" class="on">Alerts</button><button type="button">Salons</button><button type="button">Add salon</button></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { done: {} }; }
+  renderVals() {
+    const S = this.state;
+    const A = [['Golden Nails', 'Problem', 'tag bad', 'Card reader offline 2 h.', 'Tom'], ['Cosmo Nails', 'Payouts paused', 'tag warn', 'Stripe needs the owner’s ID.', 'Lan'], ['Lily Nail Spa', 'Setup stuck', 'tag warn', 'Step 6 (card reader) for 3 days.', 'Vy'], ['Bella Nails', 'At risk', 'tag warn', 'Tickets down 60% vs last month.', 'Kim']]
+      .map((a, i) => ({ a, i })).filter((x) => !S.done[x.i]);
+    return {
+      count: A.length, none: A.length === 0,
+      alerts: A.map(({ a, i }) => ({ salon: a[0], tag: a[1], cls: a[2], text: a[3], owner: a[4], done: () => { const d = Object.assign({}, S.done); d[i] = true; this.setState({ done: d }); } }))
+    };
+  }
+}
+</script>
+</body>
+</html>
