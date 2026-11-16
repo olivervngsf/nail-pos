@@ -314,6 +314,51 @@
    "h": 2600,
    "title": "Gift cards + loyalty: how it works (doc)",
    "page": "doc"
+  },
+  "ClientCards.dc.html": {
+   "x": 5910,
+   "y": 2300,
+   "w": 390,
+   "h": 844,
+   "title": "Client · my gift cards (add a card)",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Gc13Cards.dc.html": {
+   "x": 19750,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "G13 · Client page: my points + gift cards",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc14Add.dc.html": {
+   "x": 20580,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "G14 · Add a gift card: type or scan",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc15Added.dc.html": {
+   "x": 21410,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "G15 · Card added + linked",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc16Error.dc.html": {
+   "x": 22240,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "G16 · Card refused, plain reason",
+   "is_interactive": true,
+   "page": "gift"
   }
  },
  "order": [
@@ -348,7 +393,12 @@
   "GiftList.dc.html",
   "Gc11List.dc.html",
   "Gc12Make.dc.html",
-  "HowItWorks.dc.html"
+  "HowItWorks.dc.html",
+  "ClientCards.dc.html",
+  "Gc13Cards.dc.html",
+  "Gc14Add.dc.html",
+  "Gc15Added.dc.html",
+  "Gc16Error.dc.html"
  ],
  "notes": {
   "t1": {
@@ -386,9 +436,9 @@
   "tg2": {
    "x": 0,
    "y": -300,
-   "text": "Gift cards: setup, sell, use, refuse, lost (G1–G10)",
+   "text": "Gift cards: setup, sell, use, refuse, lost, code list, client adds a card (G1–G16)",
    "kind": "title1",
-   "maxW": 19670,
+   "maxW": 22990,
    "page": "gift"
   },
   "sg": {
