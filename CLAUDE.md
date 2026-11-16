@@ -73,6 +73,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-14: Desktop + mobile design; printing from desktop; iOS web Bluetooth printing not relied on.
 - 2026-11-14: Oliver's built calendar page = base front desk design; 10 gaps listed on the Screens board.
 - 2026-11-15: Insight, not autopilot for turns (Gap conflict #3 settled).
+- 2026-11-16: Run-smooth setup required before first pilot salon (issue #22; System Design "Running smooth" + board).
 - 2026-11-16: Founder Admin + support access (owner-granted, 24 h, logged); we see salon health, not client/tech private data.
 - 2026-11-16: Salon setup plan: demo → hardware + texting registration → 1-hour setup day (sign up, info, services, staff+PIN, Connect payments, reader, printer, salon device, clients, $1 test) → Elang on call day 1 → week-4 pilot review.
 - 2026-11-16: Each salon has its own Stripe account linked to our platform (Connect); money goes straight to salon; card fees pass-through; we earn only the flat monthly subscription. Stripe events (payments, fees, refunds, disputes, payouts) saved next to tickets by ticket # → insights (who earns how much, staff KPIs, daily money truth). Spec: System Design doc.
