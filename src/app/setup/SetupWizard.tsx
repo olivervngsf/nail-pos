@@ -2,6 +2,7 @@
 /* eslint-disable react/jsx-key -- step views return a [footer, body] pair, not a list */
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { getSupabase } from "@/lib/supabase/client";
 import { useStored } from "@/lib/useStored";
 import {
   STEPS, STATES, fmtHours, fmtMoney, fmtPhone, fmtTime, initials, newInviteCode, phoneOk, toMin,
@@ -37,9 +38,32 @@ function Centered({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Real text codes (Supabase phone login via Twilio Verify) turn on with NEXT_PUBLIC_SMS_LOGIN=on.
+// Off = test version: any 6 digits work.
+const SMS_ON = process.env.NEXT_PUBLIC_SMS_LOGIN === "on";
+const e164 = (phone: string) => "+1" + phone.replace(/\D/g, "").replace(/^1/, "");
+
+async function sendCode(phone: string): Promise<string | null> {
+  if (!SMS_ON) return null;
+  const sb = getSupabase();
+  if (!sb) return "Can't reach our server. Check internet and try again.";
+  const { error } = await sb.auth.signInWithOtp({ phone: e164(phone) });
+  return error ? "Couldn't send the text. Check the number and try again." : null;
+}
+
 function Signup({ s, set }: { s: SetupState; set: Set }) {
   const [tried, setTried] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
   const bad = !phoneOk(s.ownerPhone);
+  const go = async () => {
+    setTried(true);
+    if (bad) return;
+    setBusy(true); setErr("");
+    const e = await sendCode(s.ownerPhone);
+    setBusy(false);
+    if (e) setErr(e); else set((p) => ({ ...p, stage: "code" }));
+  };
   return (
     <Centered>
       <div className="logo">NP</div>
@@ -59,8 +83,9 @@ function Signup({ s, set }: { s: SetupState; set: Set }) {
         <label className="lbl" htmlFor="em">Email (for receipts and backups)</label>
         <input className="inp" id="em" type="email" autoComplete="email" value={s.ownerEmail} onChange={(e) => set((p) => ({ ...p, ownerEmail: e.target.value }))} />
       </div>
-      <button className="btn primary block" type="button" onClick={() => { setTried(true); if (!bad) set((p) => ({ ...p, stage: "code" })); }}>
-        Text me a code
+      {err && <div className="hint err" role="alert" style={{ margin: 0 }}>{err}</div>}
+      <button className="btn primary block" type="button" disabled={busy} onClick={go}>
+        {busy ? "Sending…" : "Text me a code"}
       </button>
       <div className="cap">Free 30-day pilot. One flat monthly price after that.</div>
     </Centered>
@@ -69,21 +94,41 @@ function Signup({ s, set }: { s: SetupState; set: Set }) {
 
 function Code({ s, set }: { s: SetupState; set: Set }) {
   const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [resent, setResent] = useState(false);
+  const enter = () => set((p) => ({ ...p, stage: "wizard", staff: p.staff.length ? p.staff : [{ name: p.ownerName || "Owner", phone: p.ownerPhone, role: "Owner", status: "You" }] }));
+  const verify = async () => {
+    if (!SMS_ON) return enter();
+    const sb = getSupabase();
+    if (!sb) return setErr("Can't reach our server. Check internet and try again.");
+    setBusy(true); setErr("");
+    const { error } = await sb.auth.verifyOtp({ phone: e164(s.ownerPhone), token: code, type: "sms" });
+    setBusy(false);
+    if (error) { setErr("That code didn't work. Check the text and try again."); setCode(""); } else enter();
+  };
   return (
     <Centered>
       <h1 className="h1">Enter the 6-digit code</h1>
       <p className="cap lead" style={{ margin: 0 }}>Sent to {s.ownerPhone}</p>
-      <input className="inp otp" inputMode="numeric" autoComplete="one-time-code" maxLength={6} aria-label="6-digit code"
+      <input className={`inp otp ${err ? "err" : ""}`} inputMode="numeric" autoComplete="one-time-code" maxLength={6} aria-label="6-digit code"
         placeholder="––––––" data-1p-ignore data-lpignore="true"
-        value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} autoFocus />
-      <div className="demo" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-        <span style={{ flex: 1, minWidth: 180 }}>Test version: texting isn&apos;t on yet. Type any 6 numbers.</span>
-        <button type="button" className="btn sm" onClick={() => setCode("123456")}>Fill test code</button>
-      </div>
-      <button className="btn primary block" type="button" disabled={code.length !== 6}
-        onClick={() => set((p) => ({ ...p, stage: "wizard", staff: p.staff.length ? p.staff : [{ name: p.ownerName || "Owner", phone: p.ownerPhone, role: "Owner", status: "You" }] }))}>
-        Verify
+        value={code} onChange={(e) => { setErr(""); setCode(e.target.value.replace(/\D/g, "").slice(0, 6)); }} autoFocus />
+      {err && <div className="hint err" role="alert" style={{ margin: 0 }}>{err}</div>}
+      {!SMS_ON && (
+        <div className="demo" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <span style={{ flex: 1, minWidth: 180 }}>Test version: texting isn&apos;t on yet. Type any 6 numbers.</span>
+          <button type="button" className="btn sm" onClick={() => setCode("123456")}>Fill test code</button>
+        </div>
+      )}
+      <button className="btn primary block" type="button" disabled={code.length !== 6 || busy} onClick={verify}>
+        {busy ? "Checking…" : "Verify"}
       </button>
+      {SMS_ON && (
+        <button className="btn ghost" type="button" disabled={resent} onClick={async () => { setResent(true); const e = await sendCode(s.ownerPhone); if (e) setErr(e); setTimeout(() => setResent(false), 30000); }}>
+          {resent ? "Code sent again" : "Send a new code"}
+        </button>
+      )}
       <button className="btn ghost" type="button" onClick={() => set((p) => ({ ...p, stage: "signup" }))}>Change number</button>
     </Centered>
   );
