@@ -7,14 +7,37 @@
 <link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
 <link rel="stylesheet" href="pos.css">
 <link rel="stylesheet" href="setup.css">
+<link rel="stylesheet" href="annot.css">
 </head>
 <body>
 <x-dc>
 <helmet><style>body{margin:0}</style></helmet>
-<dc-import name="Staff" scenario="sent" hint-size="1280px,800px"></dc-import>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Staff" scenario="sent" hint-size="1280px,800px"></dc-import>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="5"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+  </div>
+  <aside class="af-notes">
+    <div class="eyebrow">Annotations · 4d</div>
+    <div class="af-title">Invite sent</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="5"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Next → 4e: tap any person to see their invite.</div>
+  </aside>
+</div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
-class Component extends DCLogic { renderVals() { return {}; } }
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = [
+      [372, 404, 'New row slides up at the bottom with a soft green flash (1.6 s).'],
+      [700, 404, 'Tag: “Sending text…” with orange pulse (~1 s) → “Text sent”.'],
+      [600, 676, 'Dark toast: “Invite texted to Lan · (408) 555-0188”. Bar along the bottom drains over 6 s, then the toast fades.'],
+      [960, 676, 'Undo (within 6 s) → row removed and the text cancelled.'],
+      [900, 762, 'Footer updates: “N invites waiting — they can finish later”.']
+    ];
+    return { pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
 </script>
 </body>
 </html>

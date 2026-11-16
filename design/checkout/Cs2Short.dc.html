@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cash: not enough</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Cash" given="{{sixty}}" hint-size="1280px,800px"></dc-import>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="3"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+  </div>
+  <aside class="af-notes">
+    <div class="eyebrow">Annotations · 3b·2</div>
+    <div class="af-title">Cash — not enough</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="3"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Or go back and split: part cash, part card.</div>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = [[130, 230, "Box turns orange: “Still due $5.00” + what the client gave."], [1080, 740, "Cash received is grey until enough is entered."], [560, 150, "Pick a bigger amount or type it on the keypad."]];
+    return { one: 1, two: 2, four: 4, yes: true, hundred: 100, sixty: 60, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

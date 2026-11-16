@@ -46,9 +46,9 @@ body{margin:0}
             </sc-for>
           </div>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-radius:16px;background:var(--surface)">
-          <span style="font-size:17px;font-weight:600">Change</span>
-          <span class="money fade" style="font-size:40px">{{change}}</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-radius:16px;{{boxStyle}}">
+          <span style="font-size:17px;font-weight:600">{{changeLabel}}<span class="cap" style="display:block;font-weight:400">{{givenNote}}</span></span>
+          <span class="money fade" style="font-size:40px;{{changeStyle}}">{{change}}</span>
         </div>
         <div class="sep"></div>
         <div>
@@ -70,23 +70,31 @@ body{margin:0}
           <button class="key" type="button">.</button><button class="key" type="button">0</button><button class="key" type="button" aria-label="Delete">⌫</button>
         </div>
         <div style="flex:1"></div>
-        <a class="btn primary block" href="Done.dc.html">Cash received</a>
+        <a class="btn primary block" href="Done.dc.html" style="{{doneStyle}}">Cash received</a>
       </section>
     </main>
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"given":{"editor":"int","default":100},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
-  constructor(p){ super(p); this.state = { given: 100 }; }
+  constructor(p){ super(p); this.state = { given: (p && p.given) || 100 }; }
   renderVals() {
-    const due = 65;
+    const due = 65, g = this.state.given, short = g < due;
     const opts = [65, 70, 80, 100].map((v) => ({
       label: '$' + v,
-      cls: this.state.given === v ? 'quick num on' : 'quick num',
+      cls: g === v ? 'quick num on' : 'quick num',
       pick: () => this.setState({ given: v })
     }));
-    return { opts, change: '$' + (this.state.given - due).toFixed(2) };
+    return {
+      opts,
+      changeLabel: short ? 'Still due' : 'Change',
+      change: '$' + Math.abs(g - due).toFixed(2),
+      changeStyle: short ? 'color:#E8590C' : '',
+      boxStyle: short ? 'background:#FDEEE6' : 'background:var(--surface)',
+      givenNote: short ? 'Client gave $' + g.toFixed(2) + ' — not enough' : '',
+      doneStyle: short ? 'opacity:.35;pointer-events:none' : ''
+    };
   }
 }
 </script>

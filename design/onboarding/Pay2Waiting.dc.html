@@ -7,14 +7,35 @@
 <link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
 <link rel="stylesheet" href="pos.css">
 <link rel="stylesheet" href="setup.css">
+<link rel="stylesheet" href="annot.css">
 </head>
 <body>
 <x-dc>
 <helmet><style>body{margin:0}</style></helmet>
-<dc-import name="Payments" s="{{v}}" hint-size="1280px,800px"></dc-import>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Payments" s="{{v}}" hint-size="1280px,800px"></dc-import>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="3"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+  </div>
+  <aside class="af-notes">
+    <div class="eyebrow">Annotations · 5b</div>
+    <div class="af-title">Waiting for Stripe</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="3"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">In Stripe the owner enters business, ID, bank (Stripe checks; we never see them). Done → 5d. Needs more → 5c.</div>
+  </aside>
+</div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
-class Component extends DCLogic { renderVals() { return { v: 1 }; } }
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = [
+      [784, 196, 'Pulsing ring = waiting. This page updates by itself when Stripe finishes (no refresh).'],
+      [700, 330, 'Cancel → back to 5a.'],
+      [900, 330, 'Demo only: shows the “Stripe needs more info” case.']
+    ];
+    return { v: 1, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
 </script>
 </body>
 </html>

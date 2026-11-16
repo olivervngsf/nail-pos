@@ -16,6 +16,7 @@ Read this first every session. Keep it short; link out for detail.
 - Base front desk look = Oliver's built calendar page (fix the 10 gaps on the Screens board).
 - Every flow shows: desktop (front desk/owner) + phone (tech/client); VN staff / EN customer text; offline + syncing state; PIN step for staff actions; who (role) sees it.
 - Each screen: big buttons, one job, money in plain $ with tip + card fee shown.
+- ALWAYS annotate (Oliver, Nov 16): every screen/frame gets numbered orange pins + an Annotations panel beside it (what it does, what each tap does, what's next). Show flows as a row of step frames (one per state, incl. error states), not just one clickable screen. Pattern: `design/onboarding/annot.css` + `Stf*.dc.html`.
 - When a flow is done: add a row to the Hub table, a "Back to: Nail POS Hub" link in it, and update the Build Tracker.
 - Look (set Nov 16): English first (EN/VI switch in each person's profile), compact Apple-like, client (CRM) panel on checkout, soft fade-in motion, off with reduced motion.
 - Done flows: Checkout https://claude.ai/artifact/ArXa9za1gubGLWzEUH6GLw · Onboarding https://claude.ai/artifact/1A5maZvg44WyCY5gugLVym

@@ -1,0 +1,10 @@
+/* Annotation frame: screen (1280x800) + notes panel (360) = 1640x800 */
+.af{width:1640px;height:800px;display:flex;background:#F5F5F7}
+.af-screen{position:relative;width:1280px;height:800px;flex:none;overflow:hidden}
+.af-notes{width:360px;padding:24px 22px;border-left:1px solid #E5E5EA;background:#FFFDF6;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;color:#1C1C1E}
+.af-title{font-size:17px;font-weight:700;letter-spacing:-0.01em;line-height:22px}
+.af-row{display:flex;gap:10px;align-items:flex-start}
+.af-txt{font-size:14px;line-height:20px}
+.af-next{margin-top:auto;padding-top:10px;border-top:1px solid #E5E5EA;font-size:13px;line-height:18px;color:#5C5C5E}
+.pin{position:absolute;width:28px;height:28px;border-radius:50%;background:#E8590C;color:#fff;font:700 13px/28px -apple-system,BlinkMacSystemFont,sans-serif;text-align:center;box-shadow:0 0 0 4px rgba(232,89,12,.25),0 2px 6px rgba(0,0,0,.2);pointer-events:none;z-index:50;transform:translate(-50%,-50%)}
+.pin.static{position:static;transform:none;flex:none;box-shadow:none}

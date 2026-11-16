@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reader: client picks tip</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Reader" step="{{one}}" hint-size="1280px,800px"></dc-import>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="5"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+  </div>
+  <aside class="af-notes">
+    <div class="eyebrow">Annotations · 3a·1</div>
+    <div class="af-title">Card reader — client picks tip</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="5"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Steps advance by themselves as the reader reports back.</div>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = [[130, 200, "Steps list: done = black ✓, now = orange ring with pulse, next = grey."], [1060, 250, "What the client sees on the reader (English): Add a tip?"], [1060, 380, "Custom tip picked ($18.00) shows black."], [130, 640, "No internet box: reader needs Wi-Fi; ticket is safe, switch to cash."], [150, 720, "Cancel · other method → back to Pay."]];
+    return { one: 1, two: 2, four: 4, yes: true, hundred: 100, sixty: 60, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

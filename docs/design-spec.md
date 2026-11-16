@@ -141,6 +141,13 @@ Side steps (same on all): 1 Sign up · 2 Salon info · 3 Services · 4 Staff + P
 | Map | Staff flow map (`StaffFlowMap`) | 1800×844 board: owner lane (7 boxes), staff lane (7 boxes), 10 "What if…" cards. | Reference only. Proposals to confirm: 24 h reminder text, invite link expires after 7 days, "Wrong number" tag after "Not me". |
 | S2 | First clock-in (`StaffClockIn`) | Date + time 44px; 220px round button. | Tap → button turns white with jade ring "Clocked in ✓"; details fade in (clocked-in time, "#3 in line", first appointment). Tap again = clock out. |
 
+## 6a. Step frames + annotations (both flows)
+- Each flow also appears as a row of **step frames** (one per state, incl. errors) at the top of its board, 1640×800: the real screen (1280) + an **Annotations** panel (360). Orange numbered pins on the screen match the notes. Styles: `annot.css`.
+- Checkout frames: `Tk1–Tk7` (ticket → add-service drawer → pick staff → line added → discount drawer → gift card drawer → ready), `Rd1–Rd4` (tip → tap → approved → declined), `Cs1–Cs2` (change → not enough).
+- Onboarding frames: `Stf1–Stf6`, `Svc1–Svc5`, `Pay1–Pay4`.
+- Ticket drawers (`Main.dc.html`, prop `scenario`): 440px right drawer, slides in .35s over an ink/22% scrim; Add service = search + service list → staff list with facts (request, turns, $ today, free at); Discount = amount chips ($5/$10/10%/15%) + "Takes off" preview + reason chips + manager PIN (4 dots) → Apply (grey until PIN); Gift card = number/scan + Look up → dark balance card → use amount stepper ($5 steps, max balance/due) → Apply. Totals recompute live.
+- Reader props `step` (1–4) + `declined`; declined = red row + reader ✕ + Try again. Cash prop `given`; less than due = orange "Still due", Cash received disabled.
+
 ## 6b. Every tap, every screen
 The grey "TAPS" sticky under each board lists what every button does, including error and offline cases not drawn as screens (declined card, printer not found, wrong code, bad import file…). They live in `design/<flow>/canvas.json` → `notes.n1…n9`. Treat them as part of this spec.
 

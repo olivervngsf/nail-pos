@@ -7,14 +7,36 @@
 <link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
 <link rel="stylesheet" href="pos.css">
 <link rel="stylesheet" href="setup.css">
+<link rel="stylesheet" href="annot.css">
 </head>
 <body>
 <x-dc>
 <helmet><style>body{margin:0}</style></helmet>
-<dc-import name="Services" mode="blurry" hint-size="1280px,800px"></dc-import>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Services" mode="blurry" hint-size="1280px,800px"></dc-import>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+  </div>
+  <aside class="af-notes">
+    <div class="eyebrow">Annotations · 3c</div>
+    <div class="af-title">Photo can't be read</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Never blames the owner; always offers the template as a way out.</div>
+  </aside>
+</div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
-class Component extends DCLogic { renderVals() { return {}; } }
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = [
+      [372, 110, 'Their photo, shown blurred so they see why.'],
+      [650, 150, 'Orange “Couldn’t read it” pill + plain title.'],
+      [650, 260, '3 fixes: get closer, avoid glare, hold still or upload a photo/PDF.'],
+      [650, 360, 'Retake photo → camera again → 3b. Use nail template → 3e.']
+    ];
+    return { pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
 </script>
 </body>
 </html>

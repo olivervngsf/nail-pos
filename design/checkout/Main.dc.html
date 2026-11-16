@@ -10,9 +10,28 @@
 <body>
 <x-dc>
 <helmet>
-<style>body{margin:0}</style>
+<style>
+body{margin:0}
+.scrim{position:absolute;inset:0;background:rgba(28,28,30,.22);animation:fadeIn .25s ease both;z-index:5}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:440px;background:#fff;box-shadow:-12px 0 40px rgba(28,28,30,.16);z-index:6;display:flex;flex-direction:column;animation:slideIn .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+.dhead{height:60px;display:flex;align-items:center;gap:10px;padding:0 20px;border-bottom:1px solid var(--line);flex:none}
+.dbody{flex:1;overflow:auto;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.dfoot{padding:14px 20px 18px;border-top:1px solid var(--line);flex:none}
+.opt{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 14px;border:0;border-bottom:1px solid var(--line);background:#fff;font:inherit;font-size:16px;color:var(--ink);text-align:left;cursor:pointer;transition:background .2s}
+.opt:last-child{border-bottom:0}
+.opt:hover{background:#FAFAFB}
+.chip{display:inline-flex;align-items:center;height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font:inherit;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer;transition:background .2s,color .2s}
+.chip.on{background:#1C1C1E;border-color:#1C1C1E;color:#fff}
+.pd{width:12px;height:12px;border-radius:50%;border:1.5px solid #1C1C1E;box-sizing:border-box}
+.pd.on{background:#1C1C1E}
+.mk{height:44px;border-radius:10px;border:0;background:var(--fill);font:inherit;font-size:18px;font-weight:500;cursor:pointer}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.newline{animation:fadeUp .45s var(--ease) both, flash 1.6s ease .2s}
+@keyframes flash{0%{background:#EAF5EC}100%{background:#fff}}
+</style>
 </helmet>
-<div class="app">
+<div class="app" style="position:relative">
   <nav class="rail" aria-label="Menu">
     <div class="logo">MN</div>
     <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
@@ -34,24 +53,25 @@
           <div class="seg"><span class="on">By staff</span><span>By service</span></div>
         </div>
         <div class="group in2">
-          <div class="row"><div class="av">K</div><div class="grow"><div style="font-weight:600">Gel manicure</div><div class="cap">Kim · 45 min</div></div><span class="num" style="font-weight:600">$35.00</span></div>
-          <div class="row"><div class="av">N</div><div class="grow"><div style="font-weight:600">Deluxe pedicure</div><div class="cap">Ngọc · 60 min</div></div><span class="num" style="font-weight:600">$55.00</span></div>
-          <div class="row" style="color:var(--ink-soft)"><div class="av" style="background:transparent;border:1px dashed var(--muted)">+</div><div class="grow">Add service</div></div>
+          <sc-for list="{{lines}}" as="l" hint-placeholder-count="2">
+            <div class="{{l.cls}}"><div class="av">{{l.init}}</div><div class="grow"><div style="font-weight:600">{{l.svc}}</div><div class="cap">{{l.staff}} · {{l.min}} min</div></div><span class="num" style="font-weight:600">{{l.priceText}}</span></div>
+          </sc-for>
+          <button class="opt" type="button" onClick="{{openService}}" style="color:var(--ink-soft)"><div class="av" style="background:transparent;border:1px dashed var(--muted)">+</div><div class="grow">Add service</div></button>
         </div>
         <div class="in3" style="display:flex;gap:8px">
-          <a class="btn" href="#">Discount $ / %</a>
-          <a class="btn" href="#">Gift card</a>
-          <a class="btn ghost" href="#">Note</a>
+          <button class="btn" type="button" onClick="{{openDiscount}}">Discount $ / %</button>
+          <button class="btn" type="button" onClick="{{openGift}}">Gift card</button>
+          <button class="btn ghost" type="button">Note</button>
         </div>
         <div style="flex:1"></div>
         <div class="card in3" style="padding:20px;display:flex;flex-direction:column;gap:10px">
-          <div class="line"><span>Services</span><span>$90.00</span></div>
-          <div class="line"><span>Regular client discount</span><span>−$5.00</span></div>
-          <div class="line"><span>Gift card ••4821 <span class="cap">$30.00 left</span></span><span>−$20.00</span></div>
+          <div class="line"><span>Services</span><span>{{subText}}</span></div>
+          <sc-if value="{{hasDisc}}" hint-placeholder-val="{{true}}"><div class="line fade"><span>{{discLabel}}</span><span>{{discText}}</span></div></sc-if>
+          <sc-if value="{{hasGift}}" hint-placeholder-val="{{true}}"><div class="line fade"><span>Gift card ••4821 <span class="cap">{{giftLeft}} left</span></span><span>{{giftText}}</span></div></sc-if>
           <div class="sep"></div>
           <div style="display:flex;align-items:center;gap:16px">
-            <div style="flex:1"><div class="cap">Due now · tip added at payment</div><div class="money">$65.00</div></div>
-            <a class="btn primary" href="Pay.dc.html" style="width:260px">Charge $65.00</a>
+            <div style="flex:1"><div class="cap">Due now · tip added at payment</div><div class="money fade">{{dueText}}</div></div>
+            <a class="btn primary" href="Pay.dc.html" style="width:260px">Charge {{dueText}}</a>
           </div>
         </div>
       </section>
@@ -76,18 +96,172 @@
         </div>
         <div>
           <div class="eyebrow" style="margin-bottom:6px">Gift card</div>
-          <div class="line"><span>••4821</span><span>$50.00 → $30.00</span></div>
+          <div class="line"><span>••4821</span><span>$50.00 balance</span></div>
         </div>
         <div style="flex:1"></div>
         <a class="btn ghost block" href="#">Open client profile →</a>
       </aside>
     </main>
   </div>
+
+  <sc-if value="{{sheetOpen}}" hint-placeholder-val="{{false}}">
+    <div class="scrim" onClick="{{close}}"></div>
+  </sc-if>
+
+  <sc-if value="{{sService}}" hint-placeholder-val="{{false}}">
+    <div class="drawer" role="dialog" aria-label="Add service">
+      <div class="dhead"><span class="h2" style="flex:1">Add service</span><button class="btn ghost" type="button" onClick="{{close}}" style="height:34px">Cancel</button></div>
+      <div class="dbody">
+        <input class="inp" style="width:100%;height:44px;border-radius:12px;border:1px solid var(--line);padding:0 14px;font:inherit;font-size:16px;box-sizing:border-box" placeholder="Search services" aria-label="Search services">
+        <div class="eyebrow">1 · Pick a service</div>
+        <div class="group" style="box-shadow:none;border:1px solid var(--line)">
+          <sc-for list="{{catalog}}" as="c" hint-placeholder-count="6">
+            <button class="opt" type="button" onClick="{{c.pick}}"><div class="grow"><div style="font-weight:600">{{c.name}}</div><div class="cap">{{c.min}} min</div></div><span class="num">{{c.priceText}}</span></button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{sStaff}}" hint-placeholder-val="{{false}}">
+    <div class="drawer" role="dialog" aria-label="Pick staff">
+      <div class="dhead"><button class="btn ghost" type="button" onClick="{{backSvc}}" style="height:34px;padding:0 8px">‹</button><span class="h2" style="flex:1">{{pickedName}}</span><button class="btn ghost" type="button" onClick="{{close}}" style="height:34px">Cancel</button></div>
+      <div class="dbody">
+        <div class="eyebrow">2 · Who does it?</div>
+        <div class="cap" style="margin-top:-8px">Facts only — you decide.</div>
+        <div class="group" style="box-shadow:none;border:1px solid var(--line)">
+          <sc-for list="{{staffList}}" as="s" hint-placeholder-count="3">
+            <button class="opt" type="button" onClick="{{s.pick}}"><div class="av">{{s.init}}</div><div class="grow"><div style="font-weight:600">{{s.name}} <span class="cap" style="font-weight:400">{{s.extra}}</span></div><div class="cap">{{s.facts}}</div></div><span class="{{s.tagCls}}">{{s.free}}</span></button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{sDiscount}}" hint-placeholder-val="{{false}}">
+    <div class="drawer" role="dialog" aria-label="Discount">
+      <div class="dhead"><span class="h2" style="flex:1">Discount</span><button class="btn ghost" type="button" onClick="{{close}}" style="height:34px">Cancel</button></div>
+      <div class="dbody">
+        <div class="eyebrow">Amount</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{discOpts}}" as="o" hint-placeholder-count="4"><button class="{{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div>
+        <div class="line" style="font-size:16px"><span>Takes off</span><span style="font-weight:700">{{discPreview}}</span></div>
+        <div class="eyebrow">Reason</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{reasons}}" as="r" hint-placeholder-count="4"><button class="{{r.cls}}" type="button" onClick="{{r.pick}}">{{r.label}}</button></sc-for></div>
+        <div class="eyebrow">Manager PIN</div>
+        <div style="display:flex;gap:12px;align-items:center"><sc-for list="{{pinDots}}" as="d" hint-placeholder-count="4"><span class="{{d}}"></span></sc-for><span class="cap" style="margin-left:6px">{{pinNote}}</span></div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px"><sc-for list="{{miniKeys}}" as="k" hint-placeholder-count="10"><button class="mk" type="button" onClick="{{k.press}}">{{k.label}}</button></sc-for></div>
+        <div class="cap">Staff commission on this ticket follows your setting: discounted price.</div>
+      </div>
+      <div class="dfoot"><button class="btn primary block" type="button" onClick="{{applyDisc}}" disabled="{{cantDisc}}">Apply discount</button></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{sGift}}" hint-placeholder-val="{{false}}">
+    <div class="drawer" role="dialog" aria-label="Gift card">
+      <div class="dhead"><span class="h2" style="flex:1">Gift card</span><button class="btn ghost" type="button" onClick="{{close}}" style="height:34px">Cancel</button></div>
+      <div class="dbody">
+        <div style="display:flex;gap:8px">
+          <input style="flex:1;height:48px;border-radius:12px;border:1px solid var(--line);padding:0 14px;font:inherit;font-size:17px;box-sizing:border-box" value="•••• 4821" aria-label="Gift card number">
+          <button class="btn" type="button" onClick="{{lookUp}}" style="height:48px">Look up</button>
+        </div>
+        <div class="cap" style="margin-top:-6px">Scan the plastic card, type its number, or search the client's phone.</div>
+        <sc-if value="{{giftFound}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="display:flex;flex-direction:column;gap:14px">
+            <div class="card" style="padding:18px;background:#1C1C1E;color:#fff">
+              <div style="font-size:13px;opacity:.7">Mai Nails gift card · ••4821</div>
+              <div class="money" style="color:#fff;margin-top:6px">$50.00</div>
+              <div style="font-size:13px;opacity:.7">Balance · sold Oct 2 to Lan Tran · never expires</div>
+            </div>
+            <div class="line" style="font-size:16px"><span>Use on this ticket</span>
+              <span style="display:flex;align-items:center;gap:8px"><button class="mk" type="button" onClick="{{giftDec}}" style="width:40px" aria-label="Less">−</button><b class="num" style="min-width:70px;text-align:center">{{giftUseText}}</b><button class="mk" type="button" onClick="{{giftInc}}" style="width:40px" aria-label="More">+</button></span>
+            </div>
+            <div class="line"><span class="cap">Left on card after</span><span class="cap num">{{giftAfter}}</span></div>
+          </div>
+        </sc-if>
+      </div>
+      <div class="dfoot"><button class="btn primary block" type="button" onClick="{{applyGift}}" disabled="{{cantGift}}">Apply gift card</button></div>
+    </div>
+  </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["full","start","service","staff","discount","gift","added"],"default":"full"},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
-  renderVals() { return {}; }
+  constructor(p){
+    super(p);
+    const sc = (p && p.scenario) || 'full';
+    const base = [
+      { svc: 'Gel manicure', staff: 'Kim', init: 'K', min: 45, price: 35 },
+      { svc: 'Deluxe pedicure', staff: 'Ngọc', init: 'N', min: 60, price: 55 }
+    ];
+    this.state = {
+      lines: base, newIdx: -1,
+      disc: sc === 'full' ? { label: 'Regular client discount', amt: 5 } : null,
+      gift: sc === 'full' ? { use: 20 } : null,
+      sheet: null, picked: null,
+      dOpt: 0, reason: 0, pin: 0,
+      giftFound: false, giftUse: 20
+    };
+    if (sc === 'service') this.state.sheet = 'service';
+    if (sc === 'staff') { this.state.sheet = 'staff'; this.state.picked = { name: 'Nail design', min: 15, price: 5 }; }
+    if (sc === 'discount') { this.state.sheet = 'discount'; this.state.pin = 2; }
+    if (sc === 'gift') { this.state.sheet = 'gift'; this.state.giftFound = true; this.state.disc = { label: 'Regular client discount', amt: 5 }; }
+    if (sc === 'added') { this.state.lines = base.concat([{ svc: 'Nail design', staff: 'Kim', init: 'K', min: 15, price: 5 }]); this.state.newIdx = 2; }
+  }
+  renderVals() {
+    const S = this.state;
+    const money = (n) => '$' + n.toFixed(2);
+    const sub = S.lines.reduce((a, l) => a + l.price, 0);
+    const discOpts = [{ label: '$5', amt: 5 }, { label: '$10', amt: 10 }, { label: '10%', pct: 10 }, { label: '15%', pct: 15 }];
+    const discAmt = (o) => o.pct ? Math.round(sub * o.pct) / 100 : o.amt;
+    const dAmt = S.disc ? S.disc.amt : 0;
+    const afterDisc = sub - dAmt;
+    const gUse = S.gift ? Math.min(S.gift.use, afterDisc) : 0;
+    const due = afterDisc - gUse;
+    const reasons = ['Regular client', 'Birthday', 'Fix / redo', 'Other'];
+    const catalog = [['Regular manicure', 30, 20], ['Gel manicure', 45, 35], ['Regular pedicure', 40, 30], ['Deluxe pedicure', 60, 55], ['Dip powder', 60, 45], ['Acrylic fill', 45, 35], ['Nail design', 15, 5]];
+    const staff = [
+      { name: 'Kim', init: 'K', extra: '· Lan asks for Kim', facts: '3 turns today · $186 today · finishing Gel at 2:10', free: 'Free 2:10', tagCls: 'tag' },
+      { name: 'Tuyết', init: 'T', extra: '', facts: '2 turns today · $120 today', free: 'Free now', tagCls: 'tag jade' },
+      { name: 'Ngọc', init: 'N', extra: '', facts: '4 turns today · on Lan’s pedicure', free: 'Free 2:45', tagCls: 'tag' }
+    ];
+    const giftMax = Math.min(50, afterDisc);
+    const close = () => this.setState({ sheet: null });
+    return {
+      lines: S.lines.map((l, i) => Object.assign({}, l, { priceText: money(l.price), cls: 'row' + (i === S.newIdx ? ' newline' : '') })),
+      subText: money(sub),
+      hasDisc: !!S.disc, discLabel: S.disc ? S.disc.label : '', discText: '−' + money(dAmt),
+      hasGift: !!S.gift, giftText: '−' + money(gUse), giftLeft: money(50 - gUse),
+      dueText: money(due),
+      sheetOpen: !!S.sheet, sService: S.sheet === 'service', sStaff: S.sheet === 'staff', sDiscount: S.sheet === 'discount', sGift: S.sheet === 'gift',
+      close,
+      openService: () => this.setState({ sheet: 'service' }),
+      openDiscount: () => this.setState({ sheet: 'discount', pin: 0 }),
+      openGift: () => this.setState({ sheet: 'gift', giftFound: false }),
+      catalog: catalog.map((c) => ({ name: c[0], min: c[1], priceText: money(c[2]), pick: () => this.setState({ sheet: 'staff', picked: { name: c[0], min: c[1], price: c[2] } }) })),
+      pickedName: S.picked ? S.picked.name : '',
+      backSvc: () => this.setState({ sheet: 'service' }),
+      staffList: staff.map((s) => Object.assign({}, s, { pick: () => {
+        const l = { svc: S.picked.name, staff: s.name, init: s.init, min: S.picked.min, price: S.picked.price };
+        this.setState({ lines: S.lines.concat([l]), newIdx: S.lines.length, sheet: null });
+      } })),
+      discOpts: discOpts.map((o, i) => ({ label: o.label, cls: S.dOpt === i ? 'chip on' : 'chip', pick: () => this.setState({ dOpt: i }) })),
+      discPreview: '−' + money(discAmt(discOpts[S.dOpt])),
+      reasons: reasons.map((r, i) => ({ label: r, cls: S.reason === i ? 'chip on' : 'chip', pick: () => this.setState({ reason: i }) })),
+      pinDots: [0, 1, 2, 3].map((i) => (i < S.pin ? 'pd on' : 'pd')),
+      pinNote: S.pin >= 4 ? 'Manager OK ✓' : 'Mai or a manager types their PIN',
+      miniKeys: ['1','2','3','4','5','6','7','8','9','0'].map((k) => ({ label: k, press: () => this.setState({ pin: Math.min(4, S.pin + 1) }) })),
+      cantDisc: S.pin < 4,
+      applyDisc: () => { const o = discOpts[S.dOpt]; this.setState({ disc: { label: reasons[S.reason] + ' discount' + (o.pct ? ' ' + o.label : ''), amt: discAmt(o) }, sheet: null }); },
+      giftFound: S.giftFound,
+      lookUp: () => this.setState({ giftFound: true, giftUse: Math.min(20, giftMax) }),
+      giftUseText: money(Math.min(S.giftUse, giftMax)),
+      giftAfter: money(50 - Math.min(S.giftUse, giftMax)),
+      giftInc: () => this.setState({ giftUse: Math.min(giftMax, S.giftUse + 5) }),
+      giftDec: () => this.setState({ giftUse: Math.max(5, S.giftUse - 5) }),
+      cantGift: !S.giftFound,
+      applyGift: () => this.setState({ gift: { use: Math.min(S.giftUse, giftMax) }, sheet: null })
+    };
+  }
 }
 </script>
 </body>

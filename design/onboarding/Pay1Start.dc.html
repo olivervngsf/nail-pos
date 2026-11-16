@@ -7,14 +7,37 @@
 <link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
 <link rel="stylesheet" href="pos.css">
 <link rel="stylesheet" href="setup.css">
+<link rel="stylesheet" href="annot.css">
 </head>
 <body>
 <x-dc>
 <helmet><style>body{margin:0}</style></helmet>
-<dc-import name="Payments" s="{{v}}" hint-size="1280px,800px"></dc-import>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Payments" s="{{v}}" hint-size="1280px,800px"></dc-import>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="5"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+  </div>
+  <aside class="af-notes">
+    <div class="eyebrow">Annotations · 5a</div>
+    <div class="af-title">Connect payments — start</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="5"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Next → 5b after tapping Connect with Stripe.</div>
+  </aside>
+</div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
-class Component extends DCLogic { renderVals() { return { v: 0 }; } }
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = [
+      [520, 176, 'Fees up front, plain numbers: reader 2.7% + 5¢, QR 2.9% + 30¢, 2 business days to bank.'],
+      [1050, 344, '“Nail POS cut of card money: $0” — we earn only the monthly price.'],
+      [520, 410, '“Have these ready” checklist so they don’t get stuck halfway in Stripe.'],
+      [520, 562, 'Connect with Stripe → opens Stripe’s own sign-up in a new window → 5b.'],
+      [1190, 762, 'Continue grey until connected (or “Do it later” in 5c).']
+    ];
+    return { v: 0, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
 </script>
 </body>
 </html>

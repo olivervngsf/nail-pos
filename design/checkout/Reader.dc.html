@@ -53,6 +53,7 @@ body{margin:0}
         </div>
         <div style="display:flex;gap:10px;margin-top:14px">
           <a class="btn" href="Pay.dc.html">Cancel · other method</a>
+          <sc-if value="{{showDeclined}}" hint-placeholder-val="{{false}}"><button class="btn" type="button" onClick="{{retry}}">Try again</button></sc-if>
           <button class="btn ghost" type="button" onClick="{{replay}}">Replay</button>
           <a class="btn primary" href="Done.dc.html" style="margin-left:auto;height:44px;font-size:15px">See paid screen →</a>
         </div>
@@ -87,6 +88,13 @@ body{margin:0}
                 <div class="h2">Tap, insert or swipe</div>
               </div>
             </sc-if>
+            <sc-if value="{{showDeclined}}" hint-placeholder-val="{{false}}">
+              <div class="fade" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;height:100%;text-align:center">
+                <div style="width:80px;height:80px;border-radius:50%;background:#FCEAEA;border:2px solid #E03131;display:flex;align-items:center;justify-content:center;font-size:34px;color:#E03131">✕</div>
+                <div class="h2">Declined</div>
+                <div class="cap">Please try another card.</div>
+              </div>
+            </sc-if>
             <sc-if value="{{showDone}}" hint-placeholder-val="{{false}}">
               <div class="fade" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;height:100%;text-align:center">
                 <div class="pop" style="width:80px;height:80px;border-radius:50%;background:#EAF5EC;border:2px solid #2F9E44;display:flex;align-items:center;justify-content:center;font-size:36px">✓</div>
@@ -101,10 +109,10 @@ body{margin:0}
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"step":{"editor":"int","min":1,"max":4,"default":1},"declined":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
-  constructor(p){ super(p); this.state = { step: 1 }; }
-  componentDidMount(){ this.start(); }
+  constructor(p){ super(p); this.fixed = !!(p && (p.step || p.declined)); this.state = { step: (p && p.step) || 1, declined: !!(p && p.declined) }; }
+  componentDidMount(){ if (!this.fixed) this.start(); }
   componentWillUnmount(){ clearInterval(this.t); }
   start(){
     clearInterval(this.t);
@@ -114,22 +122,24 @@ class Component extends DCLogic {
     }, 2200);
   }
   renderVals() {
-    const step = this.state.step;
-    const labels = ['Sent $65.00 to the reader', 'Client is choosing a tip…', 'Client taps or inserts card', 'Stripe confirms payment'];
+    const step = this.state.step, dec = this.state.declined;
+    const labels = ['Sent $65.00 to the reader', 'Client is choosing a tip…', dec ? 'Card declined — ask for another card' : 'Client taps or inserts card', 'Stripe confirms payment'];
     const steps = labels.map((label, i) => ({
       label,
       done: i < step || step >= 4 && i === 3,
       now: i === step && step < 4,
       next: i > step,
-      style: i === step && step < 4 ? 'font-weight:600' : (i > step ? 'color:#8E8E93' : '')
+      style: dec && i === 2 ? 'font-weight:600;color:#E03131' : (i === step && step < 4 ? 'font-weight:600' : (i > step ? 'color:#8E8E93' : ''))
     }));
     return {
       steps,
       showTip: step <= 1,
-      showTap: step === 2 || step === 3,
+      showTap: !dec && (step === 2 || step === 3),
+      showDeclined: dec,
       showDone: step >= 4,
+      retry: () => { this.setState({ declined: false, step: 2 }); this.start(); },
       customCls: step >= 1 ? 'tipbtn on' : 'tipbtn',
-      replay: () => { this.setState({ step: 1 }); this.start(); }
+      replay: () => { this.setState({ step: 1, declined: false }); this.start(); }
     };
   }
 }

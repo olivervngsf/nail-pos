@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ticket: start</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Main" scenario="start" hint-size="1280px,800px"></dc-import>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="6"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+  </div>
+  <aside class="af-notes">
+    <div class="eyebrow">Annotations · 1a</div>
+    <div class="af-title">Ticket — ready to add things</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="6"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Next → 1b (Add service).</div>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = [[130, 258, "Add service row (dashed +). Tap → Add service drawer slides in from the right (1b)."], [170, 324, "Discount $ / % → Discount drawer (1e). Needs a manager PIN."], [300, 324, "Gift card → Gift card drawer (1f)."], [130, 600, "Total card: Services, any discount / gift card lines, Due now. Updates live with a fade."], [900, 740, "Charge $90.00 → Pay screen. Label always shows the exact amount."], [950, 100, "Client panel (CRM): visits, avg ticket, how often they come, last visit, notes, gift card balance."]];
+    return { one: 1, two: 2, four: 4, yes: true, hundred: 100, sixty: 60, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

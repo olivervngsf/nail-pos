@@ -81,32 +81,30 @@ body{margin:0}
         </sc-if>
 
         <sc-if value="{{vAdd}}" hint-placeholder-val="{{false}}">
-          <div class="card fade" style="padding:22px;display:flex;flex-direction:column;gap:14px">
+          <div class="card fade" style="padding:18px 20px;display:flex;flex-direction:column;gap:12px">
             <div style="display:flex;align-items:center"><div class="h2" style="flex:1">Add staff</div><button class="btn ghost" type="button" onClick="{{cancel}}" style="height:32px;padding:0 10px">Cancel</button></div>
-            <div><label class="lbl" for="sn">Name they go by</label><input class="inp" id="sn" value="{{f.name}}" onChange="{{setName}}" placeholder="e.g. Lan"></div>
-            <div>
-              <label class="lbl" for="sc">Cell phone (gets the invite text)</label>
-              <input class="{{phoneCls}}" id="sc" value="{{f.phone}}" onChange="{{setPhone}}" inputmode="tel" placeholder="(408) 555-0100">
-              <sc-if value="{{phoneErr}}" hint-placeholder-val="{{false}}"><div class="err fade">{{phoneErrText}}</div></sc-if>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+              <div><label class="lbl" for="sn">Name</label><input class="inp" id="sn" value="{{f.name}}" onChange="{{setName}}" placeholder="e.g. Lan" style="height:44px;font-size:16px"></div>
+              <div><label class="lbl" for="sc">Cell phone</label><input class="{{phoneCls}}" id="sc" value="{{f.phone}}" onChange="{{setPhone}}" inputmode="tel" placeholder="(408) 555-0100" style="height:44px;font-size:16px"></div>
             </div>
+            <sc-if value="{{phoneErr}}" hint-placeholder-val="{{false}}"><div class="err fade" style="margin-top:-6px">{{phoneErrText}}</div></sc-if>
             <div>
               <div class="lbl">Role</div>
-              <div class="seg"><sc-for list="{{roles}}" as="o" hint-placeholder-count="3"><button class="{{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div>
+              <div class="seg" style="display:flex"><sc-for list="{{roles}}" as="o" hint-placeholder-count="3"><button class="{{o.cls}}" type="button" onClick="{{o.pick}}" style="flex:1">{{o.label}}</button></sc-for></div>
             </div>
             <div>
               <div class="lbl">How they're paid</div>
-              <div style="display:flex;gap:8px">
-                <sc-for list="{{pays}}" as="p" hint-placeholder-count="3">
-                  <button class="{{p.cls}}" type="button" onClick="{{p.pick}}"><span style="font-weight:600;font-size:14px">{{p.label}}</span><span class="cap" style="font-size:12px">{{p.sub}}</span></button>
-                </sc-for>
-              </div>
+              <div class="seg" style="display:flex"><sc-for list="{{pays}}" as="p" hint-placeholder-count="3"><button class="{{p.segCls}}" type="button" onClick="{{p.pick}}" style="flex:1">{{p.label}}</button></sc-for></div>
             </div>
-            <div class="fade" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:var(--surface)">
-              <div style="flex:1;font-size:14px;line-height:19px">{{payNote}}</div>
-              <div class="stepper"><button type="button" onClick="{{dec}}" aria-label="Less">−</button><span class="num" style="min-width:64px;text-align:center;font-weight:700">{{rateText}}</span><button type="button" onClick="{{inc}}" aria-label="More">+</button></div>
+            <div class="fade" style="display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:12px;background:var(--surface)">
+              <div style="display:flex;align-items:center;gap:12px">
+                <span style="flex:1;font-size:15px;font-weight:600">{{rateLabel}}</span>
+                <div class="stepper"><button type="button" onClick="{{dec}}" aria-label="Less">−</button><span class="num" style="min-width:72px;text-align:center;font-weight:700;font-size:17px">{{rateText}}</span><button type="button" onClick="{{inc}}" aria-label="More">+</button></div>
+              </div>
+              <div class="cap" style="font-size:13px;line-height:18px">{{payNote}}</div>
             </div>
             <button class="btn primary" type="button" onClick="{{add}}" disabled="{{cantAdd}}" style="height:48px;font-size:16px">Add + text invite</button>
-            <div class="cap" style="text-align:center">They get: "Mai Nails added you to Nail POS. Tap to set your PIN."</div>
+            <div class="cap" style="text-align:center;margin-top:-4px">They get a text with a link to set their PIN.</div>
           </div>
         </sc-if>
 
@@ -253,7 +251,8 @@ class Component extends DCLogic {
       phoneErr: !!phoneErrText, phoneErrText, phoneCls: phoneErrText ? 'inp num bad' : 'inp num',
       cantAdd,
       roles: roleNames.map((r, i) => ({ label: r, cls: f.role === i ? 'segb on' : 'segb', pick: () => setF({ role: i }) })),
-      pays: payOpts.map((o, i) => ({ label: o.label, sub: o.sub, cls: f.pay === i ? 'paybtn on' : 'paybtn', pick: () => setF({ pay: i, rate: [60, 16.5, 250][i] }) })),
+      pays: payOpts.map((o, i) => ({ label: o.label, sub: o.sub, cls: f.pay === i ? 'paybtn on' : 'paybtn', segCls: f.pay === i ? 'segb on' : 'segb', pick: () => setF({ pay: i, rate: [60, 16.5, 250][i] }) })),
+      rateLabel: ['Commission', 'Hourly rate', 'Weekly rent'][f.pay],
       inc: () => setF({ rate: Math.min(po.max, +(f.rate + po.step).toFixed(2)) }),
       dec: () => setF({ rate: Math.max(po.min, +(f.rate - po.step).toFixed(2)) }),
       setName: (e) => setF({ name: e.target.value }),

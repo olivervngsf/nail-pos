@@ -7,14 +7,36 @@
 <link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
 <link rel="stylesheet" href="pos.css">
 <link rel="stylesheet" href="setup.css">
+<link rel="stylesheet" href="annot.css">
 </head>
 <body>
 <x-dc>
 <helmet><style>body{margin:0}</style></helmet>
-<dc-import name="Staff" scenario="intro" hint-size="1280px,800px"></dc-import>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Staff" scenario="intro" hint-size="1280px,800px"></dc-import>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for>
+  </div>
+  <aside class="af-notes">
+    <div class="eyebrow">Annotations · 4a</div>
+    <div class="af-title">Team list — start of staff setup</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Next → 4b: tap “+ Add staff”. OPEN: PIN or phone number login — confirm with Elang.</div>
+  </aside>
+</div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
-class Component extends DCLogic { renderVals() { return {}; } }
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = [
+      [770, 472, '+ Add staff (dashed, full width). Tap → the right panel fades to the Add staff form (4b).'],
+      [770, 240, 'Each person is a button. Tap → their detail + invite timeline on the right (4e). Tag shows status: Owner / Text sent / PIN set ✓.'],
+      [1190, 80, '“How staff join” explains the 4 steps until someone adds or opens a person.'],
+      [1050, 762, 'Footer note counts invites still waiting. Continue is always allowed — staff can finish later.']
+    ];
+    return { pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
 </script>
 </body>
 </html>
