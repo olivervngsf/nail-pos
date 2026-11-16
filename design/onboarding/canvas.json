@@ -1,221 +1,545 @@
 {
  "v": 3,
- "createdOnFiles": {
-  "v": 1,
-  "at": "2026-11-16T17:10:00Z"
- },
- "title": "Nail POS — Onboarding Flow",
- "launch": {
-  "view": "canvas"
- },
- "pages": [],
+ "attachments": {},
  "boards": {
-  "Main.dc.html": {
-   "x": 0,
-   "y": 0,
-   "w": 1280,
+  "Clients.dc.html": {
    "h": 800,
-   "title": "1 · Sign up with phone",
-   "is_interactive": true
-  },
-  "Info.dc.html": {
-   "x": 1360,
-   "y": 0,
+   "is_interactive": true,
+   "title": "9 · Bring in clients",
    "w": 1280,
-   "h": 800,
-   "title": "2 · Salon info + state rules",
-   "is_interactive": true
-  },
-  "Services.dc.html": {
    "x": 2720,
-   "y": 0,
-   "w": 1280,
-   "h": 800,
-   "title": "3 · Services from nail template",
-   "is_interactive": true
-  },
-  "Staff.dc.html": {
-   "x": 4080,
-   "y": 0,
-   "w": 1280,
-   "h": 800,
-   "title": "4 · Staff — add, invite, track (fully clickable)",
-   "is_interactive": true
-  },
-  "Payments.dc.html": {
-   "x": 0,
    "y": 1700,
-   "w": 1280,
-   "h": 800,
-   "title": "5 · Connect payments (Stripe)",
-   "is_interactive": true
+   "page": "overview"
   },
   "Hardware.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "6–8 · Reader, printer, salon device",
+   "w": 1280,
    "x": 1360,
    "y": 1700,
+   "page": "overview"
+  },
+  "Info.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "2 · Salon info + state rules",
    "w": 1280,
-   "h": 800,
-   "title": "6–8 · Reader, printer, salon device",
-   "is_interactive": true
+   "x": 1360,
+   "y": 0,
+   "page": "overview"
   },
-  "Clients.dc.html": {
-   "x": 2720,
-   "y": 1700,
+  "Main.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "1 · Sign up with phone",
    "w": 1280,
-   "h": 800,
-   "title": "9 · Bring in clients",
-   "is_interactive": true
-  },
-  "Test.dc.html": {
-   "x": 4080,
-   "y": 1700,
-   "w": 1280,
-   "h": 800,
-   "title": "10 · $1 test → ready",
-   "is_interactive": true
-  },
-  "StaffInvite.dc.html": {
    "x": 0,
-   "y": 3400,
-   "w": 390,
-   "h": 844,
-   "title": "S1 · Staff joins: text → confirm → language → PIN",
-   "is_interactive": true
-  },
-  "StaffClockIn.dc.html": {
-   "x": 470,
-   "y": 3400,
-   "w": 390,
-   "h": 844,
-   "title": "S2 · First clock-in",
-   "is_interactive": true
-  },
-  "StaffFlowMap.dc.html": {
-   "x": 940,
-   "y": 3400,
-   "w": 1800,
-   "h": 844,
-   "title": "Staff setup — flow map + what ifs"
-  },
-  "Stf1Intro.dc.html": {
-   "x": 0,
-   "y": -4500,
-   "w": 1640,
-   "h": 800,
-   "title": "4a · Team list → tap “+ Add staff”",
-   "is_interactive": true
-  },
-  "Stf2Add.dc.html": {
-   "x": 1720,
-   "y": -4500,
-   "w": 1640,
-   "h": 800,
-   "title": "4b · Form fades in → fill → “Add + text invite”",
-   "is_interactive": true
-  },
-  "Stf3Error.dc.html": {
-   "x": 3440,
-   "y": -4500,
-   "w": 1640,
-   "h": 800,
-   "title": "4c · If phone is wrong → red line, Add grey",
-   "is_interactive": true
-  },
-  "Stf4Sent.dc.html": {
-   "x": 5160,
-   "y": -4500,
-   "w": 1640,
-   "h": 800,
-   "title": "4d · Row added → “Text sent” + Undo (6 s)",
-   "is_interactive": true
-  },
-  "Stf5Detail.dc.html": {
-   "x": 6880,
-   "y": -4500,
-   "w": 1640,
-   "h": 800,
-   "title": "4e · Tap a person → invite timeline + Resend",
-   "is_interactive": true
-  },
-  "Stf6Done.dc.html": {
-   "x": 8600,
-   "y": -4500,
-   "w": 1640,
-   "h": 800,
-   "title": "4f · Staff finished → “PIN set ✓”",
-   "is_interactive": true
-  },
-  "Svc1Choose.dc.html": {
-   "x": 0,
-   "y": -3000,
-   "w": 1640,
-   "h": 800,
-   "title": "3a · Choose → tap “Snap your menu”",
-   "is_interactive": true
-  },
-  "Svc2Reading.dc.html": {
-   "x": 1720,
-   "y": -3000,
-   "w": 1640,
-   "h": 800,
-   "title": "3b · Photo taken → “Reading your menu…”",
-   "is_interactive": true
-  },
-  "Svc3Blurry.dc.html": {
-   "x": 3440,
-   "y": -3000,
-   "w": 1640,
-   "h": 800,
-   "title": "3c · If photo is unreadable → tips + Retake",
-   "is_interactive": true
-  },
-  "Svc4Review.dc.html": {
-   "x": 5160,
-   "y": -3000,
-   "w": 1640,
-   "h": 800,
-   "title": "3d · Check what AI read → “Looks right · Continue”",
-   "is_interactive": true
-  },
-  "Svc5Template.dc.html": {
-   "x": 6880,
-   "y": -3000,
-   "w": 1640,
-   "h": 800,
-   "title": "3e · Or: nail template list",
-   "is_interactive": true
+   "y": 0,
+   "page": "overview"
   },
   "Pay1Start.dc.html": {
-   "x": 0,
-   "y": -1500,
-   "w": 1640,
    "h": 800,
+   "is_interactive": true,
    "title": "5a · Start → tap “Connect with Stripe”",
-   "is_interactive": true
+   "w": 1640,
+   "x": 0,
+   "y": 3000,
+   "page": "owner"
   },
   "Pay2Waiting.dc.html": {
-   "x": 1720,
-   "y": -1500,
-   "w": 1640,
    "h": 800,
+   "is_interactive": true,
    "title": "5b · Stripe opens in new window → this waits",
-   "is_interactive": true
+   "w": 1640,
+   "x": 1720,
+   "y": 3000,
+   "page": "owner"
   },
   "Pay3More.dc.html": {
-   "x": 3440,
-   "y": -1500,
-   "w": 1640,
    "h": 800,
+   "is_interactive": true,
    "title": "5c · If Stripe needs more → Fix / Do it later",
-   "is_interactive": true
+   "w": 1640,
+   "x": 3440,
+   "y": 3000,
+   "page": "owner"
   },
   "Pay4Connected.dc.html": {
-   "x": 5160,
-   "y": -1500,
-   "w": 1640,
    "h": 800,
+   "is_interactive": true,
    "title": "5d · Done → “Payments connected ✓”",
-   "is_interactive": true
+   "w": 1640,
+   "x": 5160,
+   "y": 3000,
+   "page": "owner"
+  },
+  "Payments.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "5 · Connect payments (Stripe)",
+   "w": 1280,
+   "x": 0,
+   "y": 1700,
+   "page": "overview"
+  },
+  "Services.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "3 · Services from nail template",
+   "w": 1280,
+   "x": 2720,
+   "y": 0,
+   "page": "overview"
+  },
+  "Staff.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "4 · Staff — add, invite, track (fully clickable)",
+   "w": 1280,
+   "x": 4080,
+   "y": 0,
+   "page": "overview"
+  },
+  "StaffClockIn.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "S2 · First clock-in",
+   "w": 390,
+   "x": 470,
+   "y": 1450,
+   "page": "staff"
+  },
+  "StaffFlowMap.dc.html": {
+   "h": 844,
+   "title": "Staff setup — flow map + what ifs",
+   "w": 1800,
+   "x": 0,
+   "y": 0,
+   "page": "staff"
+  },
+  "StaffInvite.dc.html": {
+   "h": 844,
+   "is_interactive": true,
+   "title": "S1 · Staff joins: text → confirm → language → PIN",
+   "w": 390,
+   "x": 0,
+   "y": 1450,
+   "page": "staff"
+  },
+  "Stf1Intro.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "4a · Team list → tap “+ Add staff”",
+   "w": 1640,
+   "x": 0,
+   "y": 1500,
+   "page": "owner"
+  },
+  "Stf2Add.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "4b · Form fades in → fill → “Add + text invite”",
+   "w": 1640,
+   "x": 1720,
+   "y": 1500,
+   "page": "owner"
+  },
+  "Stf3Error.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "4c · If phone is wrong → red line, Add grey",
+   "w": 1640,
+   "x": 3440,
+   "y": 1500,
+   "page": "owner"
+  },
+  "Stf4Sent.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "4d · Row added → “Text sent” + Undo (6 s)",
+   "w": 1640,
+   "x": 5160,
+   "y": 1500,
+   "page": "owner"
+  },
+  "Stf5Detail.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "4e · Tap a person → invite timeline + Resend",
+   "w": 1640,
+   "x": 6880,
+   "y": 1500,
+   "page": "owner"
+  },
+  "Stf6Done.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "4f · Staff finished → “PIN set ✓”",
+   "w": 1640,
+   "x": 8600,
+   "y": 1500,
+   "page": "owner"
+  },
+  "Svc1Choose.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "3a · Choose → tap “Snap your menu”",
+   "w": 1640,
+   "x": 0,
+   "y": 0,
+   "page": "owner"
+  },
+  "Svc2Reading.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "3b · Photo taken → “Reading your menu…”",
+   "w": 1640,
+   "x": 1720,
+   "y": 0,
+   "page": "owner"
+  },
+  "Svc3Blurry.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "3c · If photo is unreadable → tips + Retake",
+   "w": 1640,
+   "x": 3440,
+   "y": 0,
+   "page": "owner"
+  },
+  "Svc4Review.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "3d · Check what AI read → “Looks right · Continue”",
+   "w": 1640,
+   "x": 5160,
+   "y": 0,
+   "page": "owner"
+  },
+  "Svc5Template.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "3e · Or: nail template list",
+   "w": 1640,
+   "x": 6880,
+   "y": 0,
+   "page": "owner"
+  },
+  "Test.dc.html": {
+   "h": 800,
+   "is_interactive": true,
+   "title": "10 · $1 test → ready",
+   "w": 1280,
+   "x": 4080,
+   "y": 1700,
+   "page": "overview"
+  },
+  "Sj01Text.dc.html": {
+   "x": 0,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·1 Invite text",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sj02Confirm.dc.html": {
+   "x": 830,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·2 Is this you?",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sj03NotMe.dc.html": {
+   "x": 1660,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·3 If “Not me”",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sj04Lang.dc.html": {
+   "x": 2490,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·4 Pick language",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sj05Pin.dc.html": {
+   "x": 3320,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·5 Make PIN",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sj06Weak.dc.html": {
+   "x": 4150,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·6 If too easy",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sj07Again.dc.html": {
+   "x": 4980,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·7 Type it again",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sj08Mismatch.dc.html": {
+   "x": 5810,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·8 If no match",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sj09Photo.dc.html": {
+   "x": 6640,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·9 Add photo (optional)",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sj10Done.dc.html": {
+   "x": 7470,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·10 All set",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sj11ClockIn.dc.html": {
+   "x": 8300,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·11 Clock in",
+   "is_interactive": true,
+   "page": "staff"
+  },
+  "Sj12ClockedIn.dc.html": {
+   "x": 9130,
+   "y": 2950,
+   "w": 750,
+   "h": 844,
+   "title": "S·12 Clocked in",
+   "is_interactive": true,
+   "page": "staff"
+  }
+ },
+ "createdOnFiles": {
+  "at": "2026-11-16T17:10:00Z",
+  "v": 1
+ },
+ "designSystems": [
+  {
+   "artifact": "https://claude.ai/artifact/FAPieCxsXFJvSAyzgZ4b2L",
+   "copiedAt": "2026-11-16T17:10:00Z",
+   "namespace": "nailsalonosdesignsystem_afaa02",
+   "title": "Nail Salon OS Design System",
+   "version": "1790970587-f6aa"
+  }
+ ],
+ "launch": {
+  "view": "canvas",
+  "page": "overview"
+ },
+ "noteOrder": [
+  "f1",
+  "f2",
+  "f3",
+  "t1",
+  "t2",
+  "t3",
+  "s1",
+  "p1",
+  "n1",
+  "n2",
+  "n3",
+  "n4",
+  "n5",
+  "n6",
+  "n7",
+  "n8",
+  "n9",
+  "t4",
+  "t5"
+ ],
+ "notes": {
+  "f1": {
+   "kind": "title1",
+   "maxW": 10240,
+   "text": "Step 4 Staff — what happens after each tap",
+   "w": 240,
+   "x": 0,
+   "y": 1200,
+   "page": "owner"
+  },
+  "f2": {
+   "kind": "title1",
+   "maxW": 8520,
+   "text": "Step 3 Services — snap your menu flow",
+   "w": 240,
+   "x": 0,
+   "y": -300,
+   "page": "owner"
+  },
+  "f3": {
+   "kind": "title1",
+   "maxW": 6800,
+   "text": "Step 5 Payments — Connect with Stripe flow",
+   "w": 240,
+   "x": 0,
+   "y": 2700,
+   "page": "owner"
+  },
+  "n1": {
+   "fill": "gray",
+   "text": "TAPS · Sign up\n• Text me a code → screen fades to 6 code boxes; cursor on next empty box\n• Wrong code → boxes shake, red “That code didn't work”, clear\n• Resend in 0:30 countdown → then “Resend” / “Call me instead”\n• Change number → back to phone screen, number kept\n• Verify → Step 2 (side list ticks ✓ 1, bar grows)",
+   "w": 620,
+   "x": 0,
+   "y": 840,
+   "page": "overview"
+  },
+  "n2": {
+   "fill": "gray",
+   "text": "TAPS · Salon info\n• Typing → “Saved” pill flashes after 1 s idle (no Save button)\n• Day chip → toggles open/closed; long-press → set hours for that day\n• State chip → lock card text swaps (fade). CA/MN = locked tip rules\n• Address → suggestions list as you type (pick one fills city/ZIP)\n• Continue → Step 3; Back → Step 1 (nothing lost)",
+   "w": 620,
+   "x": 1360,
+   "y": 840,
+   "page": "overview"
+  },
+  "n3": {
+   "fill": "gray",
+   "text": "TAPS · Services (try it in Play)\n• Snap your menu → camera / upload photo or PDF → “Reading your menu…” (green scan line + 4 checks tick)\n• Result list: each row shows what AI read (“read as Gel Mani”); unsure ones orange ▲ (e.g. “50+”, guessed time)\n• Retake photo → back to choose; blurry photo → “Couldn't read it — try closer, less glare”\n• Start from a nail template → template list instead\n• Switch → service off: row dims, count updates; price field → number pad\n• Looks right · Continue → saved; Continue grey until a list exists",
+   "w": 620,
+   "x": 2720,
+   "y": 840,
+   "page": "overview"
+  },
+  "n4": {
+   "fill": "gray",
+   "text": "TAPS · Staff (try it in Play)\n• + Add staff → form fades in on the right\n• Phone <10 digits / already on team → red line, Add grey\n• Pay type → stepper unit changes (%, $/hr, $/wk)\n• Add + text invite → row appears (green flash) → “Sending…” → “Text sent” + Undo toast 6 s\n• Undo → row removed, text cancelled\n• Tap row → detail + 4-step timeline; Resend / Set up on this iPad / Reset PIN / Remove\n• Demo button simulates staff finishing → “PIN set ✓”\n• Full map: board “Staff setup — flow map”\n• OPEN: 4-digit PIN or phone number — confirm with Elang",
+   "w": 620,
+   "x": 4080,
+   "y": 840,
+   "page": "overview"
+  },
+  "n5": {
+   "fill": "gray",
+   "text": "TAPS · Payments (try it in Play)\n• Connect with Stripe → Stripe opens in a new window; this card shows “Finish in the Stripe window” (pulse)\n• Done in Stripe → auto-updates to “Payments connected” ✓ pop + bank\n• Cancel → back to start\n• Stripe needs more info → “Almost done” card: Fix in Stripe / Do it later\n• Continue is grey until connected (or “Do it later”)",
+   "w": 620,
+   "x": 0,
+   "y": 2540,
+   "page": "overview"
+  },
+  "n6": {
+   "fill": "gray",
+   "text": "TAPS · Devices\n• Pair reader → type the 3 words shown on reader → card gets green ring, ✓ pops\n• Reader not found (30 s) → “Is it on Wi-Fi?” help + Try again\n• Print test receipt → printer prints; “Did it print?” Yes / No → No opens printer help\n• Link device → QR on screen; scanning it on the iPad links it\n• Skip for now → QR / pay link stays available",
+   "w": 620,
+   "x": 1360,
+   "y": 2540,
+   "page": "overview"
+  },
+  "n7": {
+   "fill": "gray",
+   "text": "TAPS · Clients\n• Option card → 2px border; panel below swaps (fade)\n• Upload a file → file picker → read result: found / with phone / duplicates merged\n• Bad file → “We couldn't read this file” + Try another\n• We help type them in → upload photos of the client book\n• Start fresh → nothing to do; clients added at checkout",
+   "w": 620,
+   "x": 2720,
+   "y": 2540,
+   "page": "overview"
+  },
+  "n8": {
+   "fill": "gray",
+   "text": "TAPS · $1 test (try it in Play)\n• Charge $1.00 → 4 checks tick one by one (0.9 s each)\n• Card declined / reader offline → that row turns orange with Try again\n• All done → “Mai Nails is ready” ✓ pop, summary\n• Run test again → back to start\n• Open front desk → Today screen; setup checklist stays in Settings for skipped steps",
+   "w": 620,
+   "x": 4080,
+   "y": 2540,
+   "page": "overview"
+  },
+  "n9": {
+   "fill": "gray",
+   "text": "TAPS · Staff phone (try it in Play)\n• Tap link in text → “Is this you?” (name, salon, role, pay)\n• Not me → link turned off, owner told\n• Yes → pick English / Tiếng Việt (switches every screen after)\n• PIN: dots fill per tap; ⌫ deletes; 1111/1234 → shake “Too easy”\n• Type again: mismatch → shake, start over; match → PIN saved ✓\n• Continue → Clock in: big button → “Clocked in ✓”, turn # and first appointment fade in; tap again = clock out\n• OPEN: 4-digit PIN or phone number — confirm with Elang",
+   "w": 860,
+   "x": 940,
+   "y": 1450,
+   "page": "staff"
+  },
+  "p1": {
+   "fill": "red",
+   "text": "OPEN — confirm with Elang\nStaff login: 4-digit PIN (drawn now) OR the staff's phone number?\n\nAffects: Staff step 4 (invite text), staff phone S1 (make PIN), clock-in, Switch person, Print my earnings, Reset PIN, checkout Profile.\n\nThink about: speed at a busy front desk (4 taps vs 10), privacy (phone numbers seen by others), shared iPad, staff who change phones.",
+   "w": 440,
+   "x": 5440,
+   "y": 0,
+   "page": "overview"
+  },
+  "s1": {
+   "fill": "orange",
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nSetup day = about 1 hour, Elang beside the owner.\n• Demo → hardware + texting registration → setup day → first payment in ~1 week\n• Every step saves; owner can stop and come back\n• Skip anything except Payments and $1 test\n• English first; language switch in each person's profile\n• Grey sticky under each screen = what every tap does\n• Page 2 = owner steps frame by frame (with notes)\n• Page 3 = staff onboarding on their phone\n\nOpen\n• Stripe Connect Express vs Standard (lean Express)\n• Reader: S710 now vs M2 later\n• Invite link expiry (proposal 7 days), 24 h reminder\n• PIN = 4 digits or staff phone number? Confirm with Elang",
+   "w": 420,
+   "x": -520,
+   "y": 0,
+   "page": "overview"
+  },
+  "t1": {
+   "kind": "title1",
+   "maxW": 5360,
+   "text": "Owner setup — steps 1–4",
+   "w": 240,
+   "x": 0,
+   "y": -300,
+   "page": "overview"
+  },
+  "t2": {
+   "kind": "title1",
+   "maxW": 5360,
+   "text": "Owner setup — steps 5–10",
+   "w": 240,
+   "x": 0,
+   "y": 1400,
+   "page": "overview"
+  },
+  "t3": {
+   "kind": "title1",
+   "maxW": 1800,
+   "text": "Staff onboarding — the whole journey",
+   "w": 240,
+   "x": 0,
+   "y": -300,
+   "page": "staff"
+  },
+  "t4": {
+   "x": 0,
+   "y": 1150,
+   "text": "Try it (clickable)",
+   "kind": "title1",
+   "maxW": 1800,
+   "page": "staff"
+  },
+  "t5": {
+   "x": 0,
+   "y": 2650,
+   "text": "Step by step on the staff phone (with notes)",
+   "kind": "title1",
+   "page": "staff",
+   "maxW": 9880
   }
  },
  "order": [
@@ -244,136 +568,33 @@
   "Pay1Start.dc.html",
   "Pay2Waiting.dc.html",
   "Pay3More.dc.html",
-  "Pay4Connected.dc.html"
+  "Pay4Connected.dc.html",
+  "Sj01Text.dc.html",
+  "Sj02Confirm.dc.html",
+  "Sj03NotMe.dc.html",
+  "Sj04Lang.dc.html",
+  "Sj05Pin.dc.html",
+  "Sj06Weak.dc.html",
+  "Sj07Again.dc.html",
+  "Sj08Mismatch.dc.html",
+  "Sj09Photo.dc.html",
+  "Sj10Done.dc.html",
+  "Sj11ClockIn.dc.html",
+  "Sj12ClockedIn.dc.html"
  ],
- "notes": {
-  "f1": {
-   "x": 0,
-   "y": -4800,
-   "text": "Step 4 Staff — what happens after each tap",
-   "kind": "title1",
-   "maxW": 10240
-  },
-  "f2": {
-   "x": 0,
-   "y": -3300,
-   "text": "Step 3 Services — snap your menu flow",
-   "kind": "title1",
-   "maxW": 8520
-  },
-  "f3": {
-   "x": 0,
-   "y": -1800,
-   "text": "Step 5 Payments — Connect with Stripe flow",
-   "kind": "title1",
-   "maxW": 6800
-  },
-  "t1": {
-   "x": 0,
-   "y": -300,
-   "text": "Owner setup — steps 1–4",
-   "kind": "title1",
-   "maxW": 5360
-  },
-  "t2": {
-   "x": 0,
-   "y": 1400,
-   "text": "Owner setup — steps 5–10",
-   "kind": "title1",
-   "maxW": 5360
-  },
-  "t3": {
-   "x": 0,
-   "y": 3100,
-   "text": "Staff onboarding — full flow",
-   "kind": "title1",
-   "maxW": 2740
-  },
-  "s1": {
-   "x": -520,
-   "y": 0,
-   "w": 420,
-   "fill": "orange",
-   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nSetup day = about 1 hour, Elang beside the owner.\n• Demo → hardware + texting registration → setup day → first payment in ~1 week\n• Every step saves; owner can stop and come back\n• Skip anything except Payments and $1 test\n• English first; language switch in each person's profile\n• Grey sticky under each screen = what every tap does\n\nOpen\n• Stripe Connect Express vs Standard (lean Express)\n• Reader: S710 now vs M2 later\n• Invite link expiry (proposal 7 days), 24 h reminder\n• PIN = 4 digits or staff phone number? Confirm with Elang"
-  },
-  "p1": {
-   "x": 5440,
-   "y": 0,
-   "w": 440,
-   "fill": "red",
-   "text": "OPEN — confirm with Elang\nStaff login: 4-digit PIN (drawn now) OR the staff's phone number?\n\nAffects: Staff step 4 (invite text), staff phone S1 (make PIN), clock-in, Switch person, Print my earnings, Reset PIN, checkout Profile.\n\nThink about: speed at a busy front desk (4 taps vs 10), privacy (phone numbers seen by others), shared iPad, staff who change phones."
-  },
-  "n1": {
-   "x": 0,
-   "y": 840,
-   "w": 620,
-   "fill": "gray",
-   "text": "TAPS · Sign up\n• Text me a code → screen fades to 6 code boxes; cursor on next empty box\n• Wrong code → boxes shake, red “That code didn't work”, clear\n• Resend in 0:30 countdown → then “Resend” / “Call me instead”\n• Change number → back to phone screen, number kept\n• Verify → Step 2 (side list ticks ✓ 1, bar grows)"
-  },
-  "n2": {
-   "x": 1360,
-   "y": 840,
-   "w": 620,
-   "fill": "gray",
-   "text": "TAPS · Salon info\n• Typing → “Saved” pill flashes after 1 s idle (no Save button)\n• Day chip → toggles open/closed; long-press → set hours for that day\n• State chip → lock card text swaps (fade). CA/MN = locked tip rules\n• Address → suggestions list as you type (pick one fills city/ZIP)\n• Continue → Step 3; Back → Step 1 (nothing lost)"
-  },
-  "n3": {
-   "x": 2720,
-   "y": 840,
-   "w": 620,
-   "fill": "gray",
-   "text": "TAPS · Services (try it in Play)\n• Snap your menu → camera / upload photo or PDF → “Reading your menu…” (green scan line + 4 checks tick)\n• Result list: each row shows what AI read (“read as Gel Mani”); unsure ones orange ▲ (e.g. “50+”, guessed time)\n• Retake photo → back to choose; blurry photo → “Couldn't read it — try closer, less glare”\n• Start from a nail template → template list instead\n• Switch → service off: row dims, count updates; price field → number pad\n• Looks right · Continue → saved; Continue grey until a list exists"
-  },
-  "n4": {
-   "x": 4080,
-   "y": 840,
-   "w": 620,
-   "fill": "gray",
-   "text": "TAPS · Staff (try it in Play)\n• + Add staff → form fades in on the right\n• Phone <10 digits / already on team → red line, Add grey\n• Pay type → stepper unit changes (%, $/hr, $/wk)\n• Add + text invite → row appears (green flash) → “Sending…” → “Text sent” + Undo toast 6 s\n• Undo → row removed, text cancelled\n• Tap row → detail + 4-step timeline; Resend / Set up on this iPad / Reset PIN / Remove\n• Demo button simulates staff finishing → “PIN set ✓”\n• Full map: board “Staff setup — flow map”\n• OPEN: 4-digit PIN or phone number — confirm with Elang"
-  },
-  "n5": {
-   "x": 0,
-   "y": 2540,
-   "w": 620,
-   "fill": "gray",
-   "text": "TAPS · Payments (try it in Play)\n• Connect with Stripe → Stripe opens in a new window; this card shows “Finish in the Stripe window” (pulse)\n• Done in Stripe → auto-updates to “Payments connected” ✓ pop + bank\n• Cancel → back to start\n• Stripe needs more info → “Almost done” card: Fix in Stripe / Do it later\n• Continue is grey until connected (or “Do it later”)"
-  },
-  "n6": {
-   "x": 1360,
-   "y": 2540,
-   "w": 620,
-   "fill": "gray",
-   "text": "TAPS · Devices\n• Pair reader → type the 3 words shown on reader → card gets green ring, ✓ pops\n• Reader not found (30 s) → “Is it on Wi-Fi?” help + Try again\n• Print test receipt → printer prints; “Did it print?” Yes / No → No opens printer help\n• Link device → QR on screen; scanning it on the iPad links it\n• Skip for now → QR / pay link stays available"
-  },
-  "n7": {
-   "x": 2720,
-   "y": 2540,
-   "w": 620,
-   "fill": "gray",
-   "text": "TAPS · Clients\n• Option card → 2px border; panel below swaps (fade)\n• Upload a file → file picker → read result: found / with phone / duplicates merged\n• Bad file → “We couldn't read this file” + Try another\n• We help type them in → upload photos of the client book\n• Start fresh → nothing to do; clients added at checkout"
-  },
-  "n8": {
-   "x": 4080,
-   "y": 2540,
-   "w": 620,
-   "fill": "gray",
-   "text": "TAPS · $1 test (try it in Play)\n• Charge $1.00 → 4 checks tick one by one (0.9 s each)\n• Card declined / reader offline → that row turns orange with Try again\n• All done → “Mai Nails is ready” ✓ pop, summary\n• Run test again → back to start\n• Open front desk → Today screen; setup checklist stays in Settings for skipped steps"
-  },
-  "n9": {
-   "x": 0,
-   "y": 4284,
-   "w": 860,
-   "fill": "gray",
-   "text": "TAPS · Staff phone (try it in Play)\n• Tap link in text → “Is this you?” (name, salon, role, pay)\n• Not me → link turned off, owner told\n• Yes → pick English / Tiếng Việt (switches every screen after)\n• PIN: dots fill per tap; ⌫ deletes; 1111/1234 → shake “Too easy”\n• Type again: mismatch → shake, start over; match → PIN saved ✓\n• Continue → Clock in: big button → “Clocked in ✓”, turn # and first appointment fade in; tap again = clock out\n• OPEN: 4-digit PIN or phone number — confirm with Elang"
-  }
- },
- "designSystems": [
+ "pages": [
   {
-   "title": "Nail Salon OS Design System",
-   "namespace": "nailsalonosdesignsystem_afaa02",
-   "artifact": "https://claude.ai/artifact/FAPieCxsXFJvSAyzgZ4b2L",
-   "version": "1790970587-f6aa",
-   "copiedAt": "2026-11-16T17:10:00Z"
+   "id": "overview",
+   "name": "1 · Overview — all 10 steps"
+  },
+  {
+   "id": "owner",
+   "name": "2 · Owner setup — step by step"
+  },
+  {
+   "id": "staff",
+   "name": "3 · Staff onboarding (phone)"
   }
- ]
+ ],
+ "title": "Nail POS — Onboarding Flow"
 }

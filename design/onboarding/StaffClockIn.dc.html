@@ -44,9 +44,9 @@ body{margin:0}
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"on":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
 class Component extends DCLogic {
-  constructor(p){ super(p); this.state = { on: false }; }
+  constructor(p){ super(p); this.state = { on: !!(p && p.on) }; }
   renderVals() {
     const on = this.state.on;
     return {

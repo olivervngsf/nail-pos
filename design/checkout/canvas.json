@@ -87,7 +87,7 @@
    "y": 1700,
    "w": 390,
    "h": 844,
-   "title": "P5 · Profile · language switch",
+   "title": "P5 · Profile · photo + language",
    "is_interactive": true
   },
   "Tk1Start.dc.html": {
@@ -193,6 +193,38 @@
    "h": 800,
    "title": "3b·2 · Not enough → still due, button grey",
    "is_interactive": true
+  },
+  "Pr1Profile.dc.html": {
+   "x": 0,
+   "y": 3300,
+   "w": 750,
+   "h": 844,
+   "title": "P5·1 · Tap photo to add",
+   "is_interactive": true
+  },
+  "Pr2Sheet.dc.html": {
+   "x": 830,
+   "y": 3300,
+   "w": 750,
+   "h": 844,
+   "title": "P5·2 · Take / choose photo",
+   "is_interactive": true
+  },
+  "Pr3Crop.dc.html": {
+   "x": 1660,
+   "y": 3300,
+   "w": 750,
+   "h": 844,
+   "title": "P5·3 · Move and scale",
+   "is_interactive": true
+  },
+  "Pr4Saved.dc.html": {
+   "x": 2490,
+   "y": 3300,
+   "w": 750,
+   "h": 844,
+   "title": "P5·4 · Photo saved",
+   "is_interactive": true
   }
  },
  "order": [
@@ -218,7 +250,11 @@
   "Rd3Ok.dc.html",
   "Rd4Declined.dc.html",
   "Cs1Change.dc.html",
-  "Cs2Short.dc.html"
+  "Cs2Short.dc.html",
+  "Pr1Profile.dc.html",
+  "Pr2Sheet.dc.html",
+  "Pr3Crop.dc.html",
+  "Pr4Saved.dc.html"
  ],
  "notes": {
   "t1": {
@@ -282,7 +318,7 @@
    "y": 2584,
    "w": 860,
    "fill": "gray",
-   "text": "TAPS · Phone\n• P1 QR: Text pay link → sends link; status waits (pulse) → turns to Paid when client pays\n• P2 Client: tip button → selected, total updates; Apple Pay / Google Pay → wallet sheet → P3; Pay with card → card form\n• P3 Receipt: Book next visit → booking link with Kim pre-picked\n• P4 Staff: avatar → Profile; Print my earnings → needs PIN on salon device\n• P5 Profile: English / Tiếng Việt → this person's screens switch at once; Change PIN → old PIN, new PIN twice; Switch person → PIN pad"
+   "text": "TAPS · Phone\n• P1 QR: Text pay link → sends link; status waits (pulse) → turns to Paid when client pays\n• P2 Client: tip button → selected, total updates; Apple Pay / Google Pay → wallet sheet → P3; Pay with card → card form\n• P3 Receipt: Book next visit → booking link with Kim pre-picked\n• P4 Staff: avatar → Profile; Print my earnings → needs PIN on salon device\n• P5 Profile: tap photo → Take / Choose / Remove → move & scale → saved (everyone, own photo); English / Tiếng Việt → this person's screens switch at once; Change PIN → old PIN, new PIN twice; Switch person → PIN pad"
   },
   "f1": {
    "x": 0,
@@ -304,6 +340,13 @@
    "text": "Cash — every state",
    "kind": "title1",
    "maxW": 3360
+  },
+  "f4": {
+   "x": 0,
+   "y": 3000,
+   "text": "Profile photo — anyone can add their own",
+   "kind": "title1",
+   "maxW": 3240
   }
  },
  "designSystems": [
