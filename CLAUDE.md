@@ -41,7 +41,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Scale: 50 salons x 20 staff; data walled per salon; works offline.
 - Insight, not autopilot: turn board/calendar show facts (turns, $ today, free-at, skills, requests); owner/manager/front desk decides who's next; optional one-tap reason.
 - Every ticket shows tip + any card fee; nothing taken silently.
-- Tips: salon never keeps any part; card fee on tips can't be deducted in CA/MN (setting locked by state); owners/managers never in tip pools; monthly cash-tip report per tech. Booth renters = separate pay type, paid into their own Stripe account. License expiry alerts. PRD "Booth rental, tip rules and tech licenses", issue #23.
+- Tips: salon never keeps any part; card fee on tips can't be deducted in CA/MN (setting locked by state); owners/managers never in tip pools; monthly cash-tip report per tech. Booth renters = separate pay type, paid into their own Stripe account. License expiry alerts. PRD "Booth rental, tip rules and tech licenses", board https://claude.ai/artifact/2e91J92mh79y7UcySvwA4y, issue #23.
 - Target: Vietnamese walk-in salons, 1–20 techs (appointment salons later).
 - Edge cases table lives in the PRD.
 
