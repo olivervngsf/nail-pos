@@ -1,6 +1,22 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # Nail POS — project memory
 
 Read this first every session. Keep it short; link out for detail.
+
+## Code (Next.js 15 App Router + TypeScript, Supabase, Vercel)
+- Commands: `npm run dev` (localhost:3000) · `npm run build` (also runs lint + typecheck; must pass before push) · `npm run lint` · `npm run typecheck`. No test runner yet; check flows by clicking through with Playwright (pre-installed) against `npx next start`.
+- Branches: `main` = production (Vercel auto-deploys); every other branch/PR gets a Vercel preview link.
+- Env: `.env.example` → `.env.local`. Only `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` so far; values live in Vercel. Never commit secrets.
+- Supabase: test project `nail-pos-test` (id `eoamccaeovuahveytbnr`, us-west-1). Live project not created yet (free-plan limit; add before pilot). Schema changes = new file in `supabase/migrations/` (timestamp name) + apply to the test project; never edit an applied migration. Every salon table has `salon_id` + RLS via `is_member()` / `is_admin()`; new salon via `create_salon()` RPC. Run Supabase security advisors after DDL.
+- Styling: design tokens + shared component classes (`.btn`, `.card`, `.group`, `.row`, `.pick`, `.chip`, `.sw`, `.inp`, keypad, drawer, toast, wizard shell, phone shell) live in `src/app/globals.css`, ported from the prototype's Nail Salon OS design system. Reuse them; one version per component. Tailwind is installed but not used yet.
+- Offline-first: client state via `useStored` (`src/lib/useStored.ts`) = useState saved to localStorage on every change. `getSupabase()` (`src/lib/supabase/client.ts`) returns null if env missing; app must still work.
+- Routes: `/` start · `/setup` owner salon setup (sign up → code → 10 steps; `src/app/setup/` — `state.ts` shape, `SetupWizard.tsx` one StepView per step returning `[footer, body]`) · `/join/[code]` staff joins on phone (EN/VI, PIN, clock-in; invite details ride in query `n,r,s,o` until invites are read from Supabase). Shared data/helpers: `src/lib/onboarding/data.ts` (steps, nail template menu, state tip rules, phone/time/money format).
+- Login: `NEXT_PUBLIC_SMS_LOGIN=on` = real text codes (Supabase phone auth, Twilio Verify configured in the Supabase dashboard); unset = any 6 digits.
+- Test version stubs (marked with dashed `.demo` notes in UI): SMS code when SMS_LOGIN is off, menu reading (AI), Stripe Connect, reader pairing, $1 test, CSV import, invite texts. Replace each with the real thing in its build step.
+- Design source for onboarding: prototype https://claude.ai/artifact/BYMHXFQTM4Bs9oug6i8ThB · Build plan https://claude.ai/artifact/5XZtVDjQktSiyhes4V69wZ
 
 ## What we're building
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
