@@ -61,7 +61,7 @@ docs/                specs (this folder)
 
 | # | Milestone | Status |
 |---|---|---|
-| M0 | Foundation (repo, kit, shell, auth, RLS, offline, CI) | Partly (Nov 16): Next.js on Vercel (`main` = live), Supabase `nail-pos-test` with RLS, phone-code login (Twilio Verify). To do: `people` table, kit.css + components, `/kit`, IndexedDB queue, i18n, Sentry, CI tests, staging + live projects |
+| M0 | Foundation (repo, kit, shell, auth, RLS, offline, CI) | Done (Nov 16): kit.css is the one stylesheet (`npm run kit:sync`), React kit components + `/kit`, `people`/`devices`/`audit_log` + salon-wall test passing, offline queue (IndexedDB) + sync pill, EN/VI (next-intl), Sentry wired (off until DSN), CI (lint, types, unit, build, Playwright desktop+phone, RLS). Left for later: staging + live Supabase projects, Sentry DSN, DATABASE_URL secret for CI RLS run |
 | M1 | Salon setup (owner sign-up, info, services, staff + invites) | Partly: all 10 screens live at `/setup`, saved on device only. To do: save to Supabase, invites from DB + real texts, AI menu import |
 | M2 | PIN + clock-in, switch person | Partly: `/join/[code]` screens (language, PIN with weak/mismatch, photo, home). To do: PIN hashed on server, clock events, switch person, at-salon check |
 | M3 | Checkout: tickets, tip, cash, receipts | Not started |

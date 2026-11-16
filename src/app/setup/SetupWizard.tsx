@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase/client";
+import { SyncPill } from "@/components/kit";
 import { useStored } from "@/lib/useStored";
 import {
   STEPS, STATES, fmtHours, fmtMoney, fmtPhone, fmtTime, initials, newInviteCode, phoneOk, toMin,
@@ -179,6 +180,7 @@ function Wizard({ s, set, say, toast, setToast, reset }: WizProps) {
         <div className="foot">
           <button className="btn ghost" type="button" disabled={s.step === 0} onClick={() => go(s.step - 1)}>Back</button>
           <span className="sp" />
+          <SyncPill />
           {foot.skip && <button className="btn ghost" type="button" onClick={next}>Skip for now</button>}
           {s.step < STEPS.length - 1 && (
             <button className="btn primary" type="button" disabled={foot.lock} onClick={foot.onNext ?? next}>{foot.label ?? "Continue"}</button>
@@ -435,7 +437,7 @@ const Payments: StepView = ({ s, set }) => {
   if (s.stripe === "done") return [{}, <>
     <H1>Payments connected</H1>
     <div className="card pad" style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
-      <div className="ok">✓</div>
+      <div className="okmark">✓</div>
       <div><b style={{ fontSize: 17 }}>Stripe account connected</b><div className="cap">Money goes straight to your bank, every day. We never hold it.</div></div>
     </div>
     <div className="group">
@@ -460,7 +462,7 @@ const Reader: StepView = ({ s, set }) => {
   if (s.reader === "done") return [{}, <>
     <H1>Card reader connected</H1>
     <div className="card pad" style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
-      <div className="ok">✓</div>
+      <div className="okmark">✓</div>
       <div><b style={{ fontSize: 17 }}>Stripe Reader S710 · “Front desk”</b><div className="cap">Online on salon Wi-Fi. You&apos;ll try it with a $1 test in step 9.</div></div>
     </div>
   </>];
@@ -534,7 +536,7 @@ const Test: StepView = ({ s, set }) => [{ lock: s.test !== "done" }, <>
     {s.test === "start" && <><div className="money">{fmtMoney(100)}</div>
       <button className="btn primary" type="button" onClick={() => { set((p) => ({ ...p, test: "tap" })); setTimeout(() => set((p) => ({ ...p, test: "done" })), 1500); }}>Charge $1.00 on the reader</button></>}
     {s.test === "tap" && <><div className="spin" /><b>Tap, insert or swipe on the reader…</b></>}
-    {s.test === "done" && <><div className="ok">✓</div><b style={{ fontSize: 17 }}>Paid $1.00 · refunded $1.00</b><div className="cap">Card fee 8¢ shown on the test ticket. You&apos;ll see it in Close day.</div></>}
+    {s.test === "done" && <><div className="okmark">✓</div><b style={{ fontSize: 17 }}>Paid $1.00 · refunded $1.00</b><div className="cap">Card fee 8¢ shown on the test ticket. You&apos;ll see it in Close day.</div></>}
   </div>
   <div className="demo">Test version: no real charge until Stripe is connected.</div>
 </>];
@@ -544,7 +546,7 @@ const Ready: StepView = ({ s, go }) => {
   const waiting = s.staff.filter((p) => p.status === "Invited").length;
   return [{}, (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, textAlign: "center", padding: "48px 0" }}>
-      <div className="ok lg">✓</div>
+      <div className="okmark lg">✓</div>
       <H1>{s.salonName || "Your salon"} is ready</H1>
       <div className="cap lead" style={{ maxWidth: 520 }}>
         {s.menu.filter((m) => m.on).length} services, payments, reader and printer are set. {waiting ? `${waiting} staff still to join (their invite is waiting).` : "Add staff any time in Settings."}

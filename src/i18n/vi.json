@@ -1,0 +1,25 @@
+{
+  "sync": {
+    "online": "Có mạng",
+    "saved": "Đã lưu",
+    "syncing": "Đang gửi…",
+    "offline": "Mất mạng · đã lưu trên máy",
+    "waiting": "{count, plural, other {# thay đổi đang chờ gửi}}",
+    "banner": "Mất mạng. Cứ làm tiếp: mọi thứ lưu trên máy này và tự gửi khi có mạng lại."
+  },
+  "home": {
+    "tagline": "Tính tiền đơn giản, lương thợ rõ ràng.",
+    "setup": "Cài đặt tiệm của tôi",
+    "join": "Tôi là thợ: vào tiệm",
+    "test": "Bản thử · chưa thu tiền thật."
+  },
+  "lang": { "label": "Ngôn ngữ", "en": "English", "vi": "Tiếng Việt" },
+  "kit": {
+    "title": "Bộ thiết kế",
+    "lead": "Mọi phần dùng chung của giao diện Nail POS, từ design/kit/kit.css. Màn hình chỉ dùng những phần này.",
+    "offlineTest": "Thử mất mạng",
+    "offlineLead": "Lưu một thay đổi thử, tắt mạng, bật lại: nó gửi đúng một lần.",
+    "saveTest": "Lưu thay đổi thử",
+    "sent": "Đã gửi lên máy chủ: {count}"
+  }
+}

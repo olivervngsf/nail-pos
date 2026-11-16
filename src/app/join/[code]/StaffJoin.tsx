@@ -133,7 +133,7 @@ export default function StaffJoin({ invite }: { invite: Invite }) {
       </Shell>;
     case "done":
       return <Shell title="Nail POS">
-        <div className="ok" style={{ alignSelf: "center" }}>✓</div>
+        <div className="okmark" style={{ alignSelf: "center" }}>✓</div>
         <h1 className="h2" style={{ textAlign: "center" }}>{t.set(first)}</h1>
         <div className="cap lead" style={{ textAlign: "center" }}>{invite.salon} · {invite.role} · {s.lang}</div>
         <div className="group"><div className="row m"><span className="g"><span className="cap">{t.clockHow}</span><b style={{ fontWeight: 600 }}>{t.clockWhere}</b></span></div></div>
@@ -145,7 +145,7 @@ export default function StaffJoin({ invite }: { invite: Invite }) {
         <h1 className="h2">{t.hi(first)}</h1>
         {s.clocked ? (
           <div className="card pad" style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <div className="ok" style={{ width: 40, height: 40, fontSize: 20 }}>✓</div>
+            <div className="okmark" style={{ width: 40, height: 40, fontSize: 20 }}>✓</div>
             <div><b>{t.clocked}</b><div className="cap">{invite.salon}</div></div>
           </div>
         ) : (

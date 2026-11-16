@@ -1,0 +1,32 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Kit is in sync with design/kit/kit.css
+        run: npm run kit:sync && git diff --exit-code src/styles/kit.css
+      - run: npm run lint
+      - run: npm run typecheck
+      - name: Unit tests (money, offline queue, translations)
+        run: npm test
+      - run: npm run build
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Screen tests (desktop + phone)
+        run: npm run e2e
+      - name: Salon-wall tests (skipped until the DATABASE_URL secret is added)
+        run: npm run test:rls
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

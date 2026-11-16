@@ -1,0 +1,25 @@
+{
+  "sync": {
+    "online": "Online",
+    "saved": "Saved",
+    "syncing": "Syncing…",
+    "offline": "Offline · saved on this device",
+    "waiting": "{count, plural, one {# change waiting to sync} other {# changes waiting to sync}}",
+    "banner": "No internet. Keep working: everything saves on this device and sends when you're back online."
+  },
+  "home": {
+    "tagline": "Simple checkout and fair, clear pay for techs.",
+    "setup": "Set up my salon",
+    "join": "I'm staff: join my salon",
+    "test": "Test version · nothing is charged yet."
+  },
+  "lang": { "label": "Language", "en": "English", "vi": "Tiếng Việt" },
+  "kit": {
+    "title": "Design kit",
+    "lead": "Every shared piece of the Nail POS look, from design/kit/kit.css. Screens use only these.",
+    "offlineTest": "Offline test",
+    "offlineLead": "Save a test write, go offline, come back: it sends once.",
+    "saveTest": "Save a test write",
+    "sent": "Sent to server: {count}"
+  }
+}
