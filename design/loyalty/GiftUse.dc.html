@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pay with a gift card</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.res{border-radius:12px;padding:12px 14px;font-size:14px;line-height:20px;display:flex;flex-direction:column;gap:8px}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a class="on" href="GiftSell.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="GiftSetup.dc.html" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar"><div class="title">Checkout · Ticket #1070</div><span class="pill ok"><span class="dot"></span>Online</span><div class="who"><span class="av">L</span>Linh</div></header>
+    <main style="flex:1;display:flex;gap:16px;padding:20px 24px;min-height:0">
+      <section style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="group">
+          <div class="row"><span class="g">Gel color manicure &amp; regular pedicure · Kim</span><span class="num">$83.00</span></div>
+          <sc-if value="{{used}}" hint-placeholder-val="{{false}}"><div class="row minus fade"><span class="g">Gift card •••• 2T4F<span class="cap">Balance after: $0.00</span></span><span class="num">−$50.00</span></div></sc-if>
+        </div>
+        <div class="group"><div class="row"><b class="g" style="font-size:18px">{{leftLabel}}</b><b class="num" style="font-size:22px">{{left}}</b></div></div>
+        <div class="cap">Kim is paid on the full $83. Points are earned on the service ($83), not on how it was paid.</div>
+        <div style="flex:1"></div>
+        <div style="display:flex;gap:10px"><button class="btn primary" type="button" style="flex:1">{{payBtn}}</button><button class="btn" type="button" style="height:52px;flex:none;padding:0 22px">Cash</button></div>
+      </section>
+      <aside style="width:380px;display:flex;flex-direction:column;gap:12px">
+        <div class="card pad">
+          <div class="eyebrow">Pay with a gift card</div>
+          <input class="inp" value="{{code}}" aria-label="Gift card code" placeholder="Scan or type the code">
+          <div style="display:flex;gap:8px"><button class="chip" type="button">Scan</button><button class="chip" type="button">Find by phone</button></div>
+          <sc-if value="{{ok}}" hint-placeholder-val="{{true}}"><div class="res" style="background:var(--jade-soft)"><b>Active · balance $50.00</b><span class="cap">Sold Nov 2 by Linh · sent to Mai (408) 555-0199</span><sc-if value="{{canUse}}" hint-placeholder-val="{{true}}"><button class="btn" type="button" onClick="{{use}}" style="background:#2F9E44;color:#fff;align-self:flex-start">Use $50.00</button></sc-if></div></sc-if>
+          <sc-if value="{{bad}}" hint-placeholder-val="{{false}}"><div class="res" style="background:#FCEAEA;color:#C92A2A"><b>{{badTitle}}</b><span style="color:#1C1C1E">{{badText}}</span></div></sc-if>
+        </div>
+        <div class="card pad"><b style="font-size:16px">Mai Pham</b><div class="cap">Gift card receiver · first visit · earns 83 points today</div></div>
+      </aside>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["found","used","notsold","other","locked"],"default":"found"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { s: (p && p.state) || 'found' }; }
+  renderVals() {
+    const s = this.state.s, used = s === 'used';
+    const B = { notsold: ['This card was never sold', 'It is a blank card from stock ($0). Ask the client where they got it. Take another payment.', 'MAIN 0153'], other: ['This card belongs to another salon', 'Each salon keeps its own gift cards. It can only be used there.', 'LUXE-4R8P-2KQM-7HVA'], locked: ['This card is locked', 'It was reported lost on Nov 10. The balance is on a new card: ask for •••• 8MQD or look up by phone.', 'MAIN-7K3Q-9XPA-2T4F'] };
+    return { used, ok: s === 'found' || used, canUse: !used, bad: !!B[s], badTitle: B[s] ? B[s][0] : '', badText: B[s] ? B[s][1] : '', code: B[s] ? B[s][2] : 'MAIN-7K3Q-9XPA-2T4F',
+      use: () => this.setState({ s: 'used' }), leftLabel: used ? 'Left to pay' : 'Total', left: used ? '$33.00' : '$83.00', payBtn: used ? 'Card reader · $33.00' : 'Card reader · $83.00' };
+  }
+}
+</script>
+</body>
+</html>

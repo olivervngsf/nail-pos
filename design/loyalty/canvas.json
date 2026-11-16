@@ -4,7 +4,7 @@
   "v": 1,
   "at": "2026-11-16T23:10:00Z"
  },
- "title": "Nail POS — Loyalty",
+ "title": "Nail POS — Loyalty + Gift Cards",
  "launch": {
   "view": "canvas",
   "page": "overview"
@@ -17,6 +17,10 @@
   {
    "id": "spec",
    "name": "2 · Step by step (with notes)"
+  },
+  {
+   "id": "gift",
+   "name": "3 · Gift cards — step by step"
   }
  ],
  "boards": {
@@ -145,6 +149,132 @@
    "title": "L10 · Client sees points + referral link",
    "is_interactive": true,
    "page": "spec"
+  },
+  "GiftSetup.dc.html": {
+   "x": 0,
+   "y": 2300,
+   "w": 1280,
+   "h": 800,
+   "title": "Owner · Gift card settings",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "GiftSell.dc.html": {
+   "x": 1360,
+   "y": 2300,
+   "w": 1280,
+   "h": 800,
+   "title": "Checkout · sell a gift card",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "GiftUse.dc.html": {
+   "x": 2720,
+   "y": 2300,
+   "w": 1280,
+   "h": 800,
+   "title": "Checkout · pay with a gift card",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "GiftPhone.dc.html": {
+   "x": 4080,
+   "y": 2300,
+   "w": 390,
+   "h": 844,
+   "title": "Receiver · gift card on the phone",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Gc01Setup.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G1 · Gift card settings",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc02Stock.dc.html": {
+   "x": 1720,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G2 · Add a box of plastic cards",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc03SellDigital.dc.html": {
+   "x": 3440,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G3 · Sell a digital gift card",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc04SellPlastic.dc.html": {
+   "x": 5160,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G4 · Sell a plastic gift card",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc05Paid.dc.html": {
+   "x": 6880,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G5 · Paid → card is Active",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc06Phone.dc.html": {
+   "x": 8600,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "G6 · Receiver gets the gift card",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc07UseFound.dc.html": {
+   "x": 9430,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G7 · Take a gift card: found",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc08UseSplit.dc.html": {
+   "x": 11150,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G8 · Gift card covers part → pay the rest",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc09Refused.dc.html": {
+   "x": 12870,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G9 · Card refused, with a plain reason",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc10Lost.dc.html": {
+   "x": 14590,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G10 · Lost card: lock + replace",
+   "is_interactive": true,
+   "page": "gift"
   }
  },
  "order": [
@@ -161,7 +291,21 @@
   "Ly6Ready.dc.html",
   "Ly7Used.dc.html",
   "Ly8Pack.dc.html",
-  "Ly9Phone.dc.html"
+  "Ly9Phone.dc.html",
+  "GiftSetup.dc.html",
+  "GiftSell.dc.html",
+  "GiftUse.dc.html",
+  "GiftPhone.dc.html",
+  "Gc01Setup.dc.html",
+  "Gc02Stock.dc.html",
+  "Gc03SellDigital.dc.html",
+  "Gc04SellPlastic.dc.html",
+  "Gc05Paid.dc.html",
+  "Gc06Phone.dc.html",
+  "Gc07UseFound.dc.html",
+  "Gc08UseSplit.dc.html",
+  "Gc09Refused.dc.html",
+  "Gc10Lost.dc.html"
  ],
  "notes": {
   "t1": {
@@ -187,6 +331,30 @@
    "kind": "title1",
    "maxW": 16230,
    "page": "spec"
+  },
+  "tg": {
+   "x": 0,
+   "y": 2030,
+   "text": "Gift cards",
+   "kind": "title1",
+   "maxW": 4470,
+   "page": "overview"
+  },
+  "tg2": {
+   "x": 0,
+   "y": -300,
+   "text": "Gift cards: setup, sell, use, refuse, lost (G1–G10)",
+   "kind": "title1",
+   "maxW": 16230,
+   "page": "gift"
+  },
+  "sg": {
+   "x": -520,
+   "y": 2300,
+   "w": 420,
+   "fill": "orange",
+   "page": "overview",
+   "text": "How it works (roles, codes, money): https://claude.ai/artifact/GKRwnoiAkv5pTHk8rQFUby\n\nA card is worth $0 until it is sold and paid at this salon. Codes: digital = made at the sale (16 chars, random, check letter); plastic = printed, scanned into stock first. Every use: staff PIN + ledger."
   }
  },
  "designSystems": [
