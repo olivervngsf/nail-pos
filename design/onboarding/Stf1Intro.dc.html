@@ -29,12 +29,7 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [
-      [770, 472, '+ Add staff (dashed, full width). Tap → the right panel fades to the Add staff form (4b).'],
-      [770, 240, 'Each person is a button. Tap → their detail + invite timeline on the right (4e). Tag shows status: Owner / Text sent / PIN set ✓.'],
-      [1190, 80, '“How staff join” explains the 4 steps until someone adds or opens a person.'],
-      [1050, 762, 'Footer note counts invites still waiting. Continue is always allowed — staff can finish later.']
-    ];
+    const P = [[356, 408, "+ Add staff (dashed, full width). Tap → the right panel fades to the Add staff form (4b)."], [356, 226, "Each person is a button. Tap → their detail + invite timeline on the right (4e). Tag shows status: Owner / Text sent / PIN set ✓."], [838, 74, "“How staff join” explains the 4 steps until someone adds or opens a person."], [648, 762, "Footer note counts invites still waiting. Continue is always allowed — staff can finish later."]];
     return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }

@@ -19,6 +19,7 @@ body{margin:0}
 .segb.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .rowbtn{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border:0;border-bottom:1px solid var(--line);background:#fff;font:inherit;font-size:16px;color:var(--ink);text-align:left;cursor:pointer;transition:background .25s}
 .rowbtn:last-child{border-bottom:0}
+.rowbtn .grow{flex:1;min-width:0}
 .rowbtn:hover{background:#FAFAFB}
 .rowbtn.sel{background:var(--surface)}
 .rowbtn.new{animation:fadeUp .45s var(--ease) both, flash 1.6s ease .2s}
@@ -37,6 +38,23 @@ body{margin:0}
 .stepper{display:flex;align-items:center;gap:8px}
 .stepper button{width:40px;height:40px;border-radius:10px;border:0;background:var(--fill);font:inherit;font-size:20px;cursor:pointer}
 .toast{bottom:96px}
+.tbtn{height:36px;min-width:92px;padding:0 8px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
+.tbtn:hover{border-color:#C7C7CC}.tbtn.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.tbtn.bad{border-color:#E03131;color:#E03131}.tbtn.warn{border-color:var(--orange);background:var(--orange-soft)}
+.tscrim{position:fixed;inset:0;z-index:30}
+.tpop{position:absolute;left:0;z-index:31;width:264px;background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.05);padding:12px;display:flex;flex-direction:column;gap:10px;animation:tpIn .16s ease-out;box-sizing:border-box}
+@keyframes tpIn{from{opacity:0;transform:translateY(4px) scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tpop{animation:none}}
+.tpop .seg{padding:2px;display:flex}.tpop .seg span{padding:0 8px;font-size:13px;cursor:pointer;justify-content:center;flex:1}
+.tp-l{font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+.tp-h{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.tp-h button{height:34px;border:0;border-radius:10px;background:var(--fill);font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
+.tp-h button.on{background:var(--ink);color:#fff}
+.shr{display:flex;align-items:center;gap:8px;min-height:44px;border-bottom:1px solid var(--line)}
+.shr:last-child{border-bottom:0}
+.daychip{width:46px;height:30px;border-radius:999px;border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;flex:none}
+.shbad{color:#E03131;font-weight:600}
+.daychip.on{background:var(--ink);border-color:var(--ink);color:#fff}
 </style>
 </helmet>
 <div class="wiz">
@@ -119,6 +137,7 @@ body{margin:0}
             <div class="group" style="box-shadow:none;border:1px solid var(--line)">
               <div class="row"><div class="grow">Role</div><span class="cap">{{d.role}}</span></div>
               <div class="row"><div class="grow">Pay</div><span class="cap">{{d.pay}}</span></div>
+              <button class="rowbtn" type="button" onClick="{{openShifts}}" style="min-height:46px;font-size:15px"><div class="grow">Shifts</div><span class="cap">{{shiftSum}}</span><span class="cap" aria-hidden="true">›</span></button>
             </div>
             <div class="eyebrow" style="margin-top:4px">Invite</div>
             <div>
@@ -147,6 +166,42 @@ body{margin:0}
             </sc-if>
           </div>
         </sc-if>
+
+        <sc-if value="{{vShifts}}" hint-placeholder-val="{{false}}">
+          <div class="card fade" style="padding:18px 20px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px"><div class="av">{{d.init}}</div><div style="flex:1"><div class="h2">{{d.name}}'s shifts</div><div class="cap">{{weekTotal}}</div></div><button class="btn ghost" type="button" onClick="{{backDetail}}" style="height:32px;padding:0 10px">Back</button></div>
+            <button class="btn ghost" type="button" onClick="{{sameAsSalon}}" style="align-self:flex-start;height:30px;font-size:13px;padding:0 10px;margin-top:-4px">Same as salon hours</button>
+            <div>
+              <sc-for list="{{shifts}}" as="h" hint-placeholder-count="7">
+                <div class="shr">
+                  <button class="{{h.chip}}" type="button" onClick="{{h.flip}}" aria-pressed="{{h.on}}">{{h.d}}</button>
+                  <sc-if value="{{h.on}}" hint-placeholder-val="{{true}}">
+                    <span style="position:relative"><button class="{{h.oCls}}" type="button" onClick="{{h.openO}}">{{h.o}}</button>
+                    <sc-if value="{{h.popO}}" hint-placeholder-val="{{false}}"><div class="tscrim" onClick="{{closeTp}}"></div><div class="tpop" style="{{h.posO}}">
+                      <div class="tp-l">{{tpLabel}}</div>
+                      <div class="tp-h"><sc-for list="{{tpHours}}" as="x" hint-placeholder-count="12"><button class="{{x.cls}}" type="button" onClick="{{x.pick}}">{{x.n}}</button></sc-for></div>
+                      <div style="display:flex;gap:6px"><div class="seg" style="flex:1"><sc-for list="{{tpMins}}" as="x" hint-placeholder-count="4"><span class="{{x.cls}}" onClick="{{x.pick}}">{{x.n}}</span></sc-for></div><div class="seg"><sc-for list="{{tpAp}}" as="x" hint-placeholder-count="2"><span class="{{x.cls}}" onClick="{{x.pick}}">{{x.n}}</span></sc-for></div></div>
+                      <button class="btn primary" type="button" onClick="{{closeTp}}" style="height:38px;font-size:14px;width:100%;box-sizing:border-box">Done · {{tpNow}}</button>
+                    </div></sc-if></span>
+                    <span class="cap">to</span>
+                    <span style="position:relative"><button class="{{h.cCls}}" type="button" onClick="{{h.openC}}">{{h.c}}</button>
+                    <sc-if value="{{h.popC}}" hint-placeholder-val="{{false}}"><div class="tscrim" onClick="{{closeTp}}"></div><div class="tpop" style="{{h.posC}}">
+                      <div class="tp-l">{{tpLabel}}</div>
+                      <div class="tp-h"><sc-for list="{{tpHours}}" as="x" hint-placeholder-count="12"><button class="{{x.cls}}" type="button" onClick="{{x.pick}}">{{x.n}}</button></sc-for></div>
+                      <div style="display:flex;gap:6px"><div class="seg" style="flex:1"><sc-for list="{{tpMins}}" as="x" hint-placeholder-count="4"><span class="{{x.cls}}" onClick="{{x.pick}}">{{x.n}}</span></sc-for></div><div class="seg"><sc-for list="{{tpAp}}" as="x" hint-placeholder-count="2"><span class="{{x.cls}}" onClick="{{x.pick}}">{{x.n}}</span></sc-for></div></div>
+                      <button class="btn primary" type="button" onClick="{{closeTp}}" style="height:38px;font-size:14px;width:100%;box-sizing:border-box">Done · {{tpNow}}</button>
+                    </div></sc-if></span>
+                    <span class="{{h.sumCls}}" style="margin-left:auto;font-size:12px;white-space:nowrap">{{h.sum}}</span>
+                  </sc-if>
+                  <sc-if value="{{h.off}}" hint-placeholder-val="{{false}}"><span class="cap">{{h.offText}}</span></sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{shiftWarn}}" hint-placeholder-val="{{false}}"><div class="cap fade" style="color:#B5470A;font-size:13px;line-height:18px">{{shiftWarnText}}</div></sc-if>
+            <button class="btn primary" type="button" onClick="{{saveShifts}}" disabled="{{shiftBad}}" style="height:46px;font-size:16px">Save shifts</button>
+            <div class="cap" style="text-align:center;margin-top:-4px">{{d.name}} sees them in the app. Clock-in opens 15 min before each shift.</div>
+          </div>
+        </sc-if>
       </section>
     </div>
 
@@ -164,12 +219,12 @@ body{margin:0}
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["intro","add","error","sent","detail","done"],"default":"intro"},"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["intro","add","error","sent","detail","done","shifts","shiftpick","shifterr"],"default":"intro"},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
   constructor(p){
     super(p);
     this.state = {
-      view: 'intro', sel: null, toast: null, toastUndo: false, lastAdded: null, newId: null,
+      view: 'intro', sel: null, tp: '', toast: null, toastUndo: false, lastAdded: null, newId: null,
       f: { name: 'Lan', phone: '(408) 555-0188', role: 1, pay: 0, rate: 60 },
       staff: [
         { id: 1, name: 'Mai (you)', init: 'M', phone: '(408) 555-0110', role: 'Owner', pay: 'Owner', status: 'owner' },
@@ -188,6 +243,12 @@ class Component extends DCLogic {
     }
     if (sc === 'detail') { this.state.view = 'detail'; this.state.sel = 4; }
     if (sc === 'done') { this.state.view = 'detail'; this.state.sel = 3; }
+    const SALON = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d, i) => ({ d, on: i < 6, o: '9:30 AM', c: '7:00 PM' }));
+    this.salon = SALON;
+    this.state.shifts = SALON.map((h, i) => Object.assign({}, h, { on: i < 6 && i !== 2, o: '10:00 AM', c: '6:00 PM' }));
+    if (sc === 'shifts' || sc === 'shiftpick' || sc === 'shifterr') { this.state.view = 'shifts'; this.state.sel = 3; }
+    if (sc === 'shiftpick') this.state.tp = '1:o';
+    if (sc === 'shifterr') { this.state.shifts[4].c = '8:00 AM'; this.state.shifts[5].c = '8:00 PM'; }
   }
   componentWillUnmount(){ this.timers.forEach(clearTimeout); }
   later(fn, ms){ this.timers.push(setTimeout(fn, ms)); }
@@ -241,6 +302,30 @@ class Component extends DCLogic {
       }))
     };
 
+    const pt = (t) => { const [hm, ap] = t.split(' '); const [h, m] = hm.split(':').map(Number); return { h, m, ap }; };
+    const mins = (t) => { const x = pt(t); let h = x.h % 12; if (x.ap === 'PM') h += 12; return h * 60 + x.m; };
+    const fmt = (x) => x.h + ':' + String(x.m).padStart(2, '0') + ' ' + x.ap;
+    const SH = S.shifts, SAL = this.salon;
+    const setSh = (i, k, v) => { const a = SH.map((h) => Object.assign({}, h)); a[i][k] = v; this.setState({ shifts: a }); };
+    const [ti, tf] = S.tp ? S.tp.split(':') : [null, null];
+    const curT = S.tp ? pt(SH[+ti][tf]) : { h: 0, m: 0, ap: '' };
+    const change = (k, v) => { const x = Object.assign({}, curT); x[k] = v; if (k === 'h') { if (v === 12 || v <= 5) x.ap = 'PM'; else if (tf === 'o') x.ap = 'AM'; } setSh(+ti, tf, fmt(x)); };
+    let total = 0, warnDays = [];
+    const shifts = SH.map((h, i) => {
+      const sal = SAL[i], d = mins(h.c) - mins(h.o), wrong = h.on && d <= 0;
+      const outside = h.on && !wrong && (!sal.on || mins(h.o) < mins(sal.o) || mins(h.c) > mins(sal.c));
+      if (h.on && !wrong) total += d; if (outside) warnDays.push(h.d);
+      return { d: h.d, on: h.on, off: !h.on, o: h.o, c: h.c, chip: h.on ? 'daychip on' : 'daychip', flip: () => setSh(i, 'on', !h.on),
+        offText: sal.on ? 'Off' : 'Off · salon closed',
+        oCls: S.tp === i + ':o' ? 'tbtn on' : (outside && mins(h.o) < mins(sal.o) ? 'tbtn warn' : 'tbtn'),
+        cCls: S.tp === i + ':c' ? 'tbtn on' : (wrong ? 'tbtn bad' : (outside && mins(h.c) > mins(sal.c) ? 'tbtn warn' : 'tbtn')),
+        openO: () => this.setState({ tp: S.tp === i + ':o' ? '' : i + ':o' }), openC: () => this.setState({ tp: S.tp === i + ':c' ? '' : i + ':c' }),
+        popO: S.tp === i + ':o', popC: S.tp === i + ':c',
+        posO: i >= 4 ? 'bottom:44px' : 'top:44px', posC: (i >= 4 ? 'bottom:44px' : 'top:44px') + ';left:auto;right:0',
+        sum: wrong ? 'Check times' : (d / 60).toFixed(d % 60 ? 1 : 0) + ' h', sumCls: wrong ? 'shbad' : 'cap' };
+    });
+    const shiftBad = SH.some((h) => h.on && mins(h.c) <= mins(h.o));
+    const onDays = SH.filter((h) => h.on).map((h) => h.d);
     const pending = S.staff.filter((s) => s.status === 'sent' || s.status === 'opened' || s.status === 'sending').length;
     return {
       steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
@@ -282,7 +367,19 @@ class Component extends DCLogic {
       },
       resetPin: () => { this.patch(sel.id, { status: 'sent', t: [sel.t[0], 'just now', '', ''] }); this.flash('Old PIN turned off. New invite texted to ' + sel.name + '.', false); },
       remove: () => { this.setState({ staff: S.staff.filter((s) => s.id !== sel.id), view: 'intro', sel: null }); this.flash(sel.name + ' removed. Their past tickets and pay stay on record.', false); },
-      hasToast: !!S.toast, toast: S.toast, toastUndo: S.toastUndo
+      hasToast: !!S.toast, toast: S.toast, toastUndo: S.toastUndo,
+      vShifts: S.view === 'shifts', shifts, shiftBad,
+      weekTotal: onDays.length + ' days · ' + (total / 60).toFixed(total % 60 ? 1 : 0) + ' h a week' + (total > 40 * 60 ? ' · over 40 h = overtime' : ''),
+      shiftSum: onDays.length ? onDays.length + ' days · ' + (total / 60).toFixed(total % 60 ? 1 : 0) + ' h/wk' : 'Not set',
+      shiftWarn: warnDays.length > 0, shiftWarnText: '▲ ' + warnDays.join(', ') + ': outside salon hours. OK for early or late bookings — the booking page still uses salon hours.',
+      openShifts: () => this.setState({ view: 'shifts', tp: '' }), backDetail: () => this.setState({ view: 'detail', tp: '' }),
+      sameAsSalon: () => this.setState({ shifts: SAL.map((h) => Object.assign({}, h)) }),
+      saveShifts: () => { if (shiftBad) return; this.setState({ view: 'detail', tp: '' }); this.flash('Shifts saved for ' + sel.name + '. They see them in the app.', false); },
+      closeTp: () => this.setState({ tp: '' }),
+      tpLabel: (tf === 'o' ? 'Starts' : 'Ends') + (S.tp ? ' · ' + SH[+ti].d : ''), tpNow: S.tp ? SH[+ti][tf] : '',
+      tpHours: [6,7,8,9,10,11,12,1,2,3,4,5].map((n) => ({ n, cls: curT.h === n ? 'on' : '', pick: () => change('h', n) })),
+      tpMins: [0,15,30,45].map((n) => ({ n: ':' + String(n).padStart(2, '0'), cls: curT.m === n ? 'on' : '', pick: () => change('m', n) })),
+      tpAp: ['AM','PM'].map((n) => ({ n, cls: curT.ap === n ? 'on' : '', pick: () => change('ap', n) }))
     };
   }
 }
