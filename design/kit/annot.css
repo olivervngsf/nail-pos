@@ -31,3 +31,7 @@
 
 /* v3: no scrollbars inside frames */
 html,body{overflow:hidden}
+
+/* v4: spec frames stay still — no entry animations, hover lifts or slides inside annotated frames */
+.af-screen *,.afw-screen *,.afp-screen *,.afk-screen *{animation:none!important;transition:none!important}
+.af-screen *:hover,.afw-screen *:hover,.afp-screen *:hover,.afk-screen *:hover{transform:none!important}

@@ -28,7 +28,7 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [[550, 330, "Card opens next to the tapped slot (not a full drawer), with a small pop (0.22 s). Time + length with − / + (15 min steps)."], [550, 385, "Client: type name or phone; recent clients as chips."], [550, 455, "History hint: what this client usually gets, with whom, notes (sensitive skin)."], [550, 525, "Service chips; picking one sets the length. Suggested one is dashed."], [550, 610, "Who: staff chips; “Anyone → Tuyết” = next turn. Facts only."], [880, 830, "Book + text: grey until client + service are set. Then block appears with a glow + Undo toast (D10)."]];
+    const P = [[556, 374, "Card opens next to the tapped slot (not a full drawer), soft fade (0.22 s). Time + length with − / + (15 min steps)."], [556, 419, "Client: type name or phone → top 3 matches; recent clients as chips."], [556, 516, "History hint: what this client usually gets, with whom, notes (sensitive skin)."], [556, 592, "Service: only her top 4 + “All 15 ›” (long menus open a list, D2b). Picking one sets the length. Suggested one is dashed."], [556, 660, "Who: only staff free at that time; “Next turn · Tuyết” first; “More ›” opens everyone (D2c). Facts only."], [736, 753, "Book + text: grey until client + service are set. Then the block appears with a glow + Undo toast (D10)."]];
     return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }

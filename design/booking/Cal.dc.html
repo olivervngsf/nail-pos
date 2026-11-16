@@ -20,7 +20,7 @@ body{margin:0}
 .left{position:absolute;left:76px;top:90px;bottom:0;width:240px;border-right:1px solid #E5E5EA;background:#FAFAFB;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px}
 .right{position:absolute;right:0;top:90px;bottom:0;width:240px;border-left:1px solid #E5E5EA;background:#FAFAFB;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px}
 .wcard{background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 0.5px 0 rgba(0,0,0,.04),0 2px 8px rgba(28,28,30,.06);cursor:grab;font-size:13px;line-height:18px;transition:transform .15s,box-shadow .2s}
-.wcard:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(28,28,30,.12)}
+.wcard:hover{box-shadow:0 8px 20px rgba(28,28,30,.12)}
 .wcard.dragging{opacity:.4}
 .ucard{background:#fff;border-radius:12px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-size:13px;line-height:17px;box-shadow:0 0.5px 0 rgba(0,0,0,.04),0 2px 8px rgba(28,28,30,.05)}
 .ucard.free{box-shadow:0 0 0 2px #2F9E44}
@@ -78,6 +78,10 @@ body{margin:0}
 .now{position:absolute;left:-6px;right:0;height:2px;background:#E03131;pointer-events:none;z-index:2}
 .now::before{content:"";position:absolute;left:0;top:-4px;width:10px;height:10px;border-radius:50%;background:#E03131}
 .nowlbl{position:absolute;left:318px;font-size:11px;font-weight:700;color:#E03131;transform:translateY(-7px)}
+.qcard .chip{height:32px;padding:0 11px;font-size:13px}
+.qpanel{max-height:560px;z-index:11}
+.qlist{flex:1;min-height:0;overflow:auto;margin:0 -4px;padding:0 4px}
+.opt.off{opacity:.45;cursor:not-allowed}
 .qcard{position:absolute;width:340px;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:10;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px;animation:popin .22s cubic-bezier(.2,.8,.2,1) both;cursor:default}
 @keyframes popin{from{opacity:0;transform:scale(.96) translateY(4px)}to{opacity:1;transform:none}}
 
@@ -225,10 +229,10 @@ body{margin:0}
       <input value="{{popClientName}}" placeholder="Client name or phone" aria-label="Client" style="height:42px;border-radius:10px;border:1.5px solid #1C1C1E;padding:0 12px;font:inherit;font-size:15px">
       <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{popClients}}" as="k" hint-placeholder-count="3"><button class="{{k.cls}}" type="button" onClick="{{k.pick}}">{{k.label}}</button></sc-for></div>
       <sc-if value="{{popHint}}" hint-placeholder-val="{{false}}"><div class="cap fade" style="background:#F5F5F7;border-radius:8px;padding:6px 8px">Lan usually: <b>Gel with Kim</b> · every 4 weeks · sensitive skin</div></sc-if>
-      <div class="eyebrow">Service</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{popSvcs}}" as="s" hint-placeholder-count="7"><button class="{{s.cls}}" type="button" onClick="{{s.pick}}">{{s.label}}</button></sc-for></div>
-      <div class="eyebrow">Who</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{popWho}}" as="w" hint-placeholder-count="5"><button class="{{w.cls}}" type="button" onClick="{{w.pick}}">{{w.label}}</button></sc-for></div>
+      <div style="display:flex;align-items:baseline"><span class="eyebrow" style="flex:1">Service · top for this client</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{popSvcs}}" as="s" hint-placeholder-count="4"><button class="{{s.cls}}" type="button" onClick="{{s.pick}}">{{s.label}}</button></sc-for><button class="chip" type="button" onClick="{{allSvc}}" style="color:#5C5C5E">All {{svcCount}} ›</button></div>
+      <div class="eyebrow">Who · free at this time</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{popWho}}" as="w" hint-placeholder-count="4"><button class="{{w.cls}}" type="button" onClick="{{w.pick}}">{{w.label}}</button></sc-for><button class="chip" type="button" onClick="{{allStaff}}" style="color:#5C5C5E">More ›</button></div>
       <div class="cap">Next turn: Tuyết — free now, fewest clients today.</div>
       <div style="display:flex;gap:8px;margin-top:2px"><button class="mbtn" type="button" onClick="{{closeAll}}" style="flex:1;height:42px">Cancel</button><button class="mbtn pri" type="button" onClick="{{popBook}}" style="{{popBookStyle}}">Book + text</button></div>
     </div>
@@ -240,6 +244,20 @@ body{margin:0}
       <div class="alr"><span class="ai" style="background:#FDEEE6;color:#B5470A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg></span><span class="at"><b>Overlap: Kim 1:30–2:00 PM</b>Tiffany and Mai are both with Kim. Nobody was moved.</span><button class="mbtn" type="button" onClick="{{alShow}}">Show</button></div>
       <div class="{{hoaRowCls}}"><span class="ai" style="background:#FDEEE6;color:#B5470A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="at"><b>{{hoaTitle}}</b>{{hoaSub}}</span><sc-if value="{{hoaLateNow}}" hint-placeholder-val="{{true}}"><button class="mbtn" type="button" onClick="{{alCover}}" style="background:#E8590C;color:#fff">Cover</button></sc-if></div>
       <div class="cap" style="padding:10px 16px 4px;border-top:1px solid #E5E5EA">Alerts are facts only. You decide what to do; nothing moves on its own.</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{hasPanel}}" hint-placeholder-val="{{false}}">
+    <div class="qcard qpanel" style="{{panelStyle}}" role="dialog" aria-label="Pick from full list">
+      <div style="display:flex;align-items:center"><b style="flex:1;font-size:16px"><sc-if value="{{isSvcPanel}}" hint-placeholder-val="{{true}}">All services</sc-if><sc-if value="{{isStaffPanel}}" hint-placeholder-val="{{false}}">All staff</sc-if></b><button class="mbtn" type="button" onClick="{{closePanel}}" style="background:transparent" aria-label="Close list">✕</button></div>
+      <input class="inp" placeholder="Search… (type 2 letters)" aria-label="Search" style="height:40px;font-size:15px">
+      <sc-if value="{{isSvcPanel}}" hint-placeholder-val="{{true}}">
+        <div class="seg" style="flex-wrap:wrap"><sc-for list="{{cats}}" as="c" hint-placeholder-count="5"><span class="{{c.cls}}" onClick="{{c.pick}}" style="cursor:pointer;height:28px;padding:0 10px;font-size:12px">{{c.label}}</span></sc-for></div>
+        <div class="qlist"><sc-for list="{{svcGroups}}" as="g" hint-placeholder-count="4"><div class="eyebrow" style="padding:8px 4px 4px">{{g.name}}</div><div class="group"><sc-for list="{{g.items}}" as="v" hint-placeholder-count="3"><button class="{{v.cls}}" type="button" onClick="{{v.pick}}" style="min-height:44px;font-size:14px"><span style="flex:1;min-width:0"><b style="font-weight:600">{{v.n}}</b> <span class="cap">{{v.d}}</span></span><sc-if value="{{v.tag}}" hint-placeholder-val="{{false}}"><span class="tag jade">{{v.tag}}</span></sc-if><span class="num cap">{{v.p}}</span></button></sc-for></div></sc-for></div>
+      </sc-if>
+      <sc-if value="{{isStaffPanel}}" hint-placeholder-val="{{false}}">
+        <div class="cap">Free first. Busy staff can still be picked: the booking shows as an overlap you can see.</div>
+        <div class="qlist"><div class="group"><sc-for list="{{staffRows}}" as="t" hint-placeholder-count="5"><button class="{{t.cls}}" type="button" onClick="{{t.pick}}" style="min-height:52px;font-size:14px"><span class="av" style="width:30px;height:30px;font-size:12px">{{t.init}}</span><span style="flex:1;min-width:0"><b style="font-weight:600">{{t.n}}</b><span class="cap" style="display:block">{{t.sub}}</span></span><span style="{{t.dot}}"></span></button></sc-for></div></div>
+      </sc-if>
     </div>
   </sc-if>
   <sc-if value="{{hasCover}}" hint-placeholder-val="{{false}}">
@@ -260,7 +278,7 @@ body{margin:0}
   </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["day","create","drag","peek","move","waitdrop","cover","alerts","alert","booked","filter"],"default":"day"},"$preview":{"width":1440,"height":900}}'>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["day","create","drag","peek","move","waitdrop","cover","alerts","alert","booked","filter","createsvc","createstaff"],"default":"day"},"$preview":{"width":1440,"height":900}}'>
 class Component extends DCLogic {
   constructor(p){
     super(p);
@@ -292,6 +310,8 @@ class Component extends DCLogic {
     this.state = { appts: A, prev: null, pop: null, peek: null, drag: null, move: null, cover: false, toast: null, toastUndo: true, filter: null, waitDrag: null, wait: [['Susan', 'B12', 'Pedi', 18], ['Kayla', 'B13', 'Gel', 8], ['Sofia', 'B14', 'Fill', 3]], flash: null, hoaCovered: false };
     const sc = (p && p.scenario) || 'day';
     if (sc === 'create') this.state.pop = { col: 0, s: 16.75, e: 17.5, client: 0, svc: 0, who: 1 };
+    if (sc === 'createsvc') this.state.pop = { col: 1, s: 15.5, e: 16.25, client: 0, svc: 0, who: 1, panel: 'svc' };
+    if (sc === 'createstaff') this.state.pop = { col: 1, s: 15.5, e: 16.25, client: 0, svc: 3, who: 1, panel: 'staff' };
     if (sc === 'drag') this.state.drag = { col: 1, s: 16, e: 17.25 };
     if (sc === 'peek') this.state.peek = 5;
     if (sc === 'move') this.state.move = { id: 21, col: 4, s: 16.5, e: 17.5, moved: true, dy: 0 };
@@ -365,8 +385,10 @@ class Component extends DCLogic {
     const pk = S.peek != null ? ap.find((a) => a.id === S.peek) : null;
     const pkPos = pk ? { left: 368 + pk.col * CW + (pk.col >= 3 ? -296 : CW + 4), top: Math.min(560, 224 + (pk.s - T0) * HH) } : null;
     const P = S.pop;
-    const clients = [['Lan Tran', 'regular'], ['Jen Park', ''], ['+ New client', '']];
-    const svcs = [['Gel', 0.75], ['Pedi', 0.75], ['Full set', 1.25], ['Fill', 0.75], ['Dip', 1], ['Deluxe', 1], ['Art', 0.25]];
+    const clients = [['Lan Tran', 'regular'], ['Jen Park', ''], ['+ New', '']];
+    const svcs = [['Gel', 0.75, 'Manicure', 35], ['Pedi', 0.75, 'Pedicure', 35], ['Full set', 1.25, 'Enhancements', 55], ['Fill', 0.75, 'Enhancements', 40], ['Dip', 1, 'Enhancements', 45], ['Deluxe', 1, 'Pedicure', 50], ['Art', 0.25, 'Add-ons', 10], ['Classic mani', 0.5, 'Manicure', 20], ['Deluxe mani', 0.75, 'Manicure', 35], ['Jelly spa pedi', 1, 'Pedicure', 55], ['Gel-X', 1.25, 'Enhancements', 60], ['Removal', 0.25, 'Enhancements', 10], ['French tip', 0.25, 'Add-ons', 8], ['Chrome', 0.25, 'Add-ons', 10], ['Paraffin', 0.25, 'Add-ons', 10]];
+    const TOP = [0, 3, 1, 4], CATS = ['All', 'Manicure', 'Pedicure', 'Enhancements', 'Add-ons'];
+    const STAFF = [[2, 'Tuyết', 'Free now · 3 turns', 'free'], [1, 'Ngọc', 'Busy until 2:00 · 3 turns', 'busy'], [4, 'Linh', 'Busy until 2:15 · 2 turns', 'busy'], [0, 'Kim', 'Busy until 2:15 · 4 turns', 'busy'], [3, 'Hoa', 'Not in · 24 min late', 'out']];
     const popLeft = P ? (P.col >= 3 ? 368 + P.col * CW - 346 : 368 + (P.col + 1) * CW + 8) : 0;
     const popTop = P ? Math.max(64, Math.min(900 - 600, 224 + (P.s - T0) * HH - 40)) : 0;
     const counts = [['all', '▮', '23', ' booked'], ['online', '', '12', ' online'], ['walk', '⏱', '4', ' walk-in'], ['unconf', '?', '1', ''], ['conf', '✓', '8', ''], ['chair', '●', '3', ''], ['ready', '$', '2', ''], ['cancel', '✕', '1', ''], ['star', '★', '4', '']];
@@ -410,8 +432,14 @@ class Component extends DCLogic {
       popClientName: P && P.client === 0 ? 'Lan Tran · (408) 555-0142' : '',
       popClients: clients.map((c, i) => ({ label: c[0] + (c[1] ? ' · ' + c[1] : ''), cls: 'chip' + (P && P.client === i ? ' on' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { client: i, svc: i === 0 && P.svc == null ? 0 : P.svc }) }) })),
       popHint: P && P.client === 0,
-      popSvcs: svcs.map((s, i) => ({ label: s[0], cls: 'chip' + (P && P.svc === i ? ' on' : '') + (P && P.client === 0 && i === 0 && P.svc !== 0 ? ' sug' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { svc: i, e: P.s + s[1] }) }) })),
-      popWho: ['Anyone → Tuyết', 'Kim', 'Ngọc', 'Tuyết', 'Linh'].map((w, i) => { const col = [2, 0, 1, 2, 4][i]; return { label: (P && P.who === col && i > 0 ? '✓ ' : '') + w, cls: 'chip' + (i === 0 ? ' sug' : '') + (P && P.who === col && i > 0 ? ' on' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { who: col, col }) }) }; }),
+      popSvcs: TOP.concat(P && TOP.indexOf(P.svc) < 0 && P.svc != null ? [P.svc] : []).map((i) => [svcs[i], i]).map(([s, i]) => ({ label: s[0], cls: 'chip' + (P && P.svc === i ? ' on' : '') + (P && P.client === 0 && i === 0 && P.svc !== 0 ? ' sug' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { svc: i, e: P.s + s[1] }) }) })),
+      allSvc: () => this.setState({ pop: Object.assign({}, P, { panel: P.panel === 'svc' ? null : 'svc' }) }), allStaff: () => this.setState({ pop: Object.assign({}, P, { panel: P.panel === 'staff' ? null : 'staff' }) }),
+      svcCount: svcs.length, hasPanel: !!(P && P.panel), isSvcPanel: !!(P && P.panel === 'svc'), isStaffPanel: !!(P && P.panel === 'staff'), closePanel: () => this.setState({ pop: Object.assign({}, P, { panel: null }) }),
+      panelStyle: P ? 'left:' + (P.col >= 2 ? popLeft - 348 : popLeft + 348) + 'px;top:' + popTop + 'px' : '',
+      cats: CATS.map((c) => ({ label: c, cls: (P && (P.cat || 'All') === c) ? 'on' : '', pick: () => this.setState({ pop: Object.assign({}, P, { cat: c }) }) })),
+      svcGroups: CATS.slice(1).filter((c) => !P || !P.cat || P.cat === 'All' || P.cat === c).map((c) => ({ name: c, items: svcs.map((v, i) => [v, i]).filter(([v]) => v[2] === c).map(([v, i]) => ({ n: v[0], d: Math.round(v[1] * 60) + ' min', p: '$' + v[3], tag: P && P.client === 0 && i === 0 ? 'Lan usually' : '', cls: 'opt' + (P && P.svc === i ? ' on' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { svc: i, e: P.s + v[1], panel: null }) }) })) })),
+      staffRows: STAFF.map((t) => ({ init: t[1][0], n: t[1], sub: t[2], dot: 'width:8px;height:8px;border-radius:50%;flex:none;background:' + (t[3] === 'free' ? '#2F9E44' : t[3] === 'busy' ? '#E03131' : '#8E8E93'), cls: 'opt' + (P && P.who === t[0] ? ' on' : '') + (t[3] === 'out' ? ' off' : ''), pick: () => { if (t[3] !== 'out') this.setState({ pop: Object.assign({}, P, { who: t[0], col: t[0], panel: null }) }); } })),
+      popWho: ['Next turn · Tuyết', 'Ngọc', 'Linh'].map((w, i) => { const col = [2, 1, 4][i]; return { label: (P && P.who === col && i > 0 ? '✓ ' : '') + w, cls: 'chip' + (i === 0 ? ' sug' : '') + (P && P.who === col && i > 0 ? ' on' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { who: col, col }) }) }; }),
       popBookStyle: 'flex:2;height:42px' + (P && P.client != null && P.svc != null ? '' : ';opacity:.35;pointer-events:none'),
       popBook: () => { const id = 100 + S.appts.length; const nm = P.client === 0 ? 'Lan Tran' : P.client === 1 ? 'Jen Park' : 'New client'; this.setState({ prev: S.appts, appts: S.appts.concat([{ id, col: P.who, s: P.s, e: P.e, name: nm, svc: svcs[P.svc][0], st: 'conf', status: 'Text sent', src: 'front desk' }]), pop: null, flash: id }); this.say('Booked ' + nm + ' · ' + svcs[P.svc][0] + ' · ' + staffN[P.who] + ' ' + fmt(P.s) + ' · confirmation texted'); },
       newBook: () => this.setState({ pop: { col: 2, s: 13.75, e: 14.5, client: null, svc: null, who: 2 }, peek: null }),
