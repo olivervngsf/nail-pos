@@ -15,6 +15,7 @@ const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
 /** Live = signed in to a real salon: changes are sent to the server. Off = test copy (this device only). */
 export function setLive(on: boolean) { live = on; }
+export const isLive = () => live;
 
 function load(): Record<string, Ticket> {
   if (cache) return cache;
