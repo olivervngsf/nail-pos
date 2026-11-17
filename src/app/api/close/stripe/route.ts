@@ -30,8 +30,10 @@ export async function POST(req: Request) {
   }
   const { data: ours } = await db.from("payments").select("stripe_payment_intent,amount_cents,status").eq("salon_id", salonId).in("stripe_payment_intent", intents.length ? intents : ["-"]);
   const known = new Set((ours ?? []).map((p) => p.stripe_payment_intent as string));
-  const s = sum as { card_cents: number | string; paid: { extra_cents: number | string } };
-  const recorded = Number(s.card_cents) + Number(s.paid.extra_cents);
+  // Same basis as Stripe's captured amounts: every card payment we recorded that day, before refunds (extra ones included).
+  const { data: rec } = await db.from("payments").select("amount_cents").eq("salon_id", salonId).in("method", ["card_reader", "pay_link"])
+    .in("status", ["paid", "refunded", "extra"]).gte("at", lo as string).lt("at", hi as string);
+  const recorded = (rec ?? []).reduce((a, p) => a + Number(p.amount_cents), 0);
   return Response.json({ checked: true, stripeCount: count, stripeCents: cents, recordedCents: recorded, matches: cents === recorded,
     missing: intents.filter((i) => !known.has(i)) });
 }

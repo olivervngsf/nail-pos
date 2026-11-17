@@ -85,13 +85,34 @@ do $$ begin perform public.day_summary(pg_temp.id('a01'), current_date); raise e
   exception when others then if sqlerrm not like '%not allowed%' then raise; end if; end $$;
 insert into t_out values ('mine', public.my_earnings(pg_temp.id('a01'), current_date, current_date));
 
+-- owner's own login still needs an OK (one tap), never just the session
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000ee01","role":"authenticated"}', true);
+do $$ begin perform public.close_day(jsonb_build_object('salonId', pg_temp.id('a01'), 'day', current_date,
+    'leftOpen', jsonb_build_array(jsonb_build_object('id', pg_temp.id('b06'), 'reason', 'pays tomorrow'))));
+  raise exception 'FAIL: closed with no OK'; exception when others then if sqlerrm not like '%owner or manager OK%' then raise; end if; end $$;
+insert into t_out values ('ok', public.approve_discount(pg_temp.id('a01'), null, null, null, 'close', null));
 -- owner closes: counted $225 = expected ($150 start + $45 + $30 + $20 cash − $20 refund), takes $100 to the bank
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000ee01","role":"authenticated"}', true);
 insert into t_out values ('close', public.close_day(jsonb_build_object('salonId', pg_temp.id('a01'), 'day', current_date,
-  'counts', jsonb_build_object('100', 2, '20', 1, '5', 1), 'coinsCents', 0, 'cashRemovedCents', 10000,
+  'approvalId', (select v->>'approval_id' from t_out where k = 'ok'), 'counts', jsonb_build_object('100', 2, '20', 1, '5', 1), 'coinsCents', 0, 'cashRemovedCents', 10000,
   'leftOpen', jsonb_build_array(jsonb_build_object('id', pg_temp.id('b06'), 'reason', 'pays tomorrow')))));
+-- the same OK can't close twice
+do $$ begin perform public.close_day(jsonb_build_object('salonId', pg_temp.id('a01'), 'day', current_date, 'approvalId', (select v->>'approval_id' from t_out where k = 'ok'),
+    'leftOpen', jsonb_build_array(jsonb_build_object('id', pg_temp.id('b06'), 'reason', 'pays tomorrow'))));
+  raise exception 'FAIL: OK used twice'; exception when others then if sqlerrm not like '%owner or manager OK%' then raise; end if; end $$;
+reset role;
+insert into public.memberships (id, salon_id, display_name, phone, role, pay_type, hourly_cents, archived_at)
+  values (pg_temp.id('f03'), pg_temp.id('a01'), 'Linh', '+14085550504', 'front_desk', 'hourly', 1800, now());
+insert into public.clock_events (salon_id, membership_id, kind, source, at) values
+  (pg_temp.id('a01'), pg_temp.id('f03'), 'in', 'pin', current_date - interval '1 hour'),
+  (pg_temp.id('a01'), pg_temp.id('f03'), 'out', 'pin', current_date + interval '1 hour'),
+  (pg_temp.id('a01'), pg_temp.id('f03'), 'in', 'pin', current_date + interval '10 hours'),
+  (pg_temp.id('a01'), pg_temp.id('f03'), 'out', 'pin', current_date + interval '12 hours');
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000ee01","role":"authenticated"}', true);
 insert into t_out values ('tomorrow', public.day_summary(pg_temp.id('a01'), current_date + 1)->'cash');
 insert into t_out values ('sheet', public.payout_sheet(pg_temp.id('a01'), current_date, current_date));
+insert into t_out values ('yday', public.payout_sheet(pg_temp.id('a01'), current_date - 1, current_date - 1));
 -- PIN on the salon device: Kim's own slip; wrong PIN shows nothing
 insert into t_out values ('pin', public.pin_earnings((select (v #>> '{}')::uuid from t_out where k = 'device'), pg_temp.id('f01'), '2580', current_date, current_date));
 insert into t_out values ('pin_bad', public.pin_earnings((select (v #>> '{}')::uuid from t_out where k = 'device'), pg_temp.id('f01'), '1111', current_date, current_date));
@@ -116,6 +137,10 @@ begin
   if kim->>'services_cents' <> '11000' or kim->>'pay_cents' <> '6600' or kim->>'total_cents' <> '8100'
      or kim->>'check_cents' <> '5670' or kim->>'cash_cents' <> '2430' then raise exception 'FAIL Kim: %', kim; end if;
   if (select count(*) from jsonb_array_elements(o->'sheet') x where x->>'name' = 'Lan') <> 0 then raise exception 'FAIL: front desk with no work on the sheet'; end if;
+  -- Linh (archived, hourly $18): 1 h of the overnight shift + 2 h today = 3 h = $54; yesterday gets the other hour
+  if (select x->>'minutes' || '/' || (x->>'pay_cents') from jsonb_array_elements(o->'sheet') x where x->>'name' = 'Linh') is distinct from '180/5400'
+  then raise exception 'FAIL Linh today: %', o->'sheet'; end if;
+  if (select x->>'minutes' from jsonb_array_elements(o->'yday') x where x->>'name' = 'Linh') is distinct from '60' then raise exception 'FAIL Linh yesterday: %', o->'yday'; end if;
   if o->'mine'->>'total_cents' <> '8100' then raise exception 'FAIL my earnings: %', o->'mine'; end if;
   if o->'pin'->'earnings'->>'total_cents' <> '8100' then raise exception 'FAIL pin earnings: %', o->'pin'; end if;
   if (o->'pin_bad'->>'ok')::boolean or o->'pin_bad' ? 'earnings' then raise exception 'FAIL wrong PIN showed earnings'; end if;
