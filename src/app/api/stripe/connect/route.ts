@@ -17,10 +17,10 @@ export async function POST(req: Request) {
   if (!a) {
     const { data: s } = await db.from("salons").select("name").eq("id", salonId).single();
     // Accounts v2 (Stripe's current way). Salon = merchant on its own account (direct charges), Stripe collects
-    // its fees from the salon and covers losses (Managed Risk). Express dashboard: simple for salon owners.
+    // its fees from the salon and covers losses (Managed Risk). Full Stripe dashboard (the only setup Stripe allows when it collects fees + covers losses).
     const acct = await st.v2.core.accounts.create({
       display_name: s?.name ?? undefined,
-      dashboard: "express",
+      dashboard: "full",
       identity: { country: "US" },
       defaults: { responsibilities: { fees_collector: "stripe", losses_collector: "stripe" } },
       configuration: { merchant: { capabilities: { card_payments: { requested: true } } } },
