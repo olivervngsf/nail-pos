@@ -1,5 +1,8 @@
 "use client";
+import { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { homeFor, isSignedIn, myMemberships } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 import { useLang } from "@/components/AppProviders";
 import { Segmented } from "@/components/kit";
@@ -8,6 +11,11 @@ export default function Home() {
   const t = useTranslations("home");
   const tl = useTranslations("lang");
   const { lang, setLang } = useLang();
+  const router = useRouter();
+  // Already signed in on this device → skip the start screen, go to your home (Today, tech phone or setup).
+  useEffect(() => {
+    void isSignedIn().then(async (yes) => { if (yes) router.replace(homeFor(await myMemberships())); }).catch(() => { /* offline: stay here */ });
+  }, [router]);
   return (
     <main style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <div className="card pad in" style={{ width: "100%", maxWidth: 440, padding: 28, gap: 16 }}>
