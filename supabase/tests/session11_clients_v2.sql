@@ -17,6 +17,14 @@ select public.client_set_private(id, 'Asked twice for a discount; owner said no.
 -- client numbers: random 5 digits per salon; "#<number>" finds that client
 create temp table t_j as select public.client_save(jsonb_build_object('salonId', '00000000-0000-0000-0000-0000000011a1', 'name', 'Jen Park', 'phone', '+14085550131')) as id;
 insert into t_out select 'by_number', public.client_list('00000000-0000-0000-0000-0000000011a1', 'all', '#' || c.number) from public.clients c join t_j on t_j.id = c.id;
+-- a client with no phone: a ticket still links to them (by id) and keeps the name; a walk-in name stays on the ticket
+create temp table t_np as select public.client_save(jsonb_build_object('salonId', '00000000-0000-0000-0000-0000000011a1', 'name', 'No Phone')) as id;
+select public.save_ticket(jsonb_build_object('id', '00000000-0000-0000-0000-0000000011b1', 'salonId', '00000000-0000-0000-0000-0000000011a1',
+  'client', jsonb_build_object('id', (select id from t_np), 'phone', '', 'name', 'No Phone'), 'lines', '[]'::jsonb));
+select public.save_ticket(jsonb_build_object('id', '00000000-0000-0000-0000-0000000011b2', 'salonId', '00000000-0000-0000-0000-0000000011a1',
+  'client', jsonb_build_object('phone', '', 'name', 'Walk-in Nam'), 'lines', '[]'::jsonb));
+insert into t_out values ('np_ticket', (select to_jsonb(t) from public.tickets t where t.id = '00000000-0000-0000-0000-0000000011b1'));
+insert into t_out values ('walkin_ticket', (select to_jsonb(t) from public.tickets t where t.id = '00000000-0000-0000-0000-0000000011b2'));
 select public.client_phone_viewed(id) from t_c;
 insert into t_out select 'owner', public.client_profile(id) from t_c;
 
@@ -46,6 +54,8 @@ begin
   if o->'tech'->'points' is null then raise exception 'FAIL points'; end if;
   if (o->'owner'->>'number')::int not between 10000 and 99999 then raise exception 'FAIL client number: %', o->'owner'->>'number'; end if;
   if jsonb_array_length(o->'by_number'->'rows') <> 1 or o->'by_number'->'rows'->0->>'name' <> 'Jen Park' then raise exception 'FAIL search by number: %', o->'by_number'; end if;
+  if o->'np_ticket'->>'client_id' <> (select id::text from t_np) or o->'np_ticket'->>'client_name' <> 'No Phone' then raise exception 'FAIL no-phone ticket: %', o->'np_ticket'; end if;
+  if o->'walkin_ticket'->>'client_id' is not null or o->'walkin_ticket'->>'client_name' <> 'Walk-in Nam' then raise exception 'FAIL walk-in name: %', o->'walkin_ticket'; end if;
   raise notice 'PASS session11_clients_v2';
 end $$;
 rollback;

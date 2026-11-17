@@ -366,6 +366,7 @@ function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save:
         <Button size="sm" variant="ghost" data-testid="change-client" onClick={change}>{t("changeClient")}</Button>
         {c && <Button size="sm" variant="ghost" data-testid="edit-client" onClick={() => void openEdit()}>{t("editClient")}</Button>}
       </div>}
+      {locked && name && !phone && <div className="cap" data-testid="no-phone-hint">{t("noPhoneNudge")}</div>}
       {editErr && <div className="hint err">{editErr}</div>}
       {found === "offline" && <div className="cap">{t("lookupOffline")}</div>}
       {edit && <EditDrawer who={who} p={edit} onClose={() => setEdit(null)} onSaved={(_, v) => {

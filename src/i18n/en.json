@@ -231,7 +231,8 @@
     "changeClient": "Change client",
     "editClient": "Edit details",
     "addClient": "Add to ticket",
-    "newClientName": "New client's name"
+    "newClientName": "New client's name",
+    "noPhoneNudge": "Walk-in, no phone: the ticket keeps the name. Ask for a phone so the salon can text reminders (fewer no-shows)."
   },
   "pay": {
     "title": "Pay {salon}",
@@ -550,7 +551,7 @@
     "pCard": "card {card}",
     "pGift": "gift card ••{last4}",
     "clientNo": "#{n}",
-    "needPhone": "Add a phone number first: a ticket finds its client by phone."
+    "needPhone": "No phone on file. Add one so the salon can text reminders (fewer no-shows). Tickets still link to this client."
   },
   "calendar": {
     "prev": "Previous",
