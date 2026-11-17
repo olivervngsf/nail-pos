@@ -1,5 +1,5 @@
 "use client";
-// Sign in by phone + text code (Supabase phone auth via Twilio Verify), and who-am-I helpers.
+// Sign in by phone + text code (Supabase phone auth via Twilio Verify) or by email code (an email added to the same account), and who-am-I helpers.
 import { getSupabase } from "@/lib/supabase/client";
 
 /** Real text codes on (NEXT_PUBLIC_SMS_LOGIN=on). Off = test version: any 6 digits, nothing saved to the server. */
@@ -45,6 +45,69 @@ export async function verifyCode(phone: string, code: string): Promise<string | 
     const { error } = await sb().auth.verifyOtp({ phone: e164(phone), token: code, type: "sms" });
     if (error) return "That code didn't work. Check the text and try again.";
     await sb().rpc("claim_memberships");
+    return null;
+  } catch (e) {
+    return (e as Error).message;
+  }
+}
+
+/* ---------- email sign-in (same account: add an email once while signed in by phone, then sign in with it) ---------- */
+export const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+
+/** Email a 6-digit code. Only for accounts that already added this email (no new accounts by email). */
+export async function sendEmailCode(email: string): Promise<string | null> {
+  if (!SMS_ON) return null;
+  try {
+    const { error } = await sb().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { shouldCreateUser: false } });
+    if (!error) return null;
+    if (/signup|not allowed|not found/i.test(error.message)) return "No account uses this email yet. Sign in with your phone once, then add your email in the menu at the top right (your name → Add sign-in email).";
+    if (/rate|too many|seconds/i.test(error.message)) return "Too many codes asked for. Wait a minute and try again.";
+    return "Couldn't send the email. Check the address and try again.";
+  } catch (e) {
+    return (e as Error).message;
+  }
+}
+
+export async function verifyEmailCode(email: string, code: string): Promise<string | null> {
+  if (!SMS_ON) return null;
+  try {
+    const { error } = await sb().auth.verifyOtp({ email: email.trim().toLowerCase(), token: code, type: "email" });
+    if (error) return "That code didn't work. Check the email and try again.";
+    await sb().rpc("claim_memberships");
+    return null;
+  } catch (e) {
+    return (e as Error).message;
+  }
+}
+
+/** The sign-in email on this account (null = none yet). */
+export async function myEmail(): Promise<string | null> {
+  if (!SMS_ON) { try { return localStorage.getItem("nailpos.demoEmail"); } catch { return null; } }
+  const { data } = await sb().auth.getUser();
+  return data.user?.email || null;
+}
+
+/** Step 1 of adding an email: we email a code to the new address. */
+export async function startAddEmail(email: string): Promise<string | null> {
+  if (!SMS_ON) return null;
+  try {
+    const { error } = await sb().auth.updateUser({ email: email.trim().toLowerCase() });
+    if (!error) return null;
+    if (/already|registered|exists/i.test(error.message)) return "That email is already used by another account.";
+    if (/rate|too many|seconds/i.test(error.message)) return "Too many codes asked for. Wait a minute and try again.";
+    return "Couldn't send the email. Check the address and try again.";
+  } catch (e) {
+    return (e as Error).message;
+  }
+}
+
+/** Step 2: the code from that email confirms it. Then the email is also saved on your person record. */
+export async function confirmAddEmail(email: string, code: string): Promise<string | null> {
+  if (!SMS_ON) { try { localStorage.setItem("nailpos.demoEmail", email.trim().toLowerCase()); } catch { /* */ } return null; }
+  try {
+    const { error } = await sb().auth.verifyOtp({ email: email.trim().toLowerCase(), token: code, type: "email_change" });
+    if (error) return "That code didn't work. Check the email and try again.";
+    await sb().rpc("sync_my_email");
     return null;
   } catch (e) {
     return (e as Error).message;

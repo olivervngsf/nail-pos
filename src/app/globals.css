@@ -455,3 +455,7 @@ button:disabled { cursor: not-allowed; }
   .cd-split > .cd-col { width: 100% !important; }
   .cd-table { font-size: 13px; }
 }
+/* sign-in email (account menu) */
+.sie { display: flex; flex-direction: column; gap: 6px; }
+.sie-row { display: flex; align-items: center; gap: 8px; }
+.sie-mail { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
