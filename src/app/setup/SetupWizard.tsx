@@ -487,7 +487,7 @@ const Reader: StepView = ({ s, set }) => {
 
 /* Real Stripe Connect (sign-in on): the salon's own Express account, Stripe's own sign-up page. */
 function StripeConnect({ s, set }: Pick<StepProps, "s" | "set">) {
-  const [st, setSt] = useState<{ on?: boolean; connected?: boolean; chargesEnabled?: boolean; detailsSubmitted?: boolean; test?: boolean } | null>(null);
+  const [st, setSt] = useState<{ on?: boolean; connected?: boolean; chargesEnabled?: boolean; detailsSubmitted?: boolean; test?: boolean; state?: string; missing?: string[] } | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -509,7 +509,7 @@ function StripeConnect({ s, set }: Pick<StepProps, "s" | "set">) {
     <H1>Connect payments</H1>
     <div className="cap lead">Your salon gets its own Stripe account. Money goes straight to your bank; we never hold it. Takes about 5 minutes: have your EIN (or SSN) and bank details ready.</div>
     {st?.on === false && <div className="demo">Card payments aren&apos;t switched on for this site yet (Stripe key missing).</div>}
-    {st?.connected && !st.chargesEnabled && <div className="banner" role="status">{st.detailsSubmitted ? "Stripe is checking your details. This usually takes a minute; come back to this step." : "Stripe still needs a few details. Tap Continue with Stripe."}</div>}
+    {st?.connected && !st.chargesEnabled && <div className="banner" role="status">{st.missing?.length ? <>Stripe still needs: {st.missing.join(" · ")}. Tap Continue with Stripe.</> : st.state === "rejected" ? "Stripe turned this account down. Contact us." : <>Stripe is checking your details. This usually takes a minute. <button type="button" className="btn ghost sm" onClick={() => location.reload()}>Check again</button></>}</div>}
     <div className="card pad" style={{ gap: 12 }}>
       <b>What you&apos;ll need</b>
       <div className="cap" style={{ fontSize: 14, lineHeight: "22px" }}>Business name and type · EIN or SSN · Bank account for payouts · Your date of birth</div>
