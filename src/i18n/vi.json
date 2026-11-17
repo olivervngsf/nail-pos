@@ -174,7 +174,15 @@
     "onlineOnly": "Thanh toán thẻ cần có mạng. Dùng tiền mặt, hoặc chờ có mạng lại.",
     "paidBy": "{amount} {how}",
     "viaLink": "qua link trả tiền",
-    "cardTip": "Tip thẻ"
+    "cardTip": "Tip thẻ",
+    "printBt": "In qua Bluetooth",
+    "printWindow": "In (máy in của máy tính)",
+    "btPair": "Chạm để chọn máy in (một lần)",
+    "btPrinting": "Đang in…",
+    "btPaper": "Khổ giấy",
+    "btChange": "Đổi máy in",
+    "btNone": "Không thấy máy in. Bật máy in rồi thử lại.",
+    "btIos": "In Bluetooth trên iPhone/iPad: mở PolishOS trong trình duyệt Bluefy."
   },
   "pay": {
     "title": "Trả tiền cho {salon}",

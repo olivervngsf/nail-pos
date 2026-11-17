@@ -174,7 +174,15 @@
     "onlineOnly": "Card payments need internet. Use cash, or wait until you're back online.",
     "paidBy": "{amount} {how}",
     "viaLink": "by pay link",
-    "cardTip": "Card tip"
+    "cardTip": "Card tip",
+    "printBt": "Print by Bluetooth",
+    "printWindow": "Print (computer printer)",
+    "btPair": "Tap to pick your printer (once)",
+    "btPrinting": "Printing…",
+    "btPaper": "Paper",
+    "btChange": "Change printer",
+    "btNone": "No printer found. Turn the printer on, then try again.",
+    "btIos": "Bluetooth printing on iPhone/iPad: open PolishOS in the Bluefy browser."
   },
   "pay": {
     "title": "Pay {salon}",
