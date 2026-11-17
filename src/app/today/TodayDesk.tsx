@@ -7,6 +7,7 @@ import {
   ROLE_LABEL, SMS_ON, forgetDevice, getDevice, isSignedIn, makeSalonDevice, myMemberships, pinMessage, rpc, signOut,
   type Device, type Membership, type PinResult, type Role,
 } from "@/lib/auth";
+import PaymentsCard from "@/components/PaymentsCard";
 import { getActing, setActing as shareActing, touchActing } from "@/lib/desk";
 import { Avatar, Button, Card, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Row, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 
@@ -147,6 +148,8 @@ export default function TodayDesk() {
               </div>
             </Card>
           )}
+
+          {canAdmin && <PaymentsCard salonId={salonId} />}
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             {isDevice && canAdmin && <Button variant="ghost" onClick={() => { forgetDevice(); setDevice(null); setActing(null); }}>Stop using as salon device</Button>}

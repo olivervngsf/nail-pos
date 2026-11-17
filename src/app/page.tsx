@@ -12,10 +12,10 @@ export default function Home() {
     <main style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <div className="card pad in" style={{ width: "100%", maxWidth: 440, padding: 28, gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div className="logo" style={{ margin: 0 }}>NP</div>
+          <div className="logo" style={{ margin: 0 }}>P</div>
           <Segmented label={tl("label")} value={lang} onChange={setLang} options={[{ value: "en", label: "EN" }, { value: "vi", label: "VI" }]} />
         </div>
-        <h1 className="h1">Nail POS</h1>
+        <h1 className="h1">PolishOS</h1>
         <p className="cap lead">{t("tagline")}</p>
         <Link className="btn primary block" href="/setup">{t("setup")}</Link>
         <Link className="btn block" href="/join/DEMO">{t("join")}</Link>

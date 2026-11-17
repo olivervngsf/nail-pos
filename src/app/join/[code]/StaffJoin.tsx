@@ -107,8 +107,8 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
   };
 
   if (SMS_ON && db === undefined) return <div className="phone" aria-busy="true" />;
-  if (SMS_ON && db === null && s.step === "invite") return <Shell title="Nail POS"><h1 className="h2">This invite link doesn&apos;t work</h1><div className="cap lead">Ask the salon owner to send it again.</div></Shell>;
-  if (SMS_ON && db && db.status !== "open" && s.step === "invite") return <Shell title="Nail POS">
+  if (SMS_ON && db === null && s.step === "invite") return <Shell title="PolishOS"><h1 className="h2">This invite link doesn&apos;t work</h1><div className="cap lead">Ask the salon owner to send it again.</div></Shell>;
+  if (SMS_ON && db && db.status !== "open" && s.step === "invite") return <Shell title="PolishOS">
     <h1 className="h2">{db.status === "expired" ? "This invite has ended" : "You already joined"}</h1>
     <div className="cap lead">{db.status === "expired" ? "Ask the owner to send a new one." : "Sign in with your phone number."}</div>
     {db.status === "used" && <button className="btn primary block" type="button" onClick={() => router.push("/login")}>Sign in</button>}
@@ -116,7 +116,7 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
 
   switch (s.step) {
     case "verify":
-      return <Shell title="Nail POS" back="invite">
+      return <Shell title="PolishOS" back="invite">
         <PhoneCodeLogin phone={phone} setPhone={setPhone} title={s.lang === "Tiếng Việt" ? "Xác nhận số điện thoại" : "Confirm your phone"}
           lead={`${s.lang === "Tiếng Việt" ? "Số mà chủ tiệm đã nhập, kết thúc bằng" : "The number the owner added, ending in"} ${db?.phone_last4 ?? ""}.`}
           onDone={async () => {
@@ -129,8 +129,8 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
         {err && <div className="hint err" role="alert">{err}</div>}
       </Shell>;
     case "invite":
-      return <Shell title="Nail POS">
-        <div className="bubble">{invite.salon}: Hi {first}! {invite.owner} added you to Nail POS.</div>
+      return <Shell title="PolishOS">
+        <div className="bubble">{invite.salon}: Hi {first}! {invite.owner} added you to PolishOS.</div>
         <h1 className="h2">{t.join(invite.salon)}</h1>
         <div className="group">
           <div className="row"><span className="g">{t.name}</span><b>{invite.name}</b></div>
@@ -140,12 +140,12 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
         <button className="btn ghost block" type="button" onClick={() => go("notme")}>{t.notMe}</button>
       </Shell>;
     case "notme":
-      return <Shell title="Nail POS">
+      return <Shell title="PolishOS">
         <h1 className="h2">{t.thanks}</h1>
         <div className="cap lead" style={{ lineHeight: "22px" }}>{t.closed(invite.owner)}</div>
       </Shell>;
     case "lang":
-      return <Shell title="Nail POS" back="invite">
+      return <Shell title="PolishOS" back="invite">
         <h1 className="h2">{t.lang} · Ngôn ngữ</h1>
         <div className="cap">{t.langCap}</div>
         <div className="group">
@@ -181,7 +181,7 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
         <button className="btn ghost block" type="button" onClick={() => go("done")}>{t.skip}</button>
       </Shell>;
     case "done":
-      return <Shell title="Nail POS">
+      return <Shell title="PolishOS">
         <div className="okmark" style={{ alignSelf: "center" }}>✓</div>
         <h1 className="h2" style={{ textAlign: "center" }}>{t.set(first)}</h1>
         <div className="cap lead" style={{ textAlign: "center" }}>{invite.salon} · {invite.role} · {s.lang}</div>

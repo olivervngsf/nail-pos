@@ -1,7 +1,8 @@
 "use client";
 // Checkout · one ticket (Checkout board Tk1–Tk7, Pay, Cash Cs1–Cs2, Done, An5 receipt).
 // Saved on this device after every tap; sent to the server through the outbox (works offline).
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
@@ -9,14 +10,15 @@ import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { useDesk, getActing, touchActing, type Desk, type DeskService } from "@/lib/desk";
-import { logReceipt, putTicket, useTicket } from "@/lib/checkout/store";
+import { logReceipt, pullTickets, putTicket, saveNow, useTicket } from "@/lib/checkout/store";
+import { api } from "@/lib/api";
 import { blockers, changeCents, quickCash, splitTipByPrice, staffOn, ticketLabel, totals, type Discount, type ServiceLine, type Ticket } from "@/lib/checkout/ticket";
 
 const uuid = () => crypto.randomUUID();
 const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 const $ = formatCents;
 
-type Step = "ticket" | "pay" | "cash";
+type Step = "ticket" | "pay" | "cash" | "reader" | "link";
 
 export default function TicketScreen({ id }: { id: string }) {
   const t = useTranslations("checkout");
@@ -34,14 +36,14 @@ export default function TicketScreen({ id }: { id: string }) {
   const save = (patch: Partial<Ticket>, now = false) => { touchActing(); putTicket({ ...ticket, ...patch }, { now }); };
   const acting = getActing();
   const who = acting ? { name: acting.name, role: acting.role } : { name: desk.me.display_name, role: desk.me.role };
-  const title = ticket.status === "paid" ? `${t("ticket", { n: ticketLabel(ticket) })} · ${t("paid")}` : step === "pay" ? t("howPay") : step === "cash" ? t("cash") : t("ticket", { n: ticketLabel(ticket) });
+  const title = ticket.status !== "open" ? `${t("ticket", { n: ticketLabel(ticket) })} · ${t("paid")}` : step === "pay" ? t("howPay") : step === "cash" ? t("cash") : t("ticket", { n: ticketLabel(ticket) });
 
   return (
     <div className="app" onPointerDown={touchActing}>
       <LeftMenu active="Checkout" salonInitials={initials(desk.salonName)} me={who.name[0]} />
       <div className="col">
         <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {ticket.status === "open" && step !== "ticket" && <Button variant="ghost" size="sm" onClick={() => setStep(step === "cash" ? "pay" : "ticket")}>‹ {t("back")}</Button>}
+          {ticket.status === "open" && step !== "ticket" && <Button variant="ghost" size="sm" onClick={() => setStep(step === "pay" ? "ticket" : "pay")}>‹ {t("back")}</Button>}
           {ticket.status === "open" && step === "ticket" && <Button variant="ghost" size="sm" onClick={() => router.push("/checkout")}>‹ {t("title")}</Button>}
           {title}
         </span>}>
@@ -50,8 +52,9 @@ export default function TicketScreen({ id }: { id: string }) {
         </TopBar>
         <OfflineBanner />
         {desk.mode === "demo" && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
-        {ticket.status === "paid" ? <Done desk={desk} ticket={ticket} say={say} />
-          : step === "pay" ? <Pay ticket={ticket} onCash={() => setStep("cash")} />
+        {ticket.status !== "open" ? <Done desk={desk} ticket={ticket} say={say} />
+          : step === "pay" ? <Pay desk={desk} ticket={ticket} onPick={setStep} />
+          : step === "reader" || step === "link" ? <CardWait key={step} desk={desk} ticket={ticket} method={step} onBack={() => setStep("pay")} />
           : step === "cash" ? <Cash desk={desk} ticket={ticket} save={save} />
           : <Build desk={desk} ticket={ticket} save={save} onCharge={() => setStep("pay")} />}
       </div>
@@ -297,14 +300,17 @@ function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save:
 const Stat = ({ v, l }: { v: string; l: string }) => <div style={{ background: "var(--surface)", borderRadius: 12, padding: "10px 4px" }}><div className="num" style={{ fontSize: 20, fontWeight: 700 }}>{v}</div><div className="cap">{l}</div></div>;
 
 /* ---------- 2. How is the client paying? ---------- */
-function Pay({ ticket, onCash }: { ticket: Ticket; onCash: () => void }) {
+function Pay({ desk, ticket, onPick }: { desk: Desk; ticket: Ticket; onPick: (s: Step) => void }) {
   const t = useTranslations("checkout");
   const sum = totals(ticket);
-  const soon = (title: string, sub: string, fee: string) => (
-    <div className="tile" aria-disabled="true" style={{ opacity: 0.55 }}>
-      <div className="h2">{title}</div><div style={{ fontSize: 15 }}>{sub}</div><div className="cap num">{fee}</div><div className="demo">{t("comingS3")}</div>
-    </div>
-  );
+  const online = typeof navigator === "undefined" || navigator.onLine;
+  const why = desk.mode === "demo" ? t("payDemo") : !desk.pay.ready ? t("needStripe") : !online ? t("onlineOnly") : "";
+  const tile = (id: string, title: string, sub: string, fee: string, on: boolean, go: () => void, note?: string) => on
+    ? <button type="button" className="tile" data-testid={id} onClick={go} style={{ border: 0, font: "inherit", textAlign: "left", cursor: "pointer" }}>
+        <div className="h2">{title}</div><div style={{ fontSize: 15 }}>{sub}</div><div className="cap num">{fee}</div></button>
+    : <div className="tile" aria-disabled="true" data-testid={id} style={{ opacity: 0.55 }}>
+        <div className="h2">{title}</div><div style={{ fontSize: 15 }}>{sub}</div><div className="cap num">{fee}</div>{note && <div className="demo">{note}</div>}</div>;
+  const cardOk = !why && desk.pay.readers.length > 0;
   return (
     <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, padding: "24px 16px" }}>
       <div style={{ textAlign: "center" }}>
@@ -313,13 +319,99 @@ function Pay({ ticket, onCash }: { ticket: Ticket; onCash: () => void }) {
         <div className="cap">{t("plusTip")}</div>
       </div>
       <div className="grid2" style={{ width: "100%", maxWidth: 880, gap: 16 }}>
-        {soon(t("reader"), t("readerSub"), t("readerFee"))}
-        <button type="button" className="tile" data-testid="pay-cash" onClick={onCash} style={{ border: 0, font: "inherit", textAlign: "left", cursor: "pointer" }}>
-          <div className="h2">{t("cash")}</div><div style={{ fontSize: 15 }}>{t("cashSub")}</div><div className="cap">{t("cashFee")}</div>
-        </button>
-        {soon(t("qr"), t("qrSub"), t("qrFee"))}
-        {soon(t("split"), t("splitSub"), "")}
+        {tile("pay-reader", t("reader"), t("readerSub"), t("readerFee"), cardOk, () => onPick("reader"), why || t("needReader"))}
+        {tile("pay-cash", t("cash"), t("cashSub"), t("cashFee"), true, () => onPick("cash"))}
+        {tile("pay-link", t("qr"), t("qrSub"), t("qrFee"), !why, () => onPick("link"), why)}
+        {tile("pay-split", t("split"), t("splitSub"), "", false, () => {}, t("comingS3"))}
       </div>
+    </main>
+  );
+}
+
+/* ---------- 2b. Card: reader (Rd1–Rd4) or pay link / QR (An1–An4). Server confirms with Stripe. ---------- */
+function CardWait({ desk, ticket, method, onBack }: { desk: Desk; ticket: Ticket; method: "reader" | "link"; onBack: () => void }) {
+  const t = useTranslations("checkout");
+  const [pr, setPr] = useState<{ id: string; url?: string } | null>(null);
+  const [qr, setQr] = useState("");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const started = useRef(false);
+  const sum = totals(ticket);
+  const reader = desk.pay.readers[0];
+
+  const start = useCallback(async () => {
+    setErr(""); setPr(null);
+    try {
+      await saveNow({ ...ticket, tips: {} });
+      const a = getActing();
+      const r = await api<{ id: string; url?: string }>("/api/pay/start", { ticketId: ticket.id, method, readerId: reader?.id, by: a?.membership_id ?? desk.me.membership_id });
+      setPr(r);
+      if (r.url) setQr(await QRCode.toDataURL(r.url, { width: 280, margin: 1 }));
+    } catch (e) { setErr((e as Error).message); }
+  }, [ticket, method, reader?.id, desk.me.membership_id]);
+
+  useEffect(() => { if (!started.current) { started.current = true; void start(); } }, [start]);
+
+  // Ask the server every 2 s; it checks Stripe and records the payment once through.
+  useEffect(() => {
+    if (!pr) return;
+    let stop = false;
+    const name = (id: string) => desk.staff.find((s) => s.id === id)?.name ?? "";
+    const tick = async () => {
+      try {
+        const r = await api<{ status: string; error?: string }>(`/api/pay/status?id=${pr.id}`);
+        if (stop) return;
+        if (r.status === "paid") { await pullTickets(desk.salonId, name, "", ticket.id); return; }
+        if (r.status === "failed") { setErr(t("declined", { msg: r.error ?? "" })); setPr(null); return; }
+        if (r.status === "canceled") { setPr(null); return; }
+      } catch { /* weak internet: keep asking */ }
+      if (!stop) setTimeout(tick, 2000);
+    };
+    const first = setTimeout(tick, 1500);
+    return () => { stop = true; clearTimeout(first); };
+  }, [pr, desk, ticket.id, t]);
+
+  const simulate = async (body: { tipCents?: number; decline?: boolean }) => {
+    if (!pr) return;
+    setBusy(true);
+    try { await api("/api/pay/simulate", { id: pr.id, ...body }); } catch (e) { setErr((e as Error).message); }
+    setBusy(false);
+  };
+  const cancel = async () => { if (pr) await api("/api/pay/cancel", { id: pr.id }).catch(() => null); onBack(); };
+
+  return (
+    <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, padding: "24px 16px", textAlign: "center" }}>
+      <div className="cap">{t("ticket", { n: ticketLabel(ticket) })}{ticket.client?.name ? ` · ${ticket.client.name}` : ""}</div>
+      <div className="money" style={{ fontSize: 56, lineHeight: "64px" }}>{$(sum.due)}</div>
+      {err ? <>
+        <div className="banner" role="alert" data-testid="card-error" style={{ background: "var(--orange-soft)", color: "#b5470a", maxWidth: 520 }}>{err}</div>
+        <div style={{ display: "flex", gap: 10 }}><Button variant="primary" onClick={() => void start()}>{t("tryAgain")}</Button><Button onClick={onBack}>{t("back")}</Button></div>
+      </> : !pr ? <><div className="spin" /><b>{method === "reader" ? t("startingReader") : t("waitingPay")}</b></>
+      : method === "reader" ? <>
+        <div className="spin" />
+        <b style={{ fontSize: 18 }} data-testid="reader-wait">{t("readerWait")}</b>
+        <div className="cap">{reader?.label} · {t("readerFee")}</div>
+        {reader?.simulated && <div className="demo" style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+            <Button size="sm" disabled={busy} data-testid="sim-tap" onClick={() => void simulate({})}>{t("testTap")}</Button>
+            <Button size="sm" disabled={busy} onClick={() => void simulate({ tipCents: Math.round(sum.due * 0.2) })}>{t("testTip")}</Button>
+            <Button size="sm" disabled={busy} onClick={() => void simulate({ decline: true })}>{t("testDecline")}</Button>
+          </div>
+        </div>}
+      </> : <>
+        {/* eslint-disable-next-line @next/next/no-img-element -- QR is a data: URL */}
+        {qr && <img src={qr} alt={t("qr")} width={240} height={240} style={{ borderRadius: 16, background: "#fff", padding: 8 }} />}
+        <b style={{ fontSize: 17 }}>{t("scanToPay")}</b>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+          <Button size="sm" onClick={() => { void navigator.clipboard?.writeText(pr.url ?? ""); setCopied(true); }}>{copied ? t("copied") : t("copyLink")}</Button>
+          <a className="btn sm ghost" href={pr.url} target="_blank" rel="noreferrer">{pr.url?.replace(/^https?:\/\//, "").slice(0, 34)}…</a>
+        </div>
+        <div className="cap">{t("qrFee")}</div>
+        <div className="demo">{t("testCard")}</div>
+        <div className="cap" style={{ display: "flex", alignItems: "center", gap: 8 }}><span className="dot pulse" aria-hidden />{t("waitingPay")}</div>
+      </>}
+      {pr && <Button variant="ghost" onClick={() => void cancel()}>{t("cancelPay")}</Button>}
     </main>
   );
 }
@@ -397,8 +489,14 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
   const router = useRouter();
   const sum = totals(ticket);
   const staff = staffOn(ticket.lines);
-  const given = ticket.payment?.givenCents ?? sum.total;
+  const pay = ticket.payment;
+  const isCard = !!pay && pay.method !== "cash";
+  const charged = isCard ? pay.amountCents ?? sum.total : sum.total;
+  const fee = isCard ? pay.feeCents ?? 0 : 0;
+  const given = pay?.givenCents ?? sum.total;
+  const how = isCard ? (pay.brand ? `${pay.brand[0].toUpperCase()}${pay.brand.slice(1)} ••${pay.last4 ?? ""}` : t("viaLink")) : t("cash").toLowerCase();
   const [email, setEmail] = useState<string | null>(null);
+  const [refunding, setRefunding] = useState(false);
   const newTicket = () => {
     const id = uuid();
     const a = getActing();
@@ -410,15 +508,15 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
     <main className="ck-main">
       <section className="card ck-left" style={{ padding: "24px 28px", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div className="okmark pop" aria-hidden>✓</div>
+          <div className="okmark pop" aria-hidden style={ticket.status === "refunded" ? { background: "var(--orange)" } : undefined}>{ticket.status === "refunded" ? "↩" : "✓"}</div>
           <div>
-            <div className="money" data-testid="paid-total">{t("paidCash", { amount: $(sum.total) })}</div>
+            <div className="money" data-testid="paid-total">{isCard ? t("paidBy", { amount: $(charged), how }) : t("paidCash", { amount: $(sum.total) })}</div>
             <div className="cap num">{t("paidLine", { services: $(sum.due), tip: $(sum.tip) })}</div>
           </div>
         </div>
         <div style={{ overflowX: "auto" }}>
           <table className="num svc">
-            <thead><tr><th>{t("staff")}</th><th className="r">{t("service")}</th><th className="r">{t("cashTip")}</th></tr></thead>
+            <thead><tr><th>{t("staff")}</th><th className="r">{t("service")}</th><th className="r">{isCard ? t("cardTip") : t("cashTip")}</th></tr></thead>
             <tbody>{staff.map((s) => (
               <tr key={s.id}><td><span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}><Avatar name={s.name} />{s.name} · {ticket.lines.filter((l) => l.staffId === s.id).map((l) => l.name).join(", ")}</span></td>
                 <td className="r">{$(s.cents)}</td><td className="r">{$(ticket.tips[s.id] ?? 0)}</td></tr>
@@ -428,11 +526,17 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
         <div className="cap">{t("tipNote")}</div>
         <div style={{ marginTop: "auto", padding: "16px 18px", borderRadius: 16, background: "var(--surface)", display: "flex", flexDirection: "column", gap: 8 }}>
           <div className="eyebrow">{t("money")}</div>
-          <div className="line"><span>{t("cashTaken")}</span><span>{$(given)}</span></div>
-          <div className="line"><span>{t("changeGiven")}</span><span>−{$(given - sum.total)}</span></div>
+          {isCard ? <>
+            <div className="line"><span>{t("cardCharged")}</span><span>{$(charged)}</span></div>
+            <div className="line"><span>{t("cardFee")} ({pay.method === "card_reader" ? "2.7% + 5¢" : "2.9% + 30¢"})</span><span data-testid="card-fee">−{$(fee)}</span></div>
+          </> : <>
+            <div className="line"><span>{t("cashTaken")}</span><span>{$(given)}</span></div>
+            <div className="line"><span>{t("changeGiven")}</span><span>−{$(given - sum.total)}</span></div>
+          </>}
           <div className="line"><span>{t("tipsToStaff")}</span><span>−{$(sum.tip)}</span></div>
           <div className="sep" />
-          <div className="line" style={{ fontWeight: 600, fontSize: 16 }}><span>{t("salonKeeps")}</span><span data-testid="salon-keeps">{$(sum.due)}</span></div>
+          <div className="line" style={{ fontWeight: 600, fontSize: 16 }}><span>{t("salonKeeps")}</span><span data-testid="salon-keeps">{$(charged - fee - sum.tip)}</span></div>
+          {ticket.status === "refunded" && <div className="line" data-testid="refunded" style={{ color: "#b5470a", fontWeight: 600 }}><span>{t("refunded", { amount: $(charged) })}</span><span>−{$(charged)}</span></div>}
         </div>
       </section>
       <section className="ck-keys" style={{ gap: 10 }}>
@@ -451,10 +555,56 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
         {ticket.receipt && <div className="cap">✓ {t(ticket.receipt === "none" ? "noReceipt" : ticket.receipt)}</div>}
         <div className="cap">{t("receiptLang")}</div>
         <div style={{ flex: 1 }} />
+        {ticket.status === "paid" && <Button variant="ghost" data-testid="refund" onClick={() => setRefunding(true)}>{t("refund")}</Button>}
         <Button variant="primary" block data-testid="new-ticket" onClick={newTicket}>{t("newTicket")}</Button>
       </section>
       <PrintReceipt desk={desk} ticket={ticket} />
+      {refunding && <RefundDrawer desk={desk} ticket={ticket} amount={charged} card={isCard} onClose={() => setRefunding(false)} say={say} />}
     </main>
+  );
+}
+
+/** Refund (whole ticket): owner/manager OK first (PIN on the salon device, or their own login). */
+function RefundDrawer({ desk, ticket, amount, card, onClose, say }: { desk: Desk; ticket: Ticket; amount: number; card: boolean; onClose: () => void; say: (s: string) => void }) {
+  const t = useTranslations("checkout");
+  const [approver, setApprover] = useState<string | null>(null);
+  const [ok, setOk] = useState<{ approvalId?: string; name: string } | null>(null);
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const managers = desk.staff.filter((s) => s.role === "owner" || s.role === "manager");
+  const meIsAdmin = desk.me.role === "owner" || desk.me.role === "manager";
+  const approve = async (pin?: string) => {
+    setErr("");
+    if (desk.mode === "demo") return setOk({ name: managers[0]?.name ?? "Mai" });
+    try {
+      const r = await rpc<PinResult & { approval_id?: string }>("approve_discount", pin ? { p_salon: desk.salonId, p_device: desk.device!.id, p_membership: approver, p_pin: pin } : { p_salon: desk.salonId });
+      if (!r.ok) return setErr((r.reason as string) === "not_manager" ? t("notManager") : pinMessage(r));
+      setOk({ approvalId: r.approval_id, name: r.name ?? "" });
+    } catch { setErr(t("pinOffline")); }
+  };
+  const refund = async () => {
+    setBusy(true); setErr("");
+    try {
+      if (desk.mode === "live") {
+        await api("/api/pay/refund", { ticketId: ticket.id, approvalId: ok?.approvalId });
+        await pullTickets(desk.salonId, (id) => desk.staff.find((s) => s.id === id)?.name ?? "", "", ticket.id);
+      } else putTicket({ ...ticket, status: "refunded" });
+      say(t("refunded", { amount: $(amount) }));
+      onClose();
+    } catch (e) { setErr((e as Error).message); }
+    setBusy(false);
+  };
+  return (
+    <Drawer title={t("refundTitle")} onClose={onClose} footer={<Button variant="primary" block data-testid="do-refund" disabled={!ok || busy} onClick={() => void refund()}>{t("doRefund", { amount: $(amount) })}</Button>}>
+      <div className="cap">{t("refundSub", { amount: $(amount), how: card ? t("refundCard") : t("refundCash") })}</div>
+      <div className="eyebrow">{t("managerPin")}</div>
+      {ok ? <div className="note">{t("approvedBy", { name: ok.name })}</div>
+        : desk.mode === "live" && !desk.device ? (meIsAdmin ? <Button onClick={() => void approve()}>OK</Button> : <span className="hint err">{t("notManager")}</span>)
+        : desk.mode === "live" && !approver ? <ListGroup>{managers.map((m) => <button key={m.id} type="button" className="opt" onClick={() => setApprover(m.id)}><Avatar name={m.name} />{m.name}<span className="cap">{ROLE_LABEL[m.role]}</span></button>)}</ListGroup>
+        : <PinKeypad error={err} onDone={(p) => void approve(p)} />}
+      {err && ok && <span className="hint err">{err}</span>}
+      {err && !ok && desk.mode === "live" && !desk.device && <span className="hint err">{err}</span>}
+    </Drawer>
   );
 }
 
@@ -475,9 +625,10 @@ function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
       {Object.entries(ticket.tips).filter(([, c]) => c > 0).map(([id, c]) => <div key={id} className="rl"><span>{t("cashTip")} · {ticket.lines.find((l) => l.staffId === id)?.staffName}</span><span>{$(c)}</span></div>)}
       <hr />
       <div className="rl" style={{ fontWeight: 700 }}><span>{t("total")}</span><span>{$(sum.total)}</span></div>
-      <div className="rl"><span>{t("cash")}</span><span>{$(given)}</span></div>
-      <div className="rl"><span>{t("change")}</span><span>{$(given - sum.total)}</span></div>
-      <div className="rl"><span>Card fee</span><span>$0.00</span></div>
+      {ticket.payment && ticket.payment.method !== "cash"
+        ? <div className="rl"><span>{ticket.payment.brand ? `${ticket.payment.brand.toUpperCase()} ••${ticket.payment.last4 ?? ""}` : t("qr")}</span><span>{$(ticket.payment.amountCents ?? sum.total)}</span></div>
+        : <><div className="rl"><span>{t("cash")}</span><span>{$(given)}</span></div>
+          <div className="rl"><span>{t("change")}</span><span>{$(given - sum.total)}</span></div></>}
     </div>
   );
 }

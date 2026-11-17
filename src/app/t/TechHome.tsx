@@ -41,8 +41,8 @@ export default function TechHome() {
   useEffect(() => { void load().catch((e) => setErr((e as Error).message)); }, [load]);
 
   const vi = lang === "vi";
-  if (!SMS_ON) return <div className="phone"><PhoneBar title="Nail POS" /><div className="pbody"><div className="demo">Sign-in is off in this test copy.</div></div></div>;
-  if (err) return <div className="phone"><PhoneBar title="Nail POS" /><div className="pbody"><p className="hint err">{err}</p><Button onClick={() => location.reload()}>Try again</Button></div></div>;
+  if (!SMS_ON) return <div className="phone"><PhoneBar title="PolishOS" /><div className="pbody"><div className="demo">Sign-in is off in this test copy.</div></div></div>;
+  if (err) return <div className="phone"><PhoneBar title="PolishOS" /><div className="pbody"><p className="hint err">{err}</p><Button onClick={() => location.reload()}>Try again</Button></div></div>;
   if (!m) return <div className="phone" aria-busy="true" />;
 
   const first = m.display_name.split(" ")[0];

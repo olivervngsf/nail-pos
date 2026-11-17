@@ -6,7 +6,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin", "vietnamese"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Nail POS",
+  title: "PolishOS",
   description: "POS for nail salons: fair pay for techs, simple checkout.",
 };
 
