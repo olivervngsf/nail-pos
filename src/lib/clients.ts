@@ -113,7 +113,7 @@ export async function getProfile(who: Who, id: string): Promise<Profile> {
 }
 
 /* ---------- writes ---------- */
-export type ClientEdit = { name: string; phone: string; email: string; birthday: string; shape: string; colors: string; care: string; notes: string; textsOk: boolean; language: "en" | "vi" };
+export type ClientEdit = { name: string; phone: string; email: string; birthday: string; shape: string; colors: string; care: string; notes: string; textsOk: boolean; language: "en" | "vi"; approvalId: string };
 export async function saveClient(who: Who, id: string | null, e: Partial<ClientEdit>): Promise<string> {
   if (who.mode === "demo") {
     const cur = id ? demoAll().find((x) => x.id === id) : undefined;

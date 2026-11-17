@@ -20,6 +20,8 @@ import { receiptImageBytes } from "@/lib/print/raster";
 import { canBluetooth, isIOS, pickPrinter, printBytes, savedPrinter, savePrinter } from "@/lib/print/bluetooth";
 import { printTicketSlip } from "@/lib/print/slip";
 import { clientLoyalty, pointsFor, type ClientLoyalty } from "@/lib/loyalty/loyalty";
+import { getProfile, type Profile, type Who } from "@/lib/clients";
+import { EditDrawer } from "@/app/clients/ClientParts";
 import { blockers, changeCents, quickCash, splitTipByPrice, staffOn, ticketLabel, totals, type Discount, type ServiceLine, type Ticket } from "@/lib/checkout/ticket";
 
 const uuid = () => crypto.randomUUID();
@@ -304,38 +306,72 @@ function DiscountDrawer({ desk, subtotal, current, onClose, onApply }: { desk: D
 /* Client panel (CRM): phone first. */
 type Found = { client_id: string; name: string; notes: string; visits: number; avg_cents: number; last_visit: string | null; last_services: string | null };
 
+/** Phone first: a number on file attaches that client as a read-only card. The desk can "Change client" (wrong person) or
+ *  "Edit details" (owner/manager OK). Typing on a ticket never edits the client on file; a new client's name is typed once. */
 function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save: SaveFn }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
   const [phone, setPhone] = useState(ticket.client?.phone ? fmtPhone(ticket.client.phone) : "");
   const [name, setName] = useState(ticket.client?.name ?? "");
+  const [locked, setLocked] = useState(!!ticket.client && (phoneOk(fmtPhone(ticket.client.phone)) || !!ticket.client.name));
   const [found, setFound] = useState<Found | null | "offline">(null);
+  const [look, setLook] = useState(0);
+  const [edit, setEdit] = useState<Profile | null>(null);
+  const [editErr, setEditErr] = useState("");
+  const who: Who = { mode: desk.mode, salonId: desk.salonId, salonName: desk.salonName, role: desk.me.role, name: desk.me.display_name };
 
   useEffect(() => {
     if (!phoneOk(phone) || desk.mode !== "live") { setFound(null); return; }
     if (!navigator.onLine) { setFound("offline"); return; }
     let stop = false;
     void rpc<Found[]>("client_lookup", { p_salon: desk.salonId, p_phone: e164(phone) })
-      .then((r) => { if (stop) return; setFound(r[0] ?? null); if (r[0]?.name && !name) setName(r[0].name); })
+      .then((r) => { if (!stop) setFound(r[0] ?? null); })
       .catch(() => !stop && setFound("offline"));
     return () => { stop = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phone, desk.mode, desk.salonId]);
+  }, [phone, desk.mode, desk.salonId, look]);
 
   const commit = (p: string, n: string) => save({ client: phoneOk(p) ? { phone: e164(p), name: n.trim() } : n.trim() ? { phone: "", name: n.trim() } : undefined });
   const c = found && found !== "offline" ? found : null;
+  // A number on file: attach that client as they are (their saved name, not what was typed).
+  useEffect(() => {
+    if (!c) return;
+    setName(c.name);
+    if (!locked) { commit(phone, c.name); setLocked(true); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [c?.client_id, c?.name]);
+
+  const change = () => { setLocked(false); setPhone(""); setName(""); setFound(null); save({ client: undefined }); };
+  const openEdit = async () => {
+    setEditErr("");
+    if (!c) return;
+    try { setEdit(await getProfile(who, c.client_id)); } catch { setEditErr(t("lookupOffline")); }
+  };
+  const canAdd = phoneOk(phone) || (!phone && !!name.trim());
+  const showNew = !locked && (phoneOk(phone) ? !c : !phone);
 
   return (
-    <aside className="card ck-aside">
+    <aside className="card ck-aside" data-testid="client-panel">
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div className="av lg">{name ? initials(name) : "?"}</div>
-        <div style={{ flex: 1, minWidth: 0 }}><div className="h2">{name || t("walkIn")}</div><div className="cap num">{phone || t("client")}</div></div>
+        <div style={{ flex: 1, minWidth: 0 }}><div className="h2" data-testid="client-name">{name || t("walkIn")}</div><div className="cap num">{phone || t("client")}</div></div>
         {c && c.visits > 2 ? <Tag tone="jade">{t("rRegular")}</Tag> : phoneOk(phone) && !c && found !== "offline" ? <Tag>{t("newClient")}</Tag> : null}
       </div>
-      <Field id="cphone" label={t("clientPhone")} inputMode="tel" autoComplete="off" value={phone}
-        onChange={(e) => { const p = fmtPhone(e.target.value); setPhone(p); commit(p, name); }} />
-      <Field id="cname" label={t("clientName")} autoComplete="off" value={name} onChange={(e) => { setName(e.target.value); commit(phone, e.target.value); }} />
+      {!locked && <>
+        <Field id="cphone" label={t("clientPhone")} inputMode="tel" autoComplete="off" value={phone} onChange={(e) => { const p = fmtPhone(e.target.value); setPhone(p); if (phoneOk(p)) commit(p, ""); }} />
+        {showNew && <Field id="cname" label={phoneOk(phone) ? t("newClientName") : t("clientName")} autoComplete="off" value={name} onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && canAdd) { commit(phone, name); setLocked(true); } }} />}
+        {showNew && (phoneOk(phone) || name.trim()) && <Button data-testid="add-client" disabled={!canAdd} onClick={() => { commit(phone, name); setLocked(true); }}>{t("addClient")}</Button>}
+      </>}
+      {locked && <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <Button size="sm" variant="ghost" data-testid="change-client" onClick={change}>{t("changeClient")}</Button>
+        {c && <Button size="sm" variant="ghost" data-testid="edit-client" onClick={() => void openEdit()}>{t("editClient")}</Button>}
+      </div>}
+      {editErr && <div className="hint err">{editErr}</div>}
       {found === "offline" && <div className="cap">{t("lookupOffline")}</div>}
+      {edit && <EditDrawer who={who} p={edit} onClose={() => setEdit(null)} onSaved={(_, v) => {
+        // Keep the ticket pointing at the same person if their phone or name was fixed.
+        setEdit(null); const p = v.phone ? fmtPhone(v.phone) : phone; setPhone(p); setName(v.name || name); commit(p, v.name || name); setLook((n) => n + 1);
+      }} />}
       {c && <>
         <div className="grid3" style={{ gap: 8, textAlign: "center" }}>
           <Stat v={String(c.visits)} l={t("visits")} />

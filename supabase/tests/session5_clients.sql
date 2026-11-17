@@ -25,7 +25,7 @@ select public.save_setup(jsonb_build_object('salonId', '00000000-0000-0000-0000-
 -- Lan: regular (every ~28 days, last 10 days ago). Jen: regular, last 90 days ago → lost. Mai: one visit today → new.
 select pg_temp.visit(1, '+14085550142', 'Lan Tran', 3500, 66);
 select pg_temp.visit(2, '+14085550142', 'Lan Tran', 4500, 38);
-select pg_temp.visit(3, '+14085550142', 'Lan Tran', 3500, 10);
+select pg_temp.visit(3, '+14085550142', 'Typo Name', 3500, 10);  -- a ticket never renames a client on file
 select pg_temp.visit(4, '+14085550131', 'Jen Park', 3000, 150);
 select pg_temp.visit(5, '+14085550131', 'Jen Park', 3000, 120);
 select pg_temp.visit(6, '+14085550131', 'Jen Park', 5500, 90);
@@ -38,9 +38,20 @@ insert into t_out values ('lost', public.client_list('00000000-0000-0000-0000-00
 insert into t_out values ('new', public.client_list('00000000-0000-0000-0000-0000000009a1', 'new', ''));
 insert into t_out values ('by_phone', public.client_list('00000000-0000-0000-0000-0000000009a1', 'all', '(408) 555-0142'));
 insert into t_out values ('by_name', public.client_list('00000000-0000-0000-0000-0000000009a1', 'all', 'jen'));
--- desk saves details (allergy, birthday this month, usual tech)
+-- editing someone on file needs an owner/manager OK
+do $$ begin perform public.client_save(jsonb_build_object('id', (select id from t_lan), 'salonId', '00000000-0000-0000-0000-0000000009a1', 'name', 'Renamed'));
+  raise exception 'FAIL: edit without OK'; exception when others then if sqlerrm not like '%owner or manager OK%' then raise; end if; end $$;
+-- owner OK (own login), then desk saves details (allergy, birthday this month, usual tech)
+select set_config('t.ok', public.approve_discount('00000000-0000-0000-0000-0000000009a1', p_purpose => 'client')->>'approval_id', true);
 select public.client_save(jsonb_build_object('id', (select id from t_lan), 'salonId', '00000000-0000-0000-0000-0000000009a1', 'care', 'Sensitive skin, no acetone soak',
-  'shape', 'Almond · short', 'birthday', to_char(now(), 'YYYY-MM-') || '05', 'usualStaff', '00000000-0000-0000-0000-00000000097f'));
+  'shape', 'Almond · short', 'birthday', to_char(now(), 'YYYY-MM-') || '05', 'usualStaff', '00000000-0000-0000-0000-00000000097f', 'approvalId', current_setting('t.ok')));
+-- the same OK can't be used twice
+do $$ begin perform public.client_save(jsonb_build_object('id', (select id from t_lan), 'salonId', '00000000-0000-0000-0000-0000000009a1', 'name', 'Renamed',
+  'approvalId', current_setting('t.ok')));
+  raise exception 'FAIL: OK used twice'; exception when others then if sqlerrm not like '%owner or manager OK%' then raise; end if; end $$;
+-- "new client" with a phone already on file is refused (no quiet rename)
+do $$ begin perform public.client_save(jsonb_build_object('salonId', '00000000-0000-0000-0000-0000000009a1', 'name', 'Someone Else', 'phone', '+14085550142'));
+  raise exception 'FAIL: duplicate phone added'; exception when others then if sqlerrm not like '%already a client%' then raise; end if; end $$;
 insert into t_out values ('bday', public.client_list('00000000-0000-0000-0000-0000000009a1', 'bday', ''));
 insert into t_out select 'profile', public.client_profile(id) from t_lan;
 -- new client added at the desk
@@ -66,6 +77,7 @@ do $$ begin perform public.client_list('00000000-0000-0000-0000-0000000009a1', '
   raise exception 'FAIL: stranger listed clients'; exception when others then if sqlerrm not like '%not allowed%' then raise; end if; end $$;
 insert into t_out values ('stranger', (select to_jsonb((select count(*) from public.client_notes) + (select count(*) from public.client_photos))));
 reset role;
+insert into t_out values ('edits_logged', (select to_jsonb(count(*)) from public.audit_log where action = 'client.edited'));
 
 do $$
 declare o jsonb := (select jsonb_object_agg(k, v) from t_out);
@@ -85,6 +97,7 @@ begin
     then raise exception 'FAIL tech note/photo: %', o->'after_tech'; end if;
   if o->>'added' is null then raise exception 'FAIL add client'; end if;
   if (o->>'stranger')::int <> 0 then raise exception 'FAIL salon wall'; end if;
+  if (o->>'edits_logged')::int <> 1 then raise exception 'FAIL edit not logged: %', o->>'edits_logged'; end if;
   raise notice 'PASS session5_clients';
 end $$;
 rollback;

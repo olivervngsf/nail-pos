@@ -227,7 +227,11 @@
     "rewardUsed": "Reward used. {name} earns +{n} on today's {amt} after reward.",
     "rewardAway": "{n} {unit} to the next {amt} reward",
     "rewardLine": "Loyalty reward ({n} pts)",
-    "rewardShare": "{staff} paid on the full {full}. The {amt} comes off the salon's share."
+    "rewardShare": "{staff} paid on the full {full}. The {amt} comes off the salon's share.",
+    "changeClient": "Change client",
+    "editClient": "Edit details",
+    "addClient": "Add to ticket",
+    "newClientName": "New client's name"
   },
   "pay": {
     "title": "Pay {salon}",
@@ -477,7 +481,15 @@
     "payCard": "card {card} {amount} (card fee {fee})",
     "link": "pay link",
     "tipWas": "tip {amount}",
-    "discWas": "discount −{amount}"
+    "discWas": "discount −{amount}",
+    "okTitle": "Owner or manager OK",
+    "okWhy": "Changing a client's details needs an owner or manager OK.",
+    "okWho": "Who approves?",
+    "okPin": "Owner or manager: type your PIN",
+    "okBy": "OK by {name} ✓",
+    "okOnlyAdmin": "Only an owner or manager can change a client's details. Ask them, or use the salon device.",
+    "okOffline": "A manager PIN needs internet. Try again when online.",
+    "okMore": "Notes for staff go in “Add note”: no OK needed."
   },
   "calendar": {
     "prev": "Previous",
