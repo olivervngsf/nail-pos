@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { enqueue, registerHandler } from "@/lib/offline/outbox";
 import { getSupabase } from "@/lib/supabase/client";
 import { rpc } from "@/lib/auth";
-import { toPayload, type Ticket } from "./ticket";
+import { seenIds, toPayload, type Ticket } from "./ticket";
 
 const KEY = "nailpos.tickets.v1";
 const listeners = new Set<() => void>();
@@ -45,7 +45,7 @@ export const getTicket = (id: string): Ticket | undefined => load()[id];
 
 /** Save a ticket change on this device and queue it for the server (edits wait 600 ms; payment goes now). */
 export function putTicket(t: Ticket, opts: { now?: boolean } = {}) {
-  load()[t.id] = { ...t, synced: false };
+  load()[t.id] = { ...t, seenLineIds: seenIds(t), synced: false };
   persist();
   if (!live) return;
   clearTimeout(timers.get(t.id));
@@ -60,6 +60,17 @@ function merge(t: Ticket) {
   if (!mine) c[t.id] = { ...t, synced: true };
   else if (!mine.number && t.number) c[t.id] = { ...mine, number: t.number };
   else if (t.status !== "open" && mine.status !== t.status) c[t.id] = { ...t, synced: true };
+  else if (mine.status === "open" && t.status === "open") {
+    // Services a tech added from the slip QR: lines the server has that this desk never had.
+    const seen = new Set(mine.seenLineIds ?? []);
+    // A "$45+" service a tech added still needs its final price at the desk.
+    const fresh = t.lines.filter((l) => !seen.has(l.id) && !mine.lines.some((m) => m.id === l.id)).map((l) => ({ ...l, priceSet: !l.priceFrom }));
+    if (fresh.length) {
+      c[t.id] = { ...mine, number: mine.number ?? t.number, lines: [...mine.lines, ...fresh], seenLineIds: [...seen, ...fresh.map((l) => l.id)] };
+      // Tell the server this desk has them now (from then on the desk may remove them like any line).
+      void rpc("ack_ticket_lines", { p_ticket: t.id, p_ids: fresh.map((l) => l.id) }).catch(() => null);
+    }
+  }
 }
 
 export function useTicket(id: string) {

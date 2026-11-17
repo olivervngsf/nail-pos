@@ -37,6 +37,9 @@ export type GiftPay = { id: string; cardId: string; last4: string; cents: number
 export type Ticket = {
   id: string;
   salonId: string;
+  /** Every line id this desk has had on the ticket (incl. removed ones). The server only removes lines from this list,
+   *  so services a tech adds from their phone (ticket slip) are never wiped by a desk save. */
+  seenLineIds?: string[];
   number?: number;
   status: "open" | "paid" | "refunded";
   createdAt: string;
@@ -140,6 +143,7 @@ export function toPayload(t: Ticket) {
   return {
     id: t.id, salonId: t.salonId, createdAt: t.createdAt, note: t.note, openedBy: t.openedBy, deviceId: t.deviceId,
     client: t.client?.phone ? t.client : undefined, lines, payment: t.payment?.method === "cash" ? t.payment : undefined,
+    seen: seenIds(t),
   };
 }
 
@@ -154,3 +158,9 @@ export function tipLineId(ticketId: string, staffId: string): string {
 
 /** Short label until the server gives a number (offline ticket). */
 export const ticketLabel = (t: Pick<Ticket, "id" | "number">) => (t.number ? `#${t.number}` : `· ${t.id.slice(0, 4).toUpperCase()}`);
+
+/** Line ids this desk knows about: what it ever had + what it has now (services, discount, cash tips). */
+export function seenIds(t: Ticket): string[] {
+  const now = [...t.lines.map((l) => l.id), ...(t.discount ? [t.discount.id] : []), ...Object.keys(t.tips).map((s) => tipLineId(t.id, s))];
+  return [...new Set([...(t.seenLineIds ?? []), ...now])];
+}

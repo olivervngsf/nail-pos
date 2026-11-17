@@ -76,3 +76,13 @@ describe("gift cards on a ticket", () => {
     expect(p.lines).toEqual([{ id: "g", kind: "gift_sale", giftCardId: "c", name: "Gift card •••• 0147", cents: 2500 }]);
   });
 });
+
+describe("ticket slip: desk and tech change the same ticket", () => {
+  it("desk save only lists lines the desk has seen, so a tech's new line is kept", async () => {
+    const { toPayload } = await import("./ticket");
+    const t = { ...base(), seenLineIds: ["a", "b", "old-removed"], tips: {} };
+    const p = toPayload(t);
+    expect(p.seen).toEqual(expect.arrayContaining(["a", "b", "old-removed"]));
+    expect(p.seen).not.toContain("tech-line");
+  });
+});
