@@ -77,7 +77,7 @@ function SignIn({ s, set }: { s: SetupState; set: Set }) {
   };
   return (
     <Centered>
-      <div className="logo" style={{ margin: 0 }}>NP</div>
+      <div className="logo" style={{ margin: 0 }}>P</div>
       <PhoneCodeLogin
         phone={s.ownerPhone} setPhone={(v) => set((p) => ({ ...p, ownerPhone: v }))} onDone={done} title="Start your salon"
         extra={<>

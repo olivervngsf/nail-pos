@@ -25,7 +25,7 @@ export default function LoginPage() {
   return (
     <main style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <div className="card pad in" style={{ width: "100%", maxWidth: 420, padding: 28, gap: 16 }}>
-        <div className="logo" style={{ margin: 0 }}>NP</div>
+        <div className="logo" style={{ margin: 0 }}>P</div>
         <PhoneCodeLogin phone={phone} setPhone={setPhone} onDone={go} />
         {msg && <div className="hint err" role="alert">{msg}</div>}
         <div className="cap">New salon? <Link href="/setup">Set up your salon</Link></div>

@@ -20,7 +20,7 @@
   },
   "kit": {
     "title": "Design kit",
-    "lead": "Every shared piece of the Nail POS look, from design/kit/kit.css. Screens use only these.",
+    "lead": "Every shared piece of the PolishOS look, from design/kit/kit.css. Screens use only these.",
     "offlineTest": "Offline test",
     "offlineLead": "Save a test write, go offline, come back: it sends once.",
     "saveTest": "Save a test write",
