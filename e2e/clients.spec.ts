@@ -60,12 +60,16 @@ test("clients: find by phone, lost regulars, history with a note", async ({ page
     await page.locator("#cp").fill("4085550199");
     await page.getByTestId("client-save").click();
     await expect(page.getByTestId("client-panel")).toContainText("Anna Kim");
-    // a client with no phone can't get a ticket "for them" (it would open as a walk-in)
+    // a client with no phone: asked to add one, but a ticket still links to them by name
     await page.getByTestId("client-new").click();
     await page.locator("#cn").fill("No Phone");
     await page.getByTestId("client-save").click();
     await expect(page.getByTestId("client-panel")).toContainText("No Phone");
-    await expect(page.getByTestId("client-ticket")).toBeDisabled();
+    await expect(page.getByTestId("no-phone")).toBeVisible();
+    await page.getByTestId("client-ticket").click();
+    await expect(page.getByTestId("client-name")).toHaveText("No Phone");
+    await expect(page.getByTestId("no-phone-hint")).toBeVisible();
+    await page.goto("/clients");
     // New ticket from a profile opens Checkout with that client on it
     await page.getByTestId("client-search").fill("555-0142");
     await expect(page.getByTestId("client-row")).toHaveCount(1);

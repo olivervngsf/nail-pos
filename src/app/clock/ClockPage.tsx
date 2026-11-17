@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button, Segmented, Toast } from "@/components/kit";
 import FacesLock, { type Unlocked } from "@/components/FacesLock";
-import { PrinterSetup, SlipDetailPick, usePrinter, useSlipDetail } from "@/components/PrinterSetup";
+import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 import { EarningsSlip, useEarningsPrint } from "@/app/earnings/Earnings";
 import { pinMessage, rpc, SMS_ON, type PinResult } from "@/lib/auth";
 import { useDesk } from "@/lib/desk";
@@ -20,6 +20,7 @@ export default function ClockPage() {
   const t = useTranslations("clock");
   const f = useFormatter();
   const { desk, err, refresh } = useDesk();
+  const printSlips = useEarningsPrint(desk?.salonId, desk?.mode === "demo");
   const [rules, setRules] = useState<PinRules>(cachedRules(null));
   const [who, setWho] = useState<Unlocked | null>(null);
   const [inNow, setInNow] = useState(false);
@@ -29,9 +30,7 @@ export default function ClockPage() {
   const [toast, setToast] = useState("");
   const [left, setLeft] = useState(30);
   const timer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
-  const printSlips = useEarningsPrint();
   const printer = usePrinter();
-  const slip = useSlipDetail();
 
   useEffect(() => {
     if (!desk) return;
@@ -127,8 +126,7 @@ export default function ClockPage() {
             )}
             {row ? <EarningsSlip r={row} /> : <div className="cap">{t("nothing")}</div>}
             <Button variant="primary" block data-testid="clock-print" disabled={!row}
-              onClick={() => row && void printSlips([row], desk.salonName, periodLabel, slip.detail).then(printer.refresh).catch((e) => setMsg((e as Error).message))}>{t("print")}</Button>
-            <SlipDetailPick d={slip} />
+              onClick={() => row && void printSlips([row], desk.salonName, periodLabel).then(printer.refresh).catch((e) => setMsg((e as Error).message))}>{t("print")}</Button>
             <PrinterSetup p={printer} />
             {msg && <p className="hint err">{msg}</p>}
           </section>

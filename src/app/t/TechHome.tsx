@@ -7,7 +7,7 @@ import { ROLE_LABEL, SMS_ON, isSignedIn, myMemberships, rpc, signOut, type Membe
 import { useLang } from "@/components/AppProviders";
 import { Button, Card, ListGroup, PhoneBar, Row, Segmented, SyncPill, Toast } from "@/components/kit";
 import { EarningsSlip, useEarningsPrint } from "@/app/earnings/Earnings";
-import { PrinterSetup, SlipDetailPick, usePrinter, useSlipDetail } from "@/components/PrinterSetup";
+import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 import { isoDay, nums, weekStart, type PayoutRow } from "@/lib/closeday";
 
 type Staff = { membership_id: string; clocked_in: boolean; last_clock: string | null };
@@ -47,9 +47,8 @@ export default function TechHome() {
   // My earnings (only mine: my_earnings checks who is signed in).
   const [period, setPeriod] = useState<"today" | "week">("today");
   const [earn, setEarn] = useState<PayoutRow | null>(null);
-  const printSlips = useEarningsPrint();
+  const printSlips = useEarningsPrint(m?.salon_id);
   const printer = usePrinter();
-  const slip = useSlipDetail();
   useEffect(() => {
     if (!m) return;
     const today = isoDay();
@@ -90,9 +89,8 @@ export default function TechHome() {
         </div>
         {earn ? <>
           <EarningsSlip r={earn} />
-          <Button data-testid="tech-print" onClick={() => void printSlips([earn], m.salon_name, period === "today" ? isoDay() : `${weekStart(isoDay())} → ${isoDay()}`, slip.detail)
+          <Button data-testid="tech-print" onClick={() => void printSlips([earn], m.salon_name, period === "today" ? isoDay() : `${weekStart(isoDay())} → ${isoDay()}`)
             .then(printer.refresh).catch((e) => { setToast((e as Error).message); setTimeout(() => setToast(""), 3500); })}>{vi ? "In thu nhập" : "Print my earnings"}</Button>
-          <SlipDetailPick d={slip} />
           <PrinterSetup p={printer} />
         </> : <span className="cap">{vi ? "Chưa có thu nhập trong thời gian này." : "No earnings yet for this period."}</span>}
         <ListGroup>

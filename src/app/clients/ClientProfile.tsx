@@ -20,8 +20,8 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
   const [showPh, setShowPh] = useState(false);
   const [note, setNote] = useState<"care" | "private" | null>(null);
   const desk = isDesk(who.role);
-  /** A ticket is tied to its client by phone: no phone on file → no "for this client" ticket (would open as a walk-in). */
-  const canTicket = desk && !!p.phone;
+  // A ticket links to the client by id even with no phone; staff are nudged to add one (reminders, fewer no-shows).
+  const canTicket = desk;
   const canEdit = canEditClient(who);
   const due = dueBack(p.stats.gap_days, p.stats.last_visit);
   const bday = birthdayIn(p.birthday);
@@ -29,7 +29,7 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
   const staff = p.usual_staff;
   const bookHref = `/calendar?view=day&d=${dayKey(due && due.inDays > 0 ? due.on : new Date())}`;
   const newTicket = () => {
-    try { sessionStorage.setItem(NEW_FOR, JSON.stringify(p.phone ? { phone: p.phone, name: p.name } : null)); } catch { /* private mode */ }
+    try { sessionStorage.setItem(NEW_FOR, JSON.stringify({ id: p.id, phone: p.phone ?? "", name: p.name })); } catch { /* private mode */ }
     router.push("/checkout?new=1");
   };
   const toggleShow = async () => {
@@ -82,7 +82,7 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
         {canEdit && <Button className="cl2-edit" onClick={onEdit} data-testid="client-edit" aria-label={t("edit")}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z" /></svg>
           <span className="cl2-wide">{t("edit")}</span></Button>}
-        {desk && <Button variant="primary" className="cl2-wide" onClick={newTicket} disabled={!canTicket} title={canTicket ? undefined : t("needPhone")} data-testid="client-ticket">{t("newTicket")}</Button>}
+        {desk && <Button variant="primary" className="cl2-wide" onClick={newTicket} data-testid="client-ticket">{t("newTicket")}</Button>}
       </div>
 
       {cards.length > 0 && <>
@@ -112,6 +112,7 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
         <span className="tag cl2-wide" style={{ background: "var(--paper)" }}>{t("ownerOnly")}</span>
         <Button variant="ghost" size="sm" onClick={() => setNote("private")} data-testid="private-note">{t("plusNote")}</Button>
       </div>}
+      {!p.phone && <div className="cl2-strip cl2-nophone" data-testid="no-phone">{t("needPhone")}</div>}
       {p.notes && <div className="cap" style={{ fontSize: 13 }}><b style={{ color: "var(--ink)" }}>{t("notes")}</b> · {p.notes}</div>}
 
       <div className="cl2-grid">
@@ -140,7 +141,7 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
       {phoneBar && desk && <div className="cl2-pbar">
         <Button disabled title={t("textsLater")}>{t("text")}</Button>
         <Link className="btn" href={bookHref}>{t("book")}</Link>
-        <Button variant="primary" onClick={newTicket} disabled={!canTicket} title={canTicket ? undefined : t("needPhone")}>{t("newTicket")}</Button>
+        <Button variant="primary" onClick={newTicket}>{t("newTicket")}</Button>
       </div>}
 
       {note && <NoteDrawer kind={note} who={who} p={p} onClose={() => setNote(null)} onSaved={() => { setNote(null); say(t("saved")); reload(); }} />}

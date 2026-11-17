@@ -202,6 +202,7 @@ button:disabled { cursor: not-allowed; }
 .cl2-care b { color: #B02525; font-weight: 600; }
 .cl2-priv { background: var(--fill); margin-top: -6px; }
 .cl2-nocare { background: var(--fill); }
+.cl2-nophone { background: var(--orange-soft); }
 .cl2-priv b { font-weight: 600; }
 .cl2-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; }
 .cl2-card-h { display: flex; align-items: center; justify-content: space-between; }
@@ -696,3 +697,15 @@ button:disabled { cursor: not-allowed; }
   .set-two, .set-lens { grid-template-columns: 1fr; }
   .set-pay { display: none; }
 }
+/* Settings → Printer: options left, paper preview right (stacks on phones). */
+.ps{flex:1;overflow:auto;padding:18px 24px;display:grid;grid-template-columns:minmax(0,560px) auto;justify-content:start;gap:40px;align-items:start}
+.ps-left{display:flex;flex-direction:column;gap:12px;max-width:560px}
+.ps-opts{padding:4px 16px}
+.ps-right{display:flex;flex-direction:column;gap:8px;position:sticky;top:0}
+.ps-paper{background:#fff;color:#111;font:12px/17px ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre;padding:16px 14px 22px;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.12),0 10px 28px rgba(0,0,0,.08)}
+.ps-paper{box-sizing:content-box}
+.ps-paper.w58{width:32ch}
+.ps-paper.w80{width:48ch}
+.ps-paper .b{font-weight:700}
+.ps-qr{width:96px;height:96px;margin:6px auto;border:2px dashed #111;display:flex;align-items:center;justify-content:center;font-weight:700}
+@media (max-width:860px){.ps{grid-template-columns:1fr}.ps-right{position:static}}

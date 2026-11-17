@@ -231,7 +231,8 @@
     "changeClient": "Change client",
     "editClient": "Edit details",
     "addClient": "Add to ticket",
-    "newClientName": "New client's name"
+    "newClientName": "New client's name",
+    "noPhoneNudge": "Walk-in, no phone: the ticket keeps the name. Ask for a phone so the salon can text reminders (fewer no-shows)."
   },
   "pay": {
     "title": "Pay {salon}",
@@ -550,7 +551,7 @@
     "pCard": "card {card}",
     "pGift": "gift card ••{last4}",
     "clientNo": "#{n}",
-    "needPhone": "Add a phone number first: a ticket finds its client by phone."
+    "needPhone": "No phone on file. Add one so the salon can text reminders (fewer no-shows). Tickets still link to this client."
   },
   "calendar": {
     "prev": "Previous",
@@ -1099,12 +1100,6 @@
     "printed": "Printed",
     "noneToPrint": "No one worked in this period.",
     "printFail": "Couldn't print: {msg}",
-    "slipShows": "Slip shows",
-    "slipTotals": "Totals",
-    "slipTickets": "Every ticket",
-    "ticketsTitle": "Tickets (service + tips)",
-    "tipCard": "Tip (card)",
-    "tipCash": "Tip (cash)",
     "details": "Details for {name}",
     "avgTicket": "Avg ticket",
     "tipRate": "Tips",
@@ -1117,7 +1112,16 @@
     "colCardTip": "Card tip",
     "colCashTip": "Cash tip",
     "noPayType": "No pay type set",
-    "colAmount": "Amount"
+    "colAmount": "Amount",
+    "tipsAll": "Tips",
+    "tipOn": "(tip {amount})",
+    "printSettings": "Printer settings",
+    "slipShows": "Slip shows",
+    "slipTotals": "Totals",
+    "slipTickets": "Every ticket",
+    "ticketsTitle": "Tickets (service + tips)",
+    "tipCard": "Tip (card)",
+    "tipCash": "Tip (cash)"
   },
   "numbers": {
     "title": "Numbers",
@@ -1288,6 +1292,40 @@
     "signOut": "Sign out",
     "sample": "Sample page: what a client sees. Nothing here is real."
   },
+  "printSettings": {
+    "title": "Printer",
+    "back": "Today",
+    "demo": "Test copy: changes stay on this device.",
+    "ownerOnly": "Only the owner or a manager can change printer settings.",
+    "which": "Printout",
+    "kReceipt": "Client receipt",
+    "kStaff": "Staff slip",
+    "kSlip": "Ticket slip",
+    "about_receipt": "Prints when a ticket is paid (Print by Bluetooth or the computer printer).",
+    "about_staff": "Each person's earnings: payout sheet (Print staff slips, Print), Print my earnings by PIN, and the tech's phone.",
+    "about_slip": "The slip with a QR the tech scans to add services.",
+    "rStaff": "Tech name on each service",
+    "rTips": "Tip lines",
+    "rClient": "Client name",
+    "rQr": "QR for the digital receipt",
+    "rQrSub": "Client scans it to see the receipt on their phone.",
+    "rThanks": "Thank-you line",
+    "sTickets": "Every ticket",
+    "sTicketsSub": "One line per ticket under Services: services (tip $) ... amount.",
+    "sTipSplit": "Card tips and cash tips on separate lines",
+    "sCheckCash": "By check / in cash",
+    "sSignature": "Signature line (Received by)",
+    "sPrinted": "Printed date and time",
+    "tClient": "Client name",
+    "tStaff": "Tech name next to each service",
+    "save": "Save for the salon",
+    "reset": "Back to default",
+    "test": "Print a test",
+    "saved": "Saved. Every device prints this way now.",
+    "needNet": "Saving needs internet.",
+    "preview": "Preview",
+    "note": "Prints use plain letters (fast): Vietnamese accents print without marks. Changes apply to every device in the salon."
+  },
   "account": {
     "menu": "My account",
     "lock": "Lock · show faces",
@@ -1396,7 +1434,8 @@
       "bookingPage": "Booking page",
       "loyalty": "Loyalty",
       "giftCards": "Gift cards",
-      "payouts": "Payout sheet"
+      "payouts": "Payout sheet",
+      "printer": "Printer"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
