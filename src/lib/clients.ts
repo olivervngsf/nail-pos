@@ -22,7 +22,14 @@ export type Profile = {
   id: string; name: string; phone: string | null; email: string | null; language: "en" | "vi"; texts_ok: boolean; birthday: string | null; since: string;
   notes: string; care: string; shape: string; colors: string; usual_staff_id: string | null; usual_staff: string | null; usual_service: string | null;
   tag: ClientRow["tag"];
-  stats: { visits: number; spent: number; avg: number; avg_tip: number; gap_days: number | null; last_visit: string | null };
+  stats: { visits: number; spent: number; avg: number; avg_tip: number; tips?: number; gap_days: number | null; last_visit: string | null };
+  /** Who set the allergy / care note and when (any staff member can). */
+  care_by?: string | null; care_at?: string | null;
+  /** Owner / manager only: null for everyone else (the server never sends it to them). */
+  private_note?: { body: string; by: string | null; at: string } | null;
+  /** Owner / manager looking: sees the private note, can tap Show on the phone number. */
+  can_edit?: boolean;
+  points?: number;
   gift_cards: { last4: string; balance_cents: number; sold_at: string | null }[];
   notes_log: { id: string; body: string; ticket_id: string | null; by: string | null; at: string }[];
   photos: { id: string; path: string; ticket_id: string | null; at: string; by: string | null; url?: string }[];
@@ -59,6 +66,7 @@ const DEMO: Profile[] = [
   mk("c3", "Thu Le", "+14085550166", "lost", 57, 28, "Gel color manicure", "Tuyết", {}),
   mk("c4", "Mai Pham", "+14085550170", "regular", 0, 14, "Acrylic full set", "Kim", { gift: 5000 }),
   mk("c5", "Sara Lopez", "+14085550155", "new", 2, null, "Pedicure + design", "Tuyết", {}),
+  mk("c6", "Lan Tran", "+14085550388", null, 46, 60, "Gel pedicure", "Linh", {}),
 ];
 function mk(id: string, name: string, phone: string, tag: ClientRow["tag"], lastDays: number, gap: number | null, svc: string, staff: string,
   o: { care?: string; shape?: string; colors?: string; notes?: string; birthdayMonthNow?: boolean; gift?: number }): Profile {
@@ -72,13 +80,15 @@ function mk(id: string, name: string, phone: string, tag: ClientRow["tag"], last
   return {
     id, name, phone, email: null, language: "en", texts_ok: true, birthday: bday, since: day(lastDays + n * (gap ?? 0) + 200), notes: o.notes ?? "", care: o.care ?? "",
     shape: o.shape ?? "", colors: o.colors ?? "", usual_staff_id: null, usual_staff: staff, usual_service: svc, tag,
-    stats: { visits: n, spent: n * 4500, avg: 4500, avg_tip: 900, gap_days: gap, last_visit: day(lastDays) },
     gift_cards: o.gift ? [{ last4: "4821", balance_cents: o.gift, sold_at: day(45) }] : [],
     notes_log: id === "c1" ? [{ id: "n1", body: "Nude pink (OPI Bubble Bath), short almond. Skin a bit red at cuticles: gentle remover next time.", ticket_id: "c1-v0", by: staff, at: day(lastDays) }] : [],
     photos: [], visits,
+    care_by: o.care ? staff : null, care_at: o.care ? day(lastDays) : null, can_edit: true, points: n * 45,
+    private_note: id === "c1" ? { body: "Asked twice for a discount; owner said no.", by: "Mai", at: day(lastDays + 28) } : null,
+    stats: { visits: n, spent: n * 4500, avg: 4500, avg_tip: 900, tips: n * 900, gap_days: gap, last_visit: day(lastDays) },
   };
 }
-const DKEY = "nailpos.demoClients.v1";
+const DKEY = "nailpos.demoClients.v2";
 function demoAll(): Profile[] { try { const r = localStorage.getItem(DKEY); if (r) return JSON.parse(r); } catch { /* */ } return DEMO; }
 function demoPut(p: Profile) { const all = demoAll(); const i = all.findIndex((x) => x.id === p.id); if (i >= 0) all[i] = p; else all.unshift(p); try { localStorage.setItem(DKEY, JSON.stringify(all)); } catch { /* */ } }
 const thisMonth = (d: string | null) => !!d && Number(d.slice(5, 7)) === new Date().getMonth() + 1;
@@ -156,3 +166,45 @@ export async function addPhoto(who: Who, p: Profile, file: File, ticketId: strin
 
 /** "every 4 wk" from days between visits. */
 export const everyWeeks = (gap: number | null) => (gap ? Math.max(1, Math.round(gap / 7)) : null);
+
+/* ---------- version D (Nov 17): care note, private note, show phone ---------- */
+/** sessionStorage key: the client a "New ticket" from Clients is for ({phone, name}); Checkout picks it up. */
+export const NEW_FOR = "nailpos.newTicketFor";
+
+/** Allergy / care note: any staff member (techs too). Shows who + when. */
+export async function setCare(who: Who, p: Profile, care: string) {
+  if (who.mode === "demo") { demoPut({ ...p, care: care.trim(), care_by: who.name, care_at: new Date().toISOString() }); return; }
+  await rpc("client_set_care", { p_client: p.id, p_care: care });
+}
+
+/** Private note: owner / manager only (the server refuses everyone else). */
+export async function setPrivate(who: Who, p: Profile, body: string) {
+  if (who.mode === "demo") { demoPut({ ...p, private_note: body.trim() ? { body: body.trim(), by: who.name, at: new Date().toISOString() } : null }); return; }
+  await rpc("client_set_private", { p_client: p.id, p_body: body });
+}
+
+/** Owner / manager tapped Show on the phone number: written to the salon's activity log. */
+export async function phoneViewed(who: Who, p: Profile) {
+  if (who.mode === "live") await rpc("client_phone_viewed", { p_client: p.id });
+}
+
+export const last4 = (phone: string | null) => (phone ? phone.replace(/\D/g, "").slice(-4) : "");
+const DAY = 86400000;
+export const daysSince = (iso: string | null) => (iso ? Math.floor((Date.now() - new Date(iso).getTime()) / DAY) : null);
+
+/** When this client is due back (last visit + usual gap). null = no pattern yet. */
+export function dueBack(gapDays: number | null, lastVisit: string | null): { inDays: number; on: Date } | null {
+  if (!gapDays || !lastVisit) return null;
+  const on = new Date(new Date(lastVisit).getTime() + gapDays * DAY);
+  return { inDays: Math.round((on.getTime() - Date.now()) / DAY), on };
+}
+
+/** Days until the next birthday (0 = today). Birthday stored as YYYY-MM-DD (year unused). */
+export function birthdayIn(birthday: string | null, now = new Date()): number | null {
+  if (!birthday) return null;
+  const [, m, d] = birthday.split("-").map(Number);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let next = new Date(now.getFullYear(), m - 1, d);
+  if (next < today) next = new Date(now.getFullYear() + 1, m - 1, d);
+  return Math.round((next.getTime() - today.getTime()) / DAY);
+}

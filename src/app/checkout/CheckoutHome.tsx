@@ -7,6 +7,7 @@ import { Avatar, Button, LeftMenu, ListGroup, OfflineBanner, SyncPill, Tag, TopB
 import AccountMenu from "@/components/AccountMenu";
 import { formatCents } from "@/lib/money";
 import { getActing, useDesk } from "@/lib/desk";
+import { NEW_FOR } from "@/lib/clients";
 import { pullTickets, putTicket, useTickets } from "@/lib/checkout/store";
 import { ticketLabel, totals, type Ticket } from "@/lib/checkout/ticket";
 import { getTicket } from "@/lib/checkout/store";
@@ -29,6 +30,18 @@ export default function CheckoutHome() {
     const iv = setInterval(pull, 30_000);
     return () => clearInterval(iv);
   }, [desk]);
+
+  // "New ticket" from a client's profile: /checkout?new=1 with the client waiting in this tab.
+  useEffect(() => {
+    if (!desk || !new URLSearchParams(location.search).has("new")) return;
+    let client: Ticket["client"];
+    try { client = JSON.parse(sessionStorage.getItem(NEW_FOR) ?? "null") ?? undefined; sessionStorage.removeItem(NEW_FOR); } catch { /* none */ }
+    const acting = getActing();
+    const id = crypto.randomUUID();
+    putTicket({ id, salonId: desk.salonId, status: "open", createdAt: new Date().toISOString(), lines: [], tips: {}, note: "", client,
+      openedBy: acting?.membership_id ?? desk.me.membership_id, deviceId: desk.device?.id });
+    router.replace(`/checkout/${id}`);
+  }, [desk, router]);
 
   // Scan a ticket slip (NetumScan types the QR link + Enter), or type a ticket number.
   const [scan, setScan] = useState("");
