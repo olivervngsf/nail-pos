@@ -1,4 +1,4 @@
-// Owner connects payments: make (or reuse) the salon's Stripe Express account, send them to Stripe's sign-up page.
+// Owner connects payments: make (or reuse) the salon's own Stripe account (Standard-style), send them to Stripe's sign-up page.
 import { asServer, asUser, fail, getStripe, originOf } from "@/lib/server/pay";
 
 export const runtime = "nodejs";
@@ -17,8 +17,9 @@ export async function POST(req: Request) {
   if (!a) {
     const { data: s } = await db.from("salons").select("name").eq("id", salonId).single();
     const acct = await st.accounts.create({
-      // Express-style: Stripe-hosted sign-up, Express dashboard, salon pays its own Stripe fees, Stripe covers losses.
-      controller: { stripe_dashboard: { type: "express" }, fees: { payer: "account" }, losses: { payments: "stripe" }, requirement_collection: "stripe" },
+      // Standard-style (Stripe's Managed Risk for SaaS): salon owns a full Stripe account + dashboard, pays its own
+      // Stripe fees, Stripe covers losses. (Express needs the platform to carry losses, which we don't.)
+      controller: { stripe_dashboard: { type: "full" }, fees: { payer: "account" }, losses: { payments: "stripe" }, requirement_collection: "stripe" },
       country: "US",
       capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
       business_profile: { name: s?.name ?? undefined, mcc: "7230" }, // 7230 = beauty and barber shops
