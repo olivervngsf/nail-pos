@@ -1091,7 +1091,13 @@
     "needDevice": "Use the salon device (set it up on Today).",
     "printMine": "Print my earnings",
     "done": "Done",
-    "splitLine": "Paid {check} by check + {cash} in cash"
+    "splitLine": "Paid {check} by check + {cash} in cash",
+    "printOne": "Print",
+    "printing": "Printing {n} of {total}…",
+    "printedN": "{count, plural, one {Printed # slip} other {Printed # slips}}",
+    "printed": "Printed",
+    "noneToPrint": "No one worked in this period.",
+    "printFail": "Couldn't print: {msg}"
   },
   "numbers": {
     "title": "Numbers",

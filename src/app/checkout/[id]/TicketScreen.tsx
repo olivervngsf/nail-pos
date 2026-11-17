@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Segmented, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
+import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 import AccountMenu from "@/components/AccountMenu";
 import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
@@ -15,9 +15,9 @@ import { logReceipt, pullTickets, putTicket, saveNow, useTicket } from "@/lib/ch
 import { api } from "@/lib/api";
 import { GiftSellDrawer, GiftUseDrawer } from "./GiftDrawers";
 import { demoSettle, giftUndo } from "@/lib/checkout/gift";
-import { needsImage, receiptBytes, type Paper, type ReceiptDoc } from "@/lib/print/escpos";
-import { receiptImageBytes } from "@/lib/print/raster";
-import { canBluetooth, isIOS, pickPrinter, printBytes, savedPrinter, savePrinter } from "@/lib/print/bluetooth";
+import { receiptBytes, type ReceiptDoc } from "@/lib/print/escpos";
+import { canBluetooth, printBytes } from "@/lib/print/bluetooth";
+import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 import { printTicketSlip } from "@/lib/print/slip";
 import { clientLoyalty, pointsFor, type ClientLoyalty } from "@/lib/loyalty/loyalty";
 import { getProfile, type Profile, type Who } from "@/lib/clients";
@@ -794,19 +794,15 @@ function digitalReceiptUrl(desk: Desk, ticket: Ticket): string | undefined {
 function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: string) => void }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
-  const [saved, setSaved] = useState<ReturnType<typeof savedPrinter>>(null);
+  const p = usePrinter();
   const [busy, setBusy] = useState(false);
-  const [ok, setOk] = useState(false);
-  useEffect(() => { setSaved(savedPrinter()); setOk(canBluetooth()); }, []);
-  if (!ok) return isIOS() ? <div className="row s"><span className="g cap">{t("btIos")}</span></div> : null;
-  const paper: Paper = saved?.paper ?? 58;
+  if (!p.ok) return <PrinterSetup p={p} />;
   const go = async () => {
     setBusy(true);
     try {
       const doc = receiptDoc(desk, ticket, t, f.dateTime(new Date(ticket.payment?.at ?? ticket.createdAt), { dateStyle: "medium", timeStyle: "short" }));
-      // Vietnamese letters → print as an image so accents show; plain English → fast text.
-      await printBytes(needsImage(doc) ? await receiptImageBytes(doc, paper) : receiptBytes(doc, paper), paper);
-      setSaved(savedPrinter());
+      await printBytes(receiptBytes(doc, p.paper), p.paper); // text = fast; accents print plain
+      p.refresh();
       logReceipt(ticket, "print");
       say(t("printed"));
     } catch (e) {
@@ -817,13 +813,9 @@ function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say
   };
   return <>
     <button type="button" className="opt" data-testid="print-bt" disabled={busy} onClick={() => void go()}>
-      <span className="g">{busy ? t("btPrinting") : t("printBt")}<span className="cap" style={{ display: "block" }}>{saved ? `${saved.name} · ${saved.paper} mm` : t("btPair")}</span></span><span className="cap">›</span>
+      <span className="g">{busy ? t("btPrinting") : t("printBt")}<span className="cap" style={{ display: "block" }}>{p.saved ? `${p.saved.name} · ${p.saved.paper} mm` : t("btPair")}</span></span><span className="cap">›</span>
     </button>
-    {saved && <div className="row s" style={{ gap: 8 }}>
-      <span className="g cap">{t("btPaper")}</span>
-      <Segmented label={t("btPaper")} value={String(paper)} onChange={(v) => { const p = { ...saved, paper: Number(v) as Paper }; savePrinter(p); setSaved(p); }} options={[{ value: "58", label: "58 mm" }, { value: "80", label: "80 mm" }]} />
-      <Button size="sm" variant="ghost" onClick={async () => { try { setSaved(await pickPrinter(paper)); } catch { /* cancelled */ } }}>{t("btChange")}</Button>
-    </div>}
+    {p.saved && <PrinterSetup p={p} />}
   </>;
 }
 

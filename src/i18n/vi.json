@@ -1091,7 +1091,13 @@
     "needDevice": "Dùng máy của tiệm (cài trên Hôm nay).",
     "printMine": "In thu nhập của tôi",
     "done": "Xong",
-    "splitLine": "Trả {check} bằng séc + {cash} tiền mặt"
+    "splitLine": "Trả {check} bằng séc + {cash} tiền mặt",
+    "printOne": "In",
+    "printing": "Đang in {n} / {total}…",
+    "printedN": "Đã in {count} phiếu",
+    "printed": "In lúc",
+    "noneToPrint": "Không ai làm trong thời gian này.",
+    "printFail": "Không in được: {msg}"
   },
   "numbers": {
     "title": "Số liệu",
