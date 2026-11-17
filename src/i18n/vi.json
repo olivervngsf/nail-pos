@@ -208,7 +208,14 @@
     "btChange": "Đổi máy in",
     "btNone": "Không thấy máy in. Bật máy in rồi thử lại.",
     "btIos": "In Bluetooth trên iPhone/iPad: mở PolishOS trong trình duyệt Bluefy.",
-    "scanReceipt": "Quét để xem hóa đơn trên điện thoại"
+    "scanReceipt": "Quét để xem hóa đơn trên điện thoại",
+    "printSlip": "In phiếu",
+    "slipTicket": "PHIẾU",
+    "slipForTech": "Đưa phiếu này cho thợ làm móng.",
+    "slipBack": "Mang phiếu lại quầy để thanh toán.",
+    "slipPrinted": "Đã in phiếu. Thợ quét mã QR để thêm dịch vụ; quét lại ở đây để thanh toán.",
+    "scanPh": "Quét phiếu hoặc gõ số phiếu",
+    "scanNone": "Không tìm thấy phiếu đang mở cho phiếu hoặc số này."
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -561,5 +568,21 @@
     "change": "Tiền thối",
     "refunded": "Phiếu này đã được hoàn tiền.",
     "keep": "Lưu trang này hoặc chụp màn hình để giữ hóa đơn."
+  },
+  "slip": {
+    "ticket": "Phiếu #{n}",
+    "walkIn": "Khách vãng lai",
+    "paid": "Phiếu này đã thanh toán. Không thêm được nữa.",
+    "yours": "Dịch vụ của bạn trên phiếu này",
+    "noneYet": "Chưa có. Chạm vào dịch vụ bạn đã làm ở dưới.",
+    "others": "Thợ khác trên phiếu này",
+    "noTech": "Chưa có thợ",
+    "addWhat": "Chạm vào dịch vụ bạn đã làm",
+    "search": "Tìm dịch vụ",
+    "added": "Đã thêm: {name}",
+    "remove": "Xóa {name}",
+    "deskSees": "Quầy lễ tân thấy ngay. Đổi giá và giảm giá làm ở quầy.",
+    "notFound": "Không tìm thấy phiếu, hoặc phiếu không thuộc tiệm của bạn.",
+    "liveOnly": "Phiếu chỉ dùng được trên trang thật."
   }
 }

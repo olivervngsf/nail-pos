@@ -13,7 +13,9 @@ export default function LoginPage() {
   const go = async () => {
     if (!SMS_ON) { router.push("/setup"); return; }
     try {
-      router.push(homeFor(await myMemberships()));
+      // Came from a link that needs sign-in (e.g. a ticket slip QR): go back there.
+      const next = new URLSearchParams(location.search).get("next");
+      router.push(next && next.startsWith("/") && !next.startsWith("//") ? next : homeFor(await myMemberships()));
     } catch (e) {
       setMsg((e as Error).message);
     }
