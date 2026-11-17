@@ -117,3 +117,47 @@ button:disabled { cursor: not-allowed; }
 .gcard { width: 100%; max-width: 320px; height: 172px; border-radius: 16px; background: #1C1C1E; color: #fff; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; align-self: center; }
 .gl .dtable td, .gl .dtable th { text-align: left; }
 .gl .dtable td.r, .gl .dtable th.r { text-align: right; }
+
+/* Clients (Main Screens · Clients C1–C2) + Client history (H1–H2). */
+.cl-main { flex: 1; display: flex; min-height: 0; }
+.cl-list { width: 400px; flex: none; border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; background: var(--paper); }
+.cl-rows { flex: 1; overflow: auto; }
+.cl-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 58px; padding: 0 12px; border: 0; border-bottom: 1px solid var(--line); background: var(--paper); font: inherit; text-align: left; cursor: pointer; color: var(--ink); transition: background .2s; }
+.cl-row:hover { background: #FAFAFB; }
+.cl-row.on { background: #F5F5F7; }
+.cl-fch { height: 30px; padding: 0 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink); flex: none; }
+.cl-fch.on { background: #1C1C1E; color: #fff; border-color: #1C1C1E; }
+.cl-lostbar { margin: 0 14px 10px; padding: 10px 12px; border-radius: 12px; background: #FDEEE6; font-size: 13px; line-height: 18px; display: flex; gap: 10px; align-items: center; }
+.cl-lost { background: #FDEEE6; color: #B5470A; }
+.cl-carechip { margin-left: 4px; color: #C92A2A; font-size: 11px; }
+.cl-panel { flex: 1; padding: 18px 22px; overflow: auto; min-width: 0; }
+.cl-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.cl-stat { background: #F5F5F7; border-radius: 12px; padding: 9px 6px; text-align: center; }
+.cl-stat b { display: block; font-size: 19px; letter-spacing: -0.02em; }
+.cl-stat .cap { font-size: 11px; }
+.cl-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.cl-box { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.cl-care { padding: 12px 14px; font-size: 14px; line-height: 20px; background: #FCEAEA; box-shadow: none; }
+.cl-care b { color: #C92A2A; }
+.cl-photos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.cl-photo { width: 100%; height: 74px; object-fit: cover; border-radius: 12px; }
+.cl-visit { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.cl-visit:last-of-type { border-bottom: 0; }
+.ch-main { flex: 1; display: flex; gap: 20px; padding: 20px 24px; min-height: 0; overflow: auto; }
+.ch-left { width: 360px; flex: none; display: flex; flex-direction: column; gap: 12px; }
+.ch-left .cl-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ch-right { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.ch-vr { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 8px 16px; border: 0; border-bottom: 1px solid var(--line); background: var(--paper); font: inherit; color: var(--ink); text-align: left; cursor: pointer; }
+.ch-d { width: 62px; font-size: 13px; font-weight: 600; color: var(--ink-soft); flex: none; }
+.ch-g { flex: 1; min-width: 0; }
+.ch-g b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-m { text-align: right; font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 600; }
+.ch-vx { display: flex; gap: 16px; padding: 14px 16px 16px; border-bottom: 1px solid var(--line); background: var(--surface); flex-wrap: wrap; }
+.ch-ph { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; flex: none; }
+@media (max-width: 899px) {
+  .cl-list { width: 100%; border-right: 0; }
+  .cl-panel { display: none; }
+  .ch-main { flex-direction: column; padding: 12px; }
+  .ch-left { width: 100%; }
+  .cl-app .rail, .cl-wideonly { display: none; }
+}

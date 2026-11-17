@@ -308,6 +308,7 @@ function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save:
           <Stat v={c.visits ? $(Number(c.avg_cents)).replace(/\.00$/, "") : "—"} l={t("avgTicket")} />
           <Stat v={c.last_visit ? f.dateTime(new Date(c.last_visit), { month: "short", day: "numeric" }) : "—"} l={t("lastVisit", { date: "" }).replace(/ · $/, "")} />
         </div>
+        <a className="cap" href={`/clients/${c.client_id}`} data-testid="open-profile" style={{ fontWeight: 600 }}>{t("openProfile")} ›</a>
         {c.last_services && <div><div className="eyebrow" style={{ marginBottom: 6 }}>{t("lastVisit", { date: c.last_visit ? f.dateTime(new Date(c.last_visit), { month: "short", day: "numeric" }) : "" })}</div><div style={{ fontSize: 15 }}>{c.last_services}</div></div>}
         {c.notes && <div><div className="eyebrow" style={{ marginBottom: 6 }}>{t("notes")}</div><div style={{ fontSize: 15, background: "var(--surface)", borderRadius: 12, padding: "10px 12px" }}>{c.notes}</div></div>}
       </>}
