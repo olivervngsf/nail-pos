@@ -199,7 +199,16 @@
     "giftWriteDown": "Đưa mã này cho khách (có trên hóa đơn).",
     "giftOwed": "Thẻ quà tặng đã bán (nợ khách đến khi dùng)",
     "giftLeft": "còn {amount}",
-    "openProfile": "Mở hồ sơ khách"
+    "openProfile": "Mở hồ sơ khách",
+    "printBt": "In qua Bluetooth",
+    "printWindow": "In (máy in của máy tính)",
+    "btPair": "Chạm để chọn máy in (một lần)",
+    "btPrinting": "Đang in…",
+    "btPaper": "Khổ giấy",
+    "btChange": "Đổi máy in",
+    "btNone": "Không thấy máy in. Bật máy in rồi thử lại.",
+    "btIos": "In Bluetooth trên iPhone/iPad: mở PolishOS trong trình duyệt Bluefy.",
+    "scanReceipt": "Quét để xem hóa đơn trên điện thoại"
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -539,5 +548,18 @@
     "profile": "Hồ sơ khách",
     "dragHint": "Muốn dời hoặc đổi giờ: kéo trên lịch.",
     "noTexts": "Không nhắn: khách chưa đồng ý nhận tin."
+  },
+  "receiptPage": {
+    "notFound": "Không tìm thấy hóa đơn.",
+    "ticket": "Phiếu #{n}",
+    "thanks": "Cảm ơn {name}!",
+    "discount": "Giảm giá",
+    "tip": "Tip",
+    "total": "Tổng",
+    "cash": "Tiền mặt",
+    "card": "Thẻ",
+    "change": "Tiền thối",
+    "refunded": "Phiếu này đã được hoàn tiền.",
+    "keep": "Lưu trang này hoặc chụp màn hình để giữ hóa đơn."
   }
 }

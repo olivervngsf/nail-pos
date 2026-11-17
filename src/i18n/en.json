@@ -199,7 +199,16 @@
     "giftWriteDown": "Give the client this code (it is on the receipt).",
     "giftOwed": "Gift cards sold (owed until used)",
     "giftLeft": "{amount} left",
-    "openProfile": "Open profile"
+    "openProfile": "Open profile",
+    "printBt": "Print by Bluetooth",
+    "printWindow": "Print (computer printer)",
+    "btPair": "Tap to pick your printer (once)",
+    "btPrinting": "Printing…",
+    "btPaper": "Paper",
+    "btChange": "Change printer",
+    "btNone": "No printer found. Turn the printer on, then try again.",
+    "btIos": "Bluetooth printing on iPhone/iPad: open PolishOS in the Bluefy browser.",
+    "scanReceipt": "Scan for your digital receipt"
   },
   "pay": {
     "title": "Pay {salon}",
@@ -539,5 +548,18 @@
     "profile": "Client profile",
     "dragHint": "To move or change time: drag it on the calendar.",
     "noTexts": "No texts: this client hasn't said yes to texts."
+  },
+  "receiptPage": {
+    "notFound": "Receipt not found.",
+    "ticket": "Ticket #{n}",
+    "thanks": "Thank you, {name}!",
+    "discount": "Discount",
+    "tip": "Tip",
+    "total": "Total",
+    "cash": "Cash",
+    "card": "Card",
+    "change": "Change",
+    "refunded": "This ticket was refunded.",
+    "keep": "Save this page or take a screenshot to keep your receipt."
   }
 }

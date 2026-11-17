@@ -100,10 +100,10 @@ button:disabled { cursor: not-allowed; }
 }
 .receipt-print { display: none; }
 @media print {
-  @page { size: 80mm auto; margin: 4mm; }
+  @page { margin: 2mm; } /* paper width comes from the printer: 80 mm or 58 mm */
   body * { visibility: hidden; }
   .receipt-print, .receipt-print * { visibility: visible; }
-  .receipt-print { display: block; position: absolute; left: 0; top: 0; width: 72mm; font: 12px/1.45 ui-monospace, Menlo, monospace; color: #000; }
+  .receipt-print { display: block; position: absolute; left: 0; top: 0; width: 100%; max-width: 72mm; font: 11px/1.4 ui-monospace, Menlo, monospace; color: #000; overflow-wrap: anywhere; }
   .receipt-print .rl { display: flex; justify-content: space-between; gap: 8px; }
   .receipt-print hr { border: 0; border-top: 1px dashed #000; margin: 6px 0; }
 }
@@ -237,3 +237,11 @@ button:disabled { cursor: not-allowed; }
   .cal-month { grid-template-rows: 28px repeat(6, minmax(64px, 1fr)); }
   .cal-mrow { display: none; }
 }
+/* account menu (top-right "me" chip) */
+.acct { position: relative; }
+.acct-btn { border: 0; background: transparent; font: inherit; cursor: pointer; padding: 4px 6px; border-radius: 10px; }
+.acct-btn:hover { background: var(--fill); }
+.acct-menu { position: absolute; right: 0; top: calc(100% + 6px); width: 260px; padding: 14px; display: flex; flex-direction: column; gap: 10px; z-index: 30; }
+@media (max-width: 640px) { .acct-name { display: none; } }
+/* compact settings rows (Today · Salon setup) */
+.row.set { min-height: 56px; padding: 10px 16px; flex-wrap: wrap; row-gap: 8px; font-size: 15px; }

@@ -5,7 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
+import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Segmented, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
+import AccountMenu from "@/components/AccountMenu";
 import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
@@ -14,6 +15,9 @@ import { logReceipt, pullTickets, putTicket, saveNow, useTicket } from "@/lib/ch
 import { api } from "@/lib/api";
 import { GiftSellDrawer, GiftUseDrawer } from "./GiftDrawers";
 import { demoSettle, giftUndo } from "@/lib/checkout/gift";
+import { needsImage, receiptBytes, type Paper, type ReceiptDoc } from "@/lib/print/escpos";
+import { receiptImageBytes } from "@/lib/print/raster";
+import { canBluetooth, isIOS, pickPrinter, printBytes, savedPrinter, savePrinter } from "@/lib/print/bluetooth";
 import { blockers, changeCents, quickCash, splitTipByPrice, staffOn, ticketLabel, totals, type Discount, type ServiceLine, type Ticket } from "@/lib/checkout/ticket";
 
 const uuid = () => crypto.randomUUID();
@@ -44,7 +48,7 @@ export default function TicketScreen({ id }: { id: string }) {
 
   return (
     <div className="app" onPointerDown={touchActing}>
-      <LeftMenu active="Checkout" salonInitials={initials(desk.salonName)} me={who.name[0]} />
+      <LeftMenu active="Checkout" salonInitials={initials(desk.salonName)} />
       <div className="col">
         <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {ticket.status === "open" && step !== "ticket" && <Button variant="ghost" size="sm" onClick={() => setStep(step === "pay" ? "ticket" : "pay")}>‹ {t("back")}</Button>}
@@ -52,7 +56,7 @@ export default function TicketScreen({ id }: { id: string }) {
           {title}
         </span>}>
           <SyncPill />
-          <span className="who"><Avatar name={who.name} />{who.name} · {ROLE_LABEL[who.role]}</span>
+          <AccountMenu name={who.name} role={who.role} salon={desk.salonName} />
         </TopBar>
         <OfflineBanner />
         {desk.mode === "demo" && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
@@ -586,7 +590,8 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
       <section className="ck-keys" style={{ gap: 10 }}>
         <div className="h2">{t("receipt")}</div>
         <div className="group">
-          <button type="button" className="opt" data-testid="receipt-print" onClick={() => { logReceipt(ticket, "print"); setTimeout(() => window.print(), 50); say(t("printed")); }}>{t("print")}<span className="grow" /><span className="cap">›</span></button>
+          <BluetoothPrint desk={desk} ticket={ticket} say={say} />
+          <button type="button" className="opt" data-testid="receipt-print" onClick={() => { logReceipt(ticket, "print"); setTimeout(() => window.print(), 50); say(t("printed")); }}>{canBluetooth() ? t("printWindow") : t("print")}<span className="grow" /><span className="cap">›</span></button>
           <button type="button" className="opt" onClick={() => { if (!ticket.client?.phone) return say(t("noPhone")); logReceipt(ticket, "text", ticket.client.phone); say(t("textLater")); }}>
             {t("text")}<span className="grow" /><span className="cap num">{ticket.client?.phone ? fmtPhone(ticket.client.phone) : ""} ›</span></button>
           <button type="button" className="opt" onClick={() => setEmail("")}>{t("email")}<span className="grow" /><span className="cap">›</span></button>
@@ -654,10 +659,76 @@ function RefundDrawer({ desk, ticket, amount, card, onClose, say }: { desk: Desk
   );
 }
 
+/** Receipt as plain lines (for Bluetooth thermal printers). Client copy: no card fee (that's the salon's cost). */
+function receiptDoc(desk: Desk, ticket: Ticket, t: ReturnType<typeof useTranslations>, when: string): ReceiptDoc {
+  const sum = totals(ticket);
+  const pay = ticket.payment;
+  const given = pay?.givenCents ?? sum.total;
+  const rows: ReceiptDoc["rows"] = ticket.lines.map((l) => [`${l.name}${l.staffName ? ` - ${l.staffName}` : ""}`, $(l.cents)] as [string, string]);
+  if (sum.discount > 0) rows.push([t("discountLine", { reason: ticket.discount?.reason ?? "" }), `-${$(sum.discount)}`]);
+  for (const [id, c] of Object.entries(ticket.tips)) if (c > 0) rows.push([`${t("tip")} - ${ticket.lines.find((l) => l.staffId === id)?.staffName ?? ""}`, $(c)]);
+  rows.push("sep", { bold: [t("total"), $(pay && pay.method !== "cash" ? pay.amountCents ?? sum.total : sum.total)] });
+  if (pay && pay.method !== "cash") rows.push([pay.brand ? `${pay.brand.toUpperCase()} ${pay.last4 ?? ""}` : t("qr"), $(pay.amountCents ?? sum.total)]);
+  else rows.push([t("cash"), $(given)], [t("change"), $(given - sum.total)]);
+  if (ticket.status === "refunded") rows.push({ text: t("refunded", { amount: $(pay?.amountCents ?? sum.total) }) });
+  return {
+    title: desk.salonName,
+    sub: [`${t("receiptFor")} ${ticketLabel(ticket)}`, when, ...(ticket.client?.name ? [ticket.client.name] : [])],
+    rows,
+    footer: [t("thanks", { name: "" }), ...(digitalReceiptUrl(desk, ticket) ? [t("scanReceipt")] : []), "PolishOS"],
+    qr: digitalReceiptUrl(desk, ticket),
+  };
+}
+
+/** Link to the client's digital receipt (only once the ticket is saved on the server). */
+function digitalReceiptUrl(desk: Desk, ticket: Ticket): string | undefined {
+  return desk.mode === "live" && ticket.number && typeof location !== "undefined" ? `${location.origin}/r/${ticket.id}` : undefined;
+}
+
+/** "Print by Bluetooth" (Android Chrome, or Bluefy on iPhone/iPad): pair once, then one tap prints. */
+function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: string) => void }) {
+  const t = useTranslations("checkout");
+  const f = useFormatter();
+  const [saved, setSaved] = useState<ReturnType<typeof savedPrinter>>(null);
+  const [busy, setBusy] = useState(false);
+  const [ok, setOk] = useState(false);
+  useEffect(() => { setSaved(savedPrinter()); setOk(canBluetooth()); }, []);
+  if (!ok) return isIOS() ? <div className="row s"><span className="g cap">{t("btIos")}</span></div> : null;
+  const paper: Paper = saved?.paper ?? 58;
+  const go = async () => {
+    setBusy(true);
+    try {
+      const doc = receiptDoc(desk, ticket, t, f.dateTime(new Date(ticket.payment?.at ?? ticket.createdAt), { dateStyle: "medium", timeStyle: "short" }));
+      // Vietnamese letters → print as an image so accents show; plain English → fast text.
+      await printBytes(needsImage(doc) ? await receiptImageBytes(doc, paper) : receiptBytes(doc, paper), paper);
+      setSaved(savedPrinter());
+      logReceipt(ticket, "print");
+      say(t("printed"));
+    } catch (e) {
+      const m = (e as Error).message;
+      if (!/cancel/i.test(m)) say(/not found|no devices/i.test(m) ? t("btNone") : m);
+    }
+    setBusy(false);
+  };
+  return <>
+    <button type="button" className="opt" data-testid="print-bt" disabled={busy} onClick={() => void go()}>
+      <span className="g">{busy ? t("btPrinting") : t("printBt")}<span className="cap" style={{ display: "block" }}>{saved ? `${saved.name} · ${saved.paper} mm` : t("btPair")}</span></span><span className="cap">›</span>
+    </button>
+    {saved && <div className="row s" style={{ gap: 8 }}>
+      <span className="g cap">{t("btPaper")}</span>
+      <Segmented label={t("btPaper")} value={String(paper)} onChange={(v) => { const p = { ...saved, paper: Number(v) as Paper }; savePrinter(p); setSaved(p); }} options={[{ value: "58", label: "58 mm" }, { value: "80", label: "80 mm" }]} />
+      <Button size="sm" variant="ghost" onClick={async () => { try { setSaved(await pickPrinter(paper)); } catch { /* cancelled */ } }}>{t("btChange")}</Button>
+    </div>}
+  </>;
+}
+
 /** Receipt for the receipt printer (80 mm): only visible when printing. */
 function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
+  const [qr, setQr] = useState("");
+  const url = digitalReceiptUrl(desk, ticket);
+  useEffect(() => { if (url) void QRCode.toDataURL(url, { width: 160, margin: 1 }).then(setQr); }, [url]);
   const sum = totals(ticket);
   const given = ticket.payment?.givenCents ?? sum.left;
   return (
@@ -678,6 +749,11 @@ function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
         ? <div className="rl"><span>{ticket.payment.brand ? `${ticket.payment.brand.toUpperCase()} ••${ticket.payment.last4 ?? ""}` : t("qr")}</span><span>{$(ticket.payment.amountCents ?? sum.total)}</span></div>
         : <><div className="rl"><span>{t("cash")}</span><span>{$(given)}</span></div>
           <div className="rl"><span>{t("change")}</span><span>{$(given - sum.left)}</span></div></>}
+      {qr && <div style={{ textAlign: "center", marginTop: 6 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- data: URL */}
+        <img src={qr} alt="" width={110} height={110} />
+        <div>{t("scanReceipt")}</div>
+      </div>}
     </div>
   );
 }

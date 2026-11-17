@@ -1,0 +1,89 @@
+"use client";
+// Print to a Bluetooth thermal printer straight from the browser (Web Bluetooth).
+// Works in Chrome on Android (tablets, phones) and in the Bluefy browser on iPhone/iPad. Desktop uses normal printing.
+import type { Paper } from "./escpos";
+
+// ESC/POS printer channels (service → write pipe), same list + pacing that worked with the NETUM in the
+// earlier Nail Tech Log app: 100-byte pieces, 25 ms apart, then 250 ms to let the printer finish.
+const PROFILES = [
+  { service: "49535343-fe7d-4ae5-8fa9-9fafd205e455", write: "49535343-8841-43f4-a8d4-ecbe34729bb3" },
+  { service: "0000ffe0-0000-1000-8000-00805f9b34fb", write: "0000ffe1-0000-1000-8000-00805f9b34fb" },
+  { service: "0000ff00-0000-1000-8000-00805f9b34fb", write: "0000ff02-0000-1000-8000-00805f9b34fb" },
+  { service: "000018f0-0000-1000-8000-00805f9b34fb", write: "00002af1-0000-1000-8000-00805f9b34fb" },
+  { service: "e7810a71-73ae-499d-8c15-faa9aef0c3f2", write: "bef8d6c9-9c21-4c9e-b632-bd581100031c" },
+  { service: "6e400001-b5a3-f393-e0a9-e50e24dcca9e", write: "6e400002-b5a3-f393-e0a9-e50e24dcca9e" },
+];
+const SERVICES = PROFILES.map((p) => p.service);
+const NAME_PREFIXES = ["BlueTooth Printer", "Bluetooth Printer", "NETUM", "MTP", "PT-", "Printer"];
+const CHUNK = 100, CHUNK_DELAY = 25, FINISH_WAIT = 250;
+
+type Char = { uuid?: string; properties: { write: boolean; writeWithoutResponse: boolean }; writeValueWithResponse(b: BufferSource): Promise<void>; writeValueWithoutResponse(b: BufferSource): Promise<void> };
+type Dev = { id: string; name?: string; gatt?: { connected: boolean; connect(): Promise<{ getPrimaryService(uuid: string): Promise<{ getCharacteristics(): Promise<Char[]> }> }> } };
+type BT = { requestDevice(o: unknown): Promise<Dev>; getDevices?(): Promise<Dev[]> };
+
+const bt = (): BT | null => (typeof navigator !== "undefined" && "bluetooth" in navigator ? (navigator as unknown as { bluetooth: BT }).bluetooth : null);
+export const canBluetooth = () => !!bt();
+export const isIOS = () => typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+const KEY = "nailpos.printer";
+export type SavedPrinter = { id: string; name: string; paper: Paper };
+export function savedPrinter(): SavedPrinter | null {
+  try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch { return null; }
+}
+export function savePrinter(p: SavedPrinter | null) {
+  try { if (p) localStorage.setItem(KEY, JSON.stringify(p)); else localStorage.removeItem(KEY); } catch { /* */ }
+}
+
+let dev: Dev | null = null;
+let pipe: Char | null = null;
+
+async function findPipe(d: Dev): Promise<Char> {
+  const server = await d.gatt!.connect();
+  for (const p of PROFILES) {
+    try {
+      const chars = await (await server.getPrimaryService(p.service)).getCharacteristics();
+      const ok = (c: Char) => c.properties.writeWithoutResponse || c.properties.write;
+      const pick = chars.find((c) => c.uuid?.toLowerCase() === p.write && ok(c)) ?? chars.find(ok);
+      if (pick) return pick;
+    } catch { /* a printer has only one of these channels */ }
+  }
+  throw new Error("This printer doesn't take prints over Bluetooth Low Energy.");
+}
+
+/** Pick the printer (shows the browser's list). Must be called from a tap. */
+export async function pickPrinter(paper: Paper): Promise<SavedPrinter> {
+  const b = bt();
+  if (!b) throw new Error(isIOS() ? "On iPhone or iPad, open PolishOS in the Bluefy browser to print by Bluetooth." : "This browser can't use Bluetooth. Use Chrome.");
+  // Show printers first; if none match, the browser list can show everything.
+  dev = await b.requestDevice({ filters: [...SERVICES.map((sv) => ({ services: [sv] })), ...NAME_PREFIXES.map((namePrefix) => ({ namePrefix }))], optionalServices: SERVICES })
+    .catch((e: Error) => { if (/cancel/i.test(e.message)) throw e; return b.requestDevice({ acceptAllDevices: true, optionalServices: SERVICES }); });
+  pipe = await findPipe(dev);
+  const p = { id: dev.id, name: dev.name || "Bluetooth printer", paper };
+  savePrinter(p);
+  return p;
+}
+
+/** Reconnect to the saved printer without asking again (when the browser allows it). */
+async function reconnect(): Promise<boolean> {
+  if (dev?.gatt?.connected && pipe) return true;
+  const b = bt(), s = savedPrinter();
+  if (!b || !s) return false;
+  if (!dev && b.getDevices) dev = (await b.getDevices()).find((d) => d.id === s.id) ?? null;
+  if (!dev) return false;
+  pipe = await findPipe(dev);
+  return true;
+}
+
+/** Send receipt bytes in small pieces (Bluetooth sends ~100 bytes at a time). */
+export async function printBytes(bytes: Uint8Array, paper: Paper): Promise<void> {
+  if (!(await reconnect().catch(() => false))) await pickPrinter(paper);
+  const c = pipe!;
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    const part = bytes.slice(i, i + CHUNK);
+    if (c.properties.writeWithoutResponse) await c.writeValueWithoutResponse(part);
+    else await c.writeValueWithResponse(part);
+    await wait(CHUNK_DELAY);
+  }
+  await wait(FINISH_WAIT);
+}
