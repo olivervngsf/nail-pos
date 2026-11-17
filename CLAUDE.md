@@ -48,7 +48,7 @@ Read this first every session. Keep it short; link out for detail.
 - Building UI: follow `docs/design-spec.md` (tokens, components, motion, every screen + interaction) and the exact source in `design/<flow>/` (`.dc.html` + `pos.css`/`setup.css`). Pixel match; re-copy files into `design/` if the boards change.
 
 ## What we're building
-- PolishOS (app) by EO Collective (company). Domain: polishosapp.com (bought Nov 17, GoDaddy).
+- PolishOS (app) by EO Collective (company). Domains (GoDaddy, 3 yrs, renew Nov 2029): polishosapp.com (app, live) + eo-collective.com (company).
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
 - Angle: fair, clear pay for techs + Tap to Pay on iPhone and Android (no card terminal).
 - Team (working agreement, not final yet; aligned with Elang Nov 16): Elang = product direction + features ("designs the building: how many floors, what's on each floor") + sales, client care. Oliver = solid foundation, build and design (how it works and looks).
@@ -73,7 +73,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 4. PIN login + clock-in; print own earnings by PIN. Clock-in: front desk name + PIN or own phone at salon only (location/Wi-Fi); clock-in joins turn list; auto clock-out; manager-approved fixes; offline (PRD "Clock-in: where and when", issue #3)
 5. Client profile by phone number (visits, last service/tech, notes, gift card)
 6. Turn list for walk-ins (moved into V1)
-7. Booking + day calendar (issue #12): calendar = Oliver's built calendar + drag/peek/waitlist/cover; staff quick-book (4 taps); booking page for every channel (Google, website/social, text links, QR) with salon photos, multi-service cart, combos/add-ons, groups, returning client by phone; walk-in check-in iPad; text confirm/reminders. All → one calendar, source kept per booking. Booking page: book.polishosapp.com/salon-city. docs/booking-channels.md. Each salon gets its own booking page automatically after setup; later deals, deposits, AI booking helper (PRD "Salon booking page", issue #32, screens on Screens 2 bottom)
+7. Booking + day calendar (issue #12): calendar = Oliver's built calendar + drag/peek/waitlist/cover; staff quick-book (4 taps); booking page for every channel (Google, website/social, text links, QR) with salon photos, multi-service cart, combos/add-ons, groups, returning client by phone; walk-in check-in iPad; text confirm/reminders. All → one calendar, source kept per booking. Booking page: polishosapp.com/<salon> (e.g. polishosapp.com/lotus). docs/booking-channels.md
 8. Owner dashboard: top 5 KPIs (sales vs last week, avg ticket, return rate + lost regulars, sales per tech per hour, walk-in wait + walk-outs); full list in PRD "Owner KPIs" (issue #16)
 - Salon setup (demo → first payment in ~1 week; 1-hour setup day, 10 steps incl. Connect payments): PRD "Salon setup", board https://claude.ai/artifact/1wByQp7c3nViD27dsqJqgD, issue #20
 - Basics: salon setup, staff + pay rates, service menu from a nail template, owner login
@@ -138,7 +138,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-16: Elang is an admin too (same Founder Admin access as Oliver, incl. System + costs).
 - 2026-11-17: Stripe Connect type settled by Stripe's rules: Accounts v2, full dashboard, Stripe collects fees from the salon + covers losses (Managed Risk). Express needs us to carry losses: no.
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
-- 2026-11-17: Names: company = EO Collective, app = PolishOS (Elang + Oliver). Domain bought: polishosapp.com (GoDaddy) = main site, app + booking pages (book.polishosapp.com/salon-city). polishos.com taken (ask owner later); polishos.app still free (optional grab). Optional: eo-collective.com for company email. DNS connected to Vercel (nail-pos project, www → apex) Nov 17. To do: 2-step login on GoDaddy, USPTO trademark check on "PolishOS".
+- 2026-11-17: Names: company = EO Collective (eo-collective.com), app = PolishOS (polishosapp.com); both bought on GoDaddy for 3 years. polishosapp.com live on Vercel (nail-pos project, www → apex, https). Booking pages: polishosapp.com/<salon> (e.g. /lotus). polishos.com taken (ask owner later); polishos.app still free (optional). To do: 2-step login on GoDaddy, USPTO trademark check on "PolishOS".
 
 ## Tracking
 - Build Tracker (status per feature, build order): https://claude.ai/artifact/6DjfxMPXy64uDX8YZdCCnt — keep in sync with GitHub Issues
