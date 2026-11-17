@@ -29,6 +29,7 @@ if (typeof window !== "undefined") {
   window.addEventListener("pagehide", flushTimers);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushTimers(); });
 }
+export const isLive = () => live;
 
 function load(): Record<string, Ticket> {
   if (cache) return cache;
