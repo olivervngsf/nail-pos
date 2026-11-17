@@ -105,3 +105,22 @@ create table day_closes (id uuid primary key default gen_random_uuid(), salon_id
 create table payout_lines (id uuid primary key default gen_random_uuid(), salon_id uuid not null references salons,
   day date not null, membership_id uuid not null references memberships,
   service_cents bigint, commission_cents bigint, tips_card_cents bigint, tips_cash_cents bigint, paid_by text);  -- cash / check split
+
+-- §6 Added when merging with the Full V1 Plan (Nov 16) -------------------------------
+-- Already live on nail-pos-test (supabase/migrations/2026111600000*): salons, memberships (user_id, display_name, phone,
+-- role, pay_type, commission_pct, hourly_cents, pin_hash, language), invites, salon_hours, services, is_member/is_admin, create_salon().
+-- M0 migrates those to this draft: add `people` (auth_user_id) and memberships.person_id; keep invites + salon_hours.
+-- Tables the draft above is missing (from PRD + System Design + Gift Cards/Loyalty doc):
+--   memberships: + license_no, license_state, license_expires (alerts 60/30 days), pin_fails, pin_locked_until (5 wrong = 5 min, System Design)
+--   invites (code, membership_id, expires_at 7 days, used_at)          -- live
+--   time_off (membership_id, from, to)                                  -- M7
+--   tips (ticket_id, staff_id, amount_cents, kind cash|card, fee_cents, added_at) -- tip per tech; added up to 24 h after charge
+--   discounts (ticket_line_id, kind $|%, value, reason, approved_by)    -- M5; PIN over owner's limit
+--   money_events (stripe fees, refunds, disputes: amount held + deadline, payouts to bank) -- M4, daily money report
+--   messages (to, channel sms|email, kind service|marketing, body, status, cost_cents, reply) + text_battery (balance, auto_refill_cap) -- M7
+--   pay_periods (start, end, status open|approved|paid, approved_by) + tip_reports (monthly cash tips per tech, signed by PIN) -- M10
+--   booth_rent (membership_id, week, owed_cents, paid_cents)            -- booth renters (pay type)
+--   support_grants (salon_id, granted_by, expires_at 24 h) + every support view in audit_log -- M14
+--   packages + package_ledger                                           -- V1.1
+-- Settings on salons (jsonb or columns): tip_fee_passthrough (locked off in CA/MN), commission_basis full|discounted,
+--   discount_limit_pct, auto_clock_out time, receipt language.

@@ -1,0 +1,114 @@
+/* The look = design/kit/kit.css (synced into src/styles/kit.css). This file only adds:
+   1) a small reset, 2) real-screen sizing (the kit draws fixed 1280x800 / 390x844 board frames),
+   3) app-only pieces the kit doesn't have yet. Never restyle a kit component here. */
+@import "../styles/kit.css";
+@import "../styles/setup.css";
+
+/* 1. reset */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--surface); font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif; color-scheme: light; }
+h1, h2, h3, p { margin: 0; }
+button { color: inherit; }
+button:disabled { cursor: not-allowed; }
+.btn.primary:disabled { opacity: .35; }
+:focus-visible { outline: 3px solid var(--jade); outline-offset: 2px; }
+.lead { font-size: 15px; }
+@media (max-width: 640px) { .h1 { font-size: 24px; line-height: 30px; } }
+
+/* 2. real-screen sizing for kit shells */
+.app { width: 100%; height: auto; min-height: 100dvh; }
+.wiz { width: 100%; height: auto; min-height: 100dvh; }
+.side { position: sticky; top: 0; height: 100dvh; }
+.prog { margin: 0; }
+.st { border: 0; background: transparent; text-align: left; cursor: pointer; font: inherit; }
+.body { overflow: visible; max-width: 920px; width: 100%; }
+.foot { position: sticky; bottom: 0; height: auto; min-height: 76px; padding: 12px 64px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,255,255,.88); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
+.mtop { display: none; }
+@media (max-width: 900px) {
+  .side { display: none; }
+  .mtop { display: flex; flex-direction: column; gap: 10px; position: sticky; top: 0; z-index: 10; padding: calc(12px + env(safe-area-inset-top)) 16px 12px; background: rgba(255,255,255,.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--line); }
+  .body { padding: 20px 16px 24px; }
+  .foot { padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); }
+  .foot .btn.primary { flex: 1; padding: 0 16px; }
+}
+.phone { width: 100%; height: auto; min-height: 100dvh; max-width: 480px; margin: 0 auto; overflow: visible; }
+.pbar { justify-content: space-between; padding: env(safe-area-inset-top) 8px 0; position: sticky; top: 0; z-index: 5; }
+.pbody { display: flex; flex-direction: column; gap: 14px; padding: 20px 16px calc(24px + env(safe-area-inset-bottom)); }
+.ptabs { position: sticky; margin-top: auto; padding-bottom: env(safe-area-inset-bottom); }
+/* overlays cover the real screen, not a board frame */
+.scrim { position: fixed; z-index: 40; }
+.drawer { position: fixed; width: min(440px, 100%); z-index: 41; }
+.drawer-f { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+.sheet { position: fixed; z-index: 41; }
+.toast { position: fixed; min-width: 0; width: max-content; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 50; }
+/* kit .seg uses <span>; the app uses real buttons */
+.seg button { height: 30px; padding: 0 14px; border-radius: 8px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+.seg button.on { background: var(--paper); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.opt.on { font-weight: 600; }
+.pick.on { padding: 17px; }
+
+/* 3. app-only pieces (move into the kit when the Design System gets them) */
+.btn.sm { height: 34px; font-size: 14px; padding: 0 12px; }
+.btn.stripe { background: #635bff; color: #fff; }
+.tag.warn { background: var(--orange-soft); color: #b5470a; }
+.note { border-radius: 12px; padding: 10px 14px; font-size: 14px; background: #e8f6ec; color: #1e6b34; font-weight: 500; }
+.demo { border-radius: 12px; padding: 8px 12px; font-size: 13px; border: 1.5px dashed #c7c7cc; color: var(--ink-soft); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+.otp { height: 60px; text-align: center; font-size: 28px; font-weight: 700; letter-spacing: .5em; font-variant-numeric: tabular-nums; }
+@keyframes sp { to { transform: rotate(360deg) } }
+.spin { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--fill); border-top-color: var(--ink); animation: sp .9s linear infinite; }
+.okmark { width: 56px; height: 56px; border-radius: 50%; background: var(--jade); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 28px; flex: none; }
+.okmark.lg { width: 72px; height: 72px; font-size: 34px; }
+.pill .dot.off { background: var(--orange); }
+/* service table (setup) */
+.svc { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.svc th { height: 36px; text-align: left; font-size: 12px; font-weight: 600; color: var(--ink-soft); padding: 0 8px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--paper); }
+.svc td { height: 44px; padding: 0 4px; border-bottom: 1px solid var(--line); }
+.svc .r { text-align: right; }
+.ed { width: 100%; height: 36px; border: 1px solid transparent; border-radius: 8px; background: transparent; padding: 0 8px; font: inherit; color: inherit; }
+.ed:hover { border-color: var(--line); background: #fff; }
+.ed:focus { border-color: var(--ink); background: #fff; outline: none; }
+.ed.r { text-align: right; }
+.ed.flag { border-color: #f0a36b; background: #fff6ef; }
+@media (max-width: 640px) { .svc .cat { display: none; } }
+/* open-hours rows (setup) */
+.hrow .tm { width: 130px; height: 40px; font-size: 15px; padding: 0 10px; }
+@media (max-width: 640px) {
+  .hrow { gap: 8px; padding: 6px 12px !important; }
+  .hrow .tm { width: auto; flex: 1; min-width: 0; padding: 0 4px; font-size: 15px; -webkit-appearance: none; appearance: none; text-align: center; text-align-last: center; }
+  .hrow > span:first-child { width: 34px !important; }
+  .hrow .hl { display: none; }
+}
+@media (max-width: 360px) { .hrow .tm { font-size: 14px; } }
+/* /kit preview page */
+.kit-sec { display: flex; flex-direction: column; gap: 12px; }
+.kit-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+/* "+" starting-price toggle next to a price (setup services) */
+.plus { width: 30px; height: 30px; flex: none; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); font: inherit; font-size: 16px; font-weight: 700; color: var(--muted); cursor: pointer; }
+.plus.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+/* checkout (Checkout board: ticket left, client panel / keypad right; stacks on phone) */
+.ck-main { flex: 1; display: flex; gap: 20px; padding: 20px 24px; min-height: 0; align-items: stretch; }
+.ck-left { flex: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.ck-aside { width: 320px; flex: none; padding: 20px; display: flex; flex-direction: column; gap: 14px; align-self: flex-start; }
+.ck-keys { width: 340px; flex: none; display: flex; flex-direction: column; gap: 12px; }
+@media (max-width: 900px) {
+  .ck-main { flex-direction: column; padding: 16px; }
+  .ck-aside, .ck-keys { width: 100%; align-self: stretch; }
+}
+.receipt-print { display: none; }
+@media print {
+  @page { size: 80mm auto; margin: 4mm; }
+  body * { visibility: hidden; }
+  .receipt-print, .receipt-print * { visibility: visible; }
+  .receipt-print { display: block; position: absolute; left: 0; top: 0; width: 72mm; font: 12px/1.45 ui-monospace, Menlo, monospace; color: #000; }
+  .receipt-print .rl { display: flex; justify-content: space-between; gap: 8px; }
+  .receipt-print hr { border: 0; border-top: 1px dashed #000; margin: 6px 0; }
+}
+@media (max-width: 640px) {
+  .bar { gap: 8px; padding: 0 12px; }
+  .bar .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; font-size: 16px; }
+  .bar .who { display: none; }
+}

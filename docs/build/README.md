@@ -32,6 +32,8 @@ Defaults chosen for open questions so building is not blocked (change here if El
 
 ## Repo layout (target)
 
+Actual (Nov 16): the app lives under `src/` (`src/app`, `src/lib`); keep that.
+
 ```
 app/                 Next.js routes (desk), app/(phone)/ for tech + client pages
 components/          one React component per kit piece (LeftMenu, TopBar, Button, Chip, Rows, StatTile, Drawer, Toast, PinKeypad…)
@@ -59,10 +61,10 @@ docs/                specs (this folder)
 
 | # | Milestone | Status |
 |---|---|---|
-| M0 | Foundation (repo, kit, shell, auth, RLS, offline, CI) | Not started |
-| M1 | Salon setup (owner sign-up, info, services, staff + invites) | Not started |
-| M2 | PIN + clock-in, switch person | Not started |
-| M3 | Checkout: tickets, tip, cash, receipts | Not started |
+| M0 | Foundation (repo, kit, shell, auth, RLS, offline, CI) | Done (Nov 16): kit.css is the one stylesheet (`npm run kit:sync`), React kit components + `/kit`, `people`/`devices`/`audit_log` + salon-wall test passing, offline queue (IndexedDB) + sync pill, EN/VI (next-intl), Sentry wired (off until DSN), CI (lint, types, unit, build, Playwright desktop+phone, RLS). Left for later: staging + live Supabase projects, Sentry DSN, DATABASE_URL secret for CI RLS run |
+| M1 | Salon setup (owner sign-up, info, services, staff + invites) | Mostly (session 1, Nov 17): sign-in by text code, setup saves to Supabase via the offline queue (`save_setup`), invites read from the DB (`get_invite`). To do: invite texts (needs Twilio number), AI menu import, resume setup on a second device |
+| M2 | PIN + clock-in, switch person | Done (session 1): join → confirm phone → PIN hashed on server (weak refused) → home `/t`; salon device (`register_device`), switch person + clock by PIN on `/today` (5 wrong = 5 min lock, 2 min idle lock), clock from own phone. To do: "at the salon" check (Wi-Fi/location) |
+| M3 | Checkout: tickets, tip, cash, receipts | Mostly (session 2, Nov 18): `/checkout` + `/checkout/[id]` (services + staff picker with turns/$ today, "$45+" final price, $/% discount with manager PIN, client panel by phone, cash with quick bills + change + cash tips per staff, paid summary, print receipt 80 mm). Saved on the device, sent via outbox (`save_ticket`, same ids = safe repeat, server works totals out, paid = frozen). SQL: `supabase/migrations/20261118000001_checkout.sql`, test `supabase/tests/session2_checkout.sql`. To do: text/email receipts actually sent (session 5, logged as queued now), ticket from a booking (M7), cash drawer kick |
 | M4 | Payments: Stripe Connect, S710 reader, pay link, webhooks | Not started |
 | M5 | Gift cards + discounts | Not started |
 | M6 | Clients (CRM) + client history | Not started |
@@ -74,5 +76,7 @@ docs/                specs (this folder)
 | M12 | Loyalty points + client page | Not started |
 | M13 | Tech app (Home, schedule, earnings) | Not started |
 | M14 | Pilot-ready: ops, Founder Admin, support access | Not started |
+
+Plan behind this pack (roles + permissions, back end, loyalty + gift card rules, open decisions): [Full V1 Plan](https://claude.ai/artifact/CYXvzLj1wTvLvxqKt76HsQ).
 
 Files: `milestones.md` (what to build, step by step), `schema.sql` (database draft), `screens.md` (every board + frame → route).
