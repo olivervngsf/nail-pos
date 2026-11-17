@@ -73,7 +73,7 @@ Read this first every session. Keep it short; link out for detail.
 Docs win over this file if they disagree. Update this file when a big decision lands.
 
 ## V1 scope
-1. Checkout in the web app: cash or card by Stripe QR code / pay link; receipt by printer, text or email; gift cards (sell + use, plastic + text, no expiry) + $/% discounts (issue #14, PRD "Gift cards and discounts")
+1. Checkout in the web app: cash or card on a Stripe card reader (every V1 salon; QR code / pay link as backup); receipt by printer, text or email; gift cards (sell + use, plastic + text, no expiry) + $/% discounts (issue #14, PRD "Gift cards and discounts")
 2. Tech payout sheet: earnings + tips per tech, cash vs card, check/cash payout split, printable; payroll insights (min wage, overtime, breaks) + export to Gusto/QuickBooks (issue #15)
 3. Vietnamese (staff) / English (customer) toggle
 4. PIN login + clock-in; print own earnings by PIN. Clock-in: front desk name + PIN or own phone at salon only (location/Wi-Fi); clock-in joins turn list; auto clock-out; manager-approved fixes; offline (PRD "Clock-in: where and when", issue #3)
@@ -93,6 +93,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Scale: 50 salons x 20 staff; data walled per salon; works offline.
 - Insight, not autopilot: turn board/calendar show facts (turns, $ today, free-at, skills, requests); owner/manager/front desk decides who's next; optional one-tap reason.
 - Every ticket shows tip + any card fee; nothing taken silently.
+- Honest reviews: every client gets the same review request; never filter or hide it from unhappy clients (Google rules, FTC risk).
 - Tips: salon never keeps any part; card fee on tips can't be deducted in CA/MN (setting locked by state); owners/managers never in tip pools; monthly cash-tip report per tech. Booth renters = separate pay type, paid into their own Stripe account. License expiry alerts. PRD "Booth rental, tip rules and tech licenses", board https://claude.ai/artifact/2e91J92mh79y7UcySvwA4y, issue #23.
 - Target: Vietnamese walk-in salons, 1–20 techs (appointment salons later).
 - Edge cases table lives in the PRD.
@@ -106,18 +107,17 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Printing: desktop to USB/Wi-Fi receipt printer; Android web can use Bluetooth; iPhone web can't (needs Bluefy) — don't depend on it.
 - Texting: Twilio or Telnyx; one local number per salon; A2P 10DLC registration; consent + STOP; email backup. Spec in PRD "Texting and phone numbers". Text budget (suggestion): service texts (confirm, reminders, receipts) included in plan + never stop; marketing texts from a prepaid "text battery" (packs ~2¢/text, balance shown, warn at 20%, auto-refill only if owner opts in with a cap); cost preview before every blast; Vietnamese accents = 70 chars/segment (double cost). Issue #26; board https://claude.ai/artifact/UYUEeU5J5sWsTfAaWHE9EE (bottom).
 - Ops (before pilot, issue #22): dev/staging/live; Supabase backups + restore test; DB changes via GitHub; data-wall tests; Sentry + uptime alerts; 2-step login + password manager everywhere; secrets only in Vercel/Supabase; spending alerts; terms/privacy/texting consent. Spec: System Design "Running smooth".
-- Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); $59 M2 needs our phone app (OPEN: Oliver to pick). QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
+- Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); V1 = S710 (Oliver, Nov 16); $59 M2 when our phone app ships. QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
 - Reserve with Google ("Book online" on Maps): V1 or V1.1? Needs Google partner approval — start early (issue #18)
 - Staff login: 4-digit PIN (designed now) or staff's phone number? Confirm with Elang (affects staff invite, clock-in, switch person, print earnings, reset PIN)
 - Final team roles (current working agreement in "What we're building")
 - California nail booth rental: manicurist AB5 exemption appears ended Jan 1 2025 — verify; ask pilot salons if they have renters
-- V1 card reader: Stripe S710 (~$299, works with web app now; WisePOS E discontinued) vs M2 (~$59, needs phone app first)
 - Clock-in from own phone: how to prove "at the salon" (salon Wi-Fi, GPS, or salon devices only)? Prototype assumes Wi-Fi/location, opens 15 min before shift. Confirm with Elang.
 - Pilot salons (2–3)
 - How pilot salons pay techs today
-- Final monthly price (testing ~$39–49 in pilot). New input Nov 16: pricing deck proposes $199/mo flat for 25+ staff salons ($149 with $100K+/mo card volume), 5,000 texts, 0.20–0.30% card markup — conflicts with 1–20 tech target + no-markup decision. Options: 2 plans (small ~$49–79 / large $199). Decide with Elang. Board: https://claude.ai/artifact/UYUEeU5J5sWsTfAaWHE9EE, issue #25, PRD "Pricing and launch"
+- Final monthly price (testing ~$39–49 in pilot). PROPOSAL: 2 plans, Salon $49 (1–20 staff, texts by use) + Salon Plus $149–199 (20+ staff, 5,000 texts); no card-volume discount or card markup (pass-through decision). Pricing deck ($199 flat, 0.20–0.30% markup) noted, not adopted. Decide with Elang. PRD "Plans", docs/salon-saas-pricing-playbook.pdf, board https://claude.ai/artifact/UYUEeU5J5sWsTfAaWHE9EE, issue #25
 
 - Gift cards + loyalty how-it-works (roles, codes, steps, money): https://claude.ai/artifact/GKRwnoiAkv5pTHk8rQFUby
 - Loyalty in V1? Research (Nov 16): points/punch card, prepaid packages, auto perks (birthday, rebook, VIP), referrals = near-zero cost, high switching cost. Proposal: V1 = points + gift cards (receipt/email only, $0); packages, perks, referrals in V1.1. Decide with Elang. Board: https://claude.ai/artifact/7JTHZUnaHsDpjSEk1fzLPY
@@ -144,11 +144,14 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-16: Elang is an admin too (same Founder Admin access as Oliver, incl. System + costs).
 - 2026-11-17: Stripe Connect type settled by Stripe's rules: Accounts v2, full dashboard, Stripe collects fees from the salon + covers losses (Managed Risk). Express needs us to carry losses: no.
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
+- 2026-11-16: Stripe card reader in every V1 setup (QR / pay link costs salons ~20% more). Card fee = Stripe pass-through, no markup at launch; revisit at ~50 salons. Research: reports/Nail POS market pricing and design.md
+- 2026-11-16: V1 card reader = Stripe S710 (~$299, works with the web app); M2 ($59) when the phone app ships. Year 1 for a salon ≈ $887 ($49×12 + S710) vs ~$2,400 for ABC Salon System's cheapest setup.
 - 2026-11-17: Names: company = EO Collective (eo-collective.com), app = PolishOS (polishosapp.com); both bought on GoDaddy for 3 years (renew Nov 16 2029). polishosapp.com live on Vercel (nail-pos project, www → apex, https). Booking pages: polishosapp.com/<salon> (e.g. /lotus). polishos.com taken (ask owner later); polishos.app still free (optional). To do: 2-step login on GoDaddy, USPTO trademark check on "PolishOS". Team guide: How We Work Together https://claude.ai/artifact/DbRuWNQPHKJTWkUQKeBaY9
 
 ## Tracking
 - Build Tracker (status per feature, build order): https://claude.ai/artifact/6DjfxMPXy64uDX8YZdCCnt — keep in sync with GitHub Issues
 - Features: GitHub Issues, labels v1 / v1.1 / feature / ux / research / setup
+- Competitors (full list, threat levels; biggest: ABC Salon System, Zota, Square): docs/competitors.md · ABC deep dive: docs/abc-salon-system.md
 - Market research: https://claude.ai/artifact/UUbqTu5wKNkBxShMVfTqYU (unverified, needs web access) · board https://claude.ai/artifact/Rzu7quesSz9RxryAFvAJrh
 - Affinity map (draft, 5 clusters): docs/affinity-map.md
 - Tools reference list (options, not selected yet): docs/tools-reference.md
