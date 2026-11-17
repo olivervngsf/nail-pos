@@ -31,6 +31,8 @@ export default function ClientHistory({ id }: { id: string }) {
   const { who, err } = useWho();
   const [p, setP] = useState<Profile | null>(null);
   const [view, setView] = useState<"profile" | "history">("profile");
+  // "+N more" photos and links into the history open straight on it (phones too).
+  useEffect(() => { if (new URLSearchParams(location.search).get("view") === "history") setView("history"); }, []);
   const [edit, setEdit] = useState(false);
   const [toast, setToast] = useState("");
   const [loadErr, setLoadErr] = useState("");
@@ -117,6 +119,18 @@ function History({ who, p, reload, say }: { who: NonNullable<ReturnType<typeof u
           {years.length > 1 && years.map((y) => <Chip key={y} on={filt === y} onClick={() => setFilt(y)}>{y}</Chip>)}
           {techs.length > 1 && techs.map((s) => <Chip key={s} on={filt === s} onClick={() => setFilt(s)}>{s}</Chip>)}
         </div>
+        {/* Every photo (also ones not tied to a visit) + staff notes about the client, so nothing saved is hidden. */}
+        <div className="card cl-box" id="photos" data-testid="all-photos">
+          <div className="cl2-card-h"><b>{t("photos")} <span className="cap">· {p.photos.length}</span></b><PhotoButton who={who} p={p} ticketId={null} onDone={reload} say={say} /></div>
+          {p.photos.length ? <div className="cl2-allphotos">{p.photos.map((ph) => (
+            // eslint-disable-next-line @next/next/no-img-element -- signed Storage URL
+            <img key={ph.id} src={ph.url} alt={t("photoAlt", { date: date(ph.at) })} title={[date(ph.at), ph.by].filter(Boolean).join(" · ")} className="cl2-photo" />))}</div>
+            : <div className="cap">{t("noPhotos")}</div>}
+        </div>
+        {p.notes_log.some((n) => !n.ticket_id) && <div className="card cl-box" data-testid="client-notes">
+          <b>{t("notesStaff")}</b>
+          {p.notes_log.filter((n) => !n.ticket_id).map((n) => <div key={n.id} style={{ fontSize: 14 }}><span className="cap">{t("careBy", { name: n.by ?? "", date: date(n.at) })}</span><div>{n.body}</div></div>)}
+        </div>}
         <div className="group cl2-vlist" data-testid="visits">
           {shown.map((x, k) => {
             const i = p.visits.indexOf(x);

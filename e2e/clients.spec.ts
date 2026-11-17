@@ -47,6 +47,7 @@ test("clients: find by phone, lost regulars, history with a note", async ({ page
   await expect(page).toHaveURL(/\/clients\/c1$/);
   await expect(page.getByTestId("client-care")).toContainText("no strong acetone");
   if (phone) await page.getByTestId("open-history").click();      // phone opens on the profile; history is one tap away
+  await expect(page.getByTestId("all-photos")).toBeVisible();      // every photo, also ones not tied to a visit
   await expect(page.getByTestId("visit-open")).toContainText("Kim's note");
   await page.getByTestId("note-input").fill("Try a softer pink next time");
   await page.getByTestId("note-save").click();
@@ -59,6 +60,12 @@ test("clients: find by phone, lost regulars, history with a note", async ({ page
     await page.locator("#cp").fill("4085550199");
     await page.getByTestId("client-save").click();
     await expect(page.getByTestId("client-panel")).toContainText("Anna Kim");
+    // a client with no phone can't get a ticket "for them" (it would open as a walk-in)
+    await page.getByTestId("client-new").click();
+    await page.locator("#cn").fill("No Phone");
+    await page.getByTestId("client-save").click();
+    await expect(page.getByTestId("client-panel")).toContainText("No Phone");
+    await expect(page.getByTestId("client-ticket")).toBeDisabled();
     // New ticket from a profile opens Checkout with that client on it
     await page.getByTestId("client-search").fill("555-0142");
     await expect(page.getByTestId("client-row")).toHaveCount(1);

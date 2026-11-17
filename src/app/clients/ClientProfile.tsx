@@ -20,6 +20,8 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
   const [showPh, setShowPh] = useState(false);
   const [note, setNote] = useState<"care" | "private" | null>(null);
   const desk = isDesk(who.role);
+  /** A ticket is tied to its client by phone: no phone on file → no "for this client" ticket (would open as a walk-in). */
+  const canTicket = desk && !!p.phone;
   const canEdit = canEditClient(who);
   const due = dueBack(p.stats.gap_days, p.stats.last_visit);
   const bday = birthdayIn(p.birthday);
@@ -52,9 +54,9 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
   });
   if (gift) cards.push({
     tag: t("giftTag", { amount: $(Number(gift.balance_cents)) }), tone: "jade", title: t("giftLine", { last4: gift.last4 }), cap: p.points ? t("pointsLine", { n: p.points }) : "",
-    btn: desk ? <Button onClick={newTicket}>{t("useAtCheckout")}</Button> : null,
+    btn: canTicket ? <Button onClick={newTicket}>{t("useAtCheckout")}</Button> : null,
   });
-  else if (p.points) cards.push({ tag: t("pointsTag", { n: p.points }), tone: "jade", title: t("pointsLine", { n: p.points }), cap: "", btn: desk ? <Button onClick={newTicket}>{t("useAtCheckout")}</Button> : null });
+  else if (p.points) cards.push({ tag: t("pointsTag", { n: p.points }), tone: "jade", title: t("pointsLine", { n: p.points }), cap: "", btn: canTicket ? <Button onClick={newTicket}>{t("useAtCheckout")}</Button> : null });
 
   const photos = p.photos;
   const likes = [staff, p.shape, p.colors].filter(Boolean).join(" · ");
@@ -80,7 +82,7 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
         {canEdit && <Button className="cl2-edit" onClick={onEdit} data-testid="client-edit" aria-label={t("edit")}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z" /></svg>
           <span className="cl2-wide">{t("edit")}</span></Button>}
-        {desk && <Button variant="primary" className="cl2-wide" onClick={newTicket} data-testid="client-ticket">{t("newTicket")}</Button>}
+        {desk && <Button variant="primary" className="cl2-wide" onClick={newTicket} disabled={!canTicket} title={canTicket ? undefined : t("needPhone")} data-testid="client-ticket">{t("newTicket")}</Button>}
       </div>
 
       {cards.length > 0 && <>
@@ -130,7 +132,7 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
             {photos.slice(0, photos.length > 4 ? 3 : 4).map((ph) => (
               // eslint-disable-next-line @next/next/no-img-element -- signed Storage URL
               <img key={ph.id} src={ph.url} alt={t("photoAlt", { date: date(ph.at) })} className="cl2-photo" />))}
-            {photos.length > 4 && <Link className="cl2-photo cl2-more" href={`/clients/${p.id}`}>{t("moreN", { n: photos.length - 3 })}</Link>}
+            {photos.length > 4 && <Link className="cl2-photo cl2-more" href={`/clients/${p.id}?view=history#photos`} data-testid="more-photos">{t("moreN", { n: photos.length - 3 })}</Link>}
           </div> : <div className="cap">{t("noPhotos")}</div>}
         </div>
       </div>
@@ -138,7 +140,7 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
       {phoneBar && desk && <div className="cl2-pbar">
         <Button disabled title={t("textsLater")}>{t("text")}</Button>
         <Link className="btn" href={bookHref}>{t("book")}</Link>
-        <Button variant="primary" onClick={newTicket}>{t("newTicket")}</Button>
+        <Button variant="primary" onClick={newTicket} disabled={!canTicket} title={canTicket ? undefined : t("needPhone")}>{t("newTicket")}</Button>
       </div>}
 
       {note && <NoteDrawer kind={note} who={who} p={p} onClose={() => setNote(null)} onSaved={() => { setNote(null); say(t("saved")); reload(); }} />}

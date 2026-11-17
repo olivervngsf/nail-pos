@@ -549,7 +549,8 @@
     "pCash": "tiền mặt",
     "pCard": "thẻ {card}",
     "pGift": "thẻ quà ••{last4}",
-    "clientNo": "#{n}"
+    "clientNo": "#{n}",
+    "needPhone": "Thêm số điện thoại trước: phiếu tìm khách theo số điện thoại."
   },
   "calendar": {
     "prev": "Trước",

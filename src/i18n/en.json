@@ -549,7 +549,8 @@
     "pCash": "cash",
     "pCard": "card {card}",
     "pGift": "gift card ••{last4}",
-    "clientNo": "#{n}"
+    "clientNo": "#{n}",
+    "needPhone": "Add a phone number first: a ticket finds its client by phone."
   },
   "calendar": {
     "prev": "Previous",
