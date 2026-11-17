@@ -227,7 +227,11 @@
     "rewardUsed": "Đã dùng thưởng. {name} được +{n} cho {amt} hôm nay (sau thưởng).",
     "rewardAway": "Còn {n} {unit} nữa để có thưởng {amt}",
     "rewardLine": "Thưởng tích điểm ({n} điểm)",
-    "rewardShare": "{staff} được tính trên giá đủ {full}. {amt} trừ vào phần của tiệm."
+    "rewardShare": "{staff} được tính trên giá đủ {full}. {amt} trừ vào phần của tiệm.",
+    "changeClient": "Đổi khách",
+    "editClient": "Sửa thông tin",
+    "addClient": "Thêm vào phiếu",
+    "newClientName": "Tên khách mới"
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -477,7 +481,15 @@
     "payCard": "thẻ {card} {amount} (phí thẻ {fee})",
     "link": "link trả tiền",
     "tipWas": "tip {amount}",
-    "discWas": "giảm −{amount}"
+    "discWas": "giảm −{amount}",
+    "okTitle": "Chủ hoặc quản lý duyệt",
+    "okWhy": "Sửa thông tin khách cần chủ hoặc quản lý duyệt.",
+    "okWho": "Ai duyệt?",
+    "okPin": "Chủ hoặc quản lý nhập PIN",
+    "okBy": "{name} đã duyệt ✓",
+    "okOnlyAdmin": "Chỉ chủ hoặc quản lý được sửa thông tin khách. Nhờ họ, hoặc dùng máy của tiệm.",
+    "okOffline": "PIN quản lý cần có mạng. Thử lại khi có mạng.",
+    "okMore": "Ghi chú cho thợ dùng “Thêm ghi chú”: không cần duyệt."
   },
   "calendar": {
     "prev": "Trước",
