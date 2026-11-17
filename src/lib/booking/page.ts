@@ -30,9 +30,15 @@ export const photoUrl = (path: string) => {
 export const sourceOf = (src: string | null): ApptSource =>
   (["google", "website", "instagram", "qr", "text"] as const).find((s) => s === src) ?? "web";
 
+/** Test version: the note the owner typed in Settings → Booking page (saved on this device). */
+const demoNote = () => {
+  try { const c = JSON.parse(localStorage.getItem("nailpos.demoBookPage.v1") || "null"); if (typeof c?.settings?.calendar_note === "string") return c.settings.calendar_note; } catch { /* */ }
+  return "Parking: free lot behind the salon. Running late? Call us.";
+};
+
 function demoPage(): BookPage {
   return {
-    salon: { name: DEMO_DESK.salonName, phone: "(408) 555-0100", address: "1234 Story Rd, San Jose, CA", slug: DEMO_SLUG, timeZone: "America/Los_Angeles", settings: { ...RULES, calendar_note: "Parking: free lot behind the salon. Running late? Call us." } },
+    salon: { name: DEMO_DESK.salonName, phone: "(408) 555-0100", address: "1234 Story Rd, San Jose, CA", slug: DEMO_SLUG, timeZone: "America/Los_Angeles", settings: { ...RULES, calendar_note: demoNote() } },
     hours: defaultHours().map((h, i) => ({ weekday: i, open: h.on, opens: h.open, closes: h.close })),
     photos: [{ path: "demo:1", label: "Salon" }, { path: "demo:2", label: "Gel art" }, { path: "demo:3", label: "Pedi chairs" }, { path: "demo:4", label: "Nail art" }],
     services: DEMO_DESK.services.map((s) => ({ id: s.id, cat: s.cat, name: s.name, minutes: s.minutes, cents: s.cents, from: s.priceFrom })),

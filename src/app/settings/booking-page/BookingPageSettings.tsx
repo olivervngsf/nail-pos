@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import QRCode from "qrcode";
 import { useTranslations } from "next-intl";
-import { Button, LeftMenu, OfflineBanner, Stepper, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
+import { Button, Chip, LeftMenu, OfflineBanner, Stepper, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
 import { rpc } from "@/lib/auth";
 import { useDesk, type Desk } from "@/lib/desk";
 import { getSupabase } from "@/lib/supabase/client";
@@ -18,6 +18,7 @@ type Photo = { id: string; path: string; label: string; url?: string };
 type Conf = { slug: string; settings: PageRules; photos: Photo[]; services: { id: string; cat: string; name: string; online: boolean }[] };
 const DEMO_KEY = "nailpos.demoBookPage.v1";
 const RULES: PageRules = { on: true, days_ahead: 30, latest_before_close: 60, group_max: 6, cancel_hours: 2, min_notice: 30 };
+const NOTE_MAX = 500;
 const PH = ["#C9A79A", "#B07C8E", "#8C9C88", "#D7B88F", "#6E7A8C"];
 
 export default function BookingPageSettings() {
@@ -128,6 +129,7 @@ function Settings({ desk }: { desk: Desk }) {
   };
 
   const on = rules.on !== false;
+  const note = rules.calendar_note ?? "";
   const initials = desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   return (
     <div className="app">
@@ -205,6 +207,35 @@ function Settings({ desk }: { desk: Desk }) {
               <Button variant="primary" data-testid="bp-save-rules" onClick={() => void save({ days_ahead: rules.days_ahead, latest_before_close: rules.latest_before_close, group_max: rules.group_max, cancel_hours: rules.cancel_hours })}>{t("save")}</Button>
             </section>
           </div>
+
+          <section className="card pad bp-sec" data-testid="bp-cal">
+            <h2 className="h2">{t("calTitle")}</h2>
+            <p className="cap">{t("calSub")}</p>
+            <div className="bp-two">
+              <div className="bp-sec">
+                <textarea className="inp bp-note" aria-label={t("calTitle")} data-testid="bp-cal-note" rows={5} maxLength={NOTE_MAX}
+                  placeholder={t("calPh")} value={note} onChange={(e) => setRules({ ...rules, calendar_note: e.target.value })} />
+                <div className="bp-ideas">
+                  <span className="cap">{t("calAdd")}</span>
+                  {(["calIdeaPark", "calIdeaEarly", "calIdeaLate", "calIdeaGel"] as const).map((k) => (
+                    <Chip key={k} disabled={note.includes(t(k).trim())} onClick={() => setRules({ ...rules, calendar_note: `${note.trim() ? `${note.trimEnd()}\n` : ""}${t(k)}`.slice(0, NOTE_MAX) })}>+ {t(k).replace(/:\s*$/, "")}</Chip>))}
+                </div>
+                <div className="bp-row"><span className="cap bw-grow">{t("calLeft", { n: NOTE_MAX - note.length })}</span>
+                  <Button variant="primary" data-testid="bp-save-cal" onClick={() => void save({ calendar_note: note.trim() })}>{t("save")}</Button></div>
+              </div>
+              <div className="bp-cal" aria-label={t("calPreview")}>
+                <span className="cap">{t("calPreview")}</span>
+                <b>💅 {desk.salonName} – Gel manicure</b>
+                <span className="cap">Tue, Nov 17 · 11:00 AM – 11:50 AM</span>
+                <div className="bp-calnote">
+                  <span>Hi Tom, see you Tue, Nov 17 · 11:00 AM.</span>
+                  <span>Gel manicure · Kim<br />Est. total: $45 (pay at the salon)</span>
+                  <span>Change or cancel (up to {rules.cancel_hours} h before):<br /><u>{url()}</u></span>
+                  {note.trim() && <span className="bp-own" data-testid="bp-cal-preview">{note.trim()}</span>}
+                </div>
+              </div>
+            </div>
+          </section>
 
           <div className="bp-two">
             <section className="card pad bp-sec">
