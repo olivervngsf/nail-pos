@@ -385,7 +385,7 @@ function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
   };
   return <>
     <H1>Add your staff</H1>
-    <div className="cap lead">Each person gets a text with a one-time link. They set their own 4-digit PIN.</div>
+    <div className="cap lead">Each person gets a text with a one-time link. They set their own PIN (6 digits; change it in Settings → PIN rules).</div>
     <div className="group">
       {s.staff.map((p) => (
         <div className="row m" key={p.inviteCode ?? p.phone} style={{ flexWrap: "wrap", paddingBlock: 8 }}>

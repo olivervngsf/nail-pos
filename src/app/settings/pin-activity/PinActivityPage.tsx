@@ -44,8 +44,8 @@ function Log({ a }: { a: Access }) {
 
   const pins = rows.filter((r) => r.action.startsWith("pin."));
   const shown = problems ? rows.filter((r) => BAD.has(r.action)) : rows;
-  const what = (r: Ev) => (r.purpose ? t(`purpose.${r.purpose}`) : t(`action.${r.action}`));
-  const result = (r: Ev) => <span className={`tag${BAD.has(r.action) ? " set-warn" : r.action === "pin.ok" ? " jade" : ""}`}>{t(`result.${r.action}`)}</span>;
+  const what = (r: Ev) => (r.purpose ? t(`purpose.${r.purpose}`) : t(`action.${r.action.replace(".", "_")}`));
+  const result = (r: Ev) => <span className={`tag${BAD.has(r.action) ? " set-warn" : r.action === "pin.ok" ? " jade" : ""}`}>{t(`result.${r.action.replace(".", "_")}`)}</span>;
 
   return (
     <>

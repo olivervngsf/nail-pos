@@ -31,16 +31,16 @@ reset role; set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000aa02","role":"authenticated"}', true);
 insert into t_out values ('claimed', to_jsonb(public.claim_memberships()));
 insert into t_out values ('tech_ms', (select to_jsonb(m) from public.my_memberships() m));
-do $$ begin perform public.set_my_pin('00000000-0000-0000-0000-0000000005a1', '1234'); raise exception 'FAIL: weak pin accepted';
+do $$ begin perform public.set_my_pin('00000000-0000-0000-0000-0000000005a1', '123456'); raise exception 'FAIL: weak pin accepted';
 exception when others then if sqlerrm not like '%weak pin%' then raise; end if; end $$;
-select public.set_my_pin('00000000-0000-0000-0000-0000000005a1', '2580');
+select public.set_my_pin('00000000-0000-0000-0000-0000000005a1', '258013');
 insert into t_out values ('self_clock', to_jsonb(public.clock_self('00000000-0000-0000-0000-0000000005a1', 'in')));
 
 -- back on the salon device (owner session): wrong PIN 5 times locks
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000aa01","role":"authenticated"}', true);
-insert into t_out select 'ok_pin', public.pin_clock((select (v#>>'{}')::uuid from t_out where k = 'device'), '00000000-0000-0000-0000-00000000057f', '2580', 'out');
-insert into t_out select 'wrong' || g, public.pin_unlock((select (v#>>'{}')::uuid from t_out where k = 'device'), '00000000-0000-0000-0000-00000000057f', '9999') from generate_series(1, 5) g;
-insert into t_out select 'after_lock', public.pin_unlock((select (v#>>'{}')::uuid from t_out where k = 'device'), '00000000-0000-0000-0000-00000000057f', '2580');
+insert into t_out select 'ok_pin', public.pin_clock((select (v#>>'{}')::uuid from t_out where k = 'device'), '00000000-0000-0000-0000-00000000057f', '258013', 'out');
+insert into t_out select 'wrong' || g, public.pin_unlock((select (v#>>'{}')::uuid from t_out where k = 'device'), '00000000-0000-0000-0000-00000000057f', '999999') from generate_series(1, 5) g;
+insert into t_out select 'after_lock', public.pin_unlock((select (v#>>'{}')::uuid from t_out where k = 'device'), '00000000-0000-0000-0000-00000000057f', '258013');
 insert into t_out values ('staff', (select jsonb_agg(to_jsonb(s)) from public.today_staff('00000000-0000-0000-0000-0000000005a1') s));
 reset role;
 

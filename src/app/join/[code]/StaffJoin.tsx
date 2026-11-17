@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStored } from "@/lib/useStored";
-import { WEAK_PINS } from "@/lib/onboarding/data";
+import { pinProblem } from "@/lib/pin";
 import PhoneCodeLogin from "@/components/PhoneCodeLogin";
 import { ROLE_LABEL, SMS_ON, myMemberships, rpc, type Role } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase/client";
@@ -20,7 +20,7 @@ const T = {
     join: (s: string) => `Join ${s}?`, name: "Name", role: "Role", yes: "Yes, this is me", notMe: "Not me",
     thanks: "Thanks for telling us", closed: (o: string) => `This link is now closed. We let ${o} know so they can send it to the right number.`,
     lang: "Your language", langCap: "Only your screens. Clients see their own.", cont: "Continue",
-    pin1: "Make a 4-digit PIN", pin1Cap: "You use it to clock in and check out. Not 1234 or 1111.", pin2: "Type it again", pin2Cap: "To be sure.",
+    pin1: "Make your PIN", pin1Cap: "You use it to clock in and check out. Not easy ones like 123456 or 111111.", pin2: "Type it again", pin2Cap: "To be sure.",
     weak: "Too easy to guess. Try another.", nomatch: "Didn't match. Start again.",
     photo: "Add your photo", photoCap: "Clients and the front desk see it on the calendar. You can change it any time.",
     take: "Take a photo", lib: "Choose from library", skip: "Skip",
@@ -34,7 +34,7 @@ const T = {
     join: (s: string) => `Tham gia ${s}?`, name: "Tên", role: "Vai trò", yes: "Đúng, là tôi", notMe: "Không phải tôi",
     thanks: "Cảm ơn bạn đã báo", closed: (o: string) => `Đường link này đã đóng. Chúng tôi đã báo ${o} để gửi đúng số.`,
     lang: "Ngôn ngữ của bạn", langCap: "Chỉ màn hình của bạn. Khách thấy ngôn ngữ của họ.", cont: "Tiếp tục",
-    pin1: "Tạo mã PIN 4 số", pin1Cap: "Dùng để chấm công và tính tiền. Không dùng 1234 hay 1111.", pin2: "Nhập lại", pin2Cap: "Để chắc chắn.",
+    pin1: "Tạo mã PIN", pin1Cap: "Dùng để chấm công và tính tiền. Không dùng số dễ như 123456 hay 111111.", pin2: "Nhập lại", pin2Cap: "Để chắc chắn.",
     weak: "Dễ đoán quá. Thử số khác.", nomatch: "Không khớp. Làm lại.",
     photo: "Thêm ảnh của bạn", photoCap: "Khách và quầy thấy ảnh trên lịch. Đổi lúc nào cũng được.",
     take: "Chụp ảnh", lib: "Chọn từ thư viện", skip: "Bỏ qua",
@@ -55,6 +55,12 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
   useEffect(() => {
     if (!SMS_ON) return;
     void rpc<DbInvite[]>("get_invite", { p_code: linkInvite.code }).then((r) => setDb(r[0] ?? null)).catch(() => setDb(null));
+  }, [linkInvite.code]);
+  // PIN length = the salon's rule (6 or 10 digits, Settings → PIN rules).
+  const [len, setLen] = useState(6);
+  useEffect(() => {
+    if (!SMS_ON) return;
+    void rpc<number | null>("invite_pin_length", { p_code: linkInvite.code }).then((n) => { if (n) setLen(n); }).catch(() => {});
   }, [linkInvite.code]);
   const invite: Invite = db
     ? { code: linkInvite.code, name: db.display_name, role: ROLE_LABEL[db.role], salon: db.salon_name, owner: (db.owner_name ?? "The owner").split(" ")[0] }
@@ -82,13 +88,13 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
 
   const press = (k: string) => {
     if (k === "del") { setPin((p) => p.slice(0, -1)); return; }
-    if (pin.length >= 4) return;
+    if (pin.length >= len) return;
     const v = pin + k;
     setPin(v); setErr("");
-    if (v.length < 4) return;
+    if (v.length < len) return;
     setTimeout(() => {
       if (s.step === "pin") {
-        if (WEAK_PINS.includes(v)) { setErr(t.weak); setPin(""); }
+        if (pinProblem(v, len)) { setErr(t.weak); setPin(""); }
         else { setPin1(v); setPin(""); go("pin2"); }
       } else if (v === pin1) {
         setPin("");
@@ -162,7 +168,7 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
       return <Shell title={t.yourPin} back="lang">
         <h1 className="h2" style={{ textAlign: "center" }}>{s.step === "pin" ? t.pin1 : t.pin2}</h1>
         <div className="cap" style={{ textAlign: "center" }}>{s.step === "pin" ? t.pin1Cap : t.pin2Cap}</div>
-        <div className="dots" style={{ margin: "8px 0 4px" }} aria-label={`${pin.length} of 4 digits`}>{[0, 1, 2, 3].map((i) => <i key={i} className={i < pin.length ? "on" : ""} />)}</div>
+        <div className="dots" style={{ margin: "8px 0 4px" }} aria-label={`${pin.length} of ${len} digits`}>{Array.from({ length: len }, (_, i) => i).map((i) => <i key={i} className={i < pin.length ? "on" : ""} />)}</div>
         <div className="hint err" style={{ textAlign: "center", minHeight: 18 }} role="alert">{err}</div>
         <div className="keys">
           {"123456789".split("").map((k) => <button key={k} className="key" type="button" onClick={() => press(k)}>{k}</button>)}
