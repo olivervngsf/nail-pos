@@ -20,7 +20,9 @@ Each route matches a board artboard. Build the clean screen; the annotated frame
 | `/settings/booking-page` | owner | Booking · PageSettings | P1–P3 | M8 |
 | `/today` | owner, desk | Main Screens · Main | H1–H2 | M11 |
 | `/numbers` | owner, manager | Owner Numbers · Main | K1–K2 | M11 |
-| `/close-day` | owner, manager | Main Screens · CloseDay | Z1–Z5 | M10 |
+| `/close-day` | owner, manager (front desk can start) | Main Screens · CloseDay | Z1–Z5 | M10 |
+| `/payouts` | owner, manager | PRD payout sheet (issue #15) | — | M10 |
+| `/earnings` | any staff, by PIN on the salon device | Main Screens · Profile "My earnings" | P4–P5 | M10 |
 | `/loyalty` | owner | Loyalty + Gift Cards · Loyalty | L1–L6 | M12 |
 | checkout loyalty panel | front desk | LoyaltyPay, LoyaltyPack | L7–L9 | M12 |
 | `/c/[salon]` (client page) | client phone | LoyaltyPhone, ClientCards, GiftPhone | L10, G6, G13–G16 | M12 |
