@@ -48,7 +48,7 @@ export default function ClientHistory({ id }: { id: string }) {
   const desk = isDesk(who.role);
   const showHistory = wide || view === "history";
   const newTicket = () => {
-    try { sessionStorage.setItem(NEW_FOR, JSON.stringify(p?.phone ? { phone: p.phone, name: p.name } : null)); } catch { /* private mode */ }
+    try { sessionStorage.setItem(NEW_FOR, JSON.stringify(p ? { id: p.id, phone: p.phone ?? "", name: p.name } : null)); } catch { /* private mode */ }
     router.push("/checkout?new=1");
   };
   const back = !wide && view === "history"

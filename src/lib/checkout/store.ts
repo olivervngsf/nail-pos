@@ -91,7 +91,7 @@ export function useTickets(salonId: string) {
 
 type Row = {
   id: string; number: number; status: "open" | "paid" | "refunded" | "voided"; created_at: string; note: string; opened_by: string | null;
-  client: { phone: string | null; name: string } | null;
+  client: { id: string; phone: string | null; name: string } | null; client_name: string | null;
   ticket_lines: { id: string; kind: string; service_id: string | null; staff_id: string | null; name: string; minutes: number | null; amount_cents: number; price_from: boolean; reason: string | null; approval_id: string | null; removed_at: string | null; sort: number; gift_card_id: string | null;
     source: "desk" | "phone"; desk_seen_at: string | null; tech_removed_at: string | null; price_open: boolean }[];
   payments: { id: string; method: "cash" | "card_reader" | "pay_link" | "gift_card"; status: string; gift_card_id: string | null; given_cents: number | null; amount_cents: number; fee_cents: number; card_brand: string | null; card_last4: string | null; at: string; taken_by: string | null }[];
@@ -102,7 +102,7 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
   const sb = getSupabase();
   if (!sb || !live) return;
   let q = sb.from("tickets")
-    .select("id,number,status,created_at,note,opened_by,client:clients(phone,name),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort,gift_card_id,source,desk_seen_at,tech_removed_at,price_open),payments(id,method,status,gift_card_id,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
+    .select("id,number,status,created_at,note,opened_by,client_name,client:clients(id,phone,name),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort,gift_card_id,source,desk_seen_at,tech_removed_at,price_open),payments(id,method,status,gift_card_id,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
     .eq("salon_id", salonId).neq("status", "voided");
   q = onlyId ? q.eq("id", onlyId) : q.gte("created_at", since);
   const { data, error } = await q.order("created_at", { ascending: false }).limit(200);
@@ -121,7 +121,8 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
     merge({
       id: r.id, salonId, number: r.number, status: r.status === "voided" ? "open" : r.status, createdAt: r.created_at, note: r.note,
       openedBy: r.opened_by ?? undefined,
-      client: r.client?.phone ? { phone: r.client.phone, name: r.client.name } : undefined,
+      client: r.client ? { id: r.client.id, phone: r.client.phone ?? "", name: r.client.name || r.client_name || "" }
+        : r.client_name ? { phone: "", name: r.client_name } : undefined,
       lines: lines.filter((l) => l.kind === "service").map((l) => ({
         id: l.id, serviceId: l.service_id ?? undefined, name: l.name, minutes: l.minutes ?? 0, cents: l.amount_cents, priceFrom: l.price_from,
         // A "$45+" service a tech added from the slip: the desk sets its final price first (on any desk).

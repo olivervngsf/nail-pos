@@ -231,7 +231,8 @@
     "changeClient": "Đổi khách",
     "editClient": "Sửa thông tin",
     "addClient": "Thêm vào phiếu",
-    "newClientName": "Tên khách mới"
+    "newClientName": "Tên khách mới",
+    "noPhoneNudge": "Khách vãng lai, không có số: phiếu vẫn giữ tên. Hãy xin số điện thoại để tiệm nhắn nhắc hẹn (ít bỏ hẹn)."
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -550,7 +551,7 @@
     "pCard": "thẻ {card}",
     "pGift": "thẻ quà ••{last4}",
     "clientNo": "#{n}",
-    "needPhone": "Thêm số điện thoại trước: phiếu tìm khách theo số điện thoại."
+    "needPhone": "Chưa có số điện thoại. Thêm số để tiệm nhắn tin nhắc hẹn (ít bỏ hẹn). Phiếu vẫn gắn với khách này."
   },
   "calendar": {
     "prev": "Trước",
