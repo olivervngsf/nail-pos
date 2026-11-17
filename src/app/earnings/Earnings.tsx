@@ -10,6 +10,7 @@ import { formatCents } from "@/lib/money";
 import { useDesk } from "@/lib/desk";
 import { demoPayout, isoDay, nums, weekStart, type PayoutRow } from "@/lib/closeday";
 import { earningsDoc, printEarnings, type EarnText } from "@/lib/print/earnings";
+import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 
 const $ = formatCents;
 
@@ -55,6 +56,7 @@ export default function Earnings() {
   const [pinErr, setPinErr] = useState("");
   const [row, setRow] = useState<PayoutRow | null>(null);
   const printSlips = useEarningsPrint();
+  const printer = usePrinter();
 
   if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
   if (!desk) return <div className="app" aria-busy="true" />;
@@ -95,7 +97,8 @@ export default function Earnings() {
             <div className="h2">{t("slipFor", { name: row.name })}</div>
             <div className="cap">{periodLabel}</div>
             <EarningsSlip r={row} />
-            <Button variant="primary" block data-testid="earn-print" onClick={() => void printSlips([row], desk.salonName, periodLabel).catch((e) => setPinErr(t("printFail", { msg: (e as Error).message })))}>{t("printMine")}</Button>
+            <Button variant="primary" block data-testid="earn-print" onClick={() => void printSlips([row], desk.salonName, periodLabel).then(printer.refresh).catch((e) => setPinErr(t("printFail", { msg: (e as Error).message })))}>{t("printMine")}</Button>
+            <PrinterSetup p={printer} />
             {pinErr && <p className="hint err">{pinErr}</p>}
             <Button block data-testid="earn-done" onClick={reset}>{t("done")}</Button>
           </>}
