@@ -1,6 +1,7 @@
 "use client";
 // Checkout · one ticket (Checkout board Tk1–Tk7, Pay, Cash Cs1–Cs2, Done, An5 receipt).
 // Saved on this device after every tap; sent to the server through the outbox (works offline).
+import { pinLenFor } from "@/lib/pin";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
@@ -292,7 +293,7 @@ function DiscountDrawer({ desk, subtotal, current, onClose, onApply }: { desk: D
             <span className="cap">{t("whoApproves")}</span>
             <ListGroup>{managers.map((m) => <button key={m.id} type="button" className="opt" onClick={() => setApprover(m.id)}><Avatar name={m.name} />{m.name}<span className="cap">{ROLE_LABEL[m.role]}</span></button>)}</ListGroup>
           </>
-        : <><span className="cap">{t("pinHint")}</span><PinKeypad error={pinErr} onDone={(p) => void check(p)} /></>}
+        : <><span className="cap">{t("pinHint")}</span><PinKeypad length={pinLenFor(approver)} error={pinErr} onDone={(p) => void check(p)} /></>}
       {pinErr && (ok || (desk.mode === "live" && !desk.device)) && <span className="hint err">{pinErr}</span>}
       <div className="cap">{t("commissionNote")}</div>
     </Drawer>
@@ -753,7 +754,7 @@ function RefundDrawer({ desk, ticket, amount, card, onClose, say }: { desk: Desk
       {ok ? <div className="note">{t("approvedBy", { name: ok.name })}</div>
         : desk.mode === "live" && !desk.device ? (meIsAdmin ? <Button onClick={() => void approve()}>OK</Button> : <span className="hint err">{t("notManager")}</span>)
         : desk.mode === "live" && !approver ? <ListGroup>{managers.map((m) => <button key={m.id} type="button" className="opt" onClick={() => setApprover(m.id)}><Avatar name={m.name} />{m.name}<span className="cap">{ROLE_LABEL[m.role]}</span></button>)}</ListGroup>
-        : <PinKeypad error={err} onDone={(p) => void approve(p)} />}
+        : <PinKeypad length={pinLenFor(approver)} error={err} onDone={(p) => void approve(p)} />}
       {err && ok && <span className="hint err">{err}</span>}
       {err && !ok && desk.mode === "live" && !desk.device && <span className="hint err">{err}</span>}
     </Drawer>

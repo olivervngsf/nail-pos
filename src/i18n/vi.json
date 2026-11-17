@@ -1334,5 +1334,30 @@
     "techApp": "Phiếu, lịch hẹn + thu nhập của tôi",
     "onDevice": "{name} đang dùng thiết bị của tiệm. Đổi PIN ở màn hình danh sách; hồ sơ đầy đủ ở điện thoại của bạn.",
     "demo": "Bản thử: thay đổi chỉ lưu trên máy này."
+  },
+  "faces": {
+    "title": "Ai đang làm?",
+    "sub": "{salon} · bấm vào tên của bạn",
+    "in": "Vào",
+    "out": "Ra",
+    "noPin": "Chưa có PIN",
+    "locked": "PIN bị khoá",
+    "hint": "Mới vào? Nhờ chủ tiệm thêm bạn (Cài đặt → Nhân viên). Khách vãng lai dùng máy kiosk.",
+    "lastHint": "Người dùng trước có viền: bấm 1 lần + PIN là vào lại.",
+    "pinFor": "{name}, nhập PIN",
+    "notMe": "Không phải tôi",
+    "newPin": "Tạo PIN mới {n} số",
+    "again": "Nhập lại",
+    "newWhy": "Tiệm giờ dùng PIN {n} số. PIN cũ đã đúng; đây là PIN mới.",
+    "mismatch": "Không khớp. Nhập lại từ đầu.",
+    "bad": {
+      "length": "Dùng đúng {n} số.",
+      "same": "Đừng lặp một số.",
+      "run": "Dễ đoán quá (như 123456). Chọn số khác."
+    },
+    "clock": "Chấm công",
+    "lock": "Khoá",
+    "clockedIn": "{name} đã chấm công vào · {time}",
+    "clockedOut": "{name} đã chấm công ra · {time}"
   }
 }

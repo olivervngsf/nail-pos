@@ -11,12 +11,14 @@ import {
 import PaymentsCard from "@/components/PaymentsCard";
 import WalkInStrip from "./WalkInStrip";
 import { NeedsAttention, OwnerKpis } from "./TodayInsights";
-import { getActing, setActing as shareActing, touchActing } from "@/lib/desk";
+import { getActing, idleMs, setActing as shareActing, touchActing } from "@/lib/desk";
+import FacesLock from "@/components/FacesLock";
+import { lockDevice } from "@/components/RailAccount";
+import { cachedRules, pinLenFor, rememberPinLens, saveRules, type PinRules } from "@/lib/pin";
 import { Avatar, Button, Drawer, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Row, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 
-type Staff = { membership_id: string; display_name: string; role: Role; joined: boolean; has_pin: boolean; locked: boolean; clocked_in: boolean; last_clock: string | null };
+type Staff = { membership_id: string; display_name: string; role: Role; joined: boolean; has_pin: boolean; locked: boolean; clocked_in: boolean; last_clock: string | null; pin_len: number | null };
 type Acting = { membership_id: string; name: string; role: Role; at: number };
-const IDLE_MS = 2 * 60 * 1000;
 const time = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "");
 
 export default function TodayDesk() {
@@ -29,9 +31,10 @@ export default function TodayDesk() {
   // Shared with checkout (same device): who is working the desk.
   useEffect(() => { setActing(getActing()); }, []);
   useEffect(() => { shareActing(acting); }, [acting]);
-  const [pinFor, setPinFor] = useState<{ s: Staff; purpose: "switch" | "clock" } | null>(null);
+  const [pinFor, setPinFor] = useState<{ s: Staff; purpose: "clock" } | null>(null);
+  const [rules, setRules] = useState<PinRules>(cachedRules(null));
+  const [lastId, setLastId] = useState<string | undefined>(undefined);
   const [pinErr, setPinErr] = useState("");
-  const [switching, setSwitching] = useState(false);
   const [devName, setDevName] = useState("Front desk");
   const [toast, setToast] = useState("");
   const [err, setErr] = useState("");
@@ -57,7 +60,16 @@ export default function TodayDesk() {
 
   const load = useCallback(async () => {
     if (!salonId) return;
-    try { setStaff(await rpc<Staff[]>("today_staff", { p_salon: salonId })); } catch (e) { setErr((e as Error).message); }
+    try {
+      const list = await rpc<Staff[]>("today_staff", { p_salon: salonId });
+      setStaff(list);
+      rememberPinLens(list.map((x) => ({ id: x.membership_id, len: x.pin_len })));
+    } catch (e) { setErr((e as Error).message); }
+  }, [salonId]);
+  useEffect(() => {
+    if (!salonId) return;
+    setRules(cachedRules(salonId));
+    void rpc<PinRules>("pin_rules", { p_salon: salonId }).then((r) => { setRules(r); saveRules(salonId, r); }).catch(() => {});
   }, [salonId]);
   useEffect(() => { void load(); const t = setInterval(load, 30_000); return () => clearInterval(t); }, [load]);
 
@@ -65,7 +77,7 @@ export default function TodayDesk() {
   const touch = useCallback(() => {
     clearTimeout(idle.current);
     touchActing();
-    idle.current = setTimeout(() => setActing(null), IDLE_MS);
+    idle.current = setTimeout(() => setActing((a) => { if (a) setLastId(a.membership_id); return null; }), idleMs());
   }, []);
   useEffect(() => { if (acting) touch(); return () => clearTimeout(idle.current); }, [acting, touch]);
 
@@ -82,15 +94,24 @@ export default function TodayDesk() {
     if (!pinFor || !device) return;
     setPinErr("");
     const { s, purpose } = pinFor;
-    const r = purpose === "clock"
-      ? await rpc<PinResult & { kind?: string }>("pin_clock", { p_device: device.id, p_membership: s.membership_id, p_pin: pin, p_kind: s.clocked_in ? "out" : "in" })
-      : await rpc<PinResult>("pin_unlock", { p_device: device.id, p_membership: s.membership_id, p_pin: pin });
+    const r = await rpc<PinResult & { kind?: string }>("pin_clock", { p_device: device.id, p_membership: s.membership_id, p_pin: pin, p_kind: s.clocked_in ? "out" : "in" });
     if (!r.ok) { setPinErr(pinMessage(r)); if (r.reason === "locked") void load(); return; }
     setActing({ membership_id: s.membership_id, name: s.display_name, role: s.role, at: Date.now() });
-    setPinFor(null); setSwitching(false);
+    setPinFor(null);
     if (purpose === "clock") { say(`${s.display_name} clocked ${s.clocked_in ? "out" : "in"} · ${time(new Date().toISOString())}`); void load(); }
     else say(`Hi ${s.display_name}`);
   };
+
+  if (isDevice && !acting) {
+    return (
+      <>
+        <FacesLock salonName={me.salon_name} rules={rules} deviceId={device?.id} lastId={lastId}
+          faces={staff.map((s) => ({ id: s.membership_id, name: s.display_name, role: s.role, clockedIn: s.clocked_in, hasPin: s.has_pin, pinLen: s.pin_len, locked: s.locked }))}
+          onUnlock={(u) => { setActing({ membership_id: u.id, name: u.name, role: u.role, at: Date.now() }); say(`Hi ${u.name}`); void load(); }} />
+        {toast && <Toast>{toast}</Toast>}
+      </>
+    );
+  }
 
   return (
     <div className="app" onPointerDown={acting ? touch : undefined}>
@@ -103,7 +124,8 @@ export default function TodayDesk() {
             </select>
           : me.salon_name}>
           <SyncPill />
-          {isDevice && <Button data-testid="switch-person" onClick={() => setSwitching(true)}>{acting ? <><Avatar name={acting.name} />{acting.name} · {ROLE_LABEL[acting.role]}</> : "Tap your name"}</Button>}
+          {isDevice && acting && <Button data-testid="switch-person" title="Lock · show faces" onClick={() => { setLastId(acting.membership_id); void lockDevice(device?.id, acting.membership_id); setActing(null); }}>
+            <Avatar name={acting.name} />{acting.name} · {ROLE_LABEL[acting.role]}<span className="cap">· Lock</span></Button>}
         </TopBar>
         <OfflineBanner />
         <main style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20, maxWidth: 980, width: "100%" }}>
@@ -175,22 +197,10 @@ export default function TodayDesk() {
         </main>
       </div>
 
-      {switching && !pinFor && (
-        <Drawer title="Who are you?" onClose={() => setSwitching(false)}>
-          <ListGroup>
-            {staff.filter((s) => s.has_pin).map((s) => (
-              <button key={s.membership_id} type="button" className="opt" onClick={() => { setPinErr(""); setPinFor({ s, purpose: "switch" }); }}>
-                <Avatar name={s.display_name} /><span className="g">{s.display_name}<span className="cap" style={{ display: "block" }}>{ROLE_LABEL[s.role]}</span></span>
-              </button>
-            ))}
-          </ListGroup>
-          {acting && <Button variant="ghost" onClick={() => { setActing(null); setSwitching(false); }}>Done (lock)</Button>}
-        </Drawer>
-      )}
       {pinFor && (
-        <Drawer title={`${pinFor.s.display_name}: ${pinFor.purpose === "clock" ? (pinFor.s.clocked_in ? "clock out" : "clock in") : "enter PIN"}`} onClose={() => setPinFor(null)}>
-          <p className="cap" style={{ textAlign: "center" }}>Type your 4-digit PIN</p>
-          <PinKeypad error={pinErr} onDone={(p) => void submitPin(p)} />
+        <Drawer title={`${pinFor.s.display_name}: ${pinFor.s.clocked_in ? "clock out" : "clock in"}`} onClose={() => setPinFor(null)}>
+          <p className="cap" style={{ textAlign: "center" }}>Type your {pinLenFor(pinFor.s.membership_id)}-digit PIN</p>
+          <PinKeypad length={pinLenFor(pinFor.s.membership_id)} error={pinErr} onDone={(p) => void submitPin(p)} />
         </Drawer>
       )}
       {toast && <Toast>{toast}</Toast>}

@@ -1334,5 +1334,30 @@
     "techApp": "My tickets, bookings + earnings",
     "onDevice": "{name} is using this salon device. Change your PIN from the faces screen; your full profile is on your own phone.",
     "demo": "Test version: changes stay on this device."
+  },
+  "faces": {
+    "title": "Who’s working?",
+    "sub": "{salon} · tap your face",
+    "in": "In",
+    "out": "Out",
+    "noPin": "No PIN yet",
+    "locked": "PIN locked",
+    "hint": "New here? Ask the owner to add you (Settings → Team). Walk-in clients use the kiosk.",
+    "lastHint": "The last person is outlined: one tap + PIN and you’re back.",
+    "pinFor": "{name}, your PIN",
+    "notMe": "Not me",
+    "newPin": "Make a new {n}-digit PIN",
+    "again": "Type it again",
+    "newWhy": "The salon now uses {n}-digit PINs. Your old one worked; this is your new one.",
+    "mismatch": "Those didn’t match. Start again.",
+    "bad": {
+      "length": "Use exactly {n} digits.",
+      "same": "Not the same digit over and over.",
+      "run": "Too easy (like 123456). Pick another."
+    },
+    "clock": "Time clock",
+    "lock": "Lock",
+    "clockedIn": "{name} clocked in · {time}",
+    "clockedOut": "{name} clocked out · {time}"
   }
 }

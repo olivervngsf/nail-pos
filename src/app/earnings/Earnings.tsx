@@ -1,6 +1,7 @@
 "use client";
 // Print my earnings by PIN (PRD V1 #4, Main Screens · Profile "My earnings"): on the salon device a tech taps their name,
 // types their PIN and sees only their own earnings for today or this week, then prints the slip. Nothing stays on screen after.
+import { pinLenFor } from "@/lib/pin";
 import { useState } from "react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
@@ -94,7 +95,7 @@ export default function Earnings() {
             <ListGroup>{desk.staff.map((s) => <button key={s.id} type="button" className="opt" data-testid={`earn-${s.name}`} onClick={() => setWho({ id: s.id, name: s.name })}><Avatar name={s.name} />{s.name}</button>)}</ListGroup>
           </> : !row ? <>
             <div className="h2">{t("pinFor", { name: who.name })}</div>
-            <PinKeypad error={pinErr} onDone={(p) => void submit(p)} />
+            <PinKeypad length={pinLenFor(who.id)} error={pinErr} onDone={(p) => void submit(p)} />
             <Button variant="ghost" onClick={reset}>{t("notMe")}</Button>
           </> : <>
             <div className="h2">{t("slipFor", { name: row.name })}</div>

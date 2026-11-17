@@ -7,6 +7,7 @@ import { SMS_ON, getDevice, isSignedIn, myMemberships, rpc, type Device, type Me
 import { getSupabase } from "@/lib/supabase/client";
 import { NAIL_TEMPLATE } from "@/lib/onboarding/data";
 import { setLive } from "@/lib/checkout/store";
+import { rememberPinLens } from "@/lib/pin";
 
 export type DeskService = { id: string; cat: string; name: string; minutes: number; cents: number; priceFrom: boolean };
 export type DeskStaff = { id: string; name: string; role: Role; clockedIn: boolean; turns: number; centsToday: number };
@@ -44,7 +45,7 @@ function readCache(salon: string): Desk | null {
   try { const r = localStorage.getItem(cacheKey(salon)); return r ? (JSON.parse(r) as Desk) : null; } catch { return null; }
 }
 
-type StaffRow = { membership_id: string; display_name: string; role: Role; clocked_in: boolean; turns_today: number; cents_today: number };
+type StaffRow = { membership_id: string; display_name: string; role: Role; clocked_in: boolean; turns_today: number; cents_today: number; pin_len?: number | null };
 
 async function fetchDesk(m: Membership, device: Device | null): Promise<Desk> {
   const sb = getSupabase();
@@ -55,6 +56,7 @@ async function fetchDesk(m: Membership, device: Device | null): Promise<Desk> {
     rpc<{ charges_enabled: boolean; readers: Desk["pay"]["readers"] } | null>("salon_pay_setup", { p_salon: m.salon_id }).catch(() => null),
   ]);
   if (error) throw new Error(error.message);
+  rememberPinLens(staff.map((s) => ({ id: s.membership_id, len: s.pin_len })));
   return {
     mode: "live", salonId: m.salon_id, salonName: m.salon_name, me: m, device,
     services: (svc ?? []).map((s) => ({ id: s.id, cat: s.category, name: s.name, minutes: s.minutes, cents: Number(s.price_cents), priceFrom: !!s.price_from })),
@@ -104,11 +106,12 @@ export function useDesk() {
 /* ---------- who is working the desk right now (salon device; set by PIN on Today) ---------- */
 export type Acting = { membership_id: string; name: string; role: Role; at: number };
 const ACT_KEY = "nailpos.acting";
-const IDLE_MS = 2 * 60 * 1000;
+/** Auto-lock after the salon's idle time (Settings → PIN rules; default 2 minutes). */
+export function idleMs(): number { try { return Number(localStorage.getItem("nailpos.idle")) || 2 * 60 * 1000; } catch { return 2 * 60 * 1000; } }
 export function getActing(): Acting | null {
   try {
     const a = JSON.parse(localStorage.getItem(ACT_KEY) || "null") as Acting | null;
-    return a && Date.now() - a.at < IDLE_MS ? a : null;
+    return a && Date.now() - a.at < idleMs() ? a : null;
   } catch { return null; }
 }
 export function setActing(a: Acting | null) {

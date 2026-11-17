@@ -52,8 +52,8 @@ export function Stepper({ value, onChange, step = 1, min = -Infinity, max = Infi
   );
 }
 
-/** 4-digit PIN pad. Calls onDone with the 4 digits. */
-export function PinKeypad({ length = 4, onDone, error }: { length?: number; onDone: (pin: string) => void; error?: string }) {
+/** PIN pad (6 or 10 digits by salon rule; a person's older PIN keeps its own length). Calls onDone with all digits. */
+export function PinKeypad({ length = 6, onDone, error }: { length?: number; onDone: (pin: string) => void; error?: string }) {
   const [pin, setPin] = useState("");
   const press = (k: string) => {
     if (k === "del") return setPin((p) => p.slice(0, -1));

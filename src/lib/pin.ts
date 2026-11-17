@@ -34,5 +34,28 @@ export function cachedRules(salon: string | null | undefined): PinRules {
   try { const r = localStorage.getItem(key(salon)); return r ? { ...DEFAULT_RULES, ...(JSON.parse(r) as Partial<PinRules>) } : DEFAULT_RULES; } catch { return DEFAULT_RULES; }
 }
 export function saveRules(salon: string, r: Partial<PinRules>) {
-  try { localStorage.setItem(key(salon), JSON.stringify({ ...DEFAULT_RULES, ...r })); } catch { /* storage blocked */ }
+  try {
+    localStorage.setItem(key(salon), JSON.stringify({ ...DEFAULT_RULES, ...r }));
+    localStorage.setItem("nailpos.pinrule", String(r.length ?? DEFAULT_RULES.length));
+    localStorage.setItem("nailpos.idle", String((r.idle_minutes ?? DEFAULT_RULES.idle_minutes) * 60_000));
+  } catch { /* storage blocked */ }
+}
+
+/* Keypad length per person on this device: remembered from the staff lists (desk_staff / today_staff carry pin_len). */
+const LENS = "nailpos.pinlens";
+const RULE = "nailpos.pinrule";
+export function rememberPinLens(rows: { id: string; len: number | null | undefined }[], ruleLen?: number) {
+  try {
+    const cur = JSON.parse(localStorage.getItem(LENS) || "{}") as Record<string, number>;
+    for (const r of rows) if (r.len) cur[r.id] = r.len; else delete cur[r.id];
+    localStorage.setItem(LENS, JSON.stringify(cur));
+    if (ruleLen) localStorage.setItem(RULE, String(ruleLen));
+  } catch { /* storage blocked */ }
+}
+/** How many digits this person's PIN has (their own length, else the salon rule, else 6). */
+export function pinLenFor(id?: string | null): number {
+  try {
+    const own = id ? (JSON.parse(localStorage.getItem(LENS) || "{}") as Record<string, number>)[id] : undefined;
+    return own || Number(localStorage.getItem(RULE)) || DEFAULT_RULES.length;
+  } catch { return DEFAULT_RULES.length; }
 }
