@@ -67,6 +67,17 @@ test("payout sheet prints one slip per person (own page / own cut)", async ({ pa
   expect(one).toContain("Kim's earnings");
 });
 
+test("payout sheet: Show Every ticket lists each ticket (service + tips) under the person", async ({ page }) => {
+  await page.goto("/payouts");
+  await expect(page.getByTestId("po-Kim")).toBeVisible();
+  await expect(page.getByTestId("po-line-Kim")).toHaveCount(0);
+  await page.getByTestId("slip-detail").getByText("Every ticket").click();
+  await expect(page.getByTestId("po-line-Kim")).toHaveCount(2);
+  await expect(page.getByTestId("po-line-Kim").first()).toContainText("#1011");
+  await page.getByTestId("slip-detail").getByText("Totals").click();
+  await expect(page.getByTestId("po-line-Kim")).toHaveCount(0);
+});
+
 test("print my earnings: name + PIN shows only that person's slip", async ({ page }) => {
   await page.goto("/earnings");
   await page.getByTestId("earn-Kim").click();

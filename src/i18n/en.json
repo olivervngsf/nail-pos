@@ -1026,7 +1026,7 @@
     "printed": "Printed",
     "noneToPrint": "No one worked in this period.",
     "printFail": "Couldn't print: {msg}",
-    "slipShows": "Slip shows",
+    "slipShows": "Show",
     "slipTotals": "Totals",
     "slipTickets": "Every ticket",
     "ticketsTitle": "Tickets (service + tips)",

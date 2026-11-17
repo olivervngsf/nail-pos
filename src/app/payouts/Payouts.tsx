@@ -2,9 +2,9 @@
 // Payout sheet (PRD "Tech payout sheet", issue #15): per person for a day / week / any range — services done, pay (commission
 // on full price or hourly from clock-ins), card + cash tips (salon keeps none), card fee on tips only where the state allows,
 // total, and how it's paid: check vs cash (owner sets % per person). Print the sheet or one slip per person; export CSV for payroll.
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { Button, LeftMenu, OfflineBanner, Segmented, SyncPill, Toast, TopBar } from "@/components/kit";
 import { rpc } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
@@ -30,6 +30,8 @@ export default function Payouts() {
   const printSlips = useEarningsPrint();
   const printer = usePrinter();
   const slip = useSlipDetail();
+  const f = useFormatter();
+  const when = (iso: string) => f.dateTime(new Date(iso), { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" });
   const [toast, setToast] = useState("");
   const say = (s: string) => { setToast(s); setTimeout(() => setToast(""), 3500); };
 
@@ -112,7 +114,8 @@ export default function Payouts() {
                   <th>{t("total")}</th><th>{t("checkPct")}</th><th>{t("byCheck")}</th><th>{t("inCash")}</th><th /></tr></thead>
                 <tbody>
                   {rows === null ? <tr><td colSpan={11} className="cap">{t("loading")}</td></tr> : rows.length === 0 ? <tr><td colSpan={11} className="cap">{t("empty")}</td></tr> : rows.map((r) => (
-                    <tr key={r.membership_id} data-testid={`po-${r.name}`}>
+                    <Fragment key={r.membership_id}>
+                    <tr data-testid={`po-${r.name}`}>
                       <td><b>{r.name}</b><span className="cap" style={{ display: "block" }}>{payLabel(r)} · {t("tickets", { count: r.tickets })}</span></td>
                       <td>{$(r.services_cents)}</td><td>{$(r.pay_cents)}</td><td>{$(r.tips_card_cents)}</td><td>{$(r.tips_cash_cents)}</td><td>{$(r.tip_fee_cents)}</td>
                       <td><b>{$(r.total_cents)}</b></td>
@@ -121,6 +124,14 @@ export default function Payouts() {
                       <td>{$(r.check_cents)}</td><td>{$(r.cash_cents)}</td>
                       <td><Button size="sm" data-testid={`po-print-${r.name}`} disabled={printing} onClick={() => void printPeople([r])}>{t("printOne")}</Button></td>
                     </tr>
+                    {slip.detail === "tickets" && (r.lines ?? []).map((l) => (
+                      <tr key={`${r.membership_id}-${l.number}`} className="po-line" data-testid={`po-line-${r.name}`}>
+                        <td className="cap" style={{ paddingLeft: 16 }}>#{l.number} · {when(l.at)}<span style={{ display: "block" }}>{l.services}</span></td>
+                        <td className="cap">{$(l.services_cents)}</td><td /><td className="cap">{l.tip_card_cents ? $(l.tip_card_cents) : "—"}</td>
+                        <td className="cap">{l.tip_cash_cents ? $(l.tip_cash_cents) : "—"}</td><td colSpan={6} />
+                      </tr>
+                    ))}
+                    </Fragment>
                   ))}
                 </tbody>
                 {!!rows?.length && <tfoot><tr style={{ fontWeight: 600 }}><td>{t("allStaff")}</td><td>{$(sum("services_cents"))}</td><td>{$(sum("pay_cents"))}</td><td>{$(sum("tips_card_cents"))}</td>
@@ -140,6 +151,13 @@ export default function Payouts() {
           {rows.map((r) => (
             <div key={r.membership_id}>
               <b>{r.name}</b>
+              {slip.detail === "tickets" && (r.lines ?? []).map((l) => (
+                <div key={l.number}>
+                  <div className="rl"><span>#{l.number} {when(l.at)} {l.services}</span><span>{$(l.services_cents)}</span></div>
+                  {!!l.tip_card_cents && <div className="rl"><span>&nbsp;&nbsp;{t("tipCard")}</span><span>{$(l.tip_card_cents)}</span></div>}
+                  {!!l.tip_cash_cents && <div className="rl"><span>&nbsp;&nbsp;{t("tipCash")}</span><span>{$(l.tip_cash_cents)}</span></div>}
+                </div>
+              ))}
               <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>
               <div className="rl"><span>{payLabel(r)}</span><span>{$(r.pay_cents)}</span></div>
               <div className="rl"><span>{t("cardTips")}</span><span>{$(r.tips_card_cents)}</span></div>
