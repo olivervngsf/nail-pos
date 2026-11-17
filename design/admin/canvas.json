@@ -1,0 +1,181 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-16T23:30:00Z"
+ },
+ "title": "Nail POS — Founder Admin",
+ "launch": {
+  "view": "canvas",
+  "page": "overview"
+ },
+ "pages": [
+  {
+   "id": "overview",
+   "name": "1 · Overview — clickable screens"
+  },
+  {
+   "id": "spec",
+   "name": "2 · Step by step (with notes)"
+  }
+ ],
+ "boards": {
+  "Admin.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "Admin · desktop (Oliver + Elang)",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "AdminPhone.dc.html": {
+   "x": 1360,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Admin · Elang’s phone",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Ad1Salons.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "A1 · Salons: health + alerts",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ad2Salon.dc.html": {
+   "x": 1720,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "A2 · One salon: health only",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ad3Waiting.dc.html": {
+   "x": 3440,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "A3 · Asked → waiting for the owner",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ad4Support.dc.html": {
+   "x": 5160,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "A4 · Support mode on (24 h, logged)",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ad5NewSalon.dc.html": {
+   "x": 6880,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "A5 · Add a salon → invite by text + email, resend",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ad6System.dc.html": {
+   "x": 8600,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "A6 · System (both admins)",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ad7Phone.dc.html": {
+   "x": 10320,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "A7 · Alerts on Elang’s phone",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ad8Activity.dc.html": {
+   "x": 11150,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "A8 · Activity log per salon",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ad9Account.dc.html": {
+   "x": 12870,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "A9 · Tap your photo → my account",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ad10PhoneAccount.dc.html": {
+   "x": 14590,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "A10 · Phone: tap E → my account",
+   "is_interactive": true,
+   "page": "spec"
+  }
+ },
+ "order": [
+  "Admin.dc.html",
+  "AdminPhone.dc.html",
+  "Ad1Salons.dc.html",
+  "Ad2Salon.dc.html",
+  "Ad3Waiting.dc.html",
+  "Ad4Support.dc.html",
+  "Ad5NewSalon.dc.html",
+  "Ad6System.dc.html",
+  "Ad7Phone.dc.html",
+  "Ad8Activity.dc.html",
+  "Ad9Account.dc.html",
+  "Ad10PhoneAccount.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "Founder Admin",
+   "kind": "title1",
+   "maxW": 1280,
+   "page": "overview"
+  },
+  "s1": {
+   "x": -520,
+   "y": 0,
+   "w": 420,
+   "fill": "orange",
+   "page": "overview",
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nFor us, not salons. Oliver + Elang = both admins (everything here, incl. System + costs).\nShows salon health, never private data. Support access only when the owner allows: 24 h, logged.\nSpec: System Design “Founder Admin” + “Running smooth” (issues #21, #22). Build = M14.\n\nTry it in Play: switch Elang / Oliver (both admin), tap a salon, Ask Tom → Demo: Tom allows, Add salon → Make invite link."
+  },
+  "t2": {
+   "x": 0,
+   "y": -300,
+   "text": "Step by step (with notes)",
+   "kind": "title1",
+   "maxW": 3360,
+   "page": "spec"
+  }
+ },
+ "designSystems": [
+  {
+   "title": "Nail POS Design System",
+   "namespace": "nailpos",
+   "artifact": "https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n",
+   "version": null,
+   "copiedAt": "2026-11-16T23:30:00Z"
+  }
+ ]
+}

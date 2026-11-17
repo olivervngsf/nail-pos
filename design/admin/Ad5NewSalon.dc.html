@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add a salon → invite by text + email</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Admin" view="new" invite="{{yes}}" role="elang" hint-size="1280px,800px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+  </div>
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
+    <div class="eyebrow">Annotations · A5</div>
+    <div class="af-title">Add a salon → invite by text + email</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Owner signs up → salon shows on Salons with 0/10 setup; the invite turns “Signed up ✓”.</div>
+  </div></sc-if></aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
+  renderVals() {
+    const P = [[137, 243, "Salon, state, owner name, cell and email."], [137, 399, "Owner email: backup channel, and the login code if they have no cell."], [137, 472, "Plan: Pilot (free 30 days) or Paid ($49/mo)."], [137, 543, "Send by text, email or both (default both). At least one must stay on."], [137, 667, "Sent: link + QR, a ✓ line per channel. Resend text / Resend email, Copy link."], [657, 135, "Owner opens it from the text or the email, signs in with a phone code (email code if no cell)."], [657, 327, "Invites list: Not opened / Expired / Signed up ✓."], [1029, 401, "Resend = a new link; the old one stops working right away."], [1175, 449, "Links end after 14 days → Expired. Resend brings it back to Not opened."]];
+    return { yes: true, show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

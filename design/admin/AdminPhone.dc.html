@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin on phone</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.tag.warn{background:var(--orange-soft);color:#B5470A}
+.tag.bad{background:#FCE8E8;color:#C92A2A}
+.pa{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.pa .r{display:flex;gap:8px}
+.pa button{flex:1;height:40px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
+.pa button.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.mebtn{border:0;background:transparent;padding:2px;border-radius:50%;cursor:pointer}
+.mrow{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 16px;border-bottom:1px solid var(--line);font-size:15px}
+.mrow .k{width:118px;flex:none;color:var(--ink-soft);font-size:14px}.mrow .v{flex:1;min-width:0}
+.mbtn{flex:1;height:48px;border-radius:12px;border:1px solid var(--line);background:#fff;font:inherit;font-size:16px;font-weight:600;color:var(--ink);cursor:pointer}
+.mclose{width:36px;height:36px;border-radius:50%;border:0;background:var(--fill);font:inherit;cursor:pointer}
+</style>
+</helmet>
+<div class="phone" style="position:relative">
+  <div class="pbar" style="justify-content:space-between;padding:0 16px"><span style="width:32px"></span><span>Admin · Alerts</span><button type="button" class="mebtn" onClick="{{toggleMe}}" aria-label="My account" aria-expanded="{{meOpen}}"><span class="av">E</span></button></div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding:12px 16px 80px;overflow:hidden">
+    <div style="display:flex;align-items:baseline;gap:8px"><b style="font-size:20px;flex:1">{{count}} to call</b><span class="cap">5 salons · 1 invited</span></div>
+    <sc-for list="{{alerts}}" as="a" hint-placeholder-count="4"><div class="pa">
+      <div style="display:flex;align-items:center;gap:8px"><b style="flex:1">{{a.salon}}</b><span class="{{a.cls}}">{{a.tag}}</span></div>
+      <div style="font-size:15px;line-height:20px">{{a.text}}</div>
+      <div class="r"><button class="dark" type="button">Call {{a.owner}}</button><button type="button" onClick="{{a.done}}">Handled</button></div>
+    </div></sc-for>
+    <sc-if value="{{none}}" hint-placeholder-val="{{false}}"><div class="cap" style="text-align:center;padding:24px">All clear ✓</div></sc-if>
+  </div>
+  <sc-if value="{{meOpen}}" hint-placeholder-val="{{false}}">
+    <div class="scrim" onClick="{{toggleMe}}" style="z-index:30"></div>
+    <div class="sheet fade" role="dialog" aria-label="My account" style="z-index:31;padding:0">
+      <div style="width:40px;height:5px;border-radius:3px;background:#D1D1D6;margin:8px auto 4px"></div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px 14px;border-bottom:1px solid var(--line)"><span class="av lg">E</span><div style="flex:1"><b style="font-size:17px">Elang</b><div class="cap">Admin · Nail POS team</div></div><button class="mclose" type="button" onClick="{{toggleMe}}" aria-label="Close">✕</button></div>
+      <div class="mrow"><span class="k">Signed in with</span><span class="v">(408) 555-0199 · phone code</span></div>
+      <div class="mrow"><span class="k">2-step login</span><span class="v">On · authenticator app</span><span class="tag jade">On</span></div>
+      <div class="mrow"><span class="k">Language</span><div class="seg" style="margin-left:auto"><sc-for list="{{langs}}" as="l" hint-placeholder-count="2"><span class="{{l.cls}}" onClick="{{l.pick}}" style="cursor:pointer">{{l.label}}</span></sc-for></div></div>
+      <div class="mrow"><span class="k">Alerts to me</span><span class="v">{{alertText}}</span><button class="{{alertSw}}" type="button" onClick="{{flipAlerts}}" aria-label="Alerts to me"></button></div>
+      <div class="mrow"><span class="k">My actions today</span><span class="v">{{actsText}}</span><span class="cap">View ›</span></div>
+      <div class="mrow"><span class="k">Team</span><span class="v">Oliver + Elang</span><span class="cap">Manage ›</span></div>
+      <div style="display:flex;gap:8px;padding:12px 16px 20px"><button class="mbtn" type="button">Help</button><button class="mbtn" type="button" style="color:var(--red)">Sign out</button></div>
+    </div>
+  </sc-if>
+  <div class="ptabs"><button type="button" class="on">Alerts</button><button type="button">Salons</button><button type="button">Add salon</button></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"me":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { done: {}, me: !!(p && p.me), lang: 'en', alerts: true }; }
+  renderVals() {
+    const S = this.state;
+    const A = [['Golden Nails', 'Problem', 'tag bad', 'Card reader offline 2 h.', 'Tom'], ['Cosmo Nails', 'Payouts paused', 'tag warn', 'Stripe needs the owner’s ID.', 'Lan'], ['Lily Nail Spa', 'Setup stuck', 'tag warn', 'Step 6 (card reader) for 3 days.', 'Vy'], ['Bella Nails', 'At risk', 'tag warn', 'Tickets down 60% vs last month.', 'Kim']]
+      .map((a, i) => ({ a, i })).filter((x) => !S.done[x.i]);
+    return {
+      meOpen: this.state.me, toggleMe: () => this.setState({ me: !this.state.me }),
+      langs: [['en', 'English'], ['vi', 'Tiếng Việt']].map((l) => ({ label: l[1], cls: this.state.lang === l[0] ? 'on' : '', pick: () => this.setState({ lang: l[0] }) })),
+      alertSw: this.state.alerts ? 'toggle on' : 'toggle', flipAlerts: () => this.setState({ alerts: !this.state.alerts }),
+      alertText: this.state.alerts ? 'Text + push · quiet hours' : 'Off · only shown here',
+      actsText: (Object.keys(S.done).length + 7) + ' calls + notes',
+      count: A.length, none: A.length === 0,
+      alerts: A.map(({ a, i }) => ({ salon: a[0], tag: a[1], cls: a[2], text: a[3], owner: a[4], done: () => { const d = Object.assign({}, S.done); d[i] = true; this.setState({ done: d }); } }))
+    };
+  }
+}
+</script>
+</body>
+</html>

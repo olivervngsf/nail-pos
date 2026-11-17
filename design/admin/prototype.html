@@ -1,0 +1,526 @@
+<title>Nail POS Admin Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=block");
+/* Nail POS — checkout look: compact, calm, Apple-like. Colors from Nail Salon OS DS. */
+:root{
+  --ink:#1C1C1E; --ink-soft:#5C5C5E; --muted:#8E8E93; --line:#E5E5EA;
+  --paper:#FFFFFF; --surface:#F5F5F7; --fill:#EFEFF2;
+  --jade:#2F9E44; --jade-soft:#EAF5EC; --orange:#E8590C; --orange-soft:#FDEEE6; --red:#E03131;
+  --r-sm:10px; --r-md:14px; --r-lg:20px;
+  --shadow:0 0.5px 0 rgba(0,0,0,.04),0 6px 24px rgba(28,28,30,.06);
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+body{margin:0;font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;font-feature-settings:"cv11","ss01";color:var(--ink);-webkit-font-smoothing:antialiased;letter-spacing:-0.01em}
+a{color:var(--ink)} a:hover{color:var(--ink-soft)}
+.num{font-variant-numeric:tabular-nums}
+.cap{font-size:13px;line-height:18px;color:var(--ink-soft);letter-spacing:0}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
+.h1{font-size:28px;line-height:34px;font-weight:700;letter-spacing:-0.025em}
+.h2{font-size:20px;line-height:26px;font-weight:600;letter-spacing:-0.02em}
+.money{font-size:34px;line-height:40px;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
+
+/* app shell */
+.app{width:1280px;height:800px;display:flex;background:var(--surface);overflow:hidden}
+.rail{width:76px;background:rgba(255,255,255,.72);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 0}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-bottom:12px}
+.rail a{width:60px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border-radius:var(--r-sm);font-size:11px;color:var(--ink-soft);text-decoration:none;transition:background .2s var(--ease)}
+.rail a:hover{background:var(--fill)}
+.rail a.on{background:var(--fill);color:var(--ink);font-weight:600}
+.col{flex:1;display:flex;flex-direction:column;min-width:0}
+.bar{height:56px;display:flex;align-items:center;gap:12px;padding:0 24px;background:rgba(245,245,247,.8);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+.bar .title{flex:1;font-size:17px;font-weight:600;letter-spacing:-0.02em}
+.pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:500;background:var(--paper);border:1px solid var(--line)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--jade)}
+.pill.ok{background:var(--jade-soft);border-color:transparent}
+.pill.warn{background:var(--orange-soft);border-color:var(--orange)}
+.who{display:flex;align-items:center;gap:8px;font-size:14px}
+.av{width:32px;height:32px;border-radius:50%;background:var(--fill);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex:none}
+.av.lg{width:52px;height:52px;font-size:18px}
+
+/* surfaces */
+.card{background:var(--paper);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.group{background:var(--paper);border-radius:var(--r-md);box-shadow:var(--shadow);overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-bottom:1px solid var(--line);font-size:16px}
+.row:last-child{border-bottom:0}
+.row .grow{flex:1;min-width:0}
+.sep{height:1px;background:var(--line)}
+.line{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;font-variant-numeric:tabular-nums}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;background:var(--fill);color:var(--ink)}
+.tag.jade{background:var(--jade-soft)}
+
+/* controls */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:var(--r-sm);border:0;background:var(--fill);color:var(--ink);font:inherit;font-size:15px;font-weight:600;text-decoration:none;cursor:pointer;transition:transform .15s var(--ease),background .2s var(--ease),opacity .2s}
+.btn:hover{background:#E6E6EA;color:var(--ink)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--ink);color:#fff;height:52px;font-size:17px;border-radius:var(--r-md)}
+.btn.primary:hover{opacity:.88;color:#fff}
+.btn.ghost{background:transparent;color:var(--ink-soft)}
+.btn.ghost:hover{background:var(--fill)}
+.btn.block{display:flex;width:100%}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--fill);gap:2px}
+.seg span{height:30px;padding:0 14px;border-radius:8px;display:flex;align-items:center;font-size:13px;font-weight:600;color:var(--ink-soft)}
+.seg span.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tile{display:flex;flex-direction:column;gap:6px;padding:20px;border-radius:var(--r-lg);background:var(--paper);box-shadow:var(--shadow);text-decoration:none;color:var(--ink);transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.tile:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(28,28,30,.10);color:var(--ink)}
+.ico{width:40px;height:40px;border-radius:12px;background:var(--fill);display:flex;align-items:center;justify-content:center}
+
+/* motion: fade in on arrival, fade between steps. Off when reduced motion. */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}
+.in{animation:fadeUp .45s var(--ease) both}
+.in2{animation:fadeUp .45s var(--ease) .08s both}
+.in3{animation:fadeUp .45s var(--ease) .16s both}
+.fade{animation:fadeIn .6s var(--ease) both}
+.pulse{animation:pulse 1.4s ease-in-out infinite}
+.pop{animation:pop .5s var(--ease) both}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* phone */
+.phone{width:390px;height:844px;background:var(--surface);display:flex;flex-direction:column;overflow:hidden}
+.pbar{height:52px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;border-bottom:1px solid var(--line);background:rgba(245,245,247,.8);flex:none}
+
+/* ===== v2 shared components (Nov 16) — one version each; never redefine inside a screen ===== */
+/* Forms */
+.lbl{font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;display:block}
+.inp{width:100%;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--paper);padding:0 14px;font:inherit;font-size:17px;color:var(--ink);box-sizing:border-box;transition:border-color .2s,box-shadow .2s}
+.inp:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(28,28,30,.08)}
+.inp.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(224,49,49,.10)}
+.hint{font-size:13px;line-height:18px;color:var(--ink-soft);margin-top:6px}
+.hint.err{color:var(--red)}
+/* Chip: filters + quick picks. 36px. .on = chosen, .sug = AI suggestion (dashed) */
+.chip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip.sug{border-style:dashed}
+/* Switch (on/off). .sw and .toggle are the same */
+.sw,.toggle{width:44px;height:26px;border-radius:13px;background:#D1D1D6;position:relative;flex:none;border:0;cursor:pointer;transition:background .25s}
+.sw::after,.toggle::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .25s var(--ease)}
+.sw.on,.toggle.on{background:var(--jade)}
+.sw.on::after,.toggle.on::after{transform:translateX(18px)}
+/* Option row: tappable list row inside .group. 56px */
+.opt{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border:0;border-bottom:1px solid var(--line);background:var(--paper);font:inherit;font-size:16px;color:var(--ink);text-align:left;cursor:pointer;transition:background .2s}
+.opt:last-child{border-bottom:0}
+.opt:hover{background:#FAFAFB}
+.opt.on{background:var(--surface)}
+/* Choice card: big pick (setup, pay method) */
+.pick{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:18px;border:1px solid var(--line);background:var(--paper);font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.pick.on{border:2px solid var(--ink);box-shadow:var(--shadow)}
+/* PIN keypad */
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.key{height:60px;border-radius:14px;border:0;background:var(--paper);box-shadow:0 .5px 0 rgba(0,0,0,.04),0 2px 8px rgba(28,28,30,.06);font:inherit;font-size:24px;font-weight:500;color:var(--ink);cursor:pointer;transition:transform .12s}
+.key:active{transform:scale(.96)}
+.dots{display:flex;gap:14px;justify-content:center}
+.dots i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);box-sizing:border-box}
+.dots i.on{background:var(--ink)}
+/* Overlays */
+@keyframes slideIn{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes sheetUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.scrim{position:absolute;inset:0;background:rgba(28,28,30,.22);z-index:5;border:0;padding:0;animation:fadeIn .25s ease both}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:440px;background:var(--paper);box-shadow:-12px 0 40px rgba(28,28,30,.16);z-index:6;display:flex;flex-direction:column;animation:slideIn .35s var(--ease) both}
+.drawer-h{height:56px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--line);font-size:17px;font-weight:600}
+.drawer-b{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.drawer-f{padding:16px 20px;border-top:1px solid var(--line);display:flex;gap:10px}
+.sheet{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;background:var(--paper);border-radius:24px;box-shadow:0 -6px 24px rgba(28,28,30,.12);padding:20px;display:flex;flex-direction:column;gap:12px;animation:sheetUp .35s var(--ease) both}
+.toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);min-width:420px;max-width:calc(100% - 32px);box-sizing:border-box;background:var(--ink);color:#fff;border-radius:14px;padding:12px 12px 12px 18px;display:flex;align-items:center;gap:12px;font-size:15px;box-shadow:0 12px 32px rgba(0,0,0,.25);z-index:20;animation:fadeUp .35s var(--ease) both}
+.toast .btn,.toast button{height:34px;padding:0 14px;border-radius:10px;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.phone .toast{min-width:0;left:16px;right:16px;transform:none}
+/* Banner: offline / syncing / warning strip under the top bar */
+.banner{display:flex;align-items:center;gap:10px;height:34px;padding:0 16px;background:var(--orange-soft);border-bottom:1px solid #F4C9AF;font-size:13px;box-sizing:border-box;animation:fadeIn .4s ease both}
+.banner.ok{background:var(--jade-soft);border-color:#CFE8D4}
+/* Empty state */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:40px;text-align:center;color:var(--ink-soft)}
+.empty .h2{color:var(--ink)}
+
+/* ===== v3 shared components (Nov 16) ===== */
+/* Rows: one row style, 5 sizes. Use inside .group. .g = grows, its .cap drops to a 2nd line */
+.row.xs{min-height:40px;font-size:14px}
+.row.s{min-height:48px;font-size:15px}
+.row.m{min-height:56px;font-size:15px}
+.row.l{min-height:64px;font-size:15px}
+.row .g{flex:1;min-width:0}
+.row .g .cap{display:block}
+.row.minus{color:#1F7A33}
+.row.free{background:repeating-linear-gradient(135deg,#F7FBF8 0 6px,#fff 6px 12px)}
+.row.now{background:var(--jade-soft)}
+/* Card with padding + stacked content */
+.card.pad{padding:16px 18px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px}
+/* Trend words */
+.up{color:#1F7A33;font-weight:600;font-size:13px}
+.down{color:#B5470A;font-weight:600;font-size:13px}
+/* Stat: tappable KPI tile; stat-grid: numbers side by side inside a card */
+.stat{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:16px;border:0;background:var(--paper);box-shadow:var(--shadow);font:inherit;text-align:left;cursor:pointer;color:var(--ink);box-sizing:border-box}
+.stat.on{box-shadow:0 0 0 2px var(--ink),var(--shadow)}
+.stat .v{font-size:26px;line-height:32px;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
+.stat-grid{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:10px;text-align:center}
+.stat-grid b{display:block;font-size:22px;line-height:28px;font-variant-numeric:tabular-nums}
+/* Progress bar: .thin 6 · default 8 · .thick 10; .ink fill; .tint track on green cards */
+.prog-bar{height:8px;border-radius:5px;background:var(--fill);overflow:hidden}
+.prog-bar span{display:block;height:100%;background:var(--jade);border-radius:inherit}
+.prog-bar.thin{height:6px}
+.prog-bar.thick{height:10px}
+.prog-bar.ink span{background:var(--ink)}
+.prog-bar.tint{background:rgba(47,158,68,.18)}
+/* Stepper: − value + */
+.stepper{display:inline-flex;align-items:center;gap:6px}
+.stepper .btn{width:36px;height:36px;padding:0}
+.stepper b{min-width:56px;text-align:center;font-variant-numeric:tabular-nums}
+/* Message bubble: preview of a text the client gets */
+.bubble{background:var(--fill);border-radius:18px 18px 18px 6px;padding:10px 14px;font-size:14px;line-height:20px}
+/* Data table: numbers right-aligned, first column left */
+.dtable{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.dtable th{height:36px;text-align:right;font-size:12px;font-weight:600;color:var(--ink-soft);padding:0 14px;border-bottom:1px solid var(--line)}
+.dtable td{height:40px;text-align:right;padding:0 14px;border-bottom:1px solid var(--line)}
+.dtable tr:last-child td{border-bottom:0}
+.dtable th:first-child,.dtable td:first-child{text-align:left}
+/* Mini bar chart: this period (ink) vs last (grey) */
+.minibars{display:flex;align-items:flex-end;gap:10px;height:190px}
+.minibars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.minibars .b i{display:block;width:100%;border-radius:6px 6px 0 0;background:var(--ink)}
+.minibars .b i.last{background:#D1D1D6}
+.minibars .b span{font-size:12px;color:var(--ink-soft)}
+/* Phone tab bar (tech app): 64px, bottom */
+.ptabs{position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;border-top:1px solid var(--line);background:rgba(255,255,255,.92)}
+.ptabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:transparent;font:inherit;font-size:11px;color:var(--ink-soft);cursor:pointer}
+.ptabs button.on{color:var(--ink);font-weight:600}
+/* Phone day timeline: 58px per hour; blocks share the calendar's states */
+.dtl{position:absolute;left:0;right:0}
+.dtl-h{position:absolute;left:12px;width:34px;font-size:11px;color:var(--ink-soft);transform:translateY(-7px)}
+.dtl-line{position:absolute;left:52px;right:16px;height:1px;background:var(--line)}
+.dtl-bk{position:absolute;left:56px;right:16px;border-radius:10px;padding:6px 10px;box-sizing:border-box;border:1px solid var(--line);background:var(--paper);font-size:13px;line-height:17px;overflow:hidden;cursor:pointer;text-align:left;font-family:inherit;color:var(--ink)}
+.dtl-bk b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dtl-bk .cap{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dtl-bk.paid{background:var(--surface);color:var(--muted)}
+.dtl-bk.chair{background:var(--jade-soft);border:1.5px solid var(--jade)}
+.dtl-bk.unconf{background:repeating-linear-gradient(135deg,#FFF4EC 0 6px,#fff 6px 12px);border-color:#F4C9AF}
+.dtl-bk.free{border-style:dashed;background:transparent;color:#1F7A33;font-weight:600}
+.dtl-now{position:absolute;left:46px;right:16px;height:2px;background:var(--red)}
+
+:root{--stage:#E9E9EE}
+html,body{height:100%}
+body{background:var(--stage);color:#1C1C1E;margin:0;font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:#fff;border-bottom:1px solid var(--line)}
+.top h1{font-size:16px;margin:0;flex:1 1 220px;letter-spacing:-0.01em}
+.top .cap{flex:1 1 100%}
+.stage{display:flex;justify-content:center;padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.frame{position:relative;transform-origin:top left;box-shadow:0 30px 80px rgba(28,28,30,.18);border-radius:18px;overflow:hidden;background:var(--surface)}
+button:focus-visible,a:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid #2F9E44;outline-offset:2px}
+.tag.warn{background:var(--orange-soft);color:#B5470A}.tag.bad{background:#FCE8E8;color:#C92A2A}.tag.grey{background:var(--fill);color:var(--ink-soft)}
+.rail a{cursor:pointer;position:relative}
+.badge{position:absolute;left:34px;top:2px;min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+.sh,.srow{display:grid;grid-template-columns:170px 104px 92px 118px 84px 1fr;gap:10px;align-items:center;padding:0 14px}
+.sh{height:34px;font-size:12px;font-weight:600;color:var(--ink-soft);border-bottom:1px solid var(--line)}
+.srow{min-height:54px;border:0;border-bottom:1px solid var(--line);background:#fff;font:inherit;font-size:14px;text-align:left;color:var(--ink);cursor:pointer;width:100%}
+.srow:hover{background:#FAFAFB}
+.srow .g{display:flex;flex-direction:column;line-height:18px;min-width:0}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line);animation:fadeIn .3s ease}
+.alert:last-child{border-bottom:0}
+.ic{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.ic.bad{background:#FCE8E8;color:#C92A2A}.ic.warn{background:var(--orange-soft);color:#B5470A}
+.abtn{height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
+.abtn.dark{background:var(--ink);border-color:var(--ink);color:#fff}.abtn:hover{border-color:#C7C7CC}
+.hrow{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 16px;border-bottom:1px solid var(--line);font-size:15px}
+.hrow:last-child{border-bottom:0}.hrow .k{width:150px;color:var(--ink-soft);font-size:14px;flex:none}.hrow .v{flex:1;min-width:0}
+.lockbox{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--surface);font-size:13px;color:var(--ink-soft)}
+.support{box-shadow:0 0 0 2px var(--jade),var(--shadow)}
+.logl{display:flex;gap:10px;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}.logl:last-child{border-bottom:0}.logl .t{width:64px;color:var(--ink-soft);flex:none}
+.qr{width:92px;height:92px;flex:none;border-radius:10px;background:#fff;display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:8px;box-sizing:border-box}
+.qr i{background:var(--ink);border-radius:1px}.qr i.o{background:transparent}
+.mebtn{border:0;background:transparent;padding:4px;border-radius:50%;cursor:pointer}.mebtn:hover .av{box-shadow:0 0 0 2px var(--line)}
+.mescrim{position:absolute;inset:0;z-index:30}
+.mepop{position:absolute;left:84px;bottom:14px;width:440px;background:#fff;border-radius:18px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.05);z-index:31;overflow:hidden;animation:fadeIn .2s ease}
+.mepop .hrow{min-height:46px;font-size:14px}
+.merow{width:100%;border:0;border-bottom:1px solid var(--line);background:#fff;font:inherit;text-align:left;color:var(--ink);cursor:pointer}.merow:hover{background:#FAFAFB}
+.toastbox{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:20}
+.pa{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:12px 14px;display:flex;flex-direction:column;gap:8px;animation:fadeIn .3s ease}
+.pa .r{display:flex;gap:8px}.pa .r button{flex:1;height:42px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer}
+.pa .r button.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.search{height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;padding:0 12px;font:inherit;font-size:14px;width:200px}
+.notein{flex:1;height:34px;border-radius:8px;border:1px solid var(--line);padding:0 10px;font:inherit;font-size:14px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.alert,.pa{animation:none}}
+</style>
+
+<div class="top">
+  <h1>Nail POS · Founder Admin prototype</h1>
+  <div class="seg" role="tablist"><span id="t-desk" class="on" data-act="dev:desk" role="tab" tabindex="0" style="cursor:pointer">Desktop</span><span id="t-phone" data-act="dev:phone" role="tab" tabindex="0" style="cursor:pointer">Elang's phone</span></div>
+  <button class="btn" type="button" data-act="restart" style="height:36px;font-size:14px">Start over</button>
+  <span class="cap">For Oliver and Elang (both admins). Sample salons and numbers. Nothing is sent. Try: open an alert, ask for support access, add a salon, open System, tap your photo.</span>
+</div>
+<div class="stage"><div id="holder" style="position:relative"><div class="frame" id="frame"></div></div></div>
+
+<script>
+const $=(s)=>document.querySelector(s);
+const esc=(x)=>String(x).replace(/[&<>"]/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const SV=(d)=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const OK=['OK','tag jade'], BAD=(t)=>[t,'tag bad'], WARN=(t)=>[t,'tag warn'];
+function seed(){ return [
+ {id:'mai',name:'Mai Nails',city:'Campbell, CA',plan:'Pilot',setup:10,today:'31 · $1,842',month:'$38.9K',owner:'Mai Nguyen',phone:'(408) 555-0110',since:'Nov 1',
+  stripe:['Payouts on','tag jade','Connected · verified · payouts daily to ••7731'],text:['Approved','tag jade','(408) 555-0100 · 10DLC approved'],
+  reader:['S710 “Front desk” · online',OK],printer:['Epson TM-m30III · online',OK],devices:['Front desk iPad, Kiosk iPad · online',OK],errors:['0',OK],health:['Good','tag jade'],notes:[['Nov 15 · 4:10 PM','Week-2 call: loves the turn list.']]},
+ {id:'golden',name:'Golden Nails',city:'Houston, TX',plan:'Paid',setup:10,today:'18 · $964',month:'$31.4K',owner:'Tom Tran',phone:'(713) 555-0142',since:'Oct 2',
+  stripe:['Payouts on','tag jade','Connected · verified · payouts daily to ••4410'],text:['Approved','tag jade','(713) 555-0199 · 10DLC approved'],
+  reader:['S710 “Front desk” · offline since 10:12 AM (2 h)',BAD('Offline')],printer:['Epson TM-m30III · online',OK],devices:['Front desk iPad · 3 failed syncs (saved, will retry)',WARN('Check')],errors:['2 · “Reader not found” at checkout',WARN('2')],health:['Reader offline','tag bad'],notes:[['Nov 2 · 9:05 AM','Week-4 review: happy, asks for Vietnamese receipts.']]},
+ {id:'cosmo',name:'Cosmo Nails',city:'Wildwood, MO',plan:'Pilot',setup:10,today:'22 · $1,210',month:'$24.7K',owner:'Lan Vo',phone:'(636) 555-0120',since:'Nov 3',
+  stripe:['Needs owner ID','tag warn','Connected · Stripe needs a photo ID · payouts paused'],text:['Approved','tag jade','(636) 555-0188 · 10DLC approved'],
+  reader:['S710 “Desk” · online',OK],printer:['Star mC-Print3 · online',OK],devices:['Front desk iPad · online',OK],errors:['0',OK],health:['Needs action','tag warn'],notes:[]},
+ {id:'lily',name:'Lily Nail Spa',city:'San Jose, CA',plan:'Pilot',setup:6,today:'—',month:'—',owner:'Vy Ngo',phone:'(408) 555-0133',since:'Nov 10',
+  stripe:['Verified','tag jade','Connected · verified · no payments yet'],text:['Pending','tag warn','10DLC registration pending (5–10 days)'],
+  reader:['Not paired yet (setup step 6)',WARN('Not set')],printer:['Not set',['—','tag grey']],devices:['Front desk iPad · online',OK],errors:['0',OK],health:['Setup stuck','tag warn'],notes:[['Nov 13 · 2:00 PM','Reader shipped; arrives Monday.']]},
+ {id:'bella',name:'Bella Nails',city:'Sacramento, CA',plan:'Paid',setup:10,today:'4 · $212',month:'$6.1K',owner:'Kim Do',phone:'(916) 555-0177',since:'Sep 20',
+  stripe:['Payouts on','tag jade','Connected · verified · payouts daily'],text:['Approved','tag jade','(916) 555-0109 · 10DLC approved'],
+  reader:['S710 · online',OK],printer:['Epson · online',OK],devices:['1 iPad · last used 2 days ago',WARN('Quiet')],errors:['0',OK],health:['At risk','tag warn'],notes:[]},
+ {id:'queen',name:'Queen Nails',city:'Austin, TX',plan:'Invited',setup:0,today:'—',month:'—',owner:'Hoa Pham',phone:'(512) 555-0161',since:'—',
+  stripe:['Not yet','tag grey','—'],text:['Not yet','tag grey','—'],reader:['—',['—','tag grey']],printer:['—',['—','tag grey']],devices:['—',['—','tag grey']],errors:['—',['—','tag grey']],health:['Invite sent','tag grey'],notes:[]}
+];}
+const ALERTS0=[['a1','golden','bad','!','Card reader offline 2 h. Cards can’t be taken on it.','since 10:12 AM'],['a2','cosmo','warn','$','Stripe needs the owner’s ID. Payouts paused.','since yesterday'],['a3','lily','warn','…','Setup stuck at step 6 (Card reader) for 3 days.','last step Nov 13'],['a4','bella','warn','▼','Tickets down 60% vs last month. At risk.','this month']];
+let S, tm;
+function seedActs(){ return {
+ golden:[['Today · 12:20 PM','note','Called Tom: reader unplugged after cleaning','Elang'],['Today · 10:12 AM','device','Card reader “Front desk” went offline','system'],['Today · 9:02 AM','setup','Salon opened · 5 staff clocked in','system'],['Nov 15 · 7:40 PM','money','Day closed · $2,410 · cash matched','Tom'],['Nov 12','money','Stripe payout $8,112 to bank ••4410','Stripe'],['Nov 2 · 9:05 AM','note','Week-4 review: happy, wants Vietnamese receipts','Elang'],['Oct 2 · 3:15 PM','setup','Setup done 10/10 · $1 test paid + refunded','Tom'],['Oct 2 · 2:05 PM','money','Stripe connected + verified','Tom'],['Oct 2 · 1:20 PM','setup','Tom signed up from the invite (text)','Tom'],['Sep 30','setup','Invite sent by text + email','Elang']],
+ mai:[['Today · 9:00 AM','setup','Salon opened · 6 staff clocked in','system'],['Nov 15 · 4:10 PM','note','Week-2 call: loves the turn list','Elang'],['Nov 15 · 7:30 PM','money','Day closed · $2,880 · cash matched','Mai'],['Nov 1 · 2:40 PM','setup','Setup done 10/10','Mai'],['Oct 31','setup','Invite sent by text + email','Elang']],
+ cosmo:[['Yesterday · 6:12 PM','money','Stripe needs owner ID · payouts paused','Stripe'],['Today · 9:15 AM','setup','Salon opened · 4 staff clocked in','system'],['Nov 3 · 1:00 PM','setup','Setup done 10/10','Lan'],['Nov 2','setup','Invite sent by email','Elang']],
+ lily:[['Nov 13 · 2:00 PM','note','Reader shipped; arrives Monday','Elang'],['Nov 13 · 11:30 AM','setup','Step 5 done: Connect payments','Vy'],['Nov 11','setup','Steps 1–4 done (info, services, staff)','Vy'],['Nov 10 · 6:20 PM','setup','Vy signed up from the invite (text)','Vy'],['Nov 10','setup','Invite sent by text','Elang']],
+ bella:[['This month','money','Tickets down 60% vs last month','system'],['2 days ago','device','Front desk iPad last used','system'],['Sep 20','setup','Setup done 10/10','Kim']],
+ queen:[['Nov 16 · 9:10 AM','setup','Invite sent by text + email · not opened yet','Elang']]}; }
+function reset(){ S={dev:'desk',view:'salons',role:'elang',sel:null,filter:'all',q:'',alerts:ALERTS0.map((a)=>a.slice()),salons:seed(),access:{},left:{},log:{},plan:'pilot',invite:null,form:{n:'Lotus Nails',st:'TX',o:'Anh Le',p:'(512) 555-0174',e:'anh.lotusnails@gmail.com'},via:{text:true,email:true},invites:[{id:'i1',salon:'Queen Nails',owner:'Hoa Pham',city:'Austin, TX',phone:'(512) 555-0161',email:'hoa.queennails@gmail.com',via:['text','email'],sent:'Nov 16 · 9:10 AM',status:'Not opened'},{id:'i2',salon:'Pho Ever Nails',owner:'Minh Tran',city:'Plano, TX',phone:'',email:'minh@phoevernails.com',via:['email'],sent:'Oct 29',status:'Expired'},{id:'i3',salon:'Lily Nail Spa',owner:'Vy Ngo',city:'San Jose, CA',phone:'(408) 555-0133',email:'',via:['text'],sent:'Nov 10',status:'Signed up ✓'}],toast:'',noteDraft:'',actF:'all',acts:seedActs(),me:false,lang:'en',alertsOn:true,mine:{},mineOpen:false,teamOpen:false,out:false}; }
+reset();
+function toast(t){ S.toast=t; render(); clearTimeout(tm); tm=setTimeout(()=>{S.toast='';render();},3200); }
+const byId=(id)=>S.salons.find((s)=>s.id===id);
+const now=()=>{ const d=new Date(); let h=d.getHours(), m=d.getMinutes(); return ((h+11)%12+1)+':'+String(m).padStart(2,'0')+(h<12?' AM':' PM'); };
+
+function rail(){ const admin=true, n=S.alerts.length;
+  const it=(v,label,icon,badge)=>`<a class="${S.view===v||(v==='salons'&&S.view==='salon')?'on':''}" data-act="go:${v}" tabindex="0" role="button">${SV(icon)}${badge?`<span class="badge">${badge}</span>`:''}${label}</a>`;
+  return `<nav class="rail" aria-label="Admin menu"><div class="logo" style="background:#1C1C1E;color:#fff">NP</div>
+  ${it('salons','Salons','<path d="M3 10l9-6 9 6"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',n)}
+  ${it('new','Add salon','<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>')}
+  ${admin?it('system','System','<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>'):''}
+  <div style="flex:1"></div><button type="button" class="mebtn" data-act="me" aria-label="My account menu" aria-expanded="${S.me}"><span class="av" style="width:32px;height:32px">${S.role==='oliver'?'O':'E'}</span></button></nav>`; }
+function meMenu(){ const admin=true, mine=(S.mine[S.role]||[]), vi=S.lang==='vi';
+  const T=vi?{acc:'Tài khoản',signed:'Đăng nhập bằng',two:'Đăng nhập 2 bước',lang:'Ngôn ngữ',al:'Báo động cho tôi',mine:'Việc tôi làm hôm nay',team:'Nhóm',help:'Trợ giúp + phím tắt',out:'Đăng xuất'}:{acc:'My account',signed:'Signed in with',two:'2-step login',lang:'Language',al:'Alerts to me',mine:'My actions today',team:'Team',help:'Help + shortcuts',out:'Sign out'};
+  return `<div class="mescrim" data-act="me"></div><div class="mepop" role="dialog" aria-label="${T.acc}">
+  <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)"><span class="av lg">${S.role==='oliver'?'O':'E'}</span><div style="flex:1"><b style="font-size:16px">${S.role==='oliver'?'Oliver':'Elang'}</b><div class="cap">Admin · Nail POS team</div></div><button class="abtn" type="button" data-act="me" aria-label="Close">✕</button></div>
+  <div class="hrow"><span class="k" style="width:130px">${T.signed}</span><span class="v">${S.role==='oliver'?'(415) 555-0101':'(408) 555-0199'} · phone code</span></div>
+  <div class="hrow"><span class="k" style="width:130px">${T.two}</span><span class="v">On · authenticator app</span><span class="tag jade">On</span></div>
+  <div class="hrow"><span class="k" style="width:130px">${T.lang}</span><div class="seg">${[['en','English'],['vi','Tiếng Việt']].map((l)=>`<span class="${S.lang===l[0]?'on':''}" data-act="lang:${l[0]}" tabindex="0" role="button" style="cursor:pointer">${l[1]}</span>`).join('')}</div></div>
+  <div class="hrow"><span class="k" style="width:130px">${T.al}</span><span class="v">${S.alertsOn?'Text + push · quiet 10 PM–7 AM':'Off · only shown here'}</span><button class="toggle ${S.alertsOn?'on':''}" type="button" data-act="alertsMe" aria-label="${T.al}" aria-pressed="${S.alertsOn}"></button></div>
+  <button type="button" class="hrow merow" data-act="mineOpen"><span class="k" style="width:130px">${T.mine}</span><span class="v">${mine.length} · in salons' activity logs</span><span class="cap">${S.mineOpen?'Hide':'View'} ›</span></button>
+  ${S.mineOpen?`<div style="max-height:150px;overflow:auto;background:var(--surface)">${mine.map((m)=>`<div class="hrow" style="min-height:34px;font-size:13px"><span class="k" style="width:70px;font-size:12px">${m[0]}</span><span class="v"><b>${esc(m[1])}</b> · ${esc(m[2])}</span></div>`).join('')||'<div class="hrow cap" style="min-height:34px">Nothing yet today. Calls, notes and support actions show here.</div>'}</div>`:''}
+  ${admin?`<button type="button" class="hrow merow" data-act="teamOpen"><span class="k" style="width:130px">${T.team}</span><span class="v">Oliver (admin) · Elang (admin)</span><span class="cap">${S.teamOpen?'Hide':'Manage'} ›</span></button>
+   ${S.teamOpen?`<div style="background:var(--surface)"><div class="hrow" style="min-height:38px;font-size:14px"><span class="v"><b>Oliver</b> · admin · 2-step ✓</span><span class="cap">${S.role==='oliver'?'You':''}</span></div><div class="hrow" style="min-height:38px;font-size:14px"><span class="v"><b>Elang</b> · admin · 2-step ✓</span><button class="abtn" type="button" data-act="teamMsg:Elang">Remove</button></div><div class="hrow" style="min-height:42px"><button class="abtn dark" type="button" data-act="teamMsg:add">+ Add team member</button></div></div>`:''}`:''}
+  <div style="padding:12px 16px;display:flex;gap:8px"><button class="abtn" type="button" data-act="help" style="flex:1;height:38px">${T.help}</button><button class="abtn" type="button" data-act="signout" style="flex:1;height:38px;color:var(--red)">${T.out}</button></div></div>`; }
+function signedOut(){ return `<div class="app" style="align-items:center;justify-content:center"><div class="card pad" style="width:400px;padding:28px;gap:14px"><div class="logo" style="background:#1C1C1E;color:#fff;margin:0">NP</div><div class="h1">Nail POS Admin</div><div class="cap" style="font-size:15px">Only for the Nail POS team. Phone code + 2-step login.</div><div><label class="lbl" for="sp">Your phone</label><input class="inp" id="sp" value="${S.role==='oliver'?'(415) 555-0101':'(408) 555-0199'}" style="height:44px"></div><button class="btn primary" type="button" data-act="signin" style="height:48px;font-size:16px">Send me a code</button><div class="cap">Signed out. Support sessions you opened were ended and logged.</div></div></div>`; }
+function bar(title){ return `<header class="bar"><div class="title">${title}</div><span class="cap">Signed in as</span>
+  <div class="seg">${[['elang','Elang · admin'],['oliver','Oliver · admin']].map((r)=>`<span class="${S.role===r[0]?'on':''}" data-act="role:${r[0]}" tabindex="0" role="button" style="cursor:pointer">${r[1]}</span>`).join('')}</div>
+  <span class="pill ok"><span class="dot"></span>Live · all normal</span></header>`; }
+
+function salonsView(){ const active=S.salons.filter((s)=>s.plan!=='Invited').length, inv=S.salons.length-active;
+  const list=S.salons.filter((s)=>(S.filter==='all'||(S.filter==='action'&&!/Good|Invite/.test(s.health[0]))||(S.filter==='pilot'&&s.plan==='Pilot'))&&(!S.q||s.name.toLowerCase().includes(S.q.toLowerCase())||s.city.toLowerCase().includes(S.q.toLowerCase())));
+  return `${bar('Salons')}<main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 24px;min-height:0">
+  <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px">${[['Active salons',active,`+${inv} invited`,'cap'],['Pilot · Paid',S.salons.filter((s)=>s.plan==='Pilot').length+' · '+S.salons.filter((s)=>s.plan==='Paid').length,'1 pilot ends in 6 days','cap'],['Our income · month','$98','2 × $49 · no card markup','cap'],['Card volume · week','$41.2K','▲ 8% · goes to salons','up'],['At risk','1','Bella Nails · tickets ▼ 60%','down']].map((k)=>`<div class="stat" style="cursor:default"><span class="cap">${k[0]}</span><span class="v">${k[1]}</span><span class="${k[3]}" style="font-size:12px">${k[2]}</span></div>`).join('')}</div>
+  <div style="display:flex;gap:16px;flex:1;min-height:0">
+   <div class="group" style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px 6px"><b style="flex:1;font-size:16px">Salon health</b><input class="search" data-in="q" value="${esc(S.q)}" placeholder="Search salon or city" aria-label="Search salons">
+     <div class="seg">${[['all','All'],['action','Needs action'],['pilot','Pilot']].map((f)=>`<span class="${S.filter===f[0]?'on':''}" data-act="filter:${f[0]}" tabindex="0" role="button" style="cursor:pointer">${f[1]}</span>`).join('')}</div></div>
+    <div class="sh"><span>Salon</span><span>Setup</span><span style="text-align:right">Today</span><span>Stripe</span><span>Texts</span><span>Health</span></div>
+    <div style="overflow:auto;flex:1">${list.map((s)=>`<button type="button" class="srow" data-act="open:${s.id}"><span class="g"><b>${esc(s.name)}</b><span class="cap">${esc(s.city)} · ${s.plan}</span></span>
+     <span class="g" style="gap:4px"><span class="cap">${s.setup}/10${s.setup>0&&s.setup<10?' · stuck':''}</span><span class="prog-bar thin" style="width:90px;display:block"><span style="width:${s.setup*10}%"></span></span></span>
+     <span style="text-align:right">${s.today}</span><span><span class="${s.stripe[1]}">${s.stripe[0]}</span></span><span><span class="${s.text[1]}">${s.text[0]}</span></span><span><span class="${S.access[s.id]==='on'?'tag jade':s.health[1]}">${S.access[s.id]==='on'?'Support on':s.health[0]}</span></span></button>`).join('')||'<div class="cap" style="padding:20px;text-align:center">No salons match.</div>'}</div>
+    <div class="cap" style="padding:8px 14px;border-top:1px solid var(--line)">Health only. Client names, phones, tech pay and notes stay hidden unless the owner allows support.</div>
+   </div>
+   <div class="group" style="width:340px;flex:none;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;padding:12px 14px 8px"><b style="flex:1;font-size:16px">Alerts · call before they notice</b><span class="tag ${S.alerts.length?'bad':'jade'}">${S.alerts.length} open</span></div>
+    <div style="overflow:auto;flex:1">${S.alerts.map((a)=>{const s=byId(a[1]);return `<div class="alert"><span class="ic ${a[2]}">${a[3]}</span><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px"><div><b style="font-size:14px">${esc(s.name)}</b><div style="font-size:14px;line-height:19px">${a[4]}</div><span class="cap">${a[5]} · ${esc(s.city)}</span></div>
+     <div style="display:flex;gap:6px"><button class="abtn dark" type="button" data-act="open:${s.id}">Open salon</button><button class="abtn" type="button" data-act="call:${s.id}">Call ${esc(s.owner.split(' ')[0])}</button><button class="abtn" type="button" data-act="handled:${a[0]}">Handled</button></div></div></div>`;}).join('')||'<div class="cap" style="padding:24px;text-align:center">All clear ✓</div>'}</div>
+   </div></div></main>`; }
+
+function salonView(){ const s=byId(S.sel), a=S.access[s.id]||'none', first=s.owner.split(' ')[0];
+  const rows=[['Stripe account',s.stripe[2],[s.stripe[0],s.stripe[1]]],['Card reader',s.reader[0],s.reader[1]],['Printer',s.printer[0],s.printer[1]],['Salon devices',s.devices[0],s.devices[1]],['Texting',s.text[2],[s.text[0],s.text[1]]],['App errors (24 h)',s.errors[0],s.errors[1]]];
+  const log=S.log[s.id]||[];
+  return `${bar('Salon')}${a==='on'?`<div class="banner ok"><b>Support mode · ${esc(s.name)}</b><span>${S.left[s.id]} left · every action is logged and shown to ${esc(first)}</span><span style="flex:1"></span><button class="abtn" type="button" data-act="endSupport:${s.id}">End now</button></div>`:''}
+  <main style="flex:1;display:flex;gap:16px;padding:16px 24px;min-height:0;overflow:auto">
+   <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:12px"><button class="abtn" type="button" data-act="go:salons">‹ Salons</button>
+     <div style="flex:1"><div class="h2">${esc(s.name)}</div><div class="cap">${esc(s.city)} · ${s.plan}${s.plan==='Paid'?' · $49/mo':''} · since ${s.since} · Owner ${esc(s.owner)} · ${s.phone}</div></div><span class="${s.health[1]}">${s.health[0]}</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;flex:none">${[['Setup',s.setup+'/10',s.setup===10?'done':'in progress'],['Today',s.today.split(' · ')[0],s.today.includes('$')?'tickets · '+s.today.split(' · ')[1]+' total':'no tickets yet'],['This month',s.month,'card + cash'],['Last sync',s.plan==='Invited'?'—':'2 min',s.id==='golden'?'3 failed today':'all synced']].map((k)=>`<div class="stat" style="cursor:default"><span class="cap">${k[0]}</span><span class="v">${k[1]}</span><span class="cap">${k[2]}</span></div>`).join('')}</div>
+    <div class="group" style="flex:none">${rows.map((r)=>`<div class="hrow"><span class="k">${r[0]}</span><span class="v">${esc(r[1])}</span><span class="${r[2][1]}">${r[2][0]}</span></div>`).join('')}</div>
+    <div class="group" style="flex:none"><div class="hrow" style="font-weight:600;gap:8px"><span style="flex:1">Activity log · everything that happened</span><div class="seg">${[['all','All'],['setup','Setup'],['money','Money'],['device','Devices'],['support','Support'],['note','Notes']].map((f)=>`<span class="${S.actF===f[0]?'on':''}" data-act="actF:${f[0]}" tabindex="0" role="button" style="cursor:pointer;padding:0 9px">${f[1]}</span>`).join('')}</div></div>
+     <div class="hrow"><input class="notein" data-in="noteDraft" value="${esc(S.noteDraft)}" placeholder="Add a note: what did ${esc(first)} say?" aria-label="New note"><button class="abtn dark" type="button" data-act="addNote:${s.id}">Add note</button></div>
+     ${(S.acts[s.id]||[]).filter((e)=>S.actF==='all'||e[1]===S.actF).map((e)=>`<div class="hrow" style="min-height:38px;font-size:14px;animation:fadeIn .3s ease"><span class="k" style="width:120px;font-size:13px">${e[0]}</span><span class="tag ${e[1]==='device'&&/offline/.test(e[2])?'bad':e[1]==='support'?'jade':e[1]==='note'?'warn':'grey'}" style="width:62px;justify-content:center;flex:none">${{setup:'Setup',money:'Money',device:'Device',support:'Support',note:'Note'}[e[1]]}</span><span class="v">${esc(e[2])}</span><span class="cap">${e[3]}</span></div>`).join('')||'<div class="hrow cap">Nothing yet.</div>'}</div>
+   </div>
+   <div style="width:360px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div class="card ${a==='on'?'support':''}" style="padding:16px 18px;display:flex;flex-direction:column;gap:10px"><b style="font-size:16px">Support access</b>
+     ${a==='none'?`<div class="cap" style="font-size:14px;line-height:20px">Off. To see ${esc(s.name)}' screens, ask ${esc(first)}. They tap “Allow support for 24 hours” in their app.</div><button class="btn primary" type="button" data-act="ask:${s.id}" style="height:44px;font-size:15px" ${s.plan==='Invited'?'disabled style="opacity:.4;height:44px;font-size:15px"':''}>Ask ${esc(first)} for 24-hour access</button>`:''}
+     ${a==='wait'?`<div style="display:flex;align-items:center;gap:8px"><span class="dot pulse" style="background:var(--orange)"></span><b style="font-size:14px">Waiting for ${esc(first)}</b></div><div class="cap" style="font-size:14px;line-height:20px">Sent by text + in their app. Nothing opens until they say yes.</div><div style="display:flex;gap:8px"><button class="abtn" type="button" data-act="cancelAsk:${s.id}">Cancel request</button><button class="abtn" type="button" data-act="allow:${s.id}" style="border-style:dashed">Demo: ${esc(first)} allows →</button></div>`:''}
+     ${a==='on'?`<div style="display:flex;align-items:center;gap:8px"><span class="tag jade">On</span><b style="font-size:14px">${S.left[s.id]} left · turns off by itself</b></div><button class="btn" type="button" data-act="fix:${s.id}" style="height:40px;font-size:14px">${s.id==='golden'&&s.reader[1][0]==='Offline'?'Re-pair the card reader':'Open their screens'}</button><div class="eyebrow">Log · ${esc(first)} sees this too</div><div>${log.map((l)=>`<div class="logl"><span class="t">${l[0]}</span><span>${esc(l[1])}</span></div>`).join('')}</div>`:''}
+    </div>
+    <div class="lockbox">${SV('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>')}<span>${a==='on'?`Support mode: you see what ${esc(first)} sees. Every tap is logged.`:'Hidden: client names + phones, each tech’s pay, notes. Only totals show.'}</span></div>
+    <div class="card pad"><b style="font-size:15px">Quick actions</b><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="abtn" type="button" data-act="call:${s.id}">Call ${esc(first)}</button><button class="abtn" type="button" data-act="textvi:${s.id}">Text in Vietnamese</button><button class="abtn" type="button" data-act="stripe:${s.id}">Resend Stripe link</button></div></div>
+   </div></main>`; }
+
+function newView(){ const f=S.form;
+  const qr='1111111100000110111011011101101110110000011111111'.split('').map((b,i)=>`<i class="${(((i*7+3)%5===0)!==(b==='1'))?'':'o'}"></i>`).join('');
+  return `${bar('Add a salon')}<main style="flex:1;display:flex;gap:24px;padding:24px 32px;min-height:0;overflow:auto">
+  <div class="card pad" style="width:520px;flex:none;gap:14px;padding:22px 24px;align-self:flex-start"><div class="h2">Add a salon</div>
+   <div class="cap" style="font-size:14px;margin-top:-6px">Sends a one-time invite link by text, email or both. The owner opens it, signs up and becomes the owner. Their data is walled off from day one.</div>
+   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">${[['n','Salon name'],['st','State'],['o','Owner name'],['p','Owner cell'],['e','Owner email']].map((x)=>`<div${x[0]==='e'?' style="grid-column:span 2"':''}><label class="lbl" for="f${x[0]}">${x[1]}</label><input class="inp" id="f${x[0]}" data-form="${x[0]}" value="${esc(f[x[0]])}" style="height:44px;font-size:16px"></div>`).join('')}</div>
+   <div><span class="lbl">Plan</span><div class="seg">${[['pilot','Pilot · free 30 days'],['paid','Paid · $49/mo']].map((p)=>`<span class="${S.plan===p[0]?'on':''}" data-act="plan:${p[0]}" tabindex="0" role="button" style="cursor:pointer">${p[1]}</span>`).join('')}</div></div>
+   <div><span class="lbl">Send the invite by</span><div style="display:flex;gap:8px">${[['text','Text message'],['email','Email']].map((c)=>`<button type="button" class="chip ${S.via[c[0]]?'on':''}" data-act="via:${c[0]}" aria-pressed="${S.via[c[0]]}">${S.via[c[0]]?'✓ ':''}${c[1]}</button>`).join('')}</div><div class="cap" style="margin-top:6px">Both is best: text gets read fast, email is the backup.</div></div>
+   ${S.invite?`<div style="display:flex;gap:16px;align-items:center;padding:14px;border-radius:14px;background:var(--surface)"><div class="qr">${qr}</div><div style="display:flex;flex-direction:column;gap:6px;min-width:0"><b>nailpos.app/s/${S.invite.code}</b>
+     ${S.invite.via.map((v)=>`<span style="font-size:13px">✓ ${v==='text'?'Texted to '+esc(S.invite.p):'Emailed to '+esc(S.invite.e)}</span>`).join('')}<span class="cap">Works once · ends in 14 days</span>
+     <div style="display:flex;gap:6px;flex-wrap:wrap">${S.invite.p?`<button class="abtn" type="button" data-act="resend:${S.invite.id}:text">Resend text</button>`:''}${S.invite.e?`<button class="abtn" type="button" data-act="resend:${S.invite.id}:email">Resend email</button>`:''}<button class="abtn" type="button" data-act="copy">Copy link</button></div></div></div>
+    <button class="btn" type="button" data-act="another" style="height:40px;font-size:14px">Add another salon</button>`:`<button class="btn primary" type="button" data-act="makeInvite" style="height:48px;font-size:16px">Send invite</button>`}
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:12px"><b style="font-size:16px">What happens when the owner opens it</b>
+   <div class="group">${[['1 · Sign up','Opens the link from text or email · phone code (email code if no cell) · no password'],['2 · Salon made','Own salon_id (own data wall) · they become owner'],['3 · Defaults','Time zone, receipt, EN/VI, nail service template'],['4 · Setup checklist','10 steps start · progress shows on Salons']].map((r)=>`<div class="hrow"><span class="k">${r[0]}</span><span class="v">${r[1]}</span></div>`).join('')}</div>
+   <div class="group"><div class="hrow" style="font-weight:600">Invites<span class="cap" style="font-weight:400;margin-left:auto">Resend = new link, old one stops working</span></div>${S.invites.map((i)=>`<div style="display:flex;flex-direction:column;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line)"><div style="display:flex;align-items:center;gap:8px"><span style="flex:1;min-width:0"><b>${esc(i.salon)}</b> <span class="cap">· ${esc(i.owner)} · ${esc(i.city)}</span></span><span class="tag ${i.status==='Expired'?'warn':i.status.startsWith('Signed')?'jade':'grey'}">${i.status}</span></div>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="cap" style="flex:1;min-width:180px">Sent ${i.sent} by ${i.via.map((v)=>v==='text'?'text':'email').join(' + ')}${i.status==='Expired'?' · link ended':''}</span>${i.status.startsWith('Signed')?'':`${i.phone?`<button class="abtn" type="button" data-act="resend:${i.id}:text">Resend text</button>`:''}${i.email?`<button class="abtn" type="button" data-act="resend:${i.id}:email">Resend email</button>`:''}`}</div></div>`).join('')}</div>
+  </div></main>`; }
+
+function systemView(){ return `${bar('System')}<main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 24px;min-height:0">
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">${[['Uptime · 30 days','99.98%','1 short blip Nov 9','cap'],['App errors · 24 h','7','5 salons · 0 lost data','cap'],['Stripe messages','1,284','0 failed · all matched','up'],['Our costs · Nov','$84','vs $98 income','cap']].map((k)=>`<div class="stat" style="cursor:default"><span class="cap">${k[0]}</span><span class="v">${k[1]}</span><span class="${k[3]}" style="font-size:12px">${k[2]}</span></div>`).join('')}</div>
+  <div style="display:flex;gap:16px;flex:1;min-height:0"><div class="group" style="flex:1"><div class="hrow" style="font-weight:600">Running smooth checks</div>
+   ${[['Backups','daily + point-in-time · restore test Nov 1','OK','tag jade'],['Data walls test','every change · 2 fake salons','Pass','tag jade'],['Sentry alerts','7 errors · 0 new types','OK','tag jade'],['Uptime checks','app + Stripe webhook','OK','tag jade'],['2-step login','Oliver ✓ · Elang ✓','OK','tag jade'],['Texting 10DLC','1 salon pending (Lily)','Wait','tag warn']].map((c)=>`<div class="hrow"><span class="v">${c[0]}</span><span class="cap">${c[1]}</span><span class="${c[3]}">${c[2]}</span></div>`).join('')}</div>
+  <div class="group" style="width:360px;flex:none"><div class="hrow" style="font-weight:600">Costs this month</div>${[['Supabase','$25'],['Vercel','$20'],['Twilio (texts + numbers)','$31'],['Sentry','$0'],['Domain + email','$8'],['Stripe','$0 · salons pay their fees']].map((c)=>`<div class="hrow"><span class="v">${c[0]}</span><b>${c[1]}</b></div>`).join('')}<div class="hrow"><span class="v cap">Spending alerts on every service</span></div></div></div></main>`; }
+
+function phone(){ return `<div class="phone" style="position:relative"><div class="pbar" style="justify-content:space-between;padding:0 16px"><span style="width:32px"></span><span>Admin · Alerts</span><span class="av">E</span></div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding:12px 16px 80px;overflow:auto">
+   <div style="display:flex;align-items:baseline;gap:8px"><b style="font-size:20px;flex:1">${S.alerts.length} to call</b><span class="cap">${S.salons.length} salons</span></div>
+   ${S.alerts.map((a)=>{const s=byId(a[1]);return `<div class="pa"><div style="display:flex;align-items:center;gap:8px"><b style="flex:1">${esc(s.name)}</b><span class="${s.health[1]}">${s.health[0]}</span></div><div style="font-size:15px;line-height:20px">${a[4]}</div><div class="r"><button class="dark" type="button" data-act="call:${s.id}">Call ${esc(s.owner.split(' ')[0])}</button><button type="button" data-act="handled:${a[0]}">Handled</button></div></div>`;}).join('')||'<div class="cap" style="text-align:center;padding:24px">All clear ✓</div>'}
+  </div><div class="ptabs"><button type="button" class="on">Alerts</button><button type="button" data-act="dev:desk">Salons</button><button type="button" data-act="devnew">Add salon</button></div>
+  ${S.toast?`<div class="toast"><span style="flex:1">${S.toast}</span></div>`:''}</div>`; }
+
+function screen(){ if (S.dev==='phone') return phone();
+  
+  const v={salons:salonsView,salon:salonView,new:newView,system:systemView}[S.view]();
+  if (S.out) return signedOut();
+  return `<div class="app" style="position:relative">${S.me?meMenu():''}${rail()}<div class="col" style="position:relative">${v}${S.toast?`<div class="toastbox"><div class="toast" style="position:static;transform:none"><span>${S.toast}</span></div></div>`:''}</div></div>`; }
+function fit(){ const f=$('#frame'),h=$('#holder'),w=S.dev==='phone'?390:1280,ht=S.dev==='phone'?844:800,sc=Math.min(1,(window.innerWidth-32)/w); f.style.width=w+'px'; f.style.height=ht+'px'; f.style.transform='scale('+sc+')'; h.style.width=w*sc+'px'; h.style.height=ht*sc+'px'; }
+const VI_EXACT = {'2 min':'2 phút','All 6':'Tất cả 6',
+'Salons':'Tiệm','Add salon':'Thêm tiệm','Signed in as':'Đang đăng nhập:','Elang · admin':'Elang · quản trị','Oliver · admin':'Oliver · quản trị','Live · all normal':'Đang chạy · mọi thứ bình thường',
+'Active salons':'Tiệm đang dùng','+1 invited':'+1 đã mời','Pilot · Paid':'Dùng thử · Trả phí','1 pilot ends in 6 days':'1 tiệm hết dùng thử sau 6 ngày','Our income · month':'Thu nhập của mình · tháng','2 × $49 · no card markup':'2 × $49 · không thu thêm phí thẻ',
+'Card volume · week':'Tiền thẻ · tuần','▲ 8% · goes to salons':'▲ 8% · tiền vào thẳng tiệm','At risk':'Có nguy cơ bỏ','Bella Nails · tickets ▼ 60%':'Bella Nails · hoá đơn ▼ 60%',
+'Salon health':'Tình trạng tiệm','All':'Tất cả','Needs action':'Cần xử lý','Pilot':'Dùng thử','Paid':'Trả phí','Invited':'Đã mời','Salon':'Tiệm','Setup':'Cài đặt','Today':'Hôm nay','Stripe':'Stripe','Texts':'Tin nhắn','Health':'Tình trạng',
+'Payouts on':'Đang chuyển tiền','Approved':'Đã duyệt','Good':'Tốt','Reader offline':'Máy thẻ mất kết nối','Needs owner ID':'Cần giấy tờ chủ tiệm','Verified':'Đã xác minh','Pending':'Đang chờ','Setup stuck':'Kẹt cài đặt','Not yet':'Chưa có','Invite sent':'Đã gửi lời mời','Support on':'Đang hỗ trợ',
+'Health only. Client names, phones, tech pay and notes stay hidden unless the owner allows support.':'Chỉ xem tình trạng. Tên, số điện thoại khách, lương thợ và ghi chú được giấu, trừ khi chủ tiệm cho phép hỗ trợ.',
+'Alerts · call before they notice':'Cảnh báo · gọi trước khi tiệm thấy','Open salon':'Mở tiệm','Handled':'Đã xử lý','All clear ✓':'Không có gì ✓','No salons match.':'Không có tiệm nào khớp.',
+'Card reader offline 2 h. Cards can’t be taken on it.':'Máy thẻ mất kết nối 2 giờ. Không quẹt thẻ được.','Stripe needs the owner’s ID. Payouts paused.':'Stripe cần giấy tờ chủ tiệm. Tạm dừng chuyển tiền.',
+'Setup stuck at step 6 (Card reader) for 3 days.':'Kẹt ở bước 6 (máy thẻ) đã 3 ngày.','Tickets down 60% vs last month. At risk.':'Hoá đơn giảm 60% so với tháng trước. Có nguy cơ bỏ.',
+'Search salon or city':'Tìm tiệm hoặc thành phố','‹ Salons':'‹ Tiệm','done':'xong','in progress':'đang làm','This month':'Tháng này','card + cash':'thẻ + tiền mặt','Last sync':'Đồng bộ lần cuối','3 failed today':'3 lần lỗi hôm nay','all synced':'đã đồng bộ hết','no tickets yet':'chưa có hoá đơn',
+'Stripe account':'Tài khoản Stripe','Card reader':'Máy thẻ','Printer':'Máy in','Salon devices':'Thiết bị của tiệm','Texting':'Tin nhắn','App errors (24 h)':'Lỗi ứng dụng (24 giờ)','Offline':'Mất kết nối','OK':'OK','Check':'Kiểm tra','Quiet':'Ít dùng','Not set':'Chưa cài',
+'Activity log · everything that happened':'Nhật ký · mọi việc đã xảy ra','Money':'Tiền','Devices':'Thiết bị','Support':'Hỗ trợ','Notes':'Ghi chú','Note':'Ghi chú','Device':'Thiết bị','Add note':'Thêm ghi chú','Nothing yet.':'Chưa có gì.','system':'hệ thống',
+'Support access':'Quyền hỗ trợ','Hidden: client names + phones, each tech’s pay, notes. Only totals show.':'Được giấu: tên + số điện thoại khách, lương từng thợ, ghi chú. Chỉ hiện tổng số.',
+'Quick actions':'Thao tác nhanh','Text in Vietnamese':'Nhắn tin tiếng Việt','Resend Stripe link':'Gửi lại link Stripe','Cancel request':'Huỷ yêu cầu','End now':'Kết thúc ngay','On':'Bật','Open their screens':'Mở màn hình của tiệm','Re-pair the card reader':'Kết nối lại máy thẻ',
+'Add a salon':'Thêm tiệm','Salon name':'Tên tiệm','State':'Tiểu bang','Owner name':'Tên chủ tiệm','Owner cell':'Số di động chủ tiệm','Owner email':'Email chủ tiệm','Plan':'Gói','Pilot · free 30 days':'Dùng thử · miễn phí 30 ngày','Paid · $49/mo':'Trả phí · $49/tháng',
+'Send the invite by':'Gửi lời mời qua','✓ Text message':'✓ Tin nhắn','Text message':'Tin nhắn','✓ Email':'✓ Email','Both is best: text gets read fast, email is the backup.':'Cả hai là tốt nhất: tin nhắn được đọc nhanh, email để dự phòng.','Send invite':'Gửi lời mời',
+'What happens when the owner opens it':'Khi chủ tiệm mở link','1 · Sign up':'1 · Đăng ký','2 · Salon made':'2 · Tạo tiệm','3 · Defaults':'3 · Cài sẵn','4 · Setup checklist':'4 · Danh sách cài đặt',
+'Opens the link from text or email · phone code (email code if no cell) · no password':'Mở link từ tin nhắn hoặc email · mã qua điện thoại (mã qua email nếu không có di động) · không cần mật khẩu',
+'Own salon_id (own data wall) · they become owner':'Mã tiệm riêng (dữ liệu tách riêng) · họ là chủ tiệm','Time zone, receipt, EN/VI, nail service template':'Múi giờ, hoá đơn, Anh/Việt, mẫu dịch vụ nail','10 steps start · progress shows on Salons':'Bắt đầu 10 bước · tiến độ hiện ở trang Tiệm',
+'Invites':'Lời mời','Resend = new link, old one stops working':'Gửi lại = link mới, link cũ hết dùng được','Not opened':'Chưa mở','Expired':'Hết hạn','Signed up ✓':'Đã đăng ký ✓','Resend text':'Gửi lại tin nhắn','Resend email':'Gửi lại email','Works once · ends in 14 days':'Dùng một lần · hết hạn sau 14 ngày','Copy link':'Chép link','Add another salon':'Thêm tiệm khác',
+'System':'Hệ thống','Uptime · 30 days':'Thời gian chạy · 30 ngày','1 short blip Nov 9':'1 lần gián đoạn ngắn 9/11','App errors · 24 h':'Lỗi ứng dụng · 24 giờ','5 salons · 0 lost data':'5 tiệm · không mất dữ liệu','Stripe messages':'Tin từ Stripe','0 failed · all matched':'0 lỗi · khớp hết','Our costs · Nov':'Chi phí của mình · tháng 11','vs $98 income':'so với thu $98',
+'Running smooth checks':'Kiểm tra vận hành','Backups':'Sao lưu','daily + point-in-time · restore test Nov 1':'hằng ngày + theo thời điểm · thử khôi phục 1/11','Data walls test':'Kiểm tra tách dữ liệu','every change · 2 fake salons':'mỗi lần thay đổi · 2 tiệm giả','Pass':'Đạt','Sentry alerts':'Cảnh báo Sentry','7 errors · 0 new types':'7 lỗi · 0 loại mới','Uptime checks':'Kiểm tra hoạt động','app + Stripe webhook':'ứng dụng + webhook Stripe','2-step login':'Đăng nhập 2 bước','Texting 10DLC':'Đăng ký tin nhắn 10DLC','1 salon pending (Lily)':'1 tiệm đang chờ (Lily)','Wait':'Chờ',
+'Costs this month':'Chi phí tháng này','Twilio (texts + numbers)':'Twilio (tin nhắn + số)','Domain + email':'Tên miền + email','$0 · salons pay their fees':'$0 · tiệm tự trả phí','Spending alerts on every service':'Có cảnh báo chi tiêu cho mọi dịch vụ',
+'Admin · Nail POS team':'Quản trị · nhóm Nail POS','Support · Nail POS team':'Hỗ trợ · nhóm Nail POS','Signed in with':'Đăng nhập bằng','On · authenticator app':'Bật · ứng dụng xác thực','Language':'Ngôn ngữ','Alerts to me':'Báo động cho tôi','Text + push · quiet 10 PM–7 AM':'Tin nhắn + thông báo · im lặng 22h–7h','Off · only shown here':'Tắt · chỉ hiện ở đây',
+'My actions today':'Việc tôi làm hôm nay','Nothing yet today. Calls, notes and support actions show here.':'Hôm nay chưa có gì. Cuộc gọi, ghi chú và việc hỗ trợ sẽ hiện ở đây.','Team':'Nhóm','Oliver (admin) · Elang (admin)':'Oliver (quản trị) · Elang (hỗ trợ)','You':'Bạn','Remove':'Gỡ','+ Add team member':'+ Thêm người hỗ trợ','Help + shortcuts':'Trợ giúp + phím tắt','Sign out':'Đăng xuất',
+'Nail POS Admin':'Quản trị Nail POS','Only for the Nail POS team. Phone code + 2-step login.':'Chỉ dành cho nhóm Nail POS. Mã qua điện thoại + đăng nhập 2 bước.','Your phone':'Số điện thoại của bạn','Send me a code':'Gửi mã cho tôi','Signed out. Support sessions you opened were ended and logged.':'Đã đăng xuất. Các phiên hỗ trợ bạn mở đã kết thúc và được ghi lại.',
+'Admin · Alerts':'Quản trị · Cảnh báo','Alerts':'Cảnh báo','Waiting for':'Đang chờ','Log · Tom sees this too':'Nhật ký · Tom cũng thấy','Support mode · Golden Nails':'Chế độ hỗ trợ · Golden Nails'
+};
+const VI_PART = [
+['Reader back online · alert cleared','Máy thẻ đã kết nối lại · đã xoá cảnh báo'],['since yesterday','từ hôm qua'],[' · in salons\' activity logs',' · trong nhật ký các tiệm'],
+['re-paired reader','đã kết nối lại máy thẻ'],['Reader online ✓','Máy thẻ đã kết nối ✓'],['(text)','(tin nhắn)'],[' · phone code',' · mã qua điện thoại'],
+[' · Pilot',' · Dùng thử'],[' · Paid',' · Trả phí'],[' · Invited',' · Đã mời'],['Hide ›','Ẩn ›'],['View ›','Xem ›'],['Manage ›','Quản lý ›'],
+['Sends a one-time invite link by text, email or both. The owner opens it, signs up and becomes the owner. Their data is walled off from day one.','Gửi link mời dùng một lần qua tin nhắn, email hoặc cả hai. Chủ tiệm mở link, đăng ký và trở thành chủ. Dữ liệu được tách riêng từ ngày đầu.'],
+['They tap “Allow support for 24 hours” in their app.','Họ bấm “Cho phép hỗ trợ 24 giờ” trong ứng dụng.'],['Off. To see ','Đang tắt. Muốn xem màn hình của '],["' screens, ask ",', hãy hỏi '],
+['Sent by text + in their app. Nothing opens until they say yes.','Đã gửi qua tin nhắn + trong ứng dụng. Không mở gì cho đến khi họ đồng ý.'],
+['every action is logged and shown to','mọi thao tác được ghi lại và cho xem:'],['left · turns off by itself','còn lại · tự tắt'],[' left',' còn lại'],
+['Support mode: you see what ','Chế độ hỗ trợ: bạn thấy những gì '],[' sees. Every tap is logged.',' thấy. Mọi lần bấm đều được ghi lại.'],
+['Ask ','Xin '],[' for 24-hour access',' quyền 24 giờ'],['Demo: ','Thử: '],[' allows →',' đồng ý →'],['Waiting for ','Đang chờ '],
+['Add a note: what did ','Thêm ghi chú: '],[' say?',' đã nói gì?'],
+['Called ','Đã gọi '],['Call ','Gọi '],['Calling ','Đang gọi '],['Request sent to ','Đã gửi yêu cầu cho '],[' by text + in their app',' qua tin nhắn + trong ứng dụng'],
+['Asked ','Đã xin '],[' for 24-hour support access',' quyền hỗ trợ 24 giờ'],[' allowed support for 24 h',' đã cho phép hỗ trợ 24 giờ'],['Support mode ended','Đã tắt chế độ hỗ trợ'],
+['Re-paired reader','Đã kết nối lại máy thẻ'],['(support mode)','(chế độ hỗ trợ)'],['back online','đã kết nối lại'],['went offline','mất kết nối'],['Card reader','Máy thẻ'],
+['Alert marked handled: ','Đã xử lý cảnh báo: '],['Marked handled','Đã đánh dấu xử lý'],['(logged)','(đã ghi lại)'],['Sent a text in Vietnamese','Đã nhắn tin tiếng Việt'],['Resent the Stripe ID link','Đã gửi lại link giấy tờ Stripe'],
+['Salon opened','Tiệm mở cửa'],['staff clocked in','thợ đã chấm công'],['Day closed','Đóng sổ cuối ngày'],['cash matched','tiền mặt khớp'],['Stripe payout','Stripe chuyển tiền'],[' to bank ',' vào ngân hàng '],
+['Week-4 review: happy, wants Vietnamese receipts','Đánh giá tuần 4: hài lòng, muốn hoá đơn tiếng Việt'],['Week-2 call: loves the turn list','Gọi tuần 2: rất thích danh sách lượt'],
+['Setup done 10/10','Cài đặt xong 10/10'],['$1 test paid + refunded','thử $1 đã trả + hoàn tiền'],['Stripe connected + verified','Đã kết nối + xác minh Stripe'],['signed up from the invite','đã đăng ký từ lời mời'],
+['Invite sent by text + email','Đã gửi lời mời qua tin nhắn + email'],['Invite sent by email','Đã gửi lời mời qua email'],['Invite sent by text','Đã gửi lời mời qua tin nhắn'],['not opened yet','chưa mở'],
+['reader unplugged after cleaning','máy thẻ bị rút điện khi dọn dẹp'],['Reader shipped; arrives Monday','Đã gửi máy thẻ; thứ Hai tới'],['Step 5 done: Connect payments','Xong bước 5: Kết nối thanh toán'],['Steps 1–4 done (info, services, staff)','Xong bước 1–4 (thông tin, dịch vụ, thợ)'],
+['Stripe needs owner ID · payouts paused','Stripe cần giấy tờ chủ tiệm · tạm dừng chuyển tiền'],['Tickets down 60% vs last month','Hoá đơn giảm 60% so với tháng trước'],['Front desk iPad last used','iPad quầy dùng lần cuối'],
+['Connected · verified · payouts daily to','Đã kết nối · đã xác minh · chuyển tiền hằng ngày vào'],['Connected · verified · no payments yet','Đã kết nối · đã xác minh · chưa có thanh toán'],['Connected · Stripe needs a photo ID · payouts paused','Đã kết nối · Stripe cần ảnh giấy tờ · tạm dừng chuyển tiền'],['Connected · verified · payouts daily','Đã kết nối · đã xác minh · chuyển tiền hằng ngày'],
+['offline since','mất kết nối từ'],[' · online',' · đang kết nối'],['3 failed syncs (saved, will retry)','3 lần đồng bộ lỗi (đã lưu, sẽ thử lại)'],['10DLC approved','10DLC đã duyệt'],['10DLC registration pending (5–10 days)','Đăng ký 10DLC đang chờ (5–10 ngày)'],
+['“Reader not found” at checkout','“Không tìm thấy máy thẻ” khi thanh toán'],['Not paired yet (setup step 6)','Chưa kết nối (bước cài đặt 6)'],['last used 2 days ago','dùng lần cuối 2 ngày trước'],
+['tickets · ','hoá đơn · '],[' total',' tổng'],['since ','từ '],['Owner ','Chủ tiệm '],['/mo','/tháng'],
+['since yesterday','từ hôm qua'],['last step Nov 13','bước cuối 13/11'],['this month','tháng này'],[' open',' mở'],[' to call',' cần gọi'],[' salons',' tiệm'],
+['Today · ','Hôm nay · '],['Yesterday · ','Hôm qua · '],['This month','Tháng này'],['2 days ago','2 ngày trước'],
+['Sent again just now by ','Vừa gửi lại qua '],['Sent ','Đã gửi '],[' by text + email',' qua tin nhắn + email'],[' by email',' qua email'],[' by text',' qua tin nhắn'],['link ended','link đã hết hạn'],
+['Texted to ','Đã nhắn tới '],['Emailed to ','Đã email tới '],['New link ','Link mới '],['texted to','đã nhắn tới'],['emailed to','đã email tới'],['The old link stops working.','Link cũ hết dùng được.'],
+['Invite sent by ','Đã gửi lời mời qua '],[' to ',' cho '],
+[' · in salons\' activity logs',' · trong nhật ký các tiệm'],[' · admin · 2-step ✓',' · quản trị · 2 bước ✓'],[' · support · 2-step ✓',' · hỗ trợ · 2 bước ✓'],
+['Signed in as ','Đăng nhập '],[' (admin)',' (quản trị)'],
+['Shortcuts: / search · A alerts · N add salon · Esc close','Phím tắt: / tìm · A cảnh báo · N thêm tiệm · Esc đóng'],['Code sent · signed back in (demo)','Đã gửi mã · đã đăng nhập lại (thử)'],
+['Reader back online · alert cleared','Máy thẻ đã kết nối lại · đã xoá cảnh báo'],['Support mode off. The log stays with the owner.','Đã tắt hỗ trợ. Nhật ký vẫn lưu cho chủ tiệm.'],
+['Đã đổi sang Tiếng Việt (màn hình của bạn).','Đã đổi sang Tiếng Việt (mọi màn hình).'],
+[' setup',' cài đặt'],['stuck','kẹt'],
+];
+function viText(s){ const t=s.trim(); if(!t) return s; if (VI_EXACT[t]) return s.replace(t,VI_EXACT[t]); let o=s; for (const [a,b] of VI_PART) if (o.includes(a)) o=o.split(a).join(b); return o; }
+function translateVI(root){ const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); const ns=[]; let n; while(n=w.nextNode()) ns.push(n);
+  ns.forEach((x)=>{ if (x.parentElement&&x.parentElement.closest('[data-notr]')) return; const v=viText(x.textContent); if (v!==x.textContent) x.textContent=v; });
+  root.querySelectorAll('[placeholder]').forEach((e)=>{ e.placeholder=viText(e.placeholder); }); }
+
+function render(){ const a=document.activeElement, keep=a&&a.getAttribute&&(a.getAttribute('data-in')||a.getAttribute('data-form')), pos=keep?a.selectionStart:0;
+  $('#frame').innerHTML=screen(); if (S.lang==='vi') translateVI($('#frame')); $('#t-desk').className=S.dev==='desk'?'on':''; $('#t-phone').className=S.dev==='phone'?'on':''; fit();
+  if (keep){ const n=document.querySelector(`[data-in="${keep}"],[data-form="${keep}"]`); if(n){ n.focus(); try{n.setSelectionRange(pos,pos);}catch(e){} } } }
+function addLog(id,t){ (S.log[id]=S.log[id]||[]).push([now(),t]); }
+function act2(id,kind,text,who){ (S.acts[id]=S.acts[id]||[]).unshift(['Today · '+now(),kind,text,who||(S.role==='oliver'?'Oliver':'Elang')]); if(!who){ const s=byId(id); (S.mine[S.role]=S.mine[S.role]||[]).unshift([now(),s?s.name:'',text]); } }
+function act(x){ const i=x.indexOf(':'), k=i<0?x:x.slice(0,i), v=i<0?'':x.slice(i+1);
+  if (k==='dev') S.dev=v; else if (k==='devnew'){ S.dev='desk'; S.view='new'; }
+  else if (k==='restart') reset();
+  else if (k==='go'){ S.view=v; S.noteDraft=''; }
+  else if (k==='me'){ S.me=!S.me; S.mineOpen=false; S.teamOpen=false; }
+  else if (k==='lang'){ S.lang=v; toast(v==='vi'?'Đã đổi sang Tiếng Việt (mọi màn hình).':'Switched to English (all screens).'); return; }
+  else if (k==='alertsMe'){ S.alertsOn=!S.alertsOn; toast(S.alertsOn?'Alerts to you: text + push on':'Alerts to you off · they still show on Salons'); return; }
+  else if (k==='mineOpen') S.mineOpen=!S.mineOpen;
+  else if (k==='teamOpen') S.teamOpen=!S.teamOpen;
+  else if (k==='teamMsg'){ toast(v==='add'?'Invite a team member by phone + email · they must turn on 2-step login':'Removing ends their access right away (logged). Demo: not removed.'); return; }
+  else if (k==='help'){ S.me=false; toast('Shortcuts: / search · A alerts · N add salon · Esc close'); return; }
+  else if (k==='signout'){ S.me=false; S.out=true; for (const id in S.access){ if (S.access[id]==='on') S.access[id]='none'; } }
+  else if (k==='signin'){ S.out=false; toast('Code sent · signed back in (demo)'); return; }
+  else if (k==='role'){ S.role=v; toast('Signed in as '+(v==='oliver'?'Oliver':'Elang')+' (admin)'); return; }
+  else if (k==='filter') S.filter=v;
+  else if (k==='open'){ S.actF='all'; S.sel=v; S.view='salon'; S.dev='desk'; S.noteDraft=''; }
+  else if (k==='actF') S.actF=v;
+  else if (k==='handled'){ const a=S.alerts.find((z)=>z[0]===v); act2(a[1],'note','Alert marked handled: '+a[4]); S.alerts=S.alerts.filter((z)=>z[0]!==v); toast('Marked handled · '+byId(a[1]).name+' (logged)'); return; }
+  else if (k==='call'){ const s=byId(v); act2(v,'note','Called '+s.owner); toast('Calling '+s.owner+' · '+s.phone+' …'); return; }
+  else if (k==='textvi'){ act2(v,'note','Sent a text in Vietnamese'); toast('Text in Vietnamese sent to '+byId(v).owner.split(' ')[0]); return; }
+  else if (k==='stripe'){ act2(v,'money','Resent the Stripe ID link'); toast('Stripe link sent to '+byId(v).owner.split(' ')[0]+'. They finish ID on their phone.'); return; }
+  else if (k==='ask'){ S.access[v]='wait'; act2(v,'support','Asked '+byId(v).owner.split(' ')[0]+' for 24-hour support access'); toast('Request sent to '+byId(v).owner.split(' ')[0]+' by text + in their app'); return; }
+  else if (k==='cancelAsk') S.access[v]='none';
+  else if (k==='allow'){ const s=byId(v); act2(v,'support',s.owner.split(' ')[0]+' allowed support for 24 h',s.owner.split(' ')[0]); S.access[v]='on'; S.left[v]='23 h 59 m'; S.log[v]=[]; addLog(v,s.owner.split(' ')[0]+' allowed support for 24 h'); }
+  else if (k==='fix'){ const s=byId(v); if (s.id==='golden'&&s.reader[1][0]==='Offline'){ addLog(v,'Elang re-paired reader “Front desk”'); act2(v,'support','Re-paired reader “Front desk” (support mode)'); act2(v,'device','Card reader “Front desk” back online','system'); s.reader=['S710 “Front desk” · online',OK]; s.errors=['0',OK]; s.health=['Good','tag jade']; S.alerts=S.alerts.filter((a)=>a[1]!=='golden'); render(); setTimeout(()=>{ addLog(v,'Reader online ✓'); toast('Reader back online · alert cleared'); },700); return; } addLog(v,'Elang opened Today screen'); }
+  else if (k==='endSupport'){ S.access[v]='none'; act2(v,'support','Support mode ended'); addLog(v,'Support ended by Elang'); toast('Support mode off. The log stays with the owner.'); return; }
+  else if (k==='addNote'){ if (!S.noteDraft.trim()) return; const d=new Date(); byId(v).notes.unshift(['Nov 16 · '+now(),S.noteDraft.trim()]); act2(v,'note',S.noteDraft.trim()); S.noteDraft=''; }
+  else if (k==='plan') S.plan=v;
+  else if (k==='via'){ const n=Object.assign({},S.via); n[v]=!n[v]; if(!n.text&&!n.email){ toast('Pick at least one: text or email'); return; } S.via=n; }
+  else if (k==='resend'){ const [id,ch]=v.split(':'); const i=S.invites.find((z)=>z.id===id); i.sent='Nov 16 · '+now(); if(!i.via.includes(ch)) i.via.push(ch); if(i.status==='Expired') i.status='Not opened';
+    if (S.invite&&S.invite.id===id) S.invite.code='Q'+Math.random().toString(36).slice(2,6).toUpperCase();
+    toast('New link '+(ch==='text'?'texted to '+i.phone:'emailed to '+i.email)+'. The old link stops working.'); return; }
+  else if (k==='makeInvite'){ const f=S.form, ph=f.p.replace(/\D/g,'').length===10, em=/.+@.+\..+/.test(f.e||'');
+    if (!f.n.trim()){ toast('Add the salon name'); return; }
+    if (S.via.text&&!ph){ toast('Add a 10-digit cell to send by text'); return; }
+    if (S.via.email&&!em){ toast('Add an email to send by email'); return; }
+    const via=['text','email'].filter((c)=>S.via[c]), id='i'+Date.now();
+    S.invite={id,code:'Q'+Math.random().toString(36).slice(2,6).toUpperCase(),o:f.o,p:S.via.text?f.p:'',e:S.via.email?f.e:'',via};
+    S.invites.unshift({id,salon:f.n,owner:f.o,city:f.st,phone:S.invite.p,email:S.invite.e,via,sent:'Nov 16 · '+now(),status:'Not opened'});
+    toast('Invite sent by '+via.join(' + ')+' to '+f.o);
+    S.salons.push({id:'n'+Date.now(),name:f.n,city:f.st,plan:'Invited',setup:0,today:'—',month:'—',owner:f.o,phone:f.p,since:'—',stripe:['Not yet','tag grey','—'],text:['Not yet','tag grey','—'],reader:['—',['—','tag grey']],printer:['—',['—','tag grey']],devices:['—',['—','tag grey']],errors:['—',['—','tag grey']],health:['Invite sent','tag grey'],notes:[]}); }
+  else if (k==='sendInvite'){ S.invite.sent=true; toast('Invite texted to '+S.invite.o+' · shows on Salons as “Invite sent”'); return; }
+  else if (k==='copy'){ toast('Link copied'); return; }
+  else if (k==='another'){ S.invite=null; S.form={n:'',st:'',o:'',p:'',e:''}; }
+  render(); }
+setInterval(()=>{ let ch=false; for (const id in S.access){ if (S.access[id]==='on'){ const [h,m]=S.left[id].match(/\d+/g).map(Number); const t=h*60+m-1; S.left[id]=Math.floor(t/60)+' h '+String(t%60).padStart(2,'0')+' m'; ch=true; } } if (ch&&!document.activeElement.matches('input')) render(); },60000);
+document.addEventListener('click',(e)=>{ const el=e.target.closest('[data-act]'); if(!el||el.disabled) return; e.preventDefault(); act(el.getAttribute('data-act')); });
+document.addEventListener('keydown',(e)=>{ if (e.key==='Escape'&&S.me){ S.me=false; render(); return; } if ((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=tab][data-act],[role=button][data-act]')){ e.preventDefault(); act(e.target.getAttribute('data-act')); } if (e.key==='Enter'&&e.target.matches('[data-in="noteDraft"]')){ act('addNote:'+S.sel); } });
+document.addEventListener('input',(e)=>{ const k=e.target.getAttribute('data-in'); if(k){ S[k]=e.target.value; if(k==='q') render(); } const f=e.target.getAttribute('data-form'); if(f) S.form[f]=e.target.value; });
+window.addEventListener('resize',fit);
+render();
+</script>

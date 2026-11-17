@@ -64,3 +64,65 @@ test("front desk builds a ticket, takes cash with change + tips, ticket stays pa
   await expect(page.getByText(/Paid today · \$62\.00/)).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+// Gift cards (test copy): sell a plastic card with a service, then use it for part of the next ticket; a blank card is refused.
+test("gift card: sold with a service, then pays part of the next ticket", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  const gel = async () => {
+    await page.goto("/checkout");
+    await page.getByTestId("new-ticket").click();
+    await page.getByTestId("add-service").click();
+    await page.getByLabel("Search services").fill("gel color man");
+    await page.getByRole("button", { name: /Gel color manicure/ }).click();
+    await page.getByTestId("pick-Kim").click();
+  };
+  // Ticket A: $45 + plastic gift card $25 → $70 cash
+  await gel();
+  await page.getByTestId("add-gift").click();
+  await page.getByTestId("gift-kind-plastic").click();
+  await page.getByRole("button", { name: "$25", exact: true }).click();
+  await page.getByTestId("gift-code").fill("6012 3456 7890 0147");
+  await page.getByTestId("gift-look").click();
+  await expect(page.getByTestId("gift-blank")).toContainText("0147");
+  await page.getByTestId("gift-add").click();
+  await expect(page.getByTestId("gift-line")).toHaveCount(1);
+  await expect(page.getByTestId("charge")).toHaveText("Charge $70.00");
+  await page.getByTestId("charge").click();
+  await page.getByTestId("pay-cash").click();
+  await expect(page.getByTestId("cash-total")).toHaveText("$70.00");
+  await page.getByRole("button", { name: "$100", exact: true }).click();
+  await page.getByTestId("cash-received").click();
+  await expect(page.getByTestId("gift-sold")).toContainText("Gift card •••• 0147 is now active · $25.00");
+  await expect(page.getByTestId("salon-keeps")).toHaveText("$45.00");
+
+  // Ticket B: $45; a blank card is refused; card 0147 pays $25, $20 left in cash
+  await gel();
+  await page.getByTestId("charge").click();
+  await page.getByTestId("pay-gift").click();
+  await page.getByTestId("gift-code").fill("6012345678900148");
+  await page.getByTestId("gift-look").click();
+  await expect(page.getByTestId("gift-refused")).toContainText("This card was never sold");
+  await page.getByTestId("gift-code").fill("6012 3456 7890 0147");
+  await page.getByTestId("gift-look").click();
+  await expect(page.getByTestId("gift-balance")).toHaveText("$25.00");
+  await expect(page.getByTestId("gift-use-amt")).toHaveText("$25.00");
+  await page.getByTestId("gift-use").click();
+  await expect(page.getByTestId("pay-amount")).toHaveText("$20.00");
+  await expect(page.getByTestId("gift-paid")).toContainText("−$25.00");
+  await page.getByTestId("pay-cash").click();
+  await expect(page.getByTestId("cash-total")).toHaveText("$20.00");
+  await page.getByRole("button", { name: "$20", exact: true }).click();
+  await page.getByTestId("cash-received").click();
+  await expect(page.getByTestId("paid-total")).toHaveText("$20.00 cash");
+  await expect(page.getByTestId("salon-keeps")).toHaveText("$45.00");
+
+  // Ticket C: same card again → used up
+  await gel();
+  await page.getByTestId("charge").click();
+  await page.getByTestId("pay-gift").click();
+  await page.getByTestId("gift-code").fill("6012345678900147");
+  await page.getByTestId("gift-look").click();
+  await expect(page.getByTestId("gift-refused")).toContainText("No money left");
+  expect(errors).toEqual([]);
+});

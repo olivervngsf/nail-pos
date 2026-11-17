@@ -1,5 +1,6 @@
 "use client";
 // Tech's own phone. Session 1: who I am, clock in/out, language, sign out. Earnings + schedule come in later sessions.
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROLE_LABEL, SMS_ON, isSignedIn, myMemberships, rpc, signOut, type Membership } from "@/lib/auth";
@@ -71,6 +72,7 @@ export default function TechHome() {
           <Row title={vi ? "Vai trò" : "Role"} right={<b>{ROLE_LABEL[m.role]}</b>} />
           <Row title={vi ? "Ngôn ngữ" : "Language"} right={<Segmented label="Language" value={lang} onChange={setLang} options={[{ value: "en", label: "EN" }, { value: "vi", label: "VI" }]} />} />
         </ListGroup>
+        <Link className="btn" href="/clients" data-testid="tech-clients">{vi ? "Khách hàng: ghi chú + ảnh" : "Clients: notes + photos"}</Link>
         <Button variant="ghost" data-testid="sign-out" onClick={async () => { await signOut(); router.replace("/login"); }}>{vi ? "Đăng xuất" : "Sign out"}</Button>
       </div>
       {toast && <Toast>{toast}</Toast>}

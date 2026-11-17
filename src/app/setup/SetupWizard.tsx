@@ -603,7 +603,7 @@ const Clients: StepView = ({ s, set }) => [{ skip: true }, <>
 </>];
 
 /* 9. Test $1 */
-const Test: StepView = ({ s, set }) => [{ lock: s.test !== "done" }, <>
+const Test: StepView = ({ s, set }) => SMS_ON ? [{ lock: s.test !== "done", skip: true }, <TestDollar key="td" s={s} set={set} />] : [{ lock: s.test !== "done" }, <>
   <H1>Test with $1</H1>
   <div className="cap lead">Charge $1 on the reader with your own card, then we refund it. This proves money reaches your bank.</div>
   <div className="card pad" style={{ alignItems: "center", gap: 14, padding: 28 }}>
@@ -614,6 +614,40 @@ const Test: StepView = ({ s, set }) => [{ lock: s.test !== "done" }, <>
   </div>
   <div className="demo">Test version: no real charge until Stripe is connected.</div>
 </>];
+
+/* Real $1 test (sign-in on): charge $1 on the reader, refund it at once, show the fee. */
+function TestDollar({ s, set }: Pick<StepProps, "s" | "set">) {
+  const [err, setErr] = useState("");
+  const [res, setRes] = useState<{ feeCents: number | null; brand: string | null; last4: string | null } | null>(null);
+  const stop = useRef(false);
+  useEffect(() => () => { stop.current = true; }, []);
+  const run = async () => {
+    setErr(""); set((p) => ({ ...p, test: "tap" }));
+    try {
+      const { intent } = await api<{ intent: string }>("/api/stripe/test-dollar", { salonId: s.salonId });
+      for (let i = 0; i < 80 && !stop.current; i++) {
+        await new Promise((r) => setTimeout(r, 1500));
+        const r = await api<{ status: string; error?: string; feeCents: number | null; brand: string | null; last4: string | null }>(`/api/stripe/test-dollar?salonId=${s.salonId}&intent=${intent}`).catch(() => ({ status: "pending" }) as { status: string; error?: string; feeCents: null; brand: null; last4: null });
+        if (r.status === "done") { setRes(r); set((p) => ({ ...p, test: "done" })); return; }
+        if (r.status === "failed") throw new Error(r.error || "Card declined. Try another card.");
+      }
+      throw new Error("No card was tapped. Try again.");
+    } catch (e) { setErr((e as Error).message); set((p) => ({ ...p, test: "start" })); }
+  };
+  return <>
+    <H1>Test with $1</H1>
+    <div className="cap lead">Charge $1 on the reader with your own card, then we refund it. This proves money reaches your bank.</div>
+    <div className="card pad" style={{ alignItems: "center", gap: 14, padding: 28 }}>
+      {s.test === "start" && <><div className="money">{fmtMoney(100)}</div>
+        <button className="btn primary" type="button" onClick={() => void run()}>Charge $1.00 on the reader</button></>}
+      {s.test === "tap" && <><div className="spin" /><b>Tap, insert or swipe on the reader…</b><span className="cap">Waiting up to 2 minutes.</span></>}
+      {s.test === "done" && <><div className="okmark">✓</div><b style={{ fontSize: 17 }}>Paid $1.00 · refunded $1.00</b>
+        <div className="cap">{res?.last4 ? `${(res.brand ?? "Card").toUpperCase()} •• ${res.last4} · ` : ""}{res?.feeCents != null ? `Stripe kept a ${fmtMoney(res.feeCents)} card fee (kept even on a refund).` : "Stripe's small card fee shows in your Stripe account."}</div></>}
+      {err && <div className="hint err" role="alert">{err}</div>}
+    </div>
+    <div className="cap">You can skip this and test on your first real ticket. Payments (step 4) and the reader (step 5) must be done first.</div>
+  </>;
+}
 
 /* 10. Ready */
 const Ready: StepView = ({ s, go }) => {

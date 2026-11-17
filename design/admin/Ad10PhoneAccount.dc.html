@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone account sheet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="afp">
+  <div class="afp-screen">
+    <dc-import name="AdminPhone" me="{{yes}}" hint-size="390px,844px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="6"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+  </div>
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
+    <div class="eyebrow">Annotations · A10</div>
+    <div class="af-title">Phone: tap E → my account</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="6"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Big rows (52 px) and buttons (48 px) for one-thumb use.</div>
+  </div></sc-if></aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":750,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
+  renderVals() {
+    const P = [[48, 270, "Tap E (top right) → My account slides up from the bottom. Same as the desktop menu."], [48, 358, "Signed in with a phone code; 2-step login is on."], [48, 490, "Language: English or Tiếng Việt for every Admin screen."], [48, 555, "Alerts to me: text + push with quiet hours. Switch off = alerts only show in the app."], [48, 620, "My actions today (also in each salon’s activity log). Team: both admins."], [48, 750, "Help, Sign out. Tap outside or ✕ to close."]];
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

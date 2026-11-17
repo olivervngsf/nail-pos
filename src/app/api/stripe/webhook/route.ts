@@ -23,6 +23,20 @@ export async function POST(req: Request) {
     await settle(meta.pay_request);
   } else if (ev.type === "checkout.session.completed" && meta.pay_request) {
     await settle(meta.pay_request);
+  } else if (ev.type === "charge.refunded") {
+    // Refund made in the Stripe dashboard (or ours, seen again): record it once, full or part.
+    const ch = ev.data.object as Stripe.Charge;
+    const pi = typeof ch.payment_intent === "string" ? ch.payment_intent : ch.payment_intent?.id;
+    const last = ch.refunds?.data?.[0]?.id ?? `${ch.id}-${ch.amount_refunded}`;
+    if (pi) await db.rpc("stripe_refund_seen", { p_intent: pi, p_refund: last, p_refunded: ch.amount_refunded });
+  } else if (ev.type === "charge.updated") {
+    // Card fee wasn't ready when the payment was saved: fill it in now.
+    const ch = ev.data.object as Stripe.Charge;
+    const pi = typeof ch.payment_intent === "string" ? ch.payment_intent : ch.payment_intent?.id;
+    if (pi && typeof ch.balance_transaction === "string" && ev.account) {
+      const bt = await st.balanceTransactions.retrieve(ch.balance_transaction, {}, { stripeAccount: ev.account });
+      await db.rpc("stripe_set_fee", { p_intent: pi, p_fee: bt.fee });
+    }
   } else if (ev.type === "account.updated") {
     const a = ev.data.object as Stripe.Account;
     await db.from("stripe_accounts").update({ charges_enabled: !!a.charges_enabled, payouts_enabled: !!a.payouts_enabled, details_submitted: !!a.details_submitted, updated_at: new Date().toISOString() }).eq("account_id", a.id);

@@ -5,7 +5,9 @@
 --  4. Manager OKs are tied to one job: a discount OK to one ticket, a refund OK to one ticket and used once. Only managers read them.
 --  5. Card payments: a ticket that changes while a card try waits cancels that try; a card payment that lands on a
 --     cancelled try / changed or already-paid ticket is still recorded (status 'extra', flagged to refund), never lost.
---  6. Techs don't read clients, tickets, ticket lines, payments, receipts, pay requests or refunds (desk roles only).
+--  6. Techs don't read tickets, ticket lines, payments, receipts, pay requests or refunds (desk roles only).
+--     Client profiles stay readable by all staff through the client functions (M6 decision: techs see them on their phone).
+-- Built on top of the gift card (M5) and clients (M6) versions of save_ticket / settle_card.
 
 -- ---------- 1. memberships ----------
 revoke select, insert, update, delete on public.memberships from anon, authenticated;
@@ -136,11 +138,20 @@ grant execute on function public.use_refund_ok(uuid, uuid) to service_role;
 
 -- ---------- 5. tickets + card payments ----------
 alter table public.payments drop constraint payments_status_check;
-alter table public.payments add constraint payments_status_check check (status in ('paid', 'refunded', 'extra'));
-comment on column public.payments.status is 'extra = card money that came in for a cancelled try or a changed/paid ticket: refund it to the client';
+alter table public.payments add constraint payments_status_check check (status in ('paid', 'refunded', 'canceled', 'extra'));
+comment on column public.payments.status is 'extra = card money that came in for a stopped try or a changed/paid ticket: refund it to the client';
 
--- Same as before, plus: a discount OK binds to this ticket on first use (no reuse on other tickets), and a change to
--- what's owed cancels any card try still waiting. A cash payment cancels waiting card tries too.
+-- What a card try must charge right now: services - discount + gift cards sold - gift cards used (same as pay_info).
+create function public._card_due(p_ticket uuid) returns bigint language sql stable set search_path = '' as $$
+  select (greatest(coalesce(sum(l.amount_cents) filter (where l.kind = 'service'), 0)
+                   - least(coalesce(-sum(l.amount_cents) filter (where l.kind = 'discount'), 0), coalesce(sum(l.amount_cents) filter (where l.kind = 'service'), 0)), 0)
+          + coalesce(sum(l.amount_cents) filter (where l.kind = 'gift_sale'), 0)
+          - coalesce((select sum(p.amount_cents) from public.payments p where p.ticket_id = p_ticket and p.method = 'gift_card' and p.status = 'paid'), 0))::bigint
+  from public.ticket_lines l where l.ticket_id = p_ticket and l.removed_at is null $$;
+revoke execute on function public._card_due(uuid) from public, anon, authenticated;
+
+-- save_ticket (M5 version) plus: a discount OK binds to this ticket on first use (no reuse on other tickets);
+-- a change to what's owed cancels any card try still waiting; a cash payment cancels waiting card tries.
 create or replace function public.save_ticket(p jsonb) returns jsonb
 language plpgsql security definer set search_path = '' as $$
 declare
@@ -149,7 +160,8 @@ declare
   t public.tickets;
   cid uuid;
   ln jsonb; i int := 0; keep uuid[] := '{}';
-  sub bigint; disc bigint; tip bigint; total bigint; given bigint;
+  sub bigint; disc bigint; tip bigint; gift bigint; total bigint; given bigint; left_due bigint;
+  gc public.gift_cards; gs jsonb;
 begin
   if tid is null or sid is null then raise exception 'ticket id and salon required'; end if;
   if not public._is_desk(sid) then raise exception 'not allowed'; end if;
@@ -159,6 +171,7 @@ begin
   if t.id is not null and t.status <> 'open' then
     return jsonb_build_object('id', t.id, 'number', t.number, 'status', t.status);
   end if;
+  select gift_settings into gs from public.salons where id = sid;
 
   if coalesce(p->'client'->>'phone', '') <> '' then
     insert into public.clients (salon_id, phone, name) values (sid, p->'client'->>'phone', coalesce(p->'client'->>'name', ''))
@@ -180,7 +193,7 @@ begin
 
   for ln in select * from jsonb_array_elements(coalesce(p->'lines', '[]')) loop
     i := i + 1;
-    if ln->>'kind' not in ('service', 'discount', 'tip') then raise exception 'bad line'; end if;
+    if ln->>'kind' not in ('service', 'discount', 'tip', 'gift_sale') then raise exception 'bad line'; end if;
     if ln->>'kind' = 'discount' then
       -- First use binds the OK to this ticket; later saves of the same ticket keep working (even after a long offline stretch).
       update public.discount_approvals set ticket_id = tid, used_at = coalesce(used_at, now())
@@ -190,41 +203,50 @@ begin
       if (ln->>'cents')::bigint > 0 then raise exception 'discount must take money off'; end if;
     elsif (ln->>'cents')::bigint < 0 then raise exception 'amount can''t be below $0';
     end if;
-    insert into public.ticket_lines (id, salon_id, ticket_id, kind, service_id, staff_id, name, minutes, amount_cents, price_from, reason, approval_id, sort)
+    if ln->>'kind' = 'gift_sale' then
+      select * into gc from public.gift_cards where id = (ln->>'giftCardId')::uuid and salon_id = sid;
+      if gc.id is null or gc.status not in ('in_stock', 'active', 'used_up') then raise exception 'gift card can''t be sold'; end if;
+      if gc.status = 'in_stock' and (ln->>'cents')::bigint < coalesce((gs->>'min_cents')::bigint, 100) then raise exception 'gift card amount too small'; end if;
+      if public._gift_balance(gc.id) + (ln->>'cents')::bigint > coalesce((gs->>'max_cents')::bigint, 100000) then raise exception 'gift card amount too big'; end if;
+    end if;
+    insert into public.ticket_lines (id, salon_id, ticket_id, kind, service_id, staff_id, name, minutes, amount_cents, price_from, reason, approval_id, gift_card_id, sort)
     values ((ln->>'id')::uuid, sid, tid, ln->>'kind',
             (select id from public.services where id = (ln->>'serviceId')::uuid and salon_id = sid),
-            public._salon_member(sid, (ln->>'staffId')::uuid),
+            case when ln->>'kind' = 'gift_sale' then null else public._salon_member(sid, (ln->>'staffId')::uuid) end,
             coalesce(ln->>'name', ''), (ln->>'minutes')::int, (ln->>'cents')::bigint, coalesce((ln->>'priceFrom')::boolean, false),
-            ln->>'reason', (ln->>'approvalId')::uuid, i)
+            ln->>'reason', (ln->>'approvalId')::uuid, case when ln->>'kind' = 'gift_sale' then gc.id end, i)
     on conflict (id) do update set kind = excluded.kind, service_id = excluded.service_id, staff_id = excluded.staff_id, name = excluded.name,
       minutes = excluded.minutes, amount_cents = excluded.amount_cents, price_from = excluded.price_from, reason = excluded.reason,
-      approval_id = excluded.approval_id, sort = excluded.sort, removed_at = null
+      approval_id = excluded.approval_id, gift_card_id = excluded.gift_card_id, sort = excluded.sort, removed_at = null
     where public.ticket_lines.ticket_id = tid;
     keep := keep || (ln->>'id')::uuid;
   end loop;
-  update public.ticket_lines set removed_at = now() where ticket_id = tid and removed_at is null and not (id = any (keep));
+  -- Card tips come from Stripe, not the device: keep them.
+  update public.ticket_lines set removed_at = now() where ticket_id = tid and removed_at is null and not (id = any (keep)) and name <> 'Card tip';
 
   select coalesce(sum(amount_cents) filter (where kind = 'service'), 0),
          coalesce(-sum(amount_cents) filter (where kind = 'discount'), 0),
-         coalesce(sum(amount_cents) filter (where kind = 'tip'), 0)
-    into sub, disc, tip from public.ticket_lines where ticket_id = tid and removed_at is null;
+         coalesce(sum(amount_cents) filter (where kind = 'tip'), 0),
+         coalesce(sum(amount_cents) filter (where kind = 'gift_sale'), 0)
+    into sub, disc, tip, gift from public.ticket_lines where ticket_id = tid and removed_at is null;
   disc := least(disc, sub);
-  total := sub - disc + tip;
-  update public.tickets set subtotal_cents = sub, discount_cents = disc, tip_cents = tip, total_cents = total where id = tid;
+  total := sub - disc + tip + gift;
+  update public.tickets set subtotal_cents = sub, discount_cents = disc, tip_cents = tip, gift_cents = gift, total_cents = total where id = tid;
 
   -- What's owed changed while a card try waits: that try is no longer for this ticket.
   update public.pay_requests set status = 'canceled', error = 'ticket changed', updated_at = now()
-  where ticket_id = tid and status = 'pending' and amount_cents <> sub - disc;
+  where ticket_id = tid and status = 'pending' and amount_cents <> public._card_due(tid);
 
   if p ? 'payment' and p->'payment' is not null and jsonb_typeof(p->'payment') = 'object' then
-    if p->'payment'->>'method' <> 'cash' then raise exception 'only cash for now'; end if;
+    if p->'payment'->>'method' <> 'cash' then raise exception 'only cash here'; end if;
     if exists (select 1 from public.ticket_lines where ticket_id = tid and removed_at is null and kind = 'service' and staff_id is null) then
       raise exception 'every service needs a staff member';
     end if;
+    left_due := public._ticket_left(tid);
     given := (p->'payment'->>'givenCents')::bigint;
-    if given is null or given < total then raise exception 'cash given is less than the total'; end if;
+    if given is null or given < left_due then raise exception 'cash given is less than the total'; end if;
     insert into public.payments (id, salon_id, ticket_id, method, amount_cents, tip_cents, given_cents, change_cents, taken_by, device_id, at)
-    values ((p->'payment'->>'id')::uuid, sid, tid, 'cash', total, tip, given, given - total,
+    values ((p->'payment'->>'id')::uuid, sid, tid, 'cash', left_due, tip, given, given - left_due,
             public._salon_member(sid, (p->'payment'->>'takenBy')::uuid), t.device_id,
             least(now(), coalesce((p->'payment'->>'at')::timestamptz, now())))
     on conflict (id) do nothing;
@@ -236,7 +258,7 @@ begin
     values (sid, public.my_person_id(), 'ticket.paid', jsonb_build_object('ticket', tid, 'number', t.number, 'total_cents', total, 'method', 'cash'));
   end if;
 
-  return jsonb_build_object('id', t.id, 'number', t.number, 'status', t.status);
+  return jsonb_build_object('id', t.id, 'number', t.number, 'status', t.status, 'left_cents', public._ticket_left(tid));
 end $$;
 
 -- Card money confirmed by Stripe (server only). Same payment intent twice = one payment.
@@ -245,7 +267,7 @@ end $$;
 -- the ticket is left alone, and the audit log flags it for a refund.
 create or replace function public.settle_card(p jsonb) returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare pr public.pay_requests; t public.tickets; pid uuid; tp jsonb; sub bigint; disc bigint; tip bigint; why text;
+declare pr public.pay_requests; t public.tickets; pid uuid; tp jsonb; sub bigint; disc bigint; tip bigint; gift bigint; why text;
 begin
   select * into pr from public.pay_requests where id = (p->>'payRequestId')::uuid for update;
   if pr.id is null then raise exception 'no pay request'; end if;
@@ -255,13 +277,9 @@ begin
     return jsonb_build_object('ticket', t.id, 'status', t.status, 'already', true, 'payment', pid);
   end if;
 
-  select coalesce(sum(amount_cents) filter (where kind = 'service'), 0), coalesce(-sum(amount_cents) filter (where kind = 'discount'), 0)
-    into sub, disc from public.ticket_lines where ticket_id = t.id and removed_at is null;
-  disc := least(disc, sub);
   why := case when pr.status <> 'pending' then 'try was ' || pr.status
               when t.status <> 'open' then 'ticket already ' || t.status
-              when sub - disc <> pr.amount_cents then 'ticket changed' end;
-
+              when public._card_due(t.id) <> pr.amount_cents then 'ticket changed' end;
   if why is not null then
     insert into public.payments (id, salon_id, ticket_id, method, amount_cents, tip_cents, fee_cents, stripe_payment_intent, card_brand, card_last4, status, taken_by, device_id, at)
     values (gen_random_uuid(), t.salon_id, t.id, pr.method, (p->>'amountCents')::bigint, coalesce((p->>'tipCents')::bigint, 0), coalesce((p->>'feeCents')::bigint, 0),
@@ -274,21 +292,23 @@ begin
     return jsonb_build_object('ticket', t.id, 'status', t.status, 'extra', true, 'payment', pid);
   end if;
 
-  -- Card tips replace any tip lines on the ticket (cash tips only exist on cash tickets).
+  -- Card tips replace any tip lines on the ticket (a stale save from before the card step can't double them).
   update public.ticket_lines set removed_at = now() where ticket_id = t.id and kind = 'tip' and removed_at is null;
   for tp in select * from jsonb_array_elements(coalesce(p->'tips', '[]')) loop
     continue when coalesce((tp->>'cents')::bigint, 0) <= 0;
     insert into public.ticket_lines (id, salon_id, ticket_id, kind, staff_id, name, amount_cents, sort)
     values (gen_random_uuid(), t.salon_id, t.id, 'tip', public._salon_member(t.salon_id, (tp->>'staffId')::uuid), 'Card tip', (tp->>'cents')::bigint, 1000);
   end loop;
-  select coalesce(sum(amount_cents), 0) into tip from public.ticket_lines where ticket_id = t.id and kind = 'tip' and removed_at is null;
-
+  select coalesce(sum(amount_cents) filter (where kind = 'service'), 0), coalesce(-sum(amount_cents) filter (where kind = 'discount'), 0),
+         coalesce(sum(amount_cents) filter (where kind = 'tip'), 0), coalesce(sum(amount_cents) filter (where kind = 'gift_sale'), 0)
+    into sub, disc, tip, gift from public.ticket_lines where ticket_id = t.id and removed_at is null;
+  disc := least(disc, sub);
   insert into public.payments (id, salon_id, ticket_id, method, amount_cents, tip_cents, fee_cents, stripe_payment_intent, card_brand, card_last4, taken_by, device_id, at)
   values (gen_random_uuid(), t.salon_id, t.id, pr.method, (p->>'amountCents')::bigint, coalesce((p->>'tipCents')::bigint, 0), coalesce((p->>'feeCents')::bigint, 0),
           p->>'paymentIntent', p->>'brand', p->>'last4', pr.created_by, t.device_id, coalesce((p->>'at')::timestamptz, now()))
   returning id into pid;
   update public.tickets set status = 'paid', paid_at = coalesce((p->>'at')::timestamptz, now()), paid_by = pr.created_by,
-    subtotal_cents = sub, discount_cents = disc, tip_cents = tip, total_cents = sub - disc + tip, updated_at = now() where id = t.id;
+    subtotal_cents = sub, discount_cents = disc, tip_cents = tip, gift_cents = gift, total_cents = sub - disc + tip + gift, updated_at = now() where id = t.id;
   update public.pay_requests set status = 'paid', tip_cents = coalesce((p->>'tipCents')::bigint, 0), payment_intent = p->>'paymentIntent', updated_at = now() where id = pr.id;
   update public.pay_requests set status = 'canceled', error = 'paid another way', updated_at = now() where ticket_id = t.id and id <> pr.id and status = 'pending';
   insert into public.audit_log (salon_id, action, detail)
@@ -296,29 +316,37 @@ begin
   return jsonb_build_object('ticket', t.id, 'status', 'paid', 'payment', pid);
 end $$;
 
--- ---------- 6. desk roles read money + client data ----------
+-- Refund seen in the Stripe dashboard: refunding an 'extra' payment must not mark the real (paid) ticket refunded.
+create or replace function public.stripe_refund_seen(p_intent text, p_refund text, p_refunded bigint) returns jsonb
+language plpgsql security definer set search_path = '' as $$
+declare pay public.payments; add bigint;
+begin
+  select * into pay from public.payments where stripe_payment_intent = p_intent for update;
+  if pay.id is null then return jsonb_build_object('ok', false, 'reason', 'unknown'); end if;
+  add := least(p_refunded, pay.amount_cents) - pay.refunded_cents;
+  if add <= 0 then return jsonb_build_object('ok', true, 'already', true); end if;
+  insert into public.refunds (salon_id, ticket_id, payment_id, amount_cents, reason, stripe_refund_id)
+  values (pay.salon_id, pay.ticket_id, pay.id, add, case when pay.status = 'extra' then 'Extra card payment refunded in Stripe' else 'Refunded in Stripe' end, p_refund)
+  on conflict (stripe_refund_id) do nothing;
+  update public.payments set refunded_cents = refunded_cents + add,
+    status = case when pay.status <> 'extra' and refunded_cents + add >= amount_cents then 'refunded' else status end where id = pay.id;
+  if pay.status <> 'extra' and pay.refunded_cents + add >= pay.amount_cents then
+    update public.tickets set status = 'refunded', updated_at = now() where id = pay.ticket_id and status = 'paid';
+  end if;
+  insert into public.audit_log (salon_id, action, detail)
+  values (pay.salon_id, case when pay.status = 'extra' then 'payment.extra_refunded' else 'ticket.refunded' end,
+          jsonb_build_object('ticket', pay.ticket_id, 'amount_cents', add, 'source', 'stripe'));
+  return jsonb_build_object('ok', true, 'refunded_cents', pay.refunded_cents + add);
+end $$;
+
+-- ---------- 6. desk roles read money data ----------
 grant execute on function public._is_desk(uuid) to authenticated;  -- used by the policies below (says only whether *you* are desk staff)
 do $$ declare t text; begin
-  foreach t in array array['clients', 'tickets', 'ticket_lines', 'payments', 'receipts', 'pay_requests', 'refunds'] loop
+  foreach t in array array['tickets', 'ticket_lines', 'payments', 'receipts', 'pay_requests', 'refunds'] loop
     execute format('drop policy "members read" on public.%I', t);
     execute format('create policy "desk read" on public.%I for select to authenticated using (public._is_desk(salon_id))', t);
   end loop;
 end $$;
-
-create or replace function public.client_lookup(p_salon uuid, p_phone text)
-returns table (client_id uuid, name text, phone text, notes text, visits int, avg_cents bigint, last_visit timestamptz, last_services text)
-language sql stable security definer set search_path = '' as $$
-  select c.id, c.name, c.phone, c.notes,
-    (select count(*)::int from public.tickets t where t.client_id = c.id and t.status = 'paid'),
-    (select coalesce(round(avg(t.subtotal_cents - t.discount_cents)), 0)::bigint from public.tickets t where t.client_id = c.id and t.status = 'paid'),
-    lt.paid_at,
-    (select string_agg(l.name || coalesce(' with ' || m.display_name, ''), ', ' order by l.sort)
-       from public.ticket_lines l left join public.memberships m on m.id = l.staff_id
-       where l.ticket_id = lt.id and l.kind = 'service' and l.removed_at is null)
-  from public.clients c
-  left join lateral (select t.id, t.paid_at from public.tickets t where t.client_id = c.id and t.status = 'paid' order by t.paid_at desc limit 1) lt on true
-  where c.salon_id = p_salon and c.phone = p_phone and c.archived_at is null and public._is_desk(p_salon);
-$$;
 
 -- ---------- 7. AI calls log (menu reading): per-person daily limit, written by the server only ----------
 create table public.ai_calls (

@@ -1,6 +1,6 @@
 -- Review fixes (Nov 17) in SQL. Rolls back.
 -- PIN hash hidden; manager can't touch the owner; phone can't be changed or taken over; tech on own phone can't try PINs;
--- discount OK can't be reused on another ticket; refund OK is single-use; techs can't read tickets/clients;
+-- discount OK can't be reused on another ticket; refund OK is single-use; techs can't read tickets/payments;
 -- a ticket change cancels a waiting card try; card money for a cancelled try is recorded as 'extra', not lost.
 begin;
 insert into auth.users (id, phone, aud, role) values
@@ -138,14 +138,12 @@ insert into t_out values ('use2', to_jsonb(public.use_refund_ok((select (v->>'ap
 insert into t_out values ('use_discount_ok', to_jsonb(public.use_refund_ok((select (v->>'approval_id')::uuid from t_out where k = 'ok1'), '00000000-0000-0000-0000-0000000007b1')));
 reset role;
 
--- 7. tech reads no money or client data; owner does
+-- 7. tech reads no money data (client profiles stay readable through the client functions, by M6 design); owner does
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000cc03","role":"authenticated"}', true);
 insert into t_out values ('tech_reads', jsonb_build_array(
-  (select count(*) from public.tickets), (select count(*) from public.clients), (select count(*) from public.payments),
-  (select count(*) from public.ticket_lines), (select count(*) from public.pay_requests), (select count(*) from public.discount_approvals),
-  (select count(*) from public.client_lookup('00000000-0000-0000-0000-0000000007a1', '+14085559998')),
-  (select count(*) from public.services)));
+  (select count(*) from public.tickets), (select count(*) from public.payments), (select count(*) from public.ticket_lines),
+  (select count(*) from public.pay_requests), (select count(*) from public.discount_approvals), (select count(*) from public.services)));
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000cc01","role":"authenticated"}', true);
 insert into t_out values ('owner_reads', jsonb_build_array((select count(*) from public.tickets), (select count(*) from public.clients)));
 reset role;
@@ -163,7 +161,7 @@ begin
      or (o->'ticket_paid'->>'total_cents')::int <> 4800 then raise exception 'FAIL card paid: % %', o->'paid', o->'ticket_paid'; end if;
   if o->>'use1' is null or o->'use1' = 'null'::jsonb or o->'use2' <> 'null'::jsonb or o->'use_discount_ok' <> 'null'::jsonb
   then raise exception 'FAIL refund OK: % % %', o->'use1', o->'use2', o->'use_discount_ok'; end if;
-  if o->'tech_reads' <> '[0,0,0,0,0,0,0,1]'::jsonb then raise exception 'FAIL tech reads: %', o->'tech_reads'; end if;
+  if o->'tech_reads' <> '[0,0,0,0,0,1]'::jsonb then raise exception 'FAIL tech reads: %', o->'tech_reads'; end if;
   if o->'owner_reads' <> '[1,1]'::jsonb then raise exception 'FAIL owner reads: %', o->'owner_reads'; end if;
   raise notice 'PASS review_fixes';
 end $$;

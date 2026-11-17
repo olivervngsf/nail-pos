@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Founder Admin</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.tag.warn{background:var(--orange-soft);color:#B5470A}
+.tag.bad{background:#FCE8E8;color:#C92A2A}
+.tag.grey{background:var(--fill);color:var(--ink-soft)}
+.sh{display:grid;grid-template-columns:170px 104px 92px 118px 84px 1fr;gap:10px;align-items:center;padding:0 14px}
+.srh{height:34px;font-size:12px;font-weight:600;color:var(--ink-soft);border-bottom:1px solid var(--line)}
+.srow{display:grid;grid-template-columns:170px 104px 92px 118px 84px 1fr;gap:10px;align-items:center;padding:0 14px;min-height:56px;border-bottom:1px solid var(--line);font-size:14px;cursor:pointer}
+.srow .g{display:flex;flex-direction:column;align-items:flex-start;line-height:18px;min-width:0}
+.srow:hover{background:#FAFAFB}
+.mebtn{border:0;background:transparent;padding:4px;border-radius:50%;cursor:pointer}
+.mebtn:hover .av{box-shadow:0 0 0 2px var(--line)}
+.mescrim{position:absolute;inset:0;z-index:30}
+.mepop{position:absolute;left:84px;bottom:14px;width:440px;background:#fff;border-radius:18px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.05);z-index:31;overflow:hidden}
+.mepop .hrow{min-height:46px;font-size:14px}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line)}
+.alert:last-child{border-bottom:0}
+.alert .ic{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.alert .ic.bad{background:#FCE8E8;color:#C92A2A}.alert .ic.warn{background:var(--orange-soft);color:#B5470A}
+.abtn{height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
+.abtn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.hrow{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 16px;border-bottom:1px solid var(--line);font-size:15px}
+.hrow:last-child{border-bottom:0}
+.hrow .k{width:150px;color:var(--ink-soft);font-size:14px;flex:none}
+.hrow .v{flex:1;min-width:0}
+.lock{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--surface);font-size:13px;color:var(--ink-soft)}
+.support{border:2px solid var(--jade)}
+.logl{display:flex;gap:10px;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
+.logl:last-child{border-bottom:0}
+.logl .t{width:64px;color:var(--ink-soft);flex:none;font-variant-numeric:tabular-nums}
+.badge{min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;margin-left:2px}
+.invr{display:flex;flex-direction:column;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.invr:last-child{border-bottom:0}
+.toastb{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:20}
+.inv{display:flex;gap:16px;align-items:center;padding:14px;border-radius:14px;background:var(--surface)}
+.qr{width:92px;height:92px;flex:none;border-radius:10px;background:#fff;display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:8px;box-sizing:border-box}
+.qr i{background:var(--ink);border-radius:1px}.qr i.o{background:transparent}
+</style>
+</helmet>
+<div class="app" style="position:relative">
+  <nav class="rail" aria-label="Admin menu">
+    <div class="logo" style="background:#1C1C1E;color:#fff">{{tx.k0}}</div>
+    <a class="{{navSalons}}" href="#" onClick="{{goSalons}}"><span style="position:relative;display:flex"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg><sc-if value="{{hasBadge}}" hint-placeholder-val="{{true}}"><span class="badge" style="position:absolute;left:16px;top:-8px">{{badge}}</span></sc-if></span>{{tx.k1}}</a>
+    <a class="{{navNew}}" href="#" onClick="{{goNew}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>{{tx.k2}}</a>
+    <sc-if value="{{isAdmin}}" hint-placeholder-val="{{false}}"><a class="{{navSystem}}" href="#" onClick="{{goSystem}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>{{tx.k3}}</a></sc-if>
+    <div style="flex:1"></div>
+    <button type="button" class="mebtn" onClick="{{toggleMe}}" aria-label="My account menu" aria-expanded="{{meOpen}}"><span class="av" style="width:32px;height:32px">{{meInit}}</span></button>
+  </nav>
+  <sc-if value="{{meOpen}}" hint-placeholder-val="{{false}}">
+    <div class="mescrim" onClick="{{toggleMe}}"></div>
+    <div class="mepop fade" role="dialog" aria-label="My account">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)"><span class="av lg">{{meInit}}</span><div style="flex:1"><b style="font-size:16px">{{meName}}</b><div class="cap">{{meRole}} {{tx.k4}}</div></div></div>
+      <div class="hrow"><span class="k" style="width:120px">{{tx.k5}}</span><span class="v">{{mePhone}}</span></div>
+      <div class="hrow"><span class="k" style="width:120px">{{tx.k6}}</span><span class="v">{{tx.k7}}</span><span class="tag jade">{{tx.k8}}</span></div>
+      <div class="hrow"><span class="k" style="width:120px">{{tx.k9}}</span><div class="seg"><sc-for list="{{meLangs}}" as="l" hint-placeholder-count="2"><span class="{{l.cls}}" onClick="{{l.pick}}" style="cursor:pointer">{{l.label}}</span></sc-for></div></div>
+      <div class="hrow"><span class="k" style="width:120px">{{tx.k10}}</span><span class="v">{{tx.k11}}</span><button class="{{alertSw}}" type="button" onClick="{{flipAlerts}}" aria-label="Alerts to me"></button></div>
+      <div class="hrow"><span class="k" style="width:120px">{{tx.k12}}</span><span class="v">{{meActs}}</span><span class="cap">{{tx.k13}}</span></div>
+      <sc-if value="{{isAdmin}}" hint-placeholder-val="{{false}}"><div class="hrow"><span class="k" style="width:120px">{{tx.k14}}</span><span class="v">{{tx.k15}}</span><span class="cap">{{tx.k16}}</span></div></sc-if>
+      <div style="padding:12px 16px;display:flex;gap:8px"><button class="abtn" type="button" style="flex:1;height:38px">{{tx.k17}}</button><button class="abtn" type="button" style="flex:1;height:38px;color:var(--red)">{{tx.k18}}</button></div>
+    </div>
+  </sc-if>
+  <div class="col" style="position:relative">
+    <header class="bar">
+      <div class="title">{{title}}</div>
+      <span class="cap">{{tx.k19}}</span>
+      <div class="seg"><sc-for list="{{roles}}" as="r" hint-placeholder-count="2"><span class="{{r.cls}}" onClick="{{r.pick}}" style="cursor:pointer">{{r.label}}</span></sc-for></div>
+      <span class="pill ok"><span class="dot"></span>{{tx.k20}}</span>
+    </header>
+
+    <sc-if value="{{vSalons}}" hint-placeholder-val="{{true}}">
+    <main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 24px;min-height:0">
+      <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px">
+        <sc-for list="{{biz}}" as="k" hint-placeholder-count="5"><div class="stat" style="cursor:default"><span class="cap">{{k.l}}</span><span class="v">{{k.v}}</span><span class="{{k.cls}}" style="font-size:12px">{{k.s}}</span></div></sc-for>
+      </div>
+      <div style="display:flex;gap:16px;flex:1;min-height:0">
+        <div class="group" style="flex:1;min-width:0;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px 6px"><b style="flex:1;font-size:16px">{{tx.k21}}</b>
+            <div class="seg"><sc-for list="{{filters}}" as="f" hint-placeholder-count="3"><span class="{{f.cls}}" onClick="{{f.pick}}" style="cursor:pointer">{{f.label}}</span></sc-for></div></div>
+          <div class="sh srh"><span>{{tx.k22}}</span><span>{{tx.k23}}</span><span style="text-align:right">{{tx.k24}}</span><span>{{tx.k25}}</span><span>{{tx.k26}}</span><span>{{tx.k27}}</span></div>
+          <sc-for list="{{salons}}" as="s" hint-placeholder-count="6"><div class="{{s.rcls}}" onClick="{{s.open}}">
+            <div class="g"><b>{{s.name}}</b><span class="cap">{{s.where}} · {{s.plan}}</span></div>
+            <div class="g" style="gap:4px"><span class="cap">{{s.setupT}}</span><div class="prog-bar thin" style="width:90px"><span style="{{s.setupW}}"></span></div></div>
+            <span style="text-align:right;font-variant-numeric:tabular-nums">{{s.today}}</span>
+            <span><span class="{{s.stripeCls}}">{{s.stripe}}</span></span>
+            <span><span class="{{s.textCls}}">{{s.text}}</span></span>
+            <span><span class="{{s.hCls}}">{{s.health}}</span></span>
+          </div></sc-for>
+          <div style="flex:1"></div>
+          <div class="cap" style="padding:8px 14px;border-top:1px solid var(--line)">{{tx.k28}}</div>
+        </div>
+        <div class="group" style="width:340px;flex:none;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center;padding:12px 14px 8px"><b style="flex:1;font-size:16px">{{tx.k29}}</b><span class="tag bad">{{openAlerts}}</span></div>
+          <sc-for list="{{alerts}}" as="a" hint-placeholder-count="4"><div class="alert">
+            <span class="{{a.icCls}}">{{a.icon}}</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px"><div><b style="font-size:14px">{{a.salon}}</b><div style="font-size:14px;line-height:19px">{{a.text}}</div><span class="cap">{{a.when}}</span></div>
+              <div style="display:flex;gap:6px"><button class="abtn dark" type="button" onClick="{{a.open}}">{{a.cta}}</button><button class="abtn" type="button" onClick="{{a.done}}">{{tx.k30}}</button></div></div>
+          </div></sc-for>
+          <sc-if value="{{noAlerts}}" hint-placeholder-val="{{false}}"><div class="cap" style="padding:20px 14px;text-align:center">{{tx.k31}}</div></sc-if>
+        </div>
+      </div>
+    </main>
+    </sc-if>
+
+    <sc-if value="{{vSalon}}" hint-placeholder-val="{{false}}">
+    <sc-if value="{{supportOn}}" hint-placeholder-val="{{false}}"><div class="banner ok"><b>{{tx.k32}}</b><span>{{supportLeft}} {{tx.k33}}</span><span style="flex:1"></span><button class="abtn" type="button" onClick="{{endSupport}}">{{tx.k34}}</button></div></sc-if>
+    <main style="flex:1;display:flex;gap:16px;padding:16px 24px;min-height:0">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="abtn" type="button" onClick="{{back}}">{{tx.k35}}</button>
+          <div style="flex:1"><div class="h2">{{tx.k36}}</div><div class="cap">{{tx.k37}}</div></div>
+          <span class="tag bad">{{tx.k38}}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px">
+          <div class="stat" style="cursor:default"><span class="cap">{{tx.k23}}</span><span class="v">10/10</span><span class="cap">{{tx.k39}}</span></div>
+          <div class="stat" style="cursor:default"><span class="cap">{{tx.k24}}</span><span class="v">18</span><span class="cap">{{tx.k40}}</span></div>
+          <div class="stat" style="cursor:default"><span class="cap">{{tx.k41}}</span><span class="v">$31.4K</span><span class="up" style="font-size:12px">{{tx.k42}}</span></div>
+          <div class="stat" style="cursor:default"><span class="cap">{{tx.k43}}</span><span class="v">{{tx.k44}}</span><span class="down" style="font-size:12px">{{tx.k45}}</span></div>
+        </div>
+        <div class="group">
+          <div class="hrow"><span class="k">{{tx.k46}}</span><span class="v">{{tx.k47}}</span><span class="tag jade">{{tx.k48}}</span></div>
+          <div class="hrow"><span class="k">{{tx.k49}}</span><span class="v">{{tx.k50}}</span><span class="tag bad">{{tx.k51}}</span></div>
+          <div class="hrow"><span class="k">{{tx.k52}}</span><span class="v">{{tx.k53}}</span><span class="tag jade">{{tx.k48}}</span></div>
+          <div class="hrow"><span class="k">{{tx.k54}}</span><span class="v">{{tx.k55}}</span><span class="tag warn">{{tx.k56}}</span></div>
+          <div class="hrow"><span class="k">{{tx.k57}}</span><span class="v">{{tx.k58}}</span><span class="tag jade">{{tx.k48}}</span></div>
+          <div class="hrow"><span class="k">{{tx.k59}}</span><span class="v">{{tx.k60}}</span><span class="tag warn">2</span></div>
+        </div>
+        <div class="group" style="flex:1;min-height:0;display:flex;flex-direction:column">
+          <div class="hrow" style="font-weight:600;gap:8px"><span style="flex:1">{{tx.k61}}</span>
+            <div class="seg"><sc-for list="{{actF}}" as="f" hint-placeholder-count="6"><span class="{{f.cls}}" onClick="{{f.pick}}" style="cursor:pointer;padding:0 9px">{{f.label}}</span></sc-for></div></div>
+          <div style="flex:1;overflow:auto">
+            <sc-for list="{{acts}}" as="e" hint-placeholder-count="6"><div class="hrow" style="min-height:38px;font-size:14px"><span class="k" style="width:130px;font-size:13px">{{e.t}}</span><span class="{{e.cls}}" style="width:62px;justify-content:center;flex:none">{{e.k}}</span><span class="v">{{e.x}}</span><span class="cap">{{e.who}}</span></div></sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="width:360px;flex:none;display:flex;flex-direction:column;gap:12px">
+        <div class="{{accCardCls}}" style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+          <b style="font-size:16px">{{tx.k62}}</b>
+          <sc-if value="{{accNone}}" hint-placeholder-val="{{true}}">
+            <div class="cap" style="font-size:14px;line-height:20px">{{tx.k63}}</div>
+            <button class="btn primary" type="button" onClick="{{ask}}" style="height:44px;font-size:15px">{{tx.k64}}</button>
+          </sc-if>
+          <sc-if value="{{accWait}}" hint-placeholder-val="{{false}}">
+            <div style="display:flex;align-items:center;gap:8px"><span class="dot pulse" style="background:var(--orange)"></span><b style="font-size:14px">{{tx.k65}}</b></div>
+            <div class="cap" style="font-size:14px;line-height:20px">{{tx.k66}}</div>
+            <div style="display:flex;gap:8px"><button class="abtn" type="button" onClick="{{cancelAsk}}">{{tx.k67}}</button><button class="abtn" type="button" onClick="{{simAllow}}" style="border-style:dashed">{{tx.k68}}</button></div>
+          </sc-if>
+          <sc-if value="{{accOn}}" hint-placeholder-val="{{false}}">
+            <div style="display:flex;align-items:center;gap:8px"><span class="tag jade">{{tx.k8}}</span><b style="font-size:14px">{{supportLeft}} {{tx.k69}}</b></div>
+            <button class="btn" type="button" style="height:40px;font-size:14px">{{tx.k70}}</button>
+            <div class="eyebrow">{{tx.k71}}</div>
+            <div><sc-for list="{{log}}" as="l" hint-placeholder-count="4"><div class="logl"><span class="t">{{l.t}}</span><span>{{l.x}}</span></div></sc-for></div>
+          </sc-if>
+        </div>
+        <div class="lock"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg><span>{{lockText}}</span></div>
+        <div class="card pad"><b style="font-size:15px">{{tx.k72}}</b>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="abtn" type="button">{{tx.k73}}</button><button class="abtn" type="button">{{tx.k74}}</button><button class="abtn" type="button">{{tx.k75}}</button><button class="abtn" type="button">{{tx.k76}}</button></div>
+        </div>
+      </div>
+    </main>
+    </sc-if>
+
+    <sc-if value="{{vNew}}" hint-placeholder-val="{{false}}">
+    <main style="flex:1;display:flex;gap:24px;padding:24px 32px;min-height:0">
+      <div class="card pad" style="width:520px;flex:none;gap:12px;padding:20px 24px;align-self:flex-start">
+        <div class="h2">{{tx.k77}}</div>
+        <div class="cap" style="font-size:14px;margin-top:-6px">{{tx.k78}}</div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+          <div><label class="lbl" for="a1">{{tx.k79}}</label><input class="inp" id="a1" value="Queen Nails" style="height:44px;font-size:16px"></div>
+          <div><label class="lbl" for="a2">{{tx.k80}}</label><input class="inp" id="a2" value="TX" style="height:44px;font-size:16px"></div>
+          <div><label class="lbl" for="a3">{{tx.k81}}</label><input class="inp" id="a3" value="Hoa Pham" style="height:44px;font-size:16px"></div>
+          <div><label class="lbl" for="a4">{{tx.k82}}</label><input class="inp" id="a4" value="(512) 555-0161" style="height:44px;font-size:16px"></div>
+          <div style="grid-column:span 2"><label class="lbl" for="a5">{{tx.k83}}</label><input class="inp" id="a5" value="hoa.queennails@gmail.com" style="height:44px;font-size:16px"></div>
+        </div>
+        <div><span class="lbl">{{tx.k84}}</span><div class="seg"><sc-for list="{{plans}}" as="p" hint-placeholder-count="2"><span class="{{p.cls}}" onClick="{{p.pick}}" style="cursor:pointer">{{p.label}}</span></sc-for></div></div>
+        <div><span class="lbl">{{tx.k85}}</span><div style="display:flex;gap:8px"><sc-for list="{{vias}}" as="c" hint-placeholder-count="2"><button class="{{c.cls}}" type="button" onClick="{{c.flip}}" aria-pressed="{{c.on}}">{{c.label}}</button></sc-for></div><div class="cap" style="margin-top:6px">{{tx.k86}}</div></div>
+        <sc-if value="{{noInvite}}" hint-placeholder-val="{{true}}"><button class="btn primary" type="button" onClick="{{makeInvite}}" style="height:48px;font-size:16px">{{tx.k87}}</button></sc-if>
+        <sc-if value="{{hasInvite}}" hint-placeholder-val="{{false}}">
+          <div class="inv fade"><div class="qr"><sc-for list="{{qr}}" as="q" hint-placeholder-count="49"><i class="{{q}}"></i></sc-for></div>
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><b>{{tx.k88}}{{code}}</b>
+              <sc-for list="{{sentLines}}" as="l" hint-placeholder-count="2"><span style="font-size:13px">✓ {{l}}</span></sc-for><span class="cap">{{tx.k89}}</span>
+              <div style="display:flex;gap:6px"><sc-if value="{{viaText}}" hint-placeholder-val="{{true}}"><button class="abtn" type="button" onClick="{{resendNewText}}">{{tx.k90}}</button></sc-if><sc-if value="{{viaEmail}}" hint-placeholder-val="{{true}}"><button class="abtn" type="button" onClick="{{resendNewEmail}}">{{tx.k91}}</button></sc-if><button class="abtn" type="button">{{tx.k92}}</button></div></div></div>
+        </sc-if>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:12px">
+        <b style="font-size:16px">{{tx.k93}}</b>
+        <div class="group">
+          <div class="hrow"><span class="k">{{tx.k94}}</span><span class="v">{{tx.k95}}</span></div>
+          <div class="hrow"><span class="k">{{tx.k96}}</span><span class="v">{{tx.k97}}</span></div>
+          <div class="hrow"><span class="k">{{tx.k98}}</span><span class="v">{{tx.k99}}</span></div>
+          <div class="hrow"><span class="k">{{tx.k100}}</span><span class="v">{{tx.k101}}</span></div>
+        </div>
+        <div class="group">
+          <div class="hrow" style="font-weight:600">{{tx.k102}}<span class="cap" style="font-weight:400;margin-left:auto">{{tx.k103}}</span></div>
+          <sc-for list="{{invites}}" as="i" hint-placeholder-count="3"><div class="invr">
+            <div style="display:flex;align-items:center;gap:8px"><span style="flex:1;min-width:0"><b>{{i.n}}</b> <span class="cap">{{i.o}}</span></span><span class="{{i.cls}}">{{i.s}}</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><span class="cap" style="flex:1">{{i.sent}}</span><sc-if value="{{i.canText}}" hint-placeholder-val="{{true}}"><button class="abtn" type="button" onClick="{{i.rText}}">{{tx.k90}}</button></sc-if><sc-if value="{{i.canEmail}}" hint-placeholder-val="{{true}}"><button class="abtn" type="button" onClick="{{i.rEmail}}">{{tx.k91}}</button></sc-if></div>
+          </div></sc-for>
+        </div>
+      </div>
+    </main>
+    <sc-if value="{{hasNote}}" hint-placeholder-val="{{false}}"><div class="toastb"><div class="toast" style="position:static;transform:none"><span>{{noteText}}</span></div></div></sc-if>
+    </sc-if>
+
+    <sc-if value="{{vSystem}}" hint-placeholder-val="{{false}}">
+    <main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 24px;min-height:0">
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+        <div class="stat" style="cursor:default"><span class="cap">{{tx.k104}}</span><span class="v">99.98%</span><span class="cap">{{tx.k105}}</span></div>
+        <div class="stat" style="cursor:default"><span class="cap">{{tx.k106}}</span><span class="v">7</span><span class="cap">{{tx.k107}}</span></div>
+        <div class="stat" style="cursor:default"><span class="cap">{{tx.k108}}</span><span class="v">1,284</span><span class="up" style="font-size:12px">{{tx.k109}}</span></div>
+        <div class="stat" style="cursor:default"><span class="cap">{{tx.k110}}</span><span class="v">$84</span><span class="cap">{{tx.k111}}</span></div>
+      </div>
+      <div style="display:flex;gap:16px;flex:1;min-height:0">
+        <div class="group" style="flex:1">
+          <div class="hrow" style="font-weight:600">{{tx.k112}}</div>
+          <sc-for list="{{checks}}" as="c" hint-placeholder-count="6"><div class="hrow"><span class="v">{{c.n}}</span><span class="cap">{{c.d}}</span><span class="{{c.cls}}">{{c.s}}</span></div></sc-for>
+        </div>
+        <div class="group" style="width:360px;flex:none">
+          <div class="hrow" style="font-weight:600">{{tx.k113}}</div>
+          <sc-for list="{{costs}}" as="c" hint-placeholder-count="6"><div class="hrow"><span class="v">{{c.n}}</span><b>{{c.v}}</b></div></sc-for>
+          <div class="hrow"><span class="v cap">{{tx.k114}}</span></div>
+        </div>
+      </div>
+    </main>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["salons","salon","new","system"],"default":"salons"},"role":{"editor":"enum","options":["elang","oliver"],"default":"elang"},"access":{"editor":"enum","options":["none","wait","on"],"default":"none"},"invite":{"editor":"boolean","default":false},"me":{"editor":"boolean","default":false},"note":{"editor":null},"actF":{"editor":"enum","options":["all","setup","money","device","support","note"],"default":"all"},"filter":{"editor":"enum","options":["all","action","pilot"],"default":"all"},"$preview":{"width":1280,"height":800}}'>
+const VI_E={"2 min": "2 phút", "All 6": "Tất cả 6", "Oliver (admin) · Elang (admin)": "Oliver (quản trị) · Elang (quản trị)", "Salons": "Tiệm", "Add salon": "Thêm tiệm", "Signed in as": "Đang đăng nhập:", "Elang · admin": "Elang · quản trị", "Oliver · admin": "Oliver · quản trị", "Live · all normal": "Đang chạy · mọi thứ bình thường", "Active salons": "Tiệm đang dùng", "+1 invited": "+1 đã mời", "Pilot · Paid": "Dùng thử · Trả phí", "1 pilot ends in 6 days": "1 tiệm hết dùng thử sau 6 ngày", "Our income · month": "Thu nhập của mình · tháng", "2 × $49 · no card markup": "2 × $49 · không thu thêm phí thẻ", "Card volume · week": "Tiền thẻ · tuần", "▲ 8% · goes to salons": "▲ 8% · tiền vào thẳng tiệm", "At risk": "Có nguy cơ bỏ", "Bella Nails · tickets ▼ 60%": "Bella Nails · hoá đơn ▼ 60%", "Salon health": "Tình trạng tiệm", "All": "Tất cả", "Needs action": "Cần xử lý", "Pilot": "Dùng thử", "Paid": "Trả phí", "Invited": "Đã mời", "Salon": "Tiệm", "Setup": "Cài đặt", "Today": "Hôm nay", "Stripe": "Stripe", "Texts": "Tin nhắn", "Health": "Tình trạng", "Payouts on": "Đang chuyển tiền", "Approved": "Đã duyệt", "Good": "Tốt", "Reader offline": "Máy thẻ mất kết nối", "Needs owner ID": "Cần giấy tờ chủ tiệm", "Verified": "Đã xác minh", "Pending": "Đang chờ", "Setup stuck": "Kẹt cài đặt", "Not yet": "Chưa có", "Invite sent": "Đã gửi lời mời", "Support on": "Đang hỗ trợ", "Health only. Client names, phones, tech pay and notes stay hidden unless the owner allows support.": "Chỉ xem tình trạng. Tên, số điện thoại khách, lương thợ và ghi chú được giấu, trừ khi chủ tiệm cho phép hỗ trợ.", "Alerts · call before they notice": "Cảnh báo · gọi trước khi tiệm thấy", "Open salon": "Mở tiệm", "Handled": "Đã xử lý", "All clear ✓": "Không có gì ✓", "No salons match.": "Không có tiệm nào khớp.", "Card reader offline 2 h. Cards can’t be taken on it.": "Máy thẻ mất kết nối 2 giờ. Không quẹt thẻ được.", "Stripe needs the owner’s ID. Payouts paused.": "Stripe cần giấy tờ chủ tiệm. Tạm dừng chuyển tiền.", "Setup stuck at step 6 (Card reader) for 3 days.": "Kẹt ở bước 6 (máy thẻ) đã 3 ngày.", "Tickets down 60% vs last month. At risk.": "Hoá đơn giảm 60% so với tháng trước. Có nguy cơ bỏ.", "Search salon or city": "Tìm tiệm hoặc thành phố", "‹ Salons": "‹ Tiệm", "done": "xong", "in progress": "đang làm", "This month": "Tháng này", "card + cash": "thẻ + tiền mặt", "Last sync": "Đồng bộ lần cuối", "3 failed today": "3 lần lỗi hôm nay", "all synced": "đã đồng bộ hết", "no tickets yet": "chưa có hoá đơn", "Stripe account": "Tài khoản Stripe", "Card reader": "Máy thẻ", "Printer": "Máy in", "Salon devices": "Thiết bị của tiệm", "Texting": "Tin nhắn", "App errors (24 h)": "Lỗi ứng dụng (24 giờ)", "Offline": "Mất kết nối", "OK": "OK", "Check": "Kiểm tra", "Quiet": "Ít dùng", "Not set": "Chưa cài", "Activity log · everything that happened": "Nhật ký · mọi việc đã xảy ra", "Money": "Tiền", "Devices": "Thiết bị", "Support": "Hỗ trợ", "Notes": "Ghi chú", "Note": "Ghi chú", "Device": "Thiết bị", "Add note": "Thêm ghi chú", "Nothing yet.": "Chưa có gì.", "system": "hệ thống", "Support access": "Quyền hỗ trợ", "Hidden: client names + phones, each tech’s pay, notes. Only totals show.": "Được giấu: tên + số điện thoại khách, lương từng thợ, ghi chú. Chỉ hiện tổng số.", "Quick actions": "Thao tác nhanh", "Text in Vietnamese": "Nhắn tin tiếng Việt", "Resend Stripe link": "Gửi lại link Stripe", "Cancel request": "Huỷ yêu cầu", "End now": "Kết thúc ngay", "On": "Bật", "Open their screens": "Mở màn hình của tiệm", "Re-pair the card reader": "Kết nối lại máy thẻ", "Add a salon": "Thêm tiệm", "Salon name": "Tên tiệm", "State": "Tiểu bang", "Owner name": "Tên chủ tiệm", "Owner cell": "Số di động chủ tiệm", "Owner email": "Email chủ tiệm", "Plan": "Gói", "Pilot · free 30 days": "Dùng thử · miễn phí 30 ngày", "Paid · $49/mo": "Trả phí · $49/tháng", "Send the invite by": "Gửi lời mời qua", "✓ Text message": "✓ Tin nhắn", "Text message": "Tin nhắn", "✓ Email": "✓ Email", "Both is best: text gets read fast, email is the backup.": "Cả hai là tốt nhất: tin nhắn được đọc nhanh, email để dự phòng.", "Send invite": "Gửi lời mời", "What happens when the owner opens it": "Khi chủ tiệm mở link", "1 · Sign up": "1 · Đăng ký", "2 · Salon made": "2 · Tạo tiệm", "3 · Defaults": "3 · Cài sẵn", "4 · Setup checklist": "4 · Danh sách cài đặt", "Opens the link from text or email · phone code (email code if no cell) · no password": "Mở link từ tin nhắn hoặc email · mã qua điện thoại (mã qua email nếu không có di động) · không cần mật khẩu", "Own salon_id (own data wall) · they become owner": "Mã tiệm riêng (dữ liệu tách riêng) · họ là chủ tiệm", "Time zone, receipt, EN/VI, nail service template": "Múi giờ, hoá đơn, Anh/Việt, mẫu dịch vụ nail", "10 steps start · progress shows on Salons": "Bắt đầu 10 bước · tiến độ hiện ở trang Tiệm", "Invites": "Lời mời", "Resend = new link, old one stops working": "Gửi lại = link mới, link cũ hết dùng được", "Not opened": "Chưa mở", "Expired": "Hết hạn", "Signed up ✓": "Đã đăng ký ✓", "Resend text": "Gửi lại tin nhắn", "Resend email": "Gửi lại email", "Works once · ends in 14 days": "Dùng một lần · hết hạn sau 14 ngày", "Copy link": "Chép link", "Add another salon": "Thêm tiệm khác", "System": "Hệ thống", "Uptime · 30 days": "Thời gian chạy · 30 ngày", "1 short blip Nov 9": "1 lần gián đoạn ngắn 9/11", "App errors · 24 h": "Lỗi ứng dụng · 24 giờ", "5 salons · 0 lost data": "5 tiệm · không mất dữ liệu", "Stripe messages": "Tin từ Stripe", "0 failed · all matched": "0 lỗi · khớp hết", "Our costs · Nov": "Chi phí của mình · tháng 11", "vs $98 income": "so với thu $98", "Running smooth checks": "Kiểm tra vận hành", "Backups": "Sao lưu", "daily + point-in-time · restore test Nov 1": "hằng ngày + theo thời điểm · thử khôi phục 1/11", "Data walls test": "Kiểm tra tách dữ liệu", "every change · 2 fake salons": "mỗi lần thay đổi · 2 tiệm giả", "Pass": "Đạt", "Sentry alerts": "Cảnh báo Sentry", "7 errors · 0 new types": "7 lỗi · 0 loại mới", "Uptime checks": "Kiểm tra hoạt động", "app + Stripe webhook": "ứng dụng + webhook Stripe", "2-step login": "Đăng nhập 2 bước", "Texting 10DLC": "Đăng ký tin nhắn 10DLC", "1 salon pending (Lily)": "1 tiệm đang chờ (Lily)", "Wait": "Chờ", "Costs this month": "Chi phí tháng này", "Twilio (texts + numbers)": "Twilio (tin nhắn + số)", "Domain + email": "Tên miền + email", "$0 · salons pay their fees": "$0 · tiệm tự trả phí", "Spending alerts on every service": "Có cảnh báo chi tiêu cho mọi dịch vụ", "Admin · Nail POS team": "Quản trị · nhóm Nail POS", "Support · Nail POS team": "Hỗ trợ · nhóm Nail POS", "Signed in with": "Đăng nhập bằng", "On · authenticator app": "Bật · ứng dụng xác thực", "Language": "Ngôn ngữ", "Alerts to me": "Báo động cho tôi", "Text + push · quiet 10 PM–7 AM": "Tin nhắn + thông báo · im lặng 22h–7h", "Off · only shown here": "Tắt · chỉ hiện ở đây", "My actions today": "Việc tôi làm hôm nay", "Nothing yet today. Calls, notes and support actions show here.": "Hôm nay chưa có gì. Cuộc gọi, ghi chú và việc hỗ trợ sẽ hiện ở đây.", "Team": "Nhóm", "Oliver (admin) · Elang (admin)": "Oliver (quản trị) · Elang (hỗ trợ)", "You": "Bạn", "Remove": "Gỡ", "+ Add team member": "+ Thêm người hỗ trợ", "Help + shortcuts": "Trợ giúp + phím tắt", "Sign out": "Đăng xuất", "Nail POS Admin": "Quản trị Nail POS", "Only for the Nail POS team. Phone code + 2-step login.": "Chỉ dành cho nhóm Nail POS. Mã qua điện thoại + đăng nhập 2 bước.", "Your phone": "Số điện thoại của bạn", "Send me a code": "Gửi mã cho tôi", "Signed out. Support sessions you opened were ended and logged.": "Đã đăng xuất. Các phiên hỗ trợ bạn mở đã kết thúc và được ghi lại.", "Admin · Alerts": "Quản trị · Cảnh báo", "Alerts": "Cảnh báo", "Waiting for": "Đang chờ", "Log · Tom sees this too": "Nhật ký · Tom cũng thấy", "Support mode · Golden Nails": "Chế độ hỗ trợ · Golden Nails", "NP": "NP", "· Nail POS team": "· nhóm Nail POS", "Demo · signed in as": "Thử · đang đăng nhập:", "Live · all systems normal": "Đang chạy · mọi hệ thống bình thường", "left · every action is logged and shown to Tom": "còn lại · mọi thao tác được ghi lại và cho Tom xem", "Houston, TX · Paid · $49/mo since Oct 2 · Owner Tom Tran · (713) 555-0142": "Houston, TX · Trả phí · $49/tháng từ 2/10 · Chủ tiệm Tom Tran · (713) 555-0142", "Problem": "Có sự cố", "done Oct 2": "xong 2/10", "tickets · $964 total": "hoá đơn · tổng $964", "▲ 6% vs Oct": "▲ 6% so với tháng 10", "Connected · verified · payouts on (daily to bank ••4410)": "Đã kết nối · đã xác minh · đang chuyển tiền (hằng ngày vào ngân hàng ••4410)", "S710 “Front desk” · offline since 10:12 AM (2 h)": "S710 “Front desk” · mất kết nối từ 10:12 sáng (2 giờ)", "Epson TM-m30III · online": "Epson TM-m30III · đang kết nối", "Front desk iPad · online · 3 failed syncs (saved on device, will retry)": "iPad quầy · đang kết nối · 3 lần đồng bộ lỗi (đã lưu trên máy, sẽ thử lại)", "(713) 555-0199 · 10DLC approved · 412 texts this month": "(713) 555-0199 · 10DLC đã duyệt · 412 tin nhắn tháng này", "Off. To see Golden Nails' screens, ask Tom. He taps “Allow support for 24 hours” in his app.": "Đang tắt. Muốn xem màn hình của Golden Nails, hãy hỏi Tom. Tom bấm “Cho phép hỗ trợ 24 giờ” trong ứng dụng.", "Sent by text + in his app at 12:31 PM. Nothing opens until he says yes.": "Đã gửi qua tin nhắn + trong ứng dụng lúc 12:31. Không mở gì cho đến khi Tom đồng ý.", "left · turns off by itself": "còn lại · tự tắt", "Open Golden Nails' screens": "Mở màn hình của Golden Nails", "Add call note": "Thêm ghi chú cuộc gọi", "Checks (Running smooth)": "Kiểm tra vận hành", "Call Tom": "Gọi Tom", "Ask Tom for 24-hour access": "Xin Tom quyền 24 giờ", "Waiting for Tom": "Đang chờ Tom", "Demo: Tom allows →": "Thử: Tom đồng ý →", "Admin": "Quản trị", "Support mode: you can see screens Tom can see. Every tap is logged.": "Chế độ hỗ trợ: bạn thấy các màn hình Tom thấy. Mọi lần bấm đều được ghi lại.", "Elang opened Checkout · Settings": "Elang mở Thanh toán · Cài đặt", "Elang re-paired reader “Front desk”": "Elang kết nối lại máy thẻ “Front desk”", "7 calls + notes · in activity logs": "7 cuộc gọi + ghi chú · trong nhật ký", "3 · in activity logs": "3 · trong nhật ký", "New link texted. The old link stops working.": "Đã nhắn link mới. Link cũ hết dùng được.", "New link emailed. The old link stops working.": "Đã email link mới. Link cũ hết dùng được.", "$0 (salons pay their fees)": "$0 (tiệm tự trả phí)", "Oliver ✓ · Elang ✓": "Oliver ✓ · Elang ✓", "Reader not found": "Không tìm thấy máy thẻ", "Support mode": "Chế độ hỗ trợ"};
+const VI_P=[["Asked Tom for 24-hour support access", "Đã xin Tom quyền hỗ trợ 24 giờ"], ["Invite sent by text + email to Hoa", "Đã gửi lời mời qua tin nhắn + email cho Hoa"], ["Invite sent by text to Hoa", "Đã gửi lời mời qua tin nhắn cho Hoa"], ["Invite sent by email to Hoa", "Đã gửi lời mời qua email cho Hoa"], ["Reader back online · alert cleared", "Máy thẻ đã kết nối lại · đã xoá cảnh báo"], ["since yesterday", "từ hôm qua"], [" · in salons' activity logs", " · trong nhật ký các tiệm"], ["re-paired reader", "đã kết nối lại máy thẻ"], ["Reader online ✓", "Máy thẻ đã kết nối ✓"], ["(text)", "(tin nhắn)"], [" · phone code", " · mã qua điện thoại"], [" · Pilot", " · Dùng thử"], [" · Paid", " · Trả phí"], [" · Invited", " · Đã mời"], ["Hide ›", "Ẩn ›"], ["View ›", "Xem ›"], ["Manage ›", "Quản lý ›"], ["Sends a one-time invite link by text, email or both. The owner opens it, signs up and becomes the owner. Their data is walled off from day one.", "Gửi link mời dùng một lần qua tin nhắn, email hoặc cả hai. Chủ tiệm mở link, đăng ký và trở thành chủ. Dữ liệu được tách riêng từ ngày đầu."], ["They tap “Allow support for 24 hours” in their app.", "Họ bấm “Cho phép hỗ trợ 24 giờ” trong ứng dụng."], ["Off. To see ", "Đang tắt. Muốn xem màn hình của "], ["' screens, ask ", ", hãy hỏi "], ["Sent by text + in their app. Nothing opens until they say yes.", "Đã gửi qua tin nhắn + trong ứng dụng. Không mở gì cho đến khi họ đồng ý."], ["every action is logged and shown to", "mọi thao tác được ghi lại và cho xem:"], ["left · turns off by itself", "còn lại · tự tắt"], [" left", " còn lại"], ["Support mode: you see what ", "Chế độ hỗ trợ: bạn thấy những gì "], [" sees. Every tap is logged.", " thấy. Mọi lần bấm đều được ghi lại."], ["Ask ", "Xin "], [" for 24-hour access", " quyền 24 giờ"], ["Demo: ", "Thử: "], [" allows →", " đồng ý →"], ["Waiting for ", "Đang chờ "], ["Add a note: what did ", "Thêm ghi chú: "], [" say?", " đã nói gì?"], ["Called ", "Đã gọi "], ["Call ", "Gọi "], ["Calling ", "Đang gọi "], ["Request sent to ", "Đã gửi yêu cầu cho "], [" by text + in their app", " qua tin nhắn + trong ứng dụng"], ["Asked ", "Đã xin "], [" for 24-hour support access", " quyền hỗ trợ 24 giờ"], [" allowed support for 24 h", " đã cho phép hỗ trợ 24 giờ"], ["Support mode ended", "Đã tắt chế độ hỗ trợ"], ["Re-paired reader", "Đã kết nối lại máy thẻ"], ["(support mode)", "(chế độ hỗ trợ)"], ["back online", "đã kết nối lại"], ["went offline", "mất kết nối"], ["Card reader", "Máy thẻ"], ["Alert marked handled: ", "Đã xử lý cảnh báo: "], ["Marked handled", "Đã đánh dấu xử lý"], ["(logged)", "(đã ghi lại)"], ["Sent a text in Vietnamese", "Đã nhắn tin tiếng Việt"], ["Resent the Stripe ID link", "Đã gửi lại link giấy tờ Stripe"], ["Salon opened", "Tiệm mở cửa"], ["staff clocked in", "thợ đã chấm công"], ["Day closed", "Đóng sổ cuối ngày"], ["cash matched", "tiền mặt khớp"], ["Stripe payout", "Stripe chuyển tiền"], [" to bank ", " vào ngân hàng "], ["Week-4 review: happy, wants Vietnamese receipts", "Đánh giá tuần 4: hài lòng, muốn hoá đơn tiếng Việt"], ["Week-2 call: loves the turn list", "Gọi tuần 2: rất thích danh sách lượt"], ["Setup done 10/10", "Cài đặt xong 10/10"], ["$1 test paid + refunded", "thử $1 đã trả + hoàn tiền"], ["Stripe connected + verified", "Đã kết nối + xác minh Stripe"], ["signed up from the invite", "đã đăng ký từ lời mời"], ["Invite sent by text + email", "Đã gửi lời mời qua tin nhắn + email"], ["Invite sent by email", "Đã gửi lời mời qua email"], ["Invite sent by text", "Đã gửi lời mời qua tin nhắn"], ["not opened yet", "chưa mở"], ["reader unplugged after cleaning", "máy thẻ bị rút điện khi dọn dẹp"], ["Reader shipped; arrives Monday", "Đã gửi máy thẻ; thứ Hai tới"], ["Step 5 done: Connect payments", "Xong bước 5: Kết nối thanh toán"], ["Steps 1–4 done (info, services, staff)", "Xong bước 1–4 (thông tin, dịch vụ, thợ)"], ["Stripe needs owner ID · payouts paused", "Stripe cần giấy tờ chủ tiệm · tạm dừng chuyển tiền"], ["Tickets down 60% vs last month", "Hoá đơn giảm 60% so với tháng trước"], ["Front desk iPad last used", "iPad quầy dùng lần cuối"], ["Connected · verified · payouts daily to", "Đã kết nối · đã xác minh · chuyển tiền hằng ngày vào"], ["Connected · verified · no payments yet", "Đã kết nối · đã xác minh · chưa có thanh toán"], ["Connected · Stripe needs a photo ID · payouts paused", "Đã kết nối · Stripe cần ảnh giấy tờ · tạm dừng chuyển tiền"], ["Connected · verified · payouts daily", "Đã kết nối · đã xác minh · chuyển tiền hằng ngày"], ["offline since", "mất kết nối từ"], [" · online", " · đang kết nối"], ["3 failed syncs (saved, will retry)", "3 lần đồng bộ lỗi (đã lưu, sẽ thử lại)"], ["10DLC approved", "10DLC đã duyệt"], ["10DLC registration pending (5–10 days)", "Đăng ký 10DLC đang chờ (5–10 ngày)"], ["“Reader not found” at checkout", "“Không tìm thấy máy thẻ” khi thanh toán"], ["Not paired yet (setup step 6)", "Chưa kết nối (bước cài đặt 6)"], ["last used 2 days ago", "dùng lần cuối 2 ngày trước"], ["tickets · ", "hoá đơn · "], [" total", " tổng"], ["since ", "từ "], ["Owner ", "Chủ tiệm "], ["/mo", "/tháng"], ["since yesterday", "từ hôm qua"], ["last step Nov 13", "bước cuối 13/11"], ["this month", "tháng này"], [" open", " mở"], [" to call", " cần gọi"], [" salons", " tiệm"], ["Today · ", "Hôm nay · "], ["Yesterday · ", "Hôm qua · "], ["This month", "Tháng này"], ["2 days ago", "2 ngày trước"], ["Sent again just now by ", "Vừa gửi lại qua "], ["Sent ", "Đã gửi "], [" by text + email", " qua tin nhắn + email"], [" by email", " qua email"], [" by text", " qua tin nhắn"], ["link ended", "link đã hết hạn"], ["Texted to ", "Đã nhắn tới "], ["Emailed to ", "Đã email tới "], ["New link ", "Link mới "], ["texted to", "đã nhắn tới"], ["emailed to", "đã email tới"], ["The old link stops working.", "Link cũ hết dùng được."], ["Invite sent by ", "Đã gửi lời mời qua "], [" to ", " cho "], [" · in salons' activity logs", " · trong nhật ký các tiệm"], [" · admin · 2-step ✓", " · quản trị · 2 bước ✓"], [" · support · 2-step ✓", " · hỗ trợ · 2 bước ✓"], ["Signed in as ", "Đăng nhập "], [" (admin)", " (quản trị)"], ["Shortcuts: / search · A alerts · N add salon · Esc close", "Phím tắt: / tìm · A cảnh báo · N thêm tiệm · Esc đóng"], ["Code sent · signed back in (demo)", "Đã gửi mã · đã đăng nhập lại (thử)"], ["Reader back online · alert cleared", "Máy thẻ đã kết nối lại · đã xoá cảnh báo"], ["Support mode off. The log stays with the owner.", "Đã tắt hỗ trợ. Nhật ký vẫn lưu cho chủ tiệm."], ["Đã đổi sang Tiếng Việt (màn hình của bạn).", "Đã đổi sang Tiếng Việt (mọi màn hình)."], [" setup", " cài đặt"], ["stuck", "kẹt"]];
+function L(s){ if (typeof s!=='string'||!/[A-Za-z]{2,}/.test(s)) return s; const t=s.trim(); if (VI_E[t]!==undefined) return s.replace(t,VI_E[t]); let o=s; for (let i=0;i<VI_P.length;i++){ const a=VI_P[i][0]; if (o.indexOf(a)>=0) o=o.split(a).join(VI_P[i][1]); } return o; }
+function TR(v,k){ if (typeof v==='string') return /(cls|Cls|pos|Style|W|code)$/.test(k||'')?v:L(v); if (Array.isArray(v)) return v.map((x)=>TR(x,k)); if (v&&typeof v==='object'){ const o={}; for (const kk in v) o[kk]=TR(v[kk],kk); return o; } return v; }
+const LITS=["NP", "Salons", "Add salon", "System", "· Nail POS team", "Signed in with", "2-step login", "On · authenticator app", "On", "Language", "Alerts to me", "Text + push · quiet 10 PM–7 AM", "My actions today", "View ›", "Team", "Oliver (admin) · Elang (admin)", "Manage ›", "Help + shortcuts", "Sign out", "Demo · signed in as", "Live · all systems normal", "Salon health", "Salon", "Setup", "Today", "Stripe", "Texts", "Health", "Health only. Client names, phones, tech pay and notes stay hidden unless the owner allows support.", "Alerts · call before they notice", "Handled", "All clear ✓", "Support mode · Golden Nails", "left · every action is logged and shown to Tom", "End now", "‹ Salons", "Golden Nails", "Houston, TX · Paid · $49/mo since Oct 2 · Owner Tom Tran · (713) 555-0142", "Problem", "done Oct 2", "tickets · $964 total", "This month", "▲ 6% vs Oct", "Last sync", "2 min", "3 failed today", "Stripe account", "Connected · verified · payouts on (daily to bank ••4410)", "OK", "Card reader", "S710 “Front desk” · offline since 10:12 AM (2 h)", "Offline", "Printer", "Epson TM-m30III · online", "Salon devices", "Front desk iPad · online · 3 failed syncs (saved on device, will retry)", "Check", "Texting", "(713) 555-0199 · 10DLC approved · 412 texts this month", "App errors (24 h)", "2 · “Reader not found” at checkout", "Activity log · everything that happened", "Support access", "Off. To see Golden Nails' screens, ask Tom. He taps “Allow support for 24 hours” in his app.", "Ask Tom for 24-hour access", "Waiting for Tom", "Sent by text + in his app at 12:31 PM. Nothing opens until he says yes.", "Cancel request", "Demo: Tom allows →", "left · turns off by itself", "Open Golden Nails' screens", "Log · Tom sees this too", "Quick actions", "Call Tom", "Text in Vietnamese", "Resend Stripe link", "Add call note", "Add a salon", "Sends a one-time invite link by text, email or both. The owner opens it, signs up and becomes the owner. Their data is walled off from day one.", "Salon name", "State", "Owner name", "Owner cell", "Owner email", "Plan", "Send the invite by", "Both is best: text gets read fast, email is the backup.", "Send invite", "nailpos.app/s/", "Works once · ends in 14 days", "Resend text", "Resend email", "Copy link", "What happens when the owner opens it", "1 · Sign up", "Opens the link from text or email · phone code (email code if no cell) · no password", "2 · Salon made", "Own salon_id (own data wall) · they become owner", "3 · Defaults", "Time zone, receipt, EN/VI, nail service template", "4 · Setup checklist", "10 steps start · progress shows on Salons", "Invites", "Resend = new link, old one stops working", "Uptime · 30 days", "1 short blip Nov 9", "App errors · 24 h", "5 salons · 0 lost data", "Stripe messages", "0 failed · all matched", "Our costs · Nov", "vs $98 income", "Checks (Running smooth)", "Costs this month", "Spending alerts on every service"];
+class Component extends DCLogic {
+  constructor(p){ super(p); p = p || {};
+    this.state = { view: p.view || 'salons', role: p.role || 'elang', access: p.access || 'none', invite: !!p.invite, actF: p.actF || 'all', plan: 'pilot', via: { text: true, email: true }, sentAgain: {}, expiredFixed: false, note: p.note || '', filter: p.filter || 'all', handled: {}, me: !!p.me, lang: 'en', alerts: true };
+  }
+  renderVals() {
+    const S = this.state, admin = true, isOliver = S.role === 'oliver';
+    const I = (d) => d;
+    const ic = {
+      salons: '▦', alerts: '!', new: '+', system: '⚙'
+    };
+    const go = (v) => (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ view: v }); };
+    const A = [
+      ['a1', 'bad', '!', 'Golden Nails', 'Card reader offline 2 h. Cards can’t be taken on it.', 'since 10:12 AM · Houston', 'Open salon'],
+      ['a2', 'warn', '$', 'Cosmo Nails', 'Stripe needs the owner’s ID. Payouts paused.', 'since yesterday · Wildwood, MO', 'Open salon'],
+      ['a3', 'warn', '…', 'Lily Nail Spa', 'Setup stuck at step 6 (Card reader) for 3 days.', 'last step Nov 13', 'Open salon'],
+      ['a4', 'warn', '▼', 'Bella Nails', 'Tickets down 60% vs last month. At risk.', 'this month · Sacramento', 'Open salon']
+    ].filter((a) => !S.handled[a[0]]);
+    const SAL = [
+      ['Mai Nails', 'Campbell, CA', 'Pilot', 10, '31 · $1,842', 'Payouts on', 'tag jade', 'Approved', 'tag jade', 'Good', 'tag jade', 'pilot'],
+      ['Golden Nails', 'Houston, TX', 'Paid', 10, '18 · $964', 'Payouts on', 'tag jade', 'Approved', 'tag jade', 'Reader offline', 'tag bad', 'action'],
+      ['Cosmo Nails', 'Wildwood, MO', 'Pilot', 10, '22 · $1,210', 'Needs owner ID', 'tag warn', 'Approved', 'tag jade', 'Needs action', 'tag warn', 'action pilot'],
+      ['Lily Nail Spa', 'San Jose, CA', 'Pilot', 6, '—', 'Verified', 'tag jade', 'Pending', 'tag warn', 'Setup stuck', 'tag warn', 'action pilot'],
+      ['Bella Nails', 'Sacramento, CA', 'Paid', 10, '4 · $212', 'Payouts on', 'tag jade', 'Approved', 'tag jade', 'At risk', 'tag warn', 'action'],
+      ['Queen Nails', 'Austin, TX', 'Invited', 0, '—', 'Not yet', 'tag grey', 'Not yet', 'tag grey', 'Invite sent', 'tag grey', 'pilot']
+    ].filter((s) => S.filter === 'all' || s[11].indexOf(S.filter) >= 0);
+    const left = S.access === 'on' ? '23 h 52 m' : '';
+    const qrBits = '1111111100000110111011011101101110110000011111111'.split('').map((b, i) => (((i * 7 + 3) % 5 === 0) !== (b === '1')) ? '' : 'o');
+    const vi = this.state.lang === 'vi';
+    const tx = {}; LITS.forEach((l, n) => { tx['k' + n] = vi ? L(l) : l; });
+    const VALS = {
+      title: { salons: 'Salons', salon: 'Salon', new: 'Add a salon', system: 'System (admin)' }[S.view],
+      meInit: isOliver ? 'O' : 'E', meOpen: S.me, toggleMe: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ me: !S.me }); },
+      meName: isOliver ? 'Oliver' : 'Elang', meRole: 'Admin', mePhone: isOliver ? '(415) 555-0101 · phone code' : '(408) 555-0199 · phone code',
+      meLangs: [['en', 'English'], ['vi', 'Tiếng Việt']].map((l) => ({ label: l[1], cls: S.lang === l[0] ? 'on' : '', pick: () => this.setState({ lang: l[0] }) })),
+      alertSw: S.alerts ? 'toggle on' : 'toggle', flipAlerts: () => this.setState({ alerts: !S.alerts }),
+      meActs: isOliver ? '3 · in activity logs' : '7 calls + notes · in activity logs',
+      navSalons: S.view === 'salons' || S.view === 'salon' ? 'on' : '', navNew: S.view === 'new' ? 'on' : '', navSystem: S.view === 'system' ? 'on' : '',
+      goSalons: go('salons'), goNew: go('new'), goSystem: go('system'), isAdmin: admin, hasBadge: A.length > 0, badge: A.length,
+      roles: [['elang', 'Elang · admin'], ['oliver', 'Oliver · admin']].map((r) => ({ label: r[1], cls: S.role === r[0] ? 'on' : '', pick: () => this.setState({ role: r[0], view: r[0] === 'elang' && S.view === 'system' ? 'salons' : S.view }) })),
+      vSalons: S.view === 'salons', vSalon: S.view === 'salon', vNew: S.view === 'new', vSystem: S.view === 'system' && admin,
+      biz: [
+        ['Active salons', '5', '+1 invited', 'cap'], ['Pilot · Paid', '3 · 2', '1 pilot ends in 6 days', 'cap'],
+        ['Our income · month', '$98', '2 × $49 · no card markup', 'cap'], ['Card volume · week', '$41.2K', '▲ 8% · goes to salons', 'up'],
+        ['At risk', '1', 'Bella Nails · tickets ▼ 60%', 'down']
+      ].map((k) => ({ l: k[0], v: k[1], s: k[2], cls: k[3] })),
+      filters: [['all', 'All 6'], ['action', 'Needs action'], ['pilot', 'Pilot']].map((f) => ({ label: f[1], cls: S.filter === f[0] ? 'on' : '', pick: () => this.setState({ filter: f[0] }) })),
+      salons: SAL.map((s) => ({ name: s[0], where: s[1], plan: s[2], setupT: s[3] + '/10' + (s[3] === 6 ? ' · stuck' : ''), setupW: 'width:' + s[3] * 10 + '%',
+        today: s[4], stripe: s[5], stripeCls: s[6], text: s[7], textCls: s[8], health: s[9], hCls: s[10],
+        rcls: 'srow', open: () => this.setState({ view: 'salon' }) })),
+      alerts: A.map((a) => ({ icCls: 'ic ' + a[1], icon: a[2], salon: a[3], text: a[4], when: a[5], cta: a[6],
+        open: () => this.setState({ view: 'salon' }), done: () => { const h = Object.assign({}, S.handled); h[a[0]] = true; this.setState({ handled: h }); } })),
+      openAlerts: A.length + ' open', noAlerts: A.length === 0,
+      back: () => this.setState({ view: 'salons' }),
+      supportOn: S.access === 'on', supportLeft: left,
+      accNone: S.access === 'none', accWait: S.access === 'wait', accOn: S.access === 'on',
+      accCardCls: S.access === 'on' ? 'card support' : 'card',
+      ask: () => this.setState({ access: 'wait' }), cancelAsk: () => this.setState({ access: 'none' }), simAllow: () => this.setState({ access: 'on' }),
+      endSupport: () => this.setState({ access: 'none' }),
+      lockText: S.access === 'on' ? 'Support mode: you can see screens Tom can see. Every tap is logged.' : 'Hidden: client names + phones, each tech’s pay, notes. Only totals show.',
+      log: [['12:34 PM', 'Tom allowed support for 24 h'], ['12:35 PM', 'Elang opened Checkout · Settings'], ['12:37 PM', 'Elang re-paired reader “Front desk”'], ['12:38 PM', 'Reader online ✓']].map((l) => ({ t: l[0], x: l[1] })),
+      plans: [['pilot', 'Pilot · free 30 days'], ['paid', 'Paid · $49/mo']].map((p) => ({ label: p[1], cls: S.plan === p[0] ? 'on' : '', pick: () => this.setState({ plan: p[0] }) })),
+      noInvite: !S.invite, hasInvite: S.invite, makeInvite: () => this.setState({ invite: true, note: 'Invite sent by ' + ['text', 'email'].filter((c) => S.via[c]).join(' + ') + ' to Hoa' }), qr: qrBits,
+      vias: [['text', 'Text message'], ['email', 'Email']].map((c) => ({ on: !!S.via[c[0]], cls: S.via[c[0]] ? 'chip on' : 'chip', label: (S.via[c[0]] ? '✓ ' : '') + c[1],
+        flip: () => { const n = Object.assign({}, S.via); n[c[0]] = !n[c[0]]; if (n.text || n.email) this.setState({ via: n }); } })),
+      code: S.sentAgain.new ? 'R4T8N' : 'Q7M2K',
+      sentLines: [S.via.text ? 'Texted to (512) 555-0161' : null, S.via.email ? 'Emailed to hoa.queennails@gmail.com' : null].filter(Boolean),
+      viaText: S.via.text, viaEmail: S.via.email,
+      resendNewText: () => this.setState({ sentAgain: Object.assign({}, S.sentAgain, { new: true }), note: 'New link texted. The old link stops working.' }),
+      resendNewEmail: () => this.setState({ sentAgain: Object.assign({}, S.sentAgain, { new: true }), note: 'New link emailed. The old link stops working.' }),
+      hasNote: !!S.note, noteText: S.note,
+      actF: [['all', 'All'], ['setup', 'Setup'], ['money', 'Money'], ['device', 'Devices'], ['support', 'Support'], ['note', 'Notes']].map((f) => ({ label: f[1], cls: S.actF === f[0] ? 'on' : '', pick: () => this.setState({ actF: f[0] }) })),
+      acts: [].concat(S.access === 'on' ? [['Today · 12:38 PM', 'device', 'Reader “Front desk” back online', 'system'], ['Today · 12:37 PM', 'support', 'Elang re-paired reader “Front desk”', 'Elang'], ['Today · 12:34 PM', 'support', 'Tom allowed support for 24 h', 'Tom']] : S.access === 'wait' ? [['Today · 12:31 PM', 'support', 'Asked Tom for 24-hour support access', 'Elang']] : [], [
+        ['Today · 12:20 PM', 'note', 'Called Tom: reader unplugged after cleaning', 'Elang'],
+        ['Today · 10:12 AM', 'device', 'Card reader “Front desk” went offline', 'system'],
+        ['Today · 9:02 AM', 'setup', 'Salon opened · 5 staff clocked in', 'system'],
+        ['Nov 15 · 7:40 PM', 'money', 'Day closed · $2,410 · cash matched', 'Tom'],
+        ['Nov 12', 'money', 'Stripe payout $8,112 to bank ••4410', 'Stripe'],
+        ['Nov 2 · 9:05 AM', 'note', 'Week-4 review: happy, wants Vietnamese receipts', 'Elang'],
+        ['Oct 2 · 3:15 PM', 'setup', 'Setup done 10/10 · $1 test paid + refunded', 'Tom'],
+        ['Oct 2 · 2:05 PM', 'money', 'Stripe connected + verified', 'Tom'],
+        ['Oct 2 · 1:20 PM', 'setup', 'Tom signed up from the invite (text)', 'Tom'],
+        ['Sep 30', 'setup', 'Invite sent by text + email', 'Elang']
+      ]).filter((e) => S.actF === 'all' || e[1] === S.actF).map((e) => ({ t: e[0], k: { setup: 'Setup', money: 'Money', device: 'Device', support: 'Support', note: 'Note' }[e[1]], cls: 'tag ' + ({ device: e[2].indexOf('offline') >= 0 ? 'bad' : 'grey', support: 'jade', note: 'warn' }[e[1]] || 'grey'), x: e[2], who: e[3] })),
+      invites: [
+        ['q', 'Queen Nails', '· Hoa Pham · Austin, TX', 'Sent Nov 16 · 9:10 AM by text + email', 'Not opened', 'tag grey', true, true],
+        ['p', 'Pho Ever Nails', '· Minh Tran · Plano, TX', 'Sent Oct 29 by email · link ended', 'Expired', 'tag warn', false, true],
+        ['l', 'Lily Nail Spa', '· Vy Ngo · San Jose, CA', 'Sent Nov 10 by text', 'Signed up ✓', 'tag jade', false, false]
+      ].map((i) => { const again = S.sentAgain[i[0]];
+        return { n: i[1], o: i[2], sent: again ? 'Sent again just now by ' + again : i[3], s: again && i[4] === 'Expired' ? 'Not opened' : i[4], cls: again && i[4] === 'Expired' ? 'tag grey' : i[5],
+          canText: i[6], canEmail: i[7],
+          rText: () => this.setState({ sentAgain: Object.assign({}, S.sentAgain, { [i[0]]: 'text' }), note: 'New link texted to ' + i[1] + '. The old link stops working.' }),
+          rEmail: () => this.setState({ sentAgain: Object.assign({}, S.sentAgain, { [i[0]]: 'email' }), note: 'New link emailed to ' + i[1] + '. The old link stops working.' }) }; }),
+      checks: [['Backups', 'daily + point-in-time · restore test Nov 1', 'OK', 'tag jade'], ['Data walls test', 'every change · 2 fake salons', 'Pass', 'tag jade'], ['Sentry alerts', '7 errors · 0 new types', 'OK', 'tag jade'], ['Uptime checks', 'app + Stripe webhook', 'OK', 'tag jade'], ['2-step login', 'Oliver ✓ · Elang ✓', 'OK', 'tag jade'], ['Texting 10DLC', '1 salon pending (Lily)', 'Wait', 'tag warn']].map((c) => ({ n: c[0], d: c[1], s: c[2], cls: c[3] })),
+      costs: [['Supabase', '$25'], ['Vercel', '$20'], ['Twilio (texts + numbers)', '$31'], ['Sentry', '$0'], ['Domain + email', '$8'], ['Stripe', '$0 (salons pay their fees)']].map((c) => ({ n: c[0], v: c[1] }))
+    };
+    VALS.tx = tx;
+    return vi ? TR(VALS) : VALS;
+  }
+}
+</script>
+</body>
+</html>

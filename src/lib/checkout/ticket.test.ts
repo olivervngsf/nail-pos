@@ -12,7 +12,7 @@ const base = (): Ticket => ({
 describe("checkout money", () => {
   it("adds services, takes off the discount, adds tips", () => {
     const t = { ...base(), discount: { id: "d", kind: "amt" as const, value: 500, reason: "Regular client" }, tips: { k: 700, n: 1100 } };
-    expect(totals(t)).toEqual({ subtotal: 9000, discount: 500, due: 8500, tip: 1800, total: 10300 });
+    expect(totals(t)).toMatchObject({ subtotal: 9000, discount: 500, due: 8500, tip: 1800, total: 10300, toPay: 8500, left: 10300 });
   });
   it("percent discount rounds to the cent and never goes below $0", () => {
     expect(discountCents(9000, { id: "d", kind: "pct", value: 15, reason: "x" })).toBe(1350);
@@ -55,5 +55,24 @@ describe("checkout money", () => {
     expect(p.lines.filter((l) => l.kind === "tip")).toHaveLength(1);
     expect(tipLineId(t.id, "22222222-2222-4222-8222-222222222222")).toBe(tipLineId(t.id, "22222222-2222-4222-8222-222222222222"));
     expect(tipLineId(t.id, "22222222-2222-4222-8222-222222222222")).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-a[0-9a-f]{3}-[0-9a-f]{12}$/);
+  });
+});
+
+describe("gift cards on a ticket", () => {
+  const base = { lines: [{ id: "l1", name: "Gel", minutes: 45, cents: 4500, staffId: "k" }], tips: {} };
+  it("a gift card sold adds to what's owed, with no discount on it", () => {
+    const s = totals({ ...base, discount: { id: "d", kind: "pct", value: 10, reason: "x" }, gifts: [{ id: "g", cardId: "c", last4: "2T4F", kind: "digital", cents: 5000 }] });
+    expect(s).toMatchObject({ due: 4050, gift: 5000, total: 9050, toPay: 9050, left: 9050 });
+  });
+  it("a gift card used takes off what's left; cash tip still owed", () => {
+    const s = totals({ ...base, tips: { k: 500 }, giftPays: [{ id: "p", cardId: "c", last4: "2T4F", cents: 3000 }] });
+    expect(s).toMatchObject({ total: 5000, giftPaid: 3000, toPay: 1500, left: 2000 });
+  });
+  it("a gift-card-only ticket can be charged", () => {
+    expect(blockers({ id: "t", salonId: "s", status: "open", createdAt: "", lines: [], tips: {}, note: "", gifts: [{ id: "g", cardId: "c", last4: "0147", kind: "plastic", cents: 2500 }] })).toEqual([]);
+  });
+  it("sale goes to the server as a gift_sale line", () => {
+    const p = toPayload({ id: "t", salonId: "s", status: "open", createdAt: "", lines: [], tips: {}, note: "", gifts: [{ id: "g", cardId: "c", last4: "0147", kind: "plastic", cents: 2500 }] });
+    expect(p.lines).toEqual([{ id: "g", kind: "gift_sale", giftCardId: "c", name: "Gift card •••• 0147", cents: 2500 }]);
   });
 });
