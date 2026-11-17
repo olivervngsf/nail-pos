@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Client profile phone</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="kit.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+b,strong{font-weight:500}
+.h1,.h2,.stat-grid b{font-weight:600}
+.btn,.tag,.seg span,.lbl,.chip{font-weight:500}
+.btn.primary{font-weight:600}
+.ph{border-radius:10px;height:72px;flex:1}
+.vr{display:flex;align-items:center;gap:10px;height:44px;border-bottom:1px solid #E8E8EE;font-size:14px}
+.vr:last-child{border-bottom:0}
+</style>
+</helmet>
+<div class="phone" style="position:relative">
+  <div class="pbar" style="justify-content:space-between;padding:0 8px">
+    <button class="btn ghost" type="button" onClick="{{back}}" style="padding:0 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>{{t.back}}</button>
+    <span>{{title}}</span>
+    <span style="width:84px;display:flex;justify-content:flex-end"><span class="pill ok" style="height:22px;font-size:11px"><span class="dot"></span>{{t.saved}}</span></span>
+  </div>
+  <sc-if value="{{isProfile}}" hint-placeholder-val="{{true}}">
+    <div style="flex:1;overflow:hidden;padding:12px 16px 88px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px;height:64px">
+        <span class="av lg">LT</span>
+        <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span class="h2">Lan Tran</span><span class="tag jade">{{t.regular}}</span></div><div class="cap num">••0142 · {{t.since}} · {{t.texts}} ✓</div></div>
+        <sc-if value="{{isOwner}}" hint-placeholder-val="{{true}}"><button class="btn ghost" type="button" aria-label="Edit client" style="width:40px;padding:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button></sc-if>
+      </div>
+      <div style="padding:10px 12px;border-radius:12px;background:#FCEAEA;font-size:14px;line-height:20px"><b style="color:#B02525;font-weight:600">{{t.care}}:</b> {{t.careTxt}} <span class="cap">· Kim, Oct 19</span></div>
+      <sc-if value="{{isOwner}}" hint-placeholder-val="{{true}}"><div style="padding:10px 12px;border-radius:12px;background:#F0F0F4;font-size:14px;line-height:20px"><b style="font-weight:600">{{t.private}}:</b> {{t.privTxt}} <span class="cap">· {{t.ownerOnly}}</span></div></sc-if>
+      <div class="card pad" style="gap:6px">
+        <span class="tag" style="align-self:flex-start;background:#FDEEE6;color:#B5470A">{{t.due}}</span>
+        <b style="font-weight:600">{{t.every}}</b>
+        <span class="cap">{{t.free}}</span>
+        <button class="btn" type="button" style="width:100%">{{t.bookKim}}</button>
+      </div>
+      <div class="card" style="padding:10px 4px"><div class="stat-grid" style="--n:3"><div><b>12</b><span class="cap">{{t.visits}}</span></div><div><b>$68</b><span class="cap">{{t.avg}}</span></div><div><b>4 wk</b><span class="cap">{{t.comes}}</span></div></div></div>
+      <div class="card pad" style="gap:0;padding-top:12px;padding-bottom:6px">
+        <div style="display:flex;align-items:center;margin-bottom:2px"><b style="flex:1;font-weight:600">{{t.last}}</b><button class="btn ghost" type="button" onClick="{{openHist}}" style="height:28px;font-size:13px">{{t.all}}</button></div>
+        <div class="vr"><span class="cap num" style="width:48px">Oct 19</span><span style="flex:1">Gel manicure <span class="cap">· Kim</span></span><span class="num">$35</span></div>
+        <div class="vr"><span class="cap num" style="width:48px">Sep 21</span><span style="flex:1">Gel mani + pedi <span class="cap">· Kim</span></span><span class="num">$98</span></div>
+      </div>
+      <div style="display:flex;align-items:center"><b style="flex:1;font-weight:600">{{t.photos}} <span class="cap">· 12</span></b><button class="btn ghost" type="button" style="height:28px;font-size:13px">+ {{t.add}}</button></div>
+      <div style="display:flex;gap:8px"><div class="ph" style="background:#B07C8E"></div><div class="ph" style="background:#C9A79A"></div><div class="ph" style="background:#8C9C88"></div><button class="ph" type="button" onClick="{{openHist}}" style="border:0;background:linear-gradient(rgba(22,22,26,.55),rgba(22,22,26,.55)),#B8976A;color:#fff;font:inherit;font-size:14px;font-weight:600">+8</button></div>
+    </div>
+  </sc-if>
+  <sc-if value="{{isHist}}" hint-placeholder-val="{{false}}">
+    <div style="flex:1;overflow:hidden;padding:12px 16px 88px;display:flex;flex-direction:column;gap:10px">
+      <div class="card" style="padding:10px 4px"><div class="stat-grid" style="--n:3"><div><b>12</b><span class="cap">{{t.visits}}</span></div><div><b>$816</b><span class="cap">{{t.spent}}</span></div><div><b>$168</b><span class="cap">{{t.tips}}</span></div></div></div>
+      <div style="display:flex;gap:6px"><span class="chip on">2026 · 11</span><span class="chip">2025 · 1</span><span class="chip">Kim</span><span class="chip">Linh</span></div>
+      <div class="group" style="padding:0 14px">
+        <sc-for list="{{hist}}" as="h" hint-placeholder-count="8"><div class="vr" style="height:50px"><span class="cap num" style="width:48px">{{h.d}}</span><span style="flex:1;min-width:0">{{h.s}}<span class="cap" style="display:block;font-size:12px">{{h.w}} · {{h.pay}} · tip {{h.t}}</span></span><span class="num">{{h.p}}</span></div></sc-for>
+      </div>
+    </div>
+  </sc-if>
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 16px 20px;background:rgba(255,255,255,.94);border-top:1px solid #E8E8EE;display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px">
+    <button class="btn" type="button">{{t.text}}</button><button class="btn" type="button">{{t.book}}</button><button class="btn primary" type="button">{{t.ticket}}</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"role":{"editor":"enum","options":["owner","tech"],"default":"owner"},"lang":{"editor":"enum","options":["en","vi"],"default":"en"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { view: 'profile' }; }
+  renderVals() {
+    const EN = { back:'Clients', saved:'Saved', regular:'Regular', since:'since 2024', texts:'texts', care:'Care', careTxt:'Sensitive skin — no strong acetone.', private:'Private', privTxt:'Asked twice for a discount; owner said no.', ownerOnly:'owner · manager only', due:'Due back in 2 days', every:'Every 4 weeks · last Oct 19', free:'Kim is free Thu 2:00 PM.', bookKim:'Book with Kim', visits:'visits', avg:'avg ticket', comes:'comes every', last:'Last visits', all:'Full history', photos:'Nail photos', add:'Add', spent:'spent', tips:'tips', text:'Text', book:'Book', ticket:'New ticket', hist:'Full history' };
+    const VI = { back:'Khách', saved:'Đã lưu', regular:'Khách quen', since:'từ 2024', texts:'nhắn tin', care:'Lưu ý', careTxt:'Da nhạy cảm — không dùng acetone mạnh.', private:'Riêng', privTxt:'Hai lần xin giảm giá; chủ tiệm không đồng ý.', ownerOnly:'chỉ chủ · quản lý', due:'Sắp tới hẹn (2 ngày)', every:'4 tuần một lần · lần cuối 19/10', free:'Kim rảnh thứ Năm 2:00 PM.', bookKim:'Đặt hẹn với Kim', visits:'lần đến', avg:'TB mỗi lần', comes:'đến mỗi', last:'Lần gần đây', all:'Xem hết', photos:'Ảnh móng', add:'Thêm', spent:'đã chi', tips:'tiền tip', text:'Nhắn tin', book:'Đặt hẹn', ticket:'Phiếu mới', hist:'Lịch sử' };
+    const t = (this.props.lang ?? 'en') === 'vi' ? VI : EN;
+    const S = this.state;
+    const H = [['Oct 19','Gel manicure','Kim','card','$7','$35'],['Sep 21','Gel mani + pedi','Kim','cash','$18','$98'],['Aug 24','Gel manicure','Kim','card','$7','$35'],['Jul 27','Gel mani + art','Linh','card','$9','$45'],['Jun 29','Gel manicure','Kim','card','$7','$35'],['Jun 1','Gel mani + pedi','Kim','gift card','$18','$98'],['May 4','Gel manicure','Kim','card','$7','$35'],['Apr 6','Dip powder','Kim','card','$12','$60']];
+    return {
+      t, title: S.view === 'hist' ? t.hist : 'Lan Tran',
+      isProfile: S.view === 'profile', isHist: S.view === 'hist',
+      isOwner: (this.props.role ?? 'owner') !== 'tech',
+      openHist: () => this.setState({ view: 'hist' }),
+      back: () => this.setState({ view: 'profile' }),
+      hist: H.map((h) => ({ d: h[0], s: h[1], w: h[2], pay: h[3], t: h[4], p: h[5] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -4,34 +4,46 @@
 <meta charset="utf-8">
 <title>Clients</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="kit.css">
 </head>
 <body>
 <x-dc>
 <helmet>
 <style>
 body{margin:0}
-.crow{display:flex;align-items:center;gap:10px;width:100%;min-height:58px;padding:0 12px;border:0;border-bottom:1px solid #E5E5EA;background:#fff;font:inherit;text-align:left;cursor:pointer;color:#1C1C1E;transition:background .2s}
+/* weights: 400 text · 500 values/labels · 600 only for what matters (name, key numbers, section titles, care). Never 700. */
+b,strong{font-weight:500}
+.h1,.h2,.stat .v,.stat-grid b{font-weight:600}
+.btn,.tag,.seg span,.lbl,.chip{font-weight:500}
+.btn.primary{font-weight:600}
+.crow.sel b,.trow.sel b{font-weight:600}
+.card.pad b[style*="flex:1"],b[style*="#B02525"],b.num[style*="font-size:20px"]{font-weight:600}
+.crow{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;padding:0 16px;border:0;border-bottom:1px solid #E8E8EE;background:#fff;font:inherit;text-align:left;cursor:pointer;color:#16161A}
 .crow:hover{background:#FAFAFB}
-.crow.on{background:#F5F5F7}
-.fch{height:30px;padding:0 11px;border-radius:999px;border:1px solid #E5E5EA;background:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer;color:#1C1C1E;flex:none}
-.fch.on{background:#1C1C1E;color:#fff;border-color:#1C1C1E}
-.stat{background:#F5F5F7;border-radius:12px;padding:9px 6px;text-align:center}
-.stat b{display:block;font-size:19px;letter-spacing:-0.02em}
-.photo{height:74px;border-radius:12px;display:flex;align-items:flex-end;padding:6px;box-sizing:border-box;color:#fff;font-size:10px;font-weight:600}
-.visit{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #E5E5EA;font-size:13px}
-.visit:last-child{border-bottom:0}
-.losttag{background:#FDEEE6;color:#B5470A}
+.crow.sel{background:#F0F0F4}
+.flag{width:8px;height:8px;border-radius:50%;flex:none}
+.act{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:16px;background:#fff;box-shadow:0 0 0 1px rgba(22,22,26,.05),0 1px 2px rgba(22,22,26,.04),0 8px 24px -6px rgba(22,22,26,.08)}
+.ph{border-radius:10px}
+/* next-step cards: same rows in every card, button pinned to the bottom, full width */
+.act>*{max-width:100%}
+/* Edit shows on hover of the header card (mouse); always shown on touch screens + keyboard focus */
+.hedit{opacity:0;transition:opacity .2s}
+.hcard:hover .hedit,.hedit:focus-visible{opacity:1}
+@media (pointer:coarse){.hedit{opacity:1}}
+.act>b{min-height:40px;line-height:20px}
+.act>.cap{min-height:18px}
+.act>b{font-weight:600!important}
+.act>.btn{align-self:stretch!important;margin-top:auto;box-sizing:border-box}
 </style>
 </helmet>
-<div class="app">
+<div class="app" style="position:relative">
   <nav class="rail" aria-label="Menu">
     <div class="logo">MN</div>
-    <a href="Main.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
-    <a href="Cal.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
-    <a href="Checkout.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
-    <a class="on" href="Clients.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
-    <a href="CloseDay.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <a href="Main.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"></path></svg>Today</a>
+    <a href="Cal.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Calendar</a>
+    <a href="Checkout.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle></svg>Checkout</a>
+    <a class="on" href="Clients.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"></path></svg>Clients</a>
+    <a href="CloseDay.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"></path><path d="M9 8h6M9 12h6"></path></svg>Close day</a>
     <div style="flex:1"></div>
     <a href="Me.dc.html" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
   </nav>
@@ -39,91 +51,102 @@ body{margin:0}
     <header class="bar">
       <div class="title">Clients <span class="cap">· 412</span></div>
       <span class="pill ok"><span class="dot"></span>Saved</span>
-      <a class="btn" href="#" style="height:36px">+ New client</a>
+      <button class="btn" type="button">+ New client</button>
     </header>
     <main style="flex:1;display:flex;min-height:0">
-      <section style="width:400px;flex:none;border-right:1px solid #E5E5EA;display:flex;flex-direction:column;min-height:0">
-        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">
-          <div style="height:40px;border-radius:10px;background:#EFEFF2;display:flex;align-items:center;padding:0 12px;font-size:14px;color:#5C5C5E">Search phone or name</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{filters}}" as="f" hint-placeholder-count="6"><button class="{{f.cls}}" type="button" onClick="{{f.pick}}">{{f.label}}</button></sc-for></div>
+      <section style="width:340px;flex:none;border-right:1px solid #E8E8EE;display:flex;flex-direction:column;min-height:0;background:#fff">
+        <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid #E8E8EE">
+          <label for="qd" style="position:absolute;left:-9999px">Search clients</label>
+          <input id="qd" class="inp" placeholder="Search phone or name">
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+            <button class="stat on" type="button" style="padding:8px 10px;border-radius:12px"><span class="v" style="font-size:18px;line-height:22px">412</span><span class="cap" style="font-size:12px">All</span></button>
+            <button class="stat" type="button" style="padding:8px 10px;border-radius:12px"><span class="v" style="font-size:18px;line-height:22px;color:#B5470A">3</span><span class="cap" style="font-size:12px">Lost regulars</span></button>
+            <button class="stat" type="button" style="padding:8px 10px;border-radius:12px"><span class="v" style="font-size:18px;line-height:22px">7</span><span class="cap" style="font-size:12px">Birthdays</span></button>
+          </div>
         </div>
-        <sc-if value="{{isLost}}" hint-placeholder-val="{{false}}">
-          <div class="fade" style="margin:0 14px 10px;padding:10px 12px;border-radius:12px;background:#FDEEE6;font-size:13px;line-height:18px;display:flex;gap:10px;align-items:center"><span style="flex:1"><b>3 regulars</b> haven't come in 45+ days.</span><button class="btn" type="button" onClick="{{textAll}}" style="height:32px;font-size:13px;background:#fff">Text “we miss you”</button></div>
-        </sc-if>
-        <div style="flex:1;overflow:hidden;background:#fff">
-          <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+        <div style="flex:1;overflow:hidden">
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="9">
             <button class="{{r.cls}}" type="button" onClick="{{r.open}}">
-              <span class="av">{{r.init}}</span>
-              <span style="flex:1;min-width:0"><b style="font-size:14px">{{r.name}}</b> <span class="{{r.tagCls}}" style="font-size:10px;height:18px;padding:0 6px">{{r.tag}}</span><span class="cap" style="display:block;font-size:12px">{{r.sub}}</span></span>
-              <span class="cap num" style="font-size:12px;text-align:right">{{r.last}}</span>
+              <span class="av" style="width:30px;height:30px;font-size:12px">{{r.i}}</span>
+              <span style="flex:1;min-width:0"><b style="font-size:14px">{{r.n}}</b> <sc-if value="{{r.dup}}" hint-placeholder-val="{{false}}"><span class="tag" style="height:18px;font-size:11px;padding:0 6px">Same name</span></sc-if><span class="cap" style="display:block;font-size:12px">{{r.sub}}</span></span>
+              <span class="cap num" style="font-size:12px">••{{r.last4}}</span>
+              <span class="flag" style="{{r.flag}}"></span>
             </button>
           </sc-for>
         </div>
       </section>
-      <section class="fade" style="flex:1;padding:18px 22px;display:flex;flex-direction:column;gap:12px;min-width:0;overflow:hidden">
-        <div style="display:flex;align-items:center;gap:14px">
-          <span class="av lg" style="width:64px;height:64px;font-size:24px">{{p.init}}</span>
-          <div style="flex:1"><div class="h1" style="font-size:26px">{{p.name}}</div><div class="cap num">{{p.phone}} · {{p.since}} · texts ✓ · birthday {{p.bday}}</div></div>
-          <a class="btn" href="#">Text</a><a class="btn" href="#">Book</a><a class="btn primary" href="#" style="height:44px;font-size:15px">New ticket</a>
+      <section class="fade" style="flex:1;min-width:0;padding:20px 24px;display:flex;flex-direction:column;gap:14px;overflow:hidden">
+        <div class="card hcard" style="padding:18px 20px;display:flex;align-items:center;gap:16px">
+          <span class="av lg">{{p.i}}</span>
+          <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px"><span class="h1">{{p.n}}</span><span class="tag jade">Regular</span></div><div class="cap num" style="display:flex;align-items:center;gap:6px"><span>{{phShown}} · since 2024 · texts ✓</span><button class="btn ghost" type="button" onClick="{{togglePh}}" style="height:24px;padding:0 6px;font-size:12px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>{{phBtn}}</button></div></div>
+          <div style="display:flex;gap:18px;text-align:right;padding-right:6px"><div><b class="num" style="font-size:20px">$816</b><span class="cap" style="display:block">spent · 12 visits</span></div><div><b class="num" style="font-size:20px">4 wk</b><span class="cap" style="display:block">comes every</span></div></div>
+          <sc-if value="{{isOwner}}" hint-placeholder-val="{{true}}"><button class="btn hedit" type="button" onClick="{{openEdit}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg>Edit</button></sc-if>
+          <button class="btn primary" type="button">New ticket</button>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px">
-          <sc-for list="{{p.stats}}" as="s" hint-placeholder-count="6"><div class="stat"><b class="num">{{s.v}}</b><span class="cap" style="font-size:11px">{{s.l}}</span></div></sc-for>
+        <div class="eyebrow">Next steps for this client</div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+          <div class="act"><span class="tag" style="align-self:flex-start;background:#FDEEE6;color:#B5470A">Due back in 2 days</span><b style="font-weight: 600">Every 4 weeks · last Oct 19</b><span class="cap">Kim is free Thu 2:00 PM.</span><button class="btn" type="button" style="align-self:flex-start">Book with Kim</button></div>
+          <div class="act"><span class="tag" style="align-self:flex-start">Birthday Nov 20</span><b>3 days away</b><span class="cap">Said yes to texts.</span><button class="btn" type="button" style="align-self:flex-start">Send birthday text</button></div>
+          <div class="act"><span class="tag jade" style="align-self:flex-start">$30.00 gift card</span><b>Card ••4821 · never expires</b><span class="cap">240 points · 60 to next reward.</span><button class="btn" type="button" style="align-self:flex-start">Use at checkout</button></div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;flex:1;min-height:0">
-          <div style="display:flex;flex-direction:column;gap:10px;min-height:0">
-            <div class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:14px">
-              <div style="display:flex;align-items:center"><b style="flex:1">Likes</b><button class="btn ghost" type="button" style="height:28px;font-size:12px">Edit</button></div>
-              <div class="line"><span>Usual staff</span><b>{{p.staff}}</b></div>
-              <div class="line"><span>Shape · length</span><b>{{p.shape}}</b></div>
-              <div class="line"><span>Colors</span><b>{{p.colors}}</b></div>
-            </div>
-            <div class="card" style="padding:12px 14px;font-size:14px;line-height:20px;background:#FCEAEA;box-shadow:none"><b style="color:#C92A2A">▲ Allergy / care:</b> {{p.care}}</div>
-            <div class="card" style="padding:12px 14px;font-size:14px;line-height:20px"><b>Notes</b><div class="cap" style="font-size:13px">{{p.note}}</div></div>
-            <div class="card" style="padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:14px"><span style="flex:1"><b>Gift card ••4821</b><span class="cap" style="display:block">Bought Oct 2 · never expires</span></span><b class="num">{{p.gift}}</b></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:#FCEAEA;font-size:14px"><b style="color:#B02525">Care:</b> Sensitive skin — no strong acetone. <span class="cap">· Kim, Oct 19</span><span style="flex:1"></span><span class="cap">Likes: Kim · almond short · OPI Bubble Bath</span><button class="btn ghost" type="button" style="height:28px;font-size:13px">+ Note</button></div>
+        <sc-if value="{{isOwner}}" hint-placeholder-val="{{true}}"><div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:#F0F0F4;font-size:14px;margin-top:-6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5E5E66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg><b style="font-weight:600">Private:</b> Asked twice for a discount; owner said no. <span class="cap">· Owner, Sep 21</span><span style="flex:1"></span><span class="tag" style="background:#fff">Owner · manager only</span><button class="btn ghost" type="button" style="height:28px;font-size:13px">+ Note</button></div></sc-if>
+        <div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;flex:1;min-height:0">
+          <div class="card pad" style="gap:0;overflow:hidden">
+            <div style="display:flex;align-items:center;margin-bottom:6px"><b style="flex:1">Last visits</b><a class="btn ghost" href="ClientFull.dc.html" style="height:28px;font-size:13px">Full history</a></div>
+            <sc-for list="{{visits}}" as="v" hint-placeholder-count="4"><div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #E8E8EE;font-size:14px"><span class="cap num" style="width:52px">{{v.d}}</span><span style="flex:1">{{v.s}} <span class="cap">· {{v.w}}</span></span><span class="cap num">tip {{v.t}}</span><b class="num" style="width:44px;text-align:right">{{v.p}}</b></div></sc-for>
           </div>
-          <div style="display:flex;flex-direction:column;gap:10px;min-height:0">
-            <div class="card" style="padding:12px 14px">
-              <div style="display:flex;align-items:center;margin-bottom:8px"><b style="flex:1;font-size:14px">Nail photos</b><button class="btn ghost" type="button" style="height:28px;font-size:12px">+ Add</button></div>
-              <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px"><div class="photo" style="background:#B07C8E">Oct 19</div><div class="photo" style="background:#C9A79A">Sep 21</div><div class="photo" style="background:#8C9C88">Aug 24</div><div class="photo" style="background:#D7B88F">Jul 27</div></div>
-            </div>
-            <div class="card" style="padding:12px 14px;flex:1;min-height:0;overflow:hidden">
-              <b style="font-size:14px">Visits</b>
-              <sc-for list="{{p.visits}}" as="v" hint-placeholder-count="4"><div class="visit"><span class="cap num" style="width:56px">{{v.d}}</span><span style="flex:1">{{v.s}} <span class="cap">· {{v.who}}</span></span><b class="num">{{v.p}}</b></div></sc-for>
-              <div class="cap" style="margin-top:6px">Next: <b style="color:#1C1C1E">{{p.next}}</b></div>
-            </div>
+          <div class="card pad">
+            <div style="display:flex;align-items:center"><b style="flex:1">Nail photos <span class="cap">· 12</span></b><button class="btn ghost" type="button" style="height:28px;font-size:13px">+ Add</button></div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:8px;flex:1;min-height:0"><div class="ph" style="background:#B07C8E;display:flex;align-items:flex-end;padding:6px 8px;color:#fff;font-size:11px;font-weight:500">Oct 19 · Kim</div><div class="ph" style="background:#C9A79A;display:flex;align-items:flex-end;padding:6px 8px;color:#fff;font-size:11px;font-weight:500">Sep 21 · Kim</div><div class="ph" style="background:#8C9C88;display:flex;align-items:flex-end;padding:6px 8px;color:#fff;font-size:11px;font-weight:500">Aug 24 · Kim</div><a class="ph" href="ClientFull.dc.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none;background:linear-gradient(rgba(22,22,26,.55),rgba(22,22,26,.55)),#B8976A;color:#fff;font-size:15px;font-weight:600">+8 more</a></div>
           </div>
         </div>
       </section>
     </main>
   </div>
-  <sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}"><div style="position:absolute;left:50%;bottom:24px;transform:translateX(-50%);background:#1C1C1E;color:#fff;border-radius:14px;padding:12px 18px;font-size:14px;animation:fadeUp .3s var(--ease) both">{{toast}}</div></sc-if>
+  <sc-if value="{{editing}}" hint-placeholder-val="{{false}}">
+    <button class="scrim" type="button" aria-label="Close" onClick="{{closeEdit}}"></button>
+    <aside class="drawer" aria-label="Edit client" style="width:460px">
+      <div class="drawer-h"><span style="flex:1">Edit client</span><span class="tag">Owner · manager</span><button class="btn ghost" type="button" aria-label="Close" onClick="{{closeEdit}}" style="width:36px;padding:0">✕</button></div>
+      <div class="drawer-b">
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+          <div><label class="lbl" for="e1">Name</label><input id="e1" class="inp" value="{{p.n}}"></div>
+          <div><label class="lbl" for="e2">Phone</label><input id="e2" class="inp" value="{{p.ph}}"></div>
+          <div><label class="lbl" for="e3">Email</label><input id="e3" class="inp" value="lan.tran@email.com"></div>
+          <div><label class="lbl" for="e4">Birthday</label><input id="e4" class="inp" value="Nov 20"></div>
+        </div>
+        <div class="group"><div class="row s"><span class="g">Texts OK<span class="cap">Reminders + receipts. STOP turns it off.</span></span><span class="sw on"></span></div><div class="row s"><span class="g">Marketing texts</span><span class="sw"></span></div></div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+          <div><label class="lbl" for="e5">Usual staff</label><input id="e5" class="inp" value="Kim"></div>
+          <div><label class="lbl" for="e6">Shape · length</label><input id="e6" class="inp" value="Almond · short"></div>
+        </div>
+        <div><label class="lbl" for="e7">Colors</label><input id="e7" class="inp" value="OPI Bubble Bath, nudes"></div>
+        <div><label class="lbl" for="e8" style="color:#B02525">Allergy / care (shows on every ticket)</label><input id="e8" class="inp" value="Sensitive skin — no strong acetone."></div>
+        <div><label class="lbl" for="e9">Notes (all staff see)</label><input id="e9" class="inp" value="Likes quiet; prefers the window chair."></div>
+        <div><label class="lbl" for="e10">Private note (owner · manager only)</label><input id="e10" class="inp" value="Asked twice for a discount; owner said no."></div>
+        <div class="hint">Front desk + techs can add notes and photos. Only owner / manager can change name, phone, birthday or merge. Every change is saved in the activity log.</div>
+        <div style="display:flex;gap:8px"><button class="btn ghost" type="button">Merge duplicate</button><button class="btn ghost" type="button" style="color:#B02525">Hide client</button></div>
+      </div>
+      <div class="drawer-f"><button class="btn" type="button" style="flex:1" onClick="{{closeEdit}}">Cancel</button><button class="btn primary" type="button" style="flex:1.4" onClick="{{closeEdit}}">Save</button></div>
+    </aside>
+  </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"filter":{"editor":"enum","options":["all","regular","lost","new","bday","gift"],"default":"all"},"$preview":{"width":1280,"height":800}}'>
+<script type="text/x-dc" data-dc-script data-props='{"role":{"editor":"enum","options":["owner","tech"],"default":"owner"},"$preview":{"width":1280,"height":800}}'>
 class Component extends DCLogic {
-  constructor(p){ super(p); const f = (p && p.filter) || 'all'; this.state = { f, sel: f === 'lost' ? 1 : 0, toast: null }; }
+  constructor(p){ super(p); this.state = { sel: 0, editing: false, showPh: false }; }
   renderVals() {
     const S = this.state;
-    const C = [
-      ['L', 'Lan Tran', '(408) 555-0142', 'Regular', 'regular', 'Gel manicure · Kim · every 4 wk', 'Oct 19', ['regular', 'bday', 'gift'], { since: 'client since 2024', bday: 'Nov 20', staff: 'Kim', shape: 'Almond · short', colors: 'OPI Bubble Bath, nudes', care: 'Sensitive skin — no strong acetone.', note: 'Likes quiet; prefers the window chair.', gift: '$30 left', next: 'Tue Nov 17 · 3:00 PM · Kim', stats: [['12', 'visits'], ['$816', 'spent'], ['$68', 'avg ticket'], ['4 wk', 'comes every'], ['$14', 'avg tip'], ['0', 'no-shows']], visits: [['Oct 19', 'Gel manicure', 'Kim', '$35'], ['Sep 21', 'Gel mani + pedi', 'Kim', '$98'], ['Aug 24', 'Gel manicure', 'Kim', '$35'], ['Jul 27', 'Gel mani + art', 'Kim', '$45']] }],
-      ['J', 'Jen Park', '(408) 555-0131', 'Lost', 'lost', 'Spa pedicure · Ngọc · usually every 3 wk', 'Sep 28', ['lost', 'regular'], { since: 'client since 2023', bday: 'Mar 3', staff: 'Ngọc', shape: '—', colors: 'Reds', care: 'None noted.', note: 'Hasn’t come in 49 days (usually every 3 weeks).', gift: '—', next: 'none booked', stats: [['18', 'visits'], ['$990', 'spent'], ['$55', 'avg ticket'], ['3 wk', 'came every'], ['$10', 'avg tip'], ['1', 'no-show']], visits: [['Sep 28', 'Spa pedicure', 'Ngọc', '$30'], ['Sep 7', 'Spa pedicure', 'Ngọc', '$30'], ['Aug 17', 'Deluxe pedicure', 'Ngọc', '$55'], ['Jul 27', 'Spa pedicure', 'Ngọc', '$30']] }],
-      ['T', 'Thu Le', '(408) 555-0166', 'Lost', 'lost', 'Gel manicure · usually every 4 wk', 'Sep 21', ['lost'], null],
-      ['A', 'Anna Kim', '(408) 555-0190', 'New', 'new', 'Dip powder · booked online', 'today', ['new'], null],
-      ['M', 'Mai Pham', '(408) 555-0170', 'Regular', 'regular', 'Acrylic full set · Kim', 'today', ['regular', 'gift'], null],
-      ['S', 'Sara Lopez', '(408) 555-0155', 'Regular', 'regular', 'Pedicure + design · Linh', 'Oct 30', ['regular', 'bday'], null],
-      ['R', 'Rosa Diaz', '(408) 555-0121', 'Lost', 'lost', 'Fill · usually every 2 wk', 'Sep 30', ['lost'], null]
-    ];
-    const list = C.filter((c) => S.f === 'all' || c[7].indexOf(S.f) >= 0);
-    const pick = C[S.sel] || C[0];
-    const d = pick[8] || C[0][8];
-    const tagCls = { regular: 'tag jade', lost: 'tag', new: 'tag' };
+    const O = 'background:#E8590C', G = 'background:#2F9E44', N = 'background:transparent';
+    const C = [['LT','Lan Tran','(408) 555-0142','Due back in 2 days · Kim',O],['LT','Lan Tran','(408) 555-0388','Gel pedicure · Linh · last Oct 2',N],['MP','Mai Pham','(408) 555-0170','Here today · Kim',G],['AK','Anna Kim','(408) 555-0190','New · here today',G],['TC','Test Client','(555) 010-9999','New · Nov 16',N],['SL','Sara Lopez','(408) 555-0155','Birthday Nov 22',N],['JP','Jen Park','(408) 555-0131','Lost · 49 days',O],['TL','Thu Le','(408) 555-0166','Lost · 57 days',O],['RD','Rosa Diaz','(408) 555-0121','Lost · 48 days',O],['N','Nam','(312) 312-3123','No visits yet',N]];
+    const p = C[S.sel] || C[0];
     return {
-      filters: [['all', 'All 412'], ['regular', 'Regulars 96'], ['lost', 'Lost regulars 3'], ['new', 'New this month 18'], ['bday', 'Birthdays this month 7'], ['gift', 'Gift card balance 24']].map((f) => ({ label: f[1], cls: 'fch' + (S.f === f[0] ? ' on' : ''), pick: () => this.setState({ f: f[0] }) })),
-      isLost: S.f === 'lost',
-      textAll: () => this.setState({ toast: '“We miss you” texted to 3 regulars (only those who said yes to texts)' }),
-      rows: list.map((c) => { const i = C.indexOf(c); return { init: c[0], name: c[1], tag: c[3], tagCls: tagCls[c[4]] + (c[4] === 'lost' ? ' losttag' : ''), sub: c[5], last: c[6], cls: 'crow' + (S.sel === i ? ' on' : ''), open: () => this.setState({ sel: i }) }; }),
-      p: { init: pick[0], name: pick[1], phone: pick[2], since: d.since, bday: d.bday, staff: d.staff, shape: d.shape, colors: d.colors, care: d.care, note: d.note, gift: d.gift, next: d.next, stats: d.stats.map((s) => ({ v: s[0], l: s[1] })), visits: d.visits.map((v) => ({ d: v[0], s: v[1], who: v[2], p: v[3] })) },
-      hasToast: !!S.toast, toast: S.toast
+      rows: C.map((c, i) => ({ i: c[0], n: c[1], sub: c[3], flag: c[4], last4: c[2].slice(-4), dup: C.filter((x) => x[1] === c[1]).length > 1, cls: 'crow' + (S.sel === i ? ' sel' : ''), open: () => this.setState({ sel: i }) })),
+      p: { i: p[0], n: p[1], ph: p[2] },
+      phShown: S.showPh ? p[2] : '••' + p[2].slice(-4), phBtn: S.showPh ? 'Hide' : 'Show', togglePh: () => this.setState({ showPh: !S.showPh }),
+      isOwner: (this.props.role ?? 'owner') !== 'tech',
+      editing: S.editing, openEdit: () => this.setState({ editing: true }), closeEdit: () => this.setState({ editing: false }),
+      visits: [['Oct 19','Gel manicure','Kim','$7','$35'],['Sep 21','Gel mani + pedi','Kim','$18','$98'],['Aug 24','Gel manicure','Kim','$7','$35'],['Jul 27','Gel mani + art','Linh','$9','$45']].map((v) => ({ d: v[0], s: v[1], w: v[2], t: v[3], p: v[4] }))
     };
   }
 }

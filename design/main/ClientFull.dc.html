@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Client full history</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="kit.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+/* weights: 400 text · 500 values/labels · 600 only for what matters. Never 700. */
+b,strong{font-weight:500}
+.h1,.h2,.stat-grid b{font-weight:600}
+.btn,.tag,.seg span,.lbl,.chip{font-weight:500}
+.btn.primary{font-weight:600}
+.vrow{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:0 16px;border:0;border-bottom:1px solid #E8E8EE;background:#fff;font:inherit;font-size:14px;text-align:left;cursor:pointer;color:#16161A}
+.vrow:hover{background:#FAFAFB}
+.vrow.sel{background:#F0F0F4}
+.vrow.sel b{font-weight:600}
+.yr{padding:10px 16px 6px;background:#F6F6F8;border-bottom:1px solid #E8E8EE}
+.th{width:28px;height:28px;border-radius:7px;flex:none}
+.ph{border-radius:10px;height:96px}
+</style>
+</helmet>
+<div class="app" style="position:relative">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="Main.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"></path></svg>Today</a>
+    <a href="Cal.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Calendar</a>
+    <a href="Checkout.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle></svg>Checkout</a>
+    <a class="on" href="Clients.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"></path></svg>Clients</a>
+    <a href="CloseDay.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"></path><path d="M9 8h6M9 12h6"></path></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="Me.dc.html" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar">
+      <a class="btn ghost" href="Clients.dc.html" style="padding:0 8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Lan Tran</a>
+      <div class="title">Full history <span class="cap">· ••0142</span></div>
+      <span class="pill ok"><span class="dot"></span>Saved</span>
+      <button class="btn primary" type="button">New ticket</button>
+    </header>
+    <main style="flex:1;display:flex;min-height:0">
+      <section style="flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;padding:16px 20px;min-height:0">
+        <div class="card" style="padding:12px 8px"><div class="stat-grid" style="--n:5"><div><b>12</b><span class="cap">visits</span></div><div><b>$816</b><span class="cap">spent</span></div><div><b>$168</b><span class="cap">tips</span></div><div><b>4 wk</b><span class="cap">comes every</span></div><div><b>12</b><span class="cap">photos</span></div></div></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <sc-for list="{{filters}}" as="f" hint-placeholder-count="5"><button class="{{f.cls}}" type="button" onClick="{{f.pick}}">{{f.label}}</button></sc-for>
+          <span style="flex:1"></span><button class="btn ghost" type="button" style="height:32px;font-size:13px">Export</button>
+        </div>
+        <div class="group" style="flex:1;min-height:0;overflow:hidden">
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="12">
+            <sc-if value="{{r.head}}" hint-placeholder-val="{{false}}"><div class="yr eyebrow">{{r.year}} · {{r.yearSum}}</div></sc-if>
+            <button class="{{r.cls}}" type="button" onClick="{{r.open}}">
+              <span class="num cap" style="width:52px">{{r.d}}</span>
+              <span style="flex:1;min-width:0"><b>{{r.s}}</b> <span class="cap">· {{r.w}}</span></span>
+              <span class="tag" style="height:20px;font-size:11px">{{r.pay}}</span>
+              <span class="cap num" style="width:56px;text-align:right">tip {{r.t}}</span>
+              <span class="th" style="{{r.ph}}"></span>
+              <b class="num" style="width:44px;text-align:right">{{r.p}}</b>
+            </button>
+          </sc-for>
+        </div>
+      </section>
+      <aside class="fade" style="width:380px;flex:none;border-left:1px solid #E8E8EE;background:#fff;display:flex;flex-direction:column;min-height:0">
+        <div style="padding:18px 20px 12px;border-bottom:1px solid #E8E8EE">
+          <div class="eyebrow">Ticket #{{v.no}}</div>
+          <div class="h2" style="margin-top:2px">{{v.date}}</div>
+          <div class="cap">{{v.time}} · with {{v.w}} · paid {{v.payLong}}</div>
+        </div>
+        <div style="flex:1;overflow:hidden;padding:14px 20px;display:flex;flex-direction:column;gap:12px">
+          <div class="group">
+            <sc-for list="{{v.lines}}" as="l" hint-placeholder-count="2"><div class="row xs"><span class="g">{{l.n}}</span><span class="num">{{l.p}}</span></div></sc-for>
+            <div class="row xs"><span class="g cap">Tip · to {{v.w}}</span><span class="num">{{v.t}}</span></div>
+            <div class="row xs"><span class="g cap">Card fee · salon pays</span><span class="num cap">{{v.fee}}</span></div>
+            <div class="row s"><span class="g" style="font-weight:600">Total paid</span><span class="num" style="font-weight:600">{{v.total}}</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px"><div class="ph" style="{{v.ph}}"></div><div class="ph" style="{{v.ph}};opacity:.75"></div></div>
+          <div class="cap" style="font-size:13px"><b style="color:#16161A">Visit note</b> · {{v.note}}</div>
+          <div class="cap" style="font-size:12px">+12 points earned · receipt sent by text</div>
+        </div>
+        <div class="drawer-f"><button class="btn" type="button" style="flex:1">Resend receipt</button><button class="btn" type="button" style="flex:1">Book same again</button></div>
+      </aside>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { sel: 0, f: 'all' }; }
+  renderVals() {
+    const S = this.state;
+    const c1 = 'background:#B07C8E', c2 = 'background:#C9A79A', c3 = 'background:#8C9C88', c4 = 'background:#B8976A';
+    const V = [
+      ['2026','Oct 19','Sun, Oct 19, 2026','2:10 PM','Gel manicure','Kim','Card',35,7,c1,'Same color as last time.',[['Gel manicure',35]]],
+      ['2026','Sep 21','Sun, Sep 21, 2026','11:30 AM','Gel mani + spa pedicure','Kim','Cash',98,18,c2,'Added nail art on ring fingers.',[['Gel manicure',35],['Deluxe spa pedicure',63]]],
+      ['2026','Aug 24','Sun, Aug 24, 2026','1:00 PM','Gel manicure','Kim','Card',35,7,c3,'—',[['Gel manicure',35]]],
+      ['2026','Jul 27','Sun, Jul 27, 2026','3:45 PM','Gel mani + art','Linh','Card',45,9,c4,'Kim was off; Linh covered.',[['Gel manicure',35],['Nail art (2 nails)',10]]],
+      ['2026','Jun 29','Sun, Jun 29, 2026','12:15 PM','Gel manicure','Kim','Card',35,7,c1,'—',[['Gel manicure',35]]],
+      ['2026','Jun 1','Sun, Jun 1, 2026','10:40 AM','Gel mani + spa pedicure','Kim','Gift card',98,18,c2,'Paid with gift card ••4821.',[['Gel manicure',35],['Deluxe spa pedicure',63]]],
+      ['2026','May 4','Sun, May 4, 2026','2:00 PM','Gel manicure','Kim','Card',35,7,c3,'—',[['Gel manicure',35]]],
+      ['2026','Apr 6','Sun, Apr 6, 2026','1:20 PM','Dip powder','Kim','Card',60,12,c4,'Tried dip once; went back to gel.',[['Dip powder',60]]],
+      ['2026','Mar 9','Mon, Mar 9, 2026','4:30 PM','Gel mani + spa pedicure','Kim','Cash',98,18,c1,'—',[['Gel manicure',35],['Deluxe spa pedicure',63]]],
+      ['2026','Feb 9','Mon, Feb 9, 2026','11:00 AM','Gel mani + spa pedicure','Kim','Card',98,18,c2,'Valentine design.',[['Gel manicure',35],['Deluxe spa pedicure',63]]],
+      ['2026','Jan 12','Mon, Jan 12, 2026','3:10 PM','Gel mani + spa pedicure','Kim','Card',98,18,c3,'—',[['Gel manicure',35],['Deluxe spa pedicure',63]]],
+      ['2025','Dec 14','Sun, Dec 14, 2025','1:50 PM','Gel mani + pedi + holiday art','Linh','Card',81,29,c4,'First visit. Booked online.',[['Gel manicure',35],['Spa pedicure',36],['Holiday art',10]]]
+    ];
+    const F = [['all','All 12'],['2026','2026 · 11'],['2025','2025 · 1'],['Kim','Kim · 10'],['Linh','Linh · 2']];
+    const keep = (v) => S.f === 'all' || v[0] === S.f || v[5] === S.f;
+    const list = V.filter(keep);
+    const yearSum = (y) => '$' + V.filter((v) => v[0] === y).reduce((a, v) => a + v[7], 0);
+    const money = (n) => '$' + n.toFixed(2);
+    const cur = V[S.sel] || V[0];
+    const card = cur[6] === 'Card';
+    const fee = card ? money((cur[7] + cur[8]) * 0.027 + 0.05) : '$0.00';
+    return {
+      filters: F.map((f) => ({ label: f[1], cls: 'chip' + (S.f === f[0] ? ' on' : ''), pick: () => this.setState({ f: f[0] }) })),
+      rows: list.map((v, k) => { const i = V.indexOf(v); return { head: k === 0 || list[k - 1][0] !== v[0], year: v[0], yearSum: yearSum(v[0]), d: v[1], s: v[4], w: v[5], pay: v[6], t: '$' + v[8], ph: v[9], p: '$' + v[7], cls: 'vrow' + (S.sel === i ? ' sel' : ''), open: () => this.setState({ sel: i }) }; }),
+      v: { no: 1040 - S.sel * 7, date: cur[2], time: cur[3], w: cur[5], payLong: card ? 'card ••4242' : cur[6] === 'Gift card' ? 'gift card ••4821' : 'cash', lines: cur[11].map((l) => ({ n: l[0], p: money(l[1]) })), t: money(cur[8]), fee: fee, total: money(cur[7] + cur[8]), ph: cur[9], note: cur[10] }
+    };
+  }
+}
+</script>
+</body>
+</html>
