@@ -7,7 +7,7 @@ import { PRINT_DEFAULTS } from "./settings";
 const txt: EarnText = {
   slipFor: (n) => `${n}'s earnings`, services: "Services", pay: () => "Pay", cardTips: "Card tips", cashTips: "Cash tips", feeOnTips: "Fee on tips",
   total: "Total", byCheck: "By check", inCash: "In cash", signature: "Received by", printed: "Printed",
-  tips: "Tips", tipOn: (a) => `(tip ${a})`,
+  tips: "Tips", ticketNo: (n) => `Ticket #${n}`,
 };
 
 describe("earnings slips", () => {
@@ -22,25 +22,22 @@ describe("earnings slips", () => {
       expect(cuts).toBe(1);
     }
   });
-  it("rules: totals by default; every ticket = one line per ticket under Services (n): services (tip $x) ... amount", () => {
+  it("every ticket: Ticket #n ... amount for each, then Services total, the %, then tips", () => {
     const r = rows[0];
     const totals = new TextDecoder().decode(receiptBytes(earningsDoc(r, "Cosmo Nails", "2026-11-17", txt, "now"), 58));
-    expect(totals).not.toContain("Gel manicure");
-    const each = new TextDecoder().decode(receiptBytes(earningsDoc(r, "Cosmo Nails", "2026-11-17", txt, "now", { ...PRINT_DEFAULTS.staff, tickets: true }), 80));
-    const lines = each.split("\n");
-    const svc = lines.findIndex((l) => l.startsWith("Services ("));
-    expect(lines[svc + 1]).toMatch(/^  Gel manicure \(tip \$9\.00\) +\$45\.00$/);
-    expect(each).toContain("$15.00)"); // long service list wraps; tip stays with it
-  });
-  it("narrow 58 mm paper: long services get their own line, then (tip) + amount together", () => {
-    const each = new TextDecoder().decode(receiptBytes(earningsDoc(rows[0], "Cosmo Nails", "2026-11-17", txt, "now", { ...PRINT_DEFAULTS.staff, tickets: true }), 58));
-    const lines = each.split("\n");
-    const i = lines.findIndex((l) => l.includes("Deluxe spa pedicure"));
-    expect(lines[i]).toMatch(/^  Deluxe spa pedicure/);
-    const amt = lines.findIndex((l, j) => j > i && /\$73\.00$/.test(l));
-    expect(lines[amt]).toMatch(/^    \(tip \$15\.00\) +\$73\.00$/);
-    for (const l of receiptLines(earningsDoc(rows[0], "Cosmo Nails", "2026-11-17", txt, "now", { ...PRINT_DEFAULTS.staff, tickets: true }), 58))
-      if ("text" in l) expect(l.text.length).toBeLessThanOrEqual(32);
+    expect(totals).not.toContain("Ticket #");
+    for (const paper of [58, 80] as const) {
+      const lines = receiptLines(earningsDoc(r, "Cosmo Nails", "2026-11-17", txt, "now", { ...PRINT_DEFAULTS.staff, tickets: true }), paper)
+        .flatMap((l) => ("text" in l ? [l.text] : []));
+      const t1 = lines.findIndex((l) => l.startsWith("Ticket #1011"));
+      expect(lines[t1]).toMatch(/^Ticket #1011 +\$45\.00$/);
+      expect(lines[t1 + 1]).toMatch(/^Ticket #1012 +\$73\.00$/);
+      const svc = lines.findIndex((l) => l.startsWith("Services ("));
+      expect(svc).toBeGreaterThan(t1 + 1);
+      expect(lines.findIndex((l) => l.startsWith("Pay "))).toBe(svc + 1);
+      expect(lines.join("\n")).not.toContain("Gel manicure");
+      for (const l of lines) expect(l.length).toBeLessThanOrEqual(paper === 58 ? 32 : 48);
+    }
   });
   it("rules: owner can hide check/cash split, signature, printed time, and join card + cash tips", () => {
     const o = { tickets: false, tipSplit: false, checkCash: false, signature: false, printedAt: false };

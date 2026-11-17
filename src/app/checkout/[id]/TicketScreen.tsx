@@ -101,7 +101,7 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
     setSlipBusy(true); setSlipMsg("");
     try {
       await printTicketSlip(ticket.id, desk.salonName, { ticket: t("slipTicket"), forTech: t("slipForTech"), back: t("slipBack") },
-        f.dateTime(new Date(ticket.createdAt), { timeStyle: "short" }));
+        f.dateTime(new Date(ticket.createdAt), { dateStyle: "medium", timeStyle: "short" }));
       setSlipMsg(t("slipPrinted"));
     } catch (e) { setSlipMsg((e as Error).message); }
     setSlipBusy(false);

@@ -42,7 +42,7 @@ export function useEarningsPrint(salonId?: string | null, demo = false) {
   const txt: EarnText = {
     slipFor: (name) => t("slipFor", { name }), services: t("services"), cardTips: t("cardTips"), cashTips: t("cashTips"), feeOnTips: t("feeOnTips"),
     total: t("total"), byCheck: t("byCheck"), inCash: t("inCash"), signature: t("signature"), printed: t("printed"),
-    tips: t("tipsAll"), tipOn: (amount) => t("tipOn", { amount }),
+    tips: t("tipsAll"), ticketNo: (n) => t("ticketNo", { n }),
     pay: (r) => r.pay_type === "commission" ? t("commission", { pct: r.commission_pct ?? 0 }) : r.pay_type === "hourly" ? t("hourly", { hours: (r.minutes / 60).toFixed(1) })
       : r.pay_type === "booth_rent" ? t("booth") : t("pay"),
   };

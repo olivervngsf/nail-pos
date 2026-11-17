@@ -178,10 +178,10 @@ export default function Payouts() {
           {rows.map((r) => (
             <div key={r.membership_id}>
               <b>{r.name}</b>
-              <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>
               {prints.staff.tickets && (r.lines ?? []).map((l) => (
-                <div key={l.number} className="rl"><span>&nbsp;&nbsp;{l.services}{l.tip_card_cents + l.tip_cash_cents ? ` ${t("tipOn", { amount: $(l.tip_card_cents + l.tip_cash_cents) })}` : ""}</span><span>{$(l.services_cents)}</span></div>
+                <div key={l.number} className="rl"><span>{t("ticketNo", { n: l.number })}</span><span>{$(l.services_cents)}</span></div>
               ))}
+              <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>
               <div className="rl"><span>{payLabel(r)}</span><span>{$(r.pay_cents)}</span></div>
               <div className="rl"><span>{t("cardTips")}</span><span>{$(r.tips_card_cents)}</span></div>
               <div className="rl"><span>{t("cashTips")}</span><span>{$(r.tips_cash_cents)}</span></div>
