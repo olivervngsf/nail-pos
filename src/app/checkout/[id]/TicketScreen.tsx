@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
+import AccountMenu from "@/components/AccountMenu";
 import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
@@ -40,7 +41,7 @@ export default function TicketScreen({ id }: { id: string }) {
 
   return (
     <div className="app" onPointerDown={touchActing}>
-      <LeftMenu active="Checkout" salonInitials={initials(desk.salonName)} me={who.name[0]} />
+      <LeftMenu active="Checkout" salonInitials={initials(desk.salonName)} />
       <div className="col">
         <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {ticket.status === "open" && step !== "ticket" && <Button variant="ghost" size="sm" onClick={() => setStep(step === "pay" ? "ticket" : "pay")}>‹ {t("back")}</Button>}
@@ -48,7 +49,7 @@ export default function TicketScreen({ id }: { id: string }) {
           {title}
         </span>}>
           <SyncPill />
-          <span className="who"><Avatar name={who.name} />{who.name} · {ROLE_LABEL[who.role]}</span>
+          <AccountMenu name={who.name} role={who.role} salon={desk.salonName} />
         </TopBar>
         <OfflineBanner />
         {desk.mode === "demo" && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}

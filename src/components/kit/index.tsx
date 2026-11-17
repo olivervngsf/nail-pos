@@ -185,7 +185,7 @@ const MENU = [
 ] as const;
 export type MenuItem = (typeof MENU)[number]["name"] | "Me";
 /** Desktop left menu (design/kit/rail.py). Same on every desk screen; only the active item changes. */
-export function LeftMenu({ active, salonInitials = "NP", me = "?" }: { active: MenuItem; salonInitials?: string; me?: string }) {
+export function LeftMenu({ active, salonInitials = "NP", me }: { active: MenuItem; salonInitials?: string; me?: string }) {
   return (
     <nav className="rail" aria-label="Menu">
       <div className="logo">{salonInitials}</div>
@@ -196,7 +196,7 @@ export function LeftMenu({ active, salonInitials = "NP", me = "?" }: { active: M
         </a>
       ))}
       <div style={{ flex: 1 }} />
-      <a href="/me" className={active === "Me" ? "on" : ""} aria-label="My profile"><span className="av">{me}</span></a>
+      {me && <a href="/me" className={active === "Me" ? "on" : ""} aria-label="My profile"><span className="av">{me}</span></a>}
     </nav>
   );
 }

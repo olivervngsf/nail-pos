@@ -4,10 +4,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ROLE_LABEL, SMS_ON, forgetDevice, getDevice, isSignedIn, makeSalonDevice, myMemberships, pinMessage, rpc, signOut,
+  ROLE_LABEL, SMS_ON, forgetDevice, getDevice, isSignedIn, makeSalonDevice, myMemberships, pinMessage, rpc,
   type Device, type Membership, type PinResult, type Role,
 } from "@/lib/auth";
 import PaymentsCard from "@/components/PaymentsCard";
+import AccountMenu from "@/components/AccountMenu";
 import { getActing, setActing as shareActing, touchActing } from "@/lib/desk";
 import { Avatar, Button, Card, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Row, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 
@@ -91,19 +92,17 @@ export default function TodayDesk() {
 
   return (
     <div className="app" onPointerDown={acting ? touch : undefined}>
-      <LeftMenu active="Today" salonInitials={me.salon_name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={me.display_name[0]} />
+      <LeftMenu active="Today" salonInitials={me.salon_name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} />
       <div className="col">
-        <TopBar title={me.salon_name}>
-          {ms.length > 1 && !isDevice && (
-            <select className="inp" aria-label="Salon" style={{ width: "auto", height: 36, fontSize: 14 }} value={salonId}
+        <TopBar title={ms.length > 1 && !isDevice
+          ? <select className="inp" aria-label="Salon" style={{ width: "auto", height: 38, fontSize: 17, fontWeight: 600 }} value={salonId}
               onChange={(e) => { setSalonId(e.target.value); try { localStorage.setItem("nailpos.salon", e.target.value); } catch { /* */ } }}>
               {ms.map((m) => <option key={m.salon_id} value={m.salon_id}>{m.salon_name}</option>)}
             </select>
-          )}
+          : me.salon_name}>
           <SyncPill />
-          {isDevice
-            ? <Button data-testid="switch-person" onClick={() => setSwitching(true)}>{acting ? <><Avatar name={acting.name} />{acting.name} · {ROLE_LABEL[acting.role]}</> : "Tap your name"}</Button>
-            : <span className="who"><Avatar name={me.display_name} />{me.display_name} · {ROLE_LABEL[me.role]}</span>}
+          {isDevice && <Button data-testid="switch-person" onClick={() => setSwitching(true)}>{acting ? <><Avatar name={acting.name} />{acting.name} · {ROLE_LABEL[acting.role]}</> : "Tap your name"}</Button>}
+          <AccountMenu name={me.display_name} role={me.role} salon={me.salon_name} compact={isDevice} />
         </TopBar>
         <OfflineBanner />
         <main style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20, maxWidth: 980, width: "100%" }}>
@@ -153,7 +152,6 @@ export default function TodayDesk() {
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             {isDevice && canAdmin && <Button variant="ghost" onClick={() => { forgetDevice(); setDevice(null); setActing(null); }}>Stop using as salon device</Button>}
-            <Button variant="ghost" data-testid="sign-out" onClick={async () => { await signOut(); router.replace("/login"); }}>Sign out</Button>
           </div>
         </main>
       </div>
