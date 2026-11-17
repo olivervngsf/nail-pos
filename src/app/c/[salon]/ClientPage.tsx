@@ -8,6 +8,7 @@ import PhoneCodeLogin from "@/components/PhoneCodeLogin";
 import { Button, ProgressBar } from "@/components/kit";
 import { SMS_ON, isSignedIn, rpc, signOut } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
+import { DEMO_SLUG } from "@/lib/booking/page";
 
 type Card = { id: string; last4: string; kind: string; from?: string | null; mine: boolean; balance: number };
 type Page = {
@@ -37,15 +38,17 @@ function demoPage(slug: string): Page {
 
 export default function ClientPage({ slug }: { slug: string }) {
   const t = useTranslations("clientPage");
+  // "/c/demo" is always the sample page (no real text code), like the "/demo" booking page.
+  const sample = !SMS_ON || slug === DEMO_SLUG;
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [phone, setPhone] = useState("");
   const [page, setPage] = useState<Page | null | undefined>(undefined);
   const [err, setErr] = useState("");
-  useEffect(() => { if (!SMS_ON) { setSignedIn(false); return; } void isSignedIn().then(setSignedIn); }, []);
+  useEffect(() => { if (slug === DEMO_SLUG && SMS_ON) { setSignedIn(true); return; } if (!SMS_ON) { setSignedIn(false); return; } void isSignedIn().then(setSignedIn); }, [slug]);
   const load = useCallback(async () => {
-    if (!SMS_ON) { setPage(demoPage(slug)); return; }
+    if (sample) { setPage(demoPage(slug)); return; }
     try { setPage(await rpc<Page | null>("client_page", { p_slug: slug })); } catch (e) { setErr((e as Error).message); setPage(null); }
-  }, [slug]);
+  }, [slug, sample]);
   useEffect(() => { if (signedIn) void load(); }, [signedIn, load]);
 
   if (signedIn === null) return <main className="cp" aria-busy="true" />;
@@ -56,10 +59,10 @@ export default function ClientPage({ slug }: { slug: string }) {
   );
   if (page === undefined) return <main className="cp" aria-busy="true" />;
   if (!page) return <main className="cp"><div className="card pad cp-card"><h1 className="h2">{t("notFound")}</h1>{err && <p className="hint err">{err}</p>}</div></main>;
-  return <Signed page={page} slug={slug} reload={load} onOut={async () => { await signOut(); setSignedIn(false); setPage(undefined); }} />;
+  return <Signed page={page} slug={slug} sample={sample} reload={load} onOut={async () => { if (!sample) await signOut(); setSignedIn(slug === DEMO_SLUG && SMS_ON); setPage(undefined); }} />;
 }
 
-function Signed({ page, slug, reload, onOut }: { page: Page; slug: string; reload: () => Promise<void>; onOut: () => void }) {
+function Signed({ page, slug, sample, reload, onOut }: { page: Page; slug: string; sample: boolean; reload: () => Promise<void>; onOut: () => void }) {
   const t = useTranslations("clientPage");
   const [adding, setAdding] = useState(false);
   const [code, setCode] = useState("");
@@ -71,7 +74,7 @@ function Signed({ page, slug, reload, onOut }: { page: Page; slug: string; reloa
   const unit = ly?.kind === "visits" ? t("visits") : t("points");
   const add = async () => {
     setBusy(true); setErr("");
-    if (!SMS_ON) {
+    if (sample) {
       const norm = code.toUpperCase().replace(/[^A-Z0-9]/g, "");
       if (norm.length < 12) { setErr(t("e_typo")); setBusy(false); return; }
       const card: Card = { id: crypto.randomUUID(), last4: norm.slice(-4), kind: "plastic", mine: true, balance: 10000 };
@@ -87,6 +90,7 @@ function Signed({ page, slug, reload, onOut }: { page: Page; slug: string; reloa
   };
   return (
     <main className="cp">
+      {sample && <div className="demo">{t("sample")}</div>}
       <div className="cp-head"><b>{page.salon.name}</b><span className="cap">{t("signedIn", { last4: page.phoneLast4 })}</span></div>
       {ly ? (
         <section className="card pad cp-card" data-testid="cp-points">

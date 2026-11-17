@@ -1187,6 +1187,7 @@
     "refund": "Refund",
     "visit": "Visit",
     "book": "Book my next visit",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "sample": "Sample page: what a client sees. Nothing here is real."
   }
 }
