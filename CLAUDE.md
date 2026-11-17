@@ -86,7 +86,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-16: Owner dashboard (top 5 KPIs, facts only) joins V1.
 - 2026-11-16: Payroll = V1 insights + export; real payroll later via embedded partner (e.g. Check, Gusto Embedded); never build tax filing ourselves.
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
-- 2026-11-17: Names: company = EO Collective, app = PolishOS (Elang + Oliver). Domain bought: polishosapp.com (GoDaddy) = main site, app + booking pages (book.polishosapp.com/salon-city). polishos.com taken (ask owner later); polishos.app still free (optional grab). Optional: eo-collective.com for company email. To do: point DNS to Vercel, 2-step login on GoDaddy, USPTO trademark check on "PolishOS".
+- 2026-11-17: Names: company = EO Collective, app = PolishOS (Elang + Oliver). Domain bought: polishosapp.com (GoDaddy) = main site, app + booking pages (book.polishosapp.com/salon-city). polishos.com taken (ask owner later); polishos.app still free (optional grab). Optional: eo-collective.com for company email. DNS connected to Vercel (nail-pos project, www → apex) Nov 17. To do: 2-step login on GoDaddy, USPTO trademark check on "PolishOS".
 
 ## Tracking
 - Build Tracker (status per feature, build order): https://claude.ai/artifact/6DjfxMPXy64uDX8YZdCCnt — keep in sync with GitHub Issues
