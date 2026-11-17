@@ -17,7 +17,9 @@ export async function POST(req: Request) {
   if (!a) {
     const { data: s } = await db.from("salons").select("name").eq("id", salonId).single();
     const acct = await st.accounts.create({
-      type: "express", country: "US",
+      // Express-style: Stripe-hosted sign-up, Express dashboard, salon pays its own Stripe fees, Stripe covers losses.
+      controller: { stripe_dashboard: { type: "express" }, fees: { payer: "account" }, losses: { payments: "stripe" }, requirement_collection: "stripe" },
+      country: "US",
       capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
       business_profile: { name: s?.name ?? undefined, mcc: "7230" }, // 7230 = beauty and barber shops
       metadata: { salon_id: salonId },
