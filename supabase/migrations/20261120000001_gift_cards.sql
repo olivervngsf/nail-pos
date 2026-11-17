@@ -133,7 +133,7 @@ language plpgsql set search_path = '' as $$
 declare c text; cid uuid; tries int := 0;
 begin
   loop
-    c := public._gift_new_code((select gift_prefix from public.salons where salons.id = p_salon), p_kind = 'plastic');
+    c := public._gift_new_code((select coalesce(gift_prefix, regexp_replace(upper(name), '[^A-Z]', '', 'g')) from public.salons where salons.id = p_salon), p_kind = 'plastic');
     begin
       insert into public.gift_cards (salon_id, code_hash, last4, kind, made_by) values (p_salon, public._gift_hash(c), right(c, 4), p_kind, p_made)
       returning gift_cards.id into cid;
