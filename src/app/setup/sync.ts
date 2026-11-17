@@ -6,6 +6,8 @@ import type { PayType } from "@/lib/onboarding/data";
 import type { SetupState } from "./state";
 
 const uuid = () => crypto.randomUUID();
+// One new salon id per page load: several quick calls must not each make a different salon.
+let minted: string | undefined;
 
 /** Give the salon, services and staff stable ids (older saved wizards had none). */
 export function withIds(s: SetupState): SetupState {
@@ -13,7 +15,7 @@ export function withIds(s: SetupState): SetupState {
   if (!needs) return s;
   return {
     ...s,
-    salonId: s.salonId || uuid(),
+    salonId: s.salonId || (minted ??= uuid()),
     menu: s.menu.map((m) => (m.id ? m : { ...m, id: uuid() })),
     staff: s.staff.map((p) => (p.id ? p : { ...p, id: uuid() })),
   };

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, LeftMenu, ListGroup, OfflineBanner, SyncPill, Tag, TopBar } from "@/components/kit";
-import { ROLE_LABEL } from "@/lib/auth";
+import AccountMenu from "@/components/AccountMenu";
 import { formatCents } from "@/lib/money";
 import { getActing, useDesk } from "@/lib/desk";
 import { pullTickets, putTicket, useTickets } from "@/lib/checkout/store";
@@ -60,11 +60,11 @@ export default function CheckoutHome() {
 
   return (
     <div className="app">
-      <LeftMenu active="Checkout" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={who.name[0]} />
+      <LeftMenu active="Checkout" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} />
       <div className="col">
         <TopBar title={desk.salonName}>
           <SyncPill />
-          <span className="who"><Avatar name={who.name} />{who.name} · {ROLE_LABEL[who.role]}</span>
+          <AccountMenu name={who.name} role={who.role} salon={desk.salonName} />
         </TopBar>
         <OfflineBanner />
         <main style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20, maxWidth: 980, width: "100%" }}>
