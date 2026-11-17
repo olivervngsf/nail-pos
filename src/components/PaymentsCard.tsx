@@ -1,7 +1,7 @@
 "use client";
 // Owner/manager on Today: card payments status (Stripe connected? reader paired?) with the next step.
 import { useEffect, useState } from "react";
-import { Button, Card, Tag } from "@/components/kit";
+import { Button, Tag } from "@/components/kit";
 import { api } from "@/lib/api";
 import { rpc } from "@/lib/auth";
 
@@ -34,19 +34,17 @@ export default function PaymentsCard({ salonId }: { salonId: string }) {
   };
   if (!st) return null;
   const ready = !!st.chargesEnabled;
+  // One slim settings row: what it is + one line of status, small action on the right.
+  const line = st.on === false ? "Not switched on for this site yet (Stripe key missing)."
+    : !ready ? (st.connected ? (st.missing?.length ? `Stripe still needs: ${st.missing.join(" · ")}` : "Stripe is checking your details. Refresh in a minute.") : "Salon's own Stripe account. Money goes straight to your bank.")
+    : readers.length ? `Reader: ${readers.map((r) => r.label).join(", ")} · QR / pay link on` : "No card reader yet · QR / pay link on";
   return (
-    <Card pad>
-      <span style={{ display: "flex", alignItems: "center", gap: 8 }}><b style={{ flex: 1 }}>Card payments</b>
-        {st.test && <Tag>Test mode</Tag>}{ready ? <Tag tone="jade">On</Tag> : <span className="tag warn">Not set up</span>}</span>
-      {st.on === false ? <span className="cap">Not switched on for this site yet (Stripe key missing).</span>
-        : !ready ? <>
-          <span className="cap">{st.connected ? (st.missing?.length ? `Stripe still needs: ${st.missing.join(" · ")}` : "Stripe is checking your details. Refresh in a minute.") : "Connect your salon's own Stripe account. Money goes straight to your bank."}</span>
-          <div><Button className="stripe" disabled={busy} data-testid="connect-stripe" onClick={() => void connect()}>{st.connected ? "Continue with Stripe" : "Connect with Stripe"}</Button></div>
-        </> : <>
-          <span className="cap">{readers.length ? `Readers: ${readers.map((r) => r.label).join(", ")}` : "No card reader yet. QR / pay link works now."}</span>
-          {!readers.length && st.test && <div><Button disabled={busy} onClick={() => void testReader()}>Add a test reader</Button></div>}
-        </>}
-      {err && <span className="hint err">{err}</span>}
-    </Card>
+    <div className="row set" data-testid="payments-row">
+      <span className="g"><span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>Card payments
+        {ready ? <Tag tone="jade">On</Tag> : <span className="tag warn">Not set up</span>}{st.test && <Tag>Test</Tag>}</span>
+        <span className="cap">{line}</span>{err && <span className="hint err">{err}</span>}</span>
+      {st.on !== false && !ready && <Button size="sm" className="stripe" disabled={busy} data-testid="connect-stripe" onClick={() => void connect()}>{st.connected ? "Continue with Stripe" : "Connect Stripe"}</Button>}
+      {ready && !readers.length && st.test && <Button size="sm" disabled={busy} onClick={() => void testReader()}>Add test reader</Button>}
+    </div>
   );
 }

@@ -118,3 +118,5 @@ button:disabled { cursor: not-allowed; }
 .acct-btn:hover { background: var(--fill); }
 .acct-menu { position: absolute; right: 0; top: calc(100% + 6px); width: 260px; padding: 14px; display: flex; flex-direction: column; gap: 10px; z-index: 30; }
 @media (max-width: 640px) { .acct-name { display: none; } }
+/* compact settings rows (Today · Salon setup) */
+.row.set { min-height: 56px; padding: 10px 16px; flex-wrap: wrap; row-gap: 8px; font-size: 15px; }

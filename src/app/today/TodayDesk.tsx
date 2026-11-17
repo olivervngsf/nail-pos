@@ -10,7 +10,7 @@ import {
 import PaymentsCard from "@/components/PaymentsCard";
 import AccountMenu from "@/components/AccountMenu";
 import { getActing, setActing as shareActing, touchActing } from "@/lib/desk";
-import { Avatar, Button, Card, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Row, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
+import { Avatar, Button, Drawer, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Row, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 
 type Staff = { membership_id: string; display_name: string; role: Role; joined: boolean; has_pin: boolean; locked: boolean; clocked_in: boolean; last_clock: string | null };
 type Acting = { membership_id: string; name: string; role: Role; at: number };
@@ -111,12 +111,6 @@ export default function TodayDesk() {
             <span className="cap">{inCount} of {staff.length} clocked in</span>
           </div>
 
-          {me.role === "owner" && me.setup_step < 9 && (
-            <Card pad style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-              <span className="g" style={{ flex: 1 }}><b>Finish salon setup</b><span className="cap" style={{ display: "block" }}>Step {me.setup_step + 1} of 10</span></span>
-              <Button variant="primary" onClick={() => router.push("/setup")}>Continue setup</Button>
-            </Card>
-          )}
 
           <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <div className="eyebrow">Staff</div>
@@ -135,24 +129,35 @@ export default function TodayDesk() {
             {!isDevice && <div className="cap">Staff clock in with their PIN on the salon device, or on their own phone.</div>}
           </section>
 
-          {canAdmin && !isDevice && (
-            <Card pad>
-              <b>Use this computer as the salon device</b>
-              <span className="cap">Staff then tap their name + 4-digit PIN here to clock in and check out. It only works for {me.salon_name}.</span>
-              <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
-                <div style={{ flex: 1, minWidth: 200 }}><Field id="devname" label="Device name" value={devName} onChange={(e) => setDevName(e.target.value)} /></div>
-                <Button variant="primary" onClick={async () => {
-                  try { setDevice(await makeSalonDevice(salonId, devName || "Front desk")); say("This is now a salon device"); } catch (e) { setErr((e as Error).message); }
-                }}>Make salon device</Button>
+          {(canAdmin || (me.role === "owner" && me.setup_step < 9)) && (
+            <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div className="eyebrow">Salon setup</div>
+              <div className="group">
+                {me.role === "owner" && me.setup_step < 9 && (
+                  <div className="row set">
+                    <span className="g"><b style={{ fontWeight: 600 }}>Finish salon setup</b><span className="cap">Step {me.setup_step + 1} of 10</span></span>
+                    <Button size="sm" variant="primary" onClick={() => router.push("/setup")}>Continue</Button>
+                  </div>
+                )}
+                {canAdmin && (
+                  <div className="row set">
+                    <span className="g"><b style={{ fontWeight: 600 }}>Salon device</b>
+                      <span className="cap">{isDevice ? `This computer is "${device?.name}". Staff tap their name + PIN here.` : `Staff tap their name + PIN on this computer. Only for ${me.salon_name}.`}</span></span>
+                    {isDevice
+                      ? <Button size="sm" variant="ghost" onClick={() => { forgetDevice(); setDevice(null); setActing(null); }}>Stop using</Button>
+                      : <span style={{ display: "flex", gap: 6 }}>
+                          <input className="inp" aria-label="Device name" value={devName} onChange={(e) => setDevName(e.target.value)} style={{ width: 130, height: 34, fontSize: 14, padding: "0 10px" }} />
+                          <Button size="sm" onClick={async () => {
+                            try { setDevice(await makeSalonDevice(salonId, devName || "Front desk")); say("This is now a salon device"); } catch (e) { setErr((e as Error).message); }
+                          }}>Use this computer</Button>
+                        </span>}
+                  </div>
+                )}
+                {canAdmin && <PaymentsCard salonId={salonId} />}
               </div>
-            </Card>
+            </section>
           )}
 
-          {canAdmin && <PaymentsCard salonId={salonId} />}
-
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {isDevice && canAdmin && <Button variant="ghost" onClick={() => { forgetDevice(); setDevice(null); setActing(null); }}>Stop using as salon device</Button>}
-          </div>
         </main>
       </div>
 
