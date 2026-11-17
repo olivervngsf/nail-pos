@@ -71,6 +71,9 @@ export function PhotoButton({ who, p, ticketId, onDone, say }: { who: Who; p: Pr
   </>;
 }
 
+/** Who gets the Edit button: an owner/manager on their own login, or any salon device (a manager PIN then gates it). */
+export const canEditClient = (who: Who) => who.mode === "demo" || who.role === "owner" || who.role === "manager" || !!getDevice();
+
 type Approver = { id: string; name: string; role: Role };
 
 /** Changing someone already on file needs an owner/manager OK first: their PIN on the salon device, or (owner/manager on

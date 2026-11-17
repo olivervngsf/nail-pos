@@ -2,25 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Clients: profile</title>
+<title>Spec: client profile</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
-<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="kit.css">
 <link rel="stylesheet" href="annot.css">
 </head>
 <body>
 <x-dc>
-<helmet><style>body{margin:0}</style></helmet>
+<helmet><style>body{margin:0}.af-title{font-weight:600}.af-notes{font-family:"Inter",-apple-system,sans-serif}.pin{font-weight:600}</style></helmet>
 <div class="af">
   <div class="af-screen">
-    <dc-import name="Clients" filter="all" hint-size="1280px,800px"></dc-import>
-    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+    <dc-import name="Clients" hint-size="1280px,800px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="10"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
   </div>
   <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
     <div class="eyebrow">Annotations · C1</div>
-    <div class="af-title">Clients — list + profile (CRM)</div>
-    <sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
-    <div class="af-next">Client list belongs to the salon; never shared.</div>
+    <div class="af-title">Clients: list + profile (next steps)</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="10"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt" style="font-size:13px;line-height:18px">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Who sees it: owner, manager, front desk, tech (each only their part). Client data stays inside this salon. Text weights: 600 max, only for what matters.</div>
   </div></sc-if></aside>
 </div>
 </x-dc>
@@ -28,8 +27,19 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [[110, 100, "Search by phone or name."], [110, 150, "Filters: Regulars, Lost regulars, New, Birthdays, Gift card balance."], [110, 270, "Rows: name, tag, usual service + staff, last visit. Tap → profile on the right."], [436, 90, "Header: phone, texts consent, birthday · Text · Book · New ticket."], [436, 200, "Stats: visits, spent, avg ticket, how often, avg tip, no-shows."], [436, 300, "Likes: usual staff, shape, colors (Edit)."], [436, 405, "Allergy / care in red — shows on every ticket for this client."], [860, 300, "Nail photos from past visits (+ Add)."], [860, 450, "Visits list + next booking."]];
-    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+    const P = [
+      [96, 86, 'Search by phone or name. 4 digits of a phone finds the one client.'],
+      [96, 140, 'Quick counts: All · Lost regulars · Birthdays. Tap = filter.'],
+      [96, 270, 'Rows: name + last 4 phone digits. Same names get a "Same name" tag. Dot: orange = due/lost, green = here today.'],
+      [528, 128, 'Phone shows ••0142. Lock "Show" = owner/manager only, logged. Others never see the full number.'],
+      [1052, 116, 'Edit appears on hover (always shown on iPad/phone). Owner/manager only → Edit client drawer. New ticket = main action.'],
+      [444, 277, 'Next steps: 3 cards, same rows, button at the bottom, full width. Never cut key info with "…".'],
+      [444, 386, 'Care note (allergy/medical): any staff adds; whole salon sees; on every ticket + tech phone. Shows who + when.'],
+      [444, 430, 'Private note: owner + manager only. Hidden for front desk + techs (try Tweaks → role).'],
+      [771, 492, 'Full history → full visit list + tickets (C2).'],
+      [895, 492, 'Nail photos: count, date · tech. Added by staff after service. "+8 more" → all photos.']
+    ];
+    return { show: this.state.show, toggleLabel: this.state.show ? 'Hide notes' : 'Show notes', toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }
 </script>
