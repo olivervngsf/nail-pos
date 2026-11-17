@@ -10,6 +10,7 @@ import {
 } from "@/lib/auth";
 import PaymentsCard from "@/components/PaymentsCard";
 import AccountMenu from "@/components/AccountMenu";
+import WalkInStrip from "./WalkInStrip";
 import { getActing, setActing as shareActing, touchActing } from "@/lib/desk";
 import { Avatar, Button, Drawer, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Row, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 
@@ -111,6 +112,7 @@ export default function TodayDesk() {
             <h1 className="h1">Today</h1>
             <span className="cap">{inCount} of {staff.length} clocked in</span>
           </div>
+          {salonId && <WalkInStrip salonId={salonId} />}
 
 
           <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>

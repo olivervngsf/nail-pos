@@ -15,6 +15,7 @@ import { formatCents } from "@/lib/money";
 import { pullAppts, putAppt, useAppts, type Appt } from "@/lib/booking/appts";
 import { at, dayKey, fmtMin, minutesOf } from "@/lib/booking/grid";
 import { isLive } from "@/lib/checkout/store";
+import { isWaiting, nextWalkCode } from "@/lib/booking/turns";
 
 type Step = "welcome" | "phone" | "services" | "done";
 type Last = { first: string; last: { id: string | null; name: string; staffId: string | null }[] | null } | null;
@@ -39,7 +40,7 @@ function Kiosk({ desk }: { desk: Desk }) {
     const i = setInterval(pull, 60_000);
     return () => clearInterval(i);
   }, [desk.salonId, from, to]);
-  const line = appts.filter((a) => (a.source === "kiosk" || a.source === "walk_in") && a.status === "booked");
+  const line = appts.filter(isWaiting);
   const ahead = line.length;
 
   const [step, setStep] = useState<Step>("welcome");
@@ -94,16 +95,16 @@ function Kiosk({ desk }: { desk: Desk }) {
   const checkIn = () => {
     const chosen = pick === "same" ? (who?.last ?? []).map((l) => (l.id ? svcOf(l.id) : undefined)).filter(Boolean) : pick && pick !== "unsure" ? [svcOf(pick)].filter(Boolean) : [];
     const minutes = chosen.reduce((a, s) => a + (s?.minutes ?? 0), 0) || 45;
-    const n = appts.filter((a) => a.source === "kiosk").length + 1;
+    const code = nextWalkCode(appts, today);
     const now = new Date();
     const a: Appt = {
       id: crypto.randomUUID(), salonId: desk.salonId, start: now.toISOString(), end: new Date(now.getTime() + minutes * 60_000).toISOString(),
       staffId: staff, client: { name: who?.first && !name ? who.first : name.trim(), phone },
       services: chosen.map((s) => ({ serviceId: s!.id, name: s!.name, minutes: s!.minutes, cents: s!.cents })),
-      status: "booked", source: "kiosk", note: `B${n}`, updatedAt: "",
+      status: "booked", source: "kiosk", note: code, arrivedAt: now.toISOString(), updatedAt: "",
     };
     putAppt(a);
-    setDone({ kind: "line", n: ahead + 1, ticket: `B${n}`, min: Math.max(5, ahead * 15) });
+    setDone({ kind: "line", n: ahead + 1, ticket: code, min: Math.max(5, ahead * 15) });
     setStep("done");
   };
 

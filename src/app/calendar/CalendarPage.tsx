@@ -4,10 +4,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Button, LeftMenu, OfflineBanner, SyncPill, Toast, TopBar } from "@/components/kit";
+import { Button, Drawer, LeftMenu, OfflineBanner, SyncPill, Toast, TopBar } from "@/components/kit";
 import { formatCents } from "@/lib/money";
 import { useDesk, type Desk } from "@/lib/desk";
 import { putAppt, pullAppts, useAppts, type Appt } from "@/lib/booking/appts";
+import { pullTickets, useTickets } from "@/lib/checkout/store";
+import { isWaiting, onGrid, turnCounts, turnOrder } from "@/lib/booking/turns";
+import { SeatDrawer, WalkInDrawer, Waitlist } from "./WalkIns";
 import { addDays, at, clamp, dayKey, fmtMin, fromDayKey, lanes, minutesOf, overlapping, snap, startOfWeek } from "@/lib/booking/grid";
 import { BookDrawer, DetailsDrawer, statusOf, type BookDraft } from "./BookDrawers";
 
@@ -43,7 +46,26 @@ function Calendar({ desk }: { desk: Desk }) {
     const s = startOfWeek(new Date(d.getFullYear(), d.getMonth(), 1));
     return { from: at(dayKey(s), 0), to: at(dayKey(addDays(s, 42)), 0) };
   }, [day, view]);
-  const list = useAppts(desk.salonId, range.from, range.to);
+  const all = useAppts(desk.salonId, range.from, range.to);
+  const today = dayKey(new Date());
+  const list = useMemo(() => all.filter(onGrid), [all]);
+  const waiting = useMemo(() => all.filter((a) => isWaiting(a) && dayKey(new Date(a.arrivedAt || a.start)) === today), [all, today]);
+  // Turns = today's tickets per tech (device copy, kept in step with other desks).
+  const tickets = useTickets(desk.salonId);
+  useEffect(() => {
+    if (desk.mode !== "live") return;
+    const name = (id: string) => desk.staff.find((s) => s.id === id)?.name ?? "";
+    const pull = () => void pullTickets(desk.salonId, name, at(dayKey(new Date()), 0)).catch(() => { /* offline */ });
+    pull();
+    const iv = setInterval(pull, 60_000);
+    return () => clearInterval(iv);
+  }, [desk]);
+  const deskT = useMemo<Desk>(() => {
+    const c = turnCounts(tickets, today);
+    return { ...desk, staff: desk.staff.map((s) => ({ ...s, turns: desk.mode === "demo" ? s.turns + (c[s.id] ?? 0) : Math.max(s.turns, c[s.id] ?? 0) })) };
+  }, [desk, tickets, today]);
+  const [seatFor, setSeatFor] = useState<string | null>(null);
+  const [walkIn, setWalkIn] = useState(false);
   useEffect(() => {
     if (desk.mode !== "live") return;
     const pull = () => void pullAppts(desk.salonId, range.from, range.to).catch(() => { /* offline: device copy */ });
@@ -94,12 +116,18 @@ function Calendar({ desk }: { desk: Desk }) {
         </TopBar>
         <OfflineBanner />
         {desk.mode === "demo" && <div className="demo" style={{ margin: "8px 16px 0" }}>{t("demo")}</div>}
-        {view === "day" && <DayView desk={desk} day={day} list={list} onBook={setDraft} onOpen={setOpen} say={say} />}
+        {view === "day" && <DayView desk={deskT} day={day} list={list} onBook={setDraft} onOpen={setOpen} say={say}
+          waiting={day === today ? waiting : []} onSeat={(a) => setSeatFor(a.id)} onWalkIn={() => setWalkIn(true)} />}
         {view === "week" && <WeekView desk={desk} day={day} list={list} onDay={(d) => go("day", d)} onOpen={setOpen} onBook={setDraft} />}
         {view === "month" && <MonthView day={day} list={list} onDay={(d) => go("day", d)} />}
       </div>
       {draft && <BookDrawer desk={desk} draft={draft} all={list} onClose={() => setDraft(null)} onBooked={(n, name) => { setDraft(null); say(t("booked", { n, name })); }} />}
       {opened && <DetailsDrawer desk={desk} a={opened} onClose={() => setOpen(null)} say={say} />}
+      {walkIn && <WalkInDrawer desk={desk} today={today} all={all} onClose={() => setWalkIn(false)} say={(x) => say(x)} />}
+      {seatFor && (() => { const a = all.find((x) => x.id === seatFor); if (!a) return null;
+        const nowM = new Date().getHours() * 60 + new Date().getMinutes();
+        const order = turnOrder(deskT.staff.filter((x) => x.role === "tech"), list.filter((x) => dayKey(new Date(x.start)) === today), nowM);
+        return <SeatDrawer desk={deskT} a={a} order={order} onClose={() => setSeatFor(null)} say={say} />; })()}
       {toast && <Toast action={toast.undo ? { label: t("undo"), onClick: () => { toast.undo?.(); setToast(null); } } : undefined}>{toast.text}</Toast>}
     </div>
   );
@@ -114,7 +142,9 @@ type Drag =
   | { kind: "resize"; id: string; y0: number; start: number; dur: number; dy: number }
   | { kind: "new"; col: number; a: number; b: number };
 
-function DayView({ desk, day, list, onBook, onOpen, say }: { desk: Desk; day: string; list: Appt[]; onBook: (d: BookDraft) => void; onOpen: (id: string) => void; say: (s: string, undo?: () => void) => void }) {
+function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalkIn }: { desk: Desk; day: string; list: Appt[]; onBook: (d: BookDraft) => void; onOpen: (id: string) => void; say: (s: string, undo?: () => void) => void;
+  waiting: Appt[]; onSeat: (a: Appt) => void; onWalkIn: () => void }) {
+  const [waitOpen, setWaitOpen] = useState(false);
   const t = useTranslations("calendar");
   const gridRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
@@ -194,13 +224,15 @@ function DayView({ desk, day, list, onBook, onOpen, say }: { desk: Desk; day: st
         <div className="cal-legend">
           <span className="cb unconf">{t("st_booked")}</span><span className="cb conf">{t("st_confirmed")}</span><span className="cb chair">{t("st_arrived")}</span><span className="cb paid">{t("st_done")}</span>
         </div>
-        <div className="cap">{t("waitLater")}</div>
+        {isToday && <Waitlist desk={desk} waiting={waiting} onSeat={onSeat} onWalkIn={onWalkIn} say={say} />}
       </aside>
       <section className="cal-center">
         <div className="cal-counts" role="toolbar" aria-label={t("filter")}>
           {(["all", "booked", "confirmed", "arrived", "done", "no_show", "canceled"] as const).map((k) => (
             <button key={k} type="button" className={`cal-cnt ${filter === k ? "on" : ""}`} aria-pressed={filter === k} onClick={() => setFilter(k)} data-testid={`count-${k}`}>
               {counts[k]} <span style={{ fontWeight: 500, opacity: 0.75 }}>{t(k === "all" ? "all" : `st_${k}`)}</span></button>))}
+          {isToday && <button type="button" className={`cal-cnt cal-waitpill ${waiting.length ? "on" : ""}`} onClick={() => setWaitOpen(true)} data-testid="wait-pill">
+            {t("waitingN", { n: waiting.length })}</button>}
           <span style={{ flex: 1 }} />
           <span className="cap cal-hint">{t("hint")}</span>
         </div>
@@ -266,23 +298,25 @@ function DayView({ desk, day, list, onBook, onOpen, say }: { desk: Desk; day: st
       <aside className="cal-right">
         <div style={{ display: "flex", alignItems: "center" }}><b style={{ fontSize: 15, flex: 1 }}>{t("upNext")}</b><span className="tag jade">{t("freeNow", { n: freeNow.length })}</span></div>
         <div className="cap">{t("upNextSub")}</div>
-        {[...staff].sort((a, b) => Number(b.clockedIn) - Number(a.clockedIn) || a.turns - b.turns).map((s) => {
-          const busy = dayList.find((a) => a.staffId === s.id && live(a) && minutesOf(a.start) <= nowM && minutesOf(a.end) > nowM);
-          const nextA = dayList.filter((a) => a.staffId === s.id && live(a) && minutesOf(a.start) > nowM).sort((x, y) => x.start.localeCompare(y.start))[0];
-          return (
-            <div key={s.id} className={`cal-ucard ${s.clockedIn && !busy ? "free" : ""} ${s.clockedIn ? "" : "out"}`}>
-              <span className={`cal-dot ${s.clockedIn ? "on" : ""}`} />
-              <span style={{ flex: 1, minWidth: 0 }}><b>{s.name}</b>
+        {(() => {
+          const order = turnOrder(staff.filter((s) => s.role === "tech"), isToday ? dayList : [], nowM);
+          const next = order.find((f) => f.clockedIn && f.busyUntil === null);
+          return order.map((f) => (
+            <div key={f.id} className={`cal-ucard ${f.clockedIn && f.busyUntil === null ? "free" : ""} ${f.clockedIn ? "" : "out"}`} data-testid={`up-${f.name}`}>
+              <span className={`cal-dot ${f.clockedIn ? "on" : ""}`} />
+              <span style={{ flex: 1, minWidth: 0 }}><b>{f.name}</b>{next?.id === f.id && <span className="tag jade" style={{ marginLeft: 6 }}>{t("nextTurn")}</span>}
                 <span className="cap" style={{ display: "block", fontSize: 12 }}>
-                  {!s.clockedIn ? t("notIn") : busy ? t("busyUntil", { time: fmtMin(minutesOf(busy.end)) }) : t("freeNowShort")} · {t("turns", { n: s.turns })} · {formatCents(s.centsToday).replace(/\.00$/, "")}
-                  {nextA ? ` · ${t("nextAt", { time: fmtMin(minutesOf(nextA.start)) })}` : ""}</span></span>
-              {s.clockedIn && <Button size="sm" onClick={() => onBook({ day, start: snap(clamp(busy ? minutesOf(busy.end) : nowM, H0, H1 - 60), 15), minutes: 45, staffId: s.id })}>{t("bookShort")}</Button>}
-            </div>
-          );
-        })}
+                  {!f.clockedIn ? t("notIn") : f.busyUntil !== null ? t("busyUntil", { time: fmtMin(f.busyUntil) }) : t("freeNowShort")} · {t("turns", { n: f.turns })} · {formatCents(staff.find((s) => s.id === f.id)?.centsToday ?? 0).replace(/\.00$/, "")}
+                  {f.nextAt !== null ? ` · ${t("nextAt", { time: fmtMin(f.nextAt) })}` : ""}</span></span>
+              {f.clockedIn && <Button size="sm" onClick={() => onBook({ day, start: snap(clamp(f.busyUntil ?? nowM, H0, H1 - 60), 15), minutes: 45, staffId: f.id })}>{t("bookShort")}</Button>}
+            </div>));
+        })()}
         <div style={{ flex: 1 }} />
         <div className="cap">{t("keys")}</div>
       </aside>
+      {waitOpen && <Drawer title={t("waitlist")} onClose={() => setWaitOpen(false)}>
+        <Waitlist desk={desk} waiting={waiting} onSeat={(a) => { setWaitOpen(false); onSeat(a); }} onWalkIn={() => { setWaitOpen(false); onWalkIn(); }} say={say} />
+      </Drawer>}
     </main>
   );
 }

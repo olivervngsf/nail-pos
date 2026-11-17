@@ -357,3 +357,19 @@ button:disabled { cursor: not-allowed; }
 .bp-track i { display: block; height: 100%; background: var(--ink); border-radius: 999px; }
 @media (hover: none) { .bp-acts { display: flex; } }
 @media (max-width: 900px) { .bp { padding: 16px; } .bp-two { grid-template-columns: 1fr; } }
+
+/* ---------- walk-in waitlist + turns (M9, Booking board Cal D1/D6, Main Screens Today) ---------- */
+.wl { display: flex; flex-direction: column; gap: 8px; }
+.wl-head { display: flex; align-items: center; gap: 6px; }
+.wl-card { background: #fff; border-radius: 12px; padding: 9px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; box-shadow: 0 0.5px 0 rgba(0,0,0,.04), 0 2px 8px rgba(28,28,30,.05); }
+.wl-card.long { box-shadow: 0 0 0 2px var(--orange-soft, #f9ece7), 0 2px 8px rgba(28,28,30,.05); }
+.wl-row { display: flex; align-items: center; gap: 6px; }
+.wl-row .grow { flex: 1; min-width: 0; }
+.wl-min.warn { color: #b5470a; font-weight: 600; }
+.cal-waitpill.on { background: var(--ink); color: #fff; }
+.wi-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: 10px; align-items: stretch; }
+.wi-tile { display: flex; flex-direction: column; gap: 2px; }
+.wi-tile b { font-size: 24px; line-height: 30px; }
+.wi-tile.warn b { color: #b5470a; }
+.wi-link { align-self: center; }
+@media (max-width: 900px) { .wi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } .wi-link { grid-column: 1 / -1; } }

@@ -8,7 +8,7 @@ import { isLive } from "@/lib/checkout/store";
 import { DEMO_DESK } from "@/lib/desk";
 import { at, dayKey } from "./grid";
 
-export type ApptStatus = "booked" | "confirmed" | "arrived" | "done" | "no_show" | "canceled";
+export type ApptStatus = "booked" | "confirmed" | "arrived" | "done" | "no_show" | "canceled" | "walked_out";
 export type ApptSource = "desk" | "phone" | "walk_in" | "web" | "google" | "text" | "staff" | "website" | "instagram" | "qr" | "kiosk" | "staff_phone";
 export type ApptService = { serviceId?: string; name: string; minutes: number; cents: number };
 export type Appt = {
@@ -17,6 +17,10 @@ export type Appt = {
   services: ApptService[]; status: ApptStatus; source: ApptSource; note: string;
   ticketId?: string | null; ticketStatus?: string | null; repeatRuleId?: string | null;
   repeat?: { id: string; everyWeeks: number; times: number };
+  /** Walk-in: when they came in (start moves to when seated). */
+  arrivedAt?: string | null;
+  /** Optional: why the desk didn't give it to the next turn. */
+  seatReason?: string | null;
   updatedAt: string; synced?: boolean;
 };
 
@@ -50,7 +54,7 @@ function toPayload(a: Appt) {
   return JSON.parse(JSON.stringify({
     id: a.id, salonId: a.salonId, start: a.start, end: a.end, staffId: a.staffId ?? null,
     client: a.client?.phone || a.client?.name ? { phone: a.client.phone, name: a.client.name } : undefined,
-    services: a.services, status: a.status, source: a.source, note: a.note, ticketId: a.ticketId ?? null, repeat: a.repeat, updatedAt: a.updatedAt,
+    services: a.services, status: a.status, source: a.source, note: a.note, ticketId: a.ticketId ?? null, repeat: a.repeat, arrivedAt: a.arrivedAt ?? null, seatReason: a.seatReason ?? null, updatedAt: a.updatedAt,
   }));
 }
 
