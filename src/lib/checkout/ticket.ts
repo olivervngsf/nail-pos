@@ -169,3 +169,16 @@ export function seenIds(t: Ticket): string[] {
   const now = [...t.lines.map((l) => l.id), ...(t.discount ? [t.discount.id] : []), ...(t.reward ? [t.reward.id] : []), ...Object.keys(t.tips).map((s) => tipLineId(t.id, s))];
   return [...new Set([...(t.seenLineIds ?? []), ...now])];
 }
+
+/** Ticket slip: merge the server's copy of an open ticket into this desk's copy (this desk's own edits win).
+ *  - Lines the server has that this desk never had (a tech added them from the slip QR) are added.
+ *  - Lines a tech removed from their phone (techRemoved) are dropped here too, so a later desk save can't bring them back.
+ *  A "$45+" line from a phone keeps priceSet=false (from the server's price_open) until the desk sets its final price. */
+export function mergeOpen(mine: Ticket, server: Ticket, techRemoved: string[]): Ticket | null {
+  const gone = new Set(techRemoved);
+  const seen = new Set(mine.seenLineIds ?? []);
+  const fresh = server.lines.filter((l) => !gone.has(l.id) && !seen.has(l.id) && !mine.lines.some((m) => m.id === l.id));
+  const kept = mine.lines.filter((l) => !gone.has(l.id));
+  if (!fresh.length && kept.length === mine.lines.length) return null;
+  return { ...mine, number: mine.number ?? server.number, lines: [...kept, ...fresh], seenLineIds: [...new Set([...seen, ...fresh.map((l) => l.id)])] };
+}
