@@ -392,7 +392,7 @@
     "back": "Trang chính",
     "demo": "Bản thử: khách mẫu chỉ trên máy này.",
     "needNet": "Lịch sử khách cần có mạng. Thử lại khi có mạng.",
-    "search": "Tìm số điện thoại hoặc tên",
+    "search": "Tìm số điện thoại, tên hoặc số khách #",
     "newClient": "+ Khách mới",
     "f_all": "Tất cả",
     "f_regular": "Khách quen",
@@ -548,7 +548,8 @@
     "pickVisit": "Chọn một lần đến.",
     "pCash": "tiền mặt",
     "pCard": "thẻ {card}",
-    "pGift": "thẻ quà ••{last4}"
+    "pGift": "thẻ quà ••{last4}",
+    "clientNo": "#{n}"
   },
   "calendar": {
     "prev": "Trước",

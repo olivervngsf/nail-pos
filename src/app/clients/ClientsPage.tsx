@@ -100,7 +100,7 @@ export default function ClientsPage() {
                       {same && <span className="tag cl2-same" data-testid="same-name">{t("sameName")}</span>}
                       <span className="cap cl2-rsub">{s.text}</span>
                     </span>
-                    {r.phone && <span className="cap num" style={{ fontSize: 12 }}>••{last4(r.phone)}</span>}
+                    <span className="cap num cl2-rid">{r.number ? <span>{t("clientNo", { n: r.number })}</span> : null}{r.phone ? <span>••{last4(r.phone)}</span> : null}</span>
                     <span className={`cl2-dot ${s.dot}`} aria-hidden="true" />
                   </button>
                 );

@@ -58,7 +58,7 @@ export default function ClientHistory({ id }: { id: string }) {
       {desk && <LeftMenu active="Clients" salonInitials={initials(who.salonName)} me={who.name[0]} />}
       <div className="col">
         <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>{back}
-          <span className="cl2-wide">{showHistory ? t("history") : ""}{p?.phone ? <span className="cap"> · ••{last4(p.phone)}</span> : null}</span>
+          <span className="cl2-wide">{showHistory ? t("history") : ""}{p?.number ? <span className="cap"> · {t("clientNo", { n: p.number })}</span> : null}{p?.phone ? <span className="cap"> · ••{last4(p.phone)}</span> : null}</span>
           {!wide && view === "profile" && <span>{p?.name ?? ""}</span>}{!wide && view === "history" && <span>{t("history")}</span>}</span>}>
           <SyncPill />
           {wide && p && canEditClient(who) && <Button onClick={() => setEdit(true)} data-testid="client-edit">{t("edit")}</Button>}

@@ -65,6 +65,7 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="cl2-name"><span className="h1">{p.name || `••${last4(p.phone)}`}</span><TagChip tag={p.tag} /></div>
           <div className="cap num cl2-sub">
+            {p.number ? <span className="cl2-no" data-testid="client-number">{t("clientNo", { n: p.number })}</span> : null}
             <span data-testid="client-phone">{showPh ? phone(p.phone) : p.phone ? t("phoneMasked", { last4: last4(p.phone) }) : ""}</span>
             {p.can_edit && p.phone && <button type="button" className="cl2-lock" onClick={() => void toggleShow()} title={t("lockShow")} data-testid="phone-show">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 018 0v4" /></svg>

@@ -392,7 +392,7 @@
     "back": "Home",
     "demo": "Test copy: sample clients on this device only.",
     "needNet": "Client history needs internet. Try again when you're online.",
-    "search": "Search phone or name",
+    "search": "Search phone, name or client #",
     "newClient": "+ New client",
     "f_all": "All",
     "f_regular": "Regulars",
@@ -548,7 +548,8 @@
     "pickVisit": "Pick a visit.",
     "pCash": "cash",
     "pCard": "card {card}",
-    "pGift": "gift card ••{last4}"
+    "pGift": "gift card ••{last4}",
+    "clientNo": "#{n}"
   },
   "calendar": {
     "prev": "Previous",

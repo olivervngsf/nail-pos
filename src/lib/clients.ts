@@ -8,7 +8,7 @@ import { DEMO_DESK } from "@/lib/desk";
 
 export type ClientFilter = "all" | "regular" | "lost" | "new" | "bday" | "gift";
 export type ClientRow = {
-  id: string; name: string; phone: string | null; tag: "regular" | "lost" | "new" | null; visits: number; last_visit: string | null;
+  id: string; number?: number; name: string; phone: string | null; tag: "regular" | "lost" | "new" | null; visits: number; last_visit: string | null;
   usual_service: string | null; usual_staff: string | null; gap_days: number | null; care: boolean; gift_cents: number;
 };
 export type ClientList = { counts: Record<ClientFilter, number>; rows: ClientRow[] };
@@ -19,7 +19,7 @@ export type Visit = {
   payments: { method: string; cents: number; fee: number; brand: string | null; last4: string | null }[] | null;
 };
 export type Profile = {
-  id: string; name: string; phone: string | null; email: string | null; language: "en" | "vi"; texts_ok: boolean; birthday: string | null; since: string;
+  id: string; number?: number; name: string; phone: string | null; email: string | null; language: "en" | "vi"; texts_ok: boolean; birthday: string | null; since: string;
   notes: string; care: string; shape: string; colors: string; usual_staff_id: string | null; usual_staff: string | null; usual_service: string | null;
   tag: ClientRow["tag"];
   stats: { visits: number; spent: number; avg: number; avg_tip: number; tips?: number; gap_days: number | null; last_visit: string | null };
@@ -88,7 +88,8 @@ function mk(id: string, name: string, phone: string, tag: ClientRow["tag"], last
     stats: { visits: n, spent: n * 4500, avg: 4500, avg_tip: 900, tips: n * 900, gap_days: gap, last_visit: day(lastDays) },
   };
 }
-const DKEY = "nailpos.demoClients.v2";
+DEMO.forEach((p, i) => { p.number = i + 1; });
+const DKEY = "nailpos.demoClients.v3";
 function demoAll(): Profile[] { try { const r = localStorage.getItem(DKEY); if (r) return JSON.parse(r); } catch { /* */ } return DEMO; }
 function demoPut(p: Profile) { const all = demoAll(); const i = all.findIndex((x) => x.id === p.id); if (i >= 0) all[i] = p; else all.unshift(p); try { localStorage.setItem(DKEY, JSON.stringify(all)); } catch { /* */ } }
 const thisMonth = (d: string | null) => !!d && Number(d.slice(5, 7)) === new Date().getMonth() + 1;
@@ -98,14 +99,16 @@ export async function listClients(who: Who, filter: ClientFilter, q: string): Pr
   if (who.mode === "live") return rpc<ClientList>("client_list", { p_salon: who.salonId, p_filter: filter, p_q: q });
   const all = demoAll();
   const ql = q.trim().toLowerCase(), qd = q.replace(/\D/g, "");
-  const match = (p: Profile) => !ql || p.name.toLowerCase().includes(ql) || (qd.length >= 3 && (p.phone ?? "").replace(/\D/g, "").includes(qd));
+  const num = /^#?\d{1,6}$/.test(q.trim()) ? Number(qd) : null;
+  const match = (p: Profile) => !ql || p.name.toLowerCase().includes(ql) || (num !== null && p.number === num)
+    || (!q.trim().startsWith("#") && qd.length >= 3 && (p.phone ?? "").replace(/\D/g, "").includes(qd));
   const ok: Record<ClientFilter, (p: Profile) => boolean> = {
     all: () => true, regular: (p) => p.tag === "regular" || p.tag === "lost", lost: (p) => p.tag === "lost", new: (p) => p.tag === "new",
     bday: (p) => thisMonth(p.birthday), gift: (p) => p.gift_cards.some((g) => g.balance_cents > 0),
   };
   const counts = Object.fromEntries(Object.entries(ok).map(([k, f]) => [k, all.filter(f).length])) as Record<ClientFilter, number>;
   const rows = all.filter((p) => ok[filter](p) && match(p)).map((p) => ({
-    id: p.id, name: p.name, phone: p.phone, tag: p.tag, visits: p.stats.visits, last_visit: p.stats.last_visit, usual_service: p.usual_service,
+    id: p.id, number: p.number, name: p.name, phone: p.phone, tag: p.tag, visits: p.stats.visits, last_visit: p.stats.last_visit, usual_service: p.usual_service,
     usual_staff: p.usual_staff, gap_days: p.stats.gap_days, care: !!p.care, gift_cents: p.gift_cards.reduce((a, g) => a + g.balance_cents, 0),
   }));
   return { counts, rows };
@@ -128,7 +131,7 @@ export async function saveClient(who: Who, id: string | null, e: Partial<ClientE
   if (who.mode === "demo") {
     const cur = id ? demoAll().find((x) => x.id === id) : undefined;
     const p: Profile = cur ?? mk(crypto.randomUUID(), e.name ?? "", e.phone ?? "", "new", 0, null, "", "", {});
-    if (!cur) { p.visits = []; p.stats = { visits: 0, spent: 0, avg: 0, avg_tip: 0, gap_days: null, last_visit: null }; p.since = new Date().toISOString(); }
+    if (!cur) { p.number = Math.max(0, ...demoAll().map((x) => x.number ?? 0)) + 1; p.visits = []; p.stats = { visits: 0, spent: 0, avg: 0, avg_tip: 0, gap_days: null, last_visit: null }; p.since = new Date().toISOString(); }
     demoPut({ ...p, name: e.name ?? p.name, phone: e.phone ?? p.phone, email: e.email ?? p.email, birthday: e.birthday ?? p.birthday, shape: e.shape ?? p.shape,
       colors: e.colors ?? p.colors, care: e.care ?? p.care, notes: e.notes ?? p.notes, texts_ok: e.textsOk ?? p.texts_ok, language: e.language ?? p.language });
     return p.id;
