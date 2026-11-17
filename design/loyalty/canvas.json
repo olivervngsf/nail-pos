@@ -1,0 +1,508 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-16T23:10:00Z"
+ },
+ "title": "Nail POS — Loyalty + Gift Cards",
+ "launch": {
+  "view": "canvas",
+  "page": "overview"
+ },
+ "pages": [
+  {
+   "id": "doc",
+   "name": "0 · How it works (doc)"
+  },
+  {
+   "id": "overview",
+   "name": "1 · Overview — clickable screens"
+  },
+  {
+   "id": "spec",
+   "name": "2 · Step by step (with notes)"
+  },
+  {
+   "id": "gift",
+   "name": "3 · Gift cards — step by step"
+  }
+ ],
+ "boards": {
+  "Loyalty.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "Owner · Loyalty settings",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "LoyaltyPay.dc.html": {
+   "x": 1360,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "Checkout · use a reward",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "LoyaltyPack.dc.html": {
+   "x": 2720,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "Checkout · package + perk",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "LoyaltyPhone.dc.html": {
+   "x": 4080,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Client · my points (text link)",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Ly0Home.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L1 · Loyalty home: 4 programs",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly1Points.dc.html": {
+   "x": 1720,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L2 · Points or punch card",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly2Packs.dc.html": {
+   "x": 3440,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L3 · Packages (pay upfront)",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly3Perks.dc.html": {
+   "x": 5160,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L4 · Automatic perks",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly4Refer.dc.html": {
+   "x": 6880,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L5 · Referral rewards",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly5Msg.dc.html": {
+   "x": 8600,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L6 · Where clients see it (cost)",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly6Ready.dc.html": {
+   "x": 10320,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L7 · Checkout: reward ready",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly7Used.dc.html": {
+   "x": 12040,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L8 · Reward used",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly8Pack.dc.html": {
+   "x": 13760,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "L9 · Package + perk at checkout",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Ly9Phone.dc.html": {
+   "x": 15480,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "L10 · Client sees points + referral link",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "GiftSetup.dc.html": {
+   "x": 0,
+   "y": 2300,
+   "w": 1280,
+   "h": 800,
+   "title": "Owner · Gift card settings",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "GiftSell.dc.html": {
+   "x": 1360,
+   "y": 2300,
+   "w": 1280,
+   "h": 800,
+   "title": "Checkout · sell a gift card",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "GiftUse.dc.html": {
+   "x": 2720,
+   "y": 2300,
+   "w": 1280,
+   "h": 800,
+   "title": "Checkout · pay with a gift card",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "GiftPhone.dc.html": {
+   "x": 4080,
+   "y": 2300,
+   "w": 390,
+   "h": 844,
+   "title": "Receiver · gift card on the phone",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Gc01Setup.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G1 · Gift card settings",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc02Stock.dc.html": {
+   "x": 1720,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G2 · Add a box of plastic cards",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc03SellDigital.dc.html": {
+   "x": 3440,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G3 · Sell a digital gift card",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc04SellPlastic.dc.html": {
+   "x": 5160,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G4 · Sell a plastic gift card",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc05Paid.dc.html": {
+   "x": 6880,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G5 · Paid → card is Active",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc06Phone.dc.html": {
+   "x": 8600,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "G6 · Receiver gets the gift card",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc07UseFound.dc.html": {
+   "x": 9430,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G7 · Take a gift card: found",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc08UseSplit.dc.html": {
+   "x": 11150,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G8 · Gift card covers part → pay the rest",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc09Refused.dc.html": {
+   "x": 12870,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G9 · Card refused, with a plain reason",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc10Lost.dc.html": {
+   "x": 14590,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G10 · Lost card: lock + replace",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "GiftList.dc.html": {
+   "x": 4550,
+   "y": 2300,
+   "w": 1280,
+   "h": 800,
+   "title": "Owner · all gift card codes",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Gc11List.dc.html": {
+   "x": 16310,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G11 · All codes: sold or not, used or not",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc12Make.dc.html": {
+   "x": 18030,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G12 · Make codes for plastic cards",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "HowItWorks.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 2600,
+   "title": "Gift cards + loyalty: how it works (doc)",
+   "page": "doc"
+  },
+  "ClientCards.dc.html": {
+   "x": 5910,
+   "y": 2300,
+   "w": 390,
+   "h": 844,
+   "title": "Client · my gift cards (add a card)",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Gc13Cards.dc.html": {
+   "x": 19750,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "G13 · Client page: my points + gift cards",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc14Add.dc.html": {
+   "x": 20580,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "G14 · Add a gift card: type or scan",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc15Added.dc.html": {
+   "x": 21410,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "G15 · Card added + linked",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc16Error.dc.html": {
+   "x": 22240,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "G16 · Card refused, plain reason",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc17Reload.dc.html": {
+   "x": 23070,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G17 · Add money to an existing card (reload)",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc18Print.dc.html": {
+   "x": 24790,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G18 · Make + print gift cards (3 ways)",
+   "is_interactive": true,
+   "page": "gift"
+  },
+  "Gc19Recycle.dc.html": {
+   "x": 26510,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "G19 · Reuse a plastic card (back to stock)",
+   "is_interactive": true,
+   "page": "gift"
+  }
+ },
+ "order": [
+  "Loyalty.dc.html",
+  "LoyaltyPay.dc.html",
+  "LoyaltyPack.dc.html",
+  "LoyaltyPhone.dc.html",
+  "Ly0Home.dc.html",
+  "Ly1Points.dc.html",
+  "Ly2Packs.dc.html",
+  "Ly3Perks.dc.html",
+  "Ly4Refer.dc.html",
+  "Ly5Msg.dc.html",
+  "Ly6Ready.dc.html",
+  "Ly7Used.dc.html",
+  "Ly8Pack.dc.html",
+  "Ly9Phone.dc.html",
+  "GiftSetup.dc.html",
+  "GiftSell.dc.html",
+  "GiftUse.dc.html",
+  "GiftPhone.dc.html",
+  "Gc01Setup.dc.html",
+  "Gc02Stock.dc.html",
+  "Gc03SellDigital.dc.html",
+  "Gc04SellPlastic.dc.html",
+  "Gc05Paid.dc.html",
+  "Gc06Phone.dc.html",
+  "Gc07UseFound.dc.html",
+  "Gc08UseSplit.dc.html",
+  "Gc09Refused.dc.html",
+  "Gc10Lost.dc.html",
+  "GiftList.dc.html",
+  "Gc11List.dc.html",
+  "Gc12Make.dc.html",
+  "HowItWorks.dc.html",
+  "ClientCards.dc.html",
+  "Gc13Cards.dc.html",
+  "Gc14Add.dc.html",
+  "Gc15Added.dc.html",
+  "Gc16Error.dc.html",
+  "Gc17Reload.dc.html",
+  "Gc18Print.dc.html",
+  "Gc19Recycle.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "Loyalty",
+   "kind": "title1",
+   "maxW": 4470,
+   "page": "overview"
+  },
+  "s1": {
+   "x": -520,
+   "y": 0,
+   "w": 420,
+   "fill": "orange",
+   "page": "overview",
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nRole: owner (admin). OPEN: V1 or V1.1? Proposal: V1 = points + gift cards (zero extra cost); packages, perks, referrals in V1.1. Decide with Elang.\nNo app or card: phone number = loyalty card. Rewards asked, perks shown + removable. Staff paid on full price; tips untouched.\nSample prices from a real salon menu (Cosmo Nails)."
+  },
+  "t2": {
+   "x": 0,
+   "y": -300,
+   "text": "Step by step (with notes)",
+   "kind": "title1",
+   "maxW": 16230,
+   "page": "spec"
+  },
+  "tg": {
+   "x": 0,
+   "y": 2030,
+   "text": "Gift cards",
+   "kind": "title1",
+   "maxW": 4470,
+   "page": "overview"
+  },
+  "tg2": {
+   "x": 0,
+   "y": -300,
+   "text": "Gift cards: setup, sell, reload, use, refuse, lost, codes, print, reuse, client adds (G1–G19)",
+   "kind": "title1",
+   "maxW": 28150,
+   "page": "gift"
+  },
+  "sg": {
+   "x": -520,
+   "y": 2300,
+   "w": 420,
+   "fill": "orange",
+   "page": "overview",
+   "text": "How it works (roles, codes, money): https://claude.ai/artifact/GKRwnoiAkv5pTHk8rQFUby\n\nA card is worth $0 until it is sold and paid at this salon. Codes: digital = made at the sale (16 chars, random, check letter); plastic = printed, scanned into stock first. Every use: staff PIN + ledger."
+  },
+  "dl": {
+   "x": 1360,
+   "y": 0,
+   "w": 420,
+   "fill": "orange",
+   "page": "doc",
+   "text": "Live doc (edit + comments): https://claude.ai/artifact/GKRwnoiAkv5pTHk8rQFUby\n\nThis page is a copy for quick review. If they differ, the live doc wins."
+  },
+  "play": {
+   "x": -520,
+   "y": -300,
+   "w": 420,
+   "fill": "green",
+   "page": "overview",
+   "text": "CLICK-THROUGH PROTOTYPE\nPress Play on “Owner · Loyalty settings” and follow the links:\nLoyalty → Gift cards › → All codes › (Make + print, Back to stock) → Checkout (menu) → sell, add money → Paid → See what Mai gets › → Open my client page › → Add a gift card → At the salon › → Use $50 → Owner: All codes ›\nLoyalty path: Checkout reward → Next client: package + perk › → What the client sees › → My gift cards ›"
+  }
+ },
+ "designSystems": [
+  {
+   "title": "Nail POS Design System",
+   "namespace": "nailpos",
+   "artifact": "https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n",
+   "version": null,
+   "copiedAt": "2026-11-16T23:10:00Z"
+  }
+ ]
+}

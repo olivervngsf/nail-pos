@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gift cards + loyalty: how it works</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.hw{width:1280px;box-sizing:border-box;padding:48px 64px 64px;background:var(--paper);display:flex;flex-direction:column;gap:28px;color:var(--ink)}
+.hw h1{margin:0;font-size:34px;letter-spacing:-0.03em}
+.hw h2{margin:0 0 10px;font-size:22px;letter-spacing:-0.02em}
+.hw p,.hw li{font-size:15px;line-height:23px;margin:0}
+.hw ol,.hw ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px}
+.hw .two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
+.hw .dtable td,.hw .dtable th{text-align:left;vertical-align:top;padding:8px 12px;height:auto;line-height:20px}
+.hw .note{background:var(--surface);border-radius:14px;padding:14px 16px;font-size:14px;line-height:21px}
+.st{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px}
+.st span{padding:6px 12px;border-radius:10px;border:1.25px solid var(--line);background:#fff}
+.st span.a{border:2px solid var(--ink);font-weight:700}
+.st span.r{border-color:#E03131}
+</style>
+</helmet>
+<div class="hw">
+  <div><div class="eyebrow">Doc on this board · live version (edit + comments): claude.ai/artifact/GKRwnoiAkv5pTHk8rQFUby</div><h1>Gift cards + loyalty — how it works</h1></div>
+  <div class="note"><b>Short answer.</b> A gift card is only a key: the money lives in our database, and a card works only after the salon sells it at checkout. Points have no code: the client's phone number is the loyalty card. The owner sets it up once; the front desk runs it at checkout; nobody but the owner can change a balance by hand, and every change is logged.</div>
+
+  <div><h2>Who does what</h2>
+  <div class="group"><table class="dtable"><thead><tr><th>Role</th><th>Gift cards</th><th>Points / loyalty</th></tr></thead><tbody>
+    <tr><td><b>Platform admin (us)</b></td><td>Turn on per salon/plan; help order printed cards; watch fraud. No balances without owner-granted support access.</td><td>On/off per plan.</td></tr>
+    <tr><td><b>Owner</b></td><td>Turn on; amounts; scan plastic stock in; see money owed; fix a balance (reason, logged); replace lost cards.</td><td>Points or punch card; reward size; perks; referrals; messages; results.</td></tr>
+    <tr><td><b>Manager</b></td><td>What the owner allows (default: sell, take, check, replace lost).</td><td>Apply rewards; see results.</td></tr>
+    <tr><td><b>Front desk</b></td><td>Sell; take as payment; check balance; send digital card. Void only today's sale. No hand edits.</td><td>Ask, then apply a ready reward; add phone/birthday; give referral link.</td></tr>
+    <tr><td><b>Tech</b></td><td>Sees the client's card + points (read only).</td><td>Offers rebook before leaving.</td></tr>
+    <tr><td><b>Client</b></td><td>Buys at the desk; gets the code; can add a card to their phone; checks balance by link.</td><td>Earns by phone; sees points; asks to use a reward; shares referral link.</td></tr>
+  </tbody></table></div></div>
+
+  <div class="two">
+    <div><h2>Owner setup (once, ~15 min)</h2><ol><li>Turn on Gift cards and Loyalty (owner PIN).</li><li>Amounts $25/$50/$100/custom, $10–$500, never expire.</li><li>Plastic cards: scan the first + last card of a box → In stock, $0.</li><li>Digital card design (name, logo).</li><li>Points rules: 1 per $1 of service, 100 pts = $10.</li><li>Perks, packages, referrals (optional).</li><li>Messages: receipt + email on; reward-ready text on.</li><li>Permissions for manager and front desk.</li><li>Test: sell a $1 card, use it, refund it.</li></ol></div>
+    <div><h2>Gift card codes</h2><ul><li><b>Where codes come from: always the system.</b> The owner never types or invents one. Digital codes are made at the sale. Plastic: Gift cards · All codes · <b>Make codes for printing</b> → the system makes 200 random numbers → download the file for the card printer (they are added as In stock, $0). Cards that came already numbered are scanned in instead.</li><li><b>Print 3 ways:</b> card printer file · code + QR stickers for blank cards · paper card on the receipt printer.</li><li><b>Add money (reload):</b> at checkout, “Add money”, scan or find by phone → same code, new balance (max $500). Works for digital too.</li><li><b>Reuse a plastic card:</b> a used-up ($0) plastic card can go back to stock (owner PIN): unlinked from the old client, history kept.</li><li><b>The owner sees every code</b> in Gift cards · All codes: In stock (not sold) · Active (sold, money left) · Used up · Locked / Replaced · Voided, with balance, who sold it, to whom, last used.</li><li><b>Digital:</b> made at the sale, 16 characters, random, e.g. MAIN-7K3Q-9XPA-2T4F. No 0/O/1/I; last character catches typos.</li><li><b>Plastic:</b> the printed number + barcode; only numbers scanned into this salon's stock are accepted.</li><li>Stored hashed like a password; screens show only •••• 2T4F.</li><li>5 wrong codes on one device = 15 min pause. Every use needs a staff PIN and is logged.</li></ul></div>
+  </div>
+
+  <div><h2>A card's life</h2><div class="st"><span>In stock · $0</span>→ sold + paid →<span class="a">Active · has a balance</span>→ used to $0 →<span>Used up</span></div><div class="st" style="margin-top:10px"><span class="a">Active</span>→ reported lost →<span class="r">Locked</span>→ owner replaces →<span>Replaced · balance on a new card</span>&nbsp;·&nbsp;sale voided same day →<span>Voided</span></div></div>
+
+  <div class="two">
+    <div><h2>Sell · take · check · lost</h2><ol><li><b>Sell:</b> + Gift card → amount → scan plastic or type receiver's phone → on the ticket → paid → Active.</li><li><b>Take:</b> Pay · Gift card → scan, type or find by phone → checks real · this salon · active · not locked · balance → use, pay the rest.</li><li><b>Check:</b> client link, or desk scan/type.</li><li><b>Lost:</b> find by phone → Lock → Replace (digital or plastic) → balance moves, logged.</li></ol></div>
+    <div><h2>How the client connects</h2><ul><li><b>Points:</b> automatic by phone. First visit creates the client; online booking with the same phone = same client.</li><li><b>Client page:</b> link in every receipt, opens with a one-time text code. Shows points, rewards, history, referral link, gift cards.</li><li><b>Gift card sent to their phone:</b> linked automatically.</li><li><b>Plastic or forwarded code:</b> client page · Add a gift card · type the code → checked → linked. Or the desk links it at checkout.</li><li>One card links to one phone; unlinked cards still work by code.</li></ul></div>
+  </div>
+
+  <div class="two">
+    <div><h2>Points, perks, referrals</h2><ul><li>Ticket paid → +1 point per $1 of service (not tips, tax, gift card sales). Refund → taken back.</li><li>Reward ready → green tag → desk asks → use → −100 points.</li><li>Perks (birthday, rebook, VIP) are added by the system as their own line; desk can remove; one per visit.</li><li>Referral code LAN42 + link: friend gets $10 on the first visit; the sharer gets $10 once that visit is paid.</li></ul></div>
+    <div><h2>Money rules</h2><ul><li>Gift card sold = money owed, shown separately in Close day, not service sales.</li><li>Service paid by gift card = a normal sale; tech paid as usual; points earned.</li><li>Rewards and perks come off the salon's share; techs paid on full price; tips untouched.</li><li>Owner sees “owed on gift cards” in Numbers. Cash back for small balances follows state law.</li></ul></div>
+  </div>
+
+  <div><h2>Database (Supabase)</h2><div class="note">Ledgers, not numbers: <b>loyalty_ledger</b>, <b>gift_card_ledger</b>, <b>package_ledger</b> get one insert-only row per change (+52 earn, −100 redeem, +$50 sold, −$50 used). One server function runs when a ticket is paid, all or nothing. Balances are sums read from views (<b>client_points</b>, <b>gift_card_balance</b>) by checkout, receipts, the client page and Numbers. Every row has salon_id + row-level security; devices can't write ledgers; codes are hashed.</div></div>
+
+  <div><h2>Open decisions</h2><ul><li>V1 = gift cards + points only; packages, perks, referrals in V1.1?</li><li>Sell gift cards online on the booking page (V1.1)?</li><li>Text a confirm code for rewards of $25 or more?</li><li>Which plastic card printer to recommend?</li></ul></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2600}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

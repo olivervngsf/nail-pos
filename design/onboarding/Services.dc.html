@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Services</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="setup.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.price{width:96px;height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:15px;text-align:right;padding:0 10px;box-sizing:border-box}
+.price.warn{border-color:var(--orange);background:var(--orange-soft)}
+.off{opacity:.45}
+.ed{width:100%;height:34px;border:1px solid transparent;border-radius:8px;background:transparent;padding:0 8px;font:inherit;font-size:15px;font-weight:600;color:var(--ink);box-sizing:border-box;transition:border-color .2s,background .2s}
+.ed:hover{border-color:var(--line);background:#fff}.ed:focus{outline:none;border-color:var(--ink);background:#fff}
+.price.mins{width:58px}
+.minf{display:flex;align-items:center;gap:4px}
+.xbtn{width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--ink-soft);font:inherit;font-size:14px;cursor:pointer;flex:none}
+.xbtn:hover{background:var(--fill);color:var(--ink)}
+
+.pick:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(28,28,30,.10)}
+.pick.main{border:2px solid #1C1C1E}
+.photo{position:relative;width:240px;height:320px;border-radius:16px;background:#FBF8F2;border:1px solid var(--line);overflow:hidden;flex:none;padding:18px 16px;box-sizing:border-box;font-family:Georgia,serif;color:#3A3530}
+.photo .ln{display:flex;justify-content:space-between;font-size:12px;line-height:22px;border-bottom:1px dotted #CFC6B8}
+.scan{position:absolute;left:0;right:0;height:60px;background:linear-gradient(180deg,rgba(47,158,68,0),rgba(47,158,68,.22));animation:scan 1.6s ease-in-out infinite}
+@keyframes scan{0%{top:-60px}100%{top:320px}}
+.sec{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:8px 0 2px}
+</style>
+</helmet>
+<div class="wiz">
+  <aside class="side">
+    <div class="brand"><div class="logo" style="margin:0">N</div>Salon setup</div>
+    <div class="prog"><span style="{{pct}}"></span></div>
+    <sc-for list="{{steps}}" as="s" hint-placeholder-count="10">
+      <div class="{{s.cls}}"><span class="n">{{s.n}}</span>{{s.label}}</div>
+    </sc-for>
+    <div class="help">Tip: a photo of the price board on your wall works. You check every price before it's saved.</div>
+  </aside>
+  <div class="main">
+    <div class="body" style="gap:16px">
+      <div class="eyebrow in">Step 3 of 10</div>
+
+      <sc-if value="{{vChoose}}" hint-placeholder-val="{{true}}">
+        <div class="fade" style="display:flex;flex-direction:column;gap:18px">
+          <div class="h1">Add your service menu</div>
+          <div class="cap" style="font-size:15px;margin-top:-10px">No typing needed — paste your website link or snap your menu, and we fill it in.</div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:880px">
+            <button class="pick main" type="button" onClick="{{fromLink}}">
+              <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg></span>
+              <span class="h2">Paste your website link</span>
+              <span style="font-size:15px;color:var(--ink-soft)">Your services page, Yelp or booking page. AI reads every service and price.</span>
+              <input value="yoursalon.com/services" aria-label="Website link" style="height:40px;border-radius:10px;border:1px solid var(--line);padding:0 10px;font:inherit;font-size:14px;margin-top:4px">
+            </button>
+            <button class="pick" type="button" onClick="{{snap}}">
+              <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+              <span class="h2">Snap your menu</span>
+              <span style="font-size:15px;color:var(--ink-soft)">Take a photo of your price board or menu (or upload a picture / PDF). AI reads names, prices and times.</span>
+              <span class="tag jade" style="align-self:flex-start;margin-top:4px">Fastest · ~1 min</span>
+            </button>
+            <button class="pick" type="button" onClick="{{useTemplate}}">
+              <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span>
+              <span class="h2">Start from a nail template</span>
+              <span style="font-size:15px;color:var(--ink-soft)">Common nail services with starting prices. Turn off what you don't do, type your prices.</span>
+            </button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{vLink}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:flex-end;gap:16px">
+            <div style="flex:1"><div class="h1">We found 44 services in 7 groups</div><div class="cap" style="font-size:15px;margin-top:4px">From yoursalon.com/services · check the orange ones, then Continue. Nothing is live until you do.</div></div>
+            <button class="btn" type="button" onClick="{{back}}">Use another way</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="tag" style="background:var(--orange-soft);height:28px;padding:0 10px">▲ All 44 have no time listed — we guessed</span>
+            <span class="tag" style="background:var(--orange-soft);height:28px;padding:0 10px">▲ 6 have 2 prices (full set / fill-in) — split in 2</span>
+            <span class="tag" style="background:var(--orange-soft);height:28px;padding:0 10px">▲ 8 say “$45+” — starting price</span>
+            <span class="tag" style="height:28px;padding:0 10px">4 combos → packages</span>
+            <span class="tag" style="height:28px;padding:0 10px">1 add-on</span>
+            <span class="tag" style="height:28px;padding:0 10px">12 waxing &amp; tinting — not nails: keep?</span>
+          </div>
+          <div class="group" style="max-width:940px">
+            <sc-for list="{{linkRows}}" as="r" hint-placeholder-count="9">
+              <sc-if value="{{r.isHead}}" hint-placeholder-val="{{false}}"><div style="padding:8px 16px;background:#FAFAFB;border-bottom:1px solid var(--line)" class="eyebrow">{{r.head}}</div></sc-if>
+              <sc-if value="{{r.isRow}}" hint-placeholder-val="{{true}}">
+                <div class="row" style="min-height:46px;font-size:15px">
+                  <span class="toggle on" aria-hidden="true"></span>
+                  <div class="grow" style="display:flex;align-items:center;gap:4px;min-width:0"><input class="ed" style="max-width:250px" value="{{r.name}}" aria-label="Service name"> <span class="cap">{{r.kind}}</span></div>
+                  <sc-if value="{{r.flag}}" hint-placeholder-val="{{false}}"><span class="tag" style="background:var(--orange-soft)">▲ {{r.flagText}}</span></sc-if>
+                  <span class="minf"><input class="{{r.mcls}}" value="{{r.min}}" aria-label="Minutes for {{r.name}}"><span class="cap">min</span></span>
+                  <input class="price num" style="width:84px" value="{{r.price}}" aria-label="Price for {{r.name}}">
+                </div>
+              </sc-if>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{vReading}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;gap:40px;align-items:center">
+          <div class="photo" role="img" aria-label="Photo of the salon's paper menu">
+            <div style="text-align:center;font-size:16px;font-weight:700;margin-bottom:8px">MAI NAILS</div>
+            <div class="sec">Manicure</div>
+            <div class="ln"><span>Regular Mani</span><span>20</span></div>
+            <div class="ln"><span>Gel Mani</span><span>35</span></div>
+            <div class="sec">Pedicure</div>
+            <div class="ln"><span>Spa Pedi</span><span>30</span></div>
+            <div class="ln"><span>Deluxe Pedi</span><span>55</span></div>
+            <div class="sec">Enhancement</div>
+            <div class="ln"><span>Full Set Acrylic</span><span>50+</span></div>
+            <div class="ln"><span>Fill</span><span>35</span></div>
+            <div class="ln"><span>Dip Powder</span><span>45</span></div>
+            <div class="ln"><span>Design</span><span>5 &amp; up</span></div>
+            <span class="scan"></span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;max-width:420px">
+            <div class="h1">Reading your menu…</div>
+            <div class="group">
+              <sc-for list="{{reads}}" as="r" hint-placeholder-count="3">
+                <div class="row">
+                  <sc-if value="{{r.ok}}" hint-placeholder-val="{{false}}"><span class="pop" style="width:22px;height:22px;border-radius:50%;background:#1C1C1E;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px">✓</span></sc-if>
+                  <sc-if value="{{r.wait}}" hint-placeholder-val="{{true}}"><span class="pulse" style="width:22px;height:22px;border-radius:50%;border:2px solid #C7C7CC;box-sizing:border-box"></span></sc-if>
+                  <div class="grow">{{r.label}}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn ghost" type="button" onClick="{{back}}">Cancel</button>
+              <button class="btn ghost" type="button" onClick="{{blur}}" style="border:1px dashed var(--muted)">Demo: blurry photo</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{vBlurry}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;gap:40px;align-items:center">
+          <div class="photo" role="img" aria-label="Blurry photo of the menu" style="filter:blur(3px);opacity:.8">
+            <div style="text-align:center;font-size:16px;font-weight:700;margin-bottom:8px">MAI NAILS</div>
+            <div class="ln"><span>Regular Mani</span><span>20</span></div>
+            <div class="ln"><span>Gel Mani</span><span>35</span></div>
+            <div class="ln"><span>Spa Pedi</span><span>30</span></div>
+            <div class="ln"><span>Deluxe Pedi</span><span>55</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;max-width:440px">
+            <span class="pill warn" style="align-self:flex-start"><span aria-hidden="true">▲</span>Couldn't read it</span>
+            <div class="h1">That photo is hard to read</div>
+            <div class="group">
+              <div class="row">Get closer — fill the screen with the menu</div>
+              <div class="row">Avoid glare from lights or glass</div>
+              <div class="row">Hold still, or upload a photo / PDF instead</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn primary" type="button" onClick="{{snap}}" style="height:48px;font-size:16px">Retake photo</button>
+              <button class="btn" type="button" onClick="{{useTemplate}}" style="height:48px">Use nail template</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{vList}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:flex-end;gap:16px">
+            <div style="flex:1">
+              <div class="h1">{{listTitle}}</div>
+              <div class="cap" style="font-size:15px;margin-top:4px">{{listSub}}</div>
+            </div>
+            <button class="btn" type="button" onClick="{{back}}">{{switchLabel}}</button>
+          </div>
+          <div class="group" style="max-width:900px">
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+              <div class="row" style="min-height:52px">
+                <button class="{{r.tcls}}" type="button" onClick="{{r.toggle}}" aria-label="Offer {{r.name}}"></button>
+                <div class="grow {{r.dim}}" style="min-width:0"><input class="ed" value="{{r.name}}" placeholder="Service name" aria-label="Service name"><div class="cap" style="padding-left:9px">{{r.cat}} {{r.from}}</div></div>
+                <sc-if value="{{r.flag}}" hint-placeholder-val="{{false}}"><span class="tag" style="background:var(--orange-soft)">▲ {{r.flagText}}</span></sc-if>
+                <span class="minf {{r.dim}}"><input class="{{r.mcls}}" value="{{r.min}}" aria-label="Minutes for {{r.name}}"><span class="cap">min</span></span>
+                <input class="{{r.pcls}}" value="{{r.price}}" aria-label="Price for {{r.name}}">
+                <button class="xbtn" type="button" onClick="{{r.remove}}" aria-label="Remove {{r.name}}">✕</button>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <button class="btn" type="button" onClick="{{addRow}}">+ Add a service</button>
+            <span class="cap">{{count}} services on · {{flags}}</span>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+    <div class="foot">
+      <a class="btn ghost" href="Info.dc.html">Back</a>
+      <span class="sp"></span>
+      <span class="pill ok"><span class="dot"></span>Saved</span>
+      <a class="btn primary" href="Staff.dc.html" style="{{contStyle}}">{{contLabel}}</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["choose","link","reading","ai","blurry","tpl"],"default":"choose"},"read":{"editor":null},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); const m = (p && p.mode) || 'choose'; this.state = { mode: m, read: (p && p.read) || 0, off: m === 'tpl' ? { 5: true } : {}, gone: {}, added: 0 }; }
+  componentWillUnmount(){ clearInterval(this.t); }
+  renderVals() {
+    const S = this.state, cur = 2;
+    const names = ['Sign up','Salon info','Services','Staff + PIN','Payments','Card reader','Printer','Salon device','Clients','$1 test'];
+    const ai = [
+      ['Regular manicure', 30, 'Manicure', '$20', 'Regular Mani', ''],
+      ['Gel manicure', 45, 'Manicure', '$35', 'Gel Mani', ''],
+      ['Spa pedicure', 40, 'Pedicure', '$30', 'Spa Pedi', ''],
+      ['Deluxe pedicure', 60, 'Pedicure', '$55', 'Deluxe Pedi', ''],
+      ['Acrylic full set', 75, 'Acrylic', '$50', 'Full Set Acrylic', 'Price says "50+" — set starting price'],
+      ['Acrylic fill', 45, 'Acrylic', '$35', 'Fill', ''],
+      ['Dip powder', 60, 'Dip & gel', '$45', 'Dip Powder', ''],
+      ['Nail design', 15, 'Add-on', '$5', 'Design', 'Time guessed — check']
+    ];
+    const tpl = [
+      ['Regular manicure', 30, 'Manicure', '$20'], ['Gel manicure', 45, 'Manicure', '$35'],
+      ['Regular pedicure', 40, 'Pedicure', '$30'], ['Deluxe pedicure', 60, 'Pedicure', '$55'],
+      ['Dip powder', 60, 'Dip & gel', '$45'], ['Acrylic full set', 75, 'Acrylic', '$50'], ['Acrylic fill', 45, 'Acrylic', '$35']
+    ];
+    const isAi = S.mode === 'ai';
+    const src = isAi ? ai : tpl;
+    const off = S.off;
+    const all = src.concat(Array.from({ length: S.added }, () => ['', 15, 'New', '$', '', '']));
+    const rows = all.map((r, i) => ({ r, i })).filter((x) => !S.gone[x.i]).map(({ r, i }) => ({
+      name: r[0], min: r[1], cat: r[2], price: r[3],
+      from: isAi ? '· read as “' + r[4] + '”' : '',
+      flag: isAi && !!r[5], flagText: r[5] || '',
+      pcls: isAi && r[5] && r[5].indexOf('Time') < 0 ? 'price num warn' : 'price num',
+      mcls: isAi && r[5] && r[5].indexOf('Time') >= 0 ? 'price num mins warn' : 'price num mins',
+      remove: () => { const g = Object.assign({}, S.gone); g[i] = true; this.setState({ gone: g }); },
+      tcls: off[i] ? 'toggle' : 'toggle on', dim: off[i] ? 'off' : '',
+      toggle: () => { const o = Object.assign({}, off); o[i] = !o[i]; this.setState({ off: o }); }
+    }));
+    const readSteps = ['Found 8 services in 3 groups', 'Matched names to nail services', 'Read prices and guessed times', 'Flagged 2 to check'];
+    const nFlags = isAi ? ai.filter((r) => r[5]).length : 0;
+    const listing = S.mode === 'ai' || S.mode === 'tpl';
+    const anyList = listing || S.mode === 'link';
+    return {
+      steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
+      pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
+      vChoose: S.mode === 'choose', vReading: S.mode === 'reading', vList: listing, vBlurry: S.mode === 'blurry', vLink: S.mode === 'link',
+      fromLink: () => { clearInterval(this.t); this.setState({ mode: 'link' }); },
+      linkRows: [
+        ['h', 'Pedicures · 5'], ['Regular spa pedicure', '', '$38', 'Time guessed', 40], ['Organic spa pedicure', '', '$85', '', 60],
+        ['h', 'Gel color · 7'], ['Gel color manicure', '', '$45', '', 45], ['Gel manicure + gel pedicure', '· combo → package', '$98', '', 90],
+        ['h', 'Add-ons · 3'], ['French tip', '· add-on', '+$7', 'Was “$7 Extra”', 10],
+        ['h', 'Nail enhancements · 12'], ['Acrylic — full set', '', '$48', 'Split from 2 prices', 75], ['Acrylic — fill-in', '', '$38', 'Split from 2 prices', 45],
+        ['h', 'Waxing & tinting · 12 (not nails)'], ['Full legs', '', 'from $75', 'Said “$75+”', 45],
+        ['h', 'Skipped · 1'], ['Special events / parties', '· no price', '—', 'Not imported', 0]
+      ].map((r) => r[0] === 'h' ? { isHead: true, isRow: false, head: r[1] } : { isHead: false, isRow: true, name: r[0], kind: r[1], price: r[2], flag: !!r[3], flagText: r[3], min: r[4] || '—', mcls: r[3] === 'Time guessed' ? 'price num mins warn' : 'price num mins' }),
+      blur: () => { clearInterval(this.t); this.setState({ mode: 'blurry' }); },
+      reads: readSteps.map((label, i) => ({ label, ok: i < S.read, wait: i >= S.read })),
+      listTitle: isAi ? 'We read 8 services from your menu' : 'Your service menu',
+      listSub: isAi ? 'Tap a name, minutes or price to change it. Check the orange ones. Nothing is live until you Continue.' : 'Tap a name, minutes or price to change it. Turn off what you don’t do.',
+      switchLabel: isAi ? 'Retake photo' : 'Snap menu instead',
+      rows, count: rows.filter((r) => !r.dim).length, addRow: () => this.setState({ added: S.added + 1 }),
+      flags: isAi ? nFlags + ' to check' : 'edit anytime in Settings',
+      contStyle: anyList ? 'width:220px' : 'width:220px;opacity:.35;pointer-events:none',
+      contLabel: isAi || S.mode === 'link' ? 'Looks right · Continue' : 'Continue',
+      snap: () => {
+        this.setState({ mode: 'reading', read: 0 });
+        clearInterval(this.t);
+        this.t = setInterval(() => {
+          if (this.state.read >= 4) { clearInterval(this.t); this.setState({ mode: 'ai', off: {}, gone: {}, added: 0 }); return; }
+          this.setState({ read: this.state.read + 1 });
+        }, 700);
+      },
+      useTemplate: () => this.setState({ mode: 'tpl', off: { 5: true }, gone: {}, added: 0 }),
+      back: () => { clearInterval(this.t); this.setState({ mode: 'choose' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

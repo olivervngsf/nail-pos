@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Clients</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.crow{display:flex;align-items:center;gap:10px;width:100%;min-height:58px;padding:0 12px;border:0;border-bottom:1px solid #E5E5EA;background:#fff;font:inherit;text-align:left;cursor:pointer;color:#1C1C1E;transition:background .2s}
+.crow:hover{background:#FAFAFB}
+.crow.on{background:#F5F5F7}
+.fch{height:30px;padding:0 11px;border-radius:999px;border:1px solid #E5E5EA;background:#fff;font:inherit;font-size:12px;font-weight:600;cursor:pointer;color:#1C1C1E;flex:none}
+.fch.on{background:#1C1C1E;color:#fff;border-color:#1C1C1E}
+.stat{background:#F5F5F7;border-radius:12px;padding:9px 6px;text-align:center}
+.stat b{display:block;font-size:19px;letter-spacing:-0.02em}
+.photo{height:74px;border-radius:12px;display:flex;align-items:flex-end;padding:6px;box-sizing:border-box;color:#fff;font-size:10px;font-weight:600}
+.visit{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #E5E5EA;font-size:13px}
+.visit:last-child{border-bottom:0}
+.losttag{background:#FDEEE6;color:#B5470A}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="Main.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="Cal.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="Checkout.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a class="on" href="Clients.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="CloseDay.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="Me.dc.html" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar">
+      <div class="title">Clients <span class="cap">· 412</span></div>
+      <span class="pill ok"><span class="dot"></span>Saved</span>
+      <a class="btn" href="#" style="height:36px">+ New client</a>
+    </header>
+    <main style="flex:1;display:flex;min-height:0">
+      <section style="width:400px;flex:none;border-right:1px solid #E5E5EA;display:flex;flex-direction:column;min-height:0">
+        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+          <div style="height:40px;border-radius:10px;background:#EFEFF2;display:flex;align-items:center;padding:0 12px;font-size:14px;color:#5C5C5E">Search phone or name</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{filters}}" as="f" hint-placeholder-count="6"><button class="{{f.cls}}" type="button" onClick="{{f.pick}}">{{f.label}}</button></sc-for></div>
+        </div>
+        <sc-if value="{{isLost}}" hint-placeholder-val="{{false}}">
+          <div class="fade" style="margin:0 14px 10px;padding:10px 12px;border-radius:12px;background:#FDEEE6;font-size:13px;line-height:18px;display:flex;gap:10px;align-items:center"><span style="flex:1"><b>3 regulars</b> haven't come in 45+ days.</span><button class="btn" type="button" onClick="{{textAll}}" style="height:32px;font-size:13px;background:#fff">Text “we miss you”</button></div>
+        </sc-if>
+        <div style="flex:1;overflow:hidden;background:#fff">
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+            <button class="{{r.cls}}" type="button" onClick="{{r.open}}">
+              <span class="av">{{r.init}}</span>
+              <span style="flex:1;min-width:0"><b style="font-size:14px">{{r.name}}</b> <span class="{{r.tagCls}}" style="font-size:10px;height:18px;padding:0 6px">{{r.tag}}</span><span class="cap" style="display:block;font-size:12px">{{r.sub}}</span></span>
+              <span class="cap num" style="font-size:12px;text-align:right">{{r.last}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </section>
+      <section class="fade" style="flex:1;padding:18px 22px;display:flex;flex-direction:column;gap:12px;min-width:0;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:14px">
+          <span class="av lg" style="width:64px;height:64px;font-size:24px">{{p.init}}</span>
+          <div style="flex:1"><div class="h1" style="font-size:26px">{{p.name}}</div><div class="cap num">{{p.phone}} · {{p.since}} · texts ✓ · birthday {{p.bday}}</div></div>
+          <a class="btn" href="#">Text</a><a class="btn" href="#">Book</a><a class="btn primary" href="#" style="height:44px;font-size:15px">New ticket</a>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px">
+          <sc-for list="{{p.stats}}" as="s" hint-placeholder-count="6"><div class="stat"><b class="num">{{s.v}}</b><span class="cap" style="font-size:11px">{{s.l}}</span></div></sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;flex:1;min-height:0">
+          <div style="display:flex;flex-direction:column;gap:10px;min-height:0">
+            <div class="card" style="padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:14px">
+              <div style="display:flex;align-items:center"><b style="flex:1">Likes</b><button class="btn ghost" type="button" style="height:28px;font-size:12px">Edit</button></div>
+              <div class="line"><span>Usual staff</span><b>{{p.staff}}</b></div>
+              <div class="line"><span>Shape · length</span><b>{{p.shape}}</b></div>
+              <div class="line"><span>Colors</span><b>{{p.colors}}</b></div>
+            </div>
+            <div class="card" style="padding:12px 14px;font-size:14px;line-height:20px;background:#FCEAEA;box-shadow:none"><b style="color:#C92A2A">▲ Allergy / care:</b> {{p.care}}</div>
+            <div class="card" style="padding:12px 14px;font-size:14px;line-height:20px"><b>Notes</b><div class="cap" style="font-size:13px">{{p.note}}</div></div>
+            <div class="card" style="padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:14px"><span style="flex:1"><b>Gift card ••4821</b><span class="cap" style="display:block">Bought Oct 2 · never expires</span></span><b class="num">{{p.gift}}</b></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;min-height:0">
+            <div class="card" style="padding:12px 14px">
+              <div style="display:flex;align-items:center;margin-bottom:8px"><b style="flex:1;font-size:14px">Nail photos</b><button class="btn ghost" type="button" style="height:28px;font-size:12px">+ Add</button></div>
+              <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px"><div class="photo" style="background:#B07C8E">Oct 19</div><div class="photo" style="background:#C9A79A">Sep 21</div><div class="photo" style="background:#8C9C88">Aug 24</div><div class="photo" style="background:#D7B88F">Jul 27</div></div>
+            </div>
+            <div class="card" style="padding:12px 14px;flex:1;min-height:0;overflow:hidden">
+              <b style="font-size:14px">Visits</b>
+              <sc-for list="{{p.visits}}" as="v" hint-placeholder-count="4"><div class="visit"><span class="cap num" style="width:56px">{{v.d}}</span><span style="flex:1">{{v.s}} <span class="cap">· {{v.who}}</span></span><b class="num">{{v.p}}</b></div></sc-for>
+              <div class="cap" style="margin-top:6px">Next: <b style="color:#1C1C1E">{{p.next}}</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}"><div style="position:absolute;left:50%;bottom:24px;transform:translateX(-50%);background:#1C1C1E;color:#fff;border-radius:14px;padding:12px 18px;font-size:14px;animation:fadeUp .3s var(--ease) both">{{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"filter":{"editor":"enum","options":["all","regular","lost","new","bday","gift"],"default":"all"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); const f = (p && p.filter) || 'all'; this.state = { f, sel: f === 'lost' ? 1 : 0, toast: null }; }
+  renderVals() {
+    const S = this.state;
+    const C = [
+      ['L', 'Lan Tran', '(408) 555-0142', 'Regular', 'regular', 'Gel manicure · Kim · every 4 wk', 'Oct 19', ['regular', 'bday', 'gift'], { since: 'client since 2024', bday: 'Nov 20', staff: 'Kim', shape: 'Almond · short', colors: 'OPI Bubble Bath, nudes', care: 'Sensitive skin — no strong acetone.', note: 'Likes quiet; prefers the window chair.', gift: '$30 left', next: 'Tue Nov 17 · 3:00 PM · Kim', stats: [['12', 'visits'], ['$816', 'spent'], ['$68', 'avg ticket'], ['4 wk', 'comes every'], ['$14', 'avg tip'], ['0', 'no-shows']], visits: [['Oct 19', 'Gel manicure', 'Kim', '$35'], ['Sep 21', 'Gel mani + pedi', 'Kim', '$98'], ['Aug 24', 'Gel manicure', 'Kim', '$35'], ['Jul 27', 'Gel mani + art', 'Kim', '$45']] }],
+      ['J', 'Jen Park', '(408) 555-0131', 'Lost', 'lost', 'Spa pedicure · Ngọc · usually every 3 wk', 'Sep 28', ['lost', 'regular'], { since: 'client since 2023', bday: 'Mar 3', staff: 'Ngọc', shape: '—', colors: 'Reds', care: 'None noted.', note: 'Hasn’t come in 49 days (usually every 3 weeks).', gift: '—', next: 'none booked', stats: [['18', 'visits'], ['$990', 'spent'], ['$55', 'avg ticket'], ['3 wk', 'came every'], ['$10', 'avg tip'], ['1', 'no-show']], visits: [['Sep 28', 'Spa pedicure', 'Ngọc', '$30'], ['Sep 7', 'Spa pedicure', 'Ngọc', '$30'], ['Aug 17', 'Deluxe pedicure', 'Ngọc', '$55'], ['Jul 27', 'Spa pedicure', 'Ngọc', '$30']] }],
+      ['T', 'Thu Le', '(408) 555-0166', 'Lost', 'lost', 'Gel manicure · usually every 4 wk', 'Sep 21', ['lost'], null],
+      ['A', 'Anna Kim', '(408) 555-0190', 'New', 'new', 'Dip powder · booked online', 'today', ['new'], null],
+      ['M', 'Mai Pham', '(408) 555-0170', 'Regular', 'regular', 'Acrylic full set · Kim', 'today', ['regular', 'gift'], null],
+      ['S', 'Sara Lopez', '(408) 555-0155', 'Regular', 'regular', 'Pedicure + design · Linh', 'Oct 30', ['regular', 'bday'], null],
+      ['R', 'Rosa Diaz', '(408) 555-0121', 'Lost', 'lost', 'Fill · usually every 2 wk', 'Sep 30', ['lost'], null]
+    ];
+    const list = C.filter((c) => S.f === 'all' || c[7].indexOf(S.f) >= 0);
+    const pick = C[S.sel] || C[0];
+    const d = pick[8] || C[0][8];
+    const tagCls = { regular: 'tag jade', lost: 'tag', new: 'tag' };
+    return {
+      filters: [['all', 'All 412'], ['regular', 'Regulars 96'], ['lost', 'Lost regulars 3'], ['new', 'New this month 18'], ['bday', 'Birthdays this month 7'], ['gift', 'Gift card balance 24']].map((f) => ({ label: f[1], cls: 'fch' + (S.f === f[0] ? ' on' : ''), pick: () => this.setState({ f: f[0] }) })),
+      isLost: S.f === 'lost',
+      textAll: () => this.setState({ toast: '“We miss you” texted to 3 regulars (only those who said yes to texts)' }),
+      rows: list.map((c) => { const i = C.indexOf(c); return { init: c[0], name: c[1], tag: c[3], tagCls: tagCls[c[4]] + (c[4] === 'lost' ? ' losttag' : ''), sub: c[5], last: c[6], cls: 'crow' + (S.sel === i ? ' on' : ''), open: () => this.setState({ sel: i }) }; }),
+      p: { init: pick[0], name: pick[1], phone: pick[2], since: d.since, bday: d.bday, staff: d.staff, shape: d.shape, colors: d.colors, care: d.care, note: d.note, gift: d.gift, next: d.next, stats: d.stats.map((s) => ({ v: s[0], l: s[1] })), visits: d.visits.map((v) => ({ d: v[0], s: v[1], who: v[2], p: v[3] })) },
+      hasToast: !!S.toast, toast: S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

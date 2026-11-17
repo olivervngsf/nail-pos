@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Staff books on own phone</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.sb{flex:1;display:flex;flex-direction:column;gap:12px;padding:14px 16px 16px;min-height:0;overflow:hidden}
+.ap{display:flex;align-items:center;gap:12px;min-height:58px;padding:0 14px;border-bottom:1px solid var(--line);font-size:15px}
+.ap:last-child{border-bottom:0}
+.ap .t{width:62px;font-weight:600;font-variant-numeric:tabular-nums;font-size:14px}
+.ap .g{flex:1;min-width:0}
+.ap .g b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ap .g .cap{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ap.free{background:repeating-linear-gradient(135deg,#F7FBF8 0 6px,#fff 6px 12px)}
+.ap.now{background:var(--jade-soft)}
+.slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.slots .chip{justify-content:center;height:44px;font-size:15px}
+.days{display:flex;gap:6px}
+.days .chip{flex:1;flex-direction:column;justify-content:center;height:56px;gap:0;font-size:13px;line-height:16px}
+.foot{padding:12px 16px 20px;border-top:1px solid var(--line);background:rgba(255,255,255,.85)}
+.ok{width:64px;height:64px;border-radius:50%;background:var(--jade);color:#fff;display:flex;align-items:center;justify-content:center;margin:24px auto 8px}
+.src{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink-soft)}
+</style>
+</helmet>
+<div class="phone" style="position:relative">
+  <div class="pbar" style="justify-content:space-between;padding:0 8px">
+    <sc-if value="{{canBack}}" hint-placeholder-val="{{false}}"><button class="btn ghost" type="button" onClick="{{back}}" style="height:36px;padding:0 8px">‹ Back</button></sc-if>
+    <sc-if value="{{noBack}}" hint-placeholder-val="{{true}}"><span style="width:70px"></span></sc-if>
+    <span>{{title}}</span>
+    <span style="width:70px;text-align:right" class="cap">{{stepText}}</span>
+  </div>
+
+  <sc-if value="{{vDay}}" hint-placeholder-val="{{true}}"><div class="sb fade">
+    <div style="display:flex;align-items:center;gap:10px"><span class="av">L</span><div style="flex:1"><b>Linh · Mon, Nov 16</b><span class="cap" style="display:block">5 clients · $165 so far · 2 turns</span></div><span class="pill ok"><span class="dot"></span>Online</span></div>
+    <div class="eyebrow">My schedule</div>
+    <div class="group">
+      <sc-for list="{{mine}}" as="a" hint-placeholder-count="6"><div class="{{a.cls}}"><span class="t">{{a.t}}</span><span class="g"><b>{{a.n}}</b><span class="cap">{{a.s}}</span></span><sc-if value="{{a.isFree}}" hint-placeholder-val="{{false}}"><button class="btn" type="button" onClick="{{startBook}}" style="height:34px;font-size:14px;padding:0 12px">+ Book</button></sc-if><sc-if value="{{a.isNow}}" hint-placeholder-val="{{false}}"><button class="btn" type="button" onClick="{{finish}}" style="height:34px;font-size:14px;padding:0 12px">Done</button></sc-if></div></sc-for>
+    </div>
+    <div class="cap">You see only your own bookings. Front desk sees everyone.</div>
+  </div>
+  <div class="foot"><button class="btn primary block" type="button" onClick="{{startBook}}">+ Book a client</button></div></sc-if>
+
+  <sc-if value="{{vClient}}" hint-placeholder-val="{{false}}"><div class="sb fade">
+    <div class="h2">Who is it for?</div>
+    <input class="inp" placeholder="Name or phone number" value="">
+    <div class="eyebrow">My regulars</div>
+    <div class="group"><sc-for list="{{regs}}" as="r" hint-placeholder-count="4"><button class="opt" type="button" onClick="{{pickClient}}"><span class="av">{{r.i}}</span><span style="flex:1;min-width:0"><b style="font-weight:600">{{r.n}}</b><span class="cap" style="display:block">{{r.s}}</span></span><span class="cap">›</span></button></sc-for></div>
+    <button class="btn block" type="button">+ New client (phone first)</button>
+  </div></sc-if>
+
+  <sc-if value="{{vService}}" hint-placeholder-val="{{false}}"><div class="sb fade">
+    <div class="h2">Lan Tran · what service?</div>
+    <div class="cap">Last time: Gel color manicure with you, 3 weeks ago · likes nude colors</div>
+    <div class="group"><sc-for list="{{svcs}}" as="v" hint-placeholder-count="4"><button class="{{v.cls}}" type="button" onClick="{{v.pick}}"><span style="flex:1"><b style="font-weight:600">{{v.n}}</b><span class="cap" style="display:block">{{v.d}}</span></span><span class="num">{{v.p}}</span></button></sc-for></div>
+  </div>
+  <div class="foot"><button class="btn primary block" type="button" onClick="{{toTime}}">Next · pick a time</button></div></sc-if>
+
+  <sc-if value="{{vTime}}" hint-placeholder-val="{{false}}"><div class="sb fade">
+    <div class="h2">When?</div>
+    <div class="days"><sc-for list="{{days}}" as="d" hint-placeholder-count="5"><button class="{{d.cls}}" type="button"><b>{{d.a}}</b><span>{{d.b}}</span></button></sc-for></div>
+    <div class="eyebrow">Your free times · Gel color manicure 45 min</div>
+    <div class="slots"><sc-for list="{{slots}}" as="t" hint-placeholder-count="9"><button class="{{t.cls}}" type="button" onClick="{{t.pick}}">{{t.t}}</button></sc-for></div>
+    <div class="cap">Only times when you are free and the salon is open. Taken times are hidden, so nothing double-books.</div>
+  </div>
+  <div class="foot"><button class="btn primary block" type="button" onClick="{{toReview}}">Next · check</button></div></sc-if>
+
+  <sc-if value="{{vReview}}" hint-placeholder-val="{{false}}"><div class="sb fade">
+    <div class="h2">Check and book</div>
+    <div class="group">
+      <div class="row"><span class="grow">Client</span><b>Lan Tran</b></div>
+      <div class="row"><span class="grow">Service</span><b>Gel color manicure · 45 min</b></div>
+      <div class="row"><span class="grow">When</span><b>Tue, Nov 17 · 2:00 PM</b></div>
+      <div class="row"><span class="grow">With</span><b>Linh (you)</b></div>
+      <div class="row"><span class="grow">Price</span><b class="num">$45.00</b></div>
+    </div>
+    <div class="group"><div class="row"><span class="grow">Text Lan a confirmation<span class="cap" style="display:block">Lan replies C to confirm</span></span><button class="sw on" type="button" aria-label="Text confirmation"></button></div></div>
+  </div>
+  <div class="foot"><button class="btn primary block" type="button" onClick="{{book}}">Book Lan · Tue 2:00 PM</button></div></sc-if>
+
+  <sc-if value="{{vDone}}" hint-placeholder-val="{{false}}"><div class="sb fade" style="text-align:center">
+    <div class="ok pop"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></div>
+    <div class="h2">Booked</div>
+    <div class="cap">Lan Tran · Gel color manicure · Tue, Nov 17 · 2:00 PM</div>
+    <div class="group" style="text-align:left">
+      <div class="row"><span class="grow">On the salon calendar</span><span class="src">Booked by Linh</span></div>
+      <div class="row"><span class="grow">Text sent to Lan</span><span class="tag jade">Sent</span></div>
+    </div>
+    <div style="flex:1"></div>
+    <button class="btn primary block" type="button" onClick="{{toDay}}">Back to my day</button>
+  </div>
+  <div class="toast"><span style="flex:1">Booked Lan · Tue 2:00 PM</span><button type="button" onClick="{{toDay}}">Undo</button></div></sc-if>
+
+  <sc-if value="{{vRebook}}" hint-placeholder-val="{{false}}"><div class="scrim"></div><div class="sheet">
+    <b style="font-size:17px">Book Kayla's next visit?</b>
+    <div class="cap">Kayla comes every 3 weeks for an acrylic fill-in. Same time next time:</div>
+    <div class="group"><div class="row"><span class="grow"><b>Mon, Dec 7 · 2:00 PM</b><span class="cap" style="display:block">Acrylic fill-in · 60 min · $38 · you are free</span></span></div></div>
+    <button class="btn primary block" type="button" onClick="{{book}}">Book Dec 7 · 2:00 PM</button>
+    <button class="btn block" type="button" onClick="{{toTime}}">Pick another time</button>
+    <button class="btn ghost block" type="button" onClick="{{toDay}}">Not now</button>
+  </div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"step":{"editor":"enum","options":["day","client","service","time","review","done","rebook"],"default":"day"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { step: (p && p.step) || 'day', svc: 0, slot: 4 }; }
+  renderVals() {
+    const S = this.state, st = S.step, go = (x) => () => this.setState({ step: x });
+    const order = ['client', 'service', 'time', 'review'];
+    const prev = { client: 'day', service: 'client', time: 'service', review: 'time' };
+    const titles = { day: 'My day', client: 'New booking', service: 'New booking', time: 'New booking', review: 'New booking', done: 'New booking', rebook: 'My day' };
+    const mine = [['10:00', 'Hannah', 'Gel · paid', 'ap'], ['11:30', 'Rosa', 'Deluxe spa pedicure · paid', 'ap'], ['1:00', 'Kayla', 'Acrylic fill-in · in chair 40 min', 'ap now'], ['2:00', 'Free 2:00–3:15', 'Walk-ins may come', 'ap free'], ['3:15', 'Sofia', 'Dip powder · not confirmed', 'ap'], ['4:30', 'Anna', 'Pink & white full set · confirmed', 'ap']];
+    return {
+      title: titles[st], stepText: order.indexOf(st) >= 0 ? (order.indexOf(st) + 1) + ' of 4' : '',
+      canBack: !!prev[st], noBack: !prev[st], back: go(prev[st] || 'day'),
+      vDay: st === 'day' || st === 'rebook', vClient: st === 'client', vService: st === 'service', vTime: st === 'time', vReview: st === 'review', vDone: st === 'done', vRebook: st === 'rebook',
+      mine: mine.map((a) => ({ t: a[0], n: a[1], s: a[2], cls: a[3], isFree: a[3] === 'ap free', isNow: a[3] === 'ap now' })),
+      startBook: go('client'), finish: go('rebook'), pickClient: go('service'), toTime: go('time'), toReview: go('review'), book: go('done'), toDay: go('day'),
+      regs: [['L', 'Lan Tran', 'Gel color mani · every 3 weeks · last Oct 26'], ['M', 'Mia Do', 'Pedicure · last Nov 2'], ['J', 'Jen Park', 'Dip · last Sep 30 · lost regular'], ['T', 'Thu Le', 'Full set · last Oct 9']].map((r) => ({ i: r[0], n: r[1], s: r[2] })),
+      svcs: [['Gel color manicure', '45 min · usual for Lan', '$45'], ['Gel color change - hands', '30 min', '$30'], ['Regular spa pedicure', '50 min', '$38'], ['Gel color mani + French tip', '55 min', '$52']].map((v, i) => ({ n: v[0], d: v[1], p: v[2], cls: 'opt' + (S.svc === i ? ' on' : ''), pick: () => this.setState({ svc: i }) })),
+      days: [['Mon', '16'], ['Tue', '17'], ['Wed', '18'], ['Thu', '19'], ['Fri', '20']].map((d, i) => ({ a: d[0], b: d[1], cls: 'chip' + (i === 1 ? ' on' : '') })),
+      slots: ['10:00', '10:45', '11:30', '1:15', '2:00', '2:45', '3:30', '5:00', '5:45'].map((t, i) => ({ t, cls: 'chip' + (S.slot === i ? ' on' : ''), pick: () => this.setState({ slot: i }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

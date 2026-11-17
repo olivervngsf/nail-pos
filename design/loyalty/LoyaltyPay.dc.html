@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Use a reward at checkout</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a class="on" href="LoyaltyPay.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="Loyalty.dc.html" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar"><div class="title">Checkout · Ticket #1058</div><span class="pill ok"><span class="dot"></span>Online</span><div class="who"><span class="av">K</span>Kim</div></header>
+    <main style="flex:1;display:flex;gap:16px;padding:20px 24px;min-height:0">
+      <section style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="group">
+          <div class="row"><span style="flex:1">Gel color manicure · Kim</span><span>$45.00</span></div>
+          <div class="row"><span style="flex:1">French tip · Kim</span><span>$7.00</span></div>
+          <sc-if value="{{applied}}" hint-placeholder-val="{{false}}"><div class="row minus fade"><span style="flex:1">Loyalty reward (100 pts)</span><span>−$10.00</span></div></sc-if>
+        </div>
+        <div class="group">
+          <div class="row"><span style="flex:1" class="cap">Subtotal</span><span>{{sub}}</span></div>
+          <div class="row"><span style="flex:1" class="cap">Tip (on reader)</span><span class="cap">added next</span></div>
+          <div class="row"><b style="flex:1;font-size:18px">Total</b><b style="font-size:22px">{{total}}</b></div>
+        </div>
+        <div class="cap">Kim is paid on the full $52.00. The $10 comes off the salon's share.</div>
+        <div style="flex:1"></div>
+        <button class="btn primary block" type="button">Charge {{total}}</button>
+      </section>
+      <aside style="width:380px;display:flex;flex-direction:column;gap:12px">
+        <div class="card" style="padding:16px 18px;display:flex;align-items:center;gap:12px"><span class="av lg">L</span><div style="flex:1"><div class="h2">Lan Tran</div><div class="cap">Regular · 24 visits · usually Kim</div></div></div>
+        <div class="card" style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center"><b style="flex:1;font-size:16px">Loyalty</b><span class="num cap">{{ptsLabel}}</span></div>
+          <div class="prog-bar"><span style="{{barStyle}}"></span></div>
+          <sc-if value="{{ready}}" hint-placeholder-val="{{true}}"><div style="display:flex;align-items:center;gap:10px"><span class="tag jade">$10 reward ready</span><span style="flex:1"></span><button class="btn" type="button" onClick="{{apply}}" style="background:#2F9E44;color:#fff">Use $10</button></div></sc-if>
+          <sc-if value="{{applied}}" hint-placeholder-val="{{false}}"><div class="fade" style="display:flex;align-items:center;gap:10px"><span class="cap" style="flex:1">Reward used. Lan earns <b>+42 pts</b> on today's $42 after reward.</span><button class="btn ghost" type="button" onClick="{{undo}}">Undo</button></div></sc-if>
+          <div class="cap">Ask: "Do you want to use your $10 today or save it?"</div><a href="LoyaltyPack.dc.html" class="cap" style="font-weight:700">Next client: package + perk ›</a>
+        </div>
+        <div class="group"><div class="row" style="min-height:48px;font-size:14px"><span class="grow">Gift card ••4411</span><b class="num">$25.00</b></div><div class="row" style="min-height:48px;font-size:14px"><span class="grow cap">Note: sensitive skin</span></div></div>
+      </aside>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"applied":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { a: !!(p && p.applied) }; }
+  renderVals() {
+    const a = this.state.a;
+    return { applied: a, ready: !a, apply: () => this.setState({ a: true }), undo: () => this.setState({ a: false }),
+      sub: a ? '$42.00' : '$52.00', total: a ? '$42.00' : '$52.00', ptsLabel: a ? '220 pts left' : '320 pts', barStyle: 'width:' + (a ? 20 : 100) + '%' };
+  }
+}
+</script>
+</body>
+</html>

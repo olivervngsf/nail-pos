@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pay by QR</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>body{margin:0}</style>
+</helmet>
+<div class="phone">
+  <div class="pbar" style="justify-content:space-between;padding:0 12px">
+    <a class="btn ghost" href="Pay.dc.html" style="height:36px;padding:0 8px">‹ Pay</a>
+    <span>Pay by QR</span>
+    <span style="width:60px"></span>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:18px;padding:28px 24px">
+    <div class="in" style="text-align:center">
+      <div class="cap">Ticket #1042 · Lan Tran</div>
+      <div class="money">$65.00</div>
+      <div class="cap">+ tip the client picks</div>
+    </div>
+    <div class="card in2" style="padding:20px">
+      <svg width="220" height="220" viewBox="0 0 29 29" role="img" aria-label="QR code to pay $65.00" shape-rendering="crispEdges">
+        <rect width="29" height="29" fill="#fff"/>
+        <path fill="#1C1C1E" d="M1 1h7v7H1zM2 2v5h5V2zM3 3h3v3H3zM21 1h7v7h-7zM22 2v5h5V2zM23 3h3v3h-3zM1 21h7v7H1zM2 22v5h5v-5zM3 23h3v3H3zM10 1h1v2h-1zM12 2h2v1h-2zM15 1h1v3h-1zM17 3h2v2h-2zM10 5h2v2h-2zM13 6h3v1h-3zM10 9h3v1h-3zM14 9h1v3h-1zM16 10h3v1h-3zM20 9h2v2h-2zM24 10h3v1h-3zM1 10h2v2H1zM4 11h3v1H4zM9 12h2v2H9zM12 13h1v3h-1zM17 12h1v2h-1zM19 13h3v1h-3zM23 12h1v3h-1zM25 13h3v2h-3zM2 14h3v1H2zM6 14h1v3H6zM10 16h3v1h-3zM15 15h2v2h-2zM18 16h1v3h-1zM21 16h3v1h-3zM26 17h2v1h-2zM1 18h2v1H1zM4 18h2v2H4zM9 19h1v2H9zM11 18h3v1h-3zM15 19h2v1h-2zM20 19h2v2h-2zM24 19h1v3h-1zM10 22h2v2h-2zM13 21h1v3h-1zM15 23h3v1h-3zM19 22h2v1h-2zM22 23h2v2h-2zM26 22h2v2h-2zM10 26h3v1h-3zM14 25h1v3h-1zM17 26h2v2h-2zM20 25h1v2h-1zM23 26h3v1h-3z"/>
+      </svg>
+    </div>
+    <div class="in3" style="display:flex;align-items:center;gap:8px;font-size:15px">
+      <span class="dot pulse" style="background:var(--orange)"></span>Waiting for Lan to pay…
+    </div>
+    <div style="flex:1"></div>
+    <a class="btn block" href="#">Text pay link to (408) 555-0142</a>
+    <a class="btn primary block" href="PhoneClientPay.dc.html">Client scans → their phone</a>
+    <div class="cap" style="text-align:center">Fee 2.9% + 30¢ · paid by salon · use when the reader is down</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

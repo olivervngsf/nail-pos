@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Staff earnings today</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>body{margin:0}</style>
+</helmet>
+<div class="phone">
+  <div class="pbar" style="justify-content:space-between;padding:0 16px">
+    <span style="width:32px"></span><span>My day</span><a href="Profile.dc.html" aria-label="My profile" style="text-decoration:none"><div class="av">K</div></a>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:20px">
+    <div class="card in" style="padding:14px 16px;display:flex;gap:12px;align-items:center;border:1px solid var(--jade)">
+      <div class="pop" style="width:36px;height:36px;border-radius:50%;background:var(--jade-soft);display:flex;align-items:center;justify-content:center">✓</div>
+      <div style="flex:1"><div style="font-weight:600;font-size:15px">Ticket #1042 paid</div><div class="cap">Lan Tran · just now</div></div>
+      <div class="num" style="font-weight:700">+$28.00</div>
+    </div>
+    <div class="in2">
+      <div class="eyebrow" style="margin-bottom:8px">This ticket</div>
+      <div class="group">
+        <div class="row"><div class="grow">Gel manicure</div><span class="num">$35.00</span></div>
+        <div class="row"><div class="grow">Your commission · 60%</div><span class="num">$21.00</span></div>
+        <div class="row"><div class="grow">Card tip</div><span class="num">$7.00</span></div>
+        <div class="row"><div class="grow">Card fee on your tip</div><span class="num">$0.00</span></div>
+      </div>
+      <div class="cap" style="margin-top:8px">You keep 100% of tips. The salon pays the card fee.</div>
+    </div>
+    <div class="in3">
+      <div class="eyebrow" style="margin-bottom:8px">Today so far</div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+        <div class="card" style="padding:14px"><div class="cap">Earned</div><div class="money" style="font-size:26px">$186</div><div class="cap">6 clients</div></div>
+        <div class="card" style="padding:14px"><div class="cap">Tips</div><div class="money" style="font-size:26px">$54</div><div class="cap">$38 card · $16 cash</div></div>
+      </div>
+      <div class="cap num" style="margin-top:10px">(Services $310 × 60%) + Tip $54 = $240</div>
+    </div>
+    <div style="flex:1"></div>
+    <a class="btn block" href="#">Print my earnings</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

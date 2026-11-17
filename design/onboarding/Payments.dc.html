@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Connect payments</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="setup.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.fee{display:flex;align-items:center;gap:14px;min-height:56px;padding:0 18px;border-bottom:1px solid var(--line);font-size:16px}
+.fee:last-child{border-bottom:0}
+.fee .i{width:32px;height:32px;border-radius:9px;background:var(--fill);display:flex;align-items:center;justify-content:center;flex:none}
+.need{display:flex;align-items:center;gap:10px;font-size:15px}
+.need .c{width:20px;height:20px;border-radius:50%;border:1.5px solid #C7C7CC;box-sizing:border-box;flex:none}
+</style>
+</helmet>
+<div class="wiz">
+  <aside class="side">
+    <div class="brand"><div class="logo" style="margin:0">N</div>Salon setup</div>
+    <div class="prog"><span style="{{pct}}"></span></div>
+    <sc-for list="{{steps}}" as="s" hint-placeholder-count="10">
+      <div class="{{s.cls}}"><span class="n">{{s.n}}</span>{{s.label}}</div>
+    </sc-for>
+    <div class="help">Money goes from Stripe straight to your bank — never through Nail POS.</div>
+  </aside>
+  <div class="main">
+    <div class="body" style="align-items:center;padding-top:36px">
+      <div style="width:560px;display:flex;flex-direction:column;gap:18px">
+        <div class="in" style="text-align:center">
+          <div class="eyebrow">Step 5 of 10</div>
+          <div class="h1" style="margin-top:6px">Get paid to your bank</div>
+          <div style="font-size:16px;line-height:23px;color:var(--ink-soft);margin-top:6px">Your salon gets its own Stripe account. About 5 minutes.</div>
+        </div>
+
+        <sc-if value="{{idle}}" hint-placeholder-val="{{true}}">
+          <div class="fade" style="display:flex;flex-direction:column;gap:16px">
+            <div class="group">
+              <div class="fee"><span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg></span><span style="flex:1">Card reader</span><span class="num" style="font-weight:600">2.7% + 5¢</span></div>
+              <div class="fee"><span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v7"/></svg></span><span style="flex:1">QR code / pay link</span><span class="num" style="font-weight:600">2.9% + 30¢</span></div>
+              <div class="fee"><span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v9h14v-9M9 19v-5h6v5"/></svg></span><span style="flex:1">In your bank</span><span style="font-weight:600">2 business days</span></div>
+              <div class="fee"><span class="i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg></span><span style="flex:1">Nail POS cut of card money</span><span style="font-weight:600">$0</span></div>
+            </div>
+            <div class="card" style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+              <div class="eyebrow">Have these ready</div>
+              <div class="need"><span class="c"></span>Business name + EIN (or SSN if sole owner)</div>
+              <div class="need"><span class="c"></span>Bank account + routing number</div>
+              <div class="need"><span class="c"></span>Owner's photo ID</div>
+            </div>
+            <button class="btn primary" type="button" onClick="{{connect}}" style="width:100%">Connect with Stripe</button>
+            <div class="cap" style="text-align:center">Opens Stripe in a new window. Stripe checks your ID and bank — we never see them.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{busy}}" hint-placeholder-val="{{false}}">
+          <div class="card fade" style="padding:36px 28px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center">
+            <div class="pulse" style="width:56px;height:56px;border-radius:50%;border:3px solid #1C1C1E"></div>
+            <div class="h2">Finish in the Stripe window</div>
+            <div class="cap" style="font-size:14px">This page updates by itself when you're done.</div>
+            <div style="display:flex;gap:8px;margin-top:6px">
+              <button class="btn ghost" type="button" onClick="{{cancel}}">Cancel</button>
+              <button class="btn" type="button" onClick="{{needInfo}}">Demo: Stripe needs more info</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{more}}" hint-placeholder-val="{{false}}">
+          <div class="card fade" style="padding:24px 26px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;gap:12px;align-items:center"><span class="pill warn"><span aria-hidden="true">▲</span>Almost done</span></div>
+            <div class="h2">Stripe needs one more thing</div>
+            <div style="font-size:15px;line-height:22px;color:var(--ink-soft)">A clearer photo of your ID. You can still finish setup now — card payments turn on as soon as Stripe approves.</div>
+            <div style="display:flex;gap:8px">
+              <button class="btn primary" type="button" onClick="{{connect}}" style="flex:1;height:48px;font-size:16px">Fix in Stripe</button>
+              <a class="btn" href="Hardware.dc.html" style="flex:1;height:48px">Do it later</a>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+          <div class="card fade" style="padding:28px;display:flex;flex-direction:column;align-items:center;gap:14px">
+            <div class="pop" style="width:64px;height:64px;border-radius:50%;background:var(--jade-soft);border:2px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:28px">✓</div>
+            <div class="h2">Payments connected</div>
+            <div class="group" style="width:100%;box-shadow:none;border:1px solid var(--line)">
+              <div class="row"><div class="grow">Business</div><span class="cap">Mai Nails LLC ✓</span></div>
+              <div class="row"><div class="grow">Bank</div><span class="cap num">Chase ••6789 ✓</span></div>
+              <div class="row"><div class="grow">Payouts</div><span class="cap">Daily, 2 business days</span></div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    <div class="foot">
+      <a class="btn ghost" href="Staff.dc.html">Back</a>
+      <span class="sp"></span>
+      <span class="pill ok"><span class="dot"></span>Saved</span>
+      <a class="btn primary" href="Hardware.dc.html" style="{{contStyle}}">Continue</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"s":{"editor":"int","min":0,"max":3,"default":0},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { s: (p && p.s) || 0 }; }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  renderVals() {
+    const cur = 4, s = this.state.s;
+    const names = ['Sign up','Salon info','Services','Staff + PIN','Payments','Card reader','Printer','Salon device','Clients','$1 test'];
+    return {
+      steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
+      pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
+      idle: s === 0, busy: s === 1, done: s === 2, more: s === 3,
+      contStyle: s === 2 ? 'width:200px' : 'width:200px;opacity:.35;pointer-events:none',
+      connect: () => { clearTimeout(this.t); this.setState({ s: 1 }); this.t = setTimeout(() => { if (this.state.s === 1) this.setState({ s: 2 }); }, 3000); },
+      cancel: () => { clearTimeout(this.t); this.setState({ s: 0 }); },
+      needInfo: () => { clearTimeout(this.t); this.setState({ s: 3 }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

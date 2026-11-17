@@ -1,0 +1,111 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-16T23:10:00Z"
+ },
+ "title": "Nail POS — Tech App",
+ "launch": {
+  "view": "canvas",
+  "page": "overview"
+ },
+ "pages": [
+  {
+   "id": "overview",
+   "name": "1 · Overview — clickable screens"
+  },
+  {
+   "id": "spec",
+   "name": "2 · Step by step (with notes)"
+  }
+ ],
+ "boards": {
+  "Tech.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Tech app · Home + Schedule",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Tc1Home.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "T1 · Home",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Tc2Day.dc.html": {
+   "x": 830,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "T2 · My schedule · Day",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Tc3Week.dc.html": {
+   "x": 1660,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "T3 · My schedule · Week",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Tc4Detail.dc.html": {
+   "x": 2490,
+   "y": 0,
+   "w": 750,
+   "h": 844,
+   "title": "T4 · Tap a booking → details",
+   "is_interactive": true,
+   "page": "spec"
+  }
+ },
+ "order": [
+  "Tech.dc.html",
+  "Tc1Home.dc.html",
+  "Tc2Day.dc.html",
+  "Tc3Week.dc.html",
+  "Tc4Detail.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "Tech App",
+   "kind": "title1",
+   "maxW": 1280,
+   "page": "overview"
+  },
+  "s1": {
+   "x": -520,
+   "y": 0,
+   "w": 420,
+   "fill": "orange",
+   "page": "overview",
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nTech app on their own phone (same web app, PIN): Home + My schedule (Day / Week / details).\nOnly their own clients and money. Staff booking flow: Booking board, page 4.\nSample services from a real salon menu (Cosmo Nails)."
+  },
+  "t2": {
+   "x": 0,
+   "y": -300,
+   "text": "Step by step (with notes)",
+   "kind": "title1",
+   "maxW": 3240,
+   "page": "spec"
+  }
+ },
+ "designSystems": [
+  {
+   "title": "Nail POS Design System",
+   "namespace": "nailpos",
+   "artifact": "https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n",
+   "version": null,
+   "copiedAt": "2026-11-16T23:10:00Z"
+  }
+ ]
+}

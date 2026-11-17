@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My profile, photo and language</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+
+
+.check{margin-left:auto;font-weight:700;color:#1C1C1E;transition:opacity .25s}
+.photo-btn{position:relative;width:88px;height:88px;border-radius:50%;border:0;padding:0;background:#EFEFF2;cursor:pointer;font:inherit}
+.photo-btn .badge{position:absolute;right:-2px;bottom:-2px;width:30px;height:30px;border-radius:50%;background:#1C1C1E;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px #F5F5F7}
+.ph{width:100%;height:100%;border-radius:50%;overflow:hidden;display:block}
+
+.acts{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;display:flex;flex-direction:column;gap:8px;animation:sheetUp .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sgroup{background:#fff;border-radius:16px;overflow:hidden}
+.sbtn{width:100%;height:58px;border:0;border-bottom:1px solid #E5E5EA;background:#fff;font:inherit;font-size:18px;color:#1C1C1E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+.sbtn:last-child{border-bottom:0}
+.crop{position:absolute;inset:0;background:#000;z-index:7;display:flex;flex-direction:column;animation:fadeIn .3s ease both}
+.ring{width:280px;height:280px;border-radius:50%;box-shadow:0 0 0 2000px rgba(0,0,0,.55);border:2px solid #fff;overflow:hidden}
+
+</style>
+</helmet>
+<div class="phone" style="position:relative">
+  <div class="pbar" style="justify-content:space-between;padding:0 12px">
+    <a class="btn ghost" href="Checkout.dc.html" style="height:36px;padding:0 8px">‹ {{t.back}}</a>
+    <span>{{t.title}}</span>
+    <span style="width:60px"></span>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:22px;padding:24px 20px">
+    <div class="in" style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <button class="photo-btn" type="button" onClick="{{openSheet}}" aria-label="{{t.change}}">
+        <sc-if value="{{hasPhoto}}" hint-placeholder-val="{{false}}">
+          <svg class="ph pop" viewBox="0 0 88 88" role="img" aria-label="Profile photo of Hạnh"><rect width="88" height="88" fill="#E9D7CB"/><circle cx="44" cy="36" r="17" fill="#B78F7B"/><path d="M14 88c4-18 16-27 30-27s26 9 30 27z" fill="#8C6A5A"/><path d="M27 34c0-14 9-21 17-21s19 6 18 23c-4-9-10-12-17-12s-14 3-18 10z" fill="#2B2220"/></svg>
+        </sc-if>
+        <sc-if value="{{noPhoto}}" hint-placeholder-val="{{true}}">
+          <span class="ph" style="display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:600;color:#1C1C1E">H</span>
+        </sc-if>
+        <span class="badge" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+      </button>
+      <button class="btn ghost" type="button" onClick="{{openSheet}}" style="height:30px;font-size:14px">{{photoLink}}</button>
+      <div class="h2">Hạnh Nguyễn</div>
+      <div class="cap">{{t.role}} · Mai Nails</div>
+    </div>
+    <div class="in2">
+      <div class="eyebrow" style="margin:0 0 8px 16px">{{t.lang}}</div>
+      <div class="group">
+        <button class="opt" type="button" onClick="{{pickEn}}">English<span class="check" style="{{enCheck}}">✓</span></button>
+        <button class="opt" type="button" onClick="{{pickVi}}">Tiếng Việt<span class="check" style="{{viCheck}}">✓</span></button>
+      </div>
+      <div class="cap" style="margin:8px 16px 0">{{t.note}}</div>
+    </div>
+    <div class="in3">
+      <div class="group">
+        <div class="row"><div class="grow">{{t.pin}}</div><span class="cap">••••  ›</span></div>
+        <div class="row"><div class="grow">{{t.phone}}</div><span class="cap num">(408) 555-0199 ›</span></div>
+        <div class="row"><div class="grow">{{t.earn}}</div><span class="cap">›</span></div>
+      </div>
+    </div>
+    <div style="flex:1"></div>
+    <a class="btn block" href="#" style="color:var(--red)">{{t.out}}</a>
+  </div>
+
+  <sc-if value="{{vSheet}}" hint-placeholder-val="{{false}}">
+    <div class="scrim" onClick="{{close}}"></div>
+    <div class="acts" role="dialog" aria-label="{{t.change}}">
+      <div class="sgroup">
+        <div style="padding:14px 16px;text-align:center;font-size:13px;color:#5C5C5E;border-bottom:1px solid #E5E5EA">{{t.who}}</div>
+        <button class="sbtn" type="button" onClick="{{toCrop}}">{{t.take}}</button>
+        <button class="sbtn" type="button" onClick="{{toCrop}}">{{t.library}}</button>
+        <sc-if value="{{hasPhoto}}" hint-placeholder-val="{{false}}"><button class="sbtn" type="button" onClick="{{removePhoto}}" style="color:#E03131">{{t.remove}}</button></sc-if>
+      </div>
+      <div class="sgroup"><button class="sbtn" type="button" onClick="{{close}}" style="font-weight:600">{{t.cancel}}</button></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{vCrop}}" hint-placeholder-val="{{false}}">
+    <div class="crop" role="dialog" aria-label="{{t.adjust}}">
+      <div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;color:#fff">
+        <button class="btn ghost" type="button" onClick="{{close}}" style="color:#fff;height:36px">{{t.cancel}}</button>
+        <span style="font-weight:600">{{t.adjust}}</span>
+        <button class="btn ghost" type="button" onClick="{{save}}" style="color:#fff;height:36px;font-weight:700">{{t.use}}</button>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden">
+        <div class="ring"><svg viewBox="0 0 88 88" width="280" height="280" role="img" aria-label="Photo being adjusted"><rect width="88" height="88" fill="#E9D7CB"/><circle cx="44" cy="36" r="17" fill="#B78F7B"/><path d="M14 88c4-18 16-27 30-27s26 9 30 27z" fill="#8C6A5A"/><path d="M27 34c0-14 9-21 17-21s19 6 18 23c-4-9-10-12-17-12s-14 3-18 10z" fill="#2B2220"/></svg></div>
+      </div>
+      <div style="padding:16px 24px 28px;color:#D1D1D6;font-size:14px;text-align:center">{{t.hint}}</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{vToast}}" hint-placeholder-val="{{false}}"><div class="toast">{{t.saved}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"photoStep":{"editor":"enum","options":["none","sheet","crop","saved"],"default":"none"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){
+    super(p);
+    const s = (p && p.photoStep) || 'none';
+    this.state = { lang: 'en', view: s === 'sheet' || s === 'crop' ? s : null, has: s === 'saved', toast: s === 'saved' };
+  }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  renderVals() {
+    const en = { back: 'Back', title: 'My profile', role: 'Front desk', lang: 'Language', note: 'Only changes your screens. Clients see their own language on receipts and the card reader.', pin: 'Change PIN', phone: 'Phone', earn: 'My earnings', out: 'Switch person',
+      change: 'Change profile photo', add: 'Add photo', edit: 'Edit photo', who: 'Shows on the turn list, tickets and the booking page.', take: 'Take photo', library: 'Choose from library', remove: 'Remove photo', cancel: 'Cancel', adjust: 'Move and scale', use: 'Use photo', hint: 'Pinch to zoom, drag to center your face.', saved: 'Photo saved ✓' };
+    const vi = { back: 'Quay lại', title: 'Hồ sơ của tôi', role: 'Quầy', lang: 'Ngôn ngữ', note: 'Chỉ đổi màn hình của bạn. Khách thấy ngôn ngữ riêng trên biên lai và máy đọc thẻ.', pin: 'Đổi mã PIN', phone: 'Số điện thoại', earn: 'Thu nhập của tôi', out: 'Đổi người',
+      change: 'Đổi ảnh đại diện', add: 'Thêm ảnh', edit: 'Sửa ảnh', who: 'Hiện trên danh sách lượt, phiếu và trang đặt lịch.', take: 'Chụp ảnh', library: 'Chọn từ thư viện', remove: 'Xóa ảnh', cancel: 'Hủy', adjust: 'Di chuyển và phóng to', use: 'Dùng ảnh', hint: 'Dùng hai ngón để phóng to, kéo để căn giữa.', saved: 'Đã lưu ảnh ✓' };
+    const S = this.state, isEn = S.lang === 'en', t = isEn ? en : vi;
+    return {
+      t,
+      hasPhoto: S.has, noPhoto: !S.has,
+      photoLink: S.has ? t.edit : t.add,
+      vSheet: S.view === 'sheet', vCrop: S.view === 'crop', vToast: S.toast,
+      openSheet: () => this.setState({ view: 'sheet', toast: false }),
+      close: () => this.setState({ view: null }),
+      toCrop: () => this.setState({ view: 'crop' }),
+      save: () => { this.setState({ view: null, has: true, toast: true }); clearTimeout(this.t); this.t = setTimeout(() => this.setState({ toast: false }), 2500); },
+      removePhoto: () => this.setState({ view: null, has: false }),
+      enCheck: isEn ? 'opacity:1' : 'opacity:0',
+      viCheck: isEn ? 'opacity:0' : 'opacity:1',
+      pickEn: () => this.setState({ lang: 'en' }),
+      pickVi: () => this.setState({ lang: 'vi' })
+    };
+  }
+}
+</script>
+</body>
+</html>

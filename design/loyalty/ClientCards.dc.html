@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Client page: my gift cards</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.cc{flex:1;display:flex;flex-direction:column;gap:12px;padding:16px;min-height:0}
+.mini{width:44px;height:30px;border-radius:7px;background:#1C1C1E;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:flex-end;padding:3px 5px;box-sizing:border-box;flex:none}
+.mini.pl{background:#5C5C5E}
+.row.new{background:var(--jade-soft)}
+</style>
+</helmet>
+<div class="phone" style="position:relative">
+  <div class="pbar" style="justify-content:space-between;padding:0 8px"><sc-if value="{{isAdd}}" hint-placeholder-val="{{false}}"><button class="btn ghost" type="button" onClick="{{toList}}" style="height:36px;padding:0 8px">‹ Back</button></sc-if><sc-if value="{{isList}}" hint-placeholder-val="{{true}}"><span style="width:70px"></span></sc-if><span>Mai Nails</span><span style="width:70px"></span></div>
+
+  <sc-if value="{{isList}}" hint-placeholder-val="{{true}}"><div class="cc fade">
+    <div style="display:flex;align-items:center;gap:10px;height:40px"><span class="av">L</span><div style="flex:1"><b style="font-size:17px">Hi Lan</b><span class="cap" style="display:block">(408) ••• 0142 · signed in by text code</span></div></div>
+    <div class="card pad" style="height:96px"><div style="display:flex;align-items:center"><b style="flex:1">372 points</b><span class="tag jade">$10 reward ready</span></div><div class="prog-bar"><span style="width:72%"></span></div></div>
+    <div class="eyebrow">My gift cards</div>
+    <div class="group">
+      <div class="row l"><span class="mini">MN</span><span class="g"><b>•••• 2T4F · digital</b><span class="cap">From Mai · sent to your phone</span></span><b class="num">$50.00</b></div>
+      <div class="row l"><span class="mini">MN</span><span class="g"><b>•••• 9XRA · digital</b><span class="cap">Bought by you · Oct 3</span></span><b class="num">$12.50</b></div>
+      <sc-if value="{{isOk}}" hint-placeholder-val="{{false}}"><div class="row l new fade"><span class="mini pl">MN</span><span class="g"><b>•••• 0147 · plastic</b><span class="cap">Added just now</span></span><b class="num">$100.00</b></div></sc-if>
+    </div>
+    <button class="btn block" type="button" onClick="{{toAdd}}">+ Add a gift card</button>
+    <div class="cap">Got a plastic card or a code from a friend? Add it here so the salon can find it by your phone, and a lost card can be replaced.</div>
+    <div style="flex:1"></div>
+    <a class="btn primary block" href="#">Book my next visit</a>
+  </div></sc-if>
+
+  <sc-if value="{{isAdd}}" hint-placeholder-val="{{false}}"><div class="cc fade">
+    <div class="h2">Add a gift card</div>
+    <div class="cap" style="font-size:14px;line-height:20px">Type the code on the card or in the message. We'll check it with Mai Nails.</div>
+    <div><label class="lbl">Gift card code</label><input class="{{inpCls}}" value="{{code}}" aria-label="Gift card code" style="letter-spacing:.06em;font-size:18px"><sc-if value="{{isErr}}" hint-placeholder-val="{{false}}"><div class="hint err">This card hasn't been sold yet, so it has no money on it. If you just got it, ask Mai Nails. 4 tries left.</div></sc-if></div>
+    <button class="btn block" type="button">Scan the card with the camera</button>
+    <div class="group"><div class="row s"><span class="g">We check</span><span class="cap">real code · Mai Nails · active · balance</span></div><div class="row s"><span class="g">Then</span><span class="cap">linked to (408) ••• 0142</span></div></div>
+    <div style="flex:1"></div>
+    <button class="btn primary block" type="button" onClick="{{add}}">Add card</button>
+  </div></sc-if>
+  <sc-if value="{{isOk}}" hint-placeholder-val="{{false}}"><div class="toast"><span style="flex:1">Card •••• 0147 added · $100.00</span><a href="GiftUse.dc.html" style="color:#fff;font-weight:700">At the salon ›</a></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"step":{"editor":"enum","options":["list","add","ok","error"],"default":"list"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { s: (p && p.step) || 'list' }; }
+  renderVals() {
+    const s = this.state.s, add = s === 'add' || s === 'error';
+    return { isList: !add, isAdd: add, isOk: s === 'ok', isErr: s === 'error',
+      inpCls: 'inp' + (s === 'error' ? ' err' : ''), code: s === 'error' ? 'MAIN 4821 7730 0201' : 'MAIN 4821 7730 0147',
+      toAdd: () => this.setState({ s: 'add' }), toList: () => this.setState({ s: 'list' }), add: () => this.setState({ s: 'ok' }) };
+  }
+}
+</script>
+</body>
+</html>
