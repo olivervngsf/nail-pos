@@ -143,6 +143,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-16: Payroll = V1 insights + export; real payroll later via embedded partner (e.g. Check, Gusto Embedded); never build tax filing ourselves.
 - 2026-11-16: Elang is an admin too (same Founder Admin access as Oliver, incl. System + costs).
 - 2026-11-17: Stripe Connect type settled by Stripe's rules: Accounts v2, full dashboard, Stripe collects fees from the salon + covers losses (Managed Risk). Express needs us to carry losses: no.
+- 2026-11-16: Login codes = one shared Twilio Verify service "Nail POS" (VAb56fc1d9860fc18f78f1c4190af9d2a3) for all salons/people. Salon customer texts = separate local number per salon + A2P 10DLC, set up per salon on setup day (Claude to help; issue #26). Next: plug Verify into Supabase Phone auth. Cost (checked Nov 16): ~6¢/login code; number $1.15/mo; text ~$0.0083 + carrier fees; Running Costs doc updated.
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
 - 2026-11-16: Stripe card reader in every V1 setup (QR / pay link costs salons ~20% more). Card fee = Stripe pass-through, no markup at launch; revisit at ~50 salons. Research: reports/Nail POS market pricing and design.md
 - 2026-11-16: V1 card reader = Stripe S710 (~$299, works with the web app); M2 ($59) when the phone app ships. Year 1 for a salon ≈ $887 ($49×12 + S710) vs ~$2,400 for ABC Salon System's cheapest setup.
