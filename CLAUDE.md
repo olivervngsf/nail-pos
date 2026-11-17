@@ -5,7 +5,7 @@ Read this first every session. Keep it short; link out for detail.
 ## What we're building
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
 - Angle: fair, clear pay for techs + Tap to Pay on iPhone and Android (no card terminal).
-- Team: Oliver = product/design/build. Elang = sales, client care.
+- Team (working agreement, not final yet; aligned with Elang Nov 16): Elang = product direction + features ("designs the building: how many floors, what's on each floor") + sales, client care. Oliver = solid foundation, build and design (how it works and looks).
 
 ## Source docs (live, in claude.ai)
 - Hub (decisions, ideas, research, next steps): https://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU
@@ -24,10 +24,10 @@ Docs win over this file if they disagree. Update this file when a big decision l
 1. Checkout in the web app: cash or card on a Stripe card reader (every V1 salon; QR code / pay link as backup); receipt by printer, text or email; gift cards (sell + use, plastic + text, no expiry) + $/% discounts (issue #14, PRD "Gift cards and discounts")
 2. Tech payout sheet: earnings + tips per tech, cash vs card, check/cash payout split, printable; payroll insights (min wage, overtime, breaks) + export to Gusto/QuickBooks (issue #15)
 3. Vietnamese (staff) / English (customer) toggle
-4. PIN login + clock-in; print own earnings by PIN
+4. PIN login + clock-in; print own earnings by PIN. Clock-in: front desk name + PIN or own phone at salon only (location/Wi-Fi); clock-in joins turn list; auto clock-out; manager-approved fixes; offline (PRD "Clock-in: where and when", issue #3)
 5. Client profile by phone number (visits, last service/tech, notes, gift card)
 6. Turn list for walk-ins (moved into V1)
-7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12)
+7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12). Each salon gets its own booking page on our domain (book.[domain]/salon-city; QR, Google, social; booking source tracked); later deals, deposits, AI booking helper (PRD "Salon booking page", issue #32, screens on Screens 2 bottom)
 8. Owner dashboard: top 5 KPIs (sales vs last week, avg ticket, return rate + lost regulars, sales per tech per hour, walk-in wait + walk-outs); full list in PRD "Owner KPIs" (issue #16)
 - Salon setup (demo → first payment in ~1 week; 1-hour setup day, 10 steps incl. Connect payments): PRD "Salon setup", board https://claude.ai/artifact/1wByQp7c3nViD27dsqJqgD, issue #20
 - Basics: salon setup, staff + pay rates, service menu from a nail template, owner login
@@ -42,6 +42,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Insight, not autopilot: turn board/calendar show facts (turns, $ today, free-at, skills, requests); owner/manager/front desk decides who's next; optional one-tap reason.
 - Every ticket shows tip + any card fee; nothing taken silently.
 - Honest reviews: every client gets the same review request; never filter or hide it from unhappy clients (Google rules, FTC risk).
+- Tips: salon never keeps any part; card fee on tips can't be deducted in CA/MN (setting locked by state); owners/managers never in tip pools; monthly cash-tip report per tech. Booth renters = separate pay type, paid into their own Stripe account. License expiry alerts. PRD "Booth rental, tip rules and tech licenses", board https://claude.ai/artifact/2e91J92mh79y7UcySvwA4y, issue #23.
 - Target: Vietnamese walk-in salons, 1–20 techs (appointment salons later).
 - Edge cases table lives in the PRD.
 
@@ -52,15 +53,17 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Build: web app first (owner computer + shared salon iPad/phone), deployed on Vercel
 - Devices: desktop (front desk, owner) + phones iOS/Android (techs, clients). Design both. Every feature must work on both iOS and Android (web app now; later phone app from one shared codebase for both).
 - Printing: desktop to USB/Wi-Fi receipt printer; Android web can use Bluetooth; iPhone web can't (needs Bluefy) — don't depend on it.
-- Texting: Twilio or Telnyx; one local number per salon; A2P 10DLC registration; consent + STOP; email backup. Spec in PRD "Texting and phone numbers".
+- Texting: Twilio or Telnyx; one local number per salon; A2P 10DLC registration; consent + STOP; email backup. Spec in PRD "Texting and phone numbers". Text budget (suggestion): service texts (confirm, reminders, receipts) included in plan + never stop; marketing texts from a prepaid "text battery" (packs ~2¢/text, balance shown, warn at 20%, auto-refill only if owner opts in with a cap); cost preview before every blast; Vietnamese accents = 70 chars/segment (double cost). Issue #26; board https://claude.ai/artifact/UYUEeU5J5sWsTfAaWHE9EE (bottom).
 - Ops (before pilot, issue #22): dev/staging/live; Supabase backups + restore test; DB changes via GitHub; data-wall tests; Sentry + uptime alerts; 2-step login + password manager everywhere; secrets only in Vercel/Supabase; spending alerts; terms/privacy/texting consent. Spec: System Design "Running smooth".
 - Payments: card reader in every V1 salon (PRD decision Nov 16; reader fee 2.7%+5¢ beats QR 2.9%+30¢). Web app works only with Wi-Fi smart readers (WisePOS E ended sale Sep 1 2026 → Stripe S710 ~$299); V1 = S710 (Oliver, Nov 16); $59 M2 when our phone app ships. QR / pay link = backup. How it works: https://claude.ai/artifact/QghcRANKFnTg1u8hpuiSWg ; Tap to Pay later in our own iPhone + Android app (Stripe Tap to Pay, Apple approval, iPhone XS+; flow on Screens 2; PRD "Tap to Pay (later)"; issue #11)
 
 ## Open questions
+- Final team roles (current working agreement in "What we're building")
+- California nail booth rental: manicurist AB5 exemption appears ended Jan 1 2025 — verify; ask pilot salons if they have renters
 - Stripe Connect type: Standard vs Express (lean Express); confirm with Stripe before building
 - Pilot salons (2–3)
 - How pilot salons pay techs today
-- Final monthly price (testing ~$39–49 in pilot). PROPOSAL: 2 plans, Salon $49 (1–20 staff, texts by use) + Salon Plus $149–199 (20+ staff, 5,000 texts); PRD "Plans", docs/salon-saas-pricing-playbook.pdf
+- Final monthly price (testing ~$39–49 in pilot). PROPOSAL: 2 plans, Salon $49 (1–20 staff, texts by use) + Salon Plus $149–199 (20+ staff, 5,000 texts); no card-volume discount or card markup (pass-through decision). Pricing deck ($199 flat, 0.20–0.30% markup) noted, not adopted. Decide with Elang. PRD "Plans", docs/salon-saas-pricing-playbook.pdf, board https://claude.ai/artifact/UYUEeU5J5sWsTfAaWHE9EE, issue #25
 
 ## Decision log
 - 2026-11-14: PRD drafted; V1 = checkout, payout sheet, language toggle.
@@ -93,6 +96,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - Affinity map (draft, 5 clusters): docs/affinity-map.md
 - Tools reference list (options, not selected yet): docs/tools-reference.md
 - Hardware shopping list (Amazon links, readers from Stripe): docs/hardware-shopping-list.md
+- Later: tech profile page, like LinkedIn for nail techs (tech-owned, portfolio, verified reviews + license, Book Now; private phone hidden): PRD "Future vision", issue #27, low-fi screen on Screens 2 (bottom)
 - Client data ideas (bring clients back, show care; after V1): Hub "Ideas" + board https://claude.ai/artifact/FGuDonq7GNmEeAgTWfbjKh
 - Close an issue when its checklist is done; note big calls in the decision log
 
