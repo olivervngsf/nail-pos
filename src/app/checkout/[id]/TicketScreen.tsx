@@ -6,7 +6,6 @@ import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
-import AccountMenu from "@/components/AccountMenu";
 import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
@@ -46,8 +45,6 @@ export default function TicketScreen({ id }: { id: string }) {
   if (!ticket) return <Centered><h1 className="h2">{t("none")}</h1><Button variant="primary" onClick={() => router.push("/checkout")}>{t("title")}</Button></Centered>;
 
   const save = (patch: Partial<Ticket>, now = false) => { touchActing(); putTicket({ ...ticket, ...patch }, { now }); };
-  const acting = getActing();
-  const who = acting ? { name: acting.name, role: acting.role } : { name: desk.me.display_name, role: desk.me.role };
   const title = ticket.status !== "open" ? `${t("ticket", { n: ticketLabel(ticket) })} · ${t("paid")}` : step === "pay" ? t("howPay") : step === "cash" ? t("cash") : t("ticket", { n: ticketLabel(ticket) });
 
   return (
@@ -60,7 +57,6 @@ export default function TicketScreen({ id }: { id: string }) {
           {title}
         </span>}>
           <SyncPill />
-          <AccountMenu name={who.name} role={who.role} salon={desk.salonName} />
         </TopBar>
         <OfflineBanner />
         {desk.mode === "demo" && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}

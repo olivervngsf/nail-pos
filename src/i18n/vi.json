@@ -1287,5 +1287,52 @@
     "book": "Đặt lịch lần tới",
     "signOut": "Đăng xuất",
     "sample": "Trang mẫu: khách sẽ thấy như thế này. Không có dữ liệu thật."
+  },
+  "account": {
+    "menu": "Tài khoản",
+    "lock": "Khoá · hiện danh sách",
+    "switchPerson": "Đổi người",
+    "faceAndPin": "chọn tên + PIN",
+    "profile": "Hồ sơ của tôi",
+    "settings": "Cài đặt",
+    "settingsHint": "Nhân viên, luật PIN, thiết bị",
+    "needsPin": "PIN chủ / quản lý",
+    "earnings": "Thu nhập của tôi",
+    "print": "in phiếu",
+    "language": "Ngôn ngữ",
+    "signOut": "Đăng xuất",
+    "deviceNote": "Thiết bị này luôn đăng nhập cho {salon}. Chỉ chủ tiệm mới đăng xuất được (Cài đặt → Thiết bị).",
+    "role": {
+      "owner": "Chủ tiệm",
+      "manager": "Quản lý",
+      "front_desk": "Quầy",
+      "tech": "Thợ"
+    }
+  },
+  "me": {
+    "title": "Hồ sơ của tôi",
+    "about": "Về tôi",
+    "name": "Tên tiệm thấy",
+    "save": "Lưu",
+    "saved": "Đã lưu",
+    "languageNote": "Chỉ đổi màn hình của bạn.",
+    "pin": "Mã PIN",
+    "pinNow": "PIN {n} số",
+    "pinUse": "Dùng ở quầy và máy chấm công để mở, chấm công và in lương.",
+    "changePin": "Đổi PIN",
+    "pinNew": "Nhập PIN mới {n} số",
+    "pinAgain": "Nhập lại",
+    "pinMismatch": "Không khớp. Nhập lại từ đầu.",
+    "pinSaved": "Đã lưu PIN mới",
+    "pinBad": {
+      "length": "Dùng đúng {n} số.",
+      "same": "Đừng lặp một số.",
+      "run": "Dễ đoán quá (như 123456). Chọn số khác."
+    },
+    "cancel": "Huỷ",
+    "signIn": "Cách đăng nhập",
+    "techApp": "Phiếu, lịch hẹn + thu nhập của tôi",
+    "onDevice": "{name} đang dùng thiết bị của tiệm. Đổi PIN ở màn hình danh sách; hồ sơ đầy đủ ở điện thoại của bạn.",
+    "demo": "Bản thử: thay đổi chỉ lưu trên máy này."
   }
 }

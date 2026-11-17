@@ -9,7 +9,6 @@ import {
   type Device, type Membership, type PinResult, type Role,
 } from "@/lib/auth";
 import PaymentsCard from "@/components/PaymentsCard";
-import AccountMenu from "@/components/AccountMenu";
 import WalkInStrip from "./WalkInStrip";
 import { NeedsAttention, OwnerKpis } from "./TodayInsights";
 import { getActing, setActing as shareActing, touchActing } from "@/lib/desk";
@@ -105,7 +104,6 @@ export default function TodayDesk() {
           : me.salon_name}>
           <SyncPill />
           {isDevice && <Button data-testid="switch-person" onClick={() => setSwitching(true)}>{acting ? <><Avatar name={acting.name} />{acting.name} · {ROLE_LABEL[acting.role]}</> : "Tap your name"}</Button>}
-          <AccountMenu name={me.display_name} role={me.role} salon={me.salon_name} compact={isDevice} />
         </TopBar>
         <OfflineBanner />
         <main style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20, maxWidth: 980, width: "100%" }}>

@@ -335,6 +335,17 @@ button:disabled { cursor: not-allowed; }
 .acct-btn:hover { background: var(--fill); }
 .acct-menu { position: absolute; right: 0; top: calc(100% + 6px); width: 260px; padding: 14px; display: flex; flex-direction: column; gap: 10px; z-index: 30; }
 @media (max-width: 640px) { .acct-name { display: none; } }
+/* bottom-left profile pop-up (every desk screen) */
+.rail-acct { position: relative; margin-top: 6px; }
+.rail-acct-btn { border: 0; background: transparent; padding: 6px; border-radius: 12px; cursor: pointer; }
+.rail-acct-btn:hover, .rail-acct-btn[aria-expanded="true"] { background: var(--fill); }
+.rail-pop { position: fixed; left: 84px; bottom: 14px; width: 300px; max-height: calc(100dvh - 28px); overflow: auto; padding: 14px;
+  display: flex; flex-direction: column; gap: 10px; z-index: 40; box-shadow: 0 12px 48px rgba(28,28,30,.22), 0 0 0 1px rgba(0,0,0,.04); }
+.rail-pop-h { display: flex; align-items: center; gap: 10px; }
+.rail-pop-list { display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
+.rail-pop-list .opt { min-height: 44px; font-size: 15px; justify-content: space-between; }
+.rail-pop-list .opt .cap { margin-left: auto; }
+.rail-pop-out { min-height: 44px; padding: 0 4px; border: 0; color: var(--orange); }
 /* compact settings rows (Today · Salon setup) */
 .row.set { min-height: 56px; padding: 10px 16px; flex-wrap: wrap; row-gap: 8px; font-size: 15px; }
 
@@ -623,3 +634,7 @@ button:disabled { cursor: not-allowed; }
 .po-tix th:first-child,.po-tix td:first-child{text-align:left;padding-left:0}
 .po-tix th{font-weight:600;color:var(--ink-soft,#5C5C5E);text-transform:uppercase;letter-spacing:.04em;font-size:11px}
 @media print{.po-more{display:none}}
+/* My profile (/me) */
+.me-main { padding: 24px; display: flex; flex-direction: column; gap: 12px; max-width: 640px; width: 100%; box-sizing: border-box; }
+.me-head { flex-direction: row; align-items: center; gap: 14px; }
+@media (max-width: 640px) { .me-app .rail { display: none; } .me-main { padding: 16px; } }

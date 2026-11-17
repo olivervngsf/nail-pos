@@ -1287,5 +1287,52 @@
     "book": "Book my next visit",
     "signOut": "Sign out",
     "sample": "Sample page: what a client sees. Nothing here is real."
+  },
+  "account": {
+    "menu": "My account",
+    "lock": "Lock · show faces",
+    "switchPerson": "Switch person",
+    "faceAndPin": "face + PIN",
+    "profile": "My profile",
+    "settings": "Settings",
+    "settingsHint": "Team, PIN rules, devices",
+    "needsPin": "owner / manager PIN",
+    "earnings": "My earnings",
+    "print": "print slip",
+    "language": "Language",
+    "signOut": "Sign out",
+    "deviceNote": "This device stays signed in as {salon}. Only the owner can sign it out (Settings → Devices).",
+    "role": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "front_desk": "Front desk",
+      "tech": "Tech"
+    }
+  },
+  "me": {
+    "title": "My profile",
+    "about": "About me",
+    "name": "Name the salon sees",
+    "save": "Save",
+    "saved": "Saved",
+    "languageNote": "Only changes your screens.",
+    "pin": "My PIN",
+    "pinNow": "{n}-digit PIN",
+    "pinUse": "Use it at the front desk and time clock to unlock, clock in and print your pay.",
+    "changePin": "Change PIN",
+    "pinNew": "Type a new {n}-digit PIN",
+    "pinAgain": "Type it again",
+    "pinMismatch": "Those didn't match. Start again.",
+    "pinSaved": "New PIN saved",
+    "pinBad": {
+      "length": "Use exactly {n} digits.",
+      "same": "Not the same digit over and over.",
+      "run": "Too easy (like 123456). Pick another."
+    },
+    "cancel": "Cancel",
+    "signIn": "How I sign in",
+    "techApp": "My tickets, bookings + earnings",
+    "onDevice": "{name} is using this salon device. Change your PIN from the faces screen; your full profile is on your own phone.",
+    "demo": "Test version: changes stay on this device."
   }
 }
