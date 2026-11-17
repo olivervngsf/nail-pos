@@ -4,6 +4,7 @@ import "server-only";
 import Stripe from "stripe";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { splitCents } from "@/lib/money";
+import { addressOk, parseAddress } from "@/lib/stripe/address";
 
 export const fail = (status: number, error: string) => Response.json({ error }, { status });
 
@@ -102,13 +103,12 @@ export async function ensureLocation(salonId: string): Promise<{ accountId: stri
   if (!a) throw new Error("Connect Stripe first.");
   if (a.location_id) return { accountId: a.account_id, locationId: a.location_id };
   const opts = { stripeAccount: a.account_id as string };
-  const { data: s } = await db.from("salons").select("name,state").eq("id", salonId).single();
+  const { data: s } = await db.from("salons").select("name,state,address").eq("id", salonId).single();
   const config = await st.terminal.configurations.create({ tipping: { usd: { percentages: [15, 20, 25] } } }, opts);
-  // TODO before pilot: use the salon's real street address (setup collects it as one line today).
-  const loc = await st.terminal.locations.create({
-    display_name: s?.name ?? "Salon", configuration_overrides: config.id,
-    address: { line1: "1 Main St", city: "San Jose", state: s?.state ?? "CA", postal_code: "95112", country: "US" },
-  }, opts);
+  // The salon's real address (setup step 1). Stripe needs street + city + ZIP for a reader location.
+  const address = parseAddress(s?.address, s?.state ?? "CA");
+  if (!addressOk(address)) throw new Error("Add the salon's full address in step 1 (street, city, state ZIP) so the reader can be registered.");
+  const loc = await st.terminal.locations.create({ display_name: s?.name ?? "Salon", configuration_overrides: config.id, address }, opts);
   await db.from("stripe_accounts").update({ location_id: loc.id, updated_at: new Date().toISOString() }).eq("salon_id", salonId);
   return { accountId: a.account_id, locationId: loc.id };
 }
