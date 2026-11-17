@@ -23,35 +23,41 @@ export function useTick(ms = 30_000) {
   return n;
 }
 
-export function Waitlist({ desk, waiting, onSeat, onWalkIn, say }: { desk: Desk; waiting: Appt[]; onSeat: (a: Appt) => void; onWalkIn: () => void; say: (s: string, undo?: () => void) => void }) {
+/** Seat a walk-in with a tech at a time (default now): moves into that column + opens the ticket. */
+export function seatAppt(desk: Desk, a: Appt, staffId: string, startIso = new Date().toISOString(), reason: string | null = null) {
+  const mins = a.services.reduce((x, s) => x + s.minutes, 0) || 45;
+  const id = ticketFor(desk, a, staffId);
+  putAppt({ ...a, status: "arrived", staffId, start: startIso, end: new Date(new Date(startIso).getTime() + mins * 60_000).toISOString(),
+    arrivedAt: a.arrivedAt || a.start, ticketId: id, seatReason: reason });
+}
+
+export function walkOut(a: Appt) {
+  const now = Date.now(), came = new Date(a.arrivedAt || a.start).getTime();
+  putAppt({ ...a, status: "walked_out", arrivedAt: a.arrivedAt || a.start, end: new Date(Math.max(now, came + 60_000)).toISOString() });
+}
+
+/** Booking board Cal left panel: waiting walk-ins (drag onto a staff column, or tap to seat). */
+export function Waitlist({ waiting, onSeat, onWalkIn }: { waiting: Appt[]; onSeat: (a: Appt) => void; onWalkIn: () => void }) {
   const t = useTranslations("calendar");
   useTick();
   const sorted = [...waiting].sort((a, b) => (a.arrivedAt || a.start).localeCompare(b.arrivedAt || b.start));
-  const walkOut = (a: Appt) => {
-    const before = { ...a };
-    const now = Date.now(), came = new Date(a.arrivedAt || a.start).getTime();
-    putAppt({ ...a, status: "walked_out", arrivedAt: a.arrivedAt || a.start, end: new Date(Math.max(now, came + 60_000)).toISOString() });
-    say(t("walkedOutMsg", { name: a.client?.name || t("walkIn"), min: waitedMin(a) }), () => putAppt(before));
-  };
   return (
     <div className="wl" data-testid="waitlist">
-      <div className="wl-head"><b>{t("waitlist")}</b><span className="tag" data-testid="wait-count">{t("waitingN", { n: waiting.length })}</span>
-        <span style={{ flex: 1 }} /><Button size="sm" onClick={onWalkIn} data-testid="walkin-new">{t("addWalkIn")}</Button></div>
-      {sorted.length === 0 ? <div className="cap">{t("noneWaiting")}</div> : sorted.map((a) => {
+      <div className="wl-head"><b style={{ fontSize: 15, flex: 1 }}>{t("waitlist")}</b><span className="tag" data-testid="wait-count">{t("waitingN", { n: waiting.length })}</span></div>
+      <div className="cap" style={{ marginTop: -6 }}>{t("waitHint")}</div>
+      {sorted.length === 0 && <div className="cap">{t("noneWaiting")}</div>}
+      {sorted.map((a) => {
         const min = waitedMin(a);
-        const asked = desk.staff.find((s) => s.id === a.staffId)?.name;
         return (
-          <div key={a.id} className={`wl-card ${min >= 20 ? "long" : ""}`} data-testid="wait-card" data-name={a.client?.name ?? ""}>
-            <div className="wl-row"><b className="grow">{a.client?.name || t("walkIn")}</b>{a.note && <span className="tag">{a.note}</span>}</div>
-            <div className="cap">{a.services.map((s) => s.name).join(" + ") || t("notSure")}{asked ? ` · ${t("asksFor", { name: asked })}` : ""}</div>
-            <div className={`cap wl-min ${min >= 20 ? "warn" : ""}`}>{t("waitingMin", { n: min })} · {t(`src_${a.source}`)}</div>
-            <div className="wl-row">
-              <Button size="sm" variant="primary" onClick={() => onSeat(a)} data-testid="seat">{t("seat")}</Button>
-              <Button size="sm" variant="ghost" onClick={() => walkOut(a)} data-testid="walked-out">{t("walkedOut")}</Button>
-            </div>
-          </div>
+          <button key={a.id} type="button" className="wcard" draggable data-testid="wait-card" data-name={a.client?.name ?? ""}
+            onDragStart={(e) => { e.dataTransfer.setData("text/walkin", a.id); e.dataTransfer.effectAllowed = "move"; }}
+            onClick={() => onSeat(a)} aria-label={`${a.client?.name || t("walkIn")} · ${t("waitingMin", { n: min })}`}>
+            <span className="wl-row"><b style={{ flex: 1, minWidth: 0 }}>{a.client?.name || t("walkIn")}</b><span className="cap">{a.note}</span></span>
+            <span className={`wl-min ${min >= 15 ? "warn" : ""}`}>{a.services.map((s) => s.name).join(" + ") || t("notSure")} · {t("waitingMin", { n: min })}</span>
+          </button>
         );
       })}
+      <button type="button" className="wl-add" onClick={onWalkIn} data-testid="walkin-new">{t("addWalkIn")}</button>
     </div>
   );
 }
@@ -96,14 +102,10 @@ export function SeatDrawer({ desk, a, order, onClose, say }: { desk: Desk; a: Ap
   const [pick, setPick] = useState<string | null>(a.staffId ?? next?.id ?? null);
   const [reason, setReason] = useState<(typeof REASONS)[number] | null>(a.staffId && a.staffId !== next?.id ? "asked" : null);
   const skipped = !!next && !!pick && pick !== next.id;
-  const mins = a.services.reduce((x, s) => x + s.minutes, 0) || 45;
   const seat = () => {
     if (!pick) return;
     const before = { ...a };
-    const now = new Date();
-    const id = ticketFor(desk, a, pick);
-    putAppt({ ...a, status: "arrived", staffId: pick, start: now.toISOString(), end: new Date(now.getTime() + mins * 60_000).toISOString(),
-      arrivedAt: a.arrivedAt || a.start, ticketId: id, seatReason: skipped && reason ? t(`why_${reason}`) : null });
+    seatAppt(desk, a, pick, new Date().toISOString(), skipped && reason ? t(`why_${reason}`) : null);
     const who = order.find((f) => f.id === pick)?.name ?? "";
     say(t("seatedMsg", { name: a.client?.name || t("walkIn"), staff: who }), () => putAppt(before));
     onClose();
@@ -115,7 +117,14 @@ export function SeatDrawer({ desk, a, order, onClose, say }: { desk: Desk; a: Ap
   ].filter(Boolean).join(" · ");
   return (
     <Drawer title={t("seatTitle", { name: a.client?.name || t("walkIn") })} onClose={onClose}
-      footer={<Button variant="primary" block disabled={!pick} onClick={seat} data-testid="seat-save">{pick ? t("seatWith", { name: order.find((f) => f.id === pick)?.name ?? "" }) : t("pickTech")}</Button>}>
+      footer={<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <Button variant="primary" block disabled={!pick} onClick={seat} data-testid="seat-save">{pick ? t("seatWith", { name: order.find((f) => f.id === pick)?.name ?? "" }) : t("pickTech")}</Button>
+        <Button variant="ghost" block data-testid="walked-out" onClick={() => {
+          const before = { ...a };
+          walkOut(a);
+          say(t("walkedOutMsg", { name: a.client?.name || t("walkIn"), min: waitedMin(a) }), () => putAppt(before));
+          onClose();
+        }}>{t("walkedOut")}</Button></div>}>
       <div className="cap">{a.services.map((s) => `${s.name} · ${formatCents(s.cents)}`).join(" + ") || t("notSure")} · {t("waitingMin", { n: waitedMin(a) })}</div>
       <div className="cap">{t("turnFacts")}</div>
       <div className="group">
