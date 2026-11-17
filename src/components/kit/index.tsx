@@ -2,6 +2,7 @@
 // One React component per Design System piece. They only put kit classes (design/kit/kit.css) on real elements:
 // never add a look here; change the kit, then `npm run kit:sync`.
 import { useEffect, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { subscribe, type SyncState } from "@/lib/offline/outbox";
 
@@ -196,7 +197,7 @@ export function LeftMenu({ active, salonInitials = "NP", me }: { active: MenuIte
         </a>
       ))}
       <div style={{ flex: 1 }} />
-      {me && <a href="/me" className={active === "Me" ? "on" : ""} aria-label="My profile"><span className="av">{me}</span></a>}
+      {me && <Link href="/me" className={active === "Me" ? "on" : ""} aria-label="My profile"><span className="av">{me}</span></Link>}
     </nav>
   );
 }

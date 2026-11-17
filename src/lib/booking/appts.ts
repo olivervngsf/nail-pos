@@ -9,7 +9,7 @@ import { DEMO_DESK } from "@/lib/desk";
 import { at, dayKey } from "./grid";
 
 export type ApptStatus = "booked" | "confirmed" | "arrived" | "done" | "no_show" | "canceled";
-export type ApptSource = "desk" | "phone" | "walk_in" | "web" | "google" | "text" | "staff";
+export type ApptSource = "desk" | "phone" | "walk_in" | "web" | "google" | "text" | "staff" | "website" | "instagram" | "qr" | "kiosk" | "staff_phone";
 export type ApptService = { serviceId?: string; name: string; minutes: number; cents: number };
 export type Appt = {
   id: string; salonId: string; start: string; end: string; staffId?: string | null;
@@ -36,6 +36,7 @@ function persist() {
 }
 
 export const getAppt = (id: string) => load()[id];
+export const allAppts = () => Object.values(load());
 
 /** Save on this device and queue for the server. */
 export function putAppt(a: Appt) {

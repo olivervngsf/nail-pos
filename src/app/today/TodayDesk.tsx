@@ -2,6 +2,7 @@
 // Front desk / owner home (desktop + iPad). Session 1: who's in, clock in/out by PIN, switch person,
 // make this a salon device, salon switcher for owners with several salons, sign out.
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ROLE_LABEL, SMS_ON, forgetDevice, getDevice, isSignedIn, makeSalonDevice, myMemberships, pinMessage, rpc,
@@ -154,8 +155,10 @@ export default function TodayDesk() {
                   </div>
                 )}
                 {canAdmin && <PaymentsCard salonId={salonId} />}
-                {canAdmin && <a className="row" href="/gift-cards" data-testid="gift-cards-link" style={{ textDecoration: "none", color: "inherit" }}>
-                  <span className="g"><b style={{ fontWeight: 600 }}>Gift cards</b><span className="cap">Money owed, all codes, lost cards, print plastic cards</span></span><span className="cap">›</span></a>}
+                {canAdmin && <Link className="row" href="/gift-cards" data-testid="gift-cards-link" style={{ textDecoration: "none", color: "inherit" }}>
+                  <span className="g"><b style={{ fontWeight: 600 }}>Gift cards</b><span className="cap">Money owed, all codes, lost cards, print plastic cards</span></span><span className="cap">›</span></Link>}
+                {canAdmin && <Link className="row" href="/settings/booking-page" data-testid="booking-page-link" style={{ textDecoration: "none", color: "inherit" }}>
+                  <span className="g"><b style={{ fontWeight: 600 }}>Booking page</b><span className="cap">Your link, photos, Google / Instagram / QR, rules, walk-in kiosk</span></span><span className="cap">›</span></Link>}
               </div>
             </section>
           )}
