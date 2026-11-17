@@ -1,11 +1,13 @@
 "use client";
-// Tech's own phone. Session 1: who I am, clock in/out, language, sign out. Earnings + schedule come in later sessions.
+// Tech's own phone: who I am, clock in/out, my earnings (today / this week, print), language, sign out.
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROLE_LABEL, SMS_ON, isSignedIn, myMemberships, rpc, signOut, type Membership } from "@/lib/auth";
 import { useLang } from "@/components/AppProviders";
 import { Button, Card, ListGroup, PhoneBar, Row, Segmented, SyncPill, Toast } from "@/components/kit";
+import { EarningsSlip } from "@/app/earnings/Earnings";
+import { isoDay, nums, weekStart, type PayoutRow } from "@/lib/closeday";
 
 type Staff = { membership_id: string; clocked_in: boolean; last_clock: string | null };
 const time = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "");
@@ -41,6 +43,16 @@ export default function TechHome() {
   }, [m]);
   useEffect(() => { void load().catch((e) => setErr((e as Error).message)); }, [load]);
 
+  // My earnings (only mine: my_earnings checks who is signed in).
+  const [period, setPeriod] = useState<"today" | "week">("today");
+  const [earn, setEarn] = useState<PayoutRow | null>(null);
+  useEffect(() => {
+    if (!m) return;
+    const today = isoDay();
+    void rpc<PayoutRow | null>("my_earnings", { p_salon: m.salon_id, p_from: period === "today" ? today : weekStart(today), p_to: today })
+      .then((r) => setEarn(r ? nums(r) : null)).catch(() => setEarn(null));
+  }, [m, period]);
+
   const vi = lang === "vi";
   if (!SMS_ON) return <div className="phone"><PhoneBar title="PolishOS" /><div className="pbody"><div className="demo">Sign-in is off in this test copy.</div><Link className="btn" href="/t/book">Book a client (test)</Link></div></div>;
   if (err) return <div className="phone"><PhoneBar title="PolishOS" /><div className="pbody"><p className="hint err">{err}</p><Button onClick={() => location.reload()}>Try again</Button></div></div>;
@@ -68,6 +80,14 @@ export default function TechHome() {
           }}>{me?.clocked_in ? (vi ? "Chấm công ra" : "Clock out") : (vi ? "Chấm công vào" : "Clock in")}</Button>
           <span className="cap">{vi ? "Sau này: chỉ chấm công được khi ở tiệm (Wi-Fi hoặc vị trí)." : "Later: clock-in only works at the salon (Wi-Fi or location)."}</span>
         </Card>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <b>{vi ? "Thu nhập của tôi" : "My earnings"}</b>
+          <Segmented label={vi ? "Thời gian" : "Period"} value={period} onChange={setPeriod} options={[{ value: "today", label: vi ? "Hôm nay" : "Today" }, { value: "week", label: vi ? "Tuần này" : "This week" }]} />
+        </div>
+        {earn ? <>
+          <EarningsSlip r={earn} salon={m.salon_name} period={period === "today" ? isoDay() : `${weekStart(isoDay())} → ${isoDay()}`} />
+          <Button onClick={() => window.print()}>{vi ? "In thu nhập" : "Print my earnings"}</Button>
+        </> : <span className="cap">{vi ? "Chưa có thu nhập trong thời gian này." : "No earnings yet for this period."}</span>}
         <ListGroup>
           <Row title={vi ? "Vai trò" : "Role"} right={<b>{ROLE_LABEL[m.role]}</b>} />
           <Row title={vi ? "Ngôn ngữ" : "Language"} right={<Segmented label="Language" value={lang} onChange={setLang} options={[{ value: "en", label: "EN" }, { value: "vi", label: "VI" }]} />} />
