@@ -98,4 +98,9 @@ export const initials = (name: string) =>
     .map((w) => w[0]?.toUpperCase())
     .join("") || "?";
 
-export const newInviteCode = () => Math.random().toString(36).slice(2, 7).toUpperCase();
+/** Invite code: 10 characters from a secure random source (no 0/O/1/I mix-ups), so codes can't be guessed. */
+export const newInviteCode = () => {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const bytes = crypto.getRandomValues(new Uint8Array(10));
+  return Array.from(bytes, (b) => abc[b % abc.length]).join("");
+};

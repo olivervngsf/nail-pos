@@ -158,6 +158,8 @@ export default function TodayDesk() {
             </section>
           )}
 
+          {canAdmin && <a className="tile" href="/gift-cards" data-testid="gift-cards-link" style={{ textDecoration: "none" }}>
+            <b>Gift cards</b><span className="cap">Money owed on cards, all codes, lost cards, print plastic cards.</span></a>}
         </main>
       </div>
 

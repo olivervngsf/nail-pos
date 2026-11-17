@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Salons: health + alerts</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Admin" view="salons" role="elang" hint-size="1280px,800px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="8"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+  </div>
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
+    <div class="eyebrow">Annotations · A1</div>
+    <div class="af-title">Salons: health + alerts</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="8"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Rail badge = open alerts. Elang’s phone shows the same list (A7).</div>
+  </div></sc-if></aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
+  renderVals() {
+    const P = [[105, 122, "Our business at a glance: active salons, pilot vs paid, our income, card volume (that money goes to the salons), at risk."], [662, 213, "Filter: All / Needs action / Pilot."], [105, 357, "One row per salon: setup progress, today’s tickets + $ (totals only), Stripe, texting (10DLC), health. Tap → the salon (A2)."], [737, 385, "Health = the worst signal. Green good, orange needs action, red problem."], [934, 208, "Alerts land here first, worst first, so Elang calls before the owner notices."], [972, 338, "Open salon → A2. Handled → clears the alert (logged)."], [823, 50, "Demo switch: Elang or Oliver. Both are admins and see everything here, incl. System + costs (A6)."], [117, 765, "Privacy promise on screen: health only."]];
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

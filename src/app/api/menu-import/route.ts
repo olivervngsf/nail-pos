@@ -1,10 +1,12 @@
 // Reads a salon's service menu from a website link or a photo and returns a clean list (name, minutes, price).
-// Signed-in owners only (Supabase session token). Needs ANTHROPIC_API_KEY in Vercel; without it the app
+// Signed-in owners/managers (or a new owner still in setup) only, 10 reads a day each (Supabase session token). Needs ANTHROPIC_API_KEY in Vercel; without it the app
 // falls back to the nail template.
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { asServer } from "@/lib/server/pay";
+import { safeFetch } from "@/lib/server/safeFetch";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -30,8 +32,9 @@ const PROMPT = `You read a US nail salon's service menu and list every service a
 - Prices in dollars. "$45+", "From $45", "$45 and up" or "$45-55" all mean 45 with price_from true. Skip items with no price at all.
 - Minutes: use the menu's time if shown; otherwise estimate a typical time and set minutes_guessed true.`;
 
-const isPrivateHost = (h: string) =>
-  /^(localhost|0\.|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[?::1\]?$|.*\.local$|.*\.internal$)/i.test(h);
+const PER_DAY = 10;
+// Fallback when the server key isn't set: per running server only (resets on deploy).
+const memo = new Map<string, number[]>();
 
 function pageText(html: string) {
   return html
@@ -54,16 +57,35 @@ export async function POST(req: Request) {
   if (!who.user) return fail(401, "Sign in first.");
   if (!process.env.ANTHROPIC_API_KEY) return fail(503, "Menu reading isn't switched on yet. Use the nail template for now.");
 
+  // Owners/managers (or someone with no salon yet, i.e. an owner in setup). Techs and front desk can't spend AI credit.
+  const asThem = createClient(url, key, { global: { headers: { Authorization: `Bearer ${token}` } }, auth: { persistSession: false } });
+  const { data: ms } = await asThem.rpc("my_memberships");
+  const roles = ((ms ?? []) as { role: string }[]).map((m) => m.role);
+  if (roles.length && !roles.some((r) => r === "owner" || r === "manager")) return fail(403, "Only the owner or a manager can read a menu.");
+
+  // Daily limit per person.
+  const uid = who.user.id, dayAgo = new Date(Date.now() - 86_400_000).toISOString();
+  const db = asServer();
+  if (db) {
+    const { count } = await db.from("ai_calls").select("id", { count: "exact", head: true }).eq("auth_user_id", uid).gte("at", dayAgo);
+    if ((count ?? 0) >= PER_DAY) return fail(429, "That's today's limit for menu reading. Try again tomorrow, or use the nail template.");
+    await db.from("ai_calls").insert({ auth_user_id: uid, kind: "menu-import" });
+  } else {
+    const recent = (memo.get(uid) ?? []).filter((t) => t > Date.now() - 86_400_000);
+    if (recent.length >= PER_DAY) return fail(429, "That's today's limit for menu reading. Try again tomorrow, or use the nail template.");
+    memo.set(uid, [...recent, Date.now()]);
+  }
+
   const body = (await req.json().catch(() => ({}))) as { url?: string; image?: string; mediaType?: string };
   const content: Anthropic.Beta.BetaContentBlockParam[] = [];
 
   if (body.url) {
     let u: URL;
     try { u = new URL(/^https?:\/\//i.test(body.url) ? body.url : `https://${body.url}`); } catch { return fail(400, "That doesn't look like a web address."); }
-    if (!/^https?:$/.test(u.protocol) || isPrivateHost(u.hostname)) return fail(400, "That doesn't look like a public web address.");
+    if (!/^https?:$/.test(u.protocol)) return fail(400, "That doesn't look like a public web address.");
     let html = "";
     try {
-      const r = await fetch(u, { headers: { "user-agent": "Mozilla/5.0 (compatible; NailPOS menu reader)" }, signal: AbortSignal.timeout(12_000), redirect: "follow" });
+      const r = await safeFetch(u, { headers: { "user-agent": "Mozilla/5.0 (compatible; NailPOS menu reader)" }, signal: AbortSignal.timeout(12_000) });
       if (!r.ok) return fail(400, `Couldn't open that page (error ${r.status}).`);
       html = (await r.text()).slice(0, 2_000_000);
     } catch { return fail(400, "Couldn't open that page. Check the address, or use a photo of your menu."); }

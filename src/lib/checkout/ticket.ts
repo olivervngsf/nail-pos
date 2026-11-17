@@ -30,6 +30,10 @@ export type Payment = {
 };
 /** @deprecated use Payment */
 export type CashPayment = Payment;
+/** Gift card sold (new digital / new plastic) or money added (reload) on this ticket. $0 until the ticket is paid. */
+export type GiftSale = { id: string; cardId: string; last4: string; kind: "digital" | "plastic" | "reload"; cents: number; to?: string; from?: string; message?: string; code?: string };
+/** Gift card used to pay part (or all) of this ticket. Money already off the card (server). */
+export type GiftPay = { id: string; cardId: string; last4: string; cents: number; balanceAfter?: number };
 export type Ticket = {
   id: string;
   salonId: string;
@@ -43,6 +47,8 @@ export type Ticket = {
   tips: Record<string, number>;
   note: string;
   payment?: Payment;
+  gifts?: GiftSale[];
+  giftPays?: GiftPay[];
   openedBy?: string;
   deviceId?: string;
   /** Server has this exact version. */
@@ -56,12 +62,19 @@ export function discountCents(subtotal: number, d?: Discount): number {
   return Math.max(0, Math.min(subtotal, raw));
 }
 
-export function totals(t: Pick<Ticket, "lines" | "discount" | "tips">) {
+/**
+ * subtotal (services) − discount = due (services after discount). Gift card sales are added on top (no discount, no tip).
+ * toPay = what the client still pays before any tip (after gift cards used). left = cash/card still owed incl. cash tips.
+ */
+export function totals(t: Pick<Ticket, "lines" | "discount" | "tips"> & { gifts?: GiftSale[]; giftPays?: GiftPay[] }) {
   const subtotal = t.lines.reduce((a, l) => a + l.cents, 0);
   const discount = discountCents(subtotal, t.discount);
   const due = subtotal - discount;
   const tip = Object.values(t.tips).reduce((a, c) => a + Math.max(0, c), 0);
-  return { subtotal, discount, due, tip, total: due + tip };
+  const gift = (t.gifts ?? []).reduce((a, g) => a + g.cents, 0);
+  const giftPaid = (t.giftPays ?? []).reduce((a, g) => a + g.cents, 0);
+  const total = due + gift + tip;
+  return { subtotal, discount, due, tip, gift, giftPaid, total, toPay: due + gift - giftPaid, left: total - giftPaid };
 }
 
 /** Cash: positive = change to give back, negative = still due. */
@@ -103,7 +116,7 @@ export function splitTipByPrice(tip: number, lines: ServiceLine[]): Record<strin
 /** What still blocks "Charge": every service needs a person and a final price. */
 export function blockers(t: Ticket): ("empty" | "staff" | "price")[] {
   const b: ("empty" | "staff" | "price")[] = [];
-  if (!t.lines.length) b.push("empty");
+  if (!t.lines.length && !(t.gifts ?? []).length) b.push("empty");
   if (t.lines.some((l) => !l.staffId)) b.push("staff");
   if (t.lines.some((l) => l.priceFrom && !l.priceSet)) b.push("price");
   return b;
@@ -117,6 +130,9 @@ export function toPayload(t: Ticket) {
   }));
   if (t.discount) {
     lines.push({ id: t.discount.id, kind: "discount", name: `${t.discount.reason} discount`, reason: t.discount.reason, cents: -discountCents(subtotal, t.discount), approvalId: t.discount.approvalId });
+  }
+  for (const g of t.gifts ?? []) {
+    lines.push({ id: g.id, kind: "gift_sale", giftCardId: g.cardId, name: `Gift card •••• ${g.last4}`, cents: g.cents });
   }
   for (const [staffId, cents] of Object.entries(t.tips)) {
     if (cents > 0) lines.push({ id: tipLineId(t.id, staffId), kind: "tip", staffId, name: "Cash tip", cents });
