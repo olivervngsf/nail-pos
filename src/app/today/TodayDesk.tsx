@@ -160,6 +160,10 @@ export default function TodayDesk() {
 
           {canAdmin && <a className="tile" href="/gift-cards" data-testid="gift-cards-link" style={{ textDecoration: "none" }}>
             <b>Gift cards</b><span className="cap">Money owed on cards, all codes, lost cards, print plastic cards.</span></a>}
+          {canAdmin && <a className="tile" href="/payouts" data-testid="payouts-link" style={{ textDecoration: "none" }}>
+            <b>Payout sheet</b><span className="cap">Each tech&apos;s pay + tips for the day or week, check vs cash, print, payroll export.</span></a>}
+          {isDevice && <a className="tile" href="/earnings" data-testid="earnings-link" style={{ textDecoration: "none" }}>
+            <b>Print my earnings</b><span className="cap">Staff tap their name + PIN to see and print only their own earnings.</span></a>}
         </main>
       </div>
 
