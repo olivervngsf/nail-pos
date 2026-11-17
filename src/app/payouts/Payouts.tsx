@@ -12,6 +12,7 @@ import { useDesk } from "@/lib/desk";
 import { addDays, demoPayout, isoDay, nums, payoutCsv, weekStart, type PayoutRow } from "@/lib/closeday";
 import { worked } from "@/lib/print/earnings";
 import { useEarningsPrint } from "@/app/earnings/Earnings";
+import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 
 const $ = formatCents;
 type Range = "today" | "week" | "last" | "custom";
@@ -27,6 +28,7 @@ export default function Payouts() {
   const [loadErr, setLoadErr] = useState("");
   const [printing, setPrinting] = useState(false);
   const printSlips = useEarningsPrint();
+  const printer = usePrinter();
   const [toast, setToast] = useState("");
   const say = (s: string) => { setToast(s); setTimeout(() => setToast(""), 3500); };
 
@@ -72,6 +74,7 @@ export default function Payouts() {
     try {
       const n = await printSlips(people, desk.salonName, period, (i) => people.length > 1 && setToast(t("printing", { n: i + 1, total: people.length })));
       say(t("printedN", { count: n }));
+      printer.refresh();
     } catch (e) { say(t("printFail", { msg: (e as Error).message })); }
     setPrinting(false);
   };
@@ -100,6 +103,7 @@ export default function Payouts() {
               <Button data-testid="po-slips" onClick={() => void printPeople((rows ?? []).filter(worked))} disabled={!rows?.length || printing}>{t("printSlips")}</Button>
               <Button variant="primary" data-testid="po-csv" onClick={csv} disabled={!rows?.length}>{t("exportCsv")}</Button>
             </div>
+            <PrinterSetup p={printer} />
             {loadErr && <p className="hint err">{loadErr} <Button size="sm" onClick={() => void load()}>{t("retry")}</Button></p>}
             <section className="card" style={{ padding: "8px 18px", overflowX: "auto" }}>
               <table className="cd-table" data-testid="po-table">

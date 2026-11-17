@@ -7,6 +7,7 @@ import { ROLE_LABEL, SMS_ON, isSignedIn, myMemberships, rpc, signOut, type Membe
 import { useLang } from "@/components/AppProviders";
 import { Button, Card, ListGroup, PhoneBar, Row, Segmented, SyncPill, Toast } from "@/components/kit";
 import { EarningsSlip, useEarningsPrint } from "@/app/earnings/Earnings";
+import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 import { isoDay, nums, weekStart, type PayoutRow } from "@/lib/closeday";
 
 type Staff = { membership_id: string; clocked_in: boolean; last_clock: string | null };
@@ -47,6 +48,7 @@ export default function TechHome() {
   const [period, setPeriod] = useState<"today" | "week">("today");
   const [earn, setEarn] = useState<PayoutRow | null>(null);
   const printSlips = useEarningsPrint();
+  const printer = usePrinter();
   useEffect(() => {
     if (!m) return;
     const today = isoDay();
@@ -88,7 +90,8 @@ export default function TechHome() {
         {earn ? <>
           <EarningsSlip r={earn} />
           <Button data-testid="tech-print" onClick={() => void printSlips([earn], m.salon_name, period === "today" ? isoDay() : `${weekStart(isoDay())} → ${isoDay()}`)
-            .catch((e) => { setToast((e as Error).message); setTimeout(() => setToast(""), 3500); })}>{vi ? "In thu nhập" : "Print my earnings"}</Button>
+            .then(printer.refresh).catch((e) => { setToast((e as Error).message); setTimeout(() => setToast(""), 3500); })}>{vi ? "In thu nhập" : "Print my earnings"}</Button>
+          <PrinterSetup p={printer} />
         </> : <span className="cap">{vi ? "Chưa có thu nhập trong thời gian này." : "No earnings yet for this period."}</span>}
         <ListGroup>
           <Row title={vi ? "Vai trò" : "Role"} right={<b>{ROLE_LABEL[m.role]}</b>} />
