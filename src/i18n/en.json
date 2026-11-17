@@ -640,8 +640,7 @@
     "kDay": "day",
     "kSearch": "search",
     "shortcuts": "Shortcuts:",
-    "droppedMsg": "{name} → {staff} at {time} · removed from waitlist",
-    "waitLater": "Walk-in waitlist comes with the turn list (M9)."
+    "droppedMsg": "{name} → {staff} at {time} · removed from waitlist"
   },
   "receiptPage": {
     "notFound": "Receipt not found.",

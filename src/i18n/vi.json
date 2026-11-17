@@ -640,8 +640,7 @@
     "kDay": "ngày",
     "kSearch": "tìm",
     "shortcuts": "Phím tắt:",
-    "droppedMsg": "{name} → {staff} lúc {time} · đã bỏ khỏi danh sách chờ",
-    "waitLater": "Danh sách chờ có cùng lượt thợ (M9)."
+    "droppedMsg": "{name} → {staff} lúc {time} · đã bỏ khỏi danh sách chờ"
   },
   "receiptPage": {
     "notFound": "Không tìm thấy hóa đơn.",
