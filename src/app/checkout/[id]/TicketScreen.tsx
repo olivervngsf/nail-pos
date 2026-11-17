@@ -19,6 +19,7 @@ import { needsImage, receiptBytes, type Paper, type ReceiptDoc } from "@/lib/pri
 import { receiptImageBytes } from "@/lib/print/raster";
 import { canBluetooth, isIOS, pickPrinter, printBytes, savedPrinter, savePrinter } from "@/lib/print/bluetooth";
 import { printTicketSlip } from "@/lib/print/slip";
+import { clientLoyalty, pointsFor, type ClientLoyalty } from "@/lib/loyalty/loyalty";
 import { blockers, changeCents, quickCash, splitTipByPrice, staffOn, ticketLabel, totals, type Discount, type ServiceLine, type Ticket } from "@/lib/checkout/ticket";
 
 const uuid = () => crypto.randomUUID();
@@ -169,6 +170,8 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
         <div className="card" style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>
           <div className="line"><span>{t("subtotal")}</span><span>{$(sum.subtotal)}</span></div>
           {ticket.discount && <div className="line fade" data-testid="discount-line"><span>{t("discountLine", { reason: ticket.discount.reason })}{ticket.discount.kind === "pct" ? ` ${ticket.discount.value}%` : ""}{ticket.discount.approvedBy && <span className="cap"> · {ticket.discount.approvedBy}</span>}</span><span>−{$(sum.discount)}</span></div>}
+          {ticket.reward && sum.reward > 0 && <div className="line fade ck-reward" data-testid="reward-line"><span>{t("rewardLine", { n: ticket.reward.points })}</span><span>−{$(sum.reward)}</span></div>}
+          {ticket.reward && sum.reward > 0 && <div className="cap">{t("rewardShare", { staff: staffOn(ticket.lines).map((x) => x.name).join(", "), full: $(sum.subtotal), amt: $(sum.reward) })}</div>}
           {sum.gift > 0 && <div className="line fade" data-testid="gift-total"><span>{t("giftCards")}</span><span>{$(sum.gift)}</span></div>}
           <div className="sep" />
           <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
@@ -344,7 +347,46 @@ function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save:
         {c.notes && <div><div className="eyebrow" style={{ marginBottom: 6 }}>{t("notes")}</div><div style={{ fontSize: 15, background: "var(--surface)", borderRadius: 12, padding: "10px 12px" }}>{c.notes}</div></div>}
       </>}
       {phoneOk(phone) && !c && found === null && desk.mode === "live" && <div className="cap">{t("noVisits")}</div>}
+      {phoneOk(phone) && <LoyaltyBox desk={desk} ticket={ticket} save={save} phone={e164(phone)} name={name} />}
     </aside>
+  );
+}
+/* Loyalty (Loyalty board L7–L8): points + "reward ready"; Use asks first; never applied by itself. */
+function LoyaltyBox({ desk, ticket, save, phone, name }: { desk: Desk; ticket: Ticket; save: SaveFn; phone: string; name: string }) {
+  const t = useTranslations("checkout");
+  const [ly, setLy] = useState<ClientLoyalty | null>(null);
+  const [ask, setAsk] = useState(false);
+  useEffect(() => {
+    let stop = false;
+    void clientLoyalty(desk.mode === "live", desk.salonId, phone).then((r) => !stop && setLy(r)).catch(() => !stop && setLy(null));
+    return () => { stop = true; };
+  }, [desk.mode, desk.salonId, phone]);
+  if (!ly) return null;
+  const open = ticket.status === "open";
+  const sum = totals(ticket);
+  const first = (name || t("client")).split(" ")[0];
+  const unit = ly.kind === "visits" ? t("visitsUnit") : t("ptsUnit");
+  return (
+    <div className="ck-loyalty" data-testid="loyalty">
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span className="eyebrow" style={{ flex: 1 }}>{t("loyalty")}</span>
+        <b className="num" data-testid="points">{ly.points} {unit}</b>
+      </div>
+      {ticket.reward ? <>
+        <div className="cap" data-testid="reward-used">{t("rewardUsed", { name: first, n: pointsFor(ly, sum.due), amt: $(sum.due) })}</div>
+        {open && <Button size="sm" onClick={() => save({ reward: undefined }, true)} data-testid="reward-undo">{t("undo")}</Button>}
+      </> : ly.ready ? <>
+        <span className="tag jade" data-testid="reward-ready">{t("rewardReady", { amt: $(ly.rewardCents).replace(/\.00$/, "") })}</span>
+        {open && !ask && <Button size="sm" onClick={() => setAsk(true)} disabled={!sum.subtotal} data-testid="reward-use">{t("useReward", { amt: $(ly.rewardCents).replace(/\.00$/, "") })}</Button>}
+        {open && ask && <div className="ck-ask">
+          <div className="cap">{t("rewardAsk", { amt: $(ly.rewardCents).replace(/\.00$/, "") })}</div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Button size="sm" variant="primary" data-testid="reward-yes" onClick={() => { save({ reward: { id: crypto.randomUUID(), cents: ly.rewardCents, points: ly.rewardPoints } }, true); setAsk(false); }}>{t("rewardYes")}</Button>
+            <Button size="sm" onClick={() => setAsk(false)}>{t("rewardSave")}</Button>
+          </div>
+        </div>}
+      </> : <div className="cap">{t("rewardAway", { n: Math.max(0, ly.rewardPoints - ly.points), unit, amt: $(ly.rewardCents).replace(/\.00$/, "") })}</div>}
+    </div>
   );
 }
 const Stat = ({ v, l }: { v: string; l: string }) => <div style={{ background: "var(--surface)", borderRadius: 12, padding: "10px 4px" }}><div className="num" style={{ fontSize: 20, fontWeight: 700 }}>{v}</div><div className="cap">{l}</div></div>;

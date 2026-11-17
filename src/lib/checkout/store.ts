@@ -135,6 +135,7 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
       discount: disc ? { id: disc.id, kind: "amt", value: -disc.amount_cents, reason: disc.reason ?? "", approvalId: disc.approval_id ?? undefined } : undefined,
       tips: Object.fromEntries(lines.filter((l) => l.kind === "tip" && l.staff_id).map((l) => [l.staff_id!, l.amount_cents])),
       gifts, giftPays,
+      reward: (() => { const rl = lines.find((l) => l.kind === "loyalty_reward"); return rl ? { id: rl.id, cents: -Number(rl.amount_cents), points: getTicket(r.id)?.reward?.points ?? 0 } : undefined; })(),
       payment: pay ? { id: pay.id, method: pay.method as "cash" | "card_reader" | "pay_link", givenCents: pay.given_cents ?? undefined, at: pay.at, takenBy: pay.taken_by ?? undefined,
         amountCents: Number(pay.amount_cents), feeCents: Number(pay.fee_cents), brand: pay.card_brand ?? undefined, last4: pay.card_last4 ?? undefined } : undefined,
     });

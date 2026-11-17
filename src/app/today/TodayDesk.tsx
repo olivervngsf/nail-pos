@@ -168,6 +168,8 @@ export default function TodayDesk() {
             <b>Gift cards</b><span className="cap">Money owed on cards, all codes, lost cards, print plastic cards.</span></Link>}
           {canAdmin && <Link className="tile" href="/settings/booking-page" data-testid="booking-page-link" style={{ textDecoration: "none" }}>
             <b>Booking page</b><span className="cap">Your link, photos, Google / Instagram / QR, rules, walk-in kiosk.</span></Link>}
+          {canAdmin && <Link className="tile" href="/loyalty" data-testid="loyalty-link" style={{ textDecoration: "none" }}>
+            <b>Loyalty</b><span className="cap">Points tied to the phone number, reward size, client page link.</span></Link>}
           {canAdmin && <Link className="tile" href="/payouts" data-testid="payouts-link" style={{ textDecoration: "none" }}>
             <b>Payout sheet</b><span className="cap">Each tech&apos;s pay + tips for the day or week, check vs cash, print, payroll export.</span></Link>}
           {isDevice && <Link className="tile" href="/earnings" data-testid="earnings-link" style={{ textDecoration: "none" }}>
