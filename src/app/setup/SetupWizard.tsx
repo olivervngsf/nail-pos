@@ -20,6 +20,7 @@ import { initialSetup, SETUP_KEY, type NewStaff, type SetupState } from "./state
 type Set = (fn: (s: SetupState) => SetupState) => void;
 
 export default function SetupWizard() {
+  const router = useRouter();
   const [s, setS, { ready, reset }] = useStored<SetupState>(SETUP_KEY, initialSetup);
   const set: Set = (fn) => setS((prev) => fn(prev));
   const [toast, setToast] = useState<{ text: string; undo?: () => void } | null>(null);
@@ -34,7 +35,13 @@ export default function SetupWizard() {
   useEffect(() => {
     if (!ready) return;
     if (!s.salonId || s.menu.some((m) => !m.id) || s.staff.some((p) => !p.id)) setS((p) => withIds(p));
-    if (s.stage !== "wizard") void isSignedIn().then((yes) => { if (yes) setS((p) => ({ ...withIds(p), stage: "wizard" })); });
+    // Already signed in: go back to the salon you started (never make a second one), or to Today if it's done.
+    if (s.stage !== "wizard") void (async () => {
+      if (!(await isSignedIn())) return;
+      const owned = SMS_ON ? (await myMemberships().catch(() => [])).find((m) => m.role === "owner") : undefined;
+      if (owned && owned.setup_step >= 9) return router.replace("/today");
+      setS((p) => ({ ...withIds(owned ? { ...p, salonId: owned.salon_id } : p), stage: "wizard" }));
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
   // Save to the database (through the offline queue) every time the step changes.
