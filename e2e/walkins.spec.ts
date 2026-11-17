@@ -6,6 +6,9 @@ test("walk-in waitlist: add, seat with a tech, walked out", async ({ page }) => 
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   const phone = test.info().project.name === "phone";
+  // Fixed 4:30 PM today: the sample bookings leave a tech free then, so "Next turn" always shows (any hour the test runs).
+  const t = new Date(); t.setHours(16, 30, 0, 0);
+  await page.clock.setFixedTime(t);
   await page.goto("/calendar");
   // Desktop: waitlist on the left (Booking board Cal). Phone: behind the "waiting" pill.
   const list = async () => {
