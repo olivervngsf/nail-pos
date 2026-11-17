@@ -10,7 +10,8 @@ import { formatCents } from "@/lib/money";
 import { e164 } from "@/lib/auth";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { DEMO_SLUG, book, bookDays, hello, hoursOn, loadPage, loadSlots, photoUrl, sourceOf, type BookPage as Page, type Guest } from "@/lib/booking/page";
-import { at, dayKey, fmtMin, fromDayKey } from "@/lib/booking/grid";
+import { dayKey, fmtMin, fromDayKey } from "@/lib/booking/grid";
+import { bookingIcs } from "@/lib/booking/ics";
 
 type View = "door" | "services" | "staff" | "time" | "details" | "done";
 const ORDER: View[] = ["services", "staff", "time", "details"];
@@ -81,7 +82,7 @@ function Flow({ page }: { page: Page }) {
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
-  const [done, setDone] = useState<{ staff: string[]; day: string; start: number } | null>(null);
+  const [done, setDone] = useState<{ ids: string[]; staff: string[]; day: string; start: number } | null>(null);
 
   const svc = useMemo(() => Object.fromEntries(page.services.map((s) => [s.id, s])), [page]);
   const minsOf = useCallback((g: Guest) => g.serviceIds.reduce((a, id) => a + (svc[id]?.minutes ?? 0), 0), [svc]);
@@ -125,7 +126,7 @@ function Flow({ page }: { page: Page }) {
     setBusy(true);
     try {
       const r = await book(page, { src, day, start: slot, phone: e164(phone), name: name.trim(), textsOk, note: note.trim(), guests });
-      if (r.ok) { setDone({ staff: r.staff, day, start: slot }); setView("done"); }
+      if (r.ok) { setDone({ ids: r.ids, staff: r.staff, day, start: slot }); setView("done"); }
       else {
         setMsg(t(r.reason === "taken" ? "taken" : r.reason === "too_many" ? "tooMany" : "bad"));
         if (r.reason === "taken") { setSlot(null); setView("time"); }
@@ -151,11 +152,16 @@ function Flow({ page }: { page: Page }) {
   );
 
   if (view === "done" && done) {
-    const start = at(done.day, done.start), end = at(done.day, done.start + longest);
     const when = `${fromDayKey(done.day).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })} · ${fmtMin(done.start)}`;
-    const ics = `data:text/calendar;charset=utf-8,${encodeURIComponent(["BEGIN:VCALENDAR", "VERSION:2.0", "BEGIN:VEVENT",
-      `DTSTART:${start.replace(/[-:]/g, "").replace(/\.\d+/, "")}`, `DTEND:${end.replace(/[-:]/g, "").replace(/\.\d+/, "")}`,
-      `SUMMARY:${page.salon.name}`, `LOCATION:${page.salon.address ?? ""}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n"))}`;
+    const ics = `data:text/calendar;charset=utf-8,${encodeURIComponent(bookingIcs({
+      uid: done.ids[0] ?? `${page.salon.slug}-${done.day}-${done.start}`,
+      salon: { name: page.salon.name, address: page.salon.address, phone: page.salon.phone, tz: page.salon.timeZone ?? "America/Los_Angeles" },
+      day: done.day, start: done.start, minutes: longest, when, firstName: name.trim().split(" ")[0],
+      lines: guests.flatMap((x, i) => x.serviceIds.map((id) => [svc[id]?.name, done.staff[i]].filter(Boolean).join(" · "))),
+      total: `${hasFrom ? "from " : ""}${formatCents(total)}`,
+      manageUrl: `${window.location.origin}/${page.salon.slug}`,
+      cancelHours: page.salon.settings.cancel_hours, ownerNote: page.salon.settings.calendar_note,
+    }))}`;
     return (
       <div className="bw">
         <Header page={page} />
@@ -165,7 +171,7 @@ function Flow({ page }: { page: Page }) {
           <p className="bw-center">{when} · {done.staff.map((s) => t("with", { name: s })).join(", ")}</p>
           {textsOk && <p className="cap bw-center">{t("bookedTexted", { phone: fmtPhone(phone) })}</p>}
           <div className="bw-row">
-            <a className="btn" href={ics} download="booking.ics">{t("addCal")}</a>
+            <a className="btn" href={ics} download={`${page.salon.slug}-booking.ics`}>{t("addCal")}</a>
             {page.salon.address && <a className="btn" target="_blank" rel="noreferrer" href={`https://maps.google.com/?q=${encodeURIComponent(page.salon.address)}`}>{t("directions")}</a>}
             <Button onClick={restart}>{t("again")}</Button>
           </div>
