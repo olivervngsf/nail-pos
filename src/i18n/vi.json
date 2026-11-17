@@ -1114,8 +1114,8 @@
     "noPayType": "Chưa đặt cách trả lương",
     "colAmount": "Số tiền",
     "tipsAll": "Tip",
-    "tipOn": "(tip {amount})",
-    "printSettings": "Cài đặt máy in"
+    "printSettings": "Cài đặt máy in",
+    "ticketNo": "Vé #{n}"
   },
   "numbers": {
     "title": "Số liệu",
@@ -1305,13 +1305,13 @@
     "rQrSub": "Khách quét để xem hóa đơn trên điện thoại.",
     "rThanks": "Dòng cảm ơn",
     "sTickets": "Từng vé",
-    "sTicketsSub": "Mỗi vé một dòng dưới Dịch vụ: dịch vụ (tip $) ... số tiền.",
+    "sTicketsSub": "Mỗi vé một dòng: Vé #1011 ... số tiền, rồi tổng.",
     "sTipSplit": "Tip thẻ và tip tiền mặt riêng dòng",
     "sCheckCash": "Trả bằng check / tiền mặt",
     "sSignature": "Dòng ký nhận",
     "sPrinted": "Ngày giờ in",
     "tClient": "Tên khách",
-    "tStaff": "Tên thợ cạnh mỗi dịch vụ",
+    "tStaff": "Tên thợ ở trên (dưới ngày giờ)",
     "save": "Lưu cho cả tiệm",
     "reset": "Về mặc định",
     "test": "In thử",

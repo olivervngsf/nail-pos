@@ -42,13 +42,13 @@ export default function PrinterSettings() {
       return earningsDoc(r, salon, "11/16 - 11/17", {
         slipFor: (name) => tp("slipFor", { name }), services: tp("services"), cardTips: tp("cardTips"), cashTips: tp("cashTips"), tips: tp("tipsAll"),
         feeOnTips: tp("feeOnTips"), total: tp("total"), byCheck: tp("byCheck"), inCash: tp("inCash"), signature: tp("signature"), printed: tp("printed"),
-        tipOn: (amount) => tp("tipOn", { amount }), pay: (x) => tp("commission", { pct: x.commission_pct ?? 0 }),
+        ticketNo: (n) => tp("ticketNo", { n }), pay: (x) => tp("commission", { pct: x.commission_pct ?? 0 }),
       }, "11/17 7:12 PM", draft.staff);
     }
     if (kind === "slip") {
       const o = draft.slip;
-      return { title: salon, sub: ["Nov 17, 2:05 PM"], rows: [{ bold: [tc("slipTicket"), "#1042"] }, ...(o.client ? [{ text: "Hannah N." }] : []),
-        ["Gel manicure", o.staff ? "Kim" : ""], ["Gel polish change", o.staff ? "Kim" : ""]], footer: [tc("slipForTech"), tc("slipBack")], qr: "https://polishosapp.com/t/ticket/sample" };
+      return { title: salon, sub: ["Nov 17, 2026, 2:05 PM", ...(o.staff ? ["Kim"] : [])], rows: [{ bold: [tc("slipTicket"), "#1042"] }, ...(o.client ? [{ text: "Hannah N." }] : []),
+        { text: "Gel manicure" }, { text: "Gel polish change" }], footer: [tc("slipForTech"), tc("slipBack")], qr: "https://polishosapp.com/t/ticket/sample" };
     }
     const o = draft.receipt;
     return {
