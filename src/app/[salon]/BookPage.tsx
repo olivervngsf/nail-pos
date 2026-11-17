@@ -160,7 +160,7 @@ function Flow({ page }: { page: Page }) {
       lines: guests.flatMap((x, i) => x.serviceIds.map((id) => [svc[id]?.name, done.staff[i]].filter(Boolean).join(" · "))),
       total: `${hasFrom ? "from " : ""}${formatCents(total)}`,
       manageUrl: `${window.location.origin}/${page.salon.slug}`,
-      cancelHours: page.salon.settings.cancel_hours, ownerNote: page.salon.settings.calendar_note,
+      cancelHours: page.salon.settings.cancel_hours, ownerNote: page.salon.settings.calendar_note, alarmMin: page.salon.settings.calendar_alarm_min,
     }))}`;
     return (
       <div className="bw">

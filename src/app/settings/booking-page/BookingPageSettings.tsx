@@ -19,6 +19,7 @@ type Conf = { slug: string; settings: PageRules; photos: Photo[]; services: { id
 const DEMO_KEY = "nailpos.demoBookPage.v1";
 const RULES: PageRules = { on: true, days_ahead: 30, latest_before_close: 60, group_max: 6, cancel_hours: 2, min_notice: 30 };
 const NOTE_MAX = 500;
+const ALARMS = [0, 30, 60, 120, 1440] as const;
 const PH = ["#C9A79A", "#B07C8E", "#8C9C88", "#D7B88F", "#6E7A8C"];
 
 export default function BookingPageSettings() {
@@ -130,6 +131,8 @@ function Settings({ desk }: { desk: Desk }) {
 
   const on = rules.on !== false;
   const note = rules.calendar_note ?? "";
+  const alarm = rules.calendar_alarm_min ?? 60;
+  const alarmLabel = (m: number) => (m === 0 ? t("alarmOff") : m >= 1440 ? t("alarmDay") : m >= 60 ? t("alarmHr", { n: m / 60 }) : t("alarmMin", { n: m }));
   const initials = desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   return (
     <div className="app">
@@ -220,13 +223,19 @@ function Settings({ desk }: { desk: Desk }) {
                   {(["calIdeaPark", "calIdeaEarly", "calIdeaLate", "calIdeaGel"] as const).map((k) => (
                     <Chip key={k} disabled={note.includes(t(k).trim())} onClick={() => setRules({ ...rules, calendar_note: `${note.trim() ? `${note.trimEnd()}\n` : ""}${t(k)}`.slice(0, NOTE_MAX) })}>+ {t(k).replace(/:\s*$/, "")}</Chip>))}
                 </div>
-                <div className="bp-row"><span className="cap bw-grow">{t("calLeft", { n: NOTE_MAX - note.length })}</span>
-                  <Button variant="primary" data-testid="bp-save-cal" onClick={() => void save({ calendar_note: note.trim() })}>{t("save")}</Button></div>
+                <span className="cap">{t("calLeft", { n: NOTE_MAX - note.length })}</span>
+                <div className="bp-ideas" role="radiogroup" aria-label={t("alarm")} data-testid="bp-alarm">
+                  <span className="cap">{t("alarm")}</span>
+                  {ALARMS.map((m) => <Chip key={m} role="radio" aria-checked={alarm === m} on={alarm === m} onClick={() => setRules({ ...rules, calendar_alarm_min: m })}>{alarmLabel(m)}</Chip>)}
+                </div>
+                <div className="bp-row"><span className="bw-grow" />
+                  <Button variant="primary" data-testid="bp-save-cal" onClick={() => void save({ calendar_note: note.trim(), calendar_alarm_min: alarm })}>{t("save")}</Button></div>
               </div>
               <div className="bp-cal" aria-label={t("calPreview")}>
                 <span className="cap">{t("calPreview")}</span>
                 <b>💅 {desk.salonName} – Gel manicure</b>
                 <span className="cap">Tue, Nov 17 · 11:00 AM – 11:50 AM</span>
+                <span className="cap" data-testid="bp-alarm-preview">🔔 {alarm ? t("alarmAt", { when: alarmLabel(alarm) }) : t("alarmNone")}</span>
                 <div className="bp-calnote">
                   <span>Hi Tom, see you Tue, Nov 17 · 11:00 AM.</span>
                   <span>Gel manicure · Kim<br />Est. total: $45 (pay at the salon)</span>

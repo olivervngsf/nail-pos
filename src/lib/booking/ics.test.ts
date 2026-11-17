@@ -25,6 +25,10 @@ describe("booking .ics", () => {
     expect(s).toContain("Parking: free lot behind the salon.");
     expect(s).toContain("TRIGGER:-PT60M");
   });
+  it("uses the owner's reminder time, or none", () => {
+    expect(bookingIcs({ ...b, alarmMin: 1440 })).toContain("TRIGGER:-PT1440M");
+    expect(bookingIcs({ ...b, alarmMin: 0 })).not.toContain("VALARM");
+  });
   it("rolls past midnight and folds long lines", () => {
     expect(local("2026-11-17", 1440 + 30)).toBe("20261118T003000");
     expect(fold("x".repeat(200)).split("\r\n").every((l) => new TextEncoder().encode(l).length <= 75)).toBe(true);

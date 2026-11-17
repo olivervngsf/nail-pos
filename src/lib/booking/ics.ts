@@ -15,7 +15,7 @@ export type IcsBooking = {
   manageUrl: string;           // change / cancel link
   cancelHours: number;
   ownerNote?: string;          // owner text (parking, arrive early, …)
-  alarmMin?: number;           // reminder before (default 60)
+  alarmMin?: number;           // reminder before, minutes (default 60, 0 = none)
 };
 
 /** RFC 5545 text: escape \ ; , and newlines. */
@@ -67,8 +67,8 @@ export function bookingIcs(b: IcsBooking, now = new Date()): string {
     `DESCRIPTION:${icsText(desc)}`,
     `URL:${b.manageUrl}`,
     "STATUS:CONFIRMED", "TRANSP:OPAQUE",
-    "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsText(`${b.salon.name} at ${b.when.split(" · ").pop()}`)}`,
-    `TRIGGER:-PT${b.alarmMin ?? 60}M`, "END:VALARM",
+    ...((b.alarmMin ?? 60) > 0 ? ["BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsText(`${b.salon.name} at ${b.when.split(" · ").pop()}`)}`,
+      `TRIGGER:-PT${b.alarmMin ?? 60}M`, "END:VALARM"] : []),
     "END:VEVENT", "END:VCALENDAR",
   ].filter(Boolean);
   return rows.map(fold).join("\r\n") + "\r\n";
