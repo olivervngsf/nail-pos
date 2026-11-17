@@ -27,7 +27,7 @@ export function EarningsSlip({ r, salon, period }: { r: PayoutRow; salon: string
         <div className="cap" style={{ paddingBottom: 8 }}>{t("splitLine", { check: $(r.check_cents), cash: $(r.cash_cents) })}</div>
       </div>
       <div className="receipt-print" aria-hidden>
-        <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16 }}>{salon}</div>
+        <div style={{ textAlign: "center", fontWeight: 600, fontSize: 16 }}>{salon}</div>
         <div style={{ textAlign: "center" }}>{t("slipFor", { name: r.name })} · {period}</div>
         <hr />
         <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>

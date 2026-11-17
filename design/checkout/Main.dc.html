@@ -84,9 +84,9 @@ body{margin:0}
           <span class="tag jade">Regular</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center">
-          <div style="background:var(--surface);border-radius:12px;padding:10px 4px"><div class="num" style="font-size:20px;font-weight:700">12</div><div class="cap">visits</div></div>
-          <div style="background:var(--surface);border-radius:12px;padding:10px 4px"><div class="num" style="font-size:20px;font-weight:700">$68</div><div class="cap">avg ticket</div></div>
-          <div style="background:var(--surface);border-radius:12px;padding:10px 4px"><div class="num" style="font-size:20px;font-weight:700">4 wk</div><div class="cap">comes every</div></div>
+          <div style="background:var(--surface);border-radius:12px;padding:10px 4px"><div class="num" style="font-size:20px;font-weight:600">12</div><div class="cap">visits</div></div>
+          <div style="background:var(--surface);border-radius:12px;padding:10px 4px"><div class="num" style="font-size:20px;font-weight:600">$68</div><div class="cap">avg ticket</div></div>
+          <div style="background:var(--surface);border-radius:12px;padding:10px 4px"><div class="num" style="font-size:20px;font-weight:600">4 wk</div><div class="cap">comes every</div></div>
         </div>
         <div>
           <div class="eyebrow" style="margin-bottom:6px">Last visit · Oct 19</div>
@@ -146,7 +146,7 @@ body{margin:0}
       <div class="dbody">
         <div class="eyebrow">Amount</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{discOpts}}" as="o" hint-placeholder-count="4"><button class="{{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div>
-        <div class="line" style="font-size:16px"><span>Takes off</span><span style="font-weight:700">{{discPreview}}</span></div>
+        <div class="line" style="font-size:16px"><span>Takes off</span><span style="font-weight:600">{{discPreview}}</span></div>
         <div class="eyebrow">Reason</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{reasons}}" as="r" hint-placeholder-count="4"><button class="{{r.cls}}" type="button" onClick="{{r.pick}}">{{r.label}}</button></sc-for></div>
         <div class="eyebrow">Manager PIN</div>

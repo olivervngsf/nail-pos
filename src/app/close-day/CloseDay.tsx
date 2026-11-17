@@ -299,7 +299,7 @@ export default function CloseDay() {
 
       {sum && (
         <div className="receipt-print" aria-hidden>
-          <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16 }}>{desk.salonName}</div>
+          <div style={{ textAlign: "center", fontWeight: 600, fontSize: 16 }}>{desk.salonName}</div>
           <div style={{ textAlign: "center" }}>{t("title")} · {dayLabel}</div>
           <hr />
           <div className="rl"><span>{t("services")}</span><span>{$(sum.sales.services_cents)}</span></div>

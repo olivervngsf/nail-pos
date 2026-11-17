@@ -174,7 +174,7 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
     case "photo":
       return <Shell title={t.photoT} back="pin">
         <h1 className="h2" style={{ textAlign: "center" }}>{t.photo}</h1>
-        <div style={{ width: 120, height: 120, borderRadius: "50%", background: "#E9D7CB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44, fontWeight: 700, color: "#8C6A5A", alignSelf: "center" }}>{first[0]}</div>
+        <div style={{ width: 120, height: 120, borderRadius: "50%", background: "#E9D7CB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44, fontWeight: 600, color: "#8C6A5A", alignSelf: "center" }}>{first[0]}</div>
         <div className="cap" style={{ textAlign: "center" }}>{t.photoCap}</div>
         <label className="btn block">{t.take}<input type="file" accept="image/*" capture="user" style={{ display: "none" }} onChange={() => go("done")} /></label>
         <label className="btn block">{t.lib}<input type="file" accept="image/*" style={{ display: "none" }} onChange={() => go("done")} /></label>

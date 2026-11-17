@@ -802,7 +802,7 @@ function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
   const given = ticket.payment?.givenCents ?? sum.left;
   return (
     <div className="receipt-print" aria-hidden>
-      <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16 }}>{desk.salonName}</div>
+      <div style={{ textAlign: "center", fontWeight: 600, fontSize: 16 }}>{desk.salonName}</div>
       <div style={{ textAlign: "center" }}>{t("receiptFor")} {ticketLabel(ticket)} · {f.dateTime(new Date(ticket.payment?.at ?? ticket.createdAt), { dateStyle: "medium", timeStyle: "short" })}</div>
       {ticket.client?.name && <div style={{ textAlign: "center" }}>{t("thanks", { name: `, ${ticket.client.name}` })}</div>}
       <hr />

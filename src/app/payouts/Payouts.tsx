@@ -117,7 +117,7 @@ export default function Payouts() {
         <div className="receipt-print" aria-hidden>
           {(slips ? rows : [null]).map((one, i) => (
             <div key={one?.membership_id ?? "all"} style={i ? { breakBefore: "page" } : undefined}>
-              <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16 }}>{desk.salonName}</div>
+              <div style={{ textAlign: "center", fontWeight: 600, fontSize: 16 }}>{desk.salonName}</div>
               <div style={{ textAlign: "center" }}>{one ? t("slipFor", { name: one.name }) : t("title")} · {from === to ? from : `${from} → ${to}`}</div>
               <hr />
               {(one ? [one] : rows).map((r) => (

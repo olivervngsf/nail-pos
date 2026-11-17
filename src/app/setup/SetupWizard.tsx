@@ -433,7 +433,7 @@ const Payments: StepView = ({ s, set }) => {
   if (SMS_ON && s.stripe !== "done") return [{ lock: true }, <StripeConnect key="sc" s={s} set={set} />];
   if (s.stripe === "stripe") return [{ lock: true }, (
     <div className="card" style={{ overflow: "hidden" }}>
-      <div style={{ height: 44, display: "flex", alignItems: "center", padding: "0 16px", background: "#F6F8FA", borderBottom: "1px solid var(--line)", fontWeight: 700, color: "#635BFF" }}>stripe · {s.salonName || "Your salon"}</div>
+      <div style={{ height: 44, display: "flex", alignItems: "center", padding: "0 16px", background: "#F6F8FA", borderBottom: "1px solid var(--line)", fontWeight: 600, color: "#635BFF" }}>stripe · {s.salonName || "Your salon"}</div>
       <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
         <div className="demo">Test version: this stands in for Stripe&apos;s own secure sign-up page (Stripe Connect comes in a later step). Nothing here is sent.</div>
         <div className="grid2">

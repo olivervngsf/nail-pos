@@ -34,6 +34,7 @@ function Header({ page }: { page: Page }) {
   const today = hoursOn(page, dayKey(new Date()));
   const now = new Date().getHours() * 60 + new Date().getMinutes();
   const open = today && now >= today.open && now < today.close;
+  const [viewing, setViewing] = useState<number | null>(null);
   const map = page.salon.address ? `https://maps.google.com/?q=${encodeURIComponent(`${page.salon.name}, ${page.salon.address}`)}` : null;
   return (
     <header className="bw-hdr">
@@ -48,15 +49,49 @@ function Header({ page }: { page: Page }) {
         </div>
       </div>
       {page.photos.length > 0 && (
-        <div className="bw-photos" aria-label="Salon photos">
+        <div className="bw-photos" aria-label={t("photos")}>
           {page.photos.slice(0, 4).map((p, i) => {
             const url = photoUrl(p.path);
-            return <div key={p.path} className="bw-ph" style={url ? { backgroundImage: `url(${url})` } : { background: PH[i % PH.length] }}>{p.label}</div>;
+            return <button type="button" key={p.path} className="bw-ph" data-testid="bw-photo" aria-label={t("photoOpen", { label: p.label || i + 1 })} onClick={() => setViewing(i)}
+              style={url ? { backgroundImage: `url(${url})` } : { background: PH[i % PH.length] }}>{p.label}</button>;
           })}
-          {page.photos.length > 4 && <div className="bw-ph" style={{ background: PH[4] }}>+ {page.photos.length - 4}</div>}
+          {page.photos.length > 4 && <button type="button" className="bw-ph" style={{ background: PH[4] }} onClick={() => setViewing(4)}>+ {page.photos.length - 4}</button>}
         </div>
       )}
+      {viewing !== null && <PhotoViewer photos={page.photos} start={viewing} onClose={() => setViewing(null)} />}
     </header>
+  );
+}
+
+/** Full-size salon photos: tap a photo → big view; arrows, swipe, keys (← → Esc); tap outside to close. */
+function PhotoViewer({ photos, start, onClose }: { photos: Page["photos"]; start: number; onClose: () => void }) {
+  const t = useTranslations("book");
+  const [i, setI] = useState(start);
+  const n = photos.length;
+  const go = useCallback((d: number) => setI((x) => (x + d + n) % n), [n]);
+  const [x0, setX0] = useState<number | null>(null);
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); if (e.key === "ArrowRight") go(1); if (e.key === "ArrowLeft") go(-1); };
+    window.addEventListener("keydown", k);
+    const o = document.body.style.overflow; document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", k); document.body.style.overflow = o; };
+  }, [go, onClose]);
+  const p = photos[i], url = photoUrl(p.path);
+  return (
+    <div className="bw-lb" role="dialog" aria-modal="true" aria-label={t("photos")} data-testid="bw-viewer" onClick={onClose}
+      onTouchStart={(e) => setX0(e.touches[0].clientX)} onTouchEnd={(e) => { if (x0 !== null) { const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1); } setX0(null); }}>
+      <button type="button" className="bw-lb-x" aria-label={t("photoClose")} autoFocus onClick={onClose}>✕</button>
+      <figure className="bw-lb-fig" onClick={(e) => e.stopPropagation()}>
+        {/* Plain img: full-size Storage photo, shown on demand only. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {url ? <img src={url} alt={p.label} /> : <div className="bw-lb-ph" style={{ background: PH[i % PH.length] }} />}
+        <figcaption>{p.label && <b>{p.label}</b>}<span className="cap">{i + 1} / {n}</span></figcaption>
+      </figure>
+      {n > 1 && <>
+        <button type="button" className="bw-lb-nav prev" aria-label={t("photoPrev")} onClick={(e) => { e.stopPropagation(); go(-1); }}>‹</button>
+        <button type="button" className="bw-lb-nav next" aria-label={t("photoNext")} onClick={(e) => { e.stopPropagation(); go(1); }}>›</button>
+      </>}
+    </div>
   );
 }
 

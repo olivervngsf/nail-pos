@@ -691,6 +691,11 @@
     "liveOnly": "Phiếu chỉ dùng được trên trang thật."
   },
   "book": {
+    "photos": "Ảnh tiệm",
+    "photoOpen": "Xem ảnh: {label}",
+    "photoClose": "Đóng",
+    "photoPrev": "Ảnh trước",
+    "photoNext": "Ảnh sau",
     "bookVisit": "Đặt lịch",
     "forMe": "Đặt cho tôi",
     "forMeSub": "Một người · chọn dịch vụ",

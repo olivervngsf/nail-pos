@@ -691,6 +691,11 @@
     "liveOnly": "Ticket slips work on the live site only."
   },
   "book": {
+    "photos": "Salon photos",
+    "photoOpen": "View photo: {label}",
+    "photoClose": "Close",
+    "photoPrev": "Previous photo",
+    "photoNext": "Next photo",
     "bookVisit": "Book a visit",
     "forMe": "Book for me",
     "forMeSub": "One person · pick your services",
