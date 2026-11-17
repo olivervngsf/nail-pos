@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Calendar · Week</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.cw{position:relative;width:1440px;height:900px;background:var(--surface);overflow:hidden;display:flex}
+.cw .side{position:absolute;left:76px;top:56px;bottom:0;width:240px;border-right:1px solid var(--line);background:#FAFAFB;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px}
+.mm{display:grid;grid-template-columns:20px repeat(7,minmax(0,1fr));gap:2px;text-align:center;font-size:12px}
+.mm span{height:24px;line-height:24px;border-radius:7px}
+.mm .wk{color:#8E8E93;font-size:10px}
+.mm .sel{background:var(--fill)}
+.mm .today{background:#1C1C1E;color:#fff;font-weight:700}
+.sf{display:flex;align-items:center;gap:8px;height:30px;font-size:14px}
+.sf i{width:12px;height:12px;border-radius:4px;flex:none}
+.hd{position:absolute;top:56px;height:48px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:12px;color:var(--ink-soft);border-left:1px solid var(--line);box-sizing:border-box}
+.hd b{font-size:15px;color:var(--ink)}
+.hd.today b{background:#E03131;color:#fff;border-radius:999px;padding:0 7px}
+.ad{position:absolute;top:104px;height:28px;padding:4px 6px;box-sizing:border-box;border-left:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ad span{display:block;height:20px;line-height:20px;border-radius:6px;font-size:11px;font-weight:600;padding:0 6px;background:var(--fill);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gl{position:absolute;left:364px;right:16px;height:1px;background:var(--line)}
+.vl{position:absolute;top:132px;bottom:48px;width:1px;background:var(--line)}
+.hl{position:absolute;left:316px;width:42px;text-align:right;font-size:11px;color:var(--ink-soft);transform:translateY(-7px)}
+.wb{position:absolute;border-radius:7px;padding:3px 6px;box-sizing:border-box;font-size:11.5px;line-height:14px;overflow:hidden;border:1px solid rgba(28,28,30,.06);cursor:grab;color:var(--ink)}
+.wb b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb .t{display:block;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wb.lift{background:#1C1C1E!important;color:#fff;box-shadow:0 14px 30px rgba(28,28,30,.28);z-index:5}
+.wb.lift .t{color:rgba(255,255,255,.8)}
+.wb.ghost{background:transparent!important;border:1.5px dashed #8E8E93;color:transparent}
+.more{position:absolute;height:18px;border-radius:9px;background:var(--paper);border:1px solid var(--line);font-size:11px;font-weight:600;padding:0 7px;line-height:16px;box-sizing:border-box;cursor:pointer}
+.noww{position:absolute;height:2px;background:#E03131;z-index:3}
+.tip{position:absolute;background:#1C1C1E;color:#fff;font-size:12px;font-weight:600;border-radius:8px;padding:4px 8px;z-index:6;white-space:nowrap}
+</style>
+</helmet>
+<div class="cw">
+  <nav class="rail" aria-label="Menu" style="position:absolute;left:0;top:0;bottom:0;box-sizing:border-box;z-index:4">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a class="on" href="Cal.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="#" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div style="position:absolute;left:76px;right:0;top:0;height:56px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--line);background:rgba(245,245,247,.85);box-sizing:border-box">
+    <b style="font-size:18px;letter-spacing:-0.02em">Nov 16 – 22, 2026</b>
+    <button class="btn ghost" type="button" aria-label="Last week" style="height:34px;width:34px;padding:0">‹</button><button class="btn" type="button" style="height:34px;font-size:13px">Today</button><button class="btn ghost" type="button" aria-label="Next week" style="height:34px;width:34px;padding:0">›</button>
+    <div class="seg"><a href="Cal.dc.html" style="text-decoration:none"><span>Day</span></a><span class="on">Week</span><a href="CalMonth.dc.html" style="text-decoration:none"><span>Month</span></a></div>
+    <span style="flex:1"></span>
+    <span class="cap">112 booked · $6,240</span>
+    <button class="btn primary" type="button" style="height:38px;font-size:15px;padding:0 16px">+ Book</button>
+  </div>
+  <aside class="side">
+    <b style="font-size:15px">November 2026</b>
+    <div class="mm"><span></span><span class="wk">S</span><span class="wk">M</span><span class="wk">T</span><span class="wk">W</span><span class="wk">T</span><span class="wk">F</span><span class="wk">S</span><sc-for list="{{mini}}" as="d" hint-placeholder-count="40"><span class="{{d.cls}}">{{d.n}}</span></sc-for></div>
+    <div class="eyebrow" style="margin-top:6px">Staff</div>
+    <sc-for list="{{staffList}}" as="s" hint-placeholder-count="5"><div class="sf"><i style="{{s.dot}}"></i><span style="flex:1">{{s.n}}</span><span class="cap">{{s.c}}</span></div></sc-for>
+    <div class="cap">Tap a name to show only that staff. Colours stay the same on every screen.</div>
+  </aside>
+  <sc-for list="{{days}}" as="d" hint-placeholder-count="7"><div class="{{d.cls}}" style="{{d.pos}}"><span>{{d.dn}}</span><b>{{d.n}}</b><span>{{d.count}}</span></div><div class="ad" style="{{d.adPos}}"><sc-if value="{{d.hasAd}}" hint-placeholder-val="{{false}}"><span>{{d.ad}}</span></sc-if></div><div class="vl" style="{{d.vl}}"></div></sc-for>
+  <sc-for list="{{hours}}" as="h" hint-placeholder-count="10"><span class="hl" style="{{h.top}}">{{h.t}}</span><span class="gl" style="{{h.top}}"></span></sc-for>
+  <sc-for list="{{blocks}}" as="b" hint-placeholder-count="40"><div class="{{b.cls}}" style="{{b.style}}"><b>{{b.n}}</b><span class="t">{{b.t}}</span></div></sc-for>
+  <sc-for list="{{mores}}" as="m" hint-placeholder-count="4"><button class="more" type="button" style="{{m.pos}}">{{m.label}}</button></sc-for>
+  <span class="noww" style="left:364px;width:150px;top:609px"></span>
+  <sc-if value="{{drag}}" hint-placeholder-val="{{false}}"><span class="tip" style="left:822px;top:666px">Wed 3:00 – 3:45 PM · Kim free ✓</span></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"drag":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { drag: !!(p && p.drag) }; }
+  renderVals() {
+    const S = this.state, X0 = 364, CW = 150, T = 132, HH = 72;
+    const Y = (t) => T + (t - 9) * HH;
+    const ST = [['Kim', '#E7F1FB'], ['Ngọc', '#F9ECE7'], ['Tuyết', '#E5F4E4'], ['Hoa', '#EFEDFF'], ['Linh', '#F9EEDA']];
+    const D = [
+      [[9.5, 10.25, 'Tracy', 0], [10, 10.75, 'Rosa', 1], [10.5, 11.25, 'Jessica', 4], [12, 12.75, 'Hailey', 0], [13.25, 14.25, 'Tiffany', 0], [13, 14, 'Fiona', 1], [13.25, 14.25, 'Brianna', 4], [15, 15.75, 'Sofia', 0], [16, 16.75, 'Brittany', 2], [16.5, 17.75, 'Anna', 4]],
+      [[9.5, 10.25, 'Mia', 2], [11, 12, 'Kayla', 4], [13, 13.75, 'Lan', 0], [15, 15.75, 'Sofia', 0], [15, 16, 'Thu', 1], [17, 17.75, 'Jen', 2]],
+      [[10, 11, 'Vy', 1], [10.5, 11.25, 'Ella', 0], [12, 13.25, 'Ruby', 4], [14, 14.75, 'Grace', 2], [16, 17, 'Nina', 3]],
+      [[9, 9.75, 'Amy', 0], [9.5, 10.5, 'Lily', 4], [10, 11, 'Ava', 2], [11, 12.25, 'Chloe', 1], [13, 13.75, 'Ivy', 0], [13.5, 14.25, 'Zoe', 4], [14, 15, 'Emma', 2], [16, 16.75, 'Kate', 1], [17, 18, 'Mai', 0]],
+      [[9.5, 10.25, 'Jade', 1], [10, 11, 'Hana', 0], [10, 10.75, 'Olive', 4], [10.5, 11.25, 'Sara', 2], [12, 13, 'Leah', 3], [14, 15.25, 'Nora', 4], [15, 15.75, 'Tina', 0], [16.5, 17.5, 'Rae', 2]],
+      [[9, 10, 'Bella', 0], [9, 9.75, 'Cora', 1], [9.5, 10.5, 'Dee', 4], [9.5, 10.25, 'Eve', 2], [11, 12, 'Faye', 0], [11, 11.75, 'Gia', 3], [11.5, 12.5, 'Hope', 4], [12, 13, 'Iris', 1], [13, 14.25, 'June', 0], [13.5, 14.25, 'Kim L.', 2], [14, 15, 'Luna', 4], [15, 16, 'Maya', 1], [16, 17, 'Noa', 0]],
+      [[10, 10.75, 'Opal', 2], [11, 12, 'Pia', 0], [12, 12.75, 'Quinn', 4], [13, 14, 'Rina', 1]]
+    ];
+    const blocks = [], mores = [];
+    D.forEach((list, di) => {
+      const lanes = [];
+      list.forEach((b) => { let l = lanes.findIndex((end) => end <= b[0]); if (l < 0) { l = lanes.length; lanes.push(0); } lanes[l] = b[1]; b.lane = l; });
+      const nl = Math.min(3, lanes.length);
+      const hidden = {};
+      list.forEach((b) => {
+        const fmt = (t) => { const h = Math.floor(t), m = Math.round((t - h) * 60); return (((h + 11) % 12) + 1) + (m ? ':' + (m < 10 ? '0' : '') + m : ''); };
+        if (b.lane >= 3) { const k = Math.floor(b[0]); hidden[k] = (hidden[k] || 0) + 1; return; }
+        const w = (CW - 6) / nl, left = X0 + di * CW + 3 + b.lane * w;
+        let cls = 'wb', top = Y(b[0]) + 1;
+        const isSofia = di === 1 && b[2] === 'Sofia';
+        if (S.drag && isSofia) cls += ' ghost';
+        blocks.push({ n: b[2], t: fmt(b[0]) + ' · ' + ST[b[3]][0], cls, style: 'left:' + left + 'px;width:' + (w - 2) + 'px;top:' + top + 'px;height:' + ((b[1] - b[0]) * HH - 2) + 'px;background:' + ST[b[3]][1] });
+      });
+      Object.keys(hidden).forEach((k) => mores.push({ label: '+' + hidden[k] + ' more', pos: 'left:' + (X0 + di * CW + CW - 62) + 'px;top:' + (Y(+k) + 4) + 'px' }));
+    });
+    if (S.drag) blocks.push({ n: 'Sofia', t: '3 · Kim → Wed', cls: 'wb lift', style: 'left:' + (X0 + 2 * CW + 3) + 'px;width:' + (CW - 8) + 'px;top:' + (Y(15) + 1) + 'px;height:' + (0.75 * HH - 2) + 'px;background:#E7F1FB' });
+    const dn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], counts = ['23 · $1,284', '14 · $760', '11 · $590', '19 · $1,020', '17 · $930', '24 · $1,310', '4 · $220'];
+    const mini = []; const start = [null, null, null, null, null, null, null]; let wk = 45;
+    for (let r = 0; r < 5; r++) { mini.push({ n: String(wk + r), cls: 'wk' }); for (let c = 0; c < 7; c++) { const day = r * 7 + c + 1; mini.push({ n: day <= 30 ? String(day) : '', cls: day === 16 ? 'today' : (day >= 15 && day <= 21 ? 'sel' : '') }); } }
+    return {
+      mini, staffList: ST.map((s, i) => ({ n: s[0], dot: 'background:' + s[1] + ';box-shadow:inset 0 0 0 1px rgba(28,28,30,.15)', c: ['22', '19', '17', '6', '21'][i] + ' this week' })),
+      days: dn.map((d, i) => ({ dn: d, n: String(16 + i), count: counts[i], cls: 'hd' + (i === 0 ? ' today' : ''), pos: 'left:' + (X0 + i * CW) + 'px;width:' + CW + 'px', adPos: 'left:' + (X0 + i * CW) + 'px;width:' + CW + 'px', hasAd: i === 2 || i === 5, ad: i === 2 ? 'Hoa off' : 'Busy day · 2 walk-ins waited 20+', vl: 'left:' + (X0 + i * CW) + 'px' })),
+      hours: [9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7].map((h, i) => ({ t: h + (i < 3 ? ' AM' : ' PM'), top: 'top:' + (T + i * HH) + 'px' })),
+      blocks, mores, drag: S.drag
+    };
+  }
+}
+</script>
+</body>
+</html>

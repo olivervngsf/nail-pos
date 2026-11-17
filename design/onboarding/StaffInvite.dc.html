@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Staff joins and sets PIN</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.k{height:64px;border-radius:50%;width:64px;border:0;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08);font:inherit;font-size:26px;font-weight:500;color:#1C1C1E;cursor:pointer;justify-self:center;transition:transform .12s,background .2s}
+.k:active{transform:scale(.94);background:#EFEFF2}
+.pd{width:14px;height:14px;border-radius:50%;border:1.5px solid #1C1C1E;box-sizing:border-box;transition:background .2s}
+.pd.on{background:#1C1C1E}
+.dots{display:flex;gap:16px;margin:6px 0}
+.dots.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:none}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.panel{flex:1;margin-top:14px;background:var(--paper);border-radius:24px 24px 0 0;box-shadow:0 -6px 24px rgba(28,28,30,.08);display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px 20px 24px}
+.bar4{display:flex;gap:6px;width:100%}
+.bar4 span{flex:1;height:4px;border-radius:2px;background:var(--fill);transition:background .4s}
+.bar4 span.on{background:var(--ink)}
+.langbtn{width:100%;height:64px;border-radius:16px;border:1px solid var(--line);background:#fff;font:inherit;font-size:18px;font-weight:600;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:0 18px;transition:border-color .2s}
+.langbtn:hover{border-color:var(--ink)}
+.linkbtn{border:0;background:none;padding:0;font:inherit;color:#0A63D6;text-decoration:underline;cursor:pointer}
+</style>
+</helmet>
+<div class="phone">
+  <div class="pbar">{{topTitle}}</div>
+  <sc-if value="{{inMessages}}" hint-placeholder-val="{{true}}">
+    <div class="fade" style="padding:16px">
+      <div style="max-width:300px;padding:12px 14px;border-radius:18px 18px 18px 4px;background:#E9E9EB;font-size:15px;line-height:21px">Mai Nails added you to Nail POS. Tap to set your PIN: <button class="linkbtn" type="button" onClick="{{openLink}}">nailpos.app/j/K7Q2</button></div>
+      <div class="cap" style="margin:4px 0 0 6px">Today 10:02 AM · from Mai Nails (408) 555-0100</div>
+      <div class="cap" style="margin-top:24px;text-align:center">Tap the link to start ↑</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{inApp}}" hint-placeholder-val="{{false}}">
+    <div class="panel fade">
+      <div class="bar4"><sc-for list="{{bars}}" as="b" hint-placeholder-count="4"><span class="{{b}}"></span></sc-for></div>
+
+      <sc-if value="{{sConfirm}}" hint-placeholder-val="{{true}}">
+        <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;padding-top:10px">
+          <div class="av" style="width:64px;height:64px;font-size:24px">K</div>
+          <div class="h2">Is this you?</div>
+          <div class="group" style="width:100%;box-shadow:none;border:1px solid var(--line)">
+            <div class="row"><div class="grow">Name</div><span>Kim</span></div>
+            <div class="row"><div class="grow">Salon</div><span>Mai Nails</span></div>
+            <div class="row"><div class="grow">Role</div><span>Nail staff</span></div>
+            <div class="row"><div class="grow">Pay</div><span>Commission 60%</span></div>
+          </div>
+          <div class="cap" style="text-align:center">Pay looks wrong? Ask Mai — only the owner can change it.</div>
+          <div style="flex:1"></div>
+          <button class="btn primary block" type="button" onClick="{{yes}}">Yes, that's me</button>
+          <button class="btn ghost block" type="button" onClick="{{notMe}}">Not me</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{sNotMe}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding-top:60px">
+          <div class="h2">Thanks — we told Mai Nails</div>
+          <div class="cap" style="font-size:15px;line-height:21px">This link is now turned off. Nothing was set up with your number.</div>
+          <button class="btn ghost" type="button" onClick="{{restart}}">Start demo over</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{sLang}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;flex-direction:column;gap:12px;width:100%;padding-top:10px">
+          <div class="h2" style="text-align:center">Pick your language</div>
+          <div class="cap" style="text-align:center;margin-bottom:8px">Chọn ngôn ngữ · change anytime in your profile</div>
+          <button class="langbtn" type="button" onClick="{{pickEn}}">English<span class="cap">›</span></button>
+          <button class="langbtn" type="button" onClick="{{pickVi}}">Tiếng Việt<span class="cap">›</span></button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{sPin}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%">
+          <div class="h2" style="text-align:center">{{pinTitle}}</div>
+          <div class="cap" style="text-align:center;min-height:18px;{{msgStyle}}">{{pinMsg}}</div>
+          <div class="{{dotsCls}}"><sc-for list="{{dots}}" as="d" hint-placeholder-count="4"><span class="{{d}}"></span></sc-for></div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 24px;width:260px">
+            <sc-for list="{{keys}}" as="k" hint-placeholder-count="12">
+              <sc-if value="{{k.show}}" hint-placeholder-val="{{true}}"><button class="k" type="button" onClick="{{k.press}}" aria-label="{{k.aria}}">{{k.label}}</button></sc-if>
+              <sc-if value="{{k.blank}}" hint-placeholder-val="{{false}}"><span></span></sc-if>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{sPhoto}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;padding-top:20px;text-align:center">
+          <div style="position:relative;width:104px;height:104px;border-radius:50%;background:#EFEFF2;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:600">K<span style="position:absolute;right:0;bottom:0;width:34px;height:34px;border-radius:50%;background:#1C1C1E;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px #fff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span></div>
+          <div class="h2">{{photoTitle}}</div>
+          <div class="cap" style="font-size:15px;line-height:21px;max-width:290px">{{photoBody}}</div>
+          <div style="flex:1;min-height:120px"></div>
+          <button class="btn primary block" type="button" onClick="{{toDone}}">{{photoTake}}</button>
+          <button class="btn block" type="button" onClick="{{toDone}}">{{photoLib}}</button>
+          <button class="btn ghost block" type="button" onClick="{{toDone}}">{{photoSkip}}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{sDone}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="display:flex;flex-direction:column;align-items:center;gap:14px;padding-top:28px;text-align:center;width:100%">
+          <div class="pop" style="width:76px;height:76px;border-radius:50%;background:var(--jade-soft);border:2px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:34px">✓</div>
+          <div class="h2">{{doneTitle}}</div>
+          <div class="cap" style="font-size:15px;line-height:21px">{{doneBody}}</div>
+          <div class="group" style="width:100%;text-align:left">
+            <div class="row" style="flex-direction:column;align-items:flex-start;gap:2px;padding-top:10px;padding-bottom:10px"><span class="cap">{{shiftL}}</span><b style="font-weight:600">{{shiftV}}</b></div>
+            <div class="row" style="flex-direction:column;align-items:flex-start;gap:2px;padding-top:10px;padding-bottom:10px"><span class="cap">{{howL}}</span><b style="font-weight:600">{{howV}}</b></div>
+          </div>
+          <div class="cap" style="text-align:left;width:100%;line-height:19px">{{laterT}}</div>
+          <a class="btn primary" href="StaffClockIn.dc.html" style="width:100%;box-sizing:border-box;height:52px;font-size:17px">{{doneCta}}</a>
+          <button class="btn ghost" type="button" onClick="{{restart}}">Start demo over</button>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"at":{"editor":"enum","options":["msg","confirm","notme","lang","pin","weak","again","mismatch","photo","done"],"default":"msg"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){
+    super(p);
+    this.state = { step: 'msg', lang: 'en', pin: '', first: '', mode: 'create', msg: '', bad: false };
+    const at = p && p.at;
+    const map = {
+      confirm: { step: 'confirm' }, notme: { step: 'notme' }, lang: { step: 'lang' }, pin: { step: 'pin', pin: '12' },
+      weak: { step: 'pin', msg: 'Too easy to guess. Pick another.', bad: true },
+      again: { step: 'pin', mode: 'confirm', first: '2580', pin: '25' },
+      mismatch: { step: 'pin', msg: "PINs don't match. Try again.", bad: true },
+      photo: { step: 'photo' }, done: { step: 'done' }
+    };
+    if (at && map[at]) Object.assign(this.state, map[at]);
+  }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  renderVals() {
+    const S = this.state, vi = S.lang === 'vi';
+    const T = vi
+      ? { create: 'Tạo mã PIN 4 số', confirm: 'Nhập lại mã PIN', hint: 'Dùng để chấm công và xem lương.', weak: 'Dễ đoán quá. Chọn số khác.', nomatch: 'Hai mã không khớp. Thử lại.', doneT: 'Xong rồi!', doneB: 'Mai Nails · Thợ · Đã lưu mã PIN', shiftL: 'Ca làm tiếp theo', shiftV: 'Th 3, 17/11 · 9:00 – 19:00', howL: 'Cách chấm công', howV: 'Tại tiệm: trên điện thoại này hoặc iPad của tiệm bằng mã PIN', later: 'Không cần làm gì thêm. Có thể đóng lại và quay lại bất cứ lúc nào.', cta: 'Mở trang chính' }
+      : { create: 'Make a 4-digit PIN', confirm: 'Type it again', hint: 'You use it to clock in and see your pay.', weak: 'Too easy to guess. Pick another.', nomatch: "PINs don't match. Try again.", doneT: "You're all set", doneB: 'Mai Nails · Tech · PIN saved', shiftL: 'Your next shift', shiftV: 'Tue, Nov 17 · 9:00 AM – 7:00 PM', howL: 'How to clock in', howV: 'At the salon: this phone, or the salon iPad with your PIN', later: 'Nothing else to do now. Close this any time and come back later.', cta: 'Open my Home' };
+    const order = { confirm: 1, lang: 2, pin: 3, photo: 4, done: 5 };
+    const PH = vi
+      ? { t: 'Thêm ảnh của bạn', b: 'Khách và đồng nghiệp nhận ra bạn trên danh sách lượt và trang đặt lịch. Có thể làm sau.', take: 'Chụp ảnh', lib: 'Chọn từ thư viện', skip: 'Để sau' }
+      : { t: 'Add your photo', b: 'Clients and teammates see it on the turn list and booking page. You can do this later.', take: 'Take photo', lib: 'Choose from library', skip: 'Skip for now' };
+    const at = order[S.step] || 0;
+    const weak = (p) => /^(\d)\1{3}$/.test(p) || ['1234', '4321', '0123', '9876'].indexOf(p) >= 0;
+    const press = (digit) => {
+      if (S.pin.length >= 4) return;
+      const p = S.pin + digit;
+      this.setState({ pin: p, bad: false });
+      if (p.length < 4) return;
+      clearTimeout(this.t);
+      this.t = setTimeout(() => {
+        if (S.mode === 'create') {
+          if (weak(p)) this.setState({ pin: '', msg: T.weak, bad: true });
+          else this.setState({ first: p, pin: '', mode: 'confirm', msg: '', bad: false });
+        } else {
+          if (p === S.first) this.setState({ step: 'photo', pin: '' });
+          else this.setState({ pin: '', first: '', mode: 'create', msg: T.nomatch, bad: true });
+        }
+      }, 250);
+    };
+    const labels = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+    return {
+      topTitle: S.step === 'msg' ? 'Messages' : 'Mai Nails · Nail POS',
+      inMessages: S.step === 'msg', inApp: S.step !== 'msg',
+      bars: [1, 2, 3, 4, 5].map((i) => (i <= at ? 'on' : '')),
+      sConfirm: S.step === 'confirm', sNotMe: S.step === 'notme', sLang: S.step === 'lang', sPin: S.step === 'pin', sPhoto: S.step === 'photo', sDone: S.step === 'done',
+      photoTitle: PH.t, photoBody: PH.b, photoTake: PH.take, photoLib: PH.lib, photoSkip: PH.skip,
+      toDone: () => this.setState({ step: 'done' }),
+      pinTitle: S.mode === 'create' ? T.create : T.confirm,
+      pinMsg: S.msg || T.hint,
+      msgStyle: S.bad ? 'color:#E03131;font-weight:600' : '',
+      dotsCls: S.bad ? 'dots shake' : 'dots',
+      dots: [0, 1, 2, 3].map((i) => (i < S.pin.length ? 'pd on' : 'pd')),
+      keys: labels.map((l) => ({
+        label: l, show: l !== '', blank: l === '',
+        aria: l === '⌫' ? 'Delete' : 'Digit ' + l,
+        press: l === '⌫' ? () => this.setState({ pin: S.pin.slice(0, -1) }) : () => press(l)
+      })),
+      doneTitle: T.doneT, doneBody: T.doneB, doneCta: T.cta, shiftL: T.shiftL, shiftV: T.shiftV, howL: T.howL, howV: T.howV, laterT: T.later,
+      openLink: () => this.setState({ step: 'confirm' }),
+      yes: () => this.setState({ step: 'lang' }),
+      notMe: () => this.setState({ step: 'notme' }),
+      pickEn: () => this.setState({ step: 'pin', lang: 'en', mode: 'create', pin: '', msg: '' }),
+      pickVi: () => this.setState({ step: 'pin', lang: 'vi', mode: 'create', pin: '', msg: '' }),
+      restart: () => this.setState({ step: 'msg', lang: 'en', pin: '', first: '', mode: 'create', msg: '', bad: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

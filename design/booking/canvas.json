@@ -1,0 +1,955 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Bk1Day.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "B1 · Day calendar",
+      "w": 1640,
+      "x": 0,
+      "y": 1500
+    },
+    "Bk2Client.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "B2 · Tap slot → pick client",
+      "w": 1640,
+      "x": 1720,
+      "y": 1500
+    },
+    "Bk3Service.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "B3 · Pick service",
+      "w": 1640,
+      "x": 3440,
+      "y": 1500
+    },
+    "Bk4Review.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "B4 · Check → Book (4th tap)",
+      "w": 1640,
+      "x": 5160,
+      "y": 1500
+    },
+    "Bk5Conflict.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "B5 · If it overlaps",
+      "w": 1640,
+      "x": 6880,
+      "y": 1500
+    },
+    "Bk6Booked.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "B6 · Booked + Undo",
+      "w": 1640,
+      "x": 8600,
+      "y": 1500
+    },
+    "Bk7Detail.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "B7 · Tap a booking → details",
+      "w": 1640,
+      "x": 10320,
+      "y": 1500
+    },
+    "BookPhone.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Client booking (phone, simple) — see BookWeb for the full page",
+      "w": 390,
+      "x": 1520,
+      "y": 0
+    },
+    "BookWeb.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Booking page (web) — from Google, website, Instagram, QR, texts",
+      "w": 1280,
+      "x": 0,
+      "y": 2500
+    },
+    "Cal.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Calendar — merged (drag, peek, waitlist, cover)",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Cd01Day.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "D1 · Day at a glance",
+      "w": 1800,
+      "x": 0,
+      "y": -1300
+    },
+    "Cd02Create.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "D2 · Click → quick-book card",
+      "w": 1800,
+      "x": 1880,
+      "y": -1300
+    },
+    "Cd03Drag.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "D3 · Drag to create",
+      "w": 1800,
+      "x": 3760,
+      "y": -1300
+    },
+    "Cd04Peek.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "D4 · Hover / tap → peek",
+      "w": 1800,
+      "x": 5640,
+      "y": -1300
+    },
+    "Cd05Move.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "D5 · Drag to move / resize",
+      "w": 1800,
+      "x": 7520,
+      "y": -1300
+    },
+    "Cd06WaitDrop.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "D6 · Waitlist → drag onto calendar",
+      "w": 1800,
+      "x": 9400,
+      "y": -1300
+    },
+    "Cd07Cover.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "D7 · Cover a late staff",
+      "w": 1800,
+      "x": 11280,
+      "y": -1300
+    },
+    "Cd08Filter.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "D8 · Filter by a count",
+      "w": 1800,
+      "x": 13160,
+      "y": -1300
+    },
+    "Cd09Alert.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "D9b · Alerts → Show: overlap highlighted",
+      "w": 1800,
+      "x": 16920,
+      "y": -1300
+    },
+    "Cd09aAlerts.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "D9a · Tap Alerts → list with icons",
+      "w": 1800,
+      "x": 15040,
+      "y": -1300
+    },
+    "Cd10Booked.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "D10 · Booked + Undo",
+      "w": 1800,
+      "x": 18800,
+      "y": -1300
+    },
+    "Channels.dc.html": {
+      "h": 760,
+      "page": "overview",
+      "title": "Where bookings come from → one calendar",
+      "w": 1600,
+      "x": 0,
+      "y": 1300
+    },
+    "Cl1Service.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "client",
+      "title": "C1 · Pick service",
+      "w": 750,
+      "x": 0,
+      "y": 0
+    },
+    "Cl2Staff.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "client",
+      "title": "C2 · Pick staff",
+      "w": 750,
+      "x": 830,
+      "y": 0
+    },
+    "Cl3Time.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "client",
+      "title": "C3 · Pick time",
+      "w": 750,
+      "x": 1660,
+      "y": 0
+    },
+    "Cl4Details.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "client",
+      "title": "C4 · Name + phone",
+      "w": 750,
+      "x": 2490,
+      "y": 0
+    },
+    "Cl5Done.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "client",
+      "title": "C5 · Booked",
+      "w": 750,
+      "x": 3320,
+      "y": 0
+    },
+    "Cl6Manage.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "client",
+      "title": "C6 · Change / cancel",
+      "w": 750,
+      "x": 4150,
+      "y": 0
+    },
+    "Cl7Texts.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "client",
+      "title": "C7 · Confirm + reminder texts",
+      "w": 750,
+      "x": 4980,
+      "y": 0
+    },
+    "Cl8Confirmed.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "client",
+      "title": "C8 · Replied C",
+      "w": 750,
+      "x": 5810,
+      "y": 0
+    },
+    "Ki1Welcome.dc.html": {
+      "h": 768,
+      "is_interactive": true,
+      "page": "client",
+      "title": "K1 · Welcome + wait time",
+      "w": 1384,
+      "x": 0,
+      "y": -2900
+    },
+    "Ki2Phone.dc.html": {
+      "h": 768,
+      "is_interactive": true,
+      "page": "client",
+      "title": "K2 · Phone",
+      "w": 1384,
+      "x": 1464,
+      "y": -2900
+    },
+    "Ki3Services.dc.html": {
+      "h": 768,
+      "is_interactive": true,
+      "page": "client",
+      "title": "K3 · What today?",
+      "w": 1384,
+      "x": 2928,
+      "y": -2900
+    },
+    "Ki4Done.dc.html": {
+      "h": 768,
+      "is_interactive": true,
+      "page": "client",
+      "title": "K4 · Ticket + text",
+      "w": 1384,
+      "x": 4392,
+      "y": -2900
+    },
+    "Kiosk.dc.html": {
+      "h": 768,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Walk-in check-in iPad",
+      "w": 1024,
+      "x": 2720,
+      "y": 2500
+    },
+    "Main.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Earlier version — 4-tap drawer (kept for reference)",
+      "w": 1280,
+      "x": 0,
+      "y": 3700
+    },
+    "PageSettings.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Owner: Booking page settings (photos, channels, rules)",
+      "w": 1280,
+      "x": 1360,
+      "y": 2500
+    },
+    "Pg1Main.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "P1 · Booking page settings",
+      "w": 1640,
+      "x": 0,
+      "y": -2800
+    },
+    "Pg2Upload.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "P2 · Upload photos",
+      "w": 1640,
+      "x": 1720,
+      "y": -2800
+    },
+    "Pg3Google.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "P3 · Connect Google",
+      "w": 1640,
+      "x": 3440,
+      "y": -2800
+    },
+    "Sb1Day.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "staff",
+      "title": "S1 · My day (own schedule)",
+      "w": 750,
+      "x": 0,
+      "y": 0
+    },
+    "Sb2Client.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "staff",
+      "title": "S2 · Pick the client",
+      "w": 750,
+      "x": 830,
+      "y": 0
+    },
+    "Sb3Service.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "staff",
+      "title": "S3 · Pick the service",
+      "w": 750,
+      "x": 1660,
+      "y": 0
+    },
+    "Sb4Time.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "staff",
+      "title": "S4 · Pick a time",
+      "w": 750,
+      "x": 2490,
+      "y": 0
+    },
+    "Sb5Review.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "staff",
+      "title": "S5 · Check + book",
+      "w": 750,
+      "x": 3320,
+      "y": 0
+    },
+    "Sb6Done.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "staff",
+      "title": "S6 · Booked",
+      "w": 750,
+      "x": 4150,
+      "y": 0
+    },
+    "Sb7Rebook.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "staff",
+      "title": "S7 · Rebook at the end of a visit",
+      "w": 750,
+      "x": 4980,
+      "y": 0
+    },
+    "Sms.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Texts: confirm + reminder",
+      "w": 390,
+      "x": 1990,
+      "y": 0
+    },
+    "StaffBook.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Staff books on own phone (tap through)",
+      "w": 390,
+      "x": 2460,
+      "y": 0
+    },
+    "Wb1Door.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "client",
+      "title": "W1 · Start: me or group",
+      "w": 1640,
+      "x": 0,
+      "y": -1300
+    },
+    "Wb2Services.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "client",
+      "title": "W2 · Pick services",
+      "w": 1640,
+      "x": 1720,
+      "y": -1300
+    },
+    "Wb3Addon.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "client",
+      "title": "W3 · Add-ons + Your visit",
+      "w": 1640,
+      "x": 3440,
+      "y": -1300
+    },
+    "Wb4Group.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "client",
+      "title": "W4 · Group booking",
+      "w": 1640,
+      "x": 5160,
+      "y": -1300
+    },
+    "Wb5Staff.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "client",
+      "title": "W5 · Pick staff",
+      "w": 1640,
+      "x": 6880,
+      "y": -1300
+    },
+    "Wb6Time.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "client",
+      "title": "W6 · Pick time",
+      "w": 1640,
+      "x": 8600,
+      "y": -1300
+    },
+    "Wb7Details.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "client",
+      "title": "W7 · Phone · welcome back · photo",
+      "w": 1640,
+      "x": 10320,
+      "y": -1300
+    },
+    "Wb8Done.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "client",
+      "title": "W8 · Booked",
+      "w": 1640,
+      "x": 12040,
+      "y": -1300
+    },
+    "Cd02bSvc.dc.html": {
+      "x": 1880,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "D2b · Long service list",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cd02cStaff.dc.html": {
+      "x": 3760,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "D2c · Long staff list",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cd11Phone.dc.html": {
+      "x": 5640,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "D11 · Phone call booking",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cd12Details.dc.html": {
+      "x": 7520,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "D12 · Booking details panel",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cd13Repeat.dc.html": {
+      "x": 9400,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "D13 · Repeat booking",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "CalPhone.dc.html": {
+      "x": 2930,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Calendar on phone (gestures)",
+      "is_interactive": true,
+      "page": "overview"
+    },
+    "Mg1Idle.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G1 · Day on the phone",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg2View.dc.html": {
+      "x": 830,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G2 · Tap → view",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg3Lift.dc.html": {
+      "x": 1660,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G3 · Hold → pick up",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg4Resize.dc.html": {
+      "x": 2490,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G4 · Drag a handle → change length",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg5Move.dc.html": {
+      "x": 3320,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G5 · Drag the block → move",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg6Drop.dc.html": {
+      "x": 4150,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G6 · Let go → saved + Undo",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "Mg7New.dc.html": {
+      "x": 4980,
+      "y": 0,
+      "w": 750,
+      "h": 844,
+      "title": "G7 · Hold an empty spot → new booking",
+      "is_interactive": true,
+      "page": "mobile"
+    },
+    "CalWeek.dc.html": {
+      "x": 3400,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "Calendar · Week",
+      "is_interactive": true,
+      "page": "overview"
+    },
+    "CalMonth.dc.html": {
+      "x": 4920,
+      "y": 0,
+      "w": 1440,
+      "h": 900,
+      "title": "Calendar · Month",
+      "is_interactive": true,
+      "page": "overview"
+    },
+    "Cw1Week.dc.html": {
+      "x": 11280,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "W1 · Week view",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cw2Drag.dc.html": {
+      "x": 13160,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "W2 · Drag to another day",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cm1Month.dc.html": {
+      "x": 15040,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "M1 · Month view",
+      "is_interactive": true,
+      "page": "desk"
+    },
+    "Cm2More.dc.html": {
+      "x": 16920,
+      "y": -300,
+      "w": 1800,
+      "h": 900,
+      "title": "M2 · Tap “+N more” → the whole day",
+      "is_interactive": true,
+      "page": "desk"
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-16T17:45:00Z",
+    "v": 1
+  },
+  "designSystems": [
+    {
+      "artifact": "https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n",
+      "copiedAt": "2026-11-16T22:30:00Z",
+      "namespace": "NailPOS",
+      "title": "Nail POS Design System",
+      "version": null
+    },
+    {
+      "artifact": "https://claude.ai/artifact/FAPieCxsXFJvSAyzgZ4b2L",
+      "copiedAt": "2026-11-16T17:45:00Z",
+      "namespace": "nailsalonosdesignsystem_afaa02",
+      "title": "Nail Salon OS Design System",
+      "version": null
+    }
+  ],
+  "launch": {
+    "page": "overview",
+    "view": "canvas"
+  },
+  "noteOrder": [
+    "t1",
+    "s1",
+    "d1",
+    "c1",
+    "t9",
+    "d0",
+    "t2",
+    "t3",
+    "c2",
+    "c3",
+    "d2",
+    "st1",
+    "st2",
+    "mg"
+  ],
+  "notes": {
+    "c1": {
+      "kind": "title1",
+      "maxW": 6560,
+      "page": "client",
+      "text": "Simple phone booking + texts (C1–C8)",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "c2": {
+      "kind": "title1",
+      "maxW": 8000,
+      "page": "client",
+      "text": "Booking page (from Google, website, Instagram…) — step by step",
+      "w": 240,
+      "x": 0,
+      "y": -1600
+    },
+    "c3": {
+      "kind": "title1",
+      "maxW": 5776,
+      "page": "client",
+      "text": "Walk-in check-in iPad — step by step",
+      "w": 240,
+      "x": 0,
+      "y": -3200
+    },
+    "d0": {
+      "kind": "title1",
+      "maxW": 8000,
+      "page": "desk",
+      "text": "Merged calendar — every interaction (with notes)",
+      "w": 240,
+      "x": 0,
+      "y": -1600
+    },
+    "d1": {
+      "kind": "title1",
+      "maxW": 8000,
+      "page": "desk",
+      "text": "Earlier version — drawer quick-add (B1–B7)",
+      "w": 240,
+      "x": 0,
+      "y": 1200
+    },
+    "d2": {
+      "kind": "title1",
+      "maxW": 5080,
+      "page": "desk",
+      "text": "Owner — booking page settings",
+      "w": 240,
+      "x": 0,
+      "y": -3100
+    },
+    "s1": {
+      "fill": "orange",
+      "page": "overview",
+      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nV1 booking (issue #12)\n• Base = Oliver's built calendar (waitlist, up next, counts, cover) + Apple/Notion/Google patterns (drag to create/move/resize, peek, shortcuts)\n• Day calendar: staff columns, facts only (insight, not autopilot)\n• Staff quick-add in 4 taps: slot → client → service → Book\n• Online booking link for clients (no app, no account)\n• Text confirm + reminder; reply C / R; STOP always works\n• English first; VI in each person's profile\n• Page 2 = front desk frame by frame (with notes)\n• Page 3 = client booking link frame by frame\n• Every way to book: Google, website/social, text links, QR, phone, at the salon, walk-in kiosk, groups → one calendar (docs/booking-channels.md)\n\nOpen\n• Reserve with Google: V1 or V1.1? (issue #18)\n• Deposit / no-show fee? (not in V1)\n• How far ahead clients can book (proposal 30 days)\n• Reminder timing (proposal 24 h + 2 h)",
+      "w": 420,
+      "x": -520,
+      "y": 0
+    },
+    "st1": {
+      "kind": "title1",
+      "maxW": 5730,
+      "page": "staff",
+      "text": "Staff books their own client on their phone (S1–S7)",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "st2": {
+      "fill": "orange",
+      "page": "staff",
+      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nWhy: techs book their regulars from the chair (rebook = return rate up).\nRules\n• Owner turns it on/off per staff\n• Only own free times, only services they do, salon price\n• Lands on the one salon calendar, source \"Booked by <staff>\"\n• Front desk can move/cancel; tech gets told\n• Client text from the salon number\nOpen: let techs book OTHER staff? (proposal: no in V1)",
+      "w": 520,
+      "x": 0,
+      "y": 980
+    },
+    "t1": {
+      "kind": "title1",
+      "maxW": 2380,
+      "page": "overview",
+      "text": "Booking — front desk + client link",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 1600,
+      "page": "overview",
+      "text": "Every way to book",
+      "w": 240,
+      "x": 0,
+      "y": 1000
+    },
+    "t3": {
+      "kind": "title1",
+      "maxW": 3744,
+      "page": "overview",
+      "text": "Booking page · owner settings · walk-in kiosk",
+      "w": 240,
+      "x": 0,
+      "y": 2200
+    },
+    "t9": {
+      "kind": "title1",
+      "maxW": 1280,
+      "page": "overview",
+      "text": "Earlier version",
+      "w": 240,
+      "x": 0,
+      "y": 3400
+    },
+    "mg": {
+      "x": 0,
+      "y": -300,
+      "text": "Calendar on phone: tap, hold, drag, resize (G1–G7)",
+      "kind": "title1",
+      "maxW": 5730,
+      "page": "mobile"
+    }
+  },
+  "order": [
+    "Cal.dc.html",
+    "Main.dc.html",
+    "BookPhone.dc.html",
+    "Sms.dc.html",
+    "StaffBook.dc.html",
+    "Cl1Service.dc.html",
+    "Cl2Staff.dc.html",
+    "Cl3Time.dc.html",
+    "Cl4Details.dc.html",
+    "Cl5Done.dc.html",
+    "Cl6Manage.dc.html",
+    "Cl7Texts.dc.html",
+    "Cl8Confirmed.dc.html",
+    "Channels.dc.html",
+    "BookWeb.dc.html",
+    "PageSettings.dc.html",
+    "Kiosk.dc.html",
+    "Wb1Door.dc.html",
+    "Wb2Services.dc.html",
+    "Wb3Addon.dc.html",
+    "Wb4Group.dc.html",
+    "Wb5Staff.dc.html",
+    "Wb6Time.dc.html",
+    "Wb7Details.dc.html",
+    "Wb8Done.dc.html",
+    "Ki1Welcome.dc.html",
+    "Ki2Phone.dc.html",
+    "Ki3Services.dc.html",
+    "Ki4Done.dc.html",
+    "Sb1Day.dc.html",
+    "Sb2Client.dc.html",
+    "Sb3Service.dc.html",
+    "Sb4Time.dc.html",
+    "Sb5Review.dc.html",
+    "Sb6Done.dc.html",
+    "Sb7Rebook.dc.html",
+    "Bk1Day.dc.html",
+    "Bk2Client.dc.html",
+    "Bk3Service.dc.html",
+    "Bk4Review.dc.html",
+    "Bk5Conflict.dc.html",
+    "Bk6Booked.dc.html",
+    "Bk7Detail.dc.html",
+    "Cd01Day.dc.html",
+    "Cd02Create.dc.html",
+    "Cd02bSvc.dc.html",
+    "Cd02cStaff.dc.html",
+    "Cd03Drag.dc.html",
+    "Cd04Peek.dc.html",
+    "Cd05Move.dc.html",
+    "Cd06WaitDrop.dc.html",
+    "Cd07Cover.dc.html",
+    "Cd08Filter.dc.html",
+    "Cd09aAlerts.dc.html",
+    "Cd09Alert.dc.html",
+    "Cd10Booked.dc.html",
+    "Pg1Main.dc.html",
+    "Pg2Upload.dc.html",
+    "Pg3Google.dc.html",
+    "Cd11Phone.dc.html",
+    "Cd12Details.dc.html",
+    "Cd13Repeat.dc.html",
+    "CalPhone.dc.html",
+    "Mg1Idle.dc.html",
+    "Mg2View.dc.html",
+    "Mg3Lift.dc.html",
+    "Mg4Resize.dc.html",
+    "Mg5Move.dc.html",
+    "Mg6Drop.dc.html",
+    "Mg7New.dc.html",
+    "CalWeek.dc.html",
+    "CalMonth.dc.html",
+    "Cw1Week.dc.html",
+    "Cw2Drag.dc.html",
+    "Cm1Month.dc.html",
+    "Cm2More.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "overview",
+      "name": "1 · Overview — clickable screens"
+    },
+    {
+      "id": "desk",
+      "name": "2 · Front desk — step by step"
+    },
+    {
+      "id": "client",
+      "name": "3 · Client booking link — step by step"
+    },
+    {
+      "id": "staff",
+      "name": "4 · Staff books on own phone — step by step"
+    },
+    {
+      "id": "mobile",
+      "name": "5 · Calendar on phone — gestures + motion"
+    }
+  ],
+  "title": "Nail POS — Booking Flow"
+}

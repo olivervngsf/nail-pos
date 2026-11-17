@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Calendar · Month</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.cm{position:relative;width:1440px;height:900px;background:var(--surface);overflow:hidden}
+.wd{position:absolute;top:64px;height:24px;font-size:12px;font-weight:600;color:var(--ink-soft);text-align:center;line-height:24px}
+.cell{position:absolute;width:186px;height:156px;box-sizing:border-box;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 8px;display:flex;flex-direction:column;gap:2px;background:var(--paper);cursor:pointer;font-family:inherit;text-align:left;border-top:0;border-left:0;color:var(--ink)}
+.cell:hover{background:#FAFAFB}
+.cell.out{background:var(--surface);color:var(--muted)}
+.cell.closed{background:repeating-linear-gradient(135deg,#F5F5F7 0 6px,#fff 6px 12px)}
+.cell .top{display:flex;align-items:center;gap:6px;height:22px}
+.cell .n{font-size:13px;font-weight:600;min-width:22px;height:22px;line-height:22px;text-align:center;border-radius:11px}
+.cell.today .n{background:#E03131;color:#fff}
+.cell .sum{font-size:11px;color:var(--ink-soft);margin-left:auto}
+.cell .e{font-size:11.5px;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:5px;padding:0 5px}
+.cell .mr{font-size:11.5px;font-weight:600;color:var(--ink-soft);padding:0 5px}
+.busy{position:absolute;left:8px;right:8px;bottom:6px;height:4px;border-radius:2px;background:var(--fill);overflow:hidden}
+.busy span{display:block;height:100%;background:var(--ink)}
+.pop2{position:absolute;width:300px;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:10;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px;animation:pop .2s ease both}
+.pop2 .r{display:flex;gap:8px;font-size:13px;line-height:18px}
+.pop2 .r i{width:10px;height:10px;border-radius:3px;margin-top:4px;flex:none}
+</style>
+</helmet>
+<div class="cm">
+  <nav class="rail" aria-label="Menu" style="position:absolute;left:0;top:0;bottom:0;box-sizing:border-box;z-index:4">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a class="on" href="Cal.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="#" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div style="position:absolute;left:76px;right:0;top:0;height:56px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--line);background:rgba(245,245,247,.85);box-sizing:border-box">
+    <b style="font-size:18px;letter-spacing:-0.02em">November 2026</b>
+    <button class="btn ghost" type="button" aria-label="Last month" style="height:34px;width:34px;padding:0">‹</button><button class="btn" type="button" style="height:34px;font-size:13px">Today</button><button class="btn ghost" type="button" aria-label="Next month" style="height:34px;width:34px;padding:0">›</button>
+    <div class="seg"><a href="Cal.dc.html" style="text-decoration:none"><span>Day</span></a><a href="CalWeek.dc.html" style="text-decoration:none"><span>Week</span></a><span class="on">Month</span></div>
+    <span style="flex:1"></span>
+    <span class="cap">412 booked · $23,180 · busiest Sat</span>
+    <button class="btn primary" type="button" style="height:38px;font-size:15px;padding:0 16px">+ Book</button>
+  </div>
+  <sc-for list="{{wds}}" as="w" hint-placeholder-count="7"><span class="wd" style="{{w.pos}}">{{w.d}}</span></sc-for>
+  <sc-for list="{{cells}}" as="c" hint-placeholder-count="35"><button class="{{c.cls}}" type="button" style="{{c.pos}}" onClick="{{c.open}}"><span class="top"><span class="n">{{c.n}}</span><span class="sum">{{c.sum}}</span></span><sc-for list="{{c.ev}}" as="e" hint-placeholder-count="3"><span class="e" style="{{e.bg}}">{{e.t}}</span></sc-for><sc-if value="{{c.hasMore}}" hint-placeholder-val="{{false}}"><span class="mr">{{c.more}}</span></sc-if><span class="busy"><span style="{{c.bar}}"></span></span></button></sc-for>
+  <sc-if value="{{showPop}}" hint-placeholder-val="{{false}}"><div class="pop2" style="left:1032px;top:330px">
+    <div style="display:flex;align-items:center"><b style="flex:1;font-size:15px">Sat, Nov 21 · 13 booked</b><span class="cap">$1,310</span></div>
+    <sc-for list="{{popRows}}" as="r" hint-placeholder-count="13"><div class="r"><i style="{{r.dot}}"></i><span style="width:44px;color:#5C5C5E">{{r.t}}</span><span style="flex:1">{{r.n}}</span></div></sc-for>
+    <a class="btn block" href="Cal.dc.html" style="margin-top:4px;height:38px;font-size:14px">Open day</a>
+  </div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"more":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { pop: !!(p && p.more) }; }
+  renderVals() {
+    const S = this.state, X0 = 92, CW = 192, Y0 = 92, RH = 160;
+    const C = ['#E7F1FB', '#F9ECE7', '#E5F4E4', '#EFEDFF', '#F9EEDA'];
+    const sample = [['9:30 Tracy', 0], ['10 Rosa', 1], ['12 Hailey', 0], ['1 Tiffany', 0], ['3 Sofia', 0]];
+    const cnt = (d) => [12, 15, 18, 11, 16, 24, 6][(d + 6) % 7] + (d % 3);
+    const cells = [];
+    for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
+      const idx = r * 7 + c, day = idx + 1, out = day > 30, closed = day === 26, dn = out ? day - 30 : day;
+      const n = out || closed ? 0 : cnt(day), shown = Math.min(3, n);
+      cells.push({ n: String(dn), cls: 'cell' + (out ? ' out' : '') + (closed ? ' closed' : '') + (day === 16 ? ' today' : ''),
+        pos: 'left:' + (X0 + c * CW) + 'px;top:' + (Y0 + r * RH) + 'px;width:' + (CW - 4) + 'px;height:' + (RH - 4) + 'px',
+        sum: closed ? 'Closed · Thanksgiving' : (n ? n + ' · $' + (n * 55).toLocaleString() : ''),
+        ev: closed || out ? [] : sample.slice(0, shown).map((e, i) => ({ t: e[0], bg: 'background:' + C[(e[1] + day + i) % 5] })),
+        hasMore: n > 3, more: '+' + (n - 3) + ' more', bar: 'width:' + Math.min(100, Math.round(n / 26 * 100)) + '%',
+        open: day === 21 ? () => this.setState({ pop: !S.pop }) : () => {} });
+    }
+    const pr = [['9:00', 'Bella · Kim', 0], ['9:00', 'Cora · Ngọc', 1], ['9:30', 'Dee · Linh', 4], ['9:30', 'Eve · Tuyết', 2], ['11:00', 'Faye · Kim', 0], ['11:00', 'Gia · Hoa', 3], ['11:30', 'Hope · Linh', 4], ['12:00', 'Iris · Ngọc', 1], ['1:00', 'June · Kim', 0], ['1:30', 'Kim L. · Tuyết', 2], ['2:00', 'Luna · Linh', 4], ['3:00', 'Maya · Ngọc', 1], ['4:00', 'Noa · Kim', 0]];
+    return {
+      wds: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d, i) => ({ d, pos: 'left:' + (X0 + i * CW) + 'px;width:' + (CW - 4) + 'px' })),
+      cells, showPop: S.pop,
+      popRows: pr.map((r) => ({ t: r[0], n: r[1], dot: 'background:' + C[r[2]] + ';box-shadow:inset 0 0 0 1px rgba(28,28,30,.15)' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

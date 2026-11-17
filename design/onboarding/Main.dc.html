@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sign up</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="setup.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.code{width:52px;height:60px;border-radius:12px;border:1px solid var(--line);background:#fff;font:inherit;font-size:26px;font-weight:600;text-align:center}
+</style>
+</helmet>
+<div class="wiz">
+  <aside class="side">
+    <div class="brand"><div class="logo" style="margin:0">N</div>Salon setup</div>
+    <div class="prog"><span style="{{pct}}"></span></div>
+    <sc-for list="{{steps}}" as="s" hint-placeholder-count="10">
+      <div class="{{s.cls}}"><span class="n">{{s.n}}</span>{{s.label}}</div>
+    </sc-for>
+    <div class="help">About 1 hour. Everything saves as you go — stop anytime and come back.</div>
+  </aside>
+  <div class="main">
+    <div class="body">
+      <sc-if value="{{askPhone}}" hint-placeholder-val="{{true}}">
+        <div class="fade" style="max-width:520px;display:flex;flex-direction:column;gap:20px">
+          <div class="eyebrow in">Step 1 of 10</div>
+          <div class="h1 in" style="font-size:40px;line-height:46px">Let's set up your salon.</div>
+          <div class="in2" style="font-size:17px;color:var(--ink-soft)">Start with your cell phone. It's your login — no password to remember.</div>
+          <div class="in2">
+            <label class="lbl" for="ph">Your cell phone</label>
+            <input class="inp num" id="ph" value="(408) 555-0110">
+          </div>
+          <div class="in3">
+            <label class="lbl" for="em">Email (backup, for receipts and reports)</label>
+            <input class="inp" id="em" value="mai.owner@gmail.com">
+          </div>
+          <button class="btn primary in3" type="button" onClick="{{send}}" style="width:240px">Text me a code</button>
+          <div class="cap">By continuing you agree to the Terms and Privacy. Msg &amp; data rates may apply.</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{askCode}}" hint-placeholder-val="{{false}}">
+        <div class="fade" style="max-width:520px;display:flex;flex-direction:column;gap:20px">
+          <div class="eyebrow">Step 1 of 10</div>
+          <div class="h1" style="font-size:40px;line-height:46px">Enter the 6-digit code</div>
+          <div style="font-size:17px;color:var(--ink-soft)">Sent to (408) 555-0110</div>
+          <div style="display:flex;gap:10px">
+            <input class="code num" value="4" aria-label="Digit 1"><input class="code num" value="8" aria-label="Digit 2"><input class="code num" value="2" aria-label="Digit 3"><input class="code num" value="9" aria-label="Digit 4"><input class="code num" value="1" aria-label="Digit 5"><input class="code num" value="" aria-label="Digit 6" style="border-color:#1C1C1E">
+          </div>
+          <div style="display:flex;gap:16px;align-items:center">
+            <a class="btn primary" href="Info.dc.html" style="width:240px">Verify</a>
+            <button class="btn ghost" type="button" onClick="{{back}}">Change number</button>
+          </div>
+          <div class="cap">Didn't get it? Resend in 0:24 · or get a call</div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { sent: false }; }
+  renderVals() {
+    const cur = 0;
+    const names = ['Sign up','Salon info','Services','Staff + PIN','Payments','Card reader','Printer','Salon device','Clients','$1 test'];
+    return {
+      steps: names.map((label, i) => ({ label, n: i < cur ? '✓' : String(i + 1), cls: i < cur ? 'st done' : (i === cur ? 'st now' : 'st') })),
+      pct: 'width:' + Math.round((cur + 0.5) / 10 * 100) + '%',
+      askPhone: !this.state.sent,
+      askCode: this.state.sent,
+      send: () => this.setState({ sent: true }),
+      back: () => this.setState({ sent: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

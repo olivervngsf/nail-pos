@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Staff phone: all set</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="afp">
+  <div class="afp-screen">
+    <dc-import name="StaffInvite" at="done" hint-size="390px,844px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+  </div>
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
+    <div class="eyebrow">Annotations · S·10</div>
+    <div class="af-title">All set: next shift + how to clock in</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Next → S·10b Home (at home, clock-in waits) · S·11 at the salon.</div>
+  </div></sc-if></aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":750,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
+  renderVals() {
+    const P = [[150, 172, "Green ✓ pops. No clock-in push here: most staff join from home at night."], [40, 332, "Next shift comes from the schedule. No shift yet → “Your manager will add your shifts.”"], [40, 414, "How to clock in: only at the salon (this phone on salon Wi-Fi / location, or the salon iPad + PIN). They can close the app now."], [52, 547, "Open my Home → S·10b. The owner's list now shows “PIN set ✓”."]];
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Day calendar</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.grid{position:absolute;left:128px;top:100px;width:872px;height:700px;overflow:hidden}
+.hr{position:absolute;left:0;right:0;height:1px;background:#E5E5EA}
+.half{position:absolute;left:0;right:0;height:1px;background:#F0F0F3}
+.hlabel{position:absolute;left:76px;width:46px;text-align:right;font-size:12px;color:#5C5C5E;transform:translateY(-7px)}
+.colbtn{position:absolute;top:0;bottom:0;border:0;border-left:1px solid #E5E5EA;background:transparent;cursor:copy;padding:0}
+.colbtn:hover{background:rgba(28,28,30,.025)}
+.off{position:absolute;background:repeating-linear-gradient(135deg,#F2F2F4 0 6px,#FAFAFB 6px 12px);pointer-events:none}
+.ap{position:absolute;border-radius:10px;padding:6px 9px;box-sizing:border-box;font:inherit;text-align:left;border:1px solid #E5E5EA;background:#fff;cursor:pointer;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:box-shadow .2s,transform .2s}
+.ap:hover{box-shadow:0 6px 16px rgba(28,28,30,.12)}
+.ap b{display:block;font-size:13px;line-height:17px}
+.ap span{display:block;font-size:12px;line-height:16px;color:#5C5C5E}
+.ap.confirmed{background:#EAF5EC;border-color:#CDE7D2}
+.ap.arrived{border:2px solid #1C1C1E}
+.ap.done{background:#F5F5F7;color:#8E8E93}
+.ap.unconf{background:#FFF7F2;border-color:#F4C9AF}
+.ap.new{animation:fadeUp .45s var(--ease) both, flashb 1.8s ease .2s}
+@keyframes flashb{0%{box-shadow:0 0 0 4px rgba(47,158,68,.45)}100%{box-shadow:0 1px 2px rgba(0,0,0,.04)}}
+.now{position:absolute;left:-6px;right:0;height:2px;background:#E03131;pointer-events:none}
+.now::before{content:"";position:absolute;left:0;top:-4px;width:10px;height:10px;border-radius:50%;background:#E03131}
+.colhead{position:absolute;top:56px;height:44px;display:flex;align-items:center;gap:8px;padding:0 10px;box-sizing:border-box;border-bottom:1px solid #E5E5EA;font-size:14px;font-weight:600}
+
+
+@keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+.dhead{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line);flex:none}
+.dbody{flex:1;overflow:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.dfoot{padding:14px 20px 18px;border-top:1px solid var(--line);flex:none;display:flex;flex-direction:column;gap:8px}
+.steps4{display:flex;gap:6px}
+.steps4 span{flex:1;height:4px;border-radius:2px;background:var(--fill)}
+.steps4 span.on{background:var(--ink)}
+
+
+
+
+
+.drain{position:absolute;left:0;bottom:0;height:3px;background:rgba(255,255,255,.5);animation:drain 6s linear both}
+@keyframes drain{from{width:100%}to{width:0}}
+.tl{display:flex;gap:12px;align-items:flex-start;padding:6px 0;font-size:15px}
+.tl .d{width:16px;height:16px;border-radius:50%;flex:none;margin-top:2px;box-sizing:border-box}
+</style>
+</helmet>
+<div class="app" style="position:relative">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a class="on" href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="#" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar">
+      <div class="title">Mon, Nov 16</div>
+      <button class="btn ghost" type="button" style="height:34px;padding:0 10px" aria-label="Previous day">‹</button>
+      <button class="btn" type="button" style="height:34px">Today</button>
+      <button class="btn ghost" type="button" style="height:34px;padding:0 10px" aria-label="Next day">›</button>
+      <div class="seg"><span class="on">Day</span><span>Week</span></div>
+      <span class="pill ok"><span class="dot"></span>Saved</span>
+      <div class="who"><div class="av">H</div>Hạnh · Front desk</div>
+    </header>
+  </div>
+
+  <sc-for list="{{cols}}" as="c" hint-placeholder-count="4">
+    <div class="colhead" style="{{c.headStyle}}"><span class="av" style="width:26px;height:26px;font-size:12px">{{c.init}}</span>{{c.name}}<span class="cap" style="font-weight:400;margin-left:auto">{{c.sub}}</span></div>
+  </sc-for>
+  <sc-for list="{{hours}}" as="h" hint-placeholder-count="10"><div class="hlabel" style="{{h.top}}">{{h.label}}</div></sc-for>
+
+  <div class="grid">
+    <sc-for list="{{hours}}" as="h" hint-placeholder-count="10"><div class="hr" style="{{h.gridTop}}"></div><div class="half" style="{{h.halfTop}}"></div></sc-for>
+    <sc-for list="{{offs}}" as="o" hint-placeholder-count="2"><div class="off" style="{{o.style}}"></div></sc-for>
+    <sc-for list="{{cols}}" as="c" hint-placeholder-count="4"><button class="colbtn" type="button" style="{{c.btnStyle}}" onClick="{{c.tap}}" aria-label="Add appointment for {{c.name}}"></button></sc-for>
+    <sc-for list="{{appts}}" as="a" hint-placeholder-count="7">
+      <button class="{{a.cls}}" type="button" style="{{a.style}}" onClick="{{a.open}}"><b>{{a.client}}</b><span>{{a.svc}}</span><span>{{a.status}}</span></button>
+    </sc-for>
+    <div class="now" style="{{nowTop}}"></div>
+  </div>
+
+  <aside style="position:absolute;left:1000px;top:56px;right:0;bottom:0;border-left:1px solid #E5E5EA;background:#FAFAFB;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px">
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px">Walk-ins waiting · 2</div>
+      <div class="group">
+        <div class="row" style="min-height:48px;font-size:14px"><div class="grow"><b>Trang</b><div class="cap">Pedicure · any staff</div></div><span class="cap">12 min</span></div>
+        <div class="row" style="min-height:48px;font-size:14px"><div class="grow"><b>Kelly</b><div class="cap">Gel manicure · asks Kim</div></div><span class="cap">4 min</span></div>
+      </div>
+    </div>
+    <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:8px">
+      <div class="eyebrow">Booking link</div>
+      <div style="font-size:14px;font-weight:600">nailpos.app/mai-nails</div>
+      <div style="display:flex;gap:6px"><button class="btn" type="button" style="height:34px;font-size:13px">Copy</button><button class="btn" type="button" style="height:34px;font-size:13px">QR for the counter</button></div>
+    </div>
+    <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:6px;font-size:14px">
+      <div class="eyebrow">Today</div>
+      <div class="line"><span>Appointments</span><b class="num">{{count}}</b></div>
+      <div class="line"><span>Not confirmed</span><b class="num" style="color:#E8590C">1</b></div>
+      <div class="line"><span>Booked online</span><b class="num">3</b></div>
+    </div>
+    <div class="cap" style="margin-top:auto">Tap an empty spot in a column to book. Tap a booking to see it.</div>
+  </aside>
+
+  <sc-if value="{{drawerOpen}}" hint-placeholder-val="{{false}}">
+    <button class="scrim" type="button" onClick="{{close}}" aria-label="Close"></button>
+    <div class="drawer" role="dialog" aria-label="{{drawerTitle}}">
+      <sc-if value="{{isQuick}}" hint-placeholder-val="{{true}}">
+        <div class="dhead" style="flex-direction:column;align-items:stretch;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <sc-if value="{{canBack}}" hint-placeholder-val="{{false}}"><button class="btn ghost" type="button" onClick="{{back}}" style="height:32px;padding:0 8px" aria-label="Back">‹</button></sc-if>
+            <div style="flex:1"><div class="h2">New appointment</div><div class="cap">{{slotLabel}}</div></div>
+            <button class="btn ghost" type="button" onClick="{{close}}" style="height:32px">Cancel</button>
+          </div>
+          <div class="steps4"><sc-for list="{{bars}}" as="b" hint-placeholder-count="3"><span class="{{b}}"></span></sc-for></div>
+        </div>
+        <sc-if value="{{qClient}}" hint-placeholder-val="{{true}}">
+          <div class="dbody fade">
+            <div class="eyebrow">1 · Who is it for?</div>
+            <input style="height:48px;border-radius:12px;border:1px solid var(--line);padding:0 14px;font:inherit;font-size:17px" placeholder="Type phone number or name" aria-label="Find client">
+            <div class="cap">Recent and regulars</div>
+            <div class="group" style="box-shadow:none;border:1px solid var(--line)">
+              <sc-for list="{{clients}}" as="k" hint-placeholder-count="4">
+                <button class="opt" type="button" onClick="{{k.pick}}"><span class="av">{{k.init}}</span><span class="grow"><b style="font-weight:600">{{k.name}}</b><span class="cap" style="display:block">{{k.facts}}</span></span><span class="cap num">{{k.phone}}</span></button>
+              </sc-for>
+            </div>
+            <button class="btn ghost" type="button" style="align-self:flex-start">+ New client</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{qService}}" hint-placeholder-val="{{false}}">
+          <div class="dbody fade">
+            <div class="eyebrow">2 · Which service?</div>
+            <div class="card" style="padding:12px 14px;background:var(--surface);box-shadow:none;font-size:14px">Lan usually gets <b>Gel manicure with Kim</b> · every 4 weeks</div>
+            <div class="group" style="box-shadow:none;border:1px solid var(--line)">
+              <sc-for list="{{services}}" as="s" hint-placeholder-count="6">
+                <button class="opt" type="button" onClick="{{s.pick}}"><span class="grow"><b style="font-weight:600">{{s.name}}</b><span class="cap" style="display:block">{{s.min}} min</span></span><span class="num">{{s.price}}</span></button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{qReview}}" hint-placeholder-val="{{false}}">
+          <div class="dbody fade">
+            <div class="eyebrow">3 · Check and book</div>
+            <div class="group" style="box-shadow:none;border:1px solid var(--line)">
+              <div class="row"><span class="grow">Client</span><b>{{rClient}}</b></div>
+              <div class="row"><span class="grow">Service</span><b>{{rService}}</b></div>
+              <div class="row"><span class="grow">Staff</span><b>{{rStaff}}</b><button class="btn ghost" type="button" style="height:30px;font-size:13px">Change</button></div>
+              <div class="row"><span class="grow">Time</span><b class="num">{{rTime}}</b><button class="btn ghost" type="button" style="height:30px;font-size:13px">Change</button></div>
+            </div>
+            <sc-if value="{{conflict}}" hint-placeholder-val="{{false}}">
+              <div class="fade" style="padding:12px 14px;border-radius:12px;background:var(--orange-soft);border:1px solid #F4C9AF;font-size:14px;line-height:20px;display:flex;flex-direction:column;gap:8px">
+                <span><b>▲ Kim is with Mai Pham until 2:00 PM.</b> These overlap by 30 min.</span>
+                <div style="display:flex;gap:8px"><button class="btn" type="button" onClick="{{fixTime}}" style="height:36px;font-size:14px;background:#fff">Book 2:00 PM instead</button><button class="btn ghost" type="button" style="height:36px;font-size:14px">Book anyway</button></div>
+              </div>
+            </sc-if>
+            <div class="row" style="border:1px solid var(--line);border-radius:14px"><span class="grow" style="font-size:15px">Text confirmation to Lan<span class="cap" style="display:block">She said yes to texts · reminder 24 h before</span></span><span class="tag jade">On</span></div>
+          </div>
+          <div class="dfoot"><button class="btn primary block" type="button" onClick="{{book}}">{{bookLabel}}</button></div>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{isDetail}}" hint-placeholder-val="{{false}}">
+        <div class="dhead"><span class="av lg">{{d.init}}</span><div style="flex:1"><div class="h2">{{d.client}}</div><div class="cap num">{{d.phone}}</div></div><button class="btn ghost" type="button" onClick="{{close}}" style="height:32px">Close</button></div>
+        <div class="dbody fade">
+          <div class="group" style="box-shadow:none;border:1px solid var(--line)">
+            <div class="row"><span class="grow">Service</span><b>{{d.svc}}</b></div>
+            <div class="row"><span class="grow">Staff · time</span><b class="num">{{d.when}}</b></div>
+            <div class="row"><span class="grow">Booked</span><span class="cap">{{d.how}}</span></div>
+          </div>
+          <div class="eyebrow">Texts</div>
+          <sc-for list="{{d.timeline}}" as="t" hint-placeholder-count="4">
+            <div class="tl"><span class="d" style="{{t.dot}}"></span><span style="flex:1;{{t.style}}">{{t.label}}</span><span class="cap num">{{t.time}}</span></div>
+          </sc-for>
+          <div class="cap">Notes: {{d.note}}</div>
+        </div>
+        <div class="dfoot">
+          <a class="btn primary block" href="#">Check in → start ticket</a>
+          <div style="display:flex;gap:8px">
+            <button class="btn" type="button" style="flex:1" onClick="{{resend}}">Text again</button>
+            <button class="btn" type="button" style="flex:1">Move</button>
+            <button class="btn" type="button" style="flex:1;color:#E03131">Cancel / no-show</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+    <div class="toast"><span style="flex:1">{{toast}}</span><sc-if value="{{toastUndo}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{undo}}">Undo</button></sc-if><span class="drain"></span></div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["day","client","service","review","conflict","booked","detail"],"default":"day"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){
+    super(p);
+    const sc = (p && p.scenario) || 'day';
+    this.state = { mode: null, step: 0, slot: null, client: null, service: null, sel: null, added: false, toast: null, toastUndo: false, conflict: false };
+    const lan = { name: 'Lan Tran', init: 'L', phone: '(408) 555-0142' };
+    const gel = { name: 'Gel manicure', min: 45, price: 35 };
+    if (sc === 'client') Object.assign(this.state, { mode: 'quick', step: 1, slot: { col: 0, t: 15 } });
+    if (sc === 'service') Object.assign(this.state, { mode: 'quick', step: 2, slot: { col: 0, t: 15 }, client: lan });
+    if (sc === 'review') Object.assign(this.state, { mode: 'quick', step: 3, slot: { col: 0, t: 15 }, client: lan, service: gel });
+    if (sc === 'conflict') Object.assign(this.state, { mode: 'quick', step: 3, slot: { col: 0, t: 13.5 }, client: lan, service: gel, conflict: true });
+    if (sc === 'booked') Object.assign(this.state, { added: true, slot: { col: 0, t: 15 }, client: lan, service: gel, toast: 'Booked · confirmation texted to Lan', toastUndo: true });
+    if (sc === 'detail') Object.assign(this.state, { mode: 'detail', sel: 3 });
+  }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  renderVals() {
+    const S = this.state;
+    const H = 70, T0 = 9, CW = 218;
+    const fmt = (t) => { const h = Math.floor(t), m = Math.round((t - h) * 60); const hh = ((h + 11) % 12) + 1; return hh + ':' + (m < 10 ? '0' : '') + m + ' ' + (h < 12 ? 'AM' : 'PM'); };
+    const staff = [{ name: 'Kim', init: 'K', sub: '9–7' }, { name: 'Ngọc', init: 'N', sub: '9–7' }, { name: 'Tuyết', init: 'T', sub: '9–5' }, { name: 'Linh', init: 'L', sub: '11–7' }];
+    const base = [
+      { col: 1, s: 9.5, e: 10.5, client: 'Hoa Vu', svc: 'Deluxe pedicure', st: 'done', status: 'Paid ✓' },
+      { col: 0, s: 10, e: 10.75, client: 'Lan Tran', svc: 'Gel manicure', st: 'done', status: 'Paid ✓' },
+      { col: 2, s: 11, e: 12.25, client: 'Anna Kim', svc: 'Dip powder', st: 'unconf', status: '▲ Not confirmed', phone: '(408) 555-0190', how: 'Online · Nov 12', note: 'First visit' },
+      { col: 1, s: 12, e: 13, client: 'Jen Park', svc: 'Spa pedicure', st: 'confirmed', status: 'Confirmed ✓', phone: '(408) 555-0131', how: 'Front desk · Nov 9', note: 'Likes quiet' },
+      { col: 0, s: 13, e: 14, client: 'Mai Pham', svc: 'Acrylic full set', st: 'arrived', status: 'In chair', phone: '(408) 555-0170', how: 'Online · Nov 10', note: '—' },
+      { col: 3, s: 14, e: 15, client: 'Sara Lopez', svc: 'Pedicure + design', st: 'confirmed', status: 'Confirmed ✓', phone: '(408) 555-0155', how: 'Online · Nov 14', note: '—' },
+      { col: 0, s: 16.25, e: 17, client: 'Thu Le', svc: 'Gel manicure', st: 'booked', status: 'Text sent', phone: '(408) 555-0166', how: 'Front desk · today', note: '—' }
+    ];
+    let list = base.slice();
+    if (S.added && S.slot) list = list.concat([{ col: S.slot.col, s: S.slot.t, e: S.slot.t + S.service.min / 60, client: S.client.name, svc: S.service.name, st: 'booked', status: 'Text sent', isNew: true }]);
+    const appts = list.map((a, i) => ({
+      client: a.client, svc: a.svc, status: a.status,
+      cls: 'ap ' + a.st + (a.isNew ? ' new' : ''),
+      style: 'left:' + (a.col * CW + 4) + 'px;width:' + (CW - 8) + 'px;top:' + ((a.s - T0) * H + 2) + 'px;height:' + ((a.e - a.s) * H - 4) + 'px',
+      open: () => this.setState({ mode: 'detail', sel: i })
+    }));
+    const hours = []; for (let h = 9; h <= 18; h++) hours.push({ label: fmt(h).replace(':00', ''), top: 'top:' + (100 + (h - T0) * H) + 'px', gridTop: 'top:' + ((h - T0) * H) + 'px', halfTop: 'top:' + ((h - T0) * H + H / 2) + 'px' });
+    const cols = staff.map((s, i) => Object.assign({}, s, {
+      headStyle: 'left:' + (128 + i * CW) + 'px;width:' + CW + 'px',
+      btnStyle: 'left:' + (i * CW) + 'px;width:' + CW + 'px',
+      tap: (e) => {
+        const y = (e && e.nativeEvent && e.nativeEvent.offsetY) || 420;
+        const t = Math.max(9, Math.min(18.5, T0 + Math.round((y / H) * 4) / 4));
+        this.setState({ mode: 'quick', step: 1, slot: { col: i, t }, client: null, service: null, conflict: false, toast: null });
+      }
+    }));
+    const clients = [
+      { name: 'Lan Tran', init: 'L', phone: '(408) 555-0142', facts: 'Regular · 12 visits · usually Kim' },
+      { name: 'Jen Park', init: 'J', phone: '(408) 555-0131', facts: '6 visits · last Oct 30' },
+      { name: 'Anna Kim', init: 'A', phone: '(408) 555-0190', facts: 'New · booked online' },
+      { name: 'Thu Le', init: 'T', phone: '(408) 555-0166', facts: '3 visits' }
+    ].map((c) => Object.assign({}, c, { pick: () => this.setState({ client: c, step: 2 }) }));
+    const services = [['Gel manicure', 45, 35], ['Regular manicure', 30, 20], ['Deluxe pedicure', 60, 55], ['Spa pedicure', 40, 30], ['Dip powder', 60, 45], ['Acrylic fill', 45, 35]]
+      .map((x) => ({ name: x[0], min: x[1], price: '$' + x[2], pick: () => {
+        const svc = { name: x[0], min: x[1], price: x[2] };
+        const sl = S.slot; const end = sl.t + x[1] / 60;
+        const clash = list.some((a) => a.col === sl.col && sl.t < a.e && end > a.s);
+        this.setState({ service: svc, step: 3, conflict: clash });
+      } }));
+    const sl = S.slot || { col: 0, t: 15 };
+    const svcMin = S.service ? S.service.min : 45;
+    const a = list[S.sel] || base[2];
+    const tlFor = (x) => {
+      const rows = [['Booked', x.how || 'today', true], ['Confirmation text sent', 'right away', true], ['Reminder sent', 'today 9:00 AM', x.st !== 'booked'], [x.st === 'unconf' ? 'No reply yet' : 'Replied C (confirmed)', x.st === 'unconf' ? '' : '9:14 AM', x.st === 'confirmed' || x.st === 'arrived']];
+      return rows.map((r) => ({ label: r[0], time: r[1], dot: r[2] ? 'background:#1C1C1E' : 'border:2px solid #E8590C', style: r[2] ? '' : 'color:#E8590C;font-weight:600' }));
+    };
+    return {
+      cols, hours, appts, count: list.length,
+      offs: [{ style: 'left:' + (2 * CW) + 'px;width:' + CW + 'px;top:' + ((17 - T0) * H) + 'px;height:' + (2 * H) + 'px' }, { style: 'left:' + (3 * CW) + 'px;width:' + CW + 'px;top:0;height:' + (2 * H) + 'px' }],
+      nowTop: 'top:' + ((13 + 40 / 60 - T0) * H) + 'px',
+      drawerOpen: !!S.mode, isQuick: S.mode === 'quick', isDetail: S.mode === 'detail',
+      drawerTitle: S.mode === 'detail' ? 'Appointment' : 'New appointment',
+      slotLabel: staff[sl.col].name + ' · ' + fmt(sl.t),
+      bars: [1, 2, 3].map((i) => (i <= S.step ? 'on' : '')),
+      canBack: S.step > 1,
+      back: () => this.setState({ step: S.step - 1 }),
+      qClient: S.step === 1, qService: S.step === 2, qReview: S.step === 3,
+      clients, services,
+      rClient: S.client ? S.client.name : '', rService: S.service ? S.service.name + ' · ' + svcMin + ' min' : '',
+      rStaff: staff[sl.col].name, rTime: fmt(sl.t) + ' – ' + fmt(sl.t + svcMin / 60),
+      conflict: S.conflict,
+      fixTime: () => this.setState({ slot: { col: sl.col, t: 14 }, conflict: false }),
+      bookLabel: 'Book + text Lan',
+      book: () => {
+        this.setState({ mode: null, step: 0, added: true, toast: 'Booked · confirmation texted to ' + (S.client ? S.client.name.split(' ')[0] : ''), toastUndo: true });
+        clearTimeout(this.t); this.t = setTimeout(() => this.setState({ toast: null }), 6000);
+      },
+      undo: () => this.setState({ added: false, toast: null }),
+      close: () => this.setState({ mode: null, step: 0 }),
+      d: { init: a.client[0], client: a.client, phone: a.phone || '(408) 555-0100', svc: a.svc, when: staff[a.col].name + ' · ' + fmt(a.s), how: a.how || 'Front desk', note: a.note || '—', timeline: tlFor(a) },
+      resend: () => { this.setState({ toast: 'Reminder texted to ' + a.client.split(' ')[0], toastUndo: false }); clearTimeout(this.t); this.t = setTimeout(() => this.setState({ toast: null }), 4000); },
+      hasToast: !!S.toast, toast: S.toast, toastUndo: S.toastUndo
+    };
+  }
+}
+</script>
+</body>
+</html>

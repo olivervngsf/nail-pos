@@ -1,0 +1,91 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-16T23:10:00Z"
+ },
+ "title": "Nail POS — Owner Numbers",
+ "launch": {
+  "view": "canvas",
+  "page": "overview"
+ },
+ "pages": [
+  {
+   "id": "overview",
+   "name": "1 · Overview — clickable screens"
+  },
+  {
+   "id": "spec",
+   "name": "2 · Step by step (with notes)"
+  }
+ ],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1280,
+   "h": 800,
+   "title": "Owner · Numbers (KPIs)",
+   "is_interactive": true,
+   "page": "overview"
+  },
+  "Kp1Week.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "K1 · Numbers: the week at a glance",
+   "is_interactive": true,
+   "page": "spec"
+  },
+  "Kp2Wait.dc.html": {
+   "x": 1720,
+   "y": 0,
+   "w": 1640,
+   "h": 800,
+   "title": "K2 · Tap a KPI → its story",
+   "is_interactive": true,
+   "page": "spec"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Kp1Week.dc.html",
+  "Kp2Wait.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "Owner Numbers",
+   "kind": "title1",
+   "maxW": 1280,
+   "page": "overview"
+  },
+  "s1": {
+   "x": -520,
+   "y": 0,
+   "w": 420,
+   "fill": "orange",
+   "page": "overview",
+   "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nOwner KPIs (PRD \"Owner KPIs\", issue #16): top 5 + more numbers + per staff. Facts only; owner decides.\nOwner + manager see it; techs see only their own row on their phone.\nSample prices from a real salon menu (Cosmo Nails)."
+  },
+  "t2": {
+   "x": 0,
+   "y": -300,
+   "text": "Step by step (with notes)",
+   "kind": "title1",
+   "maxW": 3360,
+   "page": "spec"
+  }
+ },
+ "designSystems": [
+  {
+   "title": "Nail POS Design System",
+   "namespace": "nailpos",
+   "artifact": "https://claude.ai/artifact/JynVCKHp6dmhoQThgASD5n",
+   "version": null,
+   "copiedAt": "2026-11-16T23:10:00Z"
+  }
+ ]
+}

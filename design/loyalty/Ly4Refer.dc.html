@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Referral rewards</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Loyalty" tab="refer" hint-size="1280px,800px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+  </div>
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
+    <div class="eyebrow">Annotations · L5 · Owner</div>
+    <div class="af-title">Referral rewards</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="4"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Next: Messages → L6</div>
+  </div></sc-if></aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
+  renderVals() {
+    const P = [[112, 160, "Turn on: each client gets a link + code."], [112, 248, "Friend gets $10 off the first visit; the sharer gets $10 off the next, once the friend's first visit is paid."], [112, 410, "Example link opens the booking page with the $10 already shown."], [728, 170, "Results: shared, came, $ given. New clients with no marketplace fee."]];
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), zero: 0, three: 3, yes: true, no: false, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

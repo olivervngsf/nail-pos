@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Owner numbers</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a class="on" href="Main.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="#" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar"><div class="title">Numbers</div>
+      <div class="seg"><sc-for list="{{periods}}" as="p" hint-placeholder-count="3"><span class="{{p.cls}}" onClick="{{p.pick}}" style="cursor:pointer">{{p.label}}</span></sc-for></div>
+      <span class="pill">vs {{vsLabel}}</span>
+      <button class="btn" type="button" style="height:36px;font-size:14px">Export</button>
+    </header>
+    <main style="flex:1;display:flex;flex-direction:column;gap:16px;padding:20px 24px;min-height:0">
+      <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;height:104px"><sc-for list="{{kpis}}" as="k" hint-placeholder-count="5"><button class="{{k.cls}}" type="button" onClick="{{k.pick}}"><span class="cap">{{k.label}}</span><span class="v">{{k.value}}</span><span class="{{k.trendCls}}">{{k.trend}}</span></button></sc-for></div>
+      <div style="display:flex;gap:16px;height:320px">
+        <div class="card" style="width:740px;padding:16px 18px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:baseline;gap:10px"><b style="font-size:17px">{{chartTitle}}</b><span class="cap">{{chartSub}}</span><span style="flex:1"></span><span class="cap"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#1C1C1E"></span> this {{unit}} · <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#D1D1D6"></span> last {{unit}}</span></div>
+          <div class="minibars"><sc-for list="{{bars}}" as="b" hint-placeholder-count="7"><div class="b"><div style="display:flex;gap:3px;align-items:flex-end;width:100%;height:160px"><i style="{{b.a}}"></i><i class="last" style="{{b.l}}"></i></div><span>{{b.d}}</span></div></sc-for></div>
+          <div class="cap" style="background:var(--surface);border-radius:10px;padding:8px 10px">{{chartFact}}</div>
+        </div>
+        <div class="group" style="flex:1;display:flex;flex-direction:column">
+          <div class="eyebrow" style="padding:12px 16px 6px">More numbers · this week</div>
+          <sc-for list="{{more}}" as="m" hint-placeholder-count="7"><div class="row xs"><span style="flex:1">{{m.n}}</span><b>{{m.v}}</b><span class="cap" style="width:92px;text-align:right">{{m.s}}</span></div></sc-for>
+        </div>
+      </div>
+      <div class="group" style="flex:1;min-height:0">
+        <table class="dtable"><thead><tr><th>Staff · this week</th><th>Sales</th><th>Hours</th><th>$ / hour</th><th>Avg ticket</th><th>Rebooked</th><th>Tips (all theirs)</th><th>Turns</th></tr></thead>
+        <tbody><sc-for list="{{staff}}" as="s" hint-placeholder-count="5"><tr><td><b>{{s.n}}</b></td><td>{{s.a}}</td><td>{{s.b}}</td><td>{{s.c}}</td><td>{{s.d}}</td><td>{{s.e}}</td><td>{{s.f}}</td><td>{{s.g}}</td></tr></sc-for></tbody></table>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kpi":{"editor":"enum","options":["sales","ticket","return","perhour","wait"],"default":"sales"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { k: (p && p.kpi) || 'sales', per: 'week' }; }
+  renderVals() {
+    const S = this.state;
+    const K = [
+      ['sales', 'Sales', '$8,940', '▲ 9% vs last week', 'up', 'Sales by day', 'Mon–Sun', 'Saturday is 24% of the week. Tuesday is the slowest day: a good day for a text offer.', [1050, 820, 1180, 1240, 1610, 2160, 880], [980, 900, 1040, 1150, 1500, 1890, 740]],
+      ['ticket', 'Avg ticket', '$57', '▲ $3 vs last week', 'up', 'Average ticket by day', 'Mon–Sun', 'Add-ons (art, French, chrome) were on 31% of tickets, up from 24%.', [52, 50, 55, 58, 60, 62, 54], [50, 49, 52, 54, 57, 59, 51]],
+      ['return', 'Came back', '64%', '3 regulars lost', 'down', 'Clients who came back within 6 weeks', 'last 8 weeks', 'Lost regulars: Jen Park, Thu Le, Anna Kim (45+ days). Tap → Clients · Lost to text them.', [61, 63, 60, 66, 65, 62, 64], [58, 60, 59, 61, 62, 60, 61]],
+      ['perhour', 'Sales / staff hour', '$41', '▼ $2 vs last week', 'down', 'Sales per staff hour by day', 'Mon–Sun', 'Tuesday has 5 staff in and $820 in sales ($23/hr). Fewer staff on Tuesdays would lift this.', [42, 23, 39, 44, 47, 52, 38], [44, 31, 41, 45, 46, 50, 40]],
+      ['wait', 'Walk-in wait', '11 min', '3 walk-outs', 'down', 'Average walk-in wait by day', 'minutes', 'All 3 walk-outs were Saturday 12–2 PM after 25+ min. One more tech on Saturday midday would cover it.', [6, 4, 8, 9, 14, 22, 7], [7, 5, 7, 10, 12, 18, 8]]
+    ];
+    const cur = K.find((x) => x[0] === S.k);
+    const max = Math.max.apply(null, cur[8].concat(cur[9]));
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return {
+      periods: [['Today', 'day'], ['This week', 'week'], ['This month', 'month']].map((p) => ({ label: p[0], cls: S.per === p[1] ? 'on' : '', pick: () => this.setState({ per: p[1] }) })),
+      vsLabel: S.per === 'day' ? 'last Monday' : S.per === 'week' ? 'last week' : 'last month', unit: S.per === 'month' ? 'month' : 'week',
+      kpis: K.map((x) => ({ label: x[1], value: x[2], trend: x[3], trendCls: x[4], cls: 'stat' + (S.k === x[0] ? ' on' : ''), pick: () => this.setState({ k: x[0] }) })),
+      chartTitle: cur[5], chartSub: cur[6], chartFact: cur[7],
+      bars: days.map((d, i) => ({ d, a: 'flex:1;height:' + Math.round(cur[8][i] / max * 100) + '%', l: 'flex:1;height:' + Math.round(cur[9][i] / max * 100) + '%' })),
+      more: [['Rebooked before leaving', '38%', '▲ 4 pts'], ['No-shows', '4', '$210 lost'], ['New clients', '23', '9 from Google'], ['Tips', '$1,410', '18% avg'], ['Card fees paid', '$236', '2.7% + 5¢'], ['Gift cards sold / used', '$600 / $180', ''], ['Busiest time', 'Sat 11–2', '']].map((m) => ({ n: m[0], v: m[1], s: m[2] })),
+      staff: [['Kim', '$2,310', '38', '$61', '$64', '44%', '$362', '29'], ['Linh', '$1,980', '36', '$55', '$58', '51%', '$318', '24'], ['Ngọc', '$1,760', '37', '$48', '$55', '33%', '$291', '27'], ['Tuyết', '$1,520', '35', '$43', '$49', '29%', '$248', '26'], ['Hoa', '$1,370', '30', '$46', '$53', '36%', '$191', '20']].map((s) => ({ n: s[0], a: s[1], b: s[2], c: s[3], d: s[4], e: s[5], f: s[6], g: s[7] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

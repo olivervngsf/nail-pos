@@ -1,0 +1,140 @@
+// Checkout ticket: shape + money math. Pure functions, all integer cents (tested in ticket.test.ts).
+// The server works the totals out again (save_ticket); these are for the screen.
+import { percentOf, splitCents } from "@/lib/money";
+
+export type ServiceLine = {
+  id: string;
+  serviceId?: string;
+  name: string;
+  minutes: number;
+  cents: number;
+  /** "$45+" service: final price set by the desk. */
+  priceFrom?: boolean;
+  priceSet?: boolean;
+  staffId?: string;
+  staffName?: string;
+};
+export type Discount = { id: string; kind: "amt" | "pct"; value: number; reason: string; approvalId?: string; approvedBy?: string };
+export type Payment = {
+  id: string;
+  method: "cash" | "card_reader" | "pay_link";
+  /** Cash only: what the client handed over. */
+  givenCents?: number;
+  at: string;
+  takenBy?: string;
+  /** Card only (from Stripe): total charged incl. tip, the card fee the salon pays, card brand + last 4. */
+  amountCents?: number;
+  feeCents?: number;
+  brand?: string;
+  last4?: string;
+};
+/** @deprecated use Payment */
+export type CashPayment = Payment;
+export type Ticket = {
+  id: string;
+  salonId: string;
+  number?: number;
+  status: "open" | "paid" | "refunded";
+  createdAt: string;
+  client?: { phone: string; name: string };
+  lines: ServiceLine[];
+  discount?: Discount;
+  /** Cash tip per staff id, cents. */
+  tips: Record<string, number>;
+  note: string;
+  payment?: Payment;
+  openedBy?: string;
+  deviceId?: string;
+  /** Server has this exact version. */
+  synced?: boolean;
+  receipt?: "print" | "text" | "email" | "none";
+};
+
+export function discountCents(subtotal: number, d?: Discount): number {
+  if (!d) return 0;
+  const raw = d.kind === "pct" ? percentOf(subtotal, d.value) : d.value;
+  return Math.max(0, Math.min(subtotal, raw));
+}
+
+export function totals(t: Pick<Ticket, "lines" | "discount" | "tips">) {
+  const subtotal = t.lines.reduce((a, l) => a + l.cents, 0);
+  const discount = discountCents(subtotal, t.discount);
+  const due = subtotal - discount;
+  const tip = Object.values(t.tips).reduce((a, c) => a + Math.max(0, c), 0);
+  return { subtotal, discount, due, tip, total: due + tip };
+}
+
+/** Cash: positive = change to give back, negative = still due. */
+export const changeCents = (total: number, given: number) => given - total;
+
+/** Quick "client gave" amounts: exact, then the next round bills. 4 unique, ascending. */
+export function quickCash(total: number): number[] {
+  const up = (step: number) => Math.ceil(total / step) * step;
+  // Always offer the next big bill ($50 under $50, else $100) as the last choice.
+  const big = total < 5000 ? up(5000) : up(10000);
+  const mids = [...new Set([500, 1000, 2000, 5000].map(up))].filter((v) => v > total && v < big);
+  const out = [...new Set([total, ...mids.slice(0, 2), big])];
+  let x = out[out.length - 1];
+  while (out.length < 4) { x = (Math.floor(x / 10000) + 1) * 10000; out.push(x); }
+  return out;
+}
+
+/** People working on this ticket, in the order they first appear. */
+export function staffOn(lines: ServiceLine[]): { id: string; name: string; cents: number }[] {
+  const m = new Map<string, { id: string; name: string; cents: number }>();
+  for (const l of lines) {
+    if (!l.staffId) continue;
+    const s = m.get(l.staffId) ?? { id: l.staffId, name: l.staffName ?? "", cents: 0 };
+    s.cents += l.cents;
+    m.set(l.staffId, s);
+  }
+  return [...m.values()];
+}
+
+/** Split one tip across staff by their service price (owner default). No cent lost. */
+export function splitTipByPrice(tip: number, lines: ServiceLine[]): Record<string, number> {
+  const staff = staffOn(lines);
+  if (!staff.length || tip <= 0) return {};
+  const weights = staff.map((s) => s.cents || 1);
+  const parts = splitCents(tip, weights);
+  return Object.fromEntries(staff.map((s, i) => [s.id, parts[i]]));
+}
+
+/** What still blocks "Charge": every service needs a person and a final price. */
+export function blockers(t: Ticket): ("empty" | "staff" | "price")[] {
+  const b: ("empty" | "staff" | "price")[] = [];
+  if (!t.lines.length) b.push("empty");
+  if (t.lines.some((l) => !l.staffId)) b.push("staff");
+  if (t.lines.some((l) => l.priceFrom && !l.priceSet)) b.push("price");
+  return b;
+}
+
+/** Payload for save_ticket (server checks + totals again). */
+export function toPayload(t: Ticket) {
+  const { subtotal } = totals(t);
+  const lines: Record<string, unknown>[] = t.lines.map((l) => ({
+    id: l.id, kind: "service", serviceId: l.serviceId, staffId: l.staffId, name: l.name, minutes: l.minutes, cents: l.cents, priceFrom: !!l.priceFrom,
+  }));
+  if (t.discount) {
+    lines.push({ id: t.discount.id, kind: "discount", name: `${t.discount.reason} discount`, reason: t.discount.reason, cents: -discountCents(subtotal, t.discount), approvalId: t.discount.approvalId });
+  }
+  for (const [staffId, cents] of Object.entries(t.tips)) {
+    if (cents > 0) lines.push({ id: tipLineId(t.id, staffId), kind: "tip", staffId, name: "Cash tip", cents });
+  }
+  return {
+    id: t.id, salonId: t.salonId, createdAt: t.createdAt, note: t.note, openedBy: t.openedBy, deviceId: t.deviceId,
+    client: t.client?.phone ? t.client : undefined, lines, payment: t.payment?.method === "cash" ? t.payment : undefined,
+  };
+}
+
+/** Stable id for a staff member's tip line on a ticket (same ticket + person = same row). */
+export function tipLineId(ticketId: string, staffId: string): string {
+  // Mix the two uuids' hex into a new v4-shaped uuid, deterministic.
+  const a = ticketId.replace(/-/g, ""), b = staffId.replace(/-/g, "");
+  let h = "";
+  for (let i = 0; i < 32; i++) h += ((parseInt(a[i] || "0", 16) ^ parseInt(b[31 - i] || "0", 16) ^ (i % 16)) & 15).toString(16);
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
+}
+
+/** Short label until the server gives a number (offline ticket). */
+export const ticketLabel = (t: Pick<Ticket, "id" | "number">) => (t.number ? `#${t.number}` : `· ${t.id.slice(0, 4).toUpperCase()}`);

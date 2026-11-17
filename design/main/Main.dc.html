@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Today</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.kpi{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:18px;background:#fff;box-shadow:var(--shadow);border:0;font:inherit;text-align:left;cursor:pointer;color:#1C1C1E;transition:transform .2s var(--ease),box-shadow .2s}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(28,28,30,.1)}
+.kpi.on{box-shadow:0 0 0 2px #1C1C1E,var(--shadow)}
+.kv{font-size:28px;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
+.up{color:#1F7A33;font-weight:600;font-size:13px}
+.down{color:#B5470A;font-weight:600;font-size:13px}
+.bars{display:flex;align-items:flex-end;gap:6px;flex:1;min-height:120px}
+.bars div{flex:1;border-radius:4px 4px 0 0;background:#1C1C1E;animation:grow .6s var(--ease) both;transform-origin:bottom}
+.bars div.last{background:#D1D1D6}
+@keyframes grow{from{transform:scaleY(0)}to{transform:none}}
+.att{display:flex;align-items:center;gap:10px;min-height:50px;padding:0 14px;border-bottom:1px solid #E5E5EA;font-size:14px}
+.att:last-child{border-bottom:0}
+.att .mk{width:30px;height:30px;border-radius:9px;border:0;outline:0;display:flex;align-items:center;justify-content:center;flex:none}
+.att .tx{flex:1;min-width:0}
+.att .tx b{display:block;font-size:14px;font-weight:700;line-height:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att .tx .cap{display:block;font-size:12px;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.att .btn{height:30px;font-size:13px;padding:0 12px;flex:none}
+.mark{width:22px;height:22px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.stf{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:#fff;box-shadow:var(--shadow);font-size:13px;line-height:17px}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a class="on" href="Main.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="Cal.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="Checkout.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="Clients.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="CloseDay.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="Me.dc.html" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar">
+      <div class="title">Good afternoon, Mai <span class="cap">· Mon, Nov 16 · 1:40 PM</span></div>
+      <div class="seg"><sc-for list="{{roles}}" as="r" hint-placeholder-count="2"><span class="{{r.cls}}">{{r.label}}</span></sc-for></div>
+      <span class="pill ok"><span class="dot"></span>Saved</span>
+      <a class="btn primary" href="#" style="height:38px;font-size:15px;padding:0 16px">+ Book</a>
+    </header>
+    <main style="flex:1;display:flex;gap:20px;padding:18px 24px;min-height:0">
+      <section style="flex:1;display:flex;flex-direction:column;gap:14px;min-width:0">
+        <div class="in" style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+          <sc-for list="{{kpis}}" as="k" hint-placeholder-count="5">
+            <button class="{{k.cls}}" type="button" onClick="{{k.pick}}"><span class="cap">{{k.label}}</span><span class="kv">{{k.value}}</span><span class="{{k.trendCls}}">{{k.trend}}</span></button>
+          </sc-for>
+        </div>
+        <div class="card in2 fade" style="padding:16px 18px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0">
+          <div style="display:flex;align-items:baseline;gap:10px"><b style="font-size:17px">{{chartTitle}}</b><span class="cap">{{chartSub}}</span><span style="flex:1"></span><span class="cap"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#1C1C1E"></span> today · <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#D1D1D6"></span> last Monday</span></div>
+          <div class="bars"><sc-for list="{{bars}}" as="b" hint-placeholder-count="20"><div class="{{b.cls}}" style="{{b.style}}"></div></sc-for></div>
+          <div style="display:flex;justify-content:space-between" class="cap"><span>9 AM</span><span>11</span><span>1 PM</span><span>3</span><span>5</span><span>7 PM</span></div>
+          <div class="cap" style="background:#F5F5F7;border-radius:10px;padding:8px 10px">{{chartFact}}</div>
+        </div>
+        <div class="in3">
+          <div class="eyebrow" style="margin-bottom:6px">Staff right now</div>
+          <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px">
+            <sc-for list="{{staff}}" as="s" hint-placeholder-count="5"><div class="stf"><span class="av" style="width:28px;height:28px;font-size:12px">{{s.init}}</span><span style="flex:1"><b>{{s.name}}</b><span class="cap" style="display:block;font-size:12px">{{s.sub}}</span></span><span style="{{s.dot}}"></span></div></sc-for>
+          </div>
+        </div>
+      </section>
+      <aside style="width:340px;display:flex;flex-direction:column;gap:12px">
+        <div class="card in2" style="padding:14px 16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center">
+          <div><div class="kv" style="font-size:24px">3</div><div class="cap">in chair</div></div>
+          <div><div class="kv" style="font-size:24px">2</div><div class="cap">waiting</div></div>
+          <div><div class="kv" style="font-size:24px">9</div><div class="cap">booked later</div></div>
+        </div>
+        <div class="group in3">
+          <div style="padding:12px 14px 4px" class="eyebrow">Needs attention · {{attCount}}</div>
+          <sc-for list="{{att}}" as="a" hint-placeholder-count="5">
+            <div class="att"><span class="mk" style="{{a.markStyle}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{a.icon}}"/></svg></span><span class="tx"><b>{{a.title}}</b><span class="cap">{{a.sub}}</span></span><button class="btn" type="button" onClick="{{a.go}}">{{a.cta}}</button></div>
+          </sc-for>
+          <sc-if value="{{allClear}}" hint-placeholder-val="{{false}}"><div class="att fade" style="justify-content:center;color:#5C5C5E">Nothing needs you right now ☀</div></sc-if>
+        </div>
+        <div style="flex:1"></div>
+        <div class="cap">Facts only — you decide. Numbers update every minute; offline they show the last saved time.</div>
+      </aside>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kpi":{"editor":"enum","options":["sales","ticket","return","perhour","wait"],"default":"sales"},"role":{"editor":"enum","options":["owner","desk"],"default":"owner"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { k: (p && p.kpi) || 'sales', done: {}, role: (p && p.role) || 'owner' }; }
+  renderVals() {
+    const S = this.state;
+    const K = [
+      ['sales', 'Sales today', '$1,284', '▲ 12% vs last Mon', 'up', 'Sales by hour', 'today vs last Monday', 'Busiest so far: 12–1 PM ($310). Last Monday you were at $1,146 by now.', [0,40,90,120,160,210,310,280,0,0,0], [20,60,80,140,150,190,240,260,220,180,120]],
+      ['ticket', 'Avg ticket', '$58', '▲ $4 vs last Mon', 'up', 'Average ticket by hour', 'today vs last Monday', 'Add-ons (art, French tip) were on 6 of 22 tickets.', [0,45,52,61,55,66,70,58,0,0,0], [40,48,50,55,52,57,60,54,56,50,48]],
+      ['return', 'Came back', '64%', '3 regulars lost', 'down', 'Regulars who came back in 6 weeks', 'last 8 weeks', '3 regulars haven’t come in 45+ days: Jen Park, Thu Le, Anna Kim → Clients · Lost regulars.', [60,62,58,66,64,61,65,64,0,0,0], [55,57,60,59,62,60,61,63,0,0,0]],
+      ['perhour', 'Sales / staff hr', '$41', '▼ $3 vs last Mon', 'down', 'Sales per staff per hour', 'today vs last Monday', 'Linh: $52/hr · Kim: $47 · Ngọc: $39 · Tuyết: $33 · Hoa: not in yet.', [0,30,38,44,40,46,48,41,0,0,0], [32,40,42,45,46,44,45,47,44,40,38]],
+      ['wait', 'Walk-in wait', '12 min', '1 walked out', 'down', 'Walk-in wait by hour', 'minutes · today', '1 walk-out at 12:20 PM after 25 min (Pedicure). Busiest walk-in hour: 12–1 PM.', [0,5,8,14,25,18,12,0,0,0,0], [4,6,9,12,15,14,10,8,6,5,4]]
+    ];
+    const cur = K.find((x) => x[0] === S.k);
+    const max = Math.max.apply(null, cur[8].concat(cur[9]));
+    const bars = []; cur[8].forEach((v, i) => { bars.push({ cls: '', style: 'height:' + Math.round(v / max * 100) + '%;animation-delay:' + (i * 0.03) + 's' }); bars.push({ cls: 'last', style: 'height:' + Math.round(cur[9][i] / max * 100) + '%;animation-delay:' + (i * 0.03) + 's' }); });
+    const ICO = {"▲": "M12 7v6M12 17h.01M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z", "?": "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z", "$": "M4 4h16v16l-3-2-2 2-2-2-2 2-2-2-3 2zM8 9h8M8 13h8", "!": "M4 5h16v14H4zM8 10h4M8 14h8", "★": "M4 11h16v9H4zM12 11v9M4 11l2-4h12l2 4M12 7c-1-3-5-3-4 0M12 7c1-3 5-3 4 0"};
+    const att = [
+      ['a', '▲', 'Hoa is 24 min late', '2 bookings need cover', 'Cover', '#FDEEE6', '#B5470A'],
+      ['b', '?', 'Sofia not confirmed · 3:00', 'Reminder sent 9 AM, no reply', 'Text', '#FDEEE6', '#B5470A'],
+      ['c', '$', '2 tickets ready for bill', 'Hailey $55 · Rosa $45', 'Open', '#EFEFF2', '#1C1C1E'],
+      ['d', '!', 'Ngọc’s license expires Dec 7', '21 days · ask for the new one', 'Remind', '#FCEAEA', '#C92A2A'],
+      ['e', '★', 'Lan Tran’s birthday Friday', 'Regular · 12 visits', 'Send wish', '#EAF5EC', '#1F7A33']
+    ].filter((a) => !S.done[a[0]]);
+    return {
+      roles: [['Owner', 'owner'], ['Front desk', 'desk']].map((r) => ({ label: r[0], cls: S.role === r[1] ? 'on' : '' })),
+      kpis: K.map((x) => ({ label: x[1], value: x[2], trend: x[3], trendCls: x[4], cls: 'kpi' + (S.k === x[0] ? ' on' : ''), pick: () => this.setState({ k: x[0] }) })),
+      chartTitle: cur[5], chartSub: cur[6], chartFact: cur[7], bars,
+      staff: [['K', 'Kim', 'In chair · $186 · 4 turns', '#E03131'], ['N', 'Ngọc', 'In chair · $142 · 3 turns', '#E03131'], ['T', 'Tuyết', 'Free 36 min · $120', '#2F9E44'], ['H', 'Hoa', 'Not in · 24m late', '#8E8E93'], ['L', 'Linh', 'In chair · $165 · 2 turns', '#E03131']].map((s) => ({ init: s[0], name: s[1], sub: s[2], dot: 'width:8px;height:8px;border-radius:50%;background:' + s[3] })),
+      att: att.map((a) => ({ icon: ICO[a[1]], mark: a[1], title: a[2], sub: a[3], cta: a[4], markStyle: 'background:' + a[5] + ';color:' + a[6], go: () => { const d = Object.assign({}, S.done); d[a[0]] = true; this.setState({ done: d }); } })),
+      attCount: att.length, allClear: att.length === 0
+    };
+  }
+}
+</script>
+</body>
+</html>
