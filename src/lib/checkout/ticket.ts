@@ -15,12 +15,26 @@ export type ServiceLine = {
   staffName?: string;
 };
 export type Discount = { id: string; kind: "amt" | "pct"; value: number; reason: string; approvalId?: string; approvedBy?: string };
-export type CashPayment = { id: string; method: "cash"; givenCents: number; at: string; takenBy?: string };
+export type Payment = {
+  id: string;
+  method: "cash" | "card_reader" | "pay_link";
+  /** Cash only: what the client handed over. */
+  givenCents?: number;
+  at: string;
+  takenBy?: string;
+  /** Card only (from Stripe): total charged incl. tip, the card fee the salon pays, card brand + last 4. */
+  amountCents?: number;
+  feeCents?: number;
+  brand?: string;
+  last4?: string;
+};
+/** @deprecated use Payment */
+export type CashPayment = Payment;
 export type Ticket = {
   id: string;
   salonId: string;
   number?: number;
-  status: "open" | "paid";
+  status: "open" | "paid" | "refunded";
   createdAt: string;
   client?: { phone: string; name: string };
   lines: ServiceLine[];
@@ -28,7 +42,7 @@ export type Ticket = {
   /** Cash tip per staff id, cents. */
   tips: Record<string, number>;
   note: string;
-  payment?: CashPayment;
+  payment?: Payment;
   openedBy?: string;
   deviceId?: string;
   /** Server has this exact version. */
@@ -109,7 +123,7 @@ export function toPayload(t: Ticket) {
   }
   return {
     id: t.id, salonId: t.salonId, createdAt: t.createdAt, note: t.note, openedBy: t.openedBy, deviceId: t.deviceId,
-    client: t.client?.phone ? t.client : undefined, lines, payment: t.payment,
+    client: t.client?.phone ? t.client : undefined, lines, payment: t.payment?.method === "cash" ? t.payment : undefined,
   };
 }
 

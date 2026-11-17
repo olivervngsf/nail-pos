@@ -44,7 +44,7 @@ function merge(t: Ticket) {
   const mine = c[t.id];
   if (!mine) c[t.id] = { ...t, synced: true };
   else if (!mine.number && t.number) c[t.id] = { ...mine, number: t.number };
-  else if (mine.status === "open" && t.status === "paid") c[t.id] = { ...t, synced: true };
+  else if (t.status !== "open" && mine.status !== t.status) c[t.id] = { ...t, synced: true };
 }
 
 export function useTicket(id: string) {
@@ -71,26 +71,28 @@ export function useTickets(salonId: string) {
 }
 
 type Row = {
-  id: string; number: number; status: "open" | "paid" | "voided"; created_at: string; note: string; opened_by: string | null;
+  id: string; number: number; status: "open" | "paid" | "refunded" | "voided"; created_at: string; note: string; opened_by: string | null;
   client: { phone: string | null; name: string } | null;
   ticket_lines: { id: string; kind: string; service_id: string | null; staff_id: string | null; name: string; minutes: number | null; amount_cents: number; price_from: boolean; reason: string | null; approval_id: string | null; removed_at: string | null; sort: number }[];
-  payments: { id: string; given_cents: number | null; at: string; taken_by: string | null }[];
+  payments: { id: string; method: "cash" | "card_reader" | "pay_link"; given_cents: number | null; amount_cents: number; fee_cents: number; card_brand: string | null; card_last4: string | null; at: string; taken_by: string | null }[];
 };
 
 /** Today's tickets from the server (open ones from any desk + paid), merged into this device. */
-export async function pullTickets(salonId: string, staffName: (id: string) => string, since: string) {
+export async function pullTickets(salonId: string, staffName: (id: string) => string, since: string, onlyId?: string) {
   const sb = getSupabase();
   if (!sb || !live) return;
-  const { data, error } = await sb.from("tickets")
-    .select("id,number,status,created_at,note,opened_by,client:clients(phone,name),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort),payments(id,given_cents,at,taken_by)")
-    .eq("salon_id", salonId).neq("status", "voided").gte("created_at", since).order("created_at", { ascending: false }).limit(200);
+  let q = sb.from("tickets")
+    .select("id,number,status,created_at,note,opened_by,client:clients(phone,name),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort),payments(id,method,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
+    .eq("salon_id", salonId).neq("status", "voided");
+  q = onlyId ? q.eq("id", onlyId) : q.gte("created_at", since);
+  const { data, error } = await q.order("created_at", { ascending: false }).limit(200);
   if (error) throw new Error(error.message);
   for (const r of (data ?? []) as unknown as Row[]) {
     const lines = r.ticket_lines.filter((l) => !l.removed_at).sort((a, b) => a.sort - b.sort);
     const disc = lines.find((l) => l.kind === "discount");
-    const pay = r.payments[0];
+    const pay = [...r.payments].sort((a, b) => b.at.localeCompare(a.at))[0];
     merge({
-      id: r.id, salonId, number: r.number, status: r.status === "paid" ? "paid" : "open", createdAt: r.created_at, note: r.note,
+      id: r.id, salonId, number: r.number, status: r.status === "voided" ? "open" : r.status, createdAt: r.created_at, note: r.note,
       openedBy: r.opened_by ?? undefined,
       client: r.client?.phone ? { phone: r.client.phone, name: r.client.name } : undefined,
       lines: lines.filter((l) => l.kind === "service").map((l) => ({
@@ -99,7 +101,8 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
       })),
       discount: disc ? { id: disc.id, kind: "amt", value: -disc.amount_cents, reason: disc.reason ?? "", approvalId: disc.approval_id ?? undefined } : undefined,
       tips: Object.fromEntries(lines.filter((l) => l.kind === "tip" && l.staff_id).map((l) => [l.staff_id!, l.amount_cents])),
-      payment: pay ? { id: pay.id, method: "cash", givenCents: pay.given_cents ?? 0, at: pay.at, takenBy: pay.taken_by ?? undefined } : undefined,
+      payment: pay ? { id: pay.id, method: pay.method, givenCents: pay.given_cents ?? undefined, at: pay.at, takenBy: pay.taken_by ?? undefined,
+        amountCents: Number(pay.amount_cents), feeCents: Number(pay.fee_cents), brand: pay.card_brand ?? undefined, last4: pay.card_last4 ?? undefined } : undefined,
     });
   }
   persist();
@@ -119,6 +122,15 @@ registerHandler("ticket.receipt", async (item) => {
 export function logReceipt(t: Ticket, channel: "print" | "text" | "email" | "none", to?: string) {
   putLocal({ ...t, receipt: channel });
   if (live) void enqueue("ticket.receipt", { id: crypto.randomUUID(), salonId: t.salonId, ticketId: t.id, channel, to });
+}
+
+/** Save the ticket on the server right now (card payments need the server's copy first). */
+export async function saveNow(t: Ticket) {
+  clearTimeout(timers.get(t.id));
+  const r = await rpc<{ id: string; number: number; status: string }>("save_ticket", { p: JSON.parse(JSON.stringify(toPayload(t))) });
+  load()[t.id] = { ...t, number: r.number, synced: true };
+  persist();
+  return r;
 }
 
 /** Local-only change (no server send), e.g. which receipt was picked. */

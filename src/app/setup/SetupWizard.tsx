@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PhoneCodeLogin from "@/components/PhoneCodeLogin";
 import { SMS_ON, homeFor, isSignedIn, myMemberships } from "@/lib/auth";
+import { api } from "@/lib/api";
+import { syncNow } from "@/lib/offline/outbox";
 import { queueSave, withIds } from "./sync";
 import { importMenu, shrinkPhoto } from "./menuImport";
 import { SyncPill } from "@/components/kit";
@@ -421,6 +423,7 @@ function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
 
 /* 4. Connect payments */
 const Payments: StepView = ({ s, set }) => {
+  if (SMS_ON && s.stripe !== "done") return [{ lock: true }, <StripeConnect key="sc" s={s} set={set} />];
   if (s.stripe === "stripe") return [{ lock: true }, (
     <div className="card" style={{ overflow: "hidden" }}>
       <div style={{ height: 44, display: "flex", alignItems: "center", padding: "0 16px", background: "#F6F8FA", borderBottom: "1px solid var(--line)", fontWeight: 700, color: "#635BFF" }}>stripe · {s.salonName || "Your salon"}</div>
@@ -460,11 +463,12 @@ const Payments: StepView = ({ s, set }) => {
 
 /* 5. Card reader */
 const Reader: StepView = ({ s, set }) => {
+  if (SMS_ON && s.reader !== "done") return [{ lock: true, skip: true }, <ReaderPair key="rp" s={s} set={set} />];
   if (s.reader === "done") return [{}, <>
     <H1>Card reader connected</H1>
     <div className="card pad" style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
       <div className="okmark">✓</div>
-      <div><b style={{ fontSize: 17 }}>Stripe Reader S710 · “Front desk”</b><div className="cap">Online on salon Wi-Fi. You&apos;ll try it with a $1 test in step 9.</div></div>
+      <div><b style={{ fontSize: 17 }}>Stripe Reader S710 · “{s.readerLabel || "Front desk"}”</b><div className="cap">Online on salon Wi-Fi. You&apos;ll try it with a $1 test in step 9.</div></div>
     </div>
   </>];
   const ok = s.pairing.trim().split(/[-\s]+/).filter(Boolean).length === 3;
@@ -480,6 +484,75 @@ const Reader: StepView = ({ s, set }) => {
     <div className="demo">Test version: pairing is simulated until Stripe Terminal is wired in.</div>
   </>];
 };
+
+/* Real Stripe Connect (sign-in on): the salon's own Express account, Stripe's own sign-up page. */
+function StripeConnect({ s, set }: Pick<StepProps, "s" | "set">) {
+  const [st, setSt] = useState<{ on?: boolean; connected?: boolean; chargesEnabled?: boolean; detailsSubmitted?: boolean; test?: boolean } | null>(null);
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (!s.salonId) return;
+    void api<NonNullable<typeof st>>("/api/stripe/status", { salonId: s.salonId }).then((r) => {
+      setSt(r);
+      if (r.chargesEnabled) set((p) => ({ ...p, stripe: "done" }));
+    }).catch((e) => setErr((e as Error).message));
+  }, [s.salonId, set]);
+  const go = async () => {
+    setBusy(true); setErr("");
+    try {
+      await syncNow(); // the salon must be saved on the server first
+      const r = await api<{ url: string }>("/api/stripe/connect", { salonId: s.salonId });
+      location.href = r.url;
+    } catch (e) { setErr((e as Error).message); setBusy(false); }
+  };
+  return <>
+    <H1>Connect payments</H1>
+    <div className="cap lead">Your salon gets its own Stripe account. Money goes straight to your bank; we never hold it. Takes about 5 minutes: have your EIN (or SSN) and bank details ready.</div>
+    {st?.on === false && <div className="demo">Card payments aren&apos;t switched on for this site yet (Stripe key missing).</div>}
+    {st?.connected && !st.chargesEnabled && <div className="banner" role="status">{st.detailsSubmitted ? "Stripe is checking your details. This usually takes a minute; come back to this step." : "Stripe still needs a few details. Tap Continue with Stripe."}</div>}
+    <div className="card pad" style={{ gap: 12 }}>
+      <b>What you&apos;ll need</b>
+      <div className="cap" style={{ fontSize: 14, lineHeight: "22px" }}>Business name and type · EIN or SSN · Bank account for payouts · Your date of birth</div>
+      <div className="group">
+        <div className="row"><span className="g">Card reader (tap/chip)</span><b>2.7% + 5¢</b></div>
+        <div className="row"><span className="g">Pay link / QR</span><b>2.9% + 30¢</b></div>
+        <div className="row"><span className="g">Our fee on payments</span><b>$0 (flat monthly plan only)</b></div>
+      </div>
+      <button className="btn stripe" type="button" disabled={busy || st?.on === false || !s.salonId} style={{ alignSelf: "flex-start" }} onClick={() => void go()}>{st?.connected ? "Continue with Stripe" : "Connect with Stripe"}</button>
+      {st?.test && <div className="demo">Test mode: on Stripe&apos;s page use test data (phone 000 000 0000, code 000000, SSN 000-00-0000, routing 110000000, account 000123456789).</div>}
+      {err && <div className="hint err">{err}</div>}
+    </div>
+  </>;
+}
+
+/* Real reader pairing (sign-in on): the 3 words on the S710, or a test reader in test mode. */
+function ReaderPair({ s, set }: Pick<StepProps, "s" | "set">) {
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const ok = s.pairing.trim().split(/[-\s]+/).filter(Boolean).length === 3;
+  const pair = async (code: string) => {
+    setBusy(true); setErr("");
+    try {
+      const r = await api<{ label: string }>("/api/stripe/reader", { salonId: s.salonId, code, label: "Front desk" });
+      set((p) => ({ ...p, reader: "done", readerLabel: r.label }));
+    } catch (e) { setErr((e as Error).message); setBusy(false); }
+  };
+  return <>
+    <H1>Connect your card reader</H1>
+    <ol style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 6, fontSize: 15 }}>
+      <li>Plug in the Stripe S710 and connect it to the salon Wi-Fi.</li>
+      <li>On the reader: Settings · Generate pairing code.</li>
+      <li>Type the 3 words it shows.</li>
+    </ol>
+    <div><label className="lbl" htmlFor="pc">Pairing code</label><input className="inp" id="pc" placeholder="tempo-quote-lima" autoCapitalize="none" value={s.pairing} onChange={(e) => set((p) => ({ ...p, pairing: e.target.value }))} /></div>
+    <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <button className="btn" type="button" disabled={!ok || busy} onClick={() => void pair(s.pairing)}>Connect reader</button>
+      <button className="btn ghost" type="button" disabled={busy} onClick={() => void pair("simulated-s710")}>No reader yet: use a test reader</button>
+    </div>
+    {err && <div className="hint err">{err}</div>}
+    <div className="cap">Payments must be connected first (step 4). The test reader works only in test mode.</div>
+  </>;
+}
 
 /* 6. Printer */
 const Printer: StepView = ({ s, set }) => [{ skip: true }, <>

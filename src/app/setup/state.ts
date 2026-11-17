@@ -19,6 +19,7 @@ export type SetupState = {
   staff: Staff[];
   stripe: "start" | "stripe" | "done";
   reader: "start" | "done";
+  readerLabel?: string;
   pairing: string;
   printer: string;
   printed: boolean;
