@@ -396,7 +396,7 @@ function CardWait({ desk, ticket, method, onBack }: { desk: Desk; ticket: Ticket
         if (stop) return;
         if (r.status === "paid") { await pullTickets(desk.salonId, name, "", ticket.id); return; }
         if (r.status === "failed") { setErr(t("declined", { msg: r.error ?? "" })); setPr(null); return; }
-        if (r.status === "canceled") { setPr(null); return; }
+        if (r.status === "canceled") { if (r.error) setErr(r.error); setPr(null); return; }
       } catch { /* weak internet: keep asking */ }
       if (!stop) setTimeout(tick, 2000);
     };
@@ -410,7 +410,12 @@ function CardWait({ desk, ticket, method, onBack }: { desk: Desk; ticket: Ticket
     try { await api("/api/pay/simulate", { id: pr.id, ...body }); } catch (e) { setErr((e as Error).message); }
     setBusy(false);
   };
-  const cancel = async () => { if (pr) await api("/api/pay/cancel", { id: pr.id }).catch(() => null); onBack(); };
+  const cancel = async () => {
+    const r = pr ? await api<{ status: string }>("/api/pay/cancel", { id: pr.id }).catch(() => null) : null;
+    // The client paid just before Cancel: show the paid ticket instead of going back.
+    if (r?.status === "paid") { await pullTickets(desk.salonId, (id) => desk.staff.find((s) => s.id === id)?.name ?? "", "", ticket.id); return; }
+    onBack();
+  };
 
   return (
     <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, padding: "24px 16px", textAlign: "center" }}>
@@ -621,7 +626,9 @@ function RefundDrawer({ desk, ticket, amount, card, onClose, say }: { desk: Desk
     setErr("");
     if (desk.mode === "demo") return setOk({ name: managers[0]?.name ?? "Mai" });
     try {
-      const r = await rpc<PinResult & { approval_id?: string }>("approve_discount", pin ? { p_salon: desk.salonId, p_device: desk.device!.id, p_membership: approver, p_pin: pin } : { p_salon: desk.salonId });
+      // Refund OK is for this ticket only and can be used once.
+      const scope = { p_salon: desk.salonId, p_purpose: "refund", p_ticket: ticket.id };
+      const r = await rpc<PinResult & { approval_id?: string }>("approve_discount", pin ? { ...scope, p_device: desk.device!.id, p_membership: approver, p_pin: pin } : scope);
       if (!r.ok) return setErr((r.reason as string) === "not_manager" ? t("notManager") : pinMessage(r));
       setOk({ approvalId: r.approval_id, name: r.name ?? "" });
     } catch { setErr(t("pinOffline")); }
@@ -668,8 +675,14 @@ function receiptDoc(desk: Desk, ticket: Ticket, t: ReturnType<typeof useTranslat
     title: desk.salonName,
     sub: [`${t("receiptFor")} ${ticketLabel(ticket)}`, when, ...(ticket.client?.name ? [ticket.client.name] : [])],
     rows,
-    footer: [t("thanks", { name: "" }), "PolishOS"],
+    footer: [t("thanks", { name: "" }), ...(digitalReceiptUrl(desk, ticket) ? [t("scanReceipt")] : []), "PolishOS"],
+    qr: digitalReceiptUrl(desk, ticket),
   };
+}
+
+/** Link to the client's digital receipt (only once the ticket is saved on the server). */
+function digitalReceiptUrl(desk: Desk, ticket: Ticket): string | undefined {
+  return desk.mode === "live" && ticket.number && typeof location !== "undefined" ? `${location.origin}/r/${ticket.id}` : undefined;
 }
 
 /** "Print by Bluetooth" (Android Chrome, or Bluefy on iPhone/iPad): pair once, then one tap prints. */
@@ -713,6 +726,9 @@ function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say
 function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
+  const [qr, setQr] = useState("");
+  const url = digitalReceiptUrl(desk, ticket);
+  useEffect(() => { if (url) void QRCode.toDataURL(url, { width: 160, margin: 1 }).then(setQr); }, [url]);
   const sum = totals(ticket);
   const given = ticket.payment?.givenCents ?? sum.left;
   return (
@@ -733,6 +749,11 @@ function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
         ? <div className="rl"><span>{ticket.payment.brand ? `${ticket.payment.brand.toUpperCase()} ••${ticket.payment.last4 ?? ""}` : t("qr")}</span><span>{$(ticket.payment.amountCents ?? sum.total)}</span></div>
         : <><div className="rl"><span>{t("cash")}</span><span>{$(given)}</span></div>
           <div className="rl"><span>{t("change")}</span><span>{$(given - sum.left)}</span></div></>}
+      {qr && <div style={{ textAlign: "center", marginTop: 6 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- data: URL */}
+        <img src={qr} alt="" width={110} height={110} />
+        <div>{t("scanReceipt")}</div>
+      </div>}
     </div>
   );
 }

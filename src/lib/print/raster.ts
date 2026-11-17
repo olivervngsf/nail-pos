@@ -1,5 +1,6 @@
 "use client";
 // Draw the receipt as a black-and-white image (keeps Vietnamese accents), the way Nail Tech Log did for the NETUM.
+import QRCode from "qrcode";
 import { dotsWide, imageBytes, packBitmap, punct, type Paper, type ReceiptDoc } from "./escpos";
 
 type Line = { text: string; right?: string; bold?: boolean; size: number; align: "left" | "center"; sep?: boolean };
@@ -36,16 +37,28 @@ export async function receiptImageBytes(doc: ReceiptDoc, paper: Paper): Promise<
     parts.forEach((t, i) => lines.push({ text: t, right: i === parts.length - 1 ? amt : undefined, bold, size, align: "left" }));
   }
   lines.push({ text: "", size: 12, align: "left", sep: true });
+  const qr = doc.qr ? QRCode.create(doc.qr, { errorCorrectionLevel: "M" }).modules : null;
+  const qrScale = paper === 58 ? 5 : 6, qrSize = qr ? (qr.size + 4) * qrScale : 0;
   for (const s of doc.footer ?? []) lines.push({ text: s, size: 19, align: "center" });
 
   const lh = (l: Line) => (l.sep ? 14 : Math.ceil(l.size * 1.35));
-  const H = pad * 2 + lines.reduce((a, l) => a + lh(l), 0);
+  const footerCount = (doc.footer ?? []).length;
+  const H = pad * 2 + lines.reduce((a, l) => a + lh(l), 0) + (qr ? qrSize + 8 : 0);
   c.width = W; c.height = H;
   ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = "#000"; ctx.textBaseline = "top";
   let y = pad;
-  for (const l of lines) {
-    if (l.sep) { for (let x = pad; x < W - pad; x += 8) ctx.fillRect(x, y + 6, 4, 2); y += lh(l); continue; }
+  const drawQr = () => {
+    if (!qr) return;
+    const x0 = Math.floor((W - qrSize) / 2);
+    for (let r = 0; r < qr.size; r++) for (let c = 0; c < qr.size; c++) if (qr.get(r, c)) ctx.fillRect(x0 + (c + 2) * qrScale, y + (r + 2) * qrScale, qrScale, qrScale);
+    y += qrSize + 8;
+  };
+  // The QR sits between the last line and the footer.
+  lines.forEach((l, i) => { if (i === lines.length - footerCount) drawQr(); draw(l); });
+  if (footerCount === 0) drawQr();
+  function draw(l: Line) {
+    if (l.sep) { for (let x = pad; x < W - pad; x += 8) ctx.fillRect(x, y + 6, 4, 2); y += lh(l); return; }
     ctx.font = font(l.size, l.bold);
     ctx.textAlign = l.align === "center" ? "center" : "left";
     ctx.fillText(punct(l.text), l.align === "center" ? W / 2 : pad, y, W - pad * 2);

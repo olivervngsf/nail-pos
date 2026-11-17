@@ -13,8 +13,22 @@ let cache: Record<string, Ticket> | null = null;
 let live = false;
 const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
-/** Live = signed in to a real salon: changes are sent to the server. Off = test copy (this device only). */
-export function setLive(on: boolean) { live = on; }
+/** Live = signed in to a real salon: changes are sent to the server. Off = test copy (this device only).
+ *  Turning live on re-sends tickets changed on this device that never reached the server (e.g. closed mid-edit). */
+export function setLive(on: boolean) {
+  const was = live;
+  live = on;
+  if (on && !was) for (const t of Object.values(load())) if (!t.synced && t.status === "open") void enqueue("ticket.save", JSON.parse(JSON.stringify(toPayload(t))));
+}
+
+/** Send edits still waiting out their 600 ms now (page is closing or going to the background). */
+function flushTimers() {
+  for (const [id, h] of timers) { clearTimeout(h); timers.delete(id); const cur = getTicket(id); if (cur && live) void enqueue("ticket.save", JSON.parse(JSON.stringify(toPayload(cur)))); }
+}
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", flushTimers);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushTimers(); });
+}
 export const isLive = () => live;
 
 function load(): Record<string, Ticket> {
@@ -91,7 +105,8 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
   for (const r of (data ?? []) as unknown as Row[]) {
     const lines = r.ticket_lines.filter((l) => !l.removed_at).sort((a, b) => a.sort - b.sort);
     const disc = lines.find((l) => l.kind === "discount");
-    const pay = r.payments.filter((p) => p.method !== "gift_card" && p.status !== "canceled").sort((a, b) => b.at.localeCompare(a.at))[0];
+    // 'extra' = card money that came in for a stopped try (flagged to refund), not this ticket's payment.
+    const pay = r.payments.filter((p) => p.method !== "gift_card" && p.status !== "canceled" && p.status !== "extra").sort((a, b) => b.at.localeCompare(a.at))[0];
     const gifts = lines.filter((l) => l.kind === "gift_sale" && l.gift_card_id).map((l) => {
       const mine = getTicket(r.id)?.gifts?.find((g) => g.id === l.id);
       return mine ?? { id: l.id, cardId: l.gift_card_id!, last4: l.name.slice(-4), kind: "plastic" as const, cents: Number(l.amount_cents) };

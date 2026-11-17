@@ -1,4 +1,6 @@
 // ESC/POS receipt bytes for small thermal printers (58 mm = 32 characters a line, 80 mm = 48).
+import QRCode from "qrcode";
+
 // Plain English prints as fast text; Vietnamese letters print as an image (raster.ts) so accents show. Pure + tested.
 
 export type Paper = 58 | 80;
@@ -85,6 +87,8 @@ export type ReceiptDoc = {
   sub?: string[];         // ticket #, date, client
   rows: ([string, string] | "sep" | { bold: [string, string] } | { text: string })[];
   footer?: string[];
+  /** Link printed as a QR code above the footer (digital receipt). */
+  qr?: string;
 };
 
 /** Build the bytes: init, centered bold title, rows, footer, feed, cut. */
@@ -105,8 +109,28 @@ export function receiptBytes(doc: ReceiptDoc, paper: Paper): Uint8Array {
     else text(plain(r.text).slice(0, w));
   }
   text("-".repeat(w));
+  if (doc.qr) {
+    const q = qrRaster(doc.qr, paper === 58 ? 5 : 6);
+    const wb = Math.ceil(q.width / 8);
+    out.push(ESC, 0x61, 1, GS, 0x76, 0x30, 0, wb & 0xff, (wb >> 8) & 0xff, q.height & 0xff, (q.height >> 8) & 0xff, ...q.dots, ESC, 0x61, 0);
+  }
   for (const s of doc.footer ?? []) text(center(s, w));
   out.push(LF, LF, LF, LF);
   out.push(GS, 0x56, 0x42, 0x00); // cut (ignored by printers without a cutter)
   return new Uint8Array(out);
+}
+
+/** A QR code as printer dots (scale = dots per square). Small enough to print fast on 58 mm paper. */
+export function qrRaster(text: string, scale: number): { dots: Uint8Array; width: number; height: number } {
+  const m = QRCode.create(text, { errorCorrectionLevel: "M" }).modules;
+  const quiet = 2, n = m.size + quiet * 2, width = n * scale, wb = Math.ceil(width / 8);
+  const dots = new Uint8Array(wb * width);
+  for (let r = 0; r < m.size; r++) for (let c = 0; c < m.size; c++) {
+    if (!m.get(r, c)) continue;
+    for (let dy = 0; dy < scale; dy++) for (let dx = 0; dx < scale; dx++) {
+      const y = (r + quiet) * scale + dy, x = (c + quiet) * scale + dx;
+      dots[y * wb + (x >> 3)] |= 0x80 >> (x & 7);
+    }
+  }
+  return { dots, width, height: width };
 }

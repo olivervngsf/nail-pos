@@ -5,7 +5,8 @@
     "syncing": "Đang gửi…",
     "offline": "Mất mạng · đã lưu trên máy",
     "waiting": "{count, plural, other {# thay đổi đang chờ gửi}}",
-    "banner": "Mất mạng. Cứ làm tiếp: mọi thứ lưu trên máy này và tự gửi khi có mạng lại."
+    "banner": "Mất mạng. Cứ làm tiếp: mọi thứ lưu trên máy này và tự gửi khi có mạng lại.",
+    "stuck": "{count} chưa lưu được · báo chủ tiệm"
   },
   "home": {
     "tagline": "Tính tiền đơn giản, lương thợ rõ ràng.",
@@ -103,7 +104,7 @@
     "qrFee": "Phí 2.9% + 30¢ · tiệm trả",
     "split": "Chia",
     "splitSub": "Một phần tiền mặt, một phần thẻ.",
-    "comingS3": "Có khi thêm thanh toán thẻ (buổi 3)",
+    "comingS3": "Sắp có",
     "due": "Cần trả",
     "tips": "Tip",
     "total": "Tổng",
@@ -135,7 +136,7 @@
     "email": "Email",
     "noReceipt": "Không lấy hóa đơn",
     "receiptLang": "Hóa đơn theo ngôn ngữ của khách.",
-    "textLater": "Đã lưu. Tin nhắn và email sẽ gửi khi số điện thoại của tiệm được cài (buổi 5).",
+    "textLater": "Đã lưu. Tin nhắn và email sẽ gửi khi số nhắn tin của tiệm được cài.",
     "printed": "Đã gửi tới máy in",
     "noPhone": "Thêm SĐT khách trên phiếu để nhắn hóa đơn.",
     "emailPh": "khach@email.com",
@@ -175,14 +176,6 @@
     "paidBy": "{amount} {how}",
     "viaLink": "qua link trả tiền",
     "cardTip": "Tip thẻ",
-    "printBt": "In qua Bluetooth",
-    "printWindow": "In (máy in của máy tính)",
-    "btPair": "Chạm để chọn máy in (một lần)",
-    "btPrinting": "Đang in…",
-    "btPaper": "Khổ giấy",
-    "btChange": "Đổi máy in",
-    "btNone": "Không thấy máy in. Bật máy in rồi thử lại.",
-    "btIos": "In Bluetooth trên iPhone/iPad: mở PolishOS trong trình duyệt Bluefy.",
     "giftBtn": "+ Thẻ quà tặng",
     "giftSold": "Thẻ quà tặng •••• {last4}",
     "giftReload": "Nạp tiền · thẻ •••• {last4}",
@@ -206,7 +199,16 @@
     "giftWriteDown": "Đưa mã này cho khách (có trên hóa đơn).",
     "giftOwed": "Thẻ quà tặng đã bán (nợ khách đến khi dùng)",
     "giftLeft": "còn {amount}",
-    "openProfile": "Mở hồ sơ khách"
+    "openProfile": "Mở hồ sơ khách",
+    "printBt": "In qua Bluetooth",
+    "printWindow": "In (máy in của máy tính)",
+    "btPair": "Chạm để chọn máy in (một lần)",
+    "btPrinting": "Đang in…",
+    "btPaper": "Khổ giấy",
+    "btChange": "Đổi máy in",
+    "btNone": "Không thấy máy in. Bật máy in rồi thử lại.",
+    "btIos": "In Bluetooth trên iPhone/iPad: mở PolishOS trong trình duyệt Bluefy.",
+    "scanReceipt": "Quét để xem hóa đơn trên điện thoại"
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -551,6 +553,19 @@
     "src_qr": "Mã QR",
     "src_kiosk": "Máy check-in",
     "src_staff_phone": "Điện thoại thợ"
+  },
+  "receiptPage": {
+    "notFound": "Không tìm thấy hóa đơn.",
+    "ticket": "Phiếu #{n}",
+    "thanks": "Cảm ơn {name}!",
+    "discount": "Giảm giá",
+    "tip": "Tip",
+    "total": "Tổng",
+    "cash": "Tiền mặt",
+    "card": "Thẻ",
+    "change": "Tiền thối",
+    "refunded": "Phiếu này đã được hoàn tiền.",
+    "keep": "Lưu trang này hoặc chụp màn hình để giữ hóa đơn."
   },
   "book": {
     "bookVisit": "Đặt lịch",

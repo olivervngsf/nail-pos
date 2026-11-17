@@ -1,6 +1,6 @@
 import "fake-indexeddb/auto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { _resetForTests, enqueue, getState, registerHandler, syncNow } from "./outbox";
+import { MAX_REFUSALS, _resetForTests, enqueue, getState, registerHandler, retryParked, syncNow } from "./outbox";
 
 const setOnline = (v: boolean) => Object.defineProperty(globalThis.navigator, "onLine", { value: v, configurable: true });
 
@@ -50,5 +50,31 @@ describe("outbox", () => {
     setOnline(false);
     await enqueue("test.write", {}, "same-id");
     await expect(enqueue("test.write", {}, "same-id")).rejects.toThrow();
+  });
+
+  it("sets aside an item the server keeps refusing, so later writes still go through", async () => {
+    const sent: string[] = [];
+    registerHandler("test.write", async (item) => {
+      const n = (item.payload as { n: string }).n;
+      if (n === "bad") throw new Error("discount needs a manager PIN");
+      sent.push(n);
+    });
+    await enqueue("test.write", { n: "bad" });
+    await enqueue("test.write", { n: "good" });
+    for (let i = 0; i < MAX_REFUSALS; i++) await syncNow();
+    expect(sent).toEqual(["good"]);
+    expect(getState().pending).toBe(0);
+    expect(getState().parked).toBe(1);
+    await retryParked(); // app start: one more try
+    expect(getState().pending).toBe(1);
+    expect(getState().parked).toBe(0);
+  });
+
+  it("never sets aside an item that fails for network reasons", async () => {
+    registerHandler("test.write", async () => { throw new TypeError("Failed to fetch"); });
+    await enqueue("test.write", { n: 1 });
+    for (let i = 0; i < MAX_REFUSALS + 2; i++) await syncNow();
+    expect(getState().pending).toBe(1);
+    expect(getState().parked).toBe(0);
   });
 });

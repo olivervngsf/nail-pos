@@ -44,3 +44,16 @@ describe("Vietnamese receipts print as an image", () => {
     expect([...bytes.slice(5, 13)]).toEqual([0x1d, 0x76, 0x30, 0, 2, 0, 1, 0]);
   });
 });
+
+describe("receipt QR (digital receipt link)", () => {
+  it("prints the QR as a centered image inside a text receipt", async () => {
+    const { receiptBytes, qrRaster } = await import("./escpos");
+    const q = qrRaster("https://polishosapp.com/r/abc", 5);
+    expect(q.width).toBe(q.height);
+    expect(q.width).toBeLessThanOrEqual(384);
+    const b = [...receiptBytes({ title: "Lotus", rows: [["Gel", "$45.00"]], qr: "https://polishosapp.com/r/abc" }, 58)];
+    const i = b.findIndex((x, k) => x === 0x1d && b[k + 1] === 0x76 && b[k + 2] === 0x30);
+    expect(i).toBeGreaterThan(0);
+    expect(b.slice(i - 3, i)).toEqual([0x1b, 0x61, 1]);
+  });
+});

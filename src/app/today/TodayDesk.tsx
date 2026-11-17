@@ -155,14 +155,14 @@ export default function TodayDesk() {
                   </div>
                 )}
                 {canAdmin && <PaymentsCard salonId={salonId} />}
-                {canAdmin && <Link className="row" href="/gift-cards" data-testid="gift-cards-link" style={{ textDecoration: "none", color: "inherit" }}>
-                  <span className="g"><b style={{ fontWeight: 600 }}>Gift cards</b><span className="cap">Money owed, all codes, lost cards, print plastic cards</span></span><span className="cap">›</span></Link>}
-                {canAdmin && <Link className="row" href="/settings/booking-page" data-testid="booking-page-link" style={{ textDecoration: "none", color: "inherit" }}>
-                  <span className="g"><b style={{ fontWeight: 600 }}>Booking page</b><span className="cap">Your link, photos, Google / Instagram / QR, rules, walk-in kiosk</span></span><span className="cap">›</span></Link>}
               </div>
             </section>
           )}
 
+          {canAdmin && <Link className="tile" href="/gift-cards" data-testid="gift-cards-link" style={{ textDecoration: "none" }}>
+            <b>Gift cards</b><span className="cap">Money owed on cards, all codes, lost cards, print plastic cards.</span></Link>}
+          {canAdmin && <Link className="tile" href="/settings/booking-page" data-testid="booking-page-link" style={{ textDecoration: "none" }}>
+            <b>Booking page</b><span className="cap">Your link, photos, Google / Instagram / QR, rules, walk-in kiosk.</span></Link>}
         </main>
       </div>
 
