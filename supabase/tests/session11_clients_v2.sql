@@ -14,9 +14,9 @@ select public.save_setup(jsonb_build_object('salonId', '00000000-0000-0000-0000-
 create temp table t_c as select public.client_save(jsonb_build_object('salonId', '00000000-0000-0000-0000-0000000011a1', 'name', 'Lan Tran', 'phone', '+14085550142')) as id;
 grant all on t_c to authenticated;
 select public.client_set_private(id, 'Asked twice for a discount; owner said no.') from t_c;
--- client numbers: 1, 2, … per salon; "#2" finds the second client
-select public.client_save(jsonb_build_object('salonId', '00000000-0000-0000-0000-0000000011a1', 'name', 'Jen Park', 'phone', '+14085550131'));
-insert into t_out values ('by_number', public.client_list('00000000-0000-0000-0000-0000000011a1', 'all', '#2'));
+-- client numbers: random 5 digits per salon; "#<number>" finds that client
+create temp table t_j as select public.client_save(jsonb_build_object('salonId', '00000000-0000-0000-0000-0000000011a1', 'name', 'Jen Park', 'phone', '+14085550131')) as id;
+insert into t_out select 'by_number', public.client_list('00000000-0000-0000-0000-0000000011a1', 'all', '#' || c.number) from public.clients c join t_j on t_j.id = c.id;
 select public.client_phone_viewed(id) from t_c;
 insert into t_out select 'owner', public.client_profile(id) from t_c;
 
@@ -44,7 +44,7 @@ begin
   if o->'tech'->>'care' <> 'Sensitive skin, no strong acetone' or o->'tech'->>'care_by' <> 'Kim' or o->'tech'->>'care_at' is null then raise exception 'FAIL care author: %', o->'tech'; end if;
   if (o->>'log')::int <> 1 then raise exception 'FAIL phone view log'; end if;
   if o->'tech'->'points' is null then raise exception 'FAIL points'; end if;
-  if (o->'owner'->>'number')::int <> 1 then raise exception 'FAIL client number: %', o->'owner'->>'number'; end if;
+  if (o->'owner'->>'number')::int not between 10000 and 99999 then raise exception 'FAIL client number: %', o->'owner'->>'number'; end if;
   if jsonb_array_length(o->'by_number'->'rows') <> 1 or o->'by_number'->'rows'->0->>'name' <> 'Jen Park' then raise exception 'FAIL search by number: %', o->'by_number'; end if;
   raise notice 'PASS session11_clients_v2';
 end $$;

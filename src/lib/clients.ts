@@ -88,8 +88,10 @@ function mk(id: string, name: string, phone: string, tag: ClientRow["tag"], last
     stats: { visits: n, spent: n * 4500, avg: 4500, avg_tip: 900, tips: n * 900, gap_days: gap, last_visit: day(lastDays) },
   };
 }
-DEMO.forEach((p, i) => { p.number = i + 1; });
-const DKEY = "nailpos.demoClients.v3";
+// Client numbers are random 5 digits per salon (never confused with a phone's last 4).
+const DEMO_NUMBERS = [48213, 70562, 31947, 85120, 26374, 59081];
+DEMO.forEach((p, i) => { p.number = DEMO_NUMBERS[i]; });
+const DKEY = "nailpos.demoClients.v4";
 function demoAll(): Profile[] { try { const r = localStorage.getItem(DKEY); if (r) return JSON.parse(r); } catch { /* */ } return DEMO; }
 function demoPut(p: Profile) { const all = demoAll(); const i = all.findIndex((x) => x.id === p.id); if (i >= 0) all[i] = p; else all.unshift(p); try { localStorage.setItem(DKEY, JSON.stringify(all)); } catch { /* */ } }
 const thisMonth = (d: string | null) => !!d && Number(d.slice(5, 7)) === new Date().getMonth() + 1;
@@ -131,7 +133,7 @@ export async function saveClient(who: Who, id: string | null, e: Partial<ClientE
   if (who.mode === "demo") {
     const cur = id ? demoAll().find((x) => x.id === id) : undefined;
     const p: Profile = cur ?? mk(crypto.randomUUID(), e.name ?? "", e.phone ?? "", "new", 0, null, "", "", {});
-    if (!cur) { p.number = Math.max(0, ...demoAll().map((x) => x.number ?? 0)) + 1; p.visits = []; p.stats = { visits: 0, spent: 0, avg: 0, avg_tip: 0, gap_days: null, last_visit: null }; p.since = new Date().toISOString(); }
+    if (!cur) { const used = new Set(demoAll().map((x) => x.number)); do p.number = 10000 + Math.floor(Math.random() * 90000); while (used.has(p.number)); p.visits = []; p.stats = { visits: 0, spent: 0, avg: 0, avg_tip: 0, gap_days: null, last_visit: null }; p.since = new Date().toISOString(); }
     demoPut({ ...p, name: e.name ?? p.name, phone: e.phone ?? p.phone, email: e.email ?? p.email, birthday: e.birthday ?? p.birthday, shape: e.shape ?? p.shape,
       colors: e.colors ?? p.colors, care: e.care ?? p.care, notes: e.notes ?? p.notes, texts_ok: e.textsOk ?? p.texts_ok, language: e.language ?? p.language });
     return p.id;

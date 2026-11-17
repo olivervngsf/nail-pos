@@ -17,8 +17,8 @@ test("clients: find by phone, lost regulars, history with a note", async ({ page
   if (!phone) {
     // two clients named Lan Tran: told apart by the last 4 digits + a "Same name" tag
     await expect(page.getByTestId("same-name")).toHaveCount(2);
-    // client number: "#6" finds the second Lan Tran only
-    await page.getByTestId("client-search").fill("#6");
+    // client number (random 5 digits): "#59081" finds the second Lan Tran only
+    await page.getByTestId("client-search").fill("#59081");
     await expect(page.getByTestId("client-row")).toHaveCount(1);
     await expect(page.getByTestId("client-row")).toContainText("••0388");
     await page.getByTestId("client-search").fill("");
@@ -33,7 +33,7 @@ test("clients: find by phone, lost regulars, history with a note", async ({ page
     await expect(page.getByTestId("next-steps")).toBeVisible();
     // phone shows only the last 4 digits; owner/manager can Show the full number
     await expect(page.getByTestId("client-phone")).toHaveText("••0142");
-    await expect(page.getByTestId("client-number")).toHaveText("#1");
+    await expect(page.getByTestId("client-number")).toHaveText("#48213");
     await page.getByTestId("phone-show").click();
     await expect(page.getByTestId("client-phone")).toHaveText("(408) 555-0142");
     // private note (owner/manager) + care note (anyone)
