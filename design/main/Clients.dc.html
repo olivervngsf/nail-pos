@@ -57,7 +57,7 @@ b,strong{font-weight:500}
       <section style="width:340px;flex:none;border-right:1px solid #E8E8EE;display:flex;flex-direction:column;min-height:0;background:#fff">
         <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid #E8E8EE">
           <label for="qd" style="position:absolute;left:-9999px">Search clients</label>
-          <input id="qd" class="inp" placeholder="Search phone or name">
+          <input id="qd" class="inp" placeholder="Search phone, name or client #">
           <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
             <button class="stat on" type="button" style="padding:8px 10px;border-radius:12px"><span class="v" style="font-size:18px;line-height:22px">412</span><span class="cap" style="font-size:12px">All</span></button>
             <button class="stat" type="button" style="padding:8px 10px;border-radius:12px"><span class="v" style="font-size:18px;line-height:22px;color:#B5470A">3</span><span class="cap" style="font-size:12px">Lost regulars</span></button>
@@ -69,7 +69,7 @@ b,strong{font-weight:500}
             <button class="{{r.cls}}" type="button" onClick="{{r.open}}">
               <span class="av" style="width:30px;height:30px;font-size:12px">{{r.i}}</span>
               <span style="flex:1;min-width:0"><b style="font-size:14px">{{r.n}}</b> <sc-if value="{{r.dup}}" hint-placeholder-val="{{false}}"><span class="tag" style="height:18px;font-size:11px;padding:0 6px">Same name</span></sc-if><span class="cap" style="display:block;font-size:12px">{{r.sub}}</span></span>
-              <span class="cap num" style="font-size:12px">••{{r.last4}}</span>
+              <span class="cap num" style="font-size:12px;display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span style="color:#16161A;font-weight:500">#{{r.no}}</span><span>••{{r.last4}}</span></span>
               <span class="flag" style="{{r.flag}}"></span>
             </button>
           </sc-for>
@@ -78,7 +78,7 @@ b,strong{font-weight:500}
       <section class="fade" style="flex:1;min-width:0;padding:20px 24px;display:flex;flex-direction:column;gap:14px;overflow:hidden">
         <div class="card hcard" style="padding:18px 20px;display:flex;align-items:center;gap:16px">
           <span class="av lg">{{p.i}}</span>
-          <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px"><span class="h1">{{p.n}}</span><span class="tag jade">Regular</span></div><div class="cap num" style="display:flex;align-items:center;gap:6px"><span>{{phShown}} · since 2024 · texts ✓</span><button class="btn ghost" type="button" onClick="{{togglePh}}" style="height:24px;padding:0 6px;font-size:12px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>{{phBtn}}</button></div></div>
+          <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px"><span class="h1">{{p.n}}</span><span class="tag jade">Regular</span></div><div class="cap num" style="display:flex;align-items:center;gap:6px"><span style="color:#16161A;font-weight:500">#{{p.no}}</span><span>{{phShown}} · since 2024 · texts ✓</span><button class="btn ghost" type="button" onClick="{{togglePh}}" style="height:24px;padding:0 6px;font-size:12px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>{{phBtn}}</button></div></div>
           <div style="display:flex;gap:18px;text-align:right;padding-right:6px"><div><b class="num" style="font-size:20px">$816</b><span class="cap" style="display:block">spent · 12 visits</span></div><div><b class="num" style="font-size:20px">4 wk</b><span class="cap" style="display:block">comes every</span></div></div>
           <sc-if value="{{isOwner}}" hint-placeholder-val="{{true}}"><button class="btn hedit" type="button" onClick="{{openEdit}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg>Edit</button></sc-if>
           <button class="btn primary" type="button">New ticket</button>
@@ -139,10 +139,11 @@ class Component extends DCLogic {
     const S = this.state;
     const O = 'background:#E8590C', G = 'background:#2F9E44', N = 'background:transparent';
     const C = [['LT','Lan Tran','(408) 555-0142','Due back in 2 days · Kim',O],['LT','Lan Tran','(408) 555-0388','Gel pedicure · Linh · last Oct 2',N],['MP','Mai Pham','(408) 555-0170','Here today · Kim',G],['AK','Anna Kim','(408) 555-0190','New · here today',G],['TC','Test Client','(555) 010-9999','New · Nov 16',N],['SL','Sara Lopez','(408) 555-0155','Birthday Nov 22',N],['JP','Jen Park','(408) 555-0131','Lost · 49 days',O],['TL','Thu Le','(408) 555-0166','Lost · 57 days',O],['RD','Rosa Diaz','(408) 555-0121','Lost · 48 days',O],['N','Nam','(312) 312-3123','No visits yet',N]];
+    const NO = [48213, 59081, 70562, 26374, 31947, 85120, 64407, 17735, 92618, 40859];
     const p = C[S.sel] || C[0];
     return {
-      rows: C.map((c, i) => ({ i: c[0], n: c[1], sub: c[3], flag: c[4], last4: c[2].slice(-4), dup: C.filter((x) => x[1] === c[1]).length > 1, cls: 'crow' + (S.sel === i ? ' sel' : ''), open: () => this.setState({ sel: i }) })),
-      p: { i: p[0], n: p[1], ph: p[2] },
+      rows: C.map((c, i) => ({ no: NO[i], i: c[0], n: c[1], sub: c[3], flag: c[4], last4: c[2].slice(-4), dup: C.filter((x) => x[1] === c[1]).length > 1, cls: 'crow' + (S.sel === i ? ' sel' : ''), open: () => this.setState({ sel: i }) })),
+      p: { no: NO[S.sel] || NO[0], i: p[0], n: p[1], ph: p[2] },
       phShown: S.showPh ? p[2] : '••' + p[2].slice(-4), phBtn: S.showPh ? 'Hide' : 'Show', togglePh: () => this.setState({ showPh: !S.showPh }),
       isOwner: (this.props.role ?? 'owner') !== 'tech',
       editing: S.editing, openEdit: () => this.setState({ editing: true }), closeEdit: () => this.setState({ editing: false }),
