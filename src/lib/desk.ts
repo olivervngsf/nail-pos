@@ -10,7 +10,7 @@ import { setLive } from "@/lib/checkout/store";
 import { rememberPinLens } from "@/lib/pin";
 
 export type DeskService = { id: string; cat: string; name: string; minutes: number; cents: number; priceFrom: boolean };
-export type DeskStaff = { id: string; name: string; role: Role; clockedIn: boolean; turns: number; centsToday: number };
+export type DeskStaff = { id: string; name: string; role: Role; clockedIn: boolean; turns: number; centsToday: number; pinLen?: number | null };
 export type Desk = {
   mode: "demo" | "live";
   salonId: string;
@@ -60,7 +60,7 @@ async function fetchDesk(m: Membership, device: Device | null): Promise<Desk> {
   return {
     mode: "live", salonId: m.salon_id, salonName: m.salon_name, me: m, device,
     services: (svc ?? []).map((s) => ({ id: s.id, cat: s.category, name: s.name, minutes: s.minutes, cents: Number(s.price_cents), priceFrom: !!s.price_from })),
-    staff: staff.map((s) => ({ id: s.membership_id, name: s.display_name, role: s.role, clockedIn: s.clocked_in, turns: s.turns_today, centsToday: Number(s.cents_today) })),
+    staff: staff.map((s) => ({ id: s.membership_id, name: s.display_name, role: s.role, clockedIn: s.clocked_in, turns: s.turns_today, centsToday: Number(s.cents_today), pinLen: s.pin_len ?? null })),
     pay: { ready: !!pay?.charges_enabled, readers: pay?.readers ?? [] },
   };
 }

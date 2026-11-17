@@ -653,3 +653,11 @@ button:disabled { cursor: not-allowed; }
 .faces-pin { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(380px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; z-index: 36; padding: 22px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .faces-pin > div:last-of-type, .faces-pin .keys { width: 100%; }
 .faces ~ .scrim, .faces .scrim { z-index: 35; }
+/* time clock (/clock) */
+.clock { min-height: 100dvh; background: var(--surface); display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 32px 16px; box-sizing: border-box; }
+.clock-h, .clock-body { width: 100%; max-width: 760px; display: flex; gap: 14px; align-items: center; }
+.clock-body { align-items: stretch; }
+.clock-big { height: 120px; border: 0; border-radius: 24px; font: inherit; font-size: 26px; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); }
+.clock-big.go { background: var(--jade); color: #fff; }
+.clock-big.go .cap { color: rgba(255,255,255,.85); }
+.clock-demo { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 37; }

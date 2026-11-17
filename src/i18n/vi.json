@@ -1359,5 +1359,25 @@
     "lock": "Khoá",
     "clockedIn": "{name} đã chấm công vào · {time}",
     "clockedOut": "{name} đã chấm công ra · {time}"
+  },
+  "clock": {
+    "title": "Chấm công",
+    "hi": "Chào {name}",
+    "onlyYou": "Chỉ hiện thông tin của bạn · quay về danh sách sau {s} giây",
+    "done": "Xong",
+    "clockIn": "Chấm công vào",
+    "clockOut": "Chấm công ra",
+    "inNow": "Đã chấm công · có trong lượt",
+    "outNow": "Chưa có trong lượt",
+    "clockedIn": "{name} đã chấm công vào · {time}",
+    "clockedOut": "{name} đã chấm công ra · {time}",
+    "paySheet": "Phiếu lương của tôi",
+    "today": "Hôm nay",
+    "week": "Tuần này",
+    "two": "2 tuần",
+    "tip": "tip",
+    "nothing": "Chưa có gì trong những ngày này.",
+    "print": "In phiếu lương",
+    "demo": "Bản thử: PIN nào cũng mở; không lưu gì."
   }
 }

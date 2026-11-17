@@ -1359,5 +1359,25 @@
     "lock": "Lock",
     "clockedIn": "{name} clocked in · {time}",
     "clockedOut": "{name} clocked out · {time}"
+  },
+  "clock": {
+    "title": "Time clock",
+    "hi": "Hi {name}",
+    "onlyYou": "Only your own info shows here · back to the faces screen in {s} s",
+    "done": "Done",
+    "clockIn": "Clock in",
+    "clockOut": "Clock out",
+    "inNow": "You're clocked in · on the turn list",
+    "outNow": "Not on the turn list",
+    "clockedIn": "{name} clocked in · {time}",
+    "clockedOut": "{name} clocked out · {time}",
+    "paySheet": "My pay sheet",
+    "today": "Today",
+    "week": "This week",
+    "two": "2 weeks",
+    "tip": "tip",
+    "nothing": "Nothing yet for these days.",
+    "print": "Print my pay sheet",
+    "demo": "Test version: any PIN opens; nothing is saved."
   }
 }
