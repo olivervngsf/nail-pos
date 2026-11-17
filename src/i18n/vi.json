@@ -1001,5 +1001,21 @@
     "printMine": "In thu nhập của tôi",
     "done": "Xong",
     "splitLine": "Trả {check} bằng séc + {cash} tiền mặt"
+  },
+  "slip": {
+    "ticket": "Phiếu #{n}",
+    "walkIn": "Khách vãng lai",
+    "paid": "Phiếu này đã thanh toán. Không thêm được nữa.",
+    "yours": "Dịch vụ của bạn trên phiếu này",
+    "noneYet": "Chưa có. Chạm vào dịch vụ bạn đã làm ở dưới.",
+    "others": "Thợ khác trên phiếu này",
+    "noTech": "Chưa có thợ",
+    "addWhat": "Chạm vào dịch vụ bạn đã làm",
+    "search": "Tìm dịch vụ",
+    "added": "Đã thêm: {name}",
+    "remove": "Xóa {name}",
+    "deskSees": "Quầy lễ tân thấy ngay. Đổi giá và giảm giá làm ở quầy.",
+    "notFound": "Không tìm thấy phiếu, hoặc phiếu không thuộc tiệm của bạn.",
+    "liveOnly": "Phiếu chỉ dùng được trên trang thật."
   }
 }
