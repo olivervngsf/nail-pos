@@ -62,7 +62,7 @@ export function bookingIcs(b: IcsBooking, now = new Date()): string {
     `DTSTAMP:${stamp}`,
     `DTSTART;TZID=${b.salon.tz}:${local(b.day, b.start)}`,
     `DTEND;TZID=${b.salon.tz}:${local(b.day, b.start + Math.max(b.minutes, 15))}`,
-    `SUMMARY:${icsText(`💅 ${b.salon.name} – ${b.lines.map((l) => l.split(" · ")[0]).join(", ")}`)}`,
+    `SUMMARY:${icsText(`${b.salon.name} – ${b.lines.map((l) => l.split(" · ")[0]).join(", ")}`)}`,
     b.salon.address ? `LOCATION:${icsText(`${b.salon.name}, ${b.salon.address}`)}` : "",
     `DESCRIPTION:${icsText(desc)}`,
     `URL:${b.manageUrl}`,
