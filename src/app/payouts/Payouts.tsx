@@ -10,6 +10,8 @@ import { rpc } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { useDesk } from "@/lib/desk";
 import { addDays, demoPayout, isoDay, nums, payoutCsv, weekStart, type PayoutRow } from "@/lib/closeday";
+import { worked } from "@/lib/print/earnings";
+import { useEarningsPrint } from "@/app/earnings/Earnings";
 
 const $ = formatCents;
 type Range = "today" | "week" | "last" | "custom";
@@ -23,7 +25,8 @@ export default function Payouts() {
   const [to, setTo] = useState(today);
   const [rows, setRows] = useState<PayoutRow[] | null>(null);
   const [loadErr, setLoadErr] = useState("");
-  const [slips, setSlips] = useState(false);
+  const [printing, setPrinting] = useState(false);
+  const printSlips = useEarningsPrint();
   const [toast, setToast] = useState("");
   const say = (s: string) => { setToast(s); setTimeout(() => setToast(""), 3500); };
 
@@ -61,7 +64,17 @@ export default function Payouts() {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = `payroll-${from}-to-${to}.csv`; a.click();
   };
-  const print = (asSlips: boolean) => { setSlips(asSlips); setTimeout(() => window.print(), 50); };
+  const period = from === to ? from : `${from} → ${to}`;
+  // One paper per person (Bluetooth NETUM: each slip its own job + cut; computer: one page each).
+  const printPeople = async (people: PayoutRow[]) => {
+    if (!people.length) return say(t("noneToPrint"));
+    setPrinting(true);
+    try {
+      const n = await printSlips(people, desk.salonName, period, (i) => people.length > 1 && setToast(t("printing", { n: i + 1, total: people.length })));
+      say(t("printedN", { count: n }));
+    } catch (e) { say(t("printFail", { msg: (e as Error).message })); }
+    setPrinting(false);
+  };
   const payLabel = (r: PayoutRow) => r.pay_type === "commission" ? t("commission", { pct: r.commission_pct ?? 0 })
     : r.pay_type === "hourly" ? t("hourly", { hours: (r.minutes / 60).toFixed(1) }) : r.pay_type === "booth_rent" ? t("booth") : "—";
 
@@ -83,17 +96,17 @@ export default function Payouts() {
               </>}
               <span className="cap">{from === to ? from : `${from} → ${to}`}</span>
               <span style={{ flex: 1 }} />
-              <Button onClick={() => print(false)} disabled={!rows?.length}>{t("printSheet")}</Button>
-              <Button onClick={() => print(true)} disabled={!rows?.length}>{t("printSlips")}</Button>
+              <Button onClick={() => window.print()} disabled={!rows?.length}>{t("printSheet")}</Button>
+              <Button data-testid="po-slips" onClick={() => void printPeople((rows ?? []).filter(worked))} disabled={!rows?.length || printing}>{t("printSlips")}</Button>
               <Button variant="primary" data-testid="po-csv" onClick={csv} disabled={!rows?.length}>{t("exportCsv")}</Button>
             </div>
             {loadErr && <p className="hint err">{loadErr} <Button size="sm" onClick={() => void load()}>{t("retry")}</Button></p>}
             <section className="card" style={{ padding: "8px 18px", overflowX: "auto" }}>
               <table className="cd-table" data-testid="po-table">
                 <thead><tr><th>{t("person")}</th><th>{t("services")}</th><th>{t("pay")}</th><th>{t("cardTips")}</th><th>{t("cashTips")}</th><th>{t("feeOnTips")}</th>
-                  <th>{t("total")}</th><th>{t("checkPct")}</th><th>{t("byCheck")}</th><th>{t("inCash")}</th></tr></thead>
+                  <th>{t("total")}</th><th>{t("checkPct")}</th><th>{t("byCheck")}</th><th>{t("inCash")}</th><th /></tr></thead>
                 <tbody>
-                  {rows === null ? <tr><td colSpan={10} className="cap">{t("loading")}</td></tr> : rows.length === 0 ? <tr><td colSpan={10} className="cap">{t("empty")}</td></tr> : rows.map((r) => (
+                  {rows === null ? <tr><td colSpan={11} className="cap">{t("loading")}</td></tr> : rows.length === 0 ? <tr><td colSpan={11} className="cap">{t("empty")}</td></tr> : rows.map((r) => (
                     <tr key={r.membership_id} data-testid={`po-${r.name}`}>
                       <td><b>{r.name}</b><span className="cap" style={{ display: "block" }}>{payLabel(r)} · {t("tickets", { count: r.tickets })}</span></td>
                       <td>{$(r.services_cents)}</td><td>{$(r.pay_cents)}</td><td>{$(r.tips_card_cents)}</td><td>{$(r.tips_cash_cents)}</td><td>{$(r.tip_fee_cents)}</td>
@@ -101,11 +114,12 @@ export default function Payouts() {
                       <td><input inputMode="numeric" aria-label={t("checkPctFor", { name: r.name })} defaultValue={r.check_pct} key={`${r.membership_id}-${r.check_pct}`}
                         onBlur={(e) => { const v = Number(e.target.value); if (Number.isFinite(v) && v !== r.check_pct) void setPct(r, v); }} />%</td>
                       <td>{$(r.check_cents)}</td><td>{$(r.cash_cents)}</td>
+                      <td><Button size="sm" data-testid={`po-print-${r.name}`} disabled={printing} onClick={() => void printPeople([r])}>{t("printOne")}</Button></td>
                     </tr>
                   ))}
                 </tbody>
                 {!!rows?.length && <tfoot><tr style={{ fontWeight: 600 }}><td>{t("allStaff")}</td><td>{$(sum("services_cents"))}</td><td>{$(sum("pay_cents"))}</td><td>{$(sum("tips_card_cents"))}</td>
-                  <td>{$(sum("tips_cash_cents"))}</td><td>{$(sum("tip_fee_cents"))}</td><td data-testid="po-total">{$(sum("total_cents"))}</td><td /><td>{$(sum("check_cents"))}</td><td>{$(sum("cash_cents"))}</td></tr></tfoot>}
+                  <td>{$(sum("tips_cash_cents"))}</td><td>{$(sum("tip_fee_cents"))}</td><td data-testid="po-total">{$(sum("total_cents"))}</td><td /><td>{$(sum("check_cents"))}</td><td>{$(sum("cash_cents"))}</td><td /></tr></tfoot>}
               </table>
             </section>
             <div className="cap">{t("note")}</div>
@@ -115,26 +129,21 @@ export default function Payouts() {
 
       {rows && (
         <div className="receipt-print" aria-hidden>
-          {(slips ? rows : [null]).map((one, i) => (
-            <div key={one?.membership_id ?? "all"} style={i ? { breakBefore: "page" } : undefined}>
-              <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16 }}>{desk.salonName}</div>
-              <div style={{ textAlign: "center" }}>{one ? t("slipFor", { name: one.name }) : t("title")} · {from === to ? from : `${from} → ${to}`}</div>
+          <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16 }}>{desk.salonName}</div>
+          <div style={{ textAlign: "center" }}>{t("title")} · {period}</div>
+          <hr />
+          {rows.map((r) => (
+            <div key={r.membership_id}>
+              <b>{r.name}</b>
+              <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>
+              <div className="rl"><span>{payLabel(r)}</span><span>{$(r.pay_cents)}</span></div>
+              <div className="rl"><span>{t("cardTips")}</span><span>{$(r.tips_card_cents)}</span></div>
+              <div className="rl"><span>{t("cashTips")}</span><span>{$(r.tips_cash_cents)}</span></div>
+              {r.tip_fee_cents > 0 && <div className="rl"><span>{t("feeOnTips")}</span><span>−{$(r.tip_fee_cents)}</span></div>}
+              <div className="rl" style={{ fontWeight: 700 }}><span>{t("total")}</span><span>{$(r.total_cents)}</span></div>
+              <div className="rl"><span>{t("byCheck")} ({r.check_pct}%)</span><span>{$(r.check_cents)}</span></div>
+              <div className="rl"><span>{t("inCash")}</span><span>{$(r.cash_cents)}</span></div>
               <hr />
-              {(one ? [one] : rows).map((r) => (
-                <div key={r.membership_id}>
-                  {!one && <b>{r.name}</b>}
-                  <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>
-                  <div className="rl"><span>{payLabel(r)}</span><span>{$(r.pay_cents)}</span></div>
-                  <div className="rl"><span>{t("cardTips")}</span><span>{$(r.tips_card_cents)}</span></div>
-                  <div className="rl"><span>{t("cashTips")}</span><span>{$(r.tips_cash_cents)}</span></div>
-                  {r.tip_fee_cents > 0 && <div className="rl"><span>{t("feeOnTips")}</span><span>−{$(r.tip_fee_cents)}</span></div>}
-                  <div className="rl" style={{ fontWeight: 700 }}><span>{t("total")}</span><span>{$(r.total_cents)}</span></div>
-                  <div className="rl"><span>{t("byCheck")} ({r.check_pct}%)</span><span>{$(r.check_cents)}</span></div>
-                  <div className="rl"><span>{t("inCash")}</span><span>{$(r.cash_cents)}</span></div>
-                  <hr />
-                </div>
-              ))}
-              {one && <div style={{ marginTop: 18 }}>{t("signature")} ____________________</div>}
             </div>
           ))}
         </div>
