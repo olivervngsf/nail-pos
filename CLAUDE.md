@@ -47,7 +47,6 @@ Read this first every session. Keep it short; link out for detail.
 ## What we're building
 - PolishOS (app) by EO Collective (company). Domains (GoDaddy, 3 yrs, renew Nov 2029): polishosapp.com (app, live) + eo-collective.com (company).
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
-- Names: app = PolishOS (polishosapp.com); company = EO Collective (eo-collective.com).
 - Angle: fair, clear pay for techs + Tap to Pay on iPhone and Android (no card terminal).
 - Team (working agreement, not final yet; aligned with Elang Nov 16): Elang = product direction + features ("designs the building: how many floors, what's on each floor") + sales, client care. Oliver = solid foundation, build and design (how it works and looks).
 
