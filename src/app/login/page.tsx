@@ -5,7 +5,7 @@ import Link from "next/link";
 import PhoneCodeLogin from "@/components/PhoneCodeLogin";
 import EmailCodeLogin from "@/components/EmailCodeLogin";
 import PasswordLogin from "@/components/PasswordLogin";
-import { GOOGLE_ON, SMS_ON, homeFor, isLoneGoogleAccount, isSignedIn, lastLoginWay, myMemberships, rememberLoginWay, signInWithGoogle, signOut, type LoginWay } from "@/lib/auth";
+import { GOOGLE_ON, SMS_ON, amPlatformAdmin, homeFor, isLoneGoogleAccount, isSignedIn, lastLoginWay, myMemberships, rememberLoginWay, signInWithGoogle, signOut, type LoginWay } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,7 +27,7 @@ export default function LoginPage() {
       }
       // Came from a link that needs sign-in (e.g. a ticket slip QR): go back there.
       const next = new URLSearchParams(location.search).get("next");
-      router.push(next && next.startsWith("/") && !next.startsWith("//") ? next : homeFor(ms));
+      router.push(next && next.startsWith("/") && !next.startsWith("//") ? next : homeFor(ms, !ms.length && (await amPlatformAdmin())));
     } catch (e) {
       setMsg((e as Error).message);
     }

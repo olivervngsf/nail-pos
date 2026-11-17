@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PhoneCodeLogin from "@/components/PhoneCodeLogin";
-import { SMS_ON, homeFor, isSignedIn, myMemberships } from "@/lib/auth";
+import { SMS_ON, amPlatformAdmin, homeFor, isSignedIn, myMemberships } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { syncNow } from "@/lib/offline/outbox";
 import { queueSave, withIds } from "./sync";
@@ -38,8 +38,11 @@ export default function SetupWizard() {
     // Already signed in: go back to the salon you started (never make a second one), or to Today if it's done.
     if (s.stage !== "wizard") void (async () => {
       if (!(await isSignedIn())) return;
-      const owned = SMS_ON ? (await myMemberships().catch(() => [])).find((m) => m.role === "owner") : undefined;
+      const mine = SMS_ON ? await myMemberships().catch(() => []) : [];
+      const owned = mine.find((m) => m.role === "owner");
       if (owned && owned.setup_step >= 9) return router.replace("/today");
+      // Platform admins (us) don't set up a salon here: salons are made by invite on /admin.
+      if (SMS_ON && !mine.length && (await amPlatformAdmin())) return router.replace("/admin");
       setS((p) => ({ ...withIds(owned ? { ...p, salonId: owned.salon_id } : p), stage: "wizard" }));
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,6 +82,7 @@ function SignIn({ s, set }: { s: SetupState; set: Set }) {
       if (owned) return enter(owned.salon_id); // keep setting up the salon you already started
       const other = (await myMemberships())[0];
       if (other) return router.replace(homeFor([other]));
+      if (await amPlatformAdmin()) return router.replace("/admin");
       enter();
     } catch (e) { setErr((e as Error).message); }
   };

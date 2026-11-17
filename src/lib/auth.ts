@@ -251,8 +251,9 @@ export async function myMemberships(): Promise<Membership[]> {
 }
 
 /** Where to go after sign-in: owner with unfinished setup → /setup, desk roles → /today, tech → /t, nobody yet → /setup. */
-export function homeFor(ms: Membership[]): string {
-  if (!ms.length) return "/setup";
+/** Where to go after sign-in. A platform admin (us) with no salon goes to /admin, not salon setup. */
+export function homeFor(ms: Membership[], admin = false): string {
+  if (!ms.length) return admin ? "/admin" : "/setup";
   const m = ms[0];
   if (m.role === "owner" && m.setup_step < 9) return "/setup";
   return m.role === "tech" ? "/t" : "/today";
@@ -267,6 +268,11 @@ export async function signOut() {
   } catch {
     /* ignore */
   }
+}
+
+/** Is the signed-in person a platform admin (Oliver, Elang)? False on any error. */
+export async function amPlatformAdmin(): Promise<boolean> {
+  try { return Boolean(await rpc<boolean>("is_platform_admin")); } catch { return false; }
 }
 
 export async function rpc<T = unknown>(fn: string, args?: Record<string, unknown>): Promise<T> {
