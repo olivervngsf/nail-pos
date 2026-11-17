@@ -1025,7 +1025,13 @@
     "printedN": "Đã in {count} phiếu",
     "printed": "In lúc",
     "noneToPrint": "Không ai làm trong thời gian này.",
-    "printFail": "Không in được: {msg}"
+    "printFail": "Không in được: {msg}",
+    "slipShows": "Phiếu in",
+    "slipTotals": "Chỉ tổng",
+    "slipTickets": "Từng vé",
+    "ticketsTitle": "Các vé (dịch vụ + tip)",
+    "tipCard": "Tip (thẻ)",
+    "tipCash": "Tip (tiền mặt)"
   },
   "numbers": {
     "title": "Số liệu",

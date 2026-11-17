@@ -13,15 +13,31 @@ export type EarnText = {
   slipFor: (name: string) => string;
   services: string; pay: (r: PayoutRow) => string; cardTips: string; cashTips: string; feeOnTips: string;
   total: string; byCheck: string; inCash: string; signature: string; printed: string;
+  /** "Every ticket" slips: section title, tip words, and how to show a ticket's time. */
+  ticketsTitle: string; tipCard: string; tipCash: string; when: (iso: string) => string;
 };
+
+/** Slip detail rule: totals only, or every ticket (service + tips) above the totals. */
+export type SlipDetail = "totals" | "tickets";
 
 const $ = formatCents;
 
-export function earningsDoc(r: PayoutRow, salon: string, period: string, txt: EarnText, printedAt: string): ReceiptDoc {
+export function earningsDoc(r: PayoutRow, salon: string, period: string, txt: EarnText, printedAt: string, detail: SlipDetail = "totals"): ReceiptDoc {
+  const each: ReceiptDoc["rows"] = detail === "tickets" && r.lines?.length ? [
+    { text: txt.ticketsTitle },
+    ...r.lines.flatMap((l) => [
+      { bold: [`#${l.number}  ${txt.when(l.at)}`, $(l.services_cents)] as [string, string] },
+      ...(l.services ? [{ text: l.services }] : []),
+      ...(l.tip_card_cents ? [[`  ${txt.tipCard}`, $(l.tip_card_cents)] as [string, string]] : []),
+      ...(l.tip_cash_cents ? [[`  ${txt.tipCash}`, $(l.tip_cash_cents)] as [string, string]] : []),
+    ]),
+    "sep",
+  ] : [];
   return {
     title: salon,
     sub: [txt.slipFor(r.name), period],
     rows: [
+      ...each,
       [`${txt.services} (${r.tickets})`, $(r.services_cents)],
       [txt.pay(r), $(r.pay_cents)],
       [txt.cardTips, $(r.tips_card_cents)],

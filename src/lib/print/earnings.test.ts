@@ -6,6 +6,7 @@ import { earningsDoc, worked, type EarnText } from "./earnings";
 const txt: EarnText = {
   slipFor: (n) => `${n}'s earnings`, services: "Services", pay: () => "Pay", cardTips: "Card tips", cashTips: "Cash tips", feeOnTips: "Fee on tips",
   total: "Total", byCheck: "By check", inCash: "In cash", signature: "Received by", printed: "Printed",
+  ticketsTitle: "Tickets", tipCard: "Tip (card)", tipCash: "Tip (cash)", when: (iso) => iso.slice(11, 16),
 };
 
 describe("earnings slips", () => {
@@ -19,6 +20,16 @@ describe("earnings slips", () => {
       const cuts = bytes.reduce((n, b, i) => n + (b === 0x1d && bytes[i + 1] === 0x56 ? 1 : 0), 0);
       expect(cuts).toBe(1);
     }
+  });
+  it("rule: totals only by default; every ticket lists each ticket's service + tips", () => {
+    const r = rows[0];
+    const totals = new TextDecoder().decode(receiptBytes(earningsDoc(r, "Cosmo Nails", "2026-11-17", txt, "now"), 58));
+    expect(totals).not.toContain("Tickets");
+    const each = new TextDecoder().decode(receiptBytes(earningsDoc(r, "Cosmo Nails", "2026-11-17", txt, "now", "tickets"), 58));
+    for (const l of r.lines!) expect(each).toContain(`#${l.number}`);
+    expect(each).toContain("Tip (card)");
+    expect(each).toContain("Tip (cash)");
+    expect(each).toContain("Gel polish"); // long service list wraps instead of being cut off
   });
   it("skips people with no work", () => {
     expect(worked({ ...rows[0], tickets: 0, total_cents: 0, minutes: 0 })).toBe(false);
