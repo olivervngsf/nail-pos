@@ -19,6 +19,7 @@ export default function Home() {
         <p className="cap lead">{t("tagline")}</p>
         <Link className="btn primary block" href="/setup">{t("setup")}</Link>
         <Link className="btn block" href="/join/DEMO">{t("join")}</Link>
+        <Link className="btn ghost block" href="/login" data-testid="sign-in">{t("signIn")}</Link>
         <div className="demo">{t("test")}</div>
       </div>
     </main>

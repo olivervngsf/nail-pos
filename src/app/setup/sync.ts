@@ -50,6 +50,6 @@ registerHandler("setup.save", async (item) => {
 
 /** Queue a save of the whole wizard (only with real sign-in; the test copy stays on this device). */
 export function queueSave(s: SetupState) {
-  if (!SMS_ON || !s.salonId || !s.salonName.trim()) return;
+  if (!SMS_ON || !s.salonId) return; // no name yet = saved as "My salon"
   void enqueue("setup.save", JSON.parse(JSON.stringify(toPayload(s))));
 }

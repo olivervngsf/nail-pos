@@ -11,7 +11,10 @@ export async function POST(req: Request) {
   const { salonId, back } = (await req.json().catch(() => ({}))) as { salonId?: string; back?: string };
   const page = back === "/today" ? "/today" : "/setup";
   const { data: admin } = await sb.rpc("is_admin", { s: salonId });
-  if (!salonId || !admin) return fail(403, "Only the owner or a manager can connect payments.");
+  if (!salonId || !admin) {
+    const { data: exists } = await db.from("salons").select("id").eq("id", salonId).maybeSingle();
+    return fail(exists ? 403 : 409, exists ? "Only the owner or a manager can connect payments." : "Your salon isn't saved yet. Check internet, wait a few seconds, then try again.");
+  }
 
   let { data: a } = await db.from("stripe_accounts").select("account_id").eq("salon_id", salonId).maybeSingle();
   if (!a) {
