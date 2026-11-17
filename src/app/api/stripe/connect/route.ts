@@ -16,22 +16,23 @@ export async function POST(req: Request) {
   let { data: a } = await db.from("stripe_accounts").select("account_id").eq("salon_id", salonId).maybeSingle();
   if (!a) {
     const { data: s } = await db.from("salons").select("name").eq("id", salonId).single();
-    const acct = await st.accounts.create({
-      // Standard-style (Stripe's Managed Risk for SaaS): salon owns a full Stripe account + dashboard, pays its own
-      // Stripe fees, Stripe covers losses. (Express needs the platform to carry losses, which we don't.)
-      controller: { stripe_dashboard: { type: "full" }, fees: { payer: "account" }, losses: { payments: "stripe" }, requirement_collection: "stripe" },
-      country: "US",
-      capabilities: { card_payments: { requested: true }, transfers: { requested: true } },
-      business_profile: { name: s?.name ?? undefined, mcc: "7230" }, // 7230 = beauty and barber shops
+    // Accounts v2 (Stripe's current way). Salon = merchant on its own account (direct charges), Stripe collects
+    // its fees from the salon and covers losses (Managed Risk). Express dashboard: simple for salon owners.
+    const acct = await st.v2.core.accounts.create({
+      display_name: s?.name ?? undefined,
+      dashboard: "express",
+      identity: { country: "US" },
+      defaults: { responsibilities: { fees_collector: "stripe", losses_collector: "stripe" } },
+      configuration: { merchant: { capabilities: { card_payments: { requested: true } } } },
       metadata: { salon_id: salonId },
     });
     await db.from("stripe_accounts").insert({ salon_id: salonId, account_id: acct.id });
     a = { account_id: acct.id };
   }
   const origin = originOf(req);
-  const link = await st.accountLinks.create({
-    account: a.account_id, type: "account_onboarding",
-    refresh_url: `${origin}${page}?stripe=retry`, return_url: `${origin}${page}?stripe=return`,
+  const link = await st.v2.core.accountLinks.create({
+    account: a.account_id,
+    use_case: { type: "account_onboarding", account_onboarding: { refresh_url: `${origin}${page}?stripe=retry`, return_url: `${origin}${page}?stripe=return` } },
   });
   return Response.json({ url: link.url });
 }
