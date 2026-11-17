@@ -5,7 +5,8 @@
     "syncing": "Syncing…",
     "offline": "Offline · saved on this device",
     "waiting": "{count, plural, one {# change waiting to sync} other {# changes waiting to sync}}",
-    "banner": "No internet. Keep working: everything saves on this device and sends when you're back online."
+    "banner": "No internet. Keep working: everything saves on this device and sends when you're back online.",
+    "stuck": "{count} not saved · ask the owner"
   },
   "home": {
     "tagline": "Simple checkout and fair, clear pay for techs.",
@@ -103,7 +104,7 @@
     "qrFee": "Fee 2.9% + 30¢ · paid by salon",
     "split": "Split",
     "splitSub": "Part cash, part card.",
-    "comingS3": "Comes with card payments (session 3)",
+    "comingS3": "Coming soon",
     "due": "Due",
     "tips": "Tips",
     "total": "Total",
@@ -135,7 +136,7 @@
     "email": "Email",
     "noReceipt": "No receipt",
     "receiptLang": "Receipt uses the client's language.",
-    "textLater": "Saved. Texts and emails go out once the salon's number is set up (session 5).",
+    "textLater": "Saved. Texts and emails start once the salon's texting number is set up.",
     "printed": "Sent to the printer",
     "noPhone": "Add the client's phone on the ticket to text a receipt.",
     "emailPh": "client@email.com",

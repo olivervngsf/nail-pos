@@ -8,6 +8,13 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,7 +33,13 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Screen tests (desktop + phone)
         run: npm run e2e
-      - name: Salon-wall tests (skipped until the DATABASE_URL secret is added)
+      - name: Database tests on a throwaway Postgres (every migration + salon wall, accounts, checkout, review fixes)
+        run: scripts/test-db-local.sh
+        env:
+          PGHOST: localhost
+          PGPORT: "5432"
+          PGUSER: postgres
+      - name: Salon-wall tests on the Supabase test project (skipped until the DATABASE_URL secret is added)
         run: npm run test:rls
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

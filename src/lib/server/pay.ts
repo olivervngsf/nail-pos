@@ -39,29 +39,33 @@ export function originOf(req: Request) {
 
 type PayRequest = { id: string; salon_id: string; ticket_id: string; method: "card_reader" | "pay_link"; amount_cents: number; payment_intent: string | null; checkout_session: string | null; reader_id: string | null; status: string; error: string | null };
 
-/** Look at Stripe for this pay request; when paid, record it (safe to call many times). Returns the pay request status. */
+/** Look at Stripe for this pay request; when paid, record it (safe to call many times). Returns the pay request status.
+ *  A try that was cancelled or failed is still checked: if the card went through anyway, settle_card records it as
+ *  'extra' (flagged to refund) so money is never taken without a record. */
 export async function settle(prId: string): Promise<{ status: string; error?: string | null }> {
   const db = asServer(), st = getStripe();
   if (!db || !st) throw new Error("Payments aren't switched on yet.");
   const { data: pr } = await db.from("pay_requests").select("*").eq("id", prId).single<PayRequest>();
   if (!pr) throw new Error("No such payment.");
-  if (pr.status !== "pending") return { status: pr.status, error: pr.error };
+  const pending = pr.status === "pending";
+  if (pr.status === "paid" || (!pending && !pr.payment_intent && !pr.checkout_session)) return { status: pr.status, error: pr.error };
   const { data: acct } = await db.from("stripe_accounts").select("account_id").eq("salon_id", pr.salon_id).single();
   if (!acct) throw new Error("Salon has no Stripe account.");
   const opts = { stripeAccount: acct.account_id as string };
+  const still = { status: pr.status, error: pr.error };
 
   let piId = pr.payment_intent;
   if (!piId && pr.checkout_session) {
     const cs = await st.checkout.sessions.retrieve(pr.checkout_session, {}, opts);
-    if (cs.payment_status !== "paid" || !cs.payment_intent) return { status: "pending" };
+    if (cs.payment_status !== "paid" || !cs.payment_intent) return still;
     piId = typeof cs.payment_intent === "string" ? cs.payment_intent : cs.payment_intent.id;
   }
-  if (!piId) return { status: "pending" };
+  if (!piId) return still;
 
   const pi = await st.paymentIntents.retrieve(piId, { expand: ["latest_charge.balance_transaction"] }, opts);
   if (pr.method === "card_reader" && pi.status !== "succeeded") {
     // Reader declined / cancelled: tell the desk.
-    if (pr.reader_id) {
+    if (pending && pr.reader_id) {
       const rd = await st.terminal.readers.retrieve(pr.reader_id, {}, opts);
       const act = "action" in rd ? rd.action : null;
       if (act?.status === "failed") {
@@ -69,9 +73,9 @@ export async function settle(prId: string): Promise<{ status: string; error?: st
         return { status: "failed", error: act.failure_message ?? "Card declined" };
       }
     }
-    return { status: "pending" };
+    return still;
   }
-  if (pi.status !== "succeeded") return { status: "pending" };
+  if (pi.status !== "succeeded") return still;
 
   const charge = pi.latest_charge as Stripe.Charge | null;
   const bt = charge?.balance_transaction as Stripe.BalanceTransaction | null;
@@ -86,12 +90,36 @@ export async function settle(prId: string): Promise<{ status: string; error?: st
   const parts = tip > 0 && staff.length ? splitCents(tip, staff.map((s) => byStaff.get(s) || 1)) : [];
   const tips = staff.map((s, i) => ({ staffId: s, cents: parts[i] ?? 0 }));
 
-  const { error } = await db.rpc("settle_card", { p: {
+  const { data, error } = await db.rpc("settle_card", { p: {
     payRequestId: pr.id, paymentIntent: pi.id, amountCents: pi.amount_received, tipCents: tip, feeCents: bt?.fee ?? 0,
     brand: card?.brand ?? null, last4: card?.last4 ?? null, at: new Date((charge?.created ?? pi.created) * 1000).toISOString(), tips,
   } });
   if (error) throw new Error(error.message);
+  if ((data as { extra?: boolean } | null)?.extra) return { status: pr.status === "pending" ? "canceled" : pr.status, error: "Card paid after this try stopped. Refund it." };
   return { status: "paid" };
+}
+
+/** Stop a card try in Stripe (reader cleared, payment cancelled, pay page expired), then mark it cancelled.
+ *  Checks Stripe first: if the client already paid, that payment is recorded instead. Returns the final status. */
+export async function stopTry(prId: string, why = "canceled by desk"): Promise<string> {
+  const db = asServer(), st = getStripe();
+  if (!db || !st) throw new Error("Payments aren't switched on yet.");
+  const first = await settle(prId);
+  if (first.status !== "pending") return first.status;
+  const { data: pr } = await db.from("pay_requests").select("*").eq("id", prId).single<PayRequest>();
+  if (!pr) return "canceled";
+  const { data: a } = await db.from("stripe_accounts").select("account_id").eq("salon_id", pr.salon_id).single();
+  if (a) {
+    const opts = { stripeAccount: a.account_id as string };
+    if (pr.reader_id) await st.terminal.readers.cancelAction(pr.reader_id, {}, opts).catch(() => null);
+    if (pr.payment_intent) await st.paymentIntents.cancel(pr.payment_intent, {}, opts).catch(() => null);
+    if (pr.checkout_session) await st.checkout.sessions.expire(pr.checkout_session, {}, opts).catch(() => null);
+  }
+  // Paid in the gap? Record it rather than cancel.
+  const again = await settle(prId);
+  if (again.status !== "pending") return again.status;
+  await db.from("pay_requests").update({ status: "canceled", error: why, updated_at: new Date().toISOString() }).eq("id", prId).eq("status", "pending");
+  return "canceled";
 }
 
 /** Make sure the salon has a Stripe Terminal location (with on-reader tips 15/20/25%). */

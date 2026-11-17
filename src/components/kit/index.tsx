@@ -203,7 +203,7 @@ export function LeftMenu({ active, salonInitials = "NP", me = "?" }: { active: M
 
 /* ---------- sync status (offline-first) ---------- */
 export function useSyncState() {
-  const [s, setS] = useState<SyncState>({ pending: 0, online: true, syncing: false });
+  const [s, setS] = useState<SyncState>({ pending: 0, parked: 0, online: true, syncing: false });
   useEffect(() => subscribe(setS), []);
   return s;
 }
@@ -213,6 +213,8 @@ export function SyncPill() {
   const t = useTranslations("sync");
   const s = useSyncState();
   if (!s.online) return <span className="pill warn" data-testid="sync-pill" data-state="offline"><span aria-hidden>▲</span>{s.pending ? t("waiting", { count: s.pending }) : t("offline")}</span>;
+  // Something the server kept refusing: kept on this device, but someone needs to look (hover shows why).
+  if (s.parked) return <span className="pill warn" data-testid="sync-pill" data-state="stuck" title={s.lastError}><span aria-hidden>!</span>{t("stuck", { count: s.parked })}</span>;
   if (s.syncing || s.pending) return <span className="pill" data-testid="sync-pill" data-state="syncing"><span className="dot pulse" aria-hidden />{t("syncing")}</span>;
   return <span className="pill ok" data-testid="sync-pill" data-state="online"><span className="dot" aria-hidden />{t("saved")}</span>;
 }

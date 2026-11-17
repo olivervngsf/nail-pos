@@ -1,6 +1,6 @@
 // Desk starts a card payment for a ticket: on the card reader (client tips + taps there) or as a pay link / QR.
 // Amount comes from the server's copy of the ticket, never from the device.
-import { asServer, asUser, fail, getStripe, originOf } from "@/lib/server/pay";
+import { asServer, asUser, fail, getStripe, originOf, stopTry } from "@/lib/server/pay";
 
 export const runtime = "nodejs";
 
@@ -20,8 +20,11 @@ export async function POST(req: Request) {
   if (info.due_cents < 50) return fail(400, "Card payments start at $0.50.");
   const opts = { stripeAccount: info.account_id };
   const meta = { ticket_id: ticketId!, salon_id: info.salon_id, ticket_number: String(info.number) };
-  // Cancel older unpaid tries for this ticket so the client can't pay twice.
-  await db.from("pay_requests").update({ status: "canceled", updated_at: new Date().toISOString() }).eq("ticket_id", ticketId).eq("status", "pending");
+  // Stop older tries in Stripe too (reader, pay page) so the client can't pay twice. If one was already paid, stop here.
+  const { data: old } = await db.from("pay_requests").select("id").eq("ticket_id", ticketId).eq("status", "pending");
+  for (const o of old ?? []) {
+    if ((await stopTry(o.id, "replaced by a new try")) === "paid") return fail(409, "This ticket is already paid.");
+  }
   const createdBy = by ? (await db.from("memberships").select("id").eq("id", by).eq("salon_id", info.salon_id).maybeSingle()).data?.id ?? null : null;
 
   if (method === "reader") {

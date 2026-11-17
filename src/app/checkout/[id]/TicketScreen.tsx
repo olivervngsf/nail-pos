@@ -364,7 +364,7 @@ function CardWait({ desk, ticket, method, onBack }: { desk: Desk; ticket: Ticket
         if (stop) return;
         if (r.status === "paid") { await pullTickets(desk.salonId, name, "", ticket.id); return; }
         if (r.status === "failed") { setErr(t("declined", { msg: r.error ?? "" })); setPr(null); return; }
-        if (r.status === "canceled") { setPr(null); return; }
+        if (r.status === "canceled") { if (r.error) setErr(r.error); setPr(null); return; }
       } catch { /* weak internet: keep asking */ }
       if (!stop) setTimeout(tick, 2000);
     };
@@ -378,7 +378,12 @@ function CardWait({ desk, ticket, method, onBack }: { desk: Desk; ticket: Ticket
     try { await api("/api/pay/simulate", { id: pr.id, ...body }); } catch (e) { setErr((e as Error).message); }
     setBusy(false);
   };
-  const cancel = async () => { if (pr) await api("/api/pay/cancel", { id: pr.id }).catch(() => null); onBack(); };
+  const cancel = async () => {
+    const r = pr ? await api<{ status: string }>("/api/pay/cancel", { id: pr.id }).catch(() => null) : null;
+    // The client paid just before Cancel: show the paid ticket instead of going back.
+    if (r?.status === "paid") { await pullTickets(desk.salonId, (id) => desk.staff.find((s) => s.id === id)?.name ?? "", "", ticket.id); return; }
+    onBack();
+  };
 
   return (
     <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, padding: "24px 16px", textAlign: "center" }}>
@@ -577,7 +582,9 @@ function RefundDrawer({ desk, ticket, amount, card, onClose, say }: { desk: Desk
     setErr("");
     if (desk.mode === "demo") return setOk({ name: managers[0]?.name ?? "Mai" });
     try {
-      const r = await rpc<PinResult & { approval_id?: string }>("approve_discount", pin ? { p_salon: desk.salonId, p_device: desk.device!.id, p_membership: approver, p_pin: pin } : { p_salon: desk.salonId });
+      // Refund OK is for this ticket only and can be used once.
+      const scope = { p_salon: desk.salonId, p_purpose: "refund", p_ticket: ticket.id };
+      const r = await rpc<PinResult & { approval_id?: string }>("approve_discount", pin ? { ...scope, p_device: desk.device!.id, p_membership: approver, p_pin: pin } : scope);
       if (!r.ok) return setErr((r.reason as string) === "not_manager" ? t("notManager") : pinMessage(r));
       setOk({ approvalId: r.approval_id, name: r.name ?? "" });
     } catch { setErr(t("pinOffline")); }
