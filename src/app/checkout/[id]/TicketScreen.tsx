@@ -18,7 +18,7 @@ import { demoSettle, giftUndo } from "@/lib/checkout/gift";
 import { needsImage, receiptBytes, type Paper, type ReceiptDoc } from "@/lib/print/escpos";
 import { receiptImageBytes } from "@/lib/print/raster";
 import { canBluetooth, isIOS, pickPrinter, printBytes, savedPrinter, savePrinter } from "@/lib/print/bluetooth";
-import { printDoc } from "@/lib/print/print";
+import { printTicketSlip } from "@/lib/print/slip";
 import { blockers, changeCents, quickCash, splitTipByPrice, staffOn, ticketLabel, totals, type Discount, type ServiceLine, type Ticket } from "@/lib/checkout/ticket";
 
 const uuid = () => crypto.randomUUID();
@@ -99,24 +99,12 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
   const printSlip = async () => {
     setSlipBusy(true); setSlipMsg("");
     try {
-      const saved = await saveNow(ticket); // the tech's phone needs the ticket on the server
-      const doc: ReceiptDoc = {
-        title: desk.salonName,
-        sub: [f.dateTime(new Date(ticket.createdAt), { timeStyle: "short" })],
-        rows: [
-          { bold: [t("slipTicket"), `#${saved.number}`] },
-          ...(ticket.client?.name ? [{ text: ticket.client.name }] : []),
-          ...ticket.lines.map((l) => [l.name, l.staffName ?? ""] as [string, string]),
-        ],
-        footer: [t("slipForTech"), t("slipBack")],
-        qr: `${location.origin}/t/ticket/${ticket.id}`,
-      };
-      if (!(await printDoc(doc))) { setSlipDoc(doc); setTimeout(() => { window.print(); setSlipDoc(null); }, 80); }
+      await printTicketSlip(ticket.id, desk.salonName, { ticket: t("slipTicket"), forTech: t("slipForTech"), back: t("slipBack") },
+        f.dateTime(new Date(ticket.createdAt), { timeStyle: "short" }));
       setSlipMsg(t("slipPrinted"));
     } catch (e) { setSlipMsg((e as Error).message); }
     setSlipBusy(false);
   };
-  const [slipDoc, setSlipDoc] = useState<ReceiptDoc | null>(null);
 
   const setLine = (lineId: string, patch: Partial<ServiceLine>) => save({ lines: ticket.lines.map((l) => (l.id === lineId ? { ...l, ...patch } : l)) });
 
@@ -175,7 +163,6 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
           {desk.mode === "live" && <Button variant="ghost" data-testid="print-slip" disabled={slipBusy} onClick={() => void printSlip()}>{t("printSlip")}</Button>}
         </div>
         {slipMsg && <div className="cap" role="status">{slipMsg}</div>}
-        {slipDoc && <SlipPrint doc={slipDoc} />}
         {noteOpen && <textarea className="inp" aria-label={t("note")} placeholder={t("notePh")} rows={2} style={{ height: "auto", padding: 12, resize: "vertical" }}
           value={ticket.note} onChange={(e) => save({ note: e.target.value })} />}
         <div style={{ flex: 1 }} />
@@ -760,26 +747,6 @@ function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say
       <Button size="sm" variant="ghost" onClick={async () => { try { setSaved(await pickPrinter(paper)); } catch { /* cancelled */ } }}>{t("btChange")}</Button>
     </div>}
   </>;
-}
-
-/** Ticket slip for the computer's printer (when there's no Bluetooth printer): only visible when printing. */
-function SlipPrint({ doc }: { doc: ReceiptDoc }) {
-  const [qr, setQr] = useState("");
-  useEffect(() => { if (doc.qr) void QRCode.toDataURL(doc.qr, { width: 180, margin: 1 }).then(setQr); }, [doc.qr]);
-  return (
-    <div className="receipt-print" aria-hidden>
-      <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16 }}>{doc.title}</div>
-      {(doc.sub ?? []).map((x) => <div key={x} style={{ textAlign: "center" }}>{x}</div>)}
-      <hr />
-      {doc.rows.map((r, i) => r === "sep" ? <hr key={i} /> : Array.isArray(r) ? <div key={i} className="rl"><span>{r[0]}</span><span>{r[1]}</span></div>
-        : "bold" in r ? <div key={i} className="rl" style={{ fontWeight: 700, fontSize: 18 }}><span>{r.bold[0]}</span><span>{r.bold[1]}</span></div> : <div key={i}>{r.text}</div>)}
-      {qr && <div style={{ textAlign: "center", marginTop: 6 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element -- data: URL */}
-        <img src={qr} alt="" width={130} height={130} />
-      </div>}
-      {(doc.footer ?? []).map((x) => <div key={x} style={{ textAlign: "center" }}>{x}</div>)}
-    </div>
-  );
 }
 
 /** Receipt for the receipt printer (80 mm): only visible when printing. */

@@ -640,7 +640,8 @@
     "kDay": "ngày",
     "kSearch": "tìm",
     "shortcuts": "Phím tắt:",
-    "droppedMsg": "{name} → {staff} lúc {time} · đã bỏ khỏi danh sách chờ"
+    "droppedMsg": "{name} → {staff} lúc {time} · đã bỏ khỏi danh sách chờ",
+    "seatSlip": "Xếp với {name} + in phiếu"
   },
   "receiptPage": {
     "notFound": "Không tìm thấy hóa đơn.",

@@ -640,7 +640,8 @@
     "kDay": "day",
     "kSearch": "search",
     "shortcuts": "Shortcuts:",
-    "droppedMsg": "{name} → {staff} at {time} · removed from waitlist"
+    "droppedMsg": "{name} → {staff} at {time} · removed from waitlist",
+    "seatSlip": "Seat with {name} + print slip"
   },
   "receiptPage": {
     "notFound": "Receipt not found.",

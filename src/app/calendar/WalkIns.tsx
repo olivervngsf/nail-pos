@@ -13,6 +13,7 @@ import { putAppt, type Appt } from "@/lib/booking/appts";
 import { dayKey, fmtMin } from "@/lib/booking/grid";
 import { nextWalkCode, waitedMin, type TurnFact } from "@/lib/booking/turns";
 import { ticketFor } from "./BookDrawers";
+import { printTicketSlip } from "@/lib/print/slip";
 
 const REASONS = ["asked", "skill", "free", "other"] as const;
 
@@ -24,11 +25,12 @@ export function useTick(ms = 30_000) {
 }
 
 /** Seat a walk-in with a tech at a time (default now): moves into that column + opens the ticket. */
-export function seatAppt(desk: Desk, a: Appt, staffId: string, startIso = new Date().toISOString(), reason: string | null = null) {
+export function seatAppt(desk: Desk, a: Appt, staffId: string, startIso = new Date().toISOString(), reason: string | null = null): string {
   const mins = a.services.reduce((x, s) => x + s.minutes, 0) || 45;
   const id = ticketFor(desk, a, staffId);
   putAppt({ ...a, status: "arrived", staffId, start: startIso, end: new Date(new Date(startIso).getTime() + mins * 60_000).toISOString(),
     arrivedAt: a.arrivedAt || a.start, ticketId: id, seatReason: reason });
+  return id;
 }
 
 export function walkOut(a: Appt) {
@@ -102,10 +104,14 @@ export function SeatDrawer({ desk, a, order, onClose, say }: { desk: Desk; a: Ap
   const [pick, setPick] = useState<string | null>(a.staffId ?? next?.id ?? null);
   const [reason, setReason] = useState<(typeof REASONS)[number] | null>(a.staffId && a.staffId !== next?.id ? "asked" : null);
   const skipped = !!next && !!pick && pick !== next.id;
-  const seat = () => {
+  const tc = useTranslations("checkout");
+  const seat = (slip = false) => {
     if (!pick) return;
     const before = { ...a };
-    seatAppt(desk, a, pick, new Date().toISOString(), skipped && reason ? t(`why_${reason}`) : null);
+    const ticketId = seatAppt(desk, a, pick, new Date().toISOString(), skipped && reason ? t(`why_${reason}`) : null);
+    // Ticket slip: the client carries it to the tech, who scans it to add services; the desk scans it back to charge.
+    if (slip) void printTicketSlip(ticketId, desk.salonName, { ticket: tc("slipTicket"), forTech: tc("slipForTech"), back: tc("slipBack") },
+      new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })).catch((e) => say((e as Error).message));
     const who = order.find((f) => f.id === pick)?.name ?? "";
     say(t("seatedMsg", { name: a.client?.name || t("walkIn"), staff: who }), () => putAppt(before));
     onClose();
@@ -118,7 +124,8 @@ export function SeatDrawer({ desk, a, order, onClose, say }: { desk: Desk; a: Ap
   return (
     <Drawer title={t("seatTitle", { name: a.client?.name || t("walkIn") })} onClose={onClose}
       footer={<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <Button variant="primary" block disabled={!pick} onClick={seat} data-testid="seat-save">{pick ? t("seatWith", { name: order.find((f) => f.id === pick)?.name ?? "" }) : t("pickTech")}</Button>
+        {desk.mode === "live" && <Button variant="primary" block disabled={!pick} onClick={() => seat(true)} data-testid="seat-slip">{pick ? t("seatSlip", { name: order.find((f) => f.id === pick)?.name ?? "" }) : t("pickTech")}</Button>}
+        <Button variant={desk.mode === "live" ? "default" : "primary"} block disabled={!pick} onClick={() => seat()} data-testid="seat-save">{pick ? t("seatWith", { name: order.find((f) => f.id === pick)?.name ?? "" }) : t("pickTech")}</Button>
         <Button variant="ghost" block data-testid="walked-out" onClick={() => {
           const before = { ...a };
           walkOut(a);
