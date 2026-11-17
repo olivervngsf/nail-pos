@@ -11,7 +11,8 @@
     "tagline": "Simple checkout and fair, clear pay for techs.",
     "setup": "Set up my salon",
     "join": "I'm staff: join my salon",
-    "test": "Test version · nothing is charged yet."
+    "test": "Test version · nothing is charged yet.",
+    "signIn": "I have an account: sign in"
   },
   "lang": {
     "label": "Language",
