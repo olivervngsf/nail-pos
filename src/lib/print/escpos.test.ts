@@ -57,3 +57,13 @@ describe("receipt QR (digital receipt link)", () => {
     expect(b.slice(i - 3, i)).toEqual([0x1b, 0x61, 1]);
   });
 });
+
+describe("scanning a ticket slip at the desk", () => {
+  it("reads the slip link, a raw id or a typed ticket number", async () => {
+    const { parseTicketScan } = await import("./print");
+    expect(parseTicketScan("https://polishosapp.com/t/ticket/1C4E4499-CC91-4D01-961A-E8090CE7E226")).toEqual({ id: "1c4e4499-cc91-4d01-961a-e8090ce7e226" });
+    expect(parseTicketScan("#1003")).toEqual({ number: 1003 });
+    expect(parseTicketScan("1003\n")).toEqual({ number: 1003 });
+    expect(parseTicketScan("hello")).toBeNull();
+  });
+});

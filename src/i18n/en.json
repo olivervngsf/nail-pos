@@ -208,7 +208,14 @@
     "btChange": "Change printer",
     "btNone": "No printer found. Turn the printer on, then try again.",
     "btIos": "Bluetooth printing on iPhone/iPad: open PolishOS in the Bluefy browser.",
-    "scanReceipt": "Scan for your digital receipt"
+    "scanReceipt": "Scan for your digital receipt",
+    "printSlip": "Print slip",
+    "slipTicket": "TICKET",
+    "slipForTech": "Give this slip to your nail tech.",
+    "slipBack": "Bring it back to the front desk to pay.",
+    "slipPrinted": "Slip printed. The tech scans its QR to add services; scan it here again to pay.",
+    "scanPh": "Scan slip or type ticket #",
+    "scanNone": "No open ticket found for that slip or number."
   },
   "pay": {
     "title": "Pay {salon}",
@@ -632,7 +639,8 @@
     "kDay": "day",
     "kSearch": "search",
     "shortcuts": "Shortcuts:",
-    "droppedMsg": "{name} → {staff} at {time} · removed from waitlist"
+    "droppedMsg": "{name} → {staff} at {time} · removed from waitlist",
+    "waitLater": "Walk-in waitlist comes with the turn list (M9)."
   },
   "receiptPage": {
     "notFound": "Receipt not found.",
@@ -841,5 +849,21 @@
     "failed": "Couldn't save. Check your internet and try again.",
     "newPhoto": "New photo",
     "on": "On"
+  },
+  "slip": {
+    "ticket": "Ticket #{n}",
+    "walkIn": "Walk-in",
+    "paid": "This ticket is paid. Nothing more to add.",
+    "yours": "Your services on this ticket",
+    "noneYet": "None yet. Tap what you did below.",
+    "others": "Other techs on this ticket",
+    "noTech": "No tech yet",
+    "addWhat": "Tap the service you did",
+    "search": "Search services",
+    "added": "Added: {name}",
+    "remove": "Remove {name}",
+    "deskSees": "The front desk sees these right away. Price changes and discounts are done at the desk.",
+    "notFound": "Ticket not found, or it's not from your salon.",
+    "liveOnly": "Ticket slips work on the live site only."
   }
 }
