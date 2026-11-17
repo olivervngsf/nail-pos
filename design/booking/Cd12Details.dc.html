@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Booking details panel</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="afw">
+  <div class="afw-screen">
+    <dc-import name="Cal" scenario="inspect" hint-size="1440px,900px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="7"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+  </div>
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
+    <div class="eyebrow">Annotations · D12</div>
+    <div class="af-title">Booking details panel</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="7"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Repeat › → D13</div>
+  </div></sc-if></aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":1800,"height":900}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
+  renderVals() {
+    const P = [[1072, 92, "Peek → Details opens this panel on the right (calendar stays visible). Name, phone, visits, status."], [1072, 148, "When → end + length, date, staff, service. Tap a row to change it."], [1072, 352, "Repeat: Doesn't repeat / Every 3 weeks on Tue. Tap → D13."], [1072, 400, "Reminders: text 1 day + 2 hours before (salon default; can change per booking)."], [1072, 448, "Booked from: Phone call · Walk-in · Online (Google / website / Instagram) · Kiosk · Staff phone · Rebook at checkout. Kept for reports."], [1072, 500, "Notes every staff sees."], [1072, 862, "Check in · Move · No-show (no-show is counted on the client's profile)."]];
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

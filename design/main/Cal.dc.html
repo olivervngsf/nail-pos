@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Calendar — merged</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.cal{position:relative;width:1440px;height:900px;background:#F5F5F7;overflow:hidden;font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;color:#1C1C1E;user-select:none}
+.rail2{position:absolute;left:0;top:0;bottom:0;width:76px;background:rgba(255,255,255,.8);border-right:1px solid #E5E5EA;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 0;box-sizing:border-box}
+.rail2 a{width:60px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border-radius:10px;font-size:11px;color:#5C5C5E;text-decoration:none}
+.rail2 a.on{background:#EFEFF2;color:#1C1C1E;font-weight:600}
+.top{position:absolute;left:76px;right:0;top:0;height:56px;display:flex;align-items:center;gap:10px;padding:0 16px;background:rgba(245,245,247,.85);backdrop-filter:blur(20px);border-bottom:1px solid #E5E5EA;box-sizing:border-box}
+
+.left{position:absolute;left:76px;top:90px;bottom:0;width:240px;border-right:1px solid #E5E5EA;background:#FAFAFB;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px}
+.right{position:absolute;right:0;top:90px;bottom:0;width:240px;border-left:1px solid #E5E5EA;background:#FAFAFB;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px}
+.wcard{background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 0.5px 0 rgba(0,0,0,.04),0 2px 8px rgba(28,28,30,.06);cursor:grab;font-size:13px;line-height:18px;transition:transform .15s,box-shadow .2s}
+.wcard:hover{box-shadow:0 8px 20px rgba(28,28,30,.12)}
+.wcard.dragging{opacity:.4}
+.ucard{background:#fff;border-radius:12px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-size:13px;line-height:17px;box-shadow:0 0.5px 0 rgba(0,0,0,.04),0 2px 8px rgba(28,28,30,.05)}
+.ucard.free{box-shadow:0 0 0 2px #2F9E44}
+.ucard.out{opacity:.6}
+.mini{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;text-align:center;font-size:12px}
+.mini span{height:26px;line-height:26px;border-radius:8px;position:relative}
+.mini span.today{background:#1C1C1E;color:#fff;font-weight:700}
+.mini span.busy::after{content:"";position:absolute;left:50%;bottom:2px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:#2F9E44}
+.filters{position:absolute;left:316px;right:240px;top:90px;height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;box-sizing:border-box}
+.counts{position:absolute;left:316px;right:240px;top:134px;height:34px;display:flex;align-items:center;gap:4px;padding:0 10px;box-sizing:border-box;border-bottom:1px solid #E5E5EA}
+.cnt{height:26px;padding:0 9px;border-radius:999px;border:0;background:transparent;font:inherit;font-size:12px;font-weight:600;color:#1C1C1E;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background .2s}
+.cnt:hover{background:#EFEFF2}
+.cnt.on{background:#1C1C1E;color:#fff}
+.heads{position:absolute;left:368px;top:168px;width:830px;height:56px;display:flex;border-bottom:1px solid #E5E5EA}
+.head{width:166px;flex:none;display:flex;align-items:center;gap:6px;padding:0 8px;box-sizing:border-box;border-left:1px solid #E5E5EA;font-size:13px;line-height:16px}
+.head.late{background:#FDEEE6}
+.grid{position:absolute;left:368px;top:224px;width:830px;height:660px;cursor:copy}
+.hr{position:absolute;left:0;right:0;height:1px;background:#E5E5EA;pointer-events:none}
+.half{position:absolute;left:0;right:0;height:1px;background:#EEEEF1;pointer-events:none}
+.vl{position:absolute;top:0;bottom:0;width:1px;background:#E5E5EA;pointer-events:none}
+.hl{position:absolute;left:316px;width:46px;text-align:right;font-size:11px;color:#5C5C5E;transform:translateY(-7px)}
+.lateCol{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,rgba(232,89,12,.06) 0 6px,transparent 6px 12px);pointer-events:none}
+.bk{position:absolute;border-radius:8px;padding:4px 7px;box-sizing:border-box;border:1px solid #E5E5EA;background:#fff;overflow:hidden;cursor:grab;font-size:12px;line-height:15px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:box-shadow .2s,opacity .25s,top .25s cubic-bezier(.2,.8,.2,1),left .25s cubic-bezier(.2,.8,.2,1),height .2s}
+.bk:hover{box-shadow:0 6px 16px rgba(28,28,30,.14);z-index:3}
+.bk b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk .s{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk.sm .m,.bk.half .m{display:none}
+.bk.xs{padding:0 7px;display:flex;align-items:center;gap:6px}
+.bk.xs b{flex:1;min-width:0}
+.bk.xs .m{display:none}
+.bk.xs .s{flex:none;max-width:45%;font-size:11px}
+.bk.half.xs .s{display:none}
+.bk .m{color:#5C5C5E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.bk .s{display:block;font-weight:600}
+.bk.paid{background:#F5F5F7;border-color:#ECECEF;color:#8E8E93}
+.bk.paid .m{color:#8E8E93}
+.bk.conf .s{color:#1F7A33}
+.bk.chair{background:#EAF5EC;border:1.5px solid #2F9E44}
+.bk.chair .s{color:#1F7A33}
+.bk .pb{position:absolute;left:0;bottom:0;height:3px;background:#2F9E44;border-radius:0 2px 0 0;transition:width .6s}
+.bk.unconf{background:repeating-linear-gradient(135deg,#FFF4EC 0 6px,#fff 6px 12px);border-color:#F4C9AF}
+.bk.unconf .s,.bk.risk .s,.bk.ready .s{color:#B5470A}
+.bk.ready{border:1.5px solid #E8590C}
+.bk.cancel{opacity:.55}
+.bk.cancel b{text-decoration:line-through}
+.bk.cancel .s{color:#C92A2A}
+.bk.walk{border-style:dashed}
+.bk.dim{opacity:.18}
+.bk.moving{background:#1C1C1E;color:#fff;border-color:#1C1C1E}
+.bk.moving .m,.bk.moving .s{color:rgba(255,255,255,.8)!important}
+.bk.ghost{border:2px dashed #1C1C1E;background:rgba(28,28,30,.04);pointer-events:none;z-index:4}
+.bk.flash{animation:flashb 1.6s ease}
+@keyframes flashb{0%{box-shadow:0 0 0 4px rgba(47,158,68,.5)}100%{box-shadow:0 1px 2px rgba(0,0,0,.04)}}
+.rs{position:absolute;left:0;right:0;bottom:0;height:7px;cursor:ns-resize}
+.rs::after{content:"";position:absolute;left:50%;bottom:2px;width:22px;height:3px;margin-left:-11px;border-radius:2px;background:rgba(28,28,30,.25);opacity:0;transition:opacity .2s}
+.bk:hover .rs::after{opacity:1}
+.now{position:absolute;left:-6px;right:0;height:2px;background:#E03131;pointer-events:none;z-index:2}
+.now::before{content:"";position:absolute;left:0;top:-4px;width:10px;height:10px;border-radius:50%;background:#E03131}
+.nowlbl{position:absolute;left:318px;font-size:11px;font-weight:700;color:#E03131;transform:translateY(-7px)}
+.qcard .chip{height:32px;padding:0 11px;font-size:13px}
+.insp{position:absolute;right:0;top:56px;bottom:0;width:380px;background:#fff;box-shadow:-12px 0 40px rgba(28,28,30,.16);z-index:12;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;animation:slideIn .3s cubic-bezier(.2,.8,.2,1) both}
+.insp .row{cursor:default}
+.insp button.row{width:100%;border:0;background:#fff;font:inherit;text-align:left;cursor:pointer}
+.rdlg{position:absolute;left:500px;top:200px;width:440px;background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(28,28,30,.28);z-index:14;padding:20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px;animation:popin .2s ease both}
+.rdlg .day{width:36px;height:36px;border-radius:50%;border:1px solid #E5E5EA;background:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.rdlg .day.on{background:#1C1C1E;color:#fff;border-color:#1C1C1E}
+.rdlg .rad{display:flex;align-items:center;gap:10px;height:34px;font-size:15px;border:0;background:transparent;font-family:inherit;cursor:pointer;padding:0}
+.rdlg .rad i{width:18px;height:18px;border-radius:50%;border:1.5px solid #C7C7CC;box-sizing:border-box}
+.rdlg .rad.on i{border:5px solid #1C1C1E}
+.qpanel{max-height:560px;z-index:11}
+.qlist{flex:1;min-height:0;overflow:auto;margin:0 -4px;padding:0 4px}
+.opt.off{opacity:.45;cursor:not-allowed}
+.qcard{position:absolute;width:340px;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:10;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px;animation:popin .22s cubic-bezier(.2,.8,.2,1) both;cursor:default}
+@keyframes popin{from{opacity:0;transform:scale(.96) translateY(4px)}to{opacity:1;transform:none}}
+
+
+
+.peek{position:absolute;width:290px;background:#fff;border-radius:14px;box-shadow:0 14px 40px rgba(28,28,30,.2),0 0 0 1px rgba(0,0,0,.04);z-index:9;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:18px;animation:popin .18s ease both;cursor:default}
+.acount{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#E8590C;color:#fff;font-size:11px;line-height:18px;box-sizing:border-box}
+.alp{position:absolute;right:16px;top:58px;width:380px;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:11;padding:8px 0;animation:popin .2s cubic-bezier(.2,.8,.2,1) both}
+.alp .ah{display:flex;align-items:center;padding:8px 16px 10px;font-size:15px;font-weight:700}
+.alr{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #E5E5EA}
+.alr .ai{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.alr .at{flex:1;min-width:0;font-size:13px;line-height:18px}
+.alr .at b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alr.done{opacity:.5}
+.mbtn{height:34px;padding:0 10px;border-radius:10px;border:0;background:#EFEFF2;font:inherit;font-size:13px;font-weight:600;color:#1C1C1E;cursor:pointer}
+.mbtn.pri{background:#1C1C1E;color:#fff}
+
+
+.drain{position:absolute;left:0;bottom:0;height:3px;background:rgba(255,255,255,.5);animation:drain 6s linear both}
+@keyframes drain{from{width:100%}to{width:0}}
+.kbd{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;border-radius:5px;border:1px solid #D1D1D6;font-size:11px;font-weight:600;color:#5C5C5E;background:#fff}
+.scrim0{position:absolute;inset:0;z-index:8;background:transparent;border:0;padding:0;cursor:default}
+.banner{position:absolute;left:76px;right:0;top:56px}
+</style>
+</helmet>
+<div class="cal">
+  <nav class="rail" aria-label="Menu" style="position:absolute;left:0;top:0;bottom:0;box-sizing:border-box">
+    <div class="logo">MN</div>
+    <a href="Main.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a class="on" href="Cal.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="Checkout.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="Clients.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="CloseDay.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="Me.dc.html" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+
+  <div class="top">
+    <div style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Mon, Nov 16</div>
+    <button class="mbtn" type="button" aria-label="Previous day" style="background:transparent">‹</button>
+    <button class="mbtn" type="button">Today</button>
+    <button class="mbtn" type="button" aria-label="Next day" style="background:transparent">›</button>
+    <div class="seg"><span class="on">Day</span><a href="CalWeek.dc.html" style="text-decoration:none"><span>Week</span></a><a href="CalMonth.dc.html" style="text-decoration:none"><span>Month</span></a></div>
+    <span style="flex:1"></span>
+    <div style="width:280px;height:36px;border-radius:10px;background:#EFEFF2;display:flex;align-items:center;gap:8px;padding:0 10px;font-size:13px;color:#5C5C5E;box-sizing:border-box">Search client, phone, staff<span style="flex:1"></span><span class="kbd">/</span></div>
+    <button class="mbtn" type="button" onClick="{{openAlerts}}" aria-label="Alerts" style="{{alertBtnStyle}}"><span style="display:inline-flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 003.4 0"/></svg>Alerts<span class="acount">{{alertCount}}</span></span></button>
+    <button class="btn primary" type="button" onClick="{{newBook}}" style="height:38px;font-size:15px;padding:0 16px">+ Book <span class="kbd" style="margin-left:6px;background:transparent;color:#D1D1D6;border-color:#5C5C5E">N</span></button>
+  </div>
+
+  <div class="banner">
+    <span style="display:inline-flex;align-items:center;gap:6px;font-weight:700;color:#B5470A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg>Overlap: Kim 1:30–2:00 PM</span><span>Tiffany and Mai are both with Kim — nobody was moved.</span>
+    <button class="mbtn" type="button" onClick="{{showAlert}}" style="height:26px;background:#fff">Show</button>
+    <span style="flex:1"></span>
+    <span class="cap">Hoa is 24 min late · 2 bookings need cover</span>
+  </div>
+
+  <aside class="left">
+    <div style="display:flex;align-items:center"><b style="font-size:15px;flex:1">Waitlist</b><span class="tag">{{waitCount}} waiting</span></div>
+    <div class="cap" style="margin-top:-6px">Drag onto a staff column to book</div>
+    <sc-for list="{{wait}}" as="w" hint-placeholder-count="3">
+      <div class="{{w.cls}}" draggable="true" onDragStart="{{w.start}}" onDragEnd="{{w.end}}" role="listitem" aria-label="{{w.name}} waiting">
+        <div style="display:flex"><b style="flex:1">{{w.name}}</b><span class="cap">{{w.code}}</span></div>
+        <div style="{{w.waitStyle}}">{{w.svc}} · waiting {{w.min}} min</div>
+      </div>
+    </sc-for>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center"><b style="flex:1;font-size:14px">Nov 2026</b><span class="cap">‹ ›</span></div>
+    <div class="mini">
+      <sc-for list="{{dows}}" as="d" hint-placeholder-count="7"><span class="cap">{{d}}</span></sc-for>
+      <sc-for list="{{month}}" as="m" hint-placeholder-count="30"><span class="{{m.cls}}">{{m.n}}</span></sc-for>
+    </div>
+  </aside>
+
+  <div class="filters">
+    <div style="height:32px;border-radius:999px;background:#fff;border:1px solid #E5E5EA;display:flex;align-items:center;padding:0 12px;font-size:13px;color:#5C5C5E">Service: any</div>
+    <div class="seg"><sc-for list="{{avail}}" as="a" hint-placeholder-count="4"><span class="{{a.cls}}">{{a.label}}</span></sc-for></div>
+    <span style="flex:1"></span>
+    <span class="cap">Drag empty space to book · drag a booking to move · bottom edge to resize</span>
+  </div>
+
+  <div class="counts">
+    <sc-for list="{{counts}}" as="c" hint-placeholder-count="9"><button class="{{c.cls}}" type="button" onClick="{{c.pick}}" title="{{c.title}}"><span style="{{c.iconStyle}}">{{c.icon}}</span>{{c.n}}<span style="font-weight:500;opacity:.75">{{c.label}}</span></button></sc-for>
+  </div>
+
+  <div class="heads">
+    <sc-for list="{{staff}}" as="s" hint-placeholder-count="5">
+      <div class="{{s.cls}}">
+        <span class="av" style="width:28px;height:28px;font-size:12px;flex:none">{{s.init}}</span>
+        <span style="flex:1;min-width:0"><b style="display:flex;align-items:center;gap:4px"><span style="{{s.dot}}"></span>{{s.name}}</b><span class="cap" style="font-size:11px;display:block;white-space:nowrap">{{s.sub}}</span></span>
+        <sc-if value="{{s.next}}" hint-placeholder-val="{{false}}"><span class="tag jade" style="font-size:10px;height:18px;padding:0 6px">NEXT</span></sc-if>
+        <sc-if value="{{s.late}}" hint-placeholder-val="{{false}}"><button class="mbtn" type="button" onClick="{{openCover}}" style="height:26px;font-size:12px;background:#E8590C;color:#fff">Cover →</button></sc-if>
+      </div>
+    </sc-for>
+  </div>
+
+  <sc-for list="{{hours}}" as="h" hint-placeholder-count="10"><div class="hl" style="{{h.top}}">{{h.label}}</div></sc-for>
+  <div class="nowlbl" style="{{nowLblTop}}">1:40</div>
+
+  <div class="grid" onMouseDown="{{gDown}}" onMouseMove="{{gMove}}" onMouseUp="{{gUp}}" onMouseLeave="{{gLeave}}" onDragOver="{{gOver}}" onDrop="{{gDrop}}">
+    <sc-for list="{{hours}}" as="h" hint-placeholder-count="10"><div class="hr" style="{{h.g}}"></div><div class="half" style="{{h.gh}}"></div></sc-for>
+    <sc-for list="{{vlines}}" as="v" hint-placeholder-count="5"><div class="vl" style="{{v}}"></div></sc-for>
+    <sc-if value="{{hoaLate}}" hint-placeholder-val="{{true}}"><div class="lateCol" style="{{lateStyle}}"></div></sc-if>
+    <sc-for list="{{blocks}}" as="b" hint-placeholder-count="20">
+      <div class="{{b.cls}}" style="{{b.style}}" onMouseDown="{{b.down}}" onMouseEnter="{{b.enter}}" onMouseLeave="{{b.leave}}">
+        <b>{{b.star}}{{b.name}}</b><span class="m">{{b.meta}}</span><span class="s">{{b.status}}</span>
+        <sc-if value="{{b.timed}}" hint-placeholder-val="{{false}}"><span class="pb" style="{{b.pbStyle}}"></span></sc-if><span class="rs" onMouseDown="{{b.rdown}}"></span>
+      </div>
+    </sc-for>
+    <sc-if value="{{hasGhost}}" hint-placeholder-val="{{false}}"><div class="bk ghost" style="{{ghostStyle}}"><b>{{ghostLabel}}</b></div></sc-if>
+    <div class="now" style="{{nowTop}}"></div>
+  </div>
+
+  <aside class="right">
+    <div style="display:flex;align-items:center"><b style="font-size:15px;flex:1">Up next</b><span class="tag jade">1 free now</span></div>
+    <div class="cap" style="margin-top:-4px">Turn order · facts only, you decide</div>
+    <sc-for list="{{upnext}}" as="u" hint-placeholder-count="5">
+      <div class="{{u.cls}}">
+        <span style="{{u.dot}}"></span>
+        <span style="flex:1"><b>{{u.name}}</b> <span style="{{u.tagStyle}}">{{u.tag}}</span><span class="cap" style="display:block;font-size:12px">{{u.sub}}</span></span>
+        <sc-if value="{{u.canBook}}" hint-placeholder-val="{{true}}"><button class="mbtn" type="button" onClick="{{u.book}}" style="height:30px">Book</button></sc-if>
+      </div>
+    </sc-for>
+    <div style="flex:1"></div>
+    <div class="cap">Shortcuts: <span class="kbd">N</span> new · <span class="kbd">T</span> today · <span class="kbd">←</span><span class="kbd">→</span> day · <span class="kbd">/</span> search</div>
+  </aside>
+
+  <sc-if value="{{anyFloat}}" hint-placeholder-val="{{false}}"><button class="scrim0" type="button" onClick="{{closeAll}}" aria-label="Close"></button></sc-if>
+
+  <sc-if value="{{hasPeek}}" hint-placeholder-val="{{false}}">
+    <div class="peek" style="{{peekStyle}}" role="dialog" aria-label="Booking">
+      <div style="display:flex;align-items:center;gap:8px"><span class="av">{{pk.init}}</span><b style="flex:1;font-size:15px">{{pk.star}}{{pk.name}}</b><span class="tag" style="{{pk.tagStyle}}">{{pk.status}}</span></div>
+      <div>{{pk.svc}} · <b>{{pk.when}}</b> · {{pk.staff}}</div>
+      <div class="cap">{{pk.src}} · (408) 555-01{{pk.ph}} · {{pk.visits}}</div>
+      <div class="cap" style="background:#F5F5F7;border-radius:8px;padding:6px 8px">{{pk.note}}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <sc-for list="{{pk.actions}}" as="a" hint-placeholder-count="4"><button class="{{a.cls}}" type="button" onClick="{{a.go}}">{{a.label}}</button></sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{hasPop}}" hint-placeholder-val="{{false}}">
+    <div class="qcard" style="{{popStyle}}" role="dialog" aria-label="New booking">
+      <div style="display:flex;align-items:center"><b style="flex:1;font-size:16px">New booking</b><button class="mbtn" type="button" onClick="{{closeAll}}" style="background:transparent" aria-label="Close">✕</button></div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:14px"><b class="num">{{popTime}}</b><span class="cap">· {{popStaff}}</span><span style="flex:1"></span><button class="mbtn" type="button" onClick="{{durDown}}" aria-label="Shorter" style="width:30px;height:28px">−</button><span class="cap num" style="min-width:44px;text-align:center">{{popDur}}</span><button class="mbtn" type="button" onClick="{{durUp}}" aria-label="Longer" style="width:30px;height:28px">+</button></div>
+      <div style="display:flex;gap:6px;align-items:center"><span class="cap" style="width:40px">From</span><sc-for list="{{srcs}}" as="c" hint-placeholder-count="3"><button class="{{c.cls}}" type="button" onClick="{{c.pick}}">{{c.label}}</button></sc-for></div>
+      <input value="{{popClientName}}" placeholder="Phone number first (or name)" aria-label="Client" style="height:42px;border-radius:10px;border:1.5px solid #1C1C1E;padding:0 12px;font:inherit;font-size:15px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{popClients}}" as="k" hint-placeholder-count="3"><button class="{{k.cls}}" type="button" onClick="{{k.pick}}">{{k.label}}</button></sc-for></div>
+      <sc-if value="{{popHint}}" hint-placeholder-val="{{false}}"><div class="cap fade" style="background:#F5F5F7;border-radius:8px;padding:6px 8px">Lan usually: <b>Gel with Kim</b> · every 4 weeks · sensitive skin</div></sc-if>
+      <div style="display:flex;align-items:baseline"><span class="eyebrow" style="flex:1">Service · top for this client</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{popSvcs}}" as="s" hint-placeholder-count="4"><button class="{{s.cls}}" type="button" onClick="{{s.pick}}">{{s.label}}</button></sc-for><button class="chip" type="button" onClick="{{allSvc}}" style="color:#5C5C5E">All {{svcCount}} ›</button></div>
+      <div class="eyebrow">Who · free at this time</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{popWho}}" as="w" hint-placeholder-count="4"><button class="{{w.cls}}" type="button" onClick="{{w.pick}}">{{w.label}}</button></sc-for><button class="chip" type="button" onClick="{{allStaff}}" style="color:#5C5C5E">More ›</button></div>
+      <div style="display:flex;gap:8px;font-size:13px"><button class="mbtn" type="button" onClick="{{openRepeat}}" style="height:30px;font-size:13px">Repeat: {{repLabel}} ›</button><span class="cap" style="align-self:center">Text reminder 1 day + 2 h before</span></div>
+      <div style="display:flex;gap:8px;margin-top:2px"><button class="mbtn" type="button" onClick="{{closeAll}}" style="flex:1;height:42px">Cancel</button><button class="mbtn pri" type="button" onClick="{{popBook}}" style="{{popBookStyle}}">Book + text</button></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{alertsOpen}}" hint-placeholder-val="{{false}}">
+    <div class="alp" role="dialog" aria-label="Alerts">
+      <div class="ah"><span style="flex:1">Alerts · {{alertCount}}</span><span class="cap" style="font-weight:400">Today</span></div>
+      <div class="alr"><span class="ai" style="background:#FDEEE6;color:#B5470A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg></span><span class="at"><b>Overlap: Kim 1:30–2:00 PM</b>Tiffany and Mai are both with Kim. Nobody was moved.</span><button class="mbtn" type="button" onClick="{{alShow}}">Show</button></div>
+      <div class="{{hoaRowCls}}"><span class="ai" style="background:#FDEEE6;color:#B5470A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="at"><b>{{hoaTitle}}</b>{{hoaSub}}</span><sc-if value="{{hoaLateNow}}" hint-placeholder-val="{{true}}"><button class="mbtn" type="button" onClick="{{alCover}}" style="background:#E8590C;color:#fff">Cover</button></sc-if></div>
+      <div class="cap" style="padding:10px 16px 4px;border-top:1px solid #E5E5EA">Alerts are facts only. You decide what to do; nothing moves on its own.</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{hasPanel}}" hint-placeholder-val="{{false}}">
+    <div class="qcard qpanel" style="{{panelStyle}}" role="dialog" aria-label="Pick from full list">
+      <div style="display:flex;align-items:center"><b style="flex:1;font-size:16px"><sc-if value="{{isSvcPanel}}" hint-placeholder-val="{{true}}">All services</sc-if><sc-if value="{{isStaffPanel}}" hint-placeholder-val="{{false}}">All staff</sc-if></b><button class="mbtn" type="button" onClick="{{closePanel}}" style="background:transparent" aria-label="Close list">✕</button></div>
+      <input class="inp" placeholder="Search… (type 2 letters)" aria-label="Search" style="height:40px;font-size:15px">
+      <sc-if value="{{isSvcPanel}}" hint-placeholder-val="{{true}}">
+        <div class="seg" style="flex-wrap:wrap"><sc-for list="{{cats}}" as="c" hint-placeholder-count="5"><span class="{{c.cls}}" onClick="{{c.pick}}" style="cursor:pointer;height:28px;padding:0 10px;font-size:12px">{{c.label}}</span></sc-for></div>
+        <div class="qlist"><sc-for list="{{svcGroups}}" as="g" hint-placeholder-count="4"><div class="eyebrow" style="padding:8px 4px 4px">{{g.name}}</div><div class="group"><sc-for list="{{g.items}}" as="v" hint-placeholder-count="3"><button class="{{v.cls}}" type="button" onClick="{{v.pick}}" style="min-height:44px;font-size:14px"><span style="flex:1;min-width:0"><b style="font-weight:600">{{v.n}}</b> <span class="cap">{{v.d}}</span></span><sc-if value="{{v.tag}}" hint-placeholder-val="{{false}}"><span class="tag jade">{{v.tag}}</span></sc-if><span class="num cap">{{v.p}}</span></button></sc-for></div></sc-for></div>
+      </sc-if>
+      <sc-if value="{{isStaffPanel}}" hint-placeholder-val="{{false}}">
+        <div class="cap">Free first. Busy staff can still be picked: the booking shows as an overlap you can see.</div>
+        <div class="qlist"><div class="group"><sc-for list="{{staffRows}}" as="t" hint-placeholder-count="5"><button class="{{t.cls}}" type="button" onClick="{{t.pick}}" style="min-height:52px;font-size:14px"><span class="av" style="width:30px;height:30px;font-size:12px">{{t.init}}</span><span style="flex:1;min-width:0"><b style="font-weight:600">{{t.n}}</b><span class="cap" style="display:block">{{t.sub}}</span></span><span style="{{t.dot}}"></span></button></sc-for></div></div>
+      </sc-if>
+    </div>
+  </sc-if>
+  <sc-if value="{{hasInsp}}" hint-placeholder-val="{{false}}">
+    <aside class="insp" aria-label="Booking details">
+      <div style="display:flex;align-items:center;gap:10px;height:40px"><span class="av">{{ip.init}}</span><span style="flex:1;min-width:0"><b style="font-size:17px">{{ip.name}}</b><span class="cap" style="display:block">{{ip.phone}} · {{ip.visits}}</span></span><span class="tag" style="{{ip.tagStyle}}">{{ip.status}}</span><button class="mbtn" type="button" onClick="{{closeInsp}}" aria-label="Close" style="background:transparent">✕</button></div>
+      <div class="group">
+        <div class="row s"><span class="g">When</span><b class="num">{{ip.when}}</b></div>
+        <div class="row s"><span class="g">Date</span><b>Mon, Nov 16</b></div>
+        <div class="row s"><span class="g">With</span><b>{{ip.staff}}</b></div>
+        <div class="row s"><span class="g">Service</span><b>{{ip.svc}}</b></div>
+      </div>
+      <div class="group">
+        <button class="row s" type="button" onClick="{{openRepeat}}"><span class="g">Repeat</span><b>{{ip.repeat}}</b><span class="cap">›</span></button>
+        <div class="row s"><span class="g">Reminders</span><b>Text 1 day + 2 h before</b></div>
+        <div class="row s"><span class="g">Booked from</span><b>{{ip.src}}</b></div>
+      </div>
+      <div class="cap" style="background:#F5F5F7;border-radius:10px;padding:8px 10px;font-size:13px;line-height:18px">{{ip.note}}</div>
+      <div style="flex:1"></div>
+      <div style="display:flex;gap:8px"><button class="mbtn pri" type="button" style="flex:2;height:44px">Check in</button><button class="mbtn" type="button" style="flex:1;height:44px">Move</button><button class="mbtn" type="button" style="flex:1;height:44px">No-show</button></div>
+    </aside>
+  </sc-if>
+  <sc-if value="{{hasRepeat}}" hint-placeholder-val="{{false}}">
+    <div class="rdlg" role="dialog" aria-label="Repeat">
+      <b style="font-size:18px">Repeat booking</b>
+      <div style="display:flex;align-items:center;gap:10px;font-size:15px">Every <span class="stepper"><button class="btn" type="button" onClick="{{repDn}}" aria-label="Less">−</button><b>{{rep.n}}</b><button class="btn" type="button" onClick="{{repUp}}" aria-label="More">+</button></span><div class="seg"><sc-for list="{{repUnits}}" as="u" hint-placeholder-count="2"><span class="{{u.cls}}" onClick="{{u.pick}}" style="cursor:pointer">{{u.label}}</span></sc-for></div></div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="width:40px;font-size:15px">On</span><sc-for list="{{repDays}}" as="d" hint-placeholder-count="7"><button class="{{d.cls}}" type="button" onClick="{{d.pick}}">{{d.label}}</button></sc-for></div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:15px"><span style="flex:1">Same staff + same time</span><button class="sw on" type="button" aria-label="Same staff and time"></button></div>
+      <div style="display:flex;flex-direction:column"><span class="cap">Ends</span><sc-for list="{{repEnds}}" as="e" hint-placeholder-count="3"><button class="{{e.cls}}" type="button" onClick="{{e.pick}}"><i></i>{{e.label}}</button></sc-for></div>
+      <div style="background:#F5F5F7;border-radius:12px;padding:10px 12px;font-size:14px;line-height:20px"><b>Next: {{repNext}}</b><span class="cap" style="display:block">Kim is free for all of them ✓ · a clash later shows as an Alert, nothing moves by itself</span></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end"><button class="mbtn" type="button" onClick="{{closeRepeat}}" style="height:40px;padding:0 18px">Cancel</button><button class="mbtn pri" type="button" onClick="{{saveRepeat}}" style="height:40px;padding:0 22px">Done</button></div>
+    </div>
+  </sc-if>
+  <sc-if value="{{hasCover}}" hint-placeholder-val="{{false}}">
+    <div class="peek" style="left:1000px;top:226px;width:320px" role="dialog" aria-label="Cover for Hoa">
+      <b style="font-size:15px">Hoa is 24 min late</b>
+      <div class="cap">2 bookings need someone. Facts only — you choose.</div>
+      <div class="group" style="box-shadow:none;border:1px solid #E5E5EA">
+        <div class="row" style="min-height:44px;font-size:13px"><span class="grow"><b>Nina</b> · Gel · 1:30</span><span class="tag jade">→ Tuyết (free now)</span></div>
+        <div class="row" style="min-height:44px;font-size:13px"><span class="grow"><b>Hannah</b> · Pedi · 2:30</span><span class="tag">→ Ngọc (free 2:00)</span></div>
+      </div>
+      <button class="mbtn pri" type="button" onClick="{{doCover}}" style="height:40px">Move both + text clients</button>
+      <button class="mbtn" type="button" onClick="{{closeAll}}" style="height:36px">Wait for Hoa</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+    <div class="toast"><span style="flex:1">{{toast}}</span><sc-if value="{{toastUndo}}" hint-placeholder-val="{{true}}"><button type="button" onClick="{{undo}}">Undo</button></sc-if><span class="drain"></span></div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["day","create","drag","peek","move","waitdrop","cover","alerts","alert","booked","filter","createsvc","createstaff","inspect","repeat","phone"],"default":"day"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(p){
+    super(p);
+    const A = [
+      [0, 9.5, 10.25, 'Tracy', 'Gel color mani', 'paid', 'Paid · Card', 'called'],
+      [0, 10.5, 11.25, 'Jessica', 'Gel color + removal', 'paid', 'Paid · Card', 'online'],
+      [0, 12, 12.75, 'Hailey', 'Fill-in + French tip', 'ready', 'Ready for bill · $55', 'called', 1],
+      [0, 13.25, 14.25, 'Tiffany', 'Acrylic full set', 'chair', 'In the chair', 'called'],
+      [0, 13.5, 14, 'Mai', 'Polish change', 'conf walk', 'Walk-in', 'walk-in'],
+      [0, 15, 15.75, 'Sofia', 'Dip powder', 'unconf', '? Not confirmed', 'online'],
+      [0, 16, 16.75, 'Brittany', 'Acrylic fill-in', 'conf', '✓ Confirmed', 'online'],
+      [1, 9, 9.75, 'Hannah', 'Spa pedicure', 'paid walk', 'Paid · Cash', 'walk-in'],
+      [1, 10, 11, 'Susan', 'Pedi + callus', 'paid', 'Paid · Cash', 'online'],
+      [1, 13, 14, 'Fiona', 'Deluxe spa pedicure', 'chair', 'In the chair', 'called'],
+      [1, 15, 15.75, 'Kayla', 'Spa pedi', 'conf', '✓ Confirmed', 'online'],
+      [2, 9, 10, 'Emily', 'Acrylic full set', 'paid', 'Paid · Card', 'online'],
+      [2, 10.75, 11.5, 'Kim L.', 'Dip powder', 'paid walk', 'Paid · Card', 'walk-in'],
+      [2, 12, 12.75, 'Rosa', 'Gel color mani', 'ready', 'Ready for bill · $45', 'online'],
+      [2, 14.5, 15.5, 'Rose', 'Acrylic full set', 'conf', '✓ Confirmed', 'online', 1],
+      [2, 15.75, 16.5, 'Ashley', 'Dip powder', 'risk', 'No-show risk · 2 missed', 'called'],
+      [3, 13.5, 14.25, 'Nina', 'Gel color mani', 'conf', '✓ Confirmed', 'online', 1],
+      [3, 14.5, 15.25, 'Hannah P.', 'Pedi + callus', 'conf walk', 'Walk-in', 'walk-in'],
+      [4, 11.25, 12, 'Ana', 'Acrylic fill-in', 'paid', 'Paid · Cash', 'called'],
+      [4, 13.25, 14.25, 'Brianna', 'Gel + art', 'chair', 'In the chair', 'online', 1],
+      [4, 14.75, 15.5, 'Jess', 'Acrylic fill-in', 'conf', '✓ Confirmed', 'online'],
+      [4, 15.75, 16.75, 'Hailey R.', 'Gel + paint', 'conf', '✓ Confirmed', 'called'],
+      [4, 17, 18, 'Fiona M.', 'Acrylic full set', 'cancel', '✕ Cancelled', 'called']
+    ].map((a, i) => ({ id: i, col: a[0], s: a[1], e: a[2], name: a[3], svc: a[4], st: a[5], status: a[6], src: a[7], star: !!a[8] }));
+    this.state = { appts: A, prev: null, pop: null, peek: null, drag: null, move: null, cover: false, toast: null, toastUndo: true, filter: null, waitDrag: null, wait: [['Susan', 'B12', 'Spa pedicure', 18], ['Kayla', 'B13', 'Gel color mani', 8], ['Sofia', 'B14', 'Acrylic fill-in', 3]], flash: null, hoaCovered: false };
+    const sc = (p && p.scenario) || 'day';
+    if (sc === 'create') this.state.pop = { col: 0, s: 16.75, e: 17.5, client: 0, svc: 0, who: 1 };
+    if (sc === 'createsvc') this.state.pop = { col: 1, s: 15.5, e: 16.25, client: 0, svc: 0, who: 1, panel: 'svc' };
+    if (sc === 'createstaff') this.state.pop = { col: 1, s: 15.5, e: 16.25, client: 0, svc: 3, who: 1, panel: 'staff' };
+    if (sc === 'drag') this.state.drag = { col: 1, s: 16, e: 17.25 };
+    if (sc === 'peek') this.state.peek = 5;
+    if (sc === 'move') this.state.move = { id: 21, col: 4, s: 16.5, e: 17.5, moved: true, dy: 0 };
+    if (sc === 'waitdrop') { this.state.waitDrag = 0; this.state.drag = { col: 2, s: 13, e: 13.75, label: 'Susan · Pedi' }; }
+    if (sc === 'cover') this.state.cover = true;
+    if (sc === 'alert') { this.state.filter = 'overlap'; this.state.toast = 'Showing the overlap at Kim 1:30 PM. Drag one booking to another time or staff to fix it.'; this.state.toastUndo = false; }
+    if (sc === 'alerts') this.state.alerts = true;
+    this.state.rep = { n: 3, unit: 'weeks', day: 'Tu', ends: 'never', on: false };
+    if (sc === 'inspect') this.state.insp = 5;
+    if (sc === 'repeat') { this.state.insp = 5; this.state.repOpen = true; }
+    if (sc === 'phone') { this.state.pop = { col: 0, s: 16.75, e: 17.5, client: 0, svc: 0, who: 0, src: 'phone' }; }
+    if (sc === 'filter') this.state.filter = 'unconf';
+    if (sc === 'booked') { this.state.appts = A.concat([{ id: 99, col: 0, s: 16.75, e: 17.5, name: 'Lan Tran', svc: 'Gel color mani', st: 'conf', status: 'Text sent', src: 'front desk' }]); this.state.flash = 99; this.state.toast = 'Booked Lan Tran · Gel · Kim 4:45 PM · confirmation texted'; }
+  }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  say(msg, undo){ this.setState({ toast: msg, toastUndo: undo !== false }); clearTimeout(this.t); this.t = setTimeout(() => this.setState({ toast: null }), 6000); }
+  renderVals() {
+    const S = this.state, CW = 166, HH = 66, T0 = 9;
+    const fmt = (t) => { const h = Math.floor(t + 1e-6), m = Math.round((t - h) * 60); const hh = ((h + 11) % 12) + 1; return hh + ':' + (m < 10 ? '0' : '') + m + (h < 12 ? ' AM' : ' PM'); };
+    const staffN = ['Kim', 'Ngọc', 'Tuyết', 'Hoa', 'Linh'];
+    const pos = (e) => { const r = e.currentTarget.getBoundingClientRect(); const sc = r.width / 830 || 1; return { x: (e.clientX - r.left) / sc, y: (e.clientY - r.top) / sc }; };
+    const snap = (y) => Math.max(T0, Math.min(18.75, T0 + Math.round((y / HH) * 4) / 4));
+    const colOf = (x) => Math.max(0, Math.min(4, Math.floor(x / CW)));
+    const ap = S.appts.map((a) => (S.hoaCovered && a.col === 3 ? Object.assign({}, a, { col: a.name === 'Nina' ? 2 : 1 }) : a));
+    const lanes = {}; ap.forEach((a) => { ap.forEach((b) => { if (a.id !== b.id && a.col === b.col && a.st.indexOf('cancel') < 0 && b.st.indexOf('cancel') < 0 && a.s < b.e && b.s < a.e) { lanes[a.id] = a.s <= b.s && a.id < b.id ? 0 : 1; } }); });
+    const match = { unconf: (a) => a.st.indexOf('unconf') >= 0, conf: (a) => a.st.indexOf('conf') === 0, chair: (a) => a.st.indexOf('chair') >= 0, ready: (a) => a.st.indexOf('ready') >= 0, cancel: (a) => a.st.indexOf('cancel') >= 0, walk: (a) => a.src === 'walk-in', online: (a) => a.src === 'online', star: (a) => a.star, overlap: (a) => lanes[a.id] != null, risk: (a) => a.st.indexOf('risk') >= 0 };
+    const SAT = { Tiffany: 13.37, Fiona: 13.083, Brianna: 13.5 }, NOW = 13.667;
+    const blocks = ap.map((a) => {
+      const mv = S.move && S.move.id === a.id ? S.move : null;
+      const col = mv ? mv.col : a.col, s = mv ? mv.s : a.s, e = mv ? mv.e : a.e;
+      const lane = lanes[a.id], w = lane == null ? CW - 6 : (CW - 8) / 2;
+      const left = col * CW + 3 + (lane === 1 ? (CW - 8) / 2 + 2 : 0);
+      const dim = S.filter && !match[S.filter](a);
+      const hpx = Math.max(22, (e - s) * HH - 2), fit = hpx < 36 ? ' xs' : hpx < 56 ? ' sm' : '';
+      return {
+        name: a.name, star: a.star ? '★ ' : '', meta: a.svc + ' · ' + fmt(a.s).replace(' AM', '').replace(' PM', '') + ' · ' + a.src, status: (a.st.indexOf('chair') >= 0 && SAT[a.name]) ? 'In chair ' + Math.round((NOW - SAT[a.name]) * 60) + ' min · usual ' + Math.round((a.e - a.s) * 60) : a.status,
+        timed: a.st.indexOf('chair') >= 0 && !!SAT[a.name], pbStyle: SAT[a.name] ? 'width:' + Math.min(100, Math.round((NOW - SAT[a.name]) / (a.e - a.s) * 100)) + '%' : '',
+        cls: 'bk ' + a.st + fit + (lane == null ? '' : ' half') + (dim ? ' dim' : '') + (S.flash === a.id ? ' flash' : '') + (mv ? ' moving' : ''),
+        style: 'left:' + left + 'px;width:' + w + 'px;top:' + ((s - T0) * HH + 1) + 'px;height:' + Math.max(22, (e - s) * HH - 2) + 'px' + (mv ? ';box-shadow:0 14px 30px rgba(28,28,30,.25);z-index:6;cursor:grabbing' : ''),
+        down: (ev) => { ev.stopPropagation(); const p = pos({ currentTarget: ev.currentTarget.parentNode, clientX: ev.clientX, clientY: ev.clientY }); this.setState({ move: { id: a.id, col: a.col, s: a.s, e: a.e, dy: p.y - (a.s - T0) * HH, sy: p.y, moved: false }, peek: null, pop: null }); },
+        rdown: (ev) => { ev.stopPropagation(); this.setState({ move: { id: a.id, col: a.col, s: a.s, e: a.e, resize: true, moved: false } }); },
+        enter: () => { if (!S.move && !S.drag && !S.pop) this.setState({ peek: a.id }); },
+        leave: () => { if (!S.move && S.peekPinned !== a.id) this.setState({ peek: null }); }
+      };
+    });
+    const gDown = (e) => { if (S.pop || S.peekPinned != null) return; const p = pos(e); const t = snap(p.y); this.setState({ drag: { col: colOf(p.x), s: t, e: t + 0.25, a: t }, peek: null }); };
+    const gMove = (e) => {
+      const p = pos(e);
+      if (S.move) {
+        if (S.move.resize) { const ne = Math.max(S.move.s + 0.25, snap(p.y)); this.setState({ move: Object.assign({}, S.move, { e: ne, moved: true }) }); return; }
+        const dur = S.move.e - S.move.s; const ns = snap(p.y - S.move.dy);
+        const moved = S.move.moved || Math.abs(p.y - S.move.sy) > 6;
+        this.setState({ move: Object.assign({}, S.move, { s: ns, e: ns + dur, col: colOf(p.x), moved }) });
+      } else if (S.drag && S.drag.a != null) {
+        const t = snap(p.y); this.setState({ drag: Object.assign({}, S.drag, { s: Math.min(S.drag.a, t), e: Math.max(S.drag.a + 0.25, t + 0.25) }) });
+      }
+    };
+    const gUp = () => {
+      if (S.move) {
+        const m = S.move; const old = S.appts.find((x) => x.id === m.id);
+        if (!m.moved) { this.setState({ move: null, peek: m.id, peekPinned: m.id }); return; }
+        this.setState({ prev: S.appts, appts: S.appts.map((x) => (x.id === m.id ? Object.assign({}, x, { col: m.col, s: m.s, e: m.e }) : x)), move: null, flash: m.id });
+        this.say(m.resize ? old.name + ' now ends ' + fmt(m.e) + ' · ' + Math.round((m.e - m.s) * 60) + ' min' : 'Moved ' + old.name + ' to ' + staffN[m.col] + ' ' + fmt(m.s) + ' · client texted');
+      } else if (S.drag && S.drag.a != null) {
+        const d = S.drag; this.setState({ drag: null, pop: { col: d.col, s: d.s, e: Math.max(d.e, d.s + 0.75), client: null, svc: null, who: d.col } });
+      }
+    };
+    const gLeave = () => { if (S.drag && S.drag.a != null) this.setState({ drag: null }); if (S.move) this.setState({ move: null }); };
+    const gOver = (e) => { e.preventDefault(); if (S.waitDrag == null) return; const p = pos(e); const t = snap(p.y); const w = S.wait[S.waitDrag]; this.setState({ drag: { col: colOf(p.x), s: t, e: t + 0.75, label: w[0] + ' · ' + w[2] } }); };
+    const gDrop = (e) => {
+      e.preventDefault(); if (S.waitDrag == null) return; const p = pos(e); const t = snap(p.y); const w = S.wait[S.waitDrag]; const id = 200 + S.waitDrag;
+      this.setState({ prev: S.appts, appts: S.appts.concat([{ id, col: colOf(p.x), s: t, e: t + 0.75, name: w[0], svc: w[2], st: 'conf walk', status: 'Walk-in · booked', src: 'walk-in' }]), wait: S.wait.filter((x, i) => i !== S.waitDrag), waitDrag: null, drag: null, flash: id });
+      this.say(w[0] + ' booked with ' + staffN[colOf(p.x)] + ' at ' + fmt(t) + ' · removed from waitlist');
+    };
+    const pk = S.peek != null ? ap.find((a) => a.id === S.peek) : null;
+    const pkPos = pk ? { left: 368 + pk.col * CW + (pk.col >= 3 ? -296 : CW + 4), top: Math.min(560, 224 + (pk.s - T0) * HH) } : null;
+    const P = S.pop;
+    const clients = [['Lan Tran', 'regular'], ['Jen Park', ''], ['+ New', '']];
+    const svcs = [['Gel color mani', 0.75, 'Manicure', 45], ['Spa pedicure', 0.75, 'Pedicure', 38], ['Acrylic full set', 1.25, 'Enhancements', 48], ['Acrylic fill-in', 0.75, 'Enhancements', 38], ['Dip, no tips', 1, 'Enhancements', 48], ['Deluxe spa pedi', 1, 'Pedicure', 48], ['French tip', 0.25, 'Add-ons', 7], ['Regular manicure', 0.5, 'Manicure', 30], ['Gel color change', 0.5, 'Manicure', 30], ['Gel color pedicure', 1, 'Pedicure', 53], ['Collagen spa pedi', 1, 'Pedicure', 68], ['Pink & white', 1.25, 'Enhancements', 70], ['Builder gel', 1.25, 'Enhancements', 68], ['Polish change', 0.25, 'Add-ons', 17], ['Eyebrow wax', 0.25, 'Waxing', 12]];
+    const TOP = [0, 3, 1, 4], CATS = ['All', 'Manicure', 'Pedicure', 'Enhancements', 'Add-ons', 'Waxing'];
+    const STAFF = [[2, 'Tuyết', 'Free now · 3 turns', 'free'], [1, 'Ngọc', 'Busy until 2:00 · 3 turns', 'busy'], [4, 'Linh', 'Busy until 2:15 · 2 turns', 'busy'], [0, 'Kim', 'Busy until 2:15 · 4 turns', 'busy'], [3, 'Hoa', 'Not in · 24 min late', 'out']];
+    const popLeft = P ? (P.col >= 3 ? 368 + P.col * CW - 346 : 368 + (P.col + 1) * CW + 8) : 0;
+    const popTop = P ? Math.max(64, Math.min(900 - 600, 224 + (P.s - T0) * HH - 40)) : 0;
+    const counts = [['all', '▮', '23', ' booked'], ['online', '', '12', ' online'], ['walk', '⏱', '4', ' walk-in'], ['unconf', '?', '1', ''], ['conf', '✓', '8', ''], ['chair', '●', '3', ''], ['ready', '$', '2', ''], ['cancel', '✕', '1', ''], ['star', '★', '4', '']];
+    const colors = { unconf: 'color:#B5470A', conf: 'color:#1F7A33', chair: 'color:#2F9E44', ready: 'color:#B5470A', cancel: 'color:#C92A2A', star: 'color:#B5470A' };
+    const titles = { all: 'All bookings', online: 'Booked online', walk: 'Walk-ins', unconf: 'Not confirmed', conf: 'Confirmed', chair: 'In the chair', ready: 'Ready for bill', cancel: 'Cancelled', star: 'Asked for a staff' };
+    const hours = []; for (let h = 9; h <= 18; h++) hours.push({ label: fmt(h).replace(':00', ''), top: 'top:' + (224 + (h - T0) * HH) + 'px', g: 'top:' + ((h - T0) * HH) + 'px', gh: 'top:' + ((h - T0) * HH + HH / 2) + 'px' });
+    const ghost = S.drag ? S.drag : null;
+    const actions = pk ? [
+      pk.st.indexOf('ready') >= 0 ? ['Take payment', 'mbtn pri'] : (pk.st.indexOf('paid') >= 0 ? ['View receipt', 'mbtn'] : ['Check in', 'mbtn pri']),
+      ['Text', 'mbtn'], ['Details', 'mbtn'], ['Cancel', 'mbtn']
+    ].map((x) => ({ label: x[0], cls: x[1], go: () => { this.setState({ peek: null, peekPinned: null }); if (x[0] === 'Details') { this.setState({ insp: pk.id }); return; } if (x[0] === 'Text') this.say('Texted ' + pk.name + ': “See you at ' + fmt(pk.s) + '”', false); if (x[0] === 'Check in') { this.setState({ prev: S.appts, appts: S.appts.map((a) => (a.id === pk.id ? Object.assign({}, a, { st: 'chair', status: 'In the chair' }) : a)), flash: pk.id }); this.say(pk.name + ' checked in · ticket started'); } } })) : [];
+    return {
+      waitCount: S.wait.length,
+      wait: S.wait.map((w, i) => ({ name: w[0], code: w[1], svc: w[2], min: w[3], waitStyle: w[3] >= 15 ? 'color:#B5470A;font-weight:600' : 'color:#5C5C5E', cls: 'wcard' + (S.waitDrag === i ? ' dragging' : ''), start: (e) => { try { e.dataTransfer.setData('text/plain', w[0]); } catch (x) {} this.setState({ waitDrag: i }); }, end: () => this.setState({ waitDrag: null, drag: null }) })),
+      dows: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+      month: [{ n: '', cls: '' }, { n: '', cls: '' }, { n: '', cls: '' }, { n: '', cls: '' }, { n: '', cls: '' }].concat(Array.from({ length: 30 }, (x, i) => ({ n: i + 1, cls: i + 1 === 16 ? 'today' : ([3, 7, 12, 17, 19, 24, 27].indexOf(i + 1) >= 0 ? 'busy' : '') }))),
+      avail: [['All 5', 1], ['Available 1', 0], ['Working 3', 0], ['Not in 1', 0]].map((a) => ({ label: a[0], cls: a[1] ? 'on' : '' })),
+      counts: counts.map((c) => ({ icon: c[1], n: c[2], label: c[3], title: titles[c[0]], iconStyle: colors[c[0]] || '', cls: 'cnt' + ((S.filter === c[0]) ? ' on' : ''), pick: () => this.setState({ filter: c[0] === 'all' || S.filter === c[0] ? null : c[0] }) })),
+      staff: staffN.map((n, i) => ({
+        name: n, init: n[0], next: i === 2, late: i === 3 && !S.hoaCovered,
+        sub: ['4 turns · 7 appts', '3 turns · 4 appts', '3 turns · 5 appts', S.hoaCovered ? 'Not in · covered' : 'Not in · 24m late', '2 turns · 5 appts'][i],
+        dot: 'width:7px;height:7px;border-radius:50%;background:' + (i === 2 ? '#2F9E44' : i === 3 ? '#8E8E93' : '#E03131'),
+        cls: 'head' + (i === 3 && !S.hoaCovered ? ' late' : '')
+      })),
+      openCover: () => this.setState({ cover: true }),
+      hasCover: S.cover,
+      doCover: () => { this.setState({ cover: false, hoaCovered: true }); this.say('Nina → Tuyết, Hannah P. → Ngọc · both clients texted'); },
+      hoaLate: !S.hoaCovered, lateStyle: 'left:' + (3 * CW) + 'px;width:' + CW + 'px',
+      hours, vlines: [0, 1, 2, 3, 4].map((i) => 'left:' + (i * CW) + 'px'),
+      nowTop: 'top:' + ((13 + 40 / 60 - T0) * HH) + 'px', nowLblTop: 'top:' + (224 + (13 + 40 / 60 - T0) * HH) + 'px',
+      blocks, gDown, gMove, gUp, gLeave, gOver, gDrop,
+      hasGhost: !!ghost, ghostStyle: ghost ? 'left:' + (ghost.col * CW + 3) + 'px;width:' + (CW - 6) + 'px;top:' + ((ghost.s - T0) * HH) + 'px;height:' + ((ghost.e - ghost.s) * HH) + 'px' : '',
+      ghostLabel: ghost ? (ghost.label ? ghost.label + ' · ' : '') + fmt(ghost.s) + ' – ' + fmt(ghost.e) : '',
+      hasPeek: !!pk && !P,
+      peekStyle: pkPos ? 'left:' + pkPos.left + 'px;top:' + pkPos.top + 'px' : '',
+      pk: pk ? { init: pk.name[0], name: pk.name, star: pk.star ? '★ ' : '', status: pk.status, tagStyle: pk.st.indexOf('chair') >= 0 || pk.st.indexOf('conf') === 0 ? 'background:#EAF5EC' : (pk.st.indexOf('unconf') >= 0 || pk.st.indexOf('ready') >= 0 || pk.st.indexOf('risk') >= 0 ? 'background:#FDEEE6' : ''), svc: pk.svc, when: fmt(pk.s) + '–' + fmt(pk.e), staff: staffN[pk.col], src: pk.src === 'online' ? 'Booked online' : pk.src === 'walk-in' ? 'Walk-in' : 'Called in', ph: String(10 + pk.id), visits: pk.star ? 'regular · asked for ' + staffN[pk.col] : '3 visits', note: pk.st.indexOf('unconf') >= 0 ? 'Reminder sent 9:00 AM · no reply yet' : pk.st.indexOf('risk') >= 0 ? 'Missed 2 of last 5 — call to confirm' : 'Notes: likes almond shape', actions } : { actions: [] },
+      hasPop: !!P,
+      popStyle: P ? 'left:' + popLeft + 'px;top:' + popTop + 'px' : '',
+      popTime: P ? fmt(P.s) + ' – ' + fmt(P.e) : '', popStaff: P ? staffN[P.who] : '', popDur: P ? Math.round((P.e - P.s) * 60) + ' min' : '',
+      durUp: () => this.setState({ pop: Object.assign({}, P, { e: P.e + 0.25 }) }), durDown: () => this.setState({ pop: Object.assign({}, P, { e: Math.max(P.s + 0.25, P.e - 0.25) }) }),
+      popClientName: P && P.client === 0 ? 'Lan Tran · (408) 555-0142' : '',
+      popClients: clients.map((c, i) => ({ label: c[0] + (c[1] ? ' · ' + c[1] : ''), cls: 'chip' + (P && P.client === i ? ' on' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { client: i, svc: i === 0 && P.svc == null ? 0 : P.svc }) }) })),
+      popHint: P && P.client === 0,
+      popSvcs: TOP.concat(P && TOP.indexOf(P.svc) < 0 && P.svc != null ? [P.svc] : []).map((i) => [svcs[i], i]).map(([s, i]) => ({ label: s[0], cls: 'chip' + (P && P.svc === i ? ' on' : '') + (P && P.client === 0 && i === 0 && P.svc !== 0 ? ' sug' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { svc: i, e: P.s + s[1] }) }) })),
+      allSvc: () => this.setState({ pop: Object.assign({}, P, { panel: P.panel === 'svc' ? null : 'svc' }) }), allStaff: () => this.setState({ pop: Object.assign({}, P, { panel: P.panel === 'staff' ? null : 'staff' }) }),
+      svcCount: svcs.length, hasPanel: !!(P && P.panel), isSvcPanel: !!(P && P.panel === 'svc'), isStaffPanel: !!(P && P.panel === 'staff'), closePanel: () => this.setState({ pop: Object.assign({}, P, { panel: null }) }),
+      panelStyle: P ? 'left:' + (P.col >= 2 ? popLeft - 348 : popLeft + 348) + 'px;top:' + popTop + 'px' : '',
+      cats: CATS.map((c) => ({ label: c, cls: (P && (P.cat || 'All') === c) ? 'on' : '', pick: () => this.setState({ pop: Object.assign({}, P, { cat: c }) }) })),
+      svcGroups: CATS.slice(1).filter((c) => !P || !P.cat || P.cat === 'All' || P.cat === c).map((c) => ({ name: c, items: svcs.map((v, i) => [v, i]).filter(([v]) => v[2] === c).map(([v, i]) => ({ n: v[0], d: Math.round(v[1] * 60) + ' min', p: '$' + v[3], tag: P && P.client === 0 && i === 0 ? 'Lan usually' : '', cls: 'opt' + (P && P.svc === i ? ' on' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { svc: i, e: P.s + v[1], panel: null }) }) })) })),
+      staffRows: STAFF.map((t) => ({ init: t[1][0], n: t[1], sub: t[2], dot: 'width:8px;height:8px;border-radius:50%;flex:none;background:' + (t[3] === 'free' ? '#2F9E44' : t[3] === 'busy' ? '#E03131' : '#8E8E93'), cls: 'opt' + (P && P.who === t[0] ? ' on' : '') + (t[3] === 'out' ? ' off' : ''), pick: () => { if (t[3] !== 'out') this.setState({ pop: Object.assign({}, P, { who: t[0], col: t[0], panel: null }) }); } })),
+      popWho: ['Next turn · Tuyết', 'Ngọc', 'Linh'].map((w, i) => { const col = [2, 1, 4][i]; return { label: (P && P.who === col && i > 0 ? '✓ ' : '') + w, cls: 'chip' + (i === 0 ? ' sug' : '') + (P && P.who === col && i > 0 ? ' on' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { who: col, col }) }) }; }),
+      popBookStyle: 'flex:2;height:42px' + (P && P.client != null && P.svc != null ? '' : ';opacity:.35;pointer-events:none'),
+      popBook: () => { const id = 100 + S.appts.length; const nm = P.client === 0 ? 'Lan Tran' : P.client === 1 ? 'Jen Park' : 'New client'; this.setState({ prev: S.appts, appts: S.appts.concat([{ id, col: P.who, s: P.s, e: P.e, name: nm, svc: svcs[P.svc][0], st: 'conf', status: 'Text sent', src: 'front desk' }]), pop: null, flash: id }); this.say('Booked ' + nm + ' · ' + svcs[P.svc][0] + ' · ' + staffN[P.who] + ' ' + fmt(P.s) + ' · confirmation texted'); },
+      newBook: () => this.setState({ pop: { col: 2, s: 13.75, e: 14.5, client: null, svc: null, who: 2 }, peek: null }),
+      upnext: [['Tuyết', 'FREE', 'open 36 min · 3 turns', 1, '#2F9E44', 'free', 2, 13.75], ['Ngọc', 'BUSY', 'free 2:00 · 3 turns', 1, '#E03131', '', 1, 14], ['Linh', 'BUSY', 'free 2:15 · 2 turns', 1, '#E03131', '', 4, 14.25], ['Kim', 'BUSY', 'free 2:15 · 4 turns', 1, '#E03131', '', 0, 14.25], ['Hoa', 'NOT IN', '24 min late · 0 turns', 0, '#8E8E93', 'out', 3, 0]]
+        .map((u) => ({ name: u[0], tag: u[1], sub: u[2], canBook: !!u[3], dot: 'width:8px;height:8px;border-radius:50%;flex:none;background:' + u[4], tagStyle: 'font-size:10px;font-weight:700;color:' + (u[1] === 'FREE' ? '#1F7A33' : u[1] === 'BUSY' ? '#C92A2A' : '#5C5C5E'), cls: 'ucard ' + u[5], book: () => this.setState({ pop: { col: u[6], s: u[7], e: u[7] + 0.75, client: null, svc: null, who: u[6] }, peek: null }) })),
+      showAlert: () => this.setState({ filter: S.filter === 'overlap' ? null : 'overlap' }),
+      anyFloat: !!(P || S.cover || S.alerts || S.repOpen || S.peekPinned != null),
+      closeAll: () => this.setState({ pop: null, cover: false, alerts: false, repOpen: false, peek: null, peekPinned: null }),
+      srcs: [['Phone call', 'phone'], ['Walk-in', 'walk'], ['In person', 'desk']].map((c) => ({ label: c[0], cls: 'chip' + (P && (P.src || 'phone') === c[1] ? ' on' : ''), pick: () => this.setState({ pop: Object.assign({}, P, { src: c[1] }) }) })),
+      repLabel: S.rep.on ? 'every ' + S.rep.n + ' ' + S.rep.unit : 'No',
+      openRepeat: () => this.setState({ repOpen: true }), closeRepeat: () => this.setState({ repOpen: false }), saveRepeat: () => { this.setState({ repOpen: false, rep: Object.assign({}, S.rep, { on: true }) }); this.say('Repeats every ' + S.rep.n + ' ' + S.rep.unit + ' on ' + S.rep.day + ' · confirmation texted', false); },
+      hasRepeat: !!S.repOpen, rep: S.rep,
+      repUp: () => this.setState({ rep: Object.assign({}, S.rep, { n: Math.min(12, S.rep.n + 1) }) }), repDn: () => this.setState({ rep: Object.assign({}, S.rep, { n: Math.max(1, S.rep.n - 1) }) }),
+      repUnits: ['weeks', 'months'].map((u) => ({ label: u, cls: S.rep.unit === u ? 'on' : '', pick: () => this.setState({ rep: Object.assign({}, S.rep, { unit: u }) }) })),
+      repDays: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => ({ label: d, cls: 'day' + (S.rep.day === d ? ' on' : ''), pick: () => this.setState({ rep: Object.assign({}, S.rep, { day: d }) }) })),
+      repEnds: [['never', 'Never'], ['after', 'After 6 visits'], ['on', 'On a date: Jun 1, 2027']].map((e) => ({ label: e[1], cls: 'rad' + (S.rep.ends === e[0] ? ' on' : ''), pick: () => this.setState({ rep: Object.assign({}, S.rep, { ends: e[0] }) }) })),
+      repNext: S.rep.unit === 'weeks' ? (S.rep.n === 3 ? 'Dec 8 · Dec 29 · Jan 19' : S.rep.n === 2 ? 'Dec 1 · Dec 15 · Dec 29' : S.rep.n === 4 ? 'Dec 15 · Jan 12 · Feb 9' : 'every ' + S.rep.n + ' weeks') : 'Dec 15 · Jan 19 · Feb 16',
+      hasInsp: S.insp != null, closeInsp: () => this.setState({ insp: null }),
+      ip: (() => { const a = S.appts.find((x) => x.id === S.insp) || S.appts[0]; return { init: a.name[0], name: a.name, phone: '(408) 555-01' + (10 + a.id), visits: a.star ? 'regular · 14 visits' : '3 visits', status: a.status, tagStyle: a.st.indexOf('conf') === 0 || a.st.indexOf('chair') >= 0 ? 'background:#EAF5EC' : 'background:#FDEEE6', when: fmt(a.s) + ' → ' + fmt(a.e) + ' · ' + Math.round((a.e - a.s) * 60) + ' min', staff: staffN[a.col], svc: a.svc, repeat: S.rep.on || a.star ? 'Every ' + S.rep.n + ' weeks on Tue' : "Doesn't repeat", src: a.src === 'online' ? 'Online · Google' : a.src === 'walk-in' ? 'Walk-in' : a.src === 'called' ? 'Phone call' : 'Front desk', note: a.star ? 'Asked for ' + staffN[a.col] + '. Likes short almond, nude pink.' : 'No notes yet. Add a note so every staff sees it.' }; })(),
+      openAlerts: () => this.setState({ alerts: !S.alerts, pop: null, peek: null }), alertsOpen: !!S.alerts, alertCount: S.hoaCovered ? 1 : 2,
+      alertBtnStyle: 'background:' + (S.alerts ? '#1C1C1E;color:#fff' : '#FDEEE6;color:#B5470A'),
+      alShow: () => { this.setState({ alerts: false, filter: 'overlap' }); this.say('Showing the overlap at Kim 1:30 PM. Drag one booking to another time or staff to fix it.', false); },
+      alCover: () => this.setState({ alerts: false, cover: true }),
+      hoaLateNow: !S.hoaCovered, hoaRowCls: 'alr' + (S.hoaCovered ? ' done' : ''), hoaTitle: S.hoaCovered ? 'Hoa: both bookings covered' : 'Hoa is 24 min late', hoaSub: S.hoaCovered ? 'Nina → Tuyết, Hannah P. → Ngọc · clients texted' : '2 bookings need cover: Nina 1:30, Hannah P. 2:30',
+      hasToast: !!S.toast, toast: S.toast, toastUndo: S.toastUndo,
+      undo: () => { if (S.prev) this.setState({ appts: S.prev, prev: null, toast: null }); else this.setState({ toast: null }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

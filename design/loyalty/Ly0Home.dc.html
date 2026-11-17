@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Loyalty home: 4 programs</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}</style></helmet>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="Loyalty" tab="home" hint-size="1280px,800px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="7"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+  </div>
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
+    <div class="eyebrow">Annotations · L1 · Owner (admin)</div>
+    <div class="af-title">Loyalty home: 4 programs</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="7"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Tap a program → L2–L6</div>
+  </div></sc-if></aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
+  renderVals() {
+    const P = [[1130, 28, "Owner only (and managers the owner allows). Our platform admin can switch Loyalty on per salon/plan; the owner sets the rules."], [112, 94, "Tabs: Overview · Points / punch card · Packages · Perks · Referrals · Messages."], [112, 150, "Points or punch card, tied to the phone number."], [668, 150, "Packages: bundles paid upfront, balance tracked at checkout."], [112, 316, "Perks: birthday, rebook before leaving, VIP tiers. Added to the ticket by itself, removable."], [668, 316, "Referrals: link + code; both get $10."], [112, 490, "Results: members, package money paid upfront, came-back rate members vs others."]];
+    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), zero: 0, three: 3, yes: true, no: false, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

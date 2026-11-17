@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Booking texts</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.in-b{align-self:flex-start;max-width:290px;padding:10px 14px;border-radius:18px 18px 18px 4px;background:#E9E9EB;font-size:15px;line-height:21px}
+.out-b{align-self:flex-end;max-width:240px;padding:10px 14px;border-radius:18px 18px 4px 18px;background:#1C1C1E;color:#fff;font-size:15px;line-height:21px}
+.when{align-self:center;font-size:12px;color:#5C5C5E;margin:6px 0}
+.reply{height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+</style>
+</helmet>
+<div class="phone">
+  <div class="pbar" style="flex-direction:column;height:64px;gap:2px"><span class="av" style="width:30px;height:30px;font-size:12px">MN</span><span style="font-size:13px">Mai Nails</span></div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px;padding:16px">
+    <div class="when">Thu, Nov 12 · 8:41 PM</div>
+    <div class="in-b in">Hi Lan! You're booked at Mai Nails: Gel manicure with Kim, Tue Nov 17 at 3:00 PM. Change or cancel: nailpos.app/b/7KQ2</div>
+    <div class="when">Mon, Nov 16 · 3:00 PM (24 h before)</div>
+    <div class="in-b in2">Reminder: tomorrow 3:00 PM with Kim at Mai Nails. Reply C to confirm or R to reschedule.</div>
+    <sc-if value="{{replied}}" hint-placeholder-val="{{false}}">
+      <div class="out-b fade">C</div>
+      <div class="in-b fade">Thanks Lan, you're confirmed ✓ See you tomorrow!</div>
+    </sc-if>
+    <sc-if value="{{rescheduling}}" hint-placeholder-val="{{false}}">
+      <div class="out-b fade">R</div>
+      <div class="in-b fade">No problem — pick a new time here: nailpos.app/b/7KQ2</div>
+    </sc-if>
+    <div style="flex:1"></div>
+    <sc-if value="{{waiting}}" hint-placeholder-val="{{true}}">
+      <div style="display:flex;gap:8px;justify-content:center" class="in3">
+        <button class="reply" type="button" onClick="{{sendC}}">Reply “C”</button>
+        <button class="reply" type="button" onClick="{{sendR}}">Reply “R”</button>
+      </div>
+    </sc-if>
+    <div class="cap" style="text-align:center">Reply STOP to stop texts · from the salon's own number</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"reply":{"editor":"enum","options":["none","C","R"],"default":"none"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { r: (p && p.reply) || 'none' }; }
+  renderVals() {
+    const r = this.state.r;
+    return { replied: r === 'C', rescheduling: r === 'R', waiting: r === 'none', sendC: () => this.setState({ r: 'C' }), sendR: () => this.setState({ r: 'R' }) };
+  }
+}
+</script>
+</body>
+</html>

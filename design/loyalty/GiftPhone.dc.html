@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gift card on the receiver's phone</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.gcard{height:190px;border-radius:18px;background:#1C1C1E;color:#fff;padding:20px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between}
+</style>
+</helmet>
+<div class="phone">
+  <div class="pbar">Mai Nails</div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:16px">
+    <div class="bubble" style="height:84px;box-sizing:border-box">Mai Nails: Lan sent you a $50 gift card! “Happy birthday, Mai!” See it + book: mainails.app/g/7K3Q</div>
+    <div class="gcard"><div style="display:flex;justify-content:space-between"><b>Mai Nails</b><span>Gift card</span></div><div style="font-size:34px;font-weight:700;letter-spacing:-0.02em">$50.00</div><div style="font-size:14px;letter-spacing:.08em">MAIN-7K3Q-9XPA-2T4F</div></div>
+    <div class="group">
+      <div class="row s"><span class="g">Balance</span><b>$50.00</b></div>
+      <div class="row s"><span class="g">Expires</span><b>Never</b></div>
+      <div class="row s"><span class="g">How to use</span><b>Show this, or say your phone</b></div>
+    </div>
+    <div style="flex:1"></div>
+    <a class="btn primary block" href="#">Book with Mai Nails</a>
+    <a href="ClientCards.dc.html" class="cap" style="text-align:center;display:block">Open my client page (points + cards) ›</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

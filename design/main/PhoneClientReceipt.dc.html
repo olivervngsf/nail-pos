@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Client receipt</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>body{margin:0}</style>
+</helmet>
+<div class="phone">
+  <div class="pbar">Receipt</div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:24px 20px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+      <div class="pop" style="width:72px;height:72px;border-radius:50%;background:var(--jade-soft);border:2px solid var(--jade);display:flex;align-items:center;justify-content:center;font-size:32px">✓</div>
+      <div class="h2 in">Thank you, Lan!</div>
+      <div class="money in">$83.00</div>
+      <div class="cap in2">Mai Nails · Nov 16, 2:41 PM · #1042</div>
+    </div>
+    <div class="group in2">
+      <div class="row"><div class="grow">Gel manicure <span class="cap">· Kim</span></div><span class="num">$35.00</span></div>
+      <div class="row"><div class="grow">Deluxe pedicure <span class="cap">· Ngọc</span></div><span class="num">$55.00</span></div>
+      <div class="row"><div class="grow">Regular discount</div><span class="num">−$5.00</span></div>
+      <div class="row"><div class="grow">Gift card ••4821 <span class="cap">$30.00 left</span></div><span class="num">−$20.00</span></div>
+      <div class="row"><div class="grow">Tip</div><span class="num">$18.00</span></div>
+      <div class="row" style="font-weight:600"><div class="grow">Paid · Visa ••4242</div><span class="num">$83.00</span></div>
+    </div>
+    <div style="flex:1"></div>
+    <div class="group in3" style="padding:16px">
+      <div style="font-size:16px;font-weight:600">See you around Dec 14?</div>
+      <div class="cap" style="margin:4px 0 12px">Kim has openings that week.</div>
+      <a class="btn primary block" href="#" style="height:48px;font-size:16px">Book next visit</a>
+    </div>
+    <div class="cap" style="text-align:center">Reply STOP to stop texts.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
