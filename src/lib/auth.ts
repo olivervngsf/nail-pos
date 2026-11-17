@@ -114,6 +114,128 @@ export async function confirmAddEmail(email: string, code: string): Promise<stri
   }
 }
 
+/* ---------- password (optional, set from the menu; sign in with phone or email + password) ---------- */
+export const PASSWORD_MIN = 8;
+/** "name@x.com" → email; anything else → US phone. */
+const loginId = (id: string) => (id.includes("@") ? { email: id.trim().toLowerCase() } : { phone: e164(id) });
+export const loginIdOk = (id: string) => (id.includes("@") ? emailOk(id) : id.replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "").length === 10);
+
+/** Which sign-in way this device used last, so /login opens on it. */
+export type LoginWay = "phone" | "email" | "password";
+export function lastLoginWay(): LoginWay {
+  try { const v = localStorage.getItem("nailpos.loginWay"); return v === "email" || v === "password" ? v : "phone"; } catch { return "phone"; }
+}
+export function rememberLoginWay(w: LoginWay) {
+  try { localStorage.setItem("nailpos.loginWay", w); } catch { /* ignore */ }
+}
+
+export async function signInWithPassword(id: string, password: string): Promise<string | null> {
+  if (!SMS_ON) return null;
+  try {
+    const l = loginId(id);
+    const { error } = await sb().auth.signInWithPassword("email" in l ? { email: l.email!, password } : { phone: l.phone!, password });
+    if (!error) { await sb().rpc("claim_memberships"); return null; }
+    if (/invalid|credentials/i.test(error.message)) return "Wrong login or password. No password yet? Sign in with a code, then set one in your menu (top right).";
+    if (/rate|too many/i.test(error.message)) return "Too many tries. Wait a minute and try again.";
+    return "Couldn't sign in. Check internet and try again.";
+  } catch (e) {
+    return (e as Error).message;
+  }
+}
+
+/** Forgot password, step 1: code by text or email to an existing account (no new accounts here). */
+export async function sendResetCode(id: string): Promise<string | null> {
+  if (!SMS_ON) return null;
+  try {
+    const l = loginId(id), options = { shouldCreateUser: false };
+    const { error } = await sb().auth.signInWithOtp("email" in l ? { email: l.email!, options } : { phone: l.phone!, options });
+    if (!error) return null;
+    if (/signup|not allowed|not found/i.test(error.message)) return "No account uses this. Check it, or sign in with your phone number.";
+    if (/rate|too many|seconds/i.test(error.message)) return "Too many codes asked for. Wait a minute and try again.";
+    return "Couldn't send the code. Check it and try again.";
+  } catch (e) {
+    return (e as Error).message;
+  }
+}
+
+/** Forgot password, step 2: the code signs you in (then step 3 = setPassword). */
+export async function verifyResetCode(id: string, code: string): Promise<string | null> {
+  if (!SMS_ON) return null;
+  try {
+    const l = loginId(id);
+    const { error } = await sb().auth.verifyOtp("email" in l ? { email: l.email!, token: code, type: "email" } : { phone: l.phone!, token: code, type: "sms" });
+    if (error) return "That code didn't work. Check it and try again.";
+    await sb().rpc("claim_memberships");
+    return null;
+  } catch (e) {
+    return (e as Error).message;
+  }
+}
+
+/** Set or change the password on the signed-in account. */
+export async function setPassword(password: string): Promise<string | null> {
+  if (password.length < PASSWORD_MIN) return `Use at least ${PASSWORD_MIN} letters or numbers.`;
+  if (!SMS_ON) { try { localStorage.setItem("nailpos.demoPassword", "1"); } catch { /* */ } return null; }
+  try {
+    const { error } = await sb().auth.updateUser({ password, data: { has_password: true } });
+    if (!error) return null;
+    if (/same|different/i.test(error.message)) return "That's your current password. Pick a new one.";
+    if (/weak|short|characters/i.test(error.message)) return "Too easy to guess. Use a longer password.";
+    if (/reauth/i.test(error.message)) return "For safety, sign out and sign in again with a code, then set it.";
+    return "Couldn't save the password. Check internet and try again.";
+  } catch (e) {
+    return (e as Error).message;
+  }
+}
+
+/** Has this account set a password? (Supabase doesn't say directly; we remember it on the person's auth metadata.) */
+export async function hasPassword(): Promise<boolean> {
+  if (!SMS_ON) { try { return !!localStorage.getItem("nailpos.demoPassword"); } catch { return false; } }
+  const { data } = await sb().auth.getUser();
+  return !!data.user?.user_metadata?.has_password;
+}
+
+/* ---------- Google (turned on with NEXT_PUBLIC_GOOGLE_LOGIN=on once the Google provider is set up in Supabase) ---------- */
+export const GOOGLE_ON = SMS_ON && process.env.NEXT_PUBLIC_GOOGLE_LOGIN === "on";
+
+/** Leaves the page for Google, comes back to /login, which finishes sign-in. */
+export async function signInWithGoogle(): Promise<string | null> {
+  try {
+    const next = new URLSearchParams(location.search).get("next");
+    const back = `${location.origin}/login?google=1${next ? `&next=${encodeURIComponent(next)}` : ""}`;
+    const { error } = await sb().auth.signInWithOAuth({ provider: "google", options: { redirectTo: back } });
+    return error ? "Google sign-in isn't ready yet. Use your phone number." : null;
+  } catch (e) {
+    return (e as Error).message;
+  }
+}
+
+/** Menu: connect Google to the signed-in account (Supabase "manual linking" must be on). */
+export async function connectGoogle(): Promise<string | null> {
+  try {
+    const { error } = await sb().auth.linkIdentity({ provider: "google", options: { redirectTo: location.href } });
+    if (!error) return null;
+    if (/already/i.test(error.message)) return "That Google account is already used by another login.";
+    return "Couldn't connect Google. Try again later.";
+  } catch (e) {
+    return (e as Error).message;
+  }
+}
+
+export async function googleEmail(): Promise<string | null> {
+  if (!GOOGLE_ON) return null;
+  const { data } = await sb().auth.getUserIdentities();
+  const g = data?.identities.find((i) => i.provider === "google");
+  return g ? String(g.identity_data?.email ?? "Google") : null;
+}
+
+/** After Google sign-in: an account with no phone and no salon = Google wasn't connected to anyone. Undo it. */
+export async function isLoneGoogleAccount(ms: Membership[]): Promise<boolean> {
+  if (ms.length) return false;
+  const { data } = await sb().auth.getUser();
+  return !!data.user && !data.user.phone && data.user.app_metadata?.provider === "google";
+}
+
 export async function isSignedIn(): Promise<boolean> {
   if (!SMS_ON) return false;
   const c = getSupabase();
@@ -138,7 +260,8 @@ export function homeFor(ms: Membership[]): string {
 
 export async function signOut() {
   const c = getSupabase();
-  await c?.auth.signOut();
+  // "local" = only this device. The default ("global") signed you out on every phone + computer at once.
+  await c?.auth.signOut({ scope: "local" });
   try {
     localStorage.removeItem("nailpos.acting");
   } catch {
