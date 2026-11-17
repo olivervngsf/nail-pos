@@ -6,17 +6,18 @@ import { getTicket, saveNow } from "@/lib/checkout/store";
 import { ticketLabel, type Ticket } from "@/lib/checkout/ticket";
 import type { ReceiptDoc } from "./escpos";
 import { printDoc } from "./print";
+import { cachedPrintSettings, type PrintSettings } from "./settings";
 
 export type SlipText = { ticket: string; forTech: string; back: string };
 
-export function slipDoc(salonName: string, t: Ticket, when: string, txt: SlipText): ReceiptDoc {
+export function slipDoc(salonName: string, t: Ticket, when: string, txt: SlipText, o: PrintSettings["slip"] = cachedPrintSettings(t.salonId).slip): ReceiptDoc {
   return {
     title: salonName,
     sub: [when],
     rows: [
       { bold: [txt.ticket, t.number ? `#${t.number}` : ticketLabel(t)] },
-      ...(t.client?.name ? [{ text: t.client.name }] : []),
-      ...t.lines.map((l) => [l.name, l.staffName ?? ""] as [string, string]),
+      ...(o.client && t.client?.name ? [{ text: t.client.name }] : []),
+      ...t.lines.map((l) => [l.name, o.staff ? l.staffName ?? "" : ""] as [string, string]),
     ],
     footer: [txt.forTech, txt.back],
     qr: `${location.origin}/t/ticket/${t.id}`,
@@ -46,6 +47,7 @@ export async function printInWindow(docs: ReceiptDoc[]) {
   const one = async (doc: ReceiptDoc) => {
     const qr = doc.qr ? await QRCode.toDataURL(doc.qr, { width: 220, margin: 1 }) : "";
     const rows = doc.rows.map((r) => r === "sep" ? "<hr>" : Array.isArray(r) ? `<div class="rl"><span>${esc(r[0])}</span><span>${esc(r[1])}</span></div>`
+      : "item" in r ? `<div class="rl"><span>&nbsp;&nbsp;${esc(r.item[0])}${r.item[1] ? ` ${esc(r.item[1])}` : ""}</span><span>${esc(r.item[2])}</span></div>`
       : "bold" in r ? `<div class="rl big"><span>${esc(r.bold[0])}</span><span>${esc(r.bold[1])}</span></div>` : `<div>${esc(r.text)}</div>`).join("");
     return `<section><div class="c" style="font-weight:700;font-size:15px">${esc(doc.title)}</div>
   ${(doc.sub ?? []).map((s) => `<div class="c">${esc(s)}</div>`).join("")}<hr>${rows}

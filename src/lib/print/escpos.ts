@@ -27,6 +27,7 @@ export function docText(doc: ReceiptDoc): string[] {
     if (r === "sep") continue;
     if (Array.isArray(r)) out.push(...r);
     else if ("bold" in r) out.push(...r.bold);
+    else if ("item" in r) out.push(...r.item);
     else out.push(r.text);
   }
   return out;
@@ -90,6 +91,15 @@ export function wrap(s: string, width: number): string[] {
   return out;
 }
 
+/** A listed item: "  Gel manicure (tip $9.00)   $45.00" on one line when it fits; on narrow paper the name gets its
+ *  own line(s) and the note + amount go on the next line, so the amount is never left alone. */
+export function itemLines([name, note, amount]: [string, string, string], width: number): string[] {
+  const one = `  ${name}${note ? ` ${note}` : ""}`;
+  const fit = twoCol(one, amount, width);
+  if (fit.length === 1) return fit;
+  return [...wrap(plain(name), width - 2).map((t) => `  ${t}`), ...twoCol(`    ${note}`, amount, width)];
+}
+
 export function center(s: string, width: number): string {
   const t = plain(s).slice(0, width);
   return " ".repeat(Math.floor((width - t.length) / 2)) + t;
@@ -98,36 +108,49 @@ export function center(s: string, width: number): string {
 export type ReceiptDoc = {
   title: string;          // salon name
   sub?: string[];         // ticket #, date, client
-  rows: ([string, string] | "sep" | { bold: [string, string] } | { text: string })[];
+  rows: ([string, string] | "sep" | { bold: [string, string] } | { text: string } | { item: [string, string, string] })[];
   footer?: string[];
   /** Link printed as a QR code above the footer (digital receipt). */
   qr?: string;
 };
 
-/** Build the bytes: init, centered bold title, rows, footer, feed, cut. */
-export function receiptBytes(doc: ReceiptDoc, paper: Paper): Uint8Array {
+/** The exact text lines the printer prints (also used for the on-screen preview). */
+export type PrintLine = { text: string; bold?: boolean; big?: boolean } | { qr: string };
+export function receiptLines(doc: ReceiptDoc, paper: Paper): PrintLine[] {
   const w = charsPerLine(paper);
-  const out: number[] = [ESC, 0x40]; // init
-  const text = (s: string) => { for (const ch of s) out.push(ch.charCodeAt(0)); out.push(LF); };
-  const bold = (on: boolean) => out.push(ESC, 0x45, on ? 1 : 0);
-  bold(true); out.push(GS, 0x21, 0x01); // double height title
-  text(center(doc.title, w));
-  out.push(GS, 0x21, 0x00); bold(false);
-  for (const s of doc.sub ?? []) text(center(s, w));
-  text("-".repeat(w));
+  const out: PrintLine[] = [{ text: center(doc.title, w), bold: true, big: true }];
+  for (const s of doc.sub ?? []) out.push({ text: center(s, w) });
+  out.push({ text: "-".repeat(w) });
   for (const r of doc.rows) {
-    if (r === "sep") text("-".repeat(w));
-    else if (Array.isArray(r)) twoCol(r[0], r[1], w).forEach(text);
-    else if ("bold" in r) { bold(true); twoCol(r.bold[0], r.bold[1], w).forEach(text); bold(false); }
-    else wrap(plain(r.text), w).forEach(text);
+    if (r === "sep") out.push({ text: "-".repeat(w) });
+    else if (Array.isArray(r)) twoCol(r[0], r[1], w).forEach((t) => out.push({ text: t }));
+    else if ("bold" in r) twoCol(r.bold[0], r.bold[1], w).forEach((t) => out.push({ text: t, bold: true }));
+    else if ("item" in r) itemLines(r.item, w).forEach((t) => out.push({ text: t }));
+    else wrap(plain(r.text), w).forEach((t) => out.push({ text: t }));
   }
-  text("-".repeat(w));
-  if (doc.qr) {
-    const q = qrRaster(doc.qr, paper === 58 ? 5 : 6);
-    const wb = Math.ceil(q.width / 8);
-    out.push(ESC, 0x61, 1, GS, 0x76, 0x30, 0, wb & 0xff, (wb >> 8) & 0xff, q.height & 0xff, (q.height >> 8) & 0xff, ...q.dots, ESC, 0x61, 0);
+  out.push({ text: "-".repeat(w) });
+  if (doc.qr) out.push({ qr: doc.qr });
+  for (const s of doc.footer ?? []) out.push({ text: center(s, w) });
+  return out;
+}
+
+/** Build the bytes: init, rows (bold / double-height title), QR, footer, feed, cut. */
+export function receiptBytes(doc: ReceiptDoc, paper: Paper): Uint8Array {
+  const out: number[] = [ESC, 0x40]; // init
+  for (const l of receiptLines(doc, paper)) {
+    if ("qr" in l) {
+      const q = qrRaster(l.qr, paper === 58 ? 5 : 6);
+      const wb = Math.ceil(q.width / 8);
+      out.push(ESC, 0x61, 1, GS, 0x76, 0x30, 0, wb & 0xff, (wb >> 8) & 0xff, q.height & 0xff, (q.height >> 8) & 0xff, ...q.dots, ESC, 0x61, 0);
+      continue;
+    }
+    if (l.bold) out.push(ESC, 0x45, 1);
+    if (l.big) out.push(GS, 0x21, 0x01);
+    for (const ch of l.text) out.push(ch.charCodeAt(0));
+    out.push(LF);
+    if (l.big) out.push(GS, 0x21, 0x00);
+    if (l.bold) out.push(ESC, 0x45, 0);
   }
-  for (const s of doc.footer ?? []) text(center(s, w));
   out.push(LF, LF, LF, LF);
   out.push(GS, 0x56, 0x42, 0x00); // cut (ignored by printers without a cutter)
   return new Uint8Array(out);

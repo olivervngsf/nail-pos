@@ -30,6 +30,7 @@ export async function receiptImageBytes(doc: ReceiptDoc, paper: Paper): Promise<
   for (const r of doc.rows) {
     if (r === "sep") { lines.push({ text: "", size: 12, align: "left", sep: true }); continue; }
     if (!Array.isArray(r) && "text" in r) { wrap(r.text, W - pad * 2, 19).forEach((t) => lines.push({ text: t, size: 19, align: "left" })); continue; }
+    if ("item" in r) { const [n, note, a] = r.item; const parts = wrap(`  ${n}${note ? ` ${note}` : ""}`, W - pad * 2 - 120, 19); parts.forEach((t, i) => lines.push({ text: t, right: i === parts.length - 1 ? a : undefined, size: 19, align: "left" })); continue; }
     const [l, amt] = Array.isArray(r) ? r : r.bold;
     const bold = !Array.isArray(r), size = bold ? 22 : 19;
     ctx.font = font(size, bold);
