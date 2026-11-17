@@ -1002,5 +1002,21 @@
     "printMine": "Print my earnings",
     "done": "Done",
     "splitLine": "Paid {check} by check + {cash} in cash"
+  },
+  "slip": {
+    "ticket": "Ticket #{n}",
+    "walkIn": "Walk-in",
+    "paid": "This ticket is paid. Nothing more to add.",
+    "yours": "Your services on this ticket",
+    "noneYet": "None yet. Tap what you did below.",
+    "others": "Other techs on this ticket",
+    "noTech": "No tech yet",
+    "addWhat": "Tap the service you did",
+    "search": "Search services",
+    "added": "Added: {name}",
+    "remove": "Remove {name}",
+    "deskSees": "The front desk sees these right away. Price changes and discounts are done at the desk.",
+    "notFound": "Ticket not found, or it's not from your salon.",
+    "liveOnly": "Ticket slips work on the live site only."
   }
 }

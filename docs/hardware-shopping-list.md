@@ -17,6 +17,6 @@ Checked Nov 16, 2026. Confirm the exact model number and seller before buying.
 
 ## Card reader (NOT on Amazon: buy from the Stripe Dashboard → Terminal → Shop)
 - WisePOS E: end of sale Sep 1, 2026 (Stripe docs). Don't plan on it.
-- Stripe Reader S710: current Wi-Fi smart reader, about $299 (per a Stripe partner help page). Works with a web app.
-- Stripe M2 (Bluetooth, about $59): needs our phone app.
+- **V1 pick (Oliver, Nov 16): Stripe Reader S710**, current Wi-Fi smart reader, about $299 (per a Stripe partner help page). Works with a web app. One per salon at setup.
+- Stripe M2 (Bluetooth, about $59): later, once our phone app ships.
 - Tap to Pay: no hardware; needs our phone app.

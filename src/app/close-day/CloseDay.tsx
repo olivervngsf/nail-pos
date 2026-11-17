@@ -86,7 +86,15 @@ export default function CloseDay() {
     } catch (e) { say((e as Error).message); } finally { setBusy(false); setPin(null); }
   };
   const askClose = () => {
-    if (demo || ownLoginAdmin) return void finish();
+    if (demo) return void finish();
+    // Owner / manager on their own login: their OK is one tap (the server still records who gave it).
+    if (ownLoginAdmin) return void (async () => {
+      try {
+        const r = await rpc<PinResult & { approval_id?: string }>("approve_discount", { p_salon: desk.salonId, p_purpose: "close" });
+        if (!r.ok) return say(t("notManager"));
+        await finish(r.approval_id);
+      } catch (e) { say((e as Error).message); }
+    })();
     setPin({ approver: admins.length === 1 ? admins[0].id : null, err: "" });
   };
   const checkPin = async (code: string) => {
