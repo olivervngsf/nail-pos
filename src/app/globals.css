@@ -43,13 +43,14 @@ button:disabled { cursor: not-allowed; }
 .sheet { position: fixed; z-index: 41; }
 .toast { position: fixed; min-width: 0; width: max-content; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 50; }
 /* kit .seg uses <span>; the app uses real buttons */
-.seg button { height: 30px; padding: 0 14px; border-radius: 8px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
-.seg button.on { background: var(--paper); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.seg button { height: 28px; padding: 0 12px; border-radius: 7px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+.seg button.on { background: var(--paper); color: var(--ink); box-shadow: 0 0 0 .5px rgba(22,22,26,.08), 0 1px 3px rgba(22,22,26,.10); }
 .opt.on { font-weight: 600; }
 .pick.on { padding: 17px; }
 
 /* 3. app-only pieces (move into the kit when the Design System gets them) */
-.btn.sm { height: 34px; font-size: 14px; padding: 0 12px; }
+.btn.sm { height: 30px; font-size: 13px; padding: 0 10px; border-radius: 8px; }
+@media (pointer: coarse) { .btn.sm { height: 38px; font-size: 14px; } }
 .btn.stripe { background: #635bff; color: #fff; }
 .tag.warn { background: var(--orange-soft); color: #b5470a; }
 .note { border-radius: 12px; padding: 10px 14px; font-size: 14px; background: #e8f6ec; color: #1e6b34; font-weight: 500; }
