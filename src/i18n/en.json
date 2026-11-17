@@ -182,7 +182,8 @@
     "btPaper": "Paper",
     "btChange": "Change printer",
     "btNone": "No printer found. Turn the printer on, then try again.",
-    "btIos": "Bluetooth printing on iPhone/iPad: open PolishOS in the Bluefy browser."
+    "btIos": "Bluetooth printing on iPhone/iPad: open PolishOS in the Bluefy browser.",
+    "scanReceipt": "Scan for your digital receipt"
   },
   "pay": {
     "title": "Pay {salon}",
@@ -199,5 +200,18 @@
     "invalid": "This pay link isn't valid.",
     "secure": "Secure payment by Stripe. The salon never sees your card number.",
     "loading": "Loading…"
+  },
+  "receiptPage": {
+    "notFound": "Receipt not found.",
+    "ticket": "Ticket #{n}",
+    "thanks": "Thank you, {name}!",
+    "discount": "Discount",
+    "tip": "Tip",
+    "total": "Total",
+    "cash": "Cash",
+    "card": "Card",
+    "change": "Change",
+    "refunded": "This ticket was refunded.",
+    "keep": "Save this page or take a screenshot to keep your receipt."
   }
 }

@@ -182,7 +182,8 @@
     "btPaper": "Khổ giấy",
     "btChange": "Đổi máy in",
     "btNone": "Không thấy máy in. Bật máy in rồi thử lại.",
-    "btIos": "In Bluetooth trên iPhone/iPad: mở PolishOS trong trình duyệt Bluefy."
+    "btIos": "In Bluetooth trên iPhone/iPad: mở PolishOS trong trình duyệt Bluefy.",
+    "scanReceipt": "Quét để xem hóa đơn trên điện thoại"
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -199,5 +200,18 @@
     "invalid": "Link trả tiền này không hợp lệ.",
     "secure": "Thanh toán an toàn qua Stripe. Tiệm không thấy số thẻ của bạn.",
     "loading": "Đang tải…"
+  },
+  "receiptPage": {
+    "notFound": "Không tìm thấy hóa đơn.",
+    "ticket": "Phiếu #{n}",
+    "thanks": "Cảm ơn {name}!",
+    "discount": "Giảm giá",
+    "tip": "Tip",
+    "total": "Tổng",
+    "cash": "Tiền mặt",
+    "card": "Thẻ",
+    "change": "Tiền thối",
+    "refunded": "Phiếu này đã được hoàn tiền.",
+    "keep": "Lưu trang này hoặc chụp màn hình để giữ hóa đơn."
   }
 }

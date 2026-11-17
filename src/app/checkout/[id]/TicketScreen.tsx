@@ -629,8 +629,14 @@ function receiptDoc(desk: Desk, ticket: Ticket, t: ReturnType<typeof useTranslat
     title: desk.salonName,
     sub: [`${t("receiptFor")} ${ticketLabel(ticket)}`, when, ...(ticket.client?.name ? [ticket.client.name] : [])],
     rows,
-    footer: [t("thanks", { name: "" }), "PolishOS"],
+    footer: [t("thanks", { name: "" }), ...(digitalReceiptUrl(desk, ticket) ? [t("scanReceipt")] : []), "PolishOS"],
+    qr: digitalReceiptUrl(desk, ticket),
   };
+}
+
+/** Link to the client's digital receipt (only once the ticket is saved on the server). */
+function digitalReceiptUrl(desk: Desk, ticket: Ticket): string | undefined {
+  return desk.mode === "live" && ticket.number && typeof location !== "undefined" ? `${location.origin}/r/${ticket.id}` : undefined;
 }
 
 /** "Print by Bluetooth" (Android Chrome, or Bluefy on iPhone/iPad): pair once, then one tap prints. */
@@ -674,6 +680,9 @@ function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say
 function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
+  const [qr, setQr] = useState("");
+  const url = digitalReceiptUrl(desk, ticket);
+  useEffect(() => { if (url) void QRCode.toDataURL(url, { width: 160, margin: 1 }).then(setQr); }, [url]);
   const sum = totals(ticket);
   const given = ticket.payment?.givenCents ?? sum.total;
   return (
@@ -691,6 +700,11 @@ function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
         ? <div className="rl"><span>{ticket.payment.brand ? `${ticket.payment.brand.toUpperCase()} ••${ticket.payment.last4 ?? ""}` : t("qr")}</span><span>{$(ticket.payment.amountCents ?? sum.total)}</span></div>
         : <><div className="rl"><span>{t("cash")}</span><span>{$(given)}</span></div>
           <div className="rl"><span>{t("change")}</span><span>{$(given - sum.total)}</span></div></>}
+      {qr && <div style={{ textAlign: "center", marginTop: 6 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- data: URL */}
+        <img src={qr} alt="" width={110} height={110} />
+        <div>{t("scanReceipt")}</div>
+      </div>}
     </div>
   );
 }
