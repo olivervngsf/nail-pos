@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Avatar, Segmented } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
 import { ROLE_LABEL, signOut, type Role } from "@/lib/auth";
+import SignInEmail from "@/components/SignInEmail";
 
 export default function AccountMenu({ name, role, salon, compact }: { name: string; role: Role; salon?: string; compact?: boolean }) {
   const router = useRouter();
@@ -37,6 +38,8 @@ export default function AccountMenu({ name, role, salon, compact }: { name: stri
             <span className="cap">{vi ? "Ngôn ngữ" : "Language"}</span>
             <Segmented label="Language" value={lang} onChange={setLang} options={[{ value: "en", label: "EN" }, { value: "vi", label: "VI" }]} />
           </div>
+          <div className="sep" />
+          <SignInEmail vi={vi} />
           <div className="sep" />
           <button type="button" role="menuitem" className="opt" data-testid="sign-out" style={{ minHeight: 44, padding: 0, border: 0, color: "var(--orange)" }}
             onClick={async () => { await signOut(); router.replace("/login"); }}>{vi ? "Đăng xuất" : "Sign out"}</button>
