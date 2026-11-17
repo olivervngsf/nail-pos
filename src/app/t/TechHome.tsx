@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ROLE_LABEL, SMS_ON, isSignedIn, myMemberships, rpc, signOut, type Membership } from "@/lib/auth";
 import { useLang } from "@/components/AppProviders";
 import { Button, Card, ListGroup, PhoneBar, Row, Segmented, SyncPill, Toast } from "@/components/kit";
-import { EarningsSlip } from "@/app/earnings/Earnings";
+import { EarningsSlip, useEarningsPrint } from "@/app/earnings/Earnings";
 import { isoDay, nums, weekStart, type PayoutRow } from "@/lib/closeday";
 
 type Staff = { membership_id: string; clocked_in: boolean; last_clock: string | null };
@@ -46,6 +46,7 @@ export default function TechHome() {
   // My earnings (only mine: my_earnings checks who is signed in).
   const [period, setPeriod] = useState<"today" | "week">("today");
   const [earn, setEarn] = useState<PayoutRow | null>(null);
+  const printSlips = useEarningsPrint();
   useEffect(() => {
     if (!m) return;
     const today = isoDay();
@@ -85,8 +86,9 @@ export default function TechHome() {
           <Segmented label={vi ? "Thời gian" : "Period"} value={period} onChange={setPeriod} options={[{ value: "today", label: vi ? "Hôm nay" : "Today" }, { value: "week", label: vi ? "Tuần này" : "This week" }]} />
         </div>
         {earn ? <>
-          <EarningsSlip r={earn} salon={m.salon_name} period={period === "today" ? isoDay() : `${weekStart(isoDay())} → ${isoDay()}`} />
-          <Button onClick={() => window.print()}>{vi ? "In thu nhập" : "Print my earnings"}</Button>
+          <EarningsSlip r={earn} />
+          <Button data-testid="tech-print" onClick={() => void printSlips([earn], m.salon_name, period === "today" ? isoDay() : `${weekStart(isoDay())} → ${isoDay()}`)
+            .catch((e) => { setToast((e as Error).message); setTimeout(() => setToast(""), 3500); })}>{vi ? "In thu nhập" : "Print my earnings"}</Button>
         </> : <span className="cap">{vi ? "Chưa có thu nhập trong thời gian này." : "No earnings yet for this period."}</span>}
         <ListGroup>
           <Row title={vi ? "Vai trò" : "Role"} right={<b>{ROLE_LABEL[m.role]}</b>} />
