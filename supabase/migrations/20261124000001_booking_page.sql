@@ -9,7 +9,7 @@ alter table public.services add column online boolean not null default true;
 
 -- Slug from the name (lotus-nails, lotus-nails-2, …). Follows the salon name until the owner picks one (booking_settings.slug_set).
 create function public._slug_reserved() returns text[] language sql immutable set search_path = '' as $$
-  select array['book', 'kiosk', 'setup', 'login', 'today', 'checkout', 'clients', 'calendar', 'settings', 'pay', 'join', 'api', 'admin', 'gift-cards', 'kit', 'paid', 't', 'salon', 'demo'];
+  select array['book', 'kiosk', 'setup', 'login', 'today', 'checkout', 'clients', 'calendar', 'settings', 'pay', 'join', 'api', 'admin', 'gift-cards', 'kit', 'paid', 't', 'r', 'me', 'close-day', 'salon', 'demo'];
 $$;
 create function public._slug_for(p_name text, p_id uuid) returns text language plpgsql stable security definer set search_path = '' as $$
 declare base text := left(trim(both '-' from regexp_replace(lower(coalesce(p_name, '')), '[^a-z0-9]+', '-', 'g')), 34); s text; n int := 1;
@@ -30,7 +30,11 @@ begin
   return new;
 end $$;
 create trigger salon_slug before insert or update of name on public.salons for each row execute function public._salon_slug();
-update public.salons set slug = public._slug_for(name, id) where slug is null;
+do $$ declare r record; begin   -- one by one, so two salons with the same name get lotus + lotus-2
+  for r in select id, name from public.salons where slug is null order by created_at loop
+    update public.salons set slug = public._slug_for(r.name, r.id) where id = r.id;
+  end loop;
+end $$;
 revoke execute on function public._slug_for(text, uuid), public._salon_slug() from public, anon, authenticated;
 
 -- New bookings can come from more places.
