@@ -1043,7 +1043,8 @@
     "colServices": "Dịch vụ",
     "colCardTip": "Tip thẻ",
     "colCashTip": "Tip tiền mặt",
-    "noPayType": "Chưa đặt cách trả lương"
+    "noPayType": "Chưa đặt cách trả lương",
+    "colAmount": "Số tiền"
   },
   "numbers": {
     "title": "Số liệu",

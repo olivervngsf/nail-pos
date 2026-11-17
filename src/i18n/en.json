@@ -1043,7 +1043,8 @@
     "colServices": "Services",
     "colCardTip": "Card tip",
     "colCashTip": "Cash tip",
-    "noPayType": "No pay type set"
+    "noPayType": "No pay type set",
+    "colAmount": "Amount"
   },
   "numbers": {
     "title": "Numbers",

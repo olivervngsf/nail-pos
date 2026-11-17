@@ -99,7 +99,7 @@ export default function Payouts() {
         <div className="po-facts">{facts.map(([k, v]) => <div key={k}><span className="cap">{k}</span><b>{v}</b></div>)}</div>
         {lines.length === 0 ? <p className="cap">{t("noTickets")}</p> : (
           <table className="po-tix">
-            <thead><tr><th>{t("colTicket")}</th><th>{t("colServices")}</th><th>{t("services")}</th><th>{t("colCardTip")}</th><th>{t("colCashTip")}</th></tr></thead>
+            <thead><tr><th>{t("colTicket")}</th><th style={{ textAlign: "left" }}>{t("colServices")}</th><th>{t("colAmount")}</th><th>{t("colCardTip")}</th><th>{t("colCashTip")}</th></tr></thead>
             <tbody>{lines.map((l) => (
               <tr key={l.number} data-testid={`po-line-${r.name}`}>
                 <td>#{l.number}<span className="cap" style={{ display: "block" }}>{when(l.at)}</span></td>
