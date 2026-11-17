@@ -42,7 +42,7 @@ export default function TechHome() {
   useEffect(() => { void load().catch((e) => setErr((e as Error).message)); }, [load]);
 
   const vi = lang === "vi";
-  if (!SMS_ON) return <div className="phone"><PhoneBar title="PolishOS" /><div className="pbody"><div className="demo">Sign-in is off in this test copy.</div></div></div>;
+  if (!SMS_ON) return <div className="phone"><PhoneBar title="PolishOS" /><div className="pbody"><div className="demo">Sign-in is off in this test copy.</div><Link className="btn" href="/t/book">Book a client (test)</Link></div></div>;
   if (err) return <div className="phone"><PhoneBar title="PolishOS" /><div className="pbody"><p className="hint err">{err}</p><Button onClick={() => location.reload()}>Try again</Button></div></div>;
   if (!m) return <div className="phone" aria-busy="true" />;
 
@@ -72,6 +72,7 @@ export default function TechHome() {
           <Row title={vi ? "Vai trò" : "Role"} right={<b>{ROLE_LABEL[m.role]}</b>} />
           <Row title={vi ? "Ngôn ngữ" : "Language"} right={<Segmented label="Language" value={lang} onChange={setLang} options={[{ value: "en", label: "EN" }, { value: "vi", label: "VI" }]} />} />
         </ListGroup>
+        <Link className="btn primary" href="/t/book" data-testid="tech-book">{vi ? "Đặt lịch cho khách" : "Book a client"}</Link>
         <Link className="btn" href="/clients" data-testid="tech-clients">{vi ? "Khách hàng: ghi chú + ảnh" : "Clients: notes + photos"}</Link>
         <Button variant="ghost" data-testid="sign-out" onClick={async () => { await signOut(); router.replace("/login"); }}>{vi ? "Đăng xuất" : "Sign out"}</Button>
       </div>

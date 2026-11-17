@@ -15,6 +15,23 @@ import { at, fmtMin, isFree, minutesOf, repeatDays } from "@/lib/booking/grid";
 
 export type BookDraft = { day: string; start: number; minutes: number; staffId?: string };
 
+/** Open (or reuse) the checkout ticket for a booking: client + services with the tech. Saved on the device, synced later. */
+export function ticketFor(desk: Desk, a: Appt, staffId: string | null): string {
+  const id = a.ticketId && getTicket(a.ticketId) ? a.ticketId : crypto.randomUUID();
+  if (!getTicket(id)) {
+    const by = getActing()?.membership_id ?? desk.me.membership_id;
+    const staffName = desk.staff.find((s) => s.id === staffId)?.name;
+    // Walk-in with no phone: keep the name on the ticket (and in its note, which the server keeps).
+    const noPhoneName = !a.client?.phone && a.client?.name ? a.client.name : "";
+    putTicket({ id, salonId: desk.salonId, status: "open", createdAt: new Date().toISOString(), tips: {}, openedBy: by, deviceId: desk.device?.id,
+      note: [noPhoneName, a.note].filter(Boolean).join(" · "),
+      client: a.client?.name || a.client?.phone ? { phone: a.client.phone ?? "", name: a.client.name } : undefined,
+      lines: a.services.map((s) => ({ id: crypto.randomUUID(), serviceId: s.serviceId, name: s.name, minutes: s.minutes, cents: s.cents,
+        staffId: staffId ?? undefined, staffName })) }, { now: true });
+  }
+  return id;
+}
+
 /** What the calendar shows: a checked-in ticket that's paid = done. */
 export function statusOf(a: Appt): Appt["status"] {
   if (a.status === "arrived" && a.ticketId && (getTicket(a.ticketId)?.status === "paid" || a.ticketStatus === "paid")) return "done";
@@ -123,14 +140,7 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
   const staff = desk.staff.find((s) => s.id === a.staffId);
   const set = (status: Appt["status"], msg: string) => { const before = { ...a }; putAppt({ ...a, status }); say(msg, () => putAppt(before)); onClose(); };
   const checkIn = () => {
-    const id = a.ticketId && getTicket(a.ticketId) ? a.ticketId : crypto.randomUUID();
-    if (!getTicket(id)) {
-      const by = getActing()?.membership_id ?? desk.me.membership_id;
-      putTicket({ id, salonId: desk.salonId, status: "open", createdAt: new Date().toISOString(), tips: {}, note: a.note, openedBy: by, deviceId: desk.device?.id,
-        client: a.client?.phone ? { phone: a.client.phone, name: a.client.name } : undefined,
-        lines: a.services.map((s) => ({ id: crypto.randomUUID(), serviceId: s.serviceId, name: s.name, minutes: s.minutes, cents: s.cents,
-          staffId: a.staffId ?? undefined, staffName: staff?.name })) }, { now: true });
-    }
+    const id = ticketFor(desk, a, a.staffId ?? null);
     putAppt({ ...a, status: "arrived", ticketId: id });
     router.push(`/checkout/${id}`);
   };

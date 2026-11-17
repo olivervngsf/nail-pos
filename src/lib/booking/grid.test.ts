@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { at, fmtMin, isFree, lanes, minutesOf, overlapping, repeatDays, snap } from "./grid";
+import { at, fmtMin, isFree, lanes, minutesOf, overlapping, repeatDays, snap, freeStarts } from "./grid";
 
 describe("calendar math", () => {
   it("snaps to 15 minutes", () => {
@@ -26,5 +26,14 @@ describe("calendar math", () => {
     expect(minutesOf(at("2026-11-17", 14 * 60 + 30))).toBe(870);
     expect(fmtMin(870)).toBe("2:30 PM");
     expect(fmtMin(9 * 60)).toBe("9:00 AM");
+  });
+});
+
+describe("freeStarts", () => {
+  it("skips busy times, closing time and the past", () => {
+    const busy = [{ id: "a", start: 600, end: 660 }];
+    const s = freeStarts(busy, 540, 720, 45, 560);
+    expect(s).toEqual([660, 675]);
+    expect(freeStarts([], 540, 600, 45)).toEqual([540, 555]);
   });
 });

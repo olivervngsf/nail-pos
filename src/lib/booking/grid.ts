@@ -46,3 +46,10 @@ export const repeatDays = (first: string, everyWeeks: number, times: number) =>
 
 /** Free at this time? (no live booking for that staff overlapping [start, end)). */
 export const isFree = (busy: Span[], start: number, end: number) => !busy.some((b) => b.start < end && start < b.end);
+
+/** Start times (every 15 min) in [open, close - minutes] where the staff is free; skips times before `notBefore`. */
+export function freeStarts(busy: Span[], open: number, close: number, minutes: number, notBefore = 0): number[] {
+  const out: number[] = [];
+  for (let m = open; m + minutes <= close; m += SNAP) if (m >= notBefore && isFree(busy, m, m + minutes)) out.push(m);
+  return out;
+}

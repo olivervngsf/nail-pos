@@ -2,6 +2,7 @@
 // Front desk / owner home (desktop + iPad). Session 1: who's in, clock in/out by PIN, switch person,
 // make this a salon device, salon switcher for owners with several salons, sign out.
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ROLE_LABEL, SMS_ON, forgetDevice, getDevice, isSignedIn, makeSalonDevice, myMemberships, pinMessage, rpc,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/auth";
 import PaymentsCard from "@/components/PaymentsCard";
 import AccountMenu from "@/components/AccountMenu";
+import WalkInStrip from "./WalkInStrip";
 import { getActing, setActing as shareActing, touchActing } from "@/lib/desk";
 import { Avatar, Button, Drawer, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Row, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 
@@ -110,6 +112,7 @@ export default function TodayDesk() {
             <h1 className="h1">Today</h1>
             <span className="cap">{inCount} of {staff.length} clocked in</span>
           </div>
+          {salonId && <WalkInStrip salonId={salonId} />}
 
 
           <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -158,8 +161,10 @@ export default function TodayDesk() {
             </section>
           )}
 
-          {canAdmin && <a className="tile" href="/gift-cards" data-testid="gift-cards-link" style={{ textDecoration: "none" }}>
-            <b>Gift cards</b><span className="cap">Money owed on cards, all codes, lost cards, print plastic cards.</span></a>}
+          {canAdmin && <Link className="tile" href="/gift-cards" data-testid="gift-cards-link" style={{ textDecoration: "none" }}>
+            <b>Gift cards</b><span className="cap">Money owed on cards, all codes, lost cards, print plastic cards.</span></Link>}
+          {canAdmin && <Link className="tile" href="/settings/booking-page" data-testid="booking-page-link" style={{ textDecoration: "none" }}>
+            <b>Booking page</b><span className="cap">Your link, photos, Google / Instagram / QR, rules, walk-in kiosk.</span></Link>}
         </main>
       </div>
 
