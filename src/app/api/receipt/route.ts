@@ -19,12 +19,16 @@ export async function GET(req: Request) {
     .map((l) => ({ kind: l.kind, name: l.name, cents: Number(l.amount_cents), tech: l.staff?.display_name?.split(" ")[0] ?? null }));
   const pay = ((t.payments ?? []) as { method: string; amount_cents: number; given_cents: number | null; change_cents: number | null; card_brand: string | null; card_last4: string | null; at: string }[])
     .sort((a, b) => b.at.localeCompare(a.at))[0];
+  // Loyalty: what this visit earned / used and the balance after (same ledger the desk sees).
+  const { data: pts } = await db.rpc("ticket_points", { p_ticket: id });
+  const points = pts && (pts.earned || pts.used) ? { earned: Number(pts.earned), used: Number(pts.used), balance: Number(pts.balance), kind: pts.kind, rewardPoints: Number(pts.rewardPoints), rewardCents: Number(pts.rewardCents) } : null;
   const salon = t.salon as unknown as { name: string; phone: string | null; address: string | null } | null;
   return Response.json({
     salon: salon?.name ?? "", salonPhone: salon?.phone ?? null, salonAddress: salon?.address ?? null,
     number: t.number, status: t.status, at: t.paid_at ?? t.created_at,
     client: (t.client as unknown as { name: string } | null)?.name?.split(" ")[0] ?? null,
     lines, subtotal: Number(t.subtotal_cents), discount: Number(t.discount_cents), tip: Number(t.tip_cents), total: Number(t.total_cents),
+    points,
     pay: pay ? { method: pay.method, cents: Number(pay.amount_cents), given: pay.given_cents, change: pay.change_cents, brand: pay.card_brand, last4: pay.card_last4 } : null,
   }, { headers: { "cache-control": "no-store" } });
 }

@@ -86,3 +86,19 @@ describe("ticket slip: desk and tech change the same ticket", () => {
     expect(p.seen).not.toContain("tech-line");
   });
 });
+
+describe("loyalty reward on a ticket", () => {
+  const base: Ticket = { id: "00000000-0000-4000-8000-000000000001", salonId: "s", status: "open", createdAt: "", note: "", tips: {},
+    client: { phone: "+14085550142", name: "Lan" },
+    lines: [{ id: "l1", name: "Gel", minutes: 45, cents: 5200, staffId: "k", staffName: "Kim" }],
+    reward: { id: "r1", cents: 1000, points: 100 } };
+  it("comes off what the client pays; techs' service price stays full", () => {
+    expect(totals(base)).toMatchObject({ subtotal: 5200, reward: 1000, due: 4200, toPay: 4200 });
+    expect(staffOn(base.lines)[0].cents).toBe(5200);
+  });
+  it("is sent as its own line, never more than what's due", () => {
+    const p = toPayload(base);
+    expect(p.lines).toContainEqual({ id: "r1", kind: "loyalty_reward", name: "Loyalty reward", cents: -1000 });
+    expect(totals({ ...base, lines: [{ ...base.lines[0], cents: 600 }] }).due).toBe(0);
+  });
+});
