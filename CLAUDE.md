@@ -4,6 +4,7 @@ Read this first every session. Keep it short; link out for detail.
 
 ## What we're building
 - POS for Vietnamese-run nail salons, made by Vietnamese salon people.
+- Names: app = PolishOS (polishosapp.com); company = EO Collective (eo-collective.com).
 - Angle: fair, clear pay for techs + Tap to Pay on iPhone and Android (no card terminal).
 - Team (working agreement, not final yet; aligned with Elang Nov 16): Elang = product direction + features ("designs the building: how many floors, what's on each floor") + sales, client care. Oliver = solid foundation, build and design (how it works and looks).
 
@@ -27,7 +28,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 4. PIN login + clock-in; print own earnings by PIN. Clock-in: front desk name + PIN or own phone at salon only (location/Wi-Fi); clock-in joins turn list; auto clock-out; manager-approved fixes; offline (PRD "Clock-in: where and when", issue #3)
 5. Client profile by phone number (visits, last service/tech, notes, gift card)
 6. Turn list for walk-ins (moved into V1)
-7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12). Each salon gets its own booking page on our domain (book.[domain]/salon-city; QR, Google, social; booking source tracked); later deals, deposits, AI booking helper (PRD "Salon booking page", issue #32, screens on Screens 2 bottom)
+7. Booking + day calendar: staff quick-add (4 taps), online booking link, text confirm/reminders (issue #12). Each salon gets its own booking page on our domain (polishosapp.com/salon-city; QR, Google, social; booking source tracked); later deals, deposits, AI booking helper (PRD "Salon booking page", issue #32, screens on Screens 2 bottom)
 8. Owner dashboard: top 5 KPIs (sales vs last week, avg ticket, return rate + lost regulars, sales per tech per hour, walk-in wait + walk-outs); full list in PRD "Owner KPIs" (issue #16)
 - Salon setup (demo → first payment in ~1 week; 1-hour setup day, 10 steps incl. Connect payments): PRD "Salon setup", board https://claude.ai/artifact/1wByQp7c3nViD27dsqJqgD, issue #20
 - Basics: salon setup, staff + pay rates, service menu from a nail template, owner login
@@ -85,6 +86,7 @@ Docs win over this file if they disagree. Update this file when a big decision l
 - 2026-11-16: Owner dashboard (top 5 KPIs, facts only) joins V1.
 - 2026-11-16: Payroll = V1 insights + export; real payroll later via embedded partner (e.g. Check, Gusto Embedded); never build tax filing ourselves.
 - 2026-11-16: Gift cards + discounts join V1 checkout; promo codes, auto discounts, online gift card shop later. Commission on discounted vs full price = owner setting.
+- 2026-11-17: Names + domains: company = EO Collective (eo-collective.com); app = PolishOS (polishosapp.com). Bought Nov 16 2026, 3 years, renew Nov 16 2029. Salon booking pages on the app domain (e.g. polishosapp.com/lotus). Team guide: How We Work Together https://claude.ai/artifact/DbRuWNQPHKJTWkUQKeBaY9
 
 ## Tracking
 - Build Tracker (status per feature, build order): https://claude.ai/artifact/6DjfxMPXy64uDX8YZdCCnt — keep in sync with GitHub Issues
