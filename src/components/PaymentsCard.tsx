@@ -5,7 +5,7 @@ import { Button, Card, Tag } from "@/components/kit";
 import { api } from "@/lib/api";
 import { rpc } from "@/lib/auth";
 
-type St = { on?: boolean; connected?: boolean; chargesEnabled?: boolean; detailsSubmitted?: boolean; test?: boolean };
+type St = { on?: boolean; connected?: boolean; chargesEnabled?: boolean; detailsSubmitted?: boolean; test?: boolean; missing?: string[] };
 
 export default function PaymentsCard({ salonId }: { salonId: string }) {
   const [st, setSt] = useState<St | null>(null);
@@ -40,7 +40,7 @@ export default function PaymentsCard({ salonId }: { salonId: string }) {
         {st.test && <Tag>Test mode</Tag>}{ready ? <Tag tone="jade">On</Tag> : <span className="tag warn">Not set up</span>}</span>
       {st.on === false ? <span className="cap">Not switched on for this site yet (Stripe key missing).</span>
         : !ready ? <>
-          <span className="cap">{st.connected ? (st.detailsSubmitted ? "Stripe is checking your details. Refresh in a minute." : "Stripe still needs a few details.") : "Connect your salon's own Stripe account. Money goes straight to your bank."}</span>
+          <span className="cap">{st.connected ? (st.missing?.length ? `Stripe still needs: ${st.missing.join(" · ")}` : "Stripe is checking your details. Refresh in a minute.") : "Connect your salon's own Stripe account. Money goes straight to your bank."}</span>
           <div><Button className="stripe" disabled={busy} data-testid="connect-stripe" onClick={() => void connect()}>{st.connected ? "Continue with Stripe" : "Connect with Stripe"}</Button></div>
         </> : <>
           <span className="cap">{readers.length ? `Readers: ${readers.map((r) => r.label).join(", ")}` : "No card reader yet. QR / pay link works now."}</span>
