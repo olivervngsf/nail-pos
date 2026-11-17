@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import TicketScreen from "./TicketScreen";
 
-export const metadata: Metadata = { title: "Ticket · Nail POS" };
+export const metadata: Metadata = { title: "Ticket · PolishOS" };
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

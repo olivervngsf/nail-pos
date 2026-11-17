@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import StaffJoin from "./StaffJoin";
 
-export const metadata: Metadata = { title: "Join your salon · Nail POS" };
+export const metadata: Metadata = { title: "Join your salon · PolishOS" };
 
 // Invite details ride in the link for now (test version). Later: look up the invite by code in Supabase.
 export default async function JoinPage({

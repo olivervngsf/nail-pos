@@ -20,7 +20,7 @@
   },
   "kit": {
     "title": "Bộ thiết kế",
-    "lead": "Mọi phần dùng chung của giao diện Nail POS, từ design/kit/kit.css. Màn hình chỉ dùng những phần này.",
+    "lead": "Mọi phần dùng chung của giao diện PolishOS, từ design/kit/kit.css. Màn hình chỉ dùng những phần này.",
     "offlineTest": "Thử mất mạng",
     "offlineLead": "Lưu một thay đổi thử, tắt mạng, bật lại: nó gửi đúng một lần.",
     "saveTest": "Lưu thay đổi thử",
