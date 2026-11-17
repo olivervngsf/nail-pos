@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { blockers, changeCents, discountCents, quickCash, splitTipByPrice, staffOn, tipLineId, toPayload, totals, type Ticket } from "./ticket";
+import { blockers, changeCents, discountCents, mergeOpen, quickCash, splitTipByPrice, staffOn, tipLineId, toPayload, totals, type ServiceLine, type Ticket } from "./ticket";
 
 const base = (): Ticket => ({
   id: "11111111-1111-4111-8111-111111111111", salonId: "s", status: "open", createdAt: "2026-11-18T10:00:00Z", note: "", tips: {},
@@ -100,5 +100,35 @@ describe("loyalty reward on a ticket", () => {
     const p = toPayload(base);
     expect(p.lines).toContainEqual({ id: "r1", kind: "loyalty_reward", name: "Loyalty reward", cents: -1000 });
     expect(totals({ ...base, lines: [{ ...base.lines[0], cents: 600 }] }).due).toBe(0);
+  });
+});
+
+describe("mergeOpen (ticket slip)", () => {
+  const ln = (id: string, extra: Partial<ServiceLine> = {}): ServiceLine => ({ id, name: id, minutes: 30, cents: 3000, priceSet: true, ...extra });
+  const tk = (lines: ServiceLine[], extra: Partial<Ticket> = {}): Ticket =>
+    ({ id: "t1", salonId: "s1", status: "open", createdAt: "", lines, tips: {}, ...extra }) as Ticket;
+
+  it("adds a line a tech added from the slip", () => {
+    const m = mergeOpen(tk([ln("a")], { seenLineIds: ["a"] }), tk([ln("a"), ln("b")]), []);
+    expect(m?.lines.map((l) => l.id)).toEqual(["a", "b"]);
+    expect(m?.seenLineIds).toContain("b");
+  });
+  it("drops a line the tech removed on their phone, even with unsent desk edits", () => {
+    const mine = tk([ln("a"), ln("b", { cents: 4000 })], { seenLineIds: ["a", "b"], synced: false } as Partial<Ticket>);
+    const m = mergeOpen(mine, tk([ln("a")]), ["b"]);
+    expect(m?.lines.map((l) => l.id)).toEqual(["a"]);
+  });
+  it("keeps a desk line not on the server yet, and a line the desk removed stays removed", () => {
+    const mine = tk([ln("a"), ln("new")], { seenLineIds: ["a", "gone"] });
+    expect(mergeOpen(mine, tk([ln("a"), ln("gone")]), [])).toBeNull();
+  });
+  it("a phone \"$45+\" line keeps priceSet=false so the desk sets the final price", () => {
+    const m = mergeOpen(tk([ln("a")], { seenLineIds: ["a"] }), tk([ln("a"), ln("art", { priceFrom: true, priceSet: false })]), []);
+    const art = m!.lines.find((l) => l.id === "art")!;
+    expect(blockers(m!)).toContain("price");
+    expect(art.priceSet).toBe(false);
+  });
+  it("doesn't add back a line the tech removed", () => {
+    expect(mergeOpen(tk([ln("a")], { seenLineIds: ["a"] }), tk([ln("a"), ln("b")]), ["b"])).toBeNull();
   });
 });

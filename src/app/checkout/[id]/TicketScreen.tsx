@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Segmented, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
+import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 import AccountMenu from "@/components/AccountMenu";
 import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
@@ -15,11 +15,13 @@ import { logReceipt, pullTickets, putTicket, saveNow, useTicket } from "@/lib/ch
 import { api } from "@/lib/api";
 import { GiftSellDrawer, GiftUseDrawer } from "./GiftDrawers";
 import { demoSettle, giftUndo } from "@/lib/checkout/gift";
-import { needsImage, receiptBytes, type Paper, type ReceiptDoc } from "@/lib/print/escpos";
-import { receiptImageBytes } from "@/lib/print/raster";
-import { canBluetooth, isIOS, pickPrinter, printBytes, savedPrinter, savePrinter } from "@/lib/print/bluetooth";
+import { receiptBytes, type ReceiptDoc } from "@/lib/print/escpos";
+import { canBluetooth, printBytes } from "@/lib/print/bluetooth";
+import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 import { printTicketSlip } from "@/lib/print/slip";
 import { clientLoyalty, pointsFor, type ClientLoyalty } from "@/lib/loyalty/loyalty";
+import { getProfile, type Profile, type Who } from "@/lib/clients";
+import { EditDrawer } from "@/app/clients/ClientParts";
 import { blockers, changeCents, quickCash, splitTipByPrice, staffOn, ticketLabel, totals, type Discount, type ServiceLine, type Ticket } from "@/lib/checkout/ticket";
 
 const uuid = () => crypto.randomUUID();
@@ -304,38 +306,73 @@ function DiscountDrawer({ desk, subtotal, current, onClose, onApply }: { desk: D
 /* Client panel (CRM): phone first. */
 type Found = { client_id: string; name: string; notes: string; visits: number; avg_cents: number; last_visit: string | null; last_services: string | null };
 
+/** Phone first: a number on file attaches that client as a read-only card. The desk can "Change client" (wrong person) or
+ *  "Edit details" (owner/manager OK). Typing on a ticket never edits the client on file; a new client's name is typed once. */
 function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save: SaveFn }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
   const [phone, setPhone] = useState(ticket.client?.phone ? fmtPhone(ticket.client.phone) : "");
   const [name, setName] = useState(ticket.client?.name ?? "");
+  const [locked, setLocked] = useState(!!ticket.client && (phoneOk(fmtPhone(ticket.client.phone)) || !!ticket.client.name));
   const [found, setFound] = useState<Found | null | "offline">(null);
+  const [look, setLook] = useState(0);
+  const [edit, setEdit] = useState<Profile | null>(null);
+  const [editErr, setEditErr] = useState("");
+  const who: Who = { mode: desk.mode, salonId: desk.salonId, salonName: desk.salonName, role: desk.me.role, name: desk.me.display_name };
 
   useEffect(() => {
     if (!phoneOk(phone) || desk.mode !== "live") { setFound(null); return; }
     if (!navigator.onLine) { setFound("offline"); return; }
     let stop = false;
     void rpc<Found[]>("client_lookup", { p_salon: desk.salonId, p_phone: e164(phone) })
-      .then((r) => { if (stop) return; setFound(r[0] ?? null); if (r[0]?.name && !name) setName(r[0].name); })
+      .then((r) => { if (!stop) setFound(r[0] ?? null); })
       .catch(() => !stop && setFound("offline"));
     return () => { stop = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phone, desk.mode, desk.salonId]);
+  }, [phone, desk.mode, desk.salonId, look]);
 
   const commit = (p: string, n: string) => save({ client: phoneOk(p) ? { phone: e164(p), name: n.trim() } : n.trim() ? { phone: "", name: n.trim() } : undefined });
   const c = found && found !== "offline" ? found : null;
+  // A number on file: attach that client as they are (their saved name, not what was typed).
+  useEffect(() => {
+    if (!c) return;
+    setName(c.name);
+    if (!locked) { commit(phone, c.name); setLocked(true); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [c?.client_id, c?.name]);
+
+  const change = () => { setLocked(false); setPhone(""); setName(""); setFound(null); save({ client: undefined }); };
+  const openEdit = async () => {
+    setEditErr("");
+    if (!c) return;
+    try { setEdit(await getProfile(who, c.client_id)); } catch { setEditErr(t("lookupOffline")); }
+  };
+  const canAdd = phoneOk(phone) || (!phone && !!name.trim());
+  const showNew = !locked && (phoneOk(phone) ? !c : !phone);
 
   return (
-    <aside className="card ck-aside">
+    <aside className="card ck-aside" data-testid="client-panel">
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div className="av lg">{name ? initials(name) : "?"}</div>
-        <div style={{ flex: 1, minWidth: 0 }}><div className="h2">{name || t("walkIn")}</div><div className="cap num">{phone || t("client")}</div></div>
+        <div style={{ flex: 1, minWidth: 0 }}><div className="h2" data-testid="client-name">{name || t("walkIn")}</div><div className="cap num">{phone || t("client")}</div></div>
         {c && c.visits > 2 ? <Tag tone="jade">{t("rRegular")}</Tag> : phoneOk(phone) && !c && found !== "offline" ? <Tag>{t("newClient")}</Tag> : null}
       </div>
-      <Field id="cphone" label={t("clientPhone")} inputMode="tel" autoComplete="off" value={phone}
-        onChange={(e) => { const p = fmtPhone(e.target.value); setPhone(p); commit(p, name); }} />
-      <Field id="cname" label={t("clientName")} autoComplete="off" value={name} onChange={(e) => { setName(e.target.value); commit(phone, e.target.value); }} />
+      {!locked && <>
+        <Field id="cphone" label={t("clientPhone")} inputMode="tel" autoComplete="off" value={phone} onChange={(e) => { const p = fmtPhone(e.target.value); setPhone(p); if (phoneOk(p)) commit(p, ""); }} />
+        {showNew && <Field id="cname" label={phoneOk(phone) ? t("newClientName") : t("clientName")} autoComplete="off" value={name} onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && canAdd) { commit(phone, name); setLocked(true); } }} />}
+        {showNew && (phoneOk(phone) || name.trim()) && <Button data-testid="add-client" disabled={!canAdd} onClick={() => { commit(phone, name); setLocked(true); }}>{t("addClient")}</Button>}
+      </>}
+      {locked && <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <Button size="sm" variant="ghost" data-testid="change-client" onClick={change}>{t("changeClient")}</Button>
+        {c && <Button size="sm" variant="ghost" data-testid="edit-client" onClick={() => void openEdit()}>{t("editClient")}</Button>}
+      </div>}
+      {locked && name && !phone && <div className="cap" data-testid="no-phone-hint">{t("noPhoneNudge")}</div>}
+      {editErr && <div className="hint err">{editErr}</div>}
       {found === "offline" && <div className="cap">{t("lookupOffline")}</div>}
+      {edit && <EditDrawer who={who} p={edit} onClose={() => setEdit(null)} onSaved={(_, v) => {
+        // Keep the ticket pointing at the same person if their phone or name was fixed.
+        setEdit(null); const p = v.phone ? fmtPhone(v.phone) : phone; setPhone(p); setName(v.name || name); commit(p, v.name || name); setLook((n) => n + 1);
+      }} />}
       {c && <>
         <div className="grid3" style={{ gap: 8, textAlign: "center" }}>
           <Stat v={String(c.visits)} l={t("visits")} />
@@ -758,19 +795,15 @@ function digitalReceiptUrl(desk: Desk, ticket: Ticket): string | undefined {
 function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: string) => void }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
-  const [saved, setSaved] = useState<ReturnType<typeof savedPrinter>>(null);
+  const p = usePrinter();
   const [busy, setBusy] = useState(false);
-  const [ok, setOk] = useState(false);
-  useEffect(() => { setSaved(savedPrinter()); setOk(canBluetooth()); }, []);
-  if (!ok) return isIOS() ? <div className="row s"><span className="g cap">{t("btIos")}</span></div> : null;
-  const paper: Paper = saved?.paper ?? 58;
+  if (!p.ok) return <PrinterSetup p={p} />;
   const go = async () => {
     setBusy(true);
     try {
       const doc = receiptDoc(desk, ticket, t, f.dateTime(new Date(ticket.payment?.at ?? ticket.createdAt), { dateStyle: "medium", timeStyle: "short" }));
-      // Vietnamese letters → print as an image so accents show; plain English → fast text.
-      await printBytes(needsImage(doc) ? await receiptImageBytes(doc, paper) : receiptBytes(doc, paper), paper);
-      setSaved(savedPrinter());
+      await printBytes(receiptBytes(doc, p.paper), p.paper); // text = fast; accents print plain
+      p.refresh();
       logReceipt(ticket, "print");
       say(t("printed"));
     } catch (e) {
@@ -781,13 +814,9 @@ function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say
   };
   return <>
     <button type="button" className="opt" data-testid="print-bt" disabled={busy} onClick={() => void go()}>
-      <span className="g">{busy ? t("btPrinting") : t("printBt")}<span className="cap" style={{ display: "block" }}>{saved ? `${saved.name} · ${saved.paper} mm` : t("btPair")}</span></span><span className="cap">›</span>
+      <span className="g">{busy ? t("btPrinting") : t("printBt")}<span className="cap" style={{ display: "block" }}>{p.saved ? `${p.saved.name} · ${p.saved.paper} mm` : t("btPair")}</span></span><span className="cap">›</span>
     </button>
-    {saved && <div className="row s" style={{ gap: 8 }}>
-      <span className="g cap">{t("btPaper")}</span>
-      <Segmented label={t("btPaper")} value={String(paper)} onChange={(v) => { const p = { ...saved, paper: Number(v) as Paper }; savePrinter(p); setSaved(p); }} options={[{ value: "58", label: "58 mm" }, { value: "80", label: "80 mm" }]} />
-      <Button size="sm" variant="ghost" onClick={async () => { try { setSaved(await pickPrinter(paper)); } catch { /* cancelled */ } }}>{t("btChange")}</Button>
-    </div>}
+    {p.saved && <PrinterSetup p={p} />}
   </>;
 }
 

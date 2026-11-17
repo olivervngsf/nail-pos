@@ -1,9 +1,9 @@
 "use client";
 // Shared pieces for Clients (C1–C2) and Client history (H1–H2): stats, care box, edit drawer, photo button, money words.
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { Button, Drawer, Field } from "@/components/kit";
-import { e164 } from "@/lib/auth";
+import { Avatar, Button, Drawer, Field, ListGroup, PinKeypad } from "@/components/kit";
+import { ROLE_LABEL, e164, getDevice, pinMessage, rpc, type PinResult, type Role } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { addPhoto, everyWeeks, saveClient, type Profile, type Visit, type Who } from "@/lib/clients";
@@ -71,9 +71,57 @@ export function PhotoButton({ who, p, ticketId, onDone, say }: { who: Who; p: Pr
   </>;
 }
 
-/** New client or edit details. Desk / owner only. */
-export function EditDrawer({ who, p, onClose, onSaved }: { who: Who; p: Profile | null; onClose: () => void; onSaved: (id: string) => void }) {
+/** Who gets the Edit button: an owner/manager on their own login, or any salon device (a manager PIN then gates it). */
+export const canEditClient = (who: Who) => who.mode === "demo" || who.role === "owner" || who.role === "manager" || !!getDevice();
+
+type Approver = { id: string; name: string; role: Role };
+
+/** Changing someone already on file needs an owner/manager OK first: their PIN on the salon device, or (owner/manager on
+ *  their own login) one tap. The server checks it again and uses it once. Adding a new client needs no OK. */
+function useClientOk(who: Who, needed: boolean) {
+  const device = getDevice();
+  const admin = who.role === "owner" || who.role === "manager";
+  const gate: "free" | "self" | "pin" | "denied" = !needed ? "free" : who.mode === "demo" || device ? "pin" : admin ? "self" : "denied";
+  const [okd, setOkd] = useState<{ approvalId?: string; name: string } | null>(null);
+  const [approvers, setApprovers] = useState<Approver[]>([]);
+  const [approver, setApprover] = useState<string | null>(null);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    if (gate !== "pin") return;
+    if (who.mode === "demo") { setApprovers([{ id: "demo", name: "Mai", role: "owner" }]); setApprover("demo"); return; }
+    void rpc<{ membership_id: string; display_name: string; role: Role }[]>("desk_staff", { p_salon: who.salonId }).then((r) => {
+      const a = r.filter((s) => s.role === "owner" || s.role === "manager").map((s) => ({ id: s.membership_id, name: s.display_name, role: s.role }));
+      setApprovers(a);
+      if (a.length === 1) setApprover(a[0].id);
+    }).catch(() => setErr("offline"));
+  }, [gate, who.mode, who.salonId]);
+  const checkPin = async (pin: string) => {
+    setErr("");
+    if (who.mode === "demo") return setOkd({ name: "Mai" });
+    if (!navigator.onLine || !device || !approver) return setErr("offline");
+    try {
+      const r = await rpc<PinResult & { approval_id?: string }>("approve_discount", { p_salon: who.salonId, p_device: device.id, p_membership: approver, p_pin: pin, p_purpose: "client" });
+      if (!r.ok) return setErr((r.reason as string) === "not_manager" ? "not_manager" : pinMessage(r));
+      setOkd({ approvalId: r.approval_id, name: r.name ?? "" });
+    } catch { setErr("offline"); }
+  };
+  /** The approval to send with the save (own-login owner/manager: asked for right now). */
+  const approvalId = async (): Promise<string | undefined> => {
+    if (gate === "self") {
+      const r = await rpc<PinResult & { approval_id?: string }>("approve_discount", { p_salon: who.salonId, p_purpose: "client" });
+      if (!r.ok) throw new Error("not_manager");
+      return r.approval_id;
+    }
+    return okd?.approvalId;
+  };
+  return { gate, open: gate === "free" || gate === "self" || !!okd, okd, approvers, approver, setApprover, err, checkPin, approvalId };
+}
+
+/** New client or edit details. Desk / owner only; editing someone on file needs an owner/manager OK. */
+export function EditDrawer({ who, p, onClose, onSaved }: { who: Who; p: Profile | null; onClose: () => void; onSaved: (id: string, c: { name: string; phone: string }) => void }) {
   const t = useTranslations("clients");
+  const ok = useClientOk(who, !!p);
+  const okErr = (e: string) => (e === "offline" ? t("okOffline") : e === "not_manager" ? t("okOnlyAdmin") : e);
   const [f, setF] = useState({
     name: p?.name ?? "", phone: p?.phone ? fmtPhone(p.phone) : "", email: p?.email ?? "", birthday: p?.birthday?.slice(5) ?? "",
     shape: p?.shape ?? "", colors: p?.colors ?? "", care: p?.care ?? "", notes: p?.notes ?? "", textsOk: p?.texts_ok ?? false, language: p?.language ?? "en",
@@ -82,17 +130,35 @@ export function EditDrawer({ who, p, onClose, onSaved }: { who: Who; p: Profile 
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
   const bdayOk = !f.birthday || /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(f.birthday);
-  const ok = (f.name.trim() || phoneOk(f.phone)) && (!f.phone || phoneOk(f.phone)) && bdayOk;
+  const valid = (f.name.trim() || phoneOk(f.phone)) && (!f.phone || phoneOk(f.phone)) && bdayOk;
   const save = async () => {
     setBusy(true); setErr("");
     try {
-      const id = await saveClient(who, p?.id ?? null, { ...f, phone: f.phone ? e164(f.phone) : "", birthday: f.birthday ? `2000-${f.birthday}` : "", language: f.language as "en" | "vi" });
-      onSaved(id);
-    } catch (e) { setErr(navigator.onLine ? (e as Error).message : t("needNet")); setBusy(false); }
+      const phone = f.phone ? e164(f.phone) : "";
+      const approvalId = await ok.approvalId();
+      const id = await saveClient(who, p?.id ?? null, { ...f, phone, birthday: f.birthday ? `2000-${f.birthday}` : "", language: f.language as "en" | "vi", approvalId });
+      onSaved(id, { name: f.name.trim(), phone });
+    } catch (e) { setErr(navigator.onLine ? okErr((e as Error).message) : t("needNet")); setBusy(false); }
   };
+  const title = p ? t("editTitle", { name: p.name }) : t("newClient");
+  if (!ok.open) return (
+    <Drawer title={title} onClose={onClose}>
+      <div className="eyebrow">{t("okTitle")}</div>
+      <div className="cap">{t("okWhy")}</div>
+      {ok.gate === "denied" ? <div className="hint err" data-testid="client-ok-denied">{t("okOnlyAdmin")}</div>
+        : !ok.approver ? <>
+            <span className="cap">{t("okWho")}</span>
+            <ListGroup>{ok.approvers.map((m) => <button key={m.id} type="button" className="opt" onClick={() => ok.setApprover(m.id)}><Avatar name={m.name} />{m.name}<span className="cap">{ROLE_LABEL[m.role]}</span></button>)}</ListGroup>
+            {ok.err && <span className="hint err">{okErr(ok.err)}</span>}
+          </>
+        : <><span className="cap">{t("okPin")}</span><PinKeypad error={ok.err ? okErr(ok.err) : undefined} onDone={(pin) => void ok.checkPin(pin)} /></>}
+      <div className="cap">{t("okMore")}</div>
+    </Drawer>
+  );
   return (
-    <Drawer title={p ? t("editTitle", { name: p.name }) : t("newClient")} onClose={onClose}
-      footer={<Button variant="primary" block disabled={!ok || busy} onClick={() => void save()} data-testid="client-save">{t("save")}</Button>}>
+    <Drawer title={title} onClose={onClose}
+      footer={<Button variant="primary" block disabled={!valid || busy} onClick={() => void save()} data-testid="client-save">{t("save")}</Button>}>
+      {ok.okd && <div className="note" data-testid="client-ok">{t("okBy", { name: ok.okd.name })}</div>}
       <Field id="cn" label={t("name")} value={f.name} onChange={set("name")} />
       <Field id="cp" label={t("phone")} inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} error={f.phone && !phoneOk(f.phone) ? t("phoneBad") : undefined} />
       <Field id="ce" label={t("email")} type="email" value={f.email} onChange={set("email")} />

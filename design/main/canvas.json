@@ -6,7 +6,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "spec",
-      "title": "Z1 · Open tickets",
+      "title": "Z1 \u00b7 Open tickets",
       "w": 1640,
       "x": 0,
       "y": 2600
@@ -15,7 +15,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "spec",
-      "title": "Z2 · Count cash (short)",
+      "title": "Z2 \u00b7 Count cash (short)",
       "w": 1640,
       "x": 1720,
       "y": 2600
@@ -24,7 +24,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "spec",
-      "title": "Z3 · Card total",
+      "title": "Z3 \u00b7 Card total",
       "w": 1640,
       "x": 3440,
       "y": 2600
@@ -33,7 +33,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "spec",
-      "title": "Z4 · Tips per staff",
+      "title": "Z4 \u00b7 Tips per staff",
       "w": 1640,
       "x": 5160,
       "y": 2600
@@ -42,7 +42,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "spec",
-      "title": "Z5 · Day closed",
+      "title": "Z5 \u00b7 Day closed",
       "w": 1640,
       "x": 6880,
       "y": 2600
@@ -51,7 +51,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "spec",
-      "title": "C1 · List + profile",
+      "title": "C1 \u00b7 List + profile (next steps)",
       "w": 1640,
       "x": 0,
       "y": 1300
@@ -60,7 +60,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "spec",
-      "title": "C2 · Lost regulars",
+      "title": "C2 \u00b7 Full history",
       "w": 1640,
       "x": 1720,
       "y": 1300
@@ -69,7 +69,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "overview",
-      "title": "Clients (CRM)",
+      "title": "Clients (CRM) \u00b7 v2 Nov 17",
       "w": 1280,
       "x": 1360,
       "y": 0
@@ -87,7 +87,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "spec",
-      "title": "H1 · Today (owner)",
+      "title": "H1 \u00b7 Today (owner)",
       "w": 1640,
       "x": 0,
       "y": 0
@@ -96,7 +96,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "spec",
-      "title": "H2 · Tap a KPI",
+      "title": "H2 \u00b7 Tap a KPI",
       "w": 1640,
       "x": 1720,
       "y": 0
@@ -105,7 +105,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "overview",
-      "title": "Today (home) — owner",
+      "title": "Today (home) \u2014 owner",
       "w": 1280,
       "x": 0,
       "y": 0
@@ -123,7 +123,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "spec",
-      "title": "M1 · Profile + settings",
+      "title": "M1 \u00b7 Profile + settings",
       "w": 1640,
       "x": 0,
       "y": 3900
@@ -132,7 +132,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "spec",
-      "title": "M2 · Support access on",
+      "title": "M2 \u00b7 Support access on",
       "w": 1640,
       "x": 1720,
       "y": 3900
@@ -141,7 +141,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "overview",
-      "title": "Checkout · Ticket (tap Charge to go on)",
+      "title": "Checkout \u00b7 Ticket (tap Charge to go on)",
       "w": 1280,
       "x": 0,
       "y": 2200
@@ -150,7 +150,7 @@
       "h": 900,
       "is_interactive": true,
       "page": "overview",
-      "title": "Calendar — merged",
+      "title": "Calendar \u2014 merged",
       "w": 1440,
       "x": 1360,
       "y": 2200
@@ -159,7 +159,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "overview",
-      "title": "Checkout 2 · Choose how to pay",
+      "title": "Checkout 2 \u00b7 Choose how to pay",
       "w": 1280,
       "x": 0,
       "y": 3500
@@ -168,7 +168,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "overview",
-      "title": "Checkout 3a · Card reader",
+      "title": "Checkout 3a \u00b7 Card reader",
       "w": 1280,
       "x": 1360,
       "y": 3500
@@ -177,7 +177,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "overview",
-      "title": "Checkout 3b · Cash",
+      "title": "Checkout 3b \u00b7 Cash",
       "w": 1280,
       "x": 2720,
       "y": 3500
@@ -186,7 +186,7 @@
       "h": 800,
       "is_interactive": true,
       "page": "overview",
-      "title": "Checkout 4 · Paid + receipt",
+      "title": "Checkout 4 \u00b7 Paid + receipt",
       "w": 1280,
       "x": 4080,
       "y": 3500
@@ -258,7 +258,7 @@
       "h": 844,
       "is_interactive": true,
       "page": "overview",
-      "title": "Tech app · Home + Schedule",
+      "title": "Tech app \u00b7 Home + Schedule",
       "w": 390,
       "x": 2720,
       "y": 4800
@@ -276,7 +276,7 @@
       "h": 900,
       "is_interactive": true,
       "page": "overview",
-      "title": "Calendar · Week",
+      "title": "Calendar \u00b7 Week",
       "w": 1440,
       "x": 2880,
       "y": 2200
@@ -285,10 +285,37 @@
       "h": 900,
       "is_interactive": true,
       "page": "overview",
-      "title": "Calendar · Month",
+      "title": "Calendar \u00b7 Month",
       "w": 1440,
       "x": 4400,
       "y": 2200
+    },
+    "ClientFull.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Client full history",
+      "w": 1280,
+      "x": 2720,
+      "y": 0
+    },
+    "ClientPhone.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "Client profile (staff phone)",
+      "w": 390,
+      "x": 4080,
+      "y": 0
+    },
+    "Cl3Phone.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "spec",
+      "title": "C3 \u00b7 Staff phone",
+      "w": 750,
+      "x": 3440,
+      "y": 1300
     }
   },
   "createdOnFiles": {
@@ -332,16 +359,16 @@
       "kind": "title1",
       "maxW": 3360,
       "page": "spec",
-      "text": "Today — with notes",
+      "text": "Today \u2014 with notes",
       "w": 240,
       "x": 0,
       "y": -300
     },
     "r1": {
       "kind": "title1",
-      "maxW": 3360,
+      "maxW": 4190,
       "page": "spec",
-      "text": "Clients — with notes",
+      "text": "Clients \u2014 with notes",
       "w": 240,
       "x": 0,
       "y": 1000
@@ -350,7 +377,7 @@
       "kind": "title1",
       "maxW": 8000,
       "page": "spec",
-      "text": "Close day — with notes",
+      "text": "Close day \u2014 with notes",
       "w": 240,
       "x": 0,
       "y": 2300
@@ -359,7 +386,7 @@
       "kind": "title1",
       "maxW": 3360,
       "page": "spec",
-      "text": "Profile — with notes",
+      "text": "Profile \u2014 with notes",
       "w": 240,
       "x": 0,
       "y": 3600
@@ -367,16 +394,16 @@
     "s1": {
       "fill": "orange",
       "page": "overview",
-      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n• Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n• Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n• Close day = count cash, match card total, tips per staff, money truth\n• Calendar + Checkout = same screens as their own boards, here so the left menu clicks through\n• Profile = me (photo, language, PIN) + salon settings + support access\n• Page 2 = every state with numbered notes\n\nLAST SYNCED: Nov 16, 2026 - Booking v20 (Week + Month views), kit v3\nRule: any change on a flow board is copied here the same day.\n\nSame look as Checkout / Booking: compact, calm, English first.",
+      "text": "Back to: Nail POS Hub\nhttps://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU\n\nMain screens behind the left menu\n\u2022 Today = owner dashboard, top 5 KPIs (facts only) + what needs attention\n\u2022 Clients = CRM by phone: history, notes, photos, gift card, lost regulars\n\u2022 Close day = count cash, match card total, tips per staff, money truth\n\u2022 Calendar + Checkout = same screens as their own boards, here so the left menu clicks through\n\u2022 Profile = me (photo, language, PIN) + salon settings + support access\n\u2022 Page 2 = every state with numbered notes\n\nLAST SYNCED: Nov 17, 2026 - Clients v2 (variation D: next steps, full history, staff phone)\nRule: any change on a flow board is copied here the same day.\n\nSame look as Checkout / Booking: compact, calm, English first.",
       "w": 420,
       "x": -520,
       "y": 0
     },
     "t1": {
       "kind": "title1",
-      "maxW": 2640,
+      "maxW": 4470,
       "page": "overview",
-      "text": "Today · Clients",
+      "text": "Today \u00b7 Clients \u00b7 Client history \u00b7 Client phone",
       "w": 240,
       "x": 0,
       "y": -300
@@ -385,7 +412,7 @@
       "kind": "title1",
       "maxW": 2640,
       "page": "overview",
-      "text": "Close day · Profile",
+      "text": "Close day \u00b7 Profile",
       "w": 240,
       "x": 0,
       "y": 830
@@ -394,7 +421,7 @@
       "kind": "title1",
       "maxW": 2800,
       "page": "overview",
-      "text": "Checkout · Calendar",
+      "text": "Checkout \u00b7 Calendar",
       "w": 240,
       "x": 0,
       "y": 1930
@@ -412,7 +439,7 @@
       "kind": "title1",
       "maxW": 3110,
       "page": "overview",
-      "text": "Numbers · Client history · Tech app",
+      "text": "Numbers \u00b7 Client history \u00b7 Tech app",
       "w": 240,
       "x": 0,
       "y": 4530
@@ -421,6 +448,8 @@
   "order": [
     "Main.dc.html",
     "Clients.dc.html",
+    "ClientFull.dc.html",
+    "ClientPhone.dc.html",
     "CloseDay.dc.html",
     "Me.dc.html",
     "Checkout.dc.html",
@@ -437,6 +466,7 @@
     "Hm2Return.dc.html",
     "Cl1All.dc.html",
     "Cl2Lost.dc.html",
+    "Cl3Phone.dc.html",
     "Cd1Open.dc.html",
     "Cd2Short.dc.html",
     "Cd3Card.dc.html",
@@ -455,12 +485,12 @@
   "pages": [
     {
       "id": "overview",
-      "name": "1 · Overview — clickable screens"
+      "name": "1 \u00b7 Overview \u2014 clickable screens"
     },
     {
       "id": "spec",
-      "name": "2 · Step by step (with notes)"
+      "name": "2 \u00b7 Step by step (with notes)"
     }
   ],
-  "title": "Nail POS — Main Screens"
+  "title": "Nail POS \u2014 Main Screens"
 }
