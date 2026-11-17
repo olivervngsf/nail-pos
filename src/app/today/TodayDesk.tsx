@@ -150,6 +150,8 @@ export default function TodayDesk() {
           )}
 
           {canAdmin && <PaymentsCard salonId={salonId} />}
+          {canAdmin && <a className="tile" href="/gift-cards" data-testid="gift-cards-link" style={{ textDecoration: "none" }}>
+            <b>Gift cards</b><span className="cap">Money owed on cards, all codes, lost cards, print plastic cards.</span></a>}
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             {isDevice && canAdmin && <Button variant="ghost" onClick={() => { forgetDevice(); setDevice(null); setActing(null); }}>Stop using as salon device</Button>}

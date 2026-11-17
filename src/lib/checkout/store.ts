@@ -73,8 +73,8 @@ export function useTickets(salonId: string) {
 type Row = {
   id: string; number: number; status: "open" | "paid" | "refunded" | "voided"; created_at: string; note: string; opened_by: string | null;
   client: { phone: string | null; name: string } | null;
-  ticket_lines: { id: string; kind: string; service_id: string | null; staff_id: string | null; name: string; minutes: number | null; amount_cents: number; price_from: boolean; reason: string | null; approval_id: string | null; removed_at: string | null; sort: number }[];
-  payments: { id: string; method: "cash" | "card_reader" | "pay_link"; given_cents: number | null; amount_cents: number; fee_cents: number; card_brand: string | null; card_last4: string | null; at: string; taken_by: string | null }[];
+  ticket_lines: { id: string; kind: string; service_id: string | null; staff_id: string | null; name: string; minutes: number | null; amount_cents: number; price_from: boolean; reason: string | null; approval_id: string | null; removed_at: string | null; sort: number; gift_card_id: string | null }[];
+  payments: { id: string; method: "cash" | "card_reader" | "pay_link" | "gift_card"; status: string; gift_card_id: string | null; given_cents: number | null; amount_cents: number; fee_cents: number; card_brand: string | null; card_last4: string | null; at: string; taken_by: string | null }[];
 };
 
 /** Today's tickets from the server (open ones from any desk + paid), merged into this device. */
@@ -82,7 +82,7 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
   const sb = getSupabase();
   if (!sb || !live) return;
   let q = sb.from("tickets")
-    .select("id,number,status,created_at,note,opened_by,client:clients(phone,name),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort),payments(id,method,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
+    .select("id,number,status,created_at,note,opened_by,client:clients(phone,name),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort,gift_card_id),payments(id,method,status,gift_card_id,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
     .eq("salon_id", salonId).neq("status", "voided");
   q = onlyId ? q.eq("id", onlyId) : q.gte("created_at", since);
   const { data, error } = await q.order("created_at", { ascending: false }).limit(200);
@@ -90,7 +90,13 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
   for (const r of (data ?? []) as unknown as Row[]) {
     const lines = r.ticket_lines.filter((l) => !l.removed_at).sort((a, b) => a.sort - b.sort);
     const disc = lines.find((l) => l.kind === "discount");
-    const pay = [...r.payments].sort((a, b) => b.at.localeCompare(a.at))[0];
+    const pay = r.payments.filter((p) => p.method !== "gift_card" && p.status !== "canceled").sort((a, b) => b.at.localeCompare(a.at))[0];
+    const gifts = lines.filter((l) => l.kind === "gift_sale" && l.gift_card_id).map((l) => {
+      const mine = getTicket(r.id)?.gifts?.find((g) => g.id === l.id);
+      return mine ?? { id: l.id, cardId: l.gift_card_id!, last4: l.name.slice(-4), kind: "plastic" as const, cents: Number(l.amount_cents) };
+    });
+    const giftPays = r.payments.filter((p) => p.method === "gift_card" && p.status === "paid")
+      .map((p) => ({ id: p.id, cardId: p.gift_card_id ?? "", last4: p.card_last4 ?? "", cents: Number(p.amount_cents) }));
     merge({
       id: r.id, salonId, number: r.number, status: r.status === "voided" ? "open" : r.status, createdAt: r.created_at, note: r.note,
       openedBy: r.opened_by ?? undefined,
@@ -101,7 +107,8 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
       })),
       discount: disc ? { id: disc.id, kind: "amt", value: -disc.amount_cents, reason: disc.reason ?? "", approvalId: disc.approval_id ?? undefined } : undefined,
       tips: Object.fromEntries(lines.filter((l) => l.kind === "tip" && l.staff_id).map((l) => [l.staff_id!, l.amount_cents])),
-      payment: pay ? { id: pay.id, method: pay.method, givenCents: pay.given_cents ?? undefined, at: pay.at, takenBy: pay.taken_by ?? undefined,
+      gifts, giftPays,
+      payment: pay ? { id: pay.id, method: pay.method as "cash" | "card_reader" | "pay_link", givenCents: pay.given_cents ?? undefined, at: pay.at, takenBy: pay.taken_by ?? undefined,
         amountCents: Number(pay.amount_cents), feeCents: Number(pay.fee_cents), brand: pay.card_brand ?? undefined, last4: pay.card_last4 ?? undefined } : undefined,
     });
   }
@@ -131,6 +138,12 @@ export async function saveNow(t: Ticket) {
   load()[t.id] = { ...t, number: r.number, synced: true };
   persist();
   return r;
+}
+
+/** Server already has this change (gift card used, ticket paid by gift card): save it on the device only. */
+export function patchLocal(id: string, patch: Partial<Ticket>) {
+  const t = getTicket(id);
+  if (t) putLocal({ ...t, ...patch, synced: true });
 }
 
 /** Local-only change (no server send), e.g. which receipt was picked. */

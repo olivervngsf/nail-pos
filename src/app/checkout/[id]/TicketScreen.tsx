@@ -12,6 +12,8 @@ import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { useDesk, getActing, touchActing, type Desk, type DeskService } from "@/lib/desk";
 import { logReceipt, pullTickets, putTicket, saveNow, useTicket } from "@/lib/checkout/store";
 import { api } from "@/lib/api";
+import { GiftSellDrawer, GiftUseDrawer } from "./GiftDrawers";
+import { demoSettle, giftUndo } from "@/lib/checkout/gift";
 import { blockers, changeCents, quickCash, splitTipByPrice, staffOn, ticketLabel, totals, type Discount, type ServiceLine, type Ticket } from "@/lib/checkout/ticket";
 
 const uuid = () => crypto.randomUUID();
@@ -28,6 +30,8 @@ export default function TicketScreen({ id }: { id: string }) {
   const [step, setStep] = useState<Step>("ticket");
   const [toast, setToast] = useState("");
   const say = useCallback((s: string) => { setToast(s); setTimeout(() => setToast(""), 3500); }, []);
+  // Test copy: cards sold on a paid ticket get their money (the server does this for real salons).
+  useEffect(() => { if (desk?.mode === "demo" && ticket?.status === "paid") demoSettle(ticket); }, [desk?.mode, ticket]);
 
   if (err) return <Centered><h1 className="h2">Something went wrong</h1><p className="hint err">{err}</p><Button onClick={() => location.reload()}>Try again</Button></Centered>;
   if (!desk || !ready) return <div className="app" aria-busy="true" />;
@@ -53,7 +57,7 @@ export default function TicketScreen({ id }: { id: string }) {
         <OfflineBanner />
         {desk.mode === "demo" && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
         {ticket.status !== "open" ? <Done desk={desk} ticket={ticket} say={say} />
-          : step === "pay" ? <Pay desk={desk} ticket={ticket} onPick={setStep} />
+          : step === "pay" ? <Pay desk={desk} ticket={ticket} onPick={setStep} say={say} />
           : step === "reader" || step === "link" ? <CardWait key={step} desk={desk} ticket={ticket} method={step} onBack={() => setStep("pay")} />
           : step === "cash" ? <Cash desk={desk} ticket={ticket} save={save} />
           : <Build desk={desk} ticket={ticket} save={save} onCharge={() => setStep("pay")} />}
@@ -68,7 +72,7 @@ type SaveFn = (patch: Partial<Ticket>, now?: boolean) => void;
 
 function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; save: SaveFn; onCharge: () => void }) {
   const t = useTranslations("checkout");
-  const [sheet, setSheet] = useState<null | { kind: "service" } | { kind: "staff"; svc?: DeskService; lineId?: string } | { kind: "discount" }>(null);
+  const [sheet, setSheet] = useState<null | { kind: "service" } | { kind: "staff"; svc?: DeskService; lineId?: string } | { kind: "discount" } | { kind: "gift" }>(null);
   const [noteOpen, setNoteOpen] = useState(!!ticket.note);
   const sum = totals(ticket);
   const block = blockers(ticket);
@@ -108,12 +112,24 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
               <Button variant="ghost" size="sm" aria-label={`${t("remove")} ${l.name}`} onClick={() => save({ lines: ticket.lines.filter((x) => x.id !== l.id) })}>✕</Button>
             </div>
           ))}
+          {(ticket.gifts ?? []).map((g) => (
+            <div className="row fade" key={g.id} data-testid="gift-line">
+              <div className="av" style={{ background: "#1C1C1E", color: "#fff" }}>🎁</div>
+              <div className="grow">
+                <div style={{ fontWeight: 600 }}>{g.kind === "reload" ? t("giftReload", { last4: g.last4 }) : t("giftSold", { last4: g.last4 })}</div>
+                <div className="cap">{g.kind === "digital" ? (g.to ? t("giftTo", { to: g.to.startsWith("+") ? fmtPhone(g.to) : g.to }) : t("giftDigital")) : g.kind === "plastic" ? t("giftPlastic") : t("giftAddMoney")} · {t("giftNoTech")}</div>
+              </div>
+              <span className="num" style={{ fontWeight: 600 }}>{$(g.cents)}</span>
+              <Button variant="ghost" size="sm" aria-label={`${t("remove")} ${g.last4}`} onClick={() => save({ gifts: (ticket.gifts ?? []).filter((x) => x.id !== g.id) })}>✕</Button>
+            </div>
+          ))}
           <button className="opt" type="button" data-testid="add-service" onClick={() => setSheet({ kind: "service" })} style={{ color: "var(--ink-soft)" }}>
             <div className="av" style={{ background: "transparent", border: "1px dashed var(--muted)" }}>+</div><div className="grow">{t("addService")}</div>
           </button>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <Button onClick={() => setSheet({ kind: "discount" })} disabled={!sum.subtotal}>{t("discountBtn")}</Button>
+          <Button data-testid="add-gift" onClick={() => setSheet({ kind: "gift" })}>{t("giftBtn")}</Button>
           <Button variant="ghost" onClick={() => setNoteOpen(true)}>{t("note")}</Button>
         </div>
         {noteOpen && <textarea className="inp" aria-label={t("note")} placeholder={t("notePh")} rows={2} style={{ height: "auto", padding: 12, resize: "vertical" }}
@@ -122,11 +138,12 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
         <div className="card" style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>
           <div className="line"><span>{t("subtotal")}</span><span>{$(sum.subtotal)}</span></div>
           {ticket.discount && <div className="line fade" data-testid="discount-line"><span>{t("discountLine", { reason: ticket.discount.reason })}{ticket.discount.kind === "pct" ? ` ${ticket.discount.value}%` : ""}{ticket.discount.approvedBy && <span className="cap"> · {ticket.discount.approvedBy}</span>}</span><span>−{$(sum.discount)}</span></div>}
+          {sum.gift > 0 && <div className="line fade" data-testid="gift-total"><span>{t("giftCards")}</span><span>{$(sum.gift)}</span></div>}
           <div className="sep" />
           <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 160 }}><div className="cap">{t("dueNow")}</div><div className="money fade" data-testid="due">{$(sum.due)}</div></div>
+            <div style={{ flex: 1, minWidth: 160 }}><div className="cap">{t("dueNow")}</div><div className="money fade" data-testid="due">{$(sum.toPay)}</div></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "stretch", minWidth: 220 }}>
-              <Button variant="primary" data-testid="charge" disabled={block.length > 0} onClick={onCharge}>{t("charge", { amount: $(sum.due) })}</Button>
+              <Button variant="primary" data-testid="charge" disabled={block.length > 0} onClick={onCharge}>{t("charge", { amount: $(sum.toPay) })}</Button>
               {block.length > 0 && <span className="cap" style={{ textAlign: "center" }}>{t(block[0] === "empty" ? "needService" : block[0] === "staff" ? "needStaff" : "needPrice")}</span>}
             </div>
           </div>
@@ -139,6 +156,7 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
         onBack={sheet.svc ? () => setSheet({ kind: "service" }) : undefined} onClose={() => setSheet(null)} onPick={pickStaff} />}
       {sheet?.kind === "discount" && <DiscountDrawer desk={desk} subtotal={sum.subtotal} current={ticket.discount} onClose={() => setSheet(null)}
         onApply={(d) => { save({ discount: d }); setSheet(null); }} />}
+      {sheet?.kind === "gift" && <GiftSellDrawer desk={desk} ticket={ticket} onClose={() => setSheet(null)} onAdd={(g) => { save({ gifts: [...(ticket.gifts ?? []), g] }); setSheet(null); }} />}
     </main>
   );
 }
@@ -300,9 +318,10 @@ function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save:
 const Stat = ({ v, l }: { v: string; l: string }) => <div style={{ background: "var(--surface)", borderRadius: 12, padding: "10px 4px" }}><div className="num" style={{ fontSize: 20, fontWeight: 700 }}>{v}</div><div className="cap">{l}</div></div>;
 
 /* ---------- 2. How is the client paying? ---------- */
-function Pay({ desk, ticket, onPick }: { desk: Desk; ticket: Ticket; onPick: (s: Step) => void }) {
+function Pay({ desk, ticket, onPick, say }: { desk: Desk; ticket: Ticket; onPick: (s: Step) => void; say: (s: string) => void }) {
   const t = useTranslations("checkout");
   const sum = totals(ticket);
+  const [gift, setGift] = useState(false);
   const online = typeof navigator === "undefined" || navigator.onLine;
   const why = desk.mode === "demo" ? t("payDemo") : !desk.pay.ready ? t("needStripe") : !online ? t("onlineOnly") : "";
   const tile = (id: string, title: string, sub: string, fee: string, on: boolean, go: () => void, note?: string) => on
@@ -315,15 +334,23 @@ function Pay({ desk, ticket, onPick }: { desk: Desk; ticket: Ticket; onPick: (s:
     <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, padding: "24px 16px" }}>
       <div style={{ textAlign: "center" }}>
         <div className="cap">{t("ticket", { n: ticketLabel(ticket) })}{ticket.client?.name ? ` · ${ticket.client.name}` : ""}</div>
-        <div className="money" style={{ fontSize: 56, lineHeight: "64px" }}>{$(sum.due)}</div>
+        <div className="money" style={{ fontSize: 56, lineHeight: "64px" }} data-testid="pay-amount">{$(sum.toPay)}</div>
         <div className="cap">{t("plusTip")}</div>
       </div>
+      {(ticket.giftPays ?? []).length > 0 && <div className="group" style={{ width: "100%", maxWidth: 520 }} data-testid="gift-paid">
+        {ticket.giftPays!.map((g) => (
+          <div className="row" key={g.id}><span className="grow">{t("giftUsed", { last4: g.last4 })}</span><b className="num">−{$(g.cents)}</b>
+            <Button variant="ghost" size="sm" onClick={() => void giftUndo(desk, ticket, g.id).catch((e) => say((e as Error).message))}>{t("undo")}</Button></div>
+        ))}
+      </div>}
       <div className="grid2" style={{ width: "100%", maxWidth: 880, gap: 16 }}>
         {tile("pay-reader", t("reader"), t("readerSub"), t("readerFee"), cardOk, () => onPick("reader"), why || t("needReader"))}
         {tile("pay-cash", t("cash"), t("cashSub"), t("cashFee"), true, () => onPick("cash"))}
         {tile("pay-link", t("qr"), t("qrSub"), t("qrFee"), !why, () => onPick("link"), why)}
-        {tile("pay-split", t("split"), t("splitSub"), "", false, () => {}, t("comingS3"))}
+        {tile("pay-gift", t("giftPay"), t("giftPaySub"), t("giftPayFee"), true, () => setGift(true))}
       </div>
+      <div className="cap">{t("splitNote")}</div>
+      {gift && <GiftUseDrawer desk={desk} ticket={ticket} say={say} onClose={() => setGift(false)} />}
     </main>
   );
 }
@@ -383,7 +410,7 @@ function CardWait({ desk, ticket, method, onBack }: { desk: Desk; ticket: Ticket
   return (
     <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, padding: "24px 16px", textAlign: "center" }}>
       <div className="cap">{t("ticket", { n: ticketLabel(ticket) })}{ticket.client?.name ? ` · ${ticket.client.name}` : ""}</div>
-      <div className="money" style={{ fontSize: 56, lineHeight: "64px" }}>{$(sum.due)}</div>
+      <div className="money" style={{ fontSize: 56, lineHeight: "64px" }}>{$(sum.toPay)}</div>
       {err ? <>
         <div className="banner" role="alert" data-testid="card-error" style={{ background: "var(--orange-soft)", color: "#b5470a", maxWidth: 520 }}>{err}</div>
         <div style={{ display: "flex", gap: 10 }}><Button variant="primary" onClick={() => void start()}>{t("tryAgain")}</Button><Button onClick={onBack}>{t("back")}</Button></div>
@@ -424,9 +451,9 @@ function Cash({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save: SaveFn
   const [typed, setTyped] = useState("");
   const [tipAll, setTipAll] = useState("");
   const given = parseDollars(typed) ?? 0;
-  const diff = changeCents(sum.total, given);
+  const diff = changeCents(sum.left, given);
   const short = !typed || diff < 0;
-  const quick = useMemo(() => quickCash(sum.total), [sum.total]);
+  const quick = useMemo(() => quickCash(sum.left), [sum.left]);
 
   const key = (k: string) => setTyped((v) => (k === "del" ? v.slice(0, -1) : k === "." && v.includes(".") ? v : /\.\d{2}$/.test(v) ? v : (v + k).replace(/^0+(?=\d)/, "")));
   const setTip = (id: string, cents: number) => save({ tips: { ...ticket.tips, [id]: cents } });
@@ -438,9 +465,10 @@ function Cash({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save: SaveFn
   return (
     <main className="ck-main">
       <section className="card ck-left" style={{ padding: "24px 28px", gap: 18 }}>
-        <div className="line"><span style={{ fontSize: 17 }}>{t("due")}</span><span className="num" style={{ fontSize: 20, fontWeight: 600 }}>{$(sum.due)}</span></div>
+        <div className="line"><span style={{ fontSize: 17 }}>{t("due")}</span><span className="num" style={{ fontSize: 20, fontWeight: 600 }}>{$(sum.due + sum.gift)}</span></div>
+        {sum.giftPaid > 0 && <div className="line"><span>{t("giftCardPaid")}</span><span>−{$(sum.giftPaid)}</span></div>}
         {sum.tip > 0 && <div className="line"><span>{t("tips")}</span><span>{$(sum.tip)}</span></div>}
-        <div className="line"><span style={{ fontSize: 17, fontWeight: 600 }}>{t("total")}</span><span className="money" style={{ fontSize: 28 }} data-testid="cash-total">{$(sum.total)}</span></div>
+        <div className="line"><span style={{ fontSize: 17, fontWeight: 600 }}>{t("total")}</span><span className="money" style={{ fontSize: 28 }} data-testid="cash-total">{$(sum.left)}</span></div>
         <div>
           <div className="eyebrow" style={{ marginBottom: 8 }}>{t("clientGave")}</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 8 }}>
@@ -450,7 +478,7 @@ function Cash({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save: SaveFn
         <div data-testid="change-box" data-short={short} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 20px", borderRadius: 16, background: short && typed ? "var(--orange-soft)" : "var(--surface)" }}>
           <span style={{ fontSize: 17, fontWeight: 600 }}>{short ? t("stillDue") : t("change")}
             {typed && short && <span className="cap" style={{ display: "block", fontWeight: 400 }}>{t("notEnough", { amount: $(given) })}</span>}</span>
-          <span className="money fade" style={{ fontSize: 40, color: short && typed ? "var(--orange)" : undefined }} data-testid="change">{$(Math.abs(typed ? diff : sum.total))}</span>
+          <span className="money fade" style={{ fontSize: 40, color: short && typed ? "var(--orange)" : undefined }} data-testid="change">{$(Math.abs(typed ? diff : sum.left))}</span>
         </div>
         <div className="sep" />
         <div>
@@ -491,9 +519,10 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
   const staff = staffOn(ticket.lines);
   const pay = ticket.payment;
   const isCard = !!pay && pay.method !== "cash";
-  const charged = isCard ? pay.amountCents ?? sum.total : sum.total;
+  const giftOnly = !pay && sum.giftPaid > 0;
+  const charged = isCard ? pay.amountCents ?? sum.left : giftOnly ? 0 : sum.left;
   const fee = isCard ? pay.feeCents ?? 0 : 0;
-  const given = pay?.givenCents ?? sum.total;
+  const given = pay?.givenCents ?? sum.left;
   const how = isCard ? (pay.brand ? `${pay.brand[0].toUpperCase()}${pay.brand.slice(1)} ••${pay.last4 ?? ""}` : t("viaLink")) : t("cash").toLowerCase();
   const [email, setEmail] = useState<string | null>(null);
   const [refunding, setRefunding] = useState(false);
@@ -510,7 +539,7 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div className="okmark pop" aria-hidden style={ticket.status === "refunded" ? { background: "var(--orange)" } : undefined}>{ticket.status === "refunded" ? "↩" : "✓"}</div>
           <div>
-            <div className="money" data-testid="paid-total">{isCard ? t("paidBy", { amount: $(charged), how }) : t("paidCash", { amount: $(sum.total) })}</div>
+            <div className="money" data-testid="paid-total">{giftOnly ? t("paidGift", { amount: $(sum.total) }) : isCard ? t("paidBy", { amount: $(charged), how }) : t("paidCash", { amount: $(charged) })}</div>
             <div className="cap num">{t("paidLine", { services: $(sum.due), tip: $(sum.tip) })}</div>
           </div>
         </div>
@@ -523,19 +552,28 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
             ))}</tbody>
           </table>
         </div>
+        {(ticket.gifts ?? []).map((g) => (
+          <div key={g.id} className="note" data-testid="gift-sold" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <b>{g.kind === "reload" ? t("giftReloaded", { last4: g.last4, amount: $(g.cents) }) : t("giftActive", { last4: g.last4, amount: $(g.cents) })}</b>
+            {g.code && <span className="num" data-testid="gift-code-shown" style={{ fontFamily: "ui-monospace, Menlo, monospace", letterSpacing: ".06em" }}>{g.code}</span>}
+            {g.kind === "digital" && <span className="cap">{g.to ? t("giftTextQueued", { to: g.to.startsWith("+") ? fmtPhone(g.to) : g.to }) : t("giftWriteDown")}</span>}
+          </div>
+        ))}
         <div className="cap">{t("tipNote")}</div>
         <div style={{ marginTop: "auto", padding: "16px 18px", borderRadius: 16, background: "var(--surface)", display: "flex", flexDirection: "column", gap: 8 }}>
           <div className="eyebrow">{t("money")}</div>
-          {isCard ? <>
+          {(ticket.giftPays ?? []).map((g) => <div key={g.id} className="line"><span>{t("giftUsed", { last4: g.last4 })}</span><span>{$(g.cents)}</span></div>)}
+          {giftOnly ? null : isCard ? <>
             <div className="line"><span>{t("cardCharged")}</span><span>{$(charged)}</span></div>
             <div className="line"><span>{t("cardFee")} ({pay.method === "card_reader" ? "2.7% + 5¢" : "2.9% + 30¢"})</span><span data-testid="card-fee">−{$(fee)}</span></div>
           </> : <>
             <div className="line"><span>{t("cashTaken")}</span><span>{$(given)}</span></div>
-            <div className="line"><span>{t("changeGiven")}</span><span>−{$(given - sum.total)}</span></div>
+            <div className="line"><span>{t("changeGiven")}</span><span>−{$(given - sum.left)}</span></div>
           </>}
+          {sum.gift > 0 && <div className="line"><span>{t("giftOwed")}</span><span>−{$(sum.gift)}</span></div>}
           <div className="line"><span>{t("tipsToStaff")}</span><span>−{$(sum.tip)}</span></div>
           <div className="sep" />
-          <div className="line" style={{ fontWeight: 600, fontSize: 16 }}><span>{t("salonKeeps")}</span><span data-testid="salon-keeps">{$(charged - fee - sum.tip)}</span></div>
+          <div className="line" style={{ fontWeight: 600, fontSize: 16 }}><span>{t("salonKeeps")}</span><span data-testid="salon-keeps">{$(charged - fee - sum.tip - sum.gift + sum.giftPaid)}</span></div>
           {ticket.status === "refunded" && <div className="line" data-testid="refunded" style={{ color: "#b5470a", fontWeight: 600 }}><span>{t("refunded", { amount: $(charged) })}</span><span>−{$(charged)}</span></div>}
         </div>
       </section>
@@ -613,7 +651,7 @@ function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
   const sum = totals(ticket);
-  const given = ticket.payment?.givenCents ?? sum.total;
+  const given = ticket.payment?.givenCents ?? sum.left;
   return (
     <div className="receipt-print" aria-hidden>
       <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16 }}>{desk.salonName}</div>
@@ -622,13 +660,16 @@ function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
       <hr />
       {ticket.lines.map((l) => <div key={l.id} className="rl"><span>{l.name}{l.staffName ? ` · ${l.staffName}` : ""}</span><span>{$(l.cents)}</span></div>)}
       {sum.discount > 0 && <div className="rl"><span>{t("discountLine", { reason: ticket.discount?.reason ?? "" })}</span><span>−{$(sum.discount)}</span></div>}
+      {(ticket.gifts ?? []).map((g) => <div key={g.id}><div className="rl"><span>{g.kind === "reload" ? t("giftReload", { last4: g.last4 }) : t("giftSold", { last4: g.last4 })}</span><span>{$(g.cents)}</span></div>
+        {g.code && <div style={{ fontFamily: "monospace" }}>{g.code}</div>}</div>)}
       {Object.entries(ticket.tips).filter(([, c]) => c > 0).map(([id, c]) => <div key={id} className="rl"><span>{t("cashTip")} · {ticket.lines.find((l) => l.staffId === id)?.staffName}</span><span>{$(c)}</span></div>)}
       <hr />
       <div className="rl" style={{ fontWeight: 700 }}><span>{t("total")}</span><span>{$(sum.total)}</span></div>
-      {ticket.payment && ticket.payment.method !== "cash"
+      {(ticket.giftPays ?? []).map((g) => <div key={g.id} className="rl"><span>{t("giftUsed", { last4: g.last4 })}{g.balanceAfter != null ? ` (${t("giftLeft", { amount: $(g.balanceAfter) })})` : ""}</span><span>{$(g.cents)}</span></div>)}
+      {!ticket.payment ? null : ticket.payment.method !== "cash"
         ? <div className="rl"><span>{ticket.payment.brand ? `${ticket.payment.brand.toUpperCase()} ••${ticket.payment.last4 ?? ""}` : t("qr")}</span><span>{$(ticket.payment.amountCents ?? sum.total)}</span></div>
         : <><div className="rl"><span>{t("cash")}</span><span>{$(given)}</span></div>
-          <div className="rl"><span>{t("change")}</span><span>{$(given - sum.total)}</span></div></>}
+          <div className="rl"><span>{t("change")}</span><span>{$(given - sum.left)}</span></div></>}
     </div>
   );
 }

@@ -112,3 +112,8 @@ button:disabled { cursor: not-allowed; }
   .bar .title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; font-size: 16px; }
   .bar .who { display: none; }
 }
+
+/* Gift card face (Loyalty + Gift Cards board). */
+.gcard { width: 100%; max-width: 320px; height: 172px; border-radius: 16px; background: #1C1C1E; color: #fff; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; align-self: center; }
+.gl .dtable td, .gl .dtable th { text-align: left; }
+.gl .dtable td.r, .gl .dtable th.r { text-align: right; }
