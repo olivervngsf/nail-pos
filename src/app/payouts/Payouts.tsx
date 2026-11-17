@@ -27,6 +27,7 @@ export default function Payouts() {
   const [rows, setRows] = useState<PayoutRow[] | null>(null);
   const [loadErr, setLoadErr] = useState("");
   const [printing, setPrinting] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
   const printSlips = useEarningsPrint();
   const printer = usePrinter();
   const slip = useSlipDetail();
@@ -82,7 +83,34 @@ export default function Payouts() {
     setPrinting(false);
   };
   const payLabel = (r: PayoutRow) => r.pay_type === "commission" ? t("commission", { pct: r.commission_pct ?? 0 })
-    : r.pay_type === "hourly" ? t("hourly", { hours: (r.minutes / 60).toFixed(1) }) : r.pay_type === "booth_rent" ? t("booth") : "—";
+    : r.pay_type === "hourly" ? t("hourly", { hours: (r.minutes / 60).toFixed(1) }) : r.pay_type === "booth_rent" ? t("booth") : t("noPayType");
+  const time = (iso: string) => f.dateTime(new Date(iso), { hour: "numeric", minute: "2-digit" });
+  // Tap a person: what the owner wants to know, then every ticket (service + tips).
+  const Details = ({ r }: { r: PayoutRow }) => {
+    const lines = r.lines ?? [], tips = r.tips_card_cents + r.tips_cash_cents;
+    const facts: [string, string][] = [
+      [t("avgTicket"), r.tickets ? $(Math.round(r.services_cents / r.tickets)) : "—"],
+      [t("tipRate"), r.services_cents ? t("tipRateV", { pct: Math.round(tips * 1000 / r.services_cents) / 10 }) : "—"],
+      ...(lines.length ? [[t("firstLast"), `${when(lines[0].at)} · ${time(lines[lines.length - 1].at)}`] as [string, string]] : []),
+      ...(r.minutes ? [[t("hours"), (r.minutes / 60).toFixed(1)] as [string, string]] : []),
+    ];
+    return (
+      <div className="po-detail" data-testid={`po-detail-${r.name}`}>
+        <div className="po-facts">{facts.map(([k, v]) => <div key={k}><span className="cap">{k}</span><b>{v}</b></div>)}</div>
+        {lines.length === 0 ? <p className="cap">{t("noTickets")}</p> : (
+          <table className="po-tix">
+            <thead><tr><th>{t("colTicket")}</th><th>{t("colServices")}</th><th>{t("services")}</th><th>{t("colCardTip")}</th><th>{t("colCashTip")}</th></tr></thead>
+            <tbody>{lines.map((l) => (
+              <tr key={l.number} data-testid={`po-line-${r.name}`}>
+                <td>#{l.number}<span className="cap" style={{ display: "block" }}>{when(l.at)}</span></td>
+                <td style={{ textAlign: "left" }}>{l.services}</td><td>{$(l.services_cents)}</td>
+                <td>{l.tip_card_cents ? $(l.tip_card_cents) : "—"}</td><td>{l.tip_cash_cents ? $(l.tip_cash_cents) : "—"}</td>
+              </tr>))}</tbody>
+          </table>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="app cd-app">
@@ -116,7 +144,11 @@ export default function Payouts() {
                   {rows === null ? <tr><td colSpan={11} className="cap">{t("loading")}</td></tr> : rows.length === 0 ? <tr><td colSpan={11} className="cap">{t("empty")}</td></tr> : rows.map((r) => (
                     <Fragment key={r.membership_id}>
                     <tr data-testid={`po-${r.name}`}>
-                      <td><b>{r.name}</b><span className="cap" style={{ display: "block" }}>{payLabel(r)} · {t("tickets", { count: r.tickets })}</span></td>
+                      <td><button type="button" className="po-who" aria-expanded={open === r.membership_id} data-testid={`po-open-${r.name}`}
+                        onClick={() => setOpen(open === r.membership_id ? null : r.membership_id)}>
+                        <span className="po-chev" aria-hidden>{open === r.membership_id ? "▾" : "▸"}</span>
+                        <span><b>{r.name}</b><span className="cap" style={{ display: "block" }}>{payLabel(r)} · {t("tickets", { count: r.tickets })}</span></span>
+                      </button></td>
                       <td>{$(r.services_cents)}</td><td>{$(r.pay_cents)}</td><td>{$(r.tips_card_cents)}</td><td>{$(r.tips_cash_cents)}</td><td>{$(r.tip_fee_cents)}</td>
                       <td><b>{$(r.total_cents)}</b></td>
                       <td><input inputMode="numeric" aria-label={t("checkPctFor", { name: r.name })} defaultValue={r.check_pct} key={`${r.membership_id}-${r.check_pct}`}
@@ -124,13 +156,7 @@ export default function Payouts() {
                       <td>{$(r.check_cents)}</td><td>{$(r.cash_cents)}</td>
                       <td><Button size="sm" data-testid={`po-print-${r.name}`} disabled={printing} onClick={() => void printPeople([r])}>{t("printOne")}</Button></td>
                     </tr>
-                    {slip.detail === "tickets" && (r.lines ?? []).map((l) => (
-                      <tr key={`${r.membership_id}-${l.number}`} className="po-line" data-testid={`po-line-${r.name}`}>
-                        <td className="cap" style={{ paddingLeft: 16 }}>#{l.number} · {when(l.at)}<span style={{ display: "block" }}>{l.services}</span></td>
-                        <td className="cap">{$(l.services_cents)}</td><td /><td className="cap">{l.tip_card_cents ? $(l.tip_card_cents) : "—"}</td>
-                        <td className="cap">{l.tip_cash_cents ? $(l.tip_cash_cents) : "—"}</td><td colSpan={6} />
-                      </tr>
-                    ))}
+                    {open === r.membership_id && <tr className="po-more"><td colSpan={11}><Details r={r} /></td></tr>}
                     </Fragment>
                   ))}
                 </tbody>
