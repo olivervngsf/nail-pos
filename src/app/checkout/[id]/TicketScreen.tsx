@@ -13,7 +13,8 @@ import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { useDesk, getActing, touchActing, type Desk, type DeskService } from "@/lib/desk";
 import { logReceipt, pullTickets, putTicket, saveNow, useTicket } from "@/lib/checkout/store";
 import { api } from "@/lib/api";
-import { receiptBytes, type Paper, type ReceiptDoc } from "@/lib/print/escpos";
+import { needsImage, receiptBytes, type Paper, type ReceiptDoc } from "@/lib/print/escpos";
+import { receiptImageBytes } from "@/lib/print/raster";
 import { canBluetooth, isIOS, pickPrinter, printBytes, savedPrinter, savePrinter } from "@/lib/print/bluetooth";
 import { blockers, changeCents, quickCash, splitTipByPrice, staffOn, ticketLabel, totals, type Discount, type ServiceLine, type Ticket } from "@/lib/checkout/ticket";
 
@@ -646,7 +647,8 @@ function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say
     setBusy(true);
     try {
       const doc = receiptDoc(desk, ticket, t, f.dateTime(new Date(ticket.payment?.at ?? ticket.createdAt), { dateStyle: "medium", timeStyle: "short" }));
-      await printBytes(receiptBytes(doc, paper), paper);
+      // Vietnamese letters → print as an image so accents show; plain English → fast text.
+      await printBytes(needsImage(doc) ? await receiptImageBytes(doc, paper) : receiptBytes(doc, paper), paper);
       setSaved(savedPrinter());
       logReceipt(ticket, "print");
       say(t("printed"));

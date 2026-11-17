@@ -1,19 +1,62 @@
 // ESC/POS receipt bytes for small thermal printers (58 mm = 32 characters a line, 80 mm = 48).
-// Cheap printers don't know Vietnamese letters, so accents are dropped ("Ngọc" → "Ngoc"). Pure + tested.
+// Plain English prints as fast text; Vietnamese letters print as an image (raster.ts) so accents show. Pure + tested.
 
 export type Paper = 58 | 80;
 export const charsPerLine = (p: Paper) => (p === 58 ? 32 : 48);
 
 const ESC = 0x1b, GS = 0x1d, LF = 0x0a;
 
-/** "Tuyết · Gel" → "Tuyet - Gel" (plain ASCII the printer can show). */
+/** Print-only punctuation swaps (meaning stays clear): "·" → "-", "–" → "-", curly quotes → straight. */
+export const punct = (s: string) =>
+  s.replace(/[·•]/g, "-").replace(/[−–—]/g, "-").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/×/g, "x");
+
+/** "Tuyết · Gel" → "Tuyet - Gel" (plain ASCII the printer can show as text). */
 export function plain(s: string): string {
-  return s
+  return punct(s)
     .replace(/[đĐ]/g, (c) => (c === "đ" ? "d" : "D"))
     .normalize("NFD").replace(/[̀-ͯ]/g, "")
-    .replace(/[·•]/g, "-").replace(/[−–—]/g, "-").replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
     .replace(/[^\x20-\x7e]/g, "");
 }
+
+/** Every piece of text on the receipt. */
+export function docText(doc: ReceiptDoc): string[] {
+  const out = [doc.title, ...(doc.sub ?? []), ...(doc.footer ?? [])];
+  for (const r of doc.rows) {
+    if (r === "sep") continue;
+    if (Array.isArray(r)) out.push(...r);
+    else if ("bold" in r) out.push(...r.bold);
+    else out.push(r.text);
+  }
+  return out;
+}
+
+/** True when the receipt has letters the printer can't show as text (Vietnamese accents, emoji): print it as an image. */
+export const needsImage = (doc: ReceiptDoc) => docText(doc).some((t) => /[^\x20-\x7e]/.test(punct(t)));
+
+/** Pack an RGBA image into 1-bit printer dots (dark = print). */
+export function packBitmap(rgba: Uint8ClampedArray | Uint8Array, width: number, height: number): Uint8Array {
+  const wb = Math.ceil(width / 8);
+  const out = new Uint8Array(wb * height);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const i = (y * width + x) * 4;
+    const lum = (rgba[i] * 299 + rgba[i + 1] * 587 + rgba[i + 2] * 114) / 1000;
+    if (rgba[i + 3] > 0 && lum < 190) out[y * wb + (x >> 3)] |= 0x80 >> (x & 7);
+  }
+  return out;
+}
+
+/** ESC/POS "print this image" (GS v 0), then feed + cut. */
+export function imageBytes(dots: Uint8Array, width: number, height: number): Uint8Array {
+  const wb = Math.ceil(width / 8);
+  const head = [0x1b, 0x40, 0x1b, 0x61, 1, 0x1d, 0x76, 0x30, 0, wb & 0xff, (wb >> 8) & 0xff, height & 0xff, (height >> 8) & 0xff];
+  const tail = [0x1b, 0x64, 4, 0x1d, 0x56, 0x42, 0x00];
+  const out = new Uint8Array(head.length + dots.length + tail.length);
+  out.set(head, 0); out.set(dots, head.length); out.set(tail, head.length + dots.length);
+  return out;
+}
+
+/** Printer width in dots: 58 mm = 384, 80 mm = 576. */
+export const dotsWide = (p: Paper) => (p === 58 ? 384 : 576);
 
 /** Left text + right amount on one line; long left text wraps above. */
 export function twoCol(left: string, right: string, width: number): string[] {

@@ -26,3 +26,21 @@ describe("ESC/POS receipt", () => {
     expect([...b].every((x) => x < 0x80)).toBe(true);
   });
 });
+
+describe("Vietnamese receipts print as an image", () => {
+  it("only when the receipt has letters the printer can't show", async () => {
+    const { needsImage } = await import("./escpos");
+    expect(needsImage({ title: "Lotus Nails", sub: ["Receipt #1002"], rows: [["Gel manicure · Kim", "$45.00"], "sep", { bold: ["Total", "$45.00"] }] })).toBe(false);
+    expect(needsImage({ title: "Lotus Nails", rows: [["Gel manicure · Ngọc", "$45.00"]] })).toBe(true);
+  });
+  it("packs dark pixels into printer dots and wraps them in GS v 0", async () => {
+    const { packBitmap, imageBytes } = await import("./escpos");
+    // 16x1 image: first pixel black, rest white
+    const rgba = new Uint8Array(16 * 4).fill(255);
+    rgba[0] = rgba[1] = rgba[2] = 0;
+    const dots = packBitmap(rgba, 16, 1);
+    expect([...dots]).toEqual([0x80, 0x00]);
+    const bytes = imageBytes(dots, 16, 1);
+    expect([...bytes.slice(5, 13)]).toEqual([0x1d, 0x76, 0x30, 0, 2, 0, 1, 0]);
+  });
+});
