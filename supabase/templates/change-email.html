@@ -1,0 +1,15 @@
+<!-- PolishOS email (confirm sign-in email). Paste into Supabase → Authentication → Emails → Templates → Change email address. Subject: Confirm your PolishOS sign-in email -->
+<div style="background:#F5F5F7;padding:32px 16px;font-family:Inter,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1C1C1E">
+  <div style="max-width:440px;margin:0 auto;background:#FFFFFF;border:1px solid #E5E5EA;border-radius:16px;padding:28px">
+    <div style="width:36px;height:36px;border-radius:10px;background:#1C1C1E;color:#fff;font-weight:700;font-size:18px;line-height:36px;text-align:center">P</div>
+    <h1 style="font-size:20px;line-height:1.3;margin:20px 0 8px">Is this your email?</h1>
+    <p style="font-size:15px;line-height:1.5;margin:0 0 12px">Someone (hopefully you) added <b>{{ .NewEmail }}</b> as a way to sign in to PolishOS.</p>
+    <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email_change" style="display:block;background:#1C1C1E;color:#fff;text-decoration:none;font-weight:600;font-size:16px;text-align:center;border-radius:12px;padding:14px;margin:8px 0 12px">Yes, this is my email</a>
+    <p style="font-size:13px;line-height:1.5;color:#5C5C5E;margin:0 0 8px">Or type this code in PolishOS:</p>
+    <div style="font-size:24px;font-weight:700;letter-spacing:6px;background:#F5F5F7;border-radius:12px;padding:14px;text-align:center;margin:8px 0 12px">{{ .Token }}</div>
+    <p style="font-size:13px;line-height:1.5;color:#5C5C5E;margin:0 0 8px">Not you? Ignore this email. Nothing changes until someone taps the button.</p>
+    <hr style="border:0;border-top:1px solid #E5E5EA;margin:24px 0 16px">
+    <p style="font-size:14px;line-height:1.5;color:#5C5C5E;margin:0 0 6px"><b style="color:#1C1C1E">Đây có phải email của bạn?</b><br>Bấm nút “Yes, this is my email” ở trên để thêm email này vào tài khoản PolishOS. Không phải bạn? Bỏ qua email này.</p>
+    <p style="font-size:12px;line-height:1.5;color:#8E8E93;margin:16px 0 0">PolishOS · This inbox isn’t read. Questions? Ask your salon owner.</p>
+  </div>
+</div>
