@@ -2,9 +2,9 @@
 // Payout sheet (PRD "Tech payout sheet", issue #15): per person for a day / week / any range — services done, pay (commission
 // on full price or hourly from clock-ins), card + cash tips (salon keeps none), card fee on tips only where the state allows,
 // total, and how it's paid: check vs cash (owner sets % per person). Print the sheet or one slip per person; export CSV for payroll.
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { Button, LeftMenu, OfflineBanner, Segmented, SyncPill, Toast, TopBar } from "@/components/kit";
 import { rpc } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
@@ -12,7 +12,7 @@ import { useDesk } from "@/lib/desk";
 import { addDays, demoPayout, isoDay, nums, payoutCsv, weekStart, type PayoutRow } from "@/lib/closeday";
 import { worked } from "@/lib/print/earnings";
 import { useEarningsPrint } from "@/app/earnings/Earnings";
-import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
+import { PrinterSetup, SlipDetailPick, usePrinter, useSlipDetail } from "@/components/PrinterSetup";
 
 const $ = formatCents;
 type Range = "today" | "week" | "last" | "custom";
@@ -27,8 +27,12 @@ export default function Payouts() {
   const [rows, setRows] = useState<PayoutRow[] | null>(null);
   const [loadErr, setLoadErr] = useState("");
   const [printing, setPrinting] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
   const printSlips = useEarningsPrint();
   const printer = usePrinter();
+  const slip = useSlipDetail();
+  const f = useFormatter();
+  const when = (iso: string) => f.dateTime(new Date(iso), { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" });
   const [toast, setToast] = useState("");
   const say = (s: string) => { setToast(s); setTimeout(() => setToast(""), 3500); };
 
@@ -72,14 +76,41 @@ export default function Payouts() {
     if (!people.length) return say(t("noneToPrint"));
     setPrinting(true);
     try {
-      const n = await printSlips(people, desk.salonName, period, (i) => people.length > 1 && setToast(t("printing", { n: i + 1, total: people.length })));
+      const n = await printSlips(people, desk.salonName, period, slip.detail, (i) => people.length > 1 && setToast(t("printing", { n: i + 1, total: people.length })));
       say(t("printedN", { count: n }));
       printer.refresh();
     } catch (e) { say(t("printFail", { msg: (e as Error).message })); }
     setPrinting(false);
   };
   const payLabel = (r: PayoutRow) => r.pay_type === "commission" ? t("commission", { pct: r.commission_pct ?? 0 })
-    : r.pay_type === "hourly" ? t("hourly", { hours: (r.minutes / 60).toFixed(1) }) : r.pay_type === "booth_rent" ? t("booth") : "—";
+    : r.pay_type === "hourly" ? t("hourly", { hours: (r.minutes / 60).toFixed(1) }) : r.pay_type === "booth_rent" ? t("booth") : t("noPayType");
+  const time = (iso: string) => f.dateTime(new Date(iso), { hour: "numeric", minute: "2-digit" });
+  // Tap a person: what the owner wants to know, then every ticket (service + tips).
+  const Details = ({ r }: { r: PayoutRow }) => {
+    const lines = r.lines ?? [], tips = r.tips_card_cents + r.tips_cash_cents;
+    const facts: [string, string][] = [
+      [t("avgTicket"), r.tickets ? $(Math.round(r.services_cents / r.tickets)) : "—"],
+      [t("tipRate"), r.services_cents ? t("tipRateV", { pct: Math.round(tips * 1000 / r.services_cents) / 10 }) : "—"],
+      ...(lines.length ? [[t("firstLast"), `${when(lines[0].at)} · ${time(lines[lines.length - 1].at)}`] as [string, string]] : []),
+      ...(r.minutes ? [[t("hours"), (r.minutes / 60).toFixed(1)] as [string, string]] : []),
+    ];
+    return (
+      <div className="po-detail" data-testid={`po-detail-${r.name}`}>
+        <div className="po-facts">{facts.map(([k, v]) => <div key={k}><span className="cap">{k}</span><b>{v}</b></div>)}</div>
+        {lines.length === 0 ? <p className="cap">{t("noTickets")}</p> : (
+          <table className="po-tix">
+            <thead><tr><th>{t("colTicket")}</th><th style={{ textAlign: "left" }}>{t("colServices")}</th><th>{t("colAmount")}</th><th>{t("colCardTip")}</th><th>{t("colCashTip")}</th></tr></thead>
+            <tbody>{lines.map((l) => (
+              <tr key={l.number} data-testid={`po-line-${r.name}`}>
+                <td>#{l.number}<span className="cap" style={{ display: "block" }}>{when(l.at)}</span></td>
+                <td style={{ textAlign: "left" }}>{l.services}</td><td>{$(l.services_cents)}</td>
+                <td>{l.tip_card_cents ? $(l.tip_card_cents) : "—"}</td><td>{l.tip_cash_cents ? $(l.tip_cash_cents) : "—"}</td>
+              </tr>))}</tbody>
+          </table>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="app cd-app">
@@ -103,7 +134,7 @@ export default function Payouts() {
               <Button data-testid="po-slips" onClick={() => void printPeople((rows ?? []).filter(worked))} disabled={!rows?.length || printing}>{t("printSlips")}</Button>
               <Button variant="primary" data-testid="po-csv" onClick={csv} disabled={!rows?.length}>{t("exportCsv")}</Button>
             </div>
-            <PrinterSetup p={printer} />
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}><SlipDetailPick d={slip} /><PrinterSetup p={printer} /></div>
             {loadErr && <p className="hint err">{loadErr} <Button size="sm" onClick={() => void load()}>{t("retry")}</Button></p>}
             <section className="card" style={{ padding: "8px 18px", overflowX: "auto" }}>
               <table className="cd-table" data-testid="po-table">
@@ -111,8 +142,13 @@ export default function Payouts() {
                   <th>{t("total")}</th><th>{t("checkPct")}</th><th>{t("byCheck")}</th><th>{t("inCash")}</th><th /></tr></thead>
                 <tbody>
                   {rows === null ? <tr><td colSpan={11} className="cap">{t("loading")}</td></tr> : rows.length === 0 ? <tr><td colSpan={11} className="cap">{t("empty")}</td></tr> : rows.map((r) => (
-                    <tr key={r.membership_id} data-testid={`po-${r.name}`}>
-                      <td><b>{r.name}</b><span className="cap" style={{ display: "block" }}>{payLabel(r)} · {t("tickets", { count: r.tickets })}</span></td>
+                    <Fragment key={r.membership_id}>
+                    <tr data-testid={`po-${r.name}`}>
+                      <td><button type="button" className="po-who" aria-expanded={open === r.membership_id} data-testid={`po-open-${r.name}`}
+                        onClick={() => setOpen(open === r.membership_id ? null : r.membership_id)}>
+                        <span className="po-chev" aria-hidden>{open === r.membership_id ? "▾" : "▸"}</span>
+                        <span><b>{r.name}</b><span className="cap" style={{ display: "block" }}>{payLabel(r)} · {t("tickets", { count: r.tickets })}</span></span>
+                      </button></td>
                       <td>{$(r.services_cents)}</td><td>{$(r.pay_cents)}</td><td>{$(r.tips_card_cents)}</td><td>{$(r.tips_cash_cents)}</td><td>{$(r.tip_fee_cents)}</td>
                       <td><b>{$(r.total_cents)}</b></td>
                       <td><input inputMode="numeric" aria-label={t("checkPctFor", { name: r.name })} defaultValue={r.check_pct} key={`${r.membership_id}-${r.check_pct}`}
@@ -120,6 +156,8 @@ export default function Payouts() {
                       <td>{$(r.check_cents)}</td><td>{$(r.cash_cents)}</td>
                       <td><Button size="sm" data-testid={`po-print-${r.name}`} disabled={printing} onClick={() => void printPeople([r])}>{t("printOne")}</Button></td>
                     </tr>
+                    {open === r.membership_id && <tr className="po-more"><td colSpan={11}><Details r={r} /></td></tr>}
+                    </Fragment>
                   ))}
                 </tbody>
                 {!!rows?.length && <tfoot><tr style={{ fontWeight: 600 }}><td>{t("allStaff")}</td><td>{$(sum("services_cents"))}</td><td>{$(sum("pay_cents"))}</td><td>{$(sum("tips_card_cents"))}</td>
@@ -139,6 +177,13 @@ export default function Payouts() {
           {rows.map((r) => (
             <div key={r.membership_id}>
               <b>{r.name}</b>
+              {slip.detail === "tickets" && (r.lines ?? []).map((l) => (
+                <div key={l.number}>
+                  <div className="rl"><span>#{l.number} {when(l.at)} {l.services}</span><span>{$(l.services_cents)}</span></div>
+                  {!!l.tip_card_cents && <div className="rl"><span>&nbsp;&nbsp;{t("tipCard")}</span><span>{$(l.tip_card_cents)}</span></div>}
+                  {!!l.tip_cash_cents && <div className="rl"><span>&nbsp;&nbsp;{t("tipCash")}</span><span>{$(l.tip_cash_cents)}</span></div>}
+                </div>
+              ))}
               <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>
               <div className="rl"><span>{payLabel(r)}</span><span>{$(r.pay_cents)}</span></div>
               <div className="rl"><span>{t("cardTips")}</span><span>{$(r.tips_card_cents)}</span></div>

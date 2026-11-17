@@ -77,6 +77,19 @@ export function twoCol(left: string, right: string, width: number): string[] {
   return out;
 }
 
+/** Long text over several lines, breaking at spaces (a long service list on a narrow slip). */
+export function wrap(s: string, width: number): string[] {
+  const out: string[] = [];
+  let cur = "";
+  for (const w of s.split(" ")) {
+    const next = cur ? `${cur} ${w}` : w;
+    if (next.length <= width) cur = next;
+    else { if (cur) out.push(cur); cur = w.slice(0, width); }
+  }
+  out.push(cur);
+  return out;
+}
+
 export function center(s: string, width: number): string {
   const t = plain(s).slice(0, width);
   return " ".repeat(Math.floor((width - t.length) / 2)) + t;
@@ -106,7 +119,7 @@ export function receiptBytes(doc: ReceiptDoc, paper: Paper): Uint8Array {
     if (r === "sep") text("-".repeat(w));
     else if (Array.isArray(r)) twoCol(r[0], r[1], w).forEach(text);
     else if ("bold" in r) { bold(true); twoCol(r.bold[0], r.bold[1], w).forEach(text); bold(false); }
-    else text(plain(r.text).slice(0, w));
+    else wrap(plain(r.text), w).forEach(text);
   }
   text("-".repeat(w));
   if (doc.qr) {

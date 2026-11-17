@@ -9,8 +9,8 @@ import { pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { useDesk } from "@/lib/desk";
 import { demoPayout, isoDay, nums, weekStart, type PayoutRow } from "@/lib/closeday";
-import { earningsDoc, printEarnings, type EarnText } from "@/lib/print/earnings";
-import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
+import { earningsDoc, printEarnings, type EarnText, type SlipDetail } from "@/lib/print/earnings";
+import { PrinterSetup, SlipDetailPick, usePrinter, useSlipDetail } from "@/components/PrinterSetup";
 
 const $ = formatCents;
 
@@ -39,12 +39,14 @@ export function useEarningsPrint() {
   const txt: EarnText = {
     slipFor: (name) => t("slipFor", { name }), services: t("services"), cardTips: t("cardTips"), cashTips: t("cashTips"), feeOnTips: t("feeOnTips"),
     total: t("total"), byCheck: t("byCheck"), inCash: t("inCash"), signature: t("signature"), printed: t("printed"),
+    ticketsTitle: t("ticketsTitle"), tipCard: t("tipCard"), tipCash: t("tipCash"),
+    when: (iso) => f.dateTime(new Date(iso), { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }),
     pay: (r) => r.pay_type === "commission" ? t("commission", { pct: r.commission_pct ?? 0 }) : r.pay_type === "hourly" ? t("hourly", { hours: (r.minutes / 60).toFixed(1) })
       : r.pay_type === "booth_rent" ? t("booth") : t("pay"),
   };
-  return (rows: PayoutRow[], salon: string, period: string, onEach?: (i: number) => void) => {
+  return (rows: PayoutRow[], salon: string, period: string, detail: SlipDetail, onEach?: (i: number) => void) => {
     const at = f.dateTime(new Date(), { dateStyle: "short", timeStyle: "short" });
-    return printEarnings(rows.map((r) => earningsDoc(r, salon, period, txt, at)), onEach);
+    return printEarnings(rows.map((r) => earningsDoc(r, salon, period, txt, at, detail)), onEach);
   };
 }
 
@@ -57,6 +59,7 @@ export default function Earnings() {
   const [row, setRow] = useState<PayoutRow | null>(null);
   const printSlips = useEarningsPrint();
   const printer = usePrinter();
+  const slip = useSlipDetail();
 
   if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
   if (!desk) return <div className="app" aria-busy="true" />;
@@ -97,7 +100,8 @@ export default function Earnings() {
             <div className="h2">{t("slipFor", { name: row.name })}</div>
             <div className="cap">{periodLabel}</div>
             <EarningsSlip r={row} />
-            <Button variant="primary" block data-testid="earn-print" onClick={() => void printSlips([row], desk.salonName, periodLabel).then(printer.refresh).catch((e) => setPinErr(t("printFail", { msg: (e as Error).message })))}>{t("printMine")}</Button>
+            <Button variant="primary" block data-testid="earn-print" onClick={() => void printSlips([row], desk.salonName, periodLabel, slip.detail).then(printer.refresh).catch((e) => setPinErr(t("printFail", { msg: (e as Error).message })))}>{t("printMine")}</Button>
+            <SlipDetailPick d={slip} />
             <PrinterSetup p={printer} />
             {pinErr && <p className="hint err">{pinErr}</p>}
             <Button block data-testid="earn-done" onClick={reset}>{t("done")}</Button>

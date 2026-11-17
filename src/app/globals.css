@@ -608,3 +608,18 @@ button:disabled { cursor: not-allowed; }
 .cp-addform { display: flex; flex-direction: column; gap: 8px; }
 .cp-h { padding: 6px 0; border-top: 1px solid var(--line); font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { .cp-gc { transition: none; } }
+/* Payout sheet: tap a person to see the details under their row. */
+.po-who{display:flex;align-items:flex-start;gap:8px;border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.po-chev{width:14px;color:var(--ink-soft,#5C5C5E);font-size:12px;line-height:20px}
+.po-more > td{background:var(--surface,#F5F5F7);padding:0 !important}
+.po-detail{padding:14px 18px 16px 30px;display:flex;flex-direction:column;gap:12px}
+.po-facts{display:flex;flex-wrap:wrap;gap:24px}
+.po-facts>div{display:flex;flex-direction:column;gap:2px}
+.po-tix{width:100%;border-collapse:collapse}
+.po-tix th,.po-tix td{font-size:13px;line-height:18px;padding:10px 8px;text-align:right;vertical-align:middle;border-bottom:1px solid var(--line,#E5E5EA)}
+.po-tix th{padding-top:6px;padding-bottom:6px}
+.po-tix td .cap{display:block;margin-top:2px}
+.po-tix tbody tr:last-child td{border-bottom:0}
+.po-tix th:first-child,.po-tix td:first-child{text-align:left;padding-left:0}
+.po-tix th{font-weight:600;color:var(--ink-soft,#5C5C5E);text-transform:uppercase;letter-spacing:.04em;font-size:11px}
+@media print{.po-more{display:none}}
