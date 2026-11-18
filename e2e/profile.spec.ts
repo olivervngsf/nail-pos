@@ -70,3 +70,21 @@ test("settings: payments shows Stripe connected, card reader can be added and re
   await expect(page.getByRole("button", { name: "Connect reader" })).toBeDisabled();
   expect(errors).toEqual([]);
 });
+
+test("devices: owner shows a QR, tablet types the code at /go and opens the front desk", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/settings/devices");
+  await page.getByTestId("add-device").click();
+  await page.getByTestId("qr-make").click();
+  await expect(page.getByTestId("qr-box").locator("svg")).toBeVisible();
+  await expect(page.getByTestId("qr-code")).toHaveText("DEMO-2345");
+
+  await page.goto("/go");
+  await page.getByTestId("go-code").fill("abcd2345");
+  await expect(page.getByTestId("go-code")).toHaveValue("ABCD-2345");
+  await page.getByTestId("go-btn").click();
+  await expect(page.getByTestId("go-done")).toContainText("is ready");
+  await expect(page).toHaveURL(/\/(desk|today)/, { timeout: 8000 });
+  expect(errors).toEqual([]);
+});

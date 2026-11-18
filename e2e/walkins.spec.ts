@@ -52,3 +52,54 @@ test("walk-in waitlist: add, seat with a tech, walked out", async ({ page }) => 
   await expect(page.getByText("Bao Tran").first()).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+// Waiting client: what they want + client facts, "Seat now with" free or almost free techs first, or book a later time.
+test("waiting client: wants, seat now with, book a later time", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  const phone = test.info().project.name === "phone";
+  const t = new Date(); t.setHours(16, 30, 0, 0);
+  await page.clock.setFixedTime(t);
+  await page.goto("/calendar");
+  const list = async () => {
+    if (!phone) return page.getByTestId("waitlist");
+    await page.getByTestId("wait-pill").click();
+    return page.getByRole("dialog").getByTestId("waitlist");
+  };
+  const count = phone ? page.getByTestId("wait-pill") : page.getByTestId("wait-count");
+  await (await list()).getByTestId("walkin-new").click();
+  await page.getByTestId("walkin-name").fill("Mia Vo");
+  await page.getByTestId("walkin-svc").first().click();
+  await page.getByTestId("walkin-save").click();
+  await expect(count).toContainText("1 waiting");
+
+  await (await list()).getByTestId("wait-card").filter({ hasText: "Mia Vo" }).click();
+  await expect(page.getByTestId("wait-facts")).toContainText("Wants");
+  await expect(page.getByRole("dialog").getByText("Seat now with")).toBeVisible();
+  await page.getByTestId("book-later").click();
+  await expect(page.getByTestId("book-name")).toHaveValue("Mia Vo");             // name + service carried over
+  await expect(page.getByRole("button", { name: /^Remove / }).first()).toBeVisible();
+  await page.getByTestId("book-save").click();
+  await expect(count).toContainText("0 waiting");                                  // off the waitlist once booked
+  if (!phone) await expect(page.locator('[data-testid="cal-block"][data-name="Mia Vo"]')).toHaveCount(1);  // phone grid = one tech at a time
+  expect(errors).toEqual([]);
+});
+
+// Live board (desktop left panel): busy / free counts, each tech's state, numbered waitlist with wait time.
+test("live board: tech states + numbered waitlist", async ({ page }) => {
+  test.skip(test.info().project.name === "phone", "the live board is the desktop left panel; phones use the waiting pill");
+  const t = new Date(); t.setHours(16, 30, 0, 0);
+  await page.clock.setFixedTime(t);
+  await page.goto("/calendar");
+  const board = page.getByTestId("live-board");
+  await expect(board).toContainText("Live board");
+  await expect(board.locator('[data-testid^="lb-"]').first()).toBeVisible();
+  await expect(board.getByText("Not in").first()).toBeVisible();          // Ngọc is not clocked in (sample day)
+  await board.getByTestId("walkin-new").click();
+  await page.getByTestId("walkin-name").fill("Lan Le");
+  await page.getByTestId("walkin-svc").first().click();
+  await page.getByTestId("walkin-save").click();
+  const row = board.getByTestId("wait-card").filter({ hasText: "Lan Le" });
+  await expect(row).toContainText("1");                                 // position in line
+  await expect(row).toContainText("0m");                                // waited
+});

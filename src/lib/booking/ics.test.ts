@@ -1,17 +1,36 @@
 import { describe, expect, it } from "vitest";
-import { bookingIcs, icsLocal } from "./ics";
+import { bookingIcs, fold, icsText, local } from "./ics";
 
-describe("booking calendar file", () => {
-  it("keeps the salon's wall time", () => {
-    expect(icsLocal("2026-11-19", 570)).toBe("20261119T093000");
-    expect(icsLocal("2026-11-19", 23 * 60 + 30 + 45)).toBe("20261120T001500"); // runs past midnight
+const b = {
+  uid: "a1", salon: { name: "Test Nails", address: "1234 Story Rd, San Jose, CA", phone: "(408) 555-0100", tz: "America/Los_Angeles" },
+  day: "2026-11-17", start: 660, minutes: 50, when: "Tue, Nov 17 · 11:00 AM", firstName: "Tom",
+  lines: ["Gel manicure · Kim", "Pedicure · Tuyết"], total: "$65", manageUrl: "https://polishosapp.com/demo", cancelHours: 2,
+  ownerNote: "Parking: free lot behind the salon.",
+};
+
+describe("booking .ics", () => {
+  it("keeps salon wall time with its zone", () => {
+    const s = bookingIcs(b);
+    expect(s).toContain("DTSTART;TZID=America/Los_Angeles:20261117T110000");
+    expect(s).toContain("DTEND;TZID=America/Los_Angeles:20261117T115000");
   });
-  it("uses the salon's time zone, not UTC", () => {
-    const f = bookingIcs({ day: "2026-11-19", start: 570, minutes: 45, timeZone: "America/Los_Angeles", title: "Lotus Test Nails", location: "1550 S Bascom Ave, Campbell", uid: "abc", now: new Date("2026-11-18T00:00:00Z") });
-    expect(f).toContain("DTSTART;TZID=America/Los_Angeles:20261119T093000");
-    expect(f).toContain("DTEND;TZID=America/Los_Angeles:20261119T101500");
-    expect(f).toContain("LOCATION:1550 S Bascom Ave\\, Campbell");
-    expect(f).toContain("UID:abc@polishosapp.com");
-    expect(f).not.toMatch(/DTSTART:\d+T\d+Z/);
+  it("escapes commas so the full address survives", () => {
+    expect(icsText("1234 Story Rd, San Jose, CA")).toBe("1234 Story Rd\\, San Jose\\, CA");
+    expect(bookingIcs(b).replace(/\r\n /g, "")).toContain("LOCATION:Test Nails\\, 1234 Story Rd\\, San Jose\\, CA");
+  });
+  it("puts link, phone and owner note in the notes", () => {
+    const s = bookingIcs(b).replace(/\r\n /g, "");
+    expect(s).toContain("URL:https://polishosapp.com/demo");
+    expect(s).toContain("Call: (408) 555-0100");
+    expect(s).toContain("Parking: free lot behind the salon.");
+    expect(s).toContain("TRIGGER:-PT60M");
+  });
+  it("uses the owner's reminder time, or none", () => {
+    expect(bookingIcs({ ...b, alarmMin: 1440 })).toContain("TRIGGER:-PT1440M");
+    expect(bookingIcs({ ...b, alarmMin: 0 })).not.toContain("VALARM");
+  });
+  it("rolls past midnight and folds long lines", () => {
+    expect(local("2026-11-17", 1440 + 30)).toBe("20261118T003000");
+    expect(fold("x".repeat(200)).split("\r\n").every((l) => new TextEncoder().encode(l).length <= 75)).toBe(true);
   });
 });

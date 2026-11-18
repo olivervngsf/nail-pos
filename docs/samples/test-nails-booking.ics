@@ -1,0 +1,26 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//EO Collective//PolishOS//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:a1@polishosapp.com
+DTSTAMP:20261117T175636Z
+DTSTART;TZID=America/Los_Angeles:20261117T110000
+DTEND;TZID=America/Los_Angeles:20261117T115000
+SUMMARY:💅 Test Nails – Gel manicure\, Pedicure
+LOCATION:Test Nails\, 1234 Story Rd\, San Jose\, CA
+DESCRIPTION:Hi Tom\, see you Tue\, Nov 17 · 11:00 AM.\n\nGel manicure · K
+ im\nPedicure · Tuyết\nEst. total: $65 (pay at the salon)\n\nChange or c
+ ancel (up to 2 h before):\nhttps://polishosapp.com/demo\nCall: (408) 555-0
+ 100\n\nParking: free lot behind the salon. Running late? Call us.
+URL:https://polishosapp.com/demo
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Test Nails at 11:00 AM
+TRIGGER:-PT60M
+END:VALARM
+END:VEVENT
+END:VCALENDAR

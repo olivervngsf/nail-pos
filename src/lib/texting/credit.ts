@@ -86,13 +86,14 @@ function currentSalon(): string | null {
 }
 
 /** Credit for the salon on this device. `credit` stays null for anyone who isn't owner/manager. */
-export function useCredit(salonId?: string) {
+export function useCredit(salonId?: string, enabled = true) {
   const [credit, setCredit] = useState<Credit | null>(null);
   const [demo, setDemo] = useState(false);
   const [salon, setSalon] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!SMS_ON) { setDemo(true); setCredit(demoCredit()); return; }
+    if (!enabled) { setCredit(null); return; }
     const s = salonId ?? currentSalon();
     setSalon(s);
     if (!s) return;
@@ -105,7 +106,7 @@ export function useCredit(salonId?: string) {
       setCredit(c);
       try { if (c) localStorage.setItem(cacheKey(s), JSON.stringify(c)); else localStorage.removeItem(cacheKey(s)); } catch { /* */ }
     } catch { /* offline: keep the cached copy */ }
-  }, [salonId]);
+  }, [salonId, enabled]);
   useEffect(() => {
     // Back from Stripe Checkout: credit this payment once (the webhook does the same), then show the new balance.
     const q = new URLSearchParams(location.search), cs = q.get("credit_session"), s = salonId ?? currentSalon();
