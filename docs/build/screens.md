@@ -8,7 +8,10 @@ Each route matches a board artboard. Build the clean screen; the annotated frame
 | `/setup/*` | owner | Onboarding · Main, Info, Services, Staff, Payments, Hardware, Clients, Test | Svc1–6, Stf1–6, Pay1–4 | M1, M4 |
 | `/join/[invite]` | staff phone | Onboarding · StaffInvite | Sj01–Sj10 | M2 |
 | `/clock` | staff | Onboarding · StaffClockIn | Sj11–Sj12 | M2 |
-| `/me` | everyone | Main Screens · Me; Checkout · Profile | M1–M2, Pr1–Pr4 | M2 |
+| `/me` | everyone | Profile, PIN + Settings https://claude.ai/artifact/MPFxacr8DDViQs9NtJBvhf · 4.1–4.2 (+ bottom-left pop-up on every desk screen) | — | built Nov 17 |
+| `/desk` (= `/today`) | salon device | Profile, PIN + Settings https://claude.ai/artifact/MPFxacr8DDViQs9NtJBvhf · 2.1–2.3 (faces screen, lock, manager PIN) | — | built Nov 17 |
+| `/clock` | any staff, by PIN on a time clock tablet | Profile, PIN + Settings https://claude.ai/artifact/MPFxacr8DDViQs9NtJBvhf · 3.1 | — | built Nov 17 |
+| `/settings/team` · `/settings/pin` · `/settings/pin-activity` · `/settings/devices` | owner, manager (on a salon device: their PIN) | Profile, PIN + Settings https://claude.ai/artifact/MPFxacr8DDViQs9NtJBvhf · 5.1–5.4 | — | built Nov 17 (QR device set-up next) |
 | `/checkout/[ticket]` | front desk | Checkout · Main, Pay, Reader, Cash, Done | Tk1–Tk7, Rd1–Rd4, Cs1–Cs2, An1–An6 | M3–M5 |
 | `/gift-cards` · `/gift-cards/codes` | owner | Loyalty + Gift Cards · GiftSetup, GiftList | G1–G2, G10–G12, G18–G19 | M5 |
 | checkout gift drawer | front desk | GiftSell, GiftUse | G3–G5, G7–G9, G17 | M5 |

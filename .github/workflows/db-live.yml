@@ -1,0 +1,38 @@
+name: Live database
+# After CI passes on main, run any new supabase/migrations files on the LIVE Supabase project.
+# Needs the repo secret LIVE_DB_URL (live project's connection string). Without it, this does nothing.
+# Can also be run by hand: Actions → Live database → Run workflow (tick "dry run" to only list what would run).
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only list what would run"
+        type: boolean
+        default: true
+
+concurrency: live-db
+
+jobs:
+  push:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Skip if the live database isn't connected yet
+        id: has
+        run: echo "ok=${{ secrets.LIVE_DB_URL != '' }}" >> "$GITHUB_OUTPUT"
+      - name: Install psql
+        if: steps.has.outputs.ok == 'true'
+        run: sudo apt-get update -q && sudo apt-get install -y -q postgresql-client
+      - name: Run new migrations on live
+        if: steps.has.outputs.ok == 'true'
+        run: scripts/db-push-live.sh ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}
+        env:
+          LIVE_DB_URL: ${{ secrets.LIVE_DB_URL }}

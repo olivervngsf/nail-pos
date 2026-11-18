@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Profile option D</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.app{position:relative}
+.btn{height:36px;font-size:14px;padding:0 14px}
+.btn.primary{height:40px;font-size:15px}
+.inp{height:40px;font-size:15px}
+.chip{height:32px;font-size:13px;padding:0 12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.seg button{height:30px;padding:0 14px;border-radius:8px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer}
+.seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tile2{border:0;font:inherit;text-align:left;cursor:pointer;padding:16px;display:flex;flex-direction:column;gap:6px;min-height:104px;color:var(--ink)}
+.tile2 b{font-size:15px}
+.tile2 .ic{width:32px;height:32px;border-radius:9px;background:var(--fill);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.mem{border:0;background:transparent;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;width:76px;color:var(--ink)}
+.mem .av{width:52px;height:52px;font-size:18px;position:relative}
+.mem .st{position:absolute;right:0;bottom:0;width:12px;height:12px;border-radius:50%;border:2px solid #fff;background:#C7C7CC}
+.mem .st.in{background:var(--jade)}
+.mem .st.due{background:var(--orange)}
+.sheet2{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:640px;max-height:700px;background:var(--paper);border-radius:20px;box-shadow:0 24px 80px rgba(28,28,30,.25);z-index:6;display:flex;flex-direction:column;overflow:hidden}
+.steps{display:flex;gap:6px}
+.steps span{flex:1;height:4px;border-radius:2px;background:var(--fill)}
+.steps span.on{background:var(--ink)}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a class="on" href="#" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar"><div class="title">Profile &amp; settings</div><span class="pill ok"><span class="dot"></span>Saved</span></header>
+    <main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 24px;min-height:0;overflow:auto">
+      <div class="card in" style="padding:18px 20px;display:flex;align-items:center;gap:18px">
+        <span class="av" style="width:76px;height:76px;font-size:28px;background:#E9D7CB">M</span>
+        <div style="flex:1"><div class="h1" style="font-size:24px;line-height:30px">Mai Nguyễn</div><div class="cap num">Owner · Mai Nails · (408) 555-0110 · mai.owner@gmail.com</div></div>
+        <span class="seg"><button class="{{enC}}" type="button" onClick="{{en}}">English</button><button class="{{viC}}" type="button" onClick="{{vi}}">Tiếng Việt</button></span>
+        <button class="btn" type="button">Change PIN</button><button class="btn" type="button">Edit</button><button class="btn" type="button" style="color:#E03131">Switch person</button>
+      </div>
+      <div class="card in2" style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px"><b style="font-size:16px;flex:1">Team · 7</b><span class="cap">5 in now · 1 license due · 1 invite open</span><button class="btn ghost" type="button">See all ›</button></div>
+        <div style="display:flex;gap:6px;align-items:flex-start">
+          <sc-for list="{{team}}" as="p" hint-placeholder-count="7"><button class="mem" type="button"><span class="av">{{p.i}}<span class="{{p.st}}"></span></span><span style="font-size:13px;font-weight:600">{{p.n}}</span><span class="cap" style="font-size:11px;line-height:14px;margin-top:-4px">{{p.r}}</span></button></sc-for>
+          <button class="mem" type="button" onClick="{{openAdd}}"><span class="av" style="background:var(--paper);border:1.5px dashed #C7C7CC;font-size:24px;font-weight:400">+</span><span style="font-size:13px;font-weight:600">Add</span></button>
+        </div>
+      </div>
+      <div class="eyebrow" style="margin:2px 0 -4px 4px">Salon settings · owner + manager</div>
+      <div class="tiles in3">
+        <sc-for list="{{tiles}}" as="t" hint-placeholder-count="8"><button class="card tile2" type="button"><span class="ic">{{t.ic}}</span><b>{{t.n}}</b><span class="cap">{{t.s}}</span></button></sc-for>
+      </div>
+      <div class="group in3"><div class="row s"><span class="grow">Allow support access<span class="cap" style="display:block">Our team can help for 24 h. Every view logged.</span></span><button class="sw" type="button" aria-label="Allow support access"></button></div></div>
+    </main>
+  </div>
+  <sc-if value="{{add}}" hint-placeholder-val="{{false}}">
+    <button class="scrim" type="button" aria-label="Close" onClick="{{closeAdd}}"></button>
+    <section class="sheet2" aria-label="Add team member">
+      <div style="padding:18px 22px 14px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid var(--line)">
+        <div style="display:flex;align-items:center"><div class="h2" style="flex:1">Add team member</div><span class="cap">Step {{stepN}} of 3</span><button class="btn ghost" type="button" onClick="{{closeAdd}}" aria-label="Close">✕</button></div>
+        <div class="steps"><span class="{{s1}}"></span><span class="{{s2}}"></span><span class="{{s3}}"></span></div>
+        <b style="font-size:15px">{{stepTitle}}</b>
+      </div>
+      <div style="padding:18px 22px;display:flex;flex-direction:column;gap:14px;overflow:auto">
+        <sc-if value="{{isS1}}" hint-placeholder-val="{{true}}">
+          <div style="display:flex;align-items:center;gap:14px"><button type="button" style="width:72px;height:72px;border-radius:50%;border:1.5px dashed #C7C7CC;background:var(--surface);font:inherit;font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer">+ Photo</button><span class="cap">Optional. Helps the desk pick the right person.</span></div>
+          <div class="two"><label><span class="lbl">First name</span><input class="inp" value="Linh"></label><label><span class="lbl">Last name</span><input class="inp" value="Phạm"></label></div>
+          <div class="two"><label><span class="lbl">Mobile · she signs in with this</span><input class="inp num" value="(408) 555-0187"></label><label><span class="lbl">Email (optional)</span><input class="inp" placeholder="name@email.com"></label></div>
+          <div class="two"><label><span class="lbl">Birthday (optional)</span><input class="inp num" placeholder="MM / DD"></label><label><span class="lbl">Emergency contact (optional)</span><input class="inp" placeholder="Name · phone"></label></div>
+        </sc-if>
+        <sc-if value="{{isS2}}" hint-placeholder-val="{{false}}">
+          <div><span class="lbl">Role</span><div class="chips"><button class="chip" type="button">Manager</button><button class="chip" type="button">Front desk</button><button class="chip on" type="button">Tech</button></div><div class="cap" style="margin-top:6px">Tech sees own tickets, own earnings, own bookings. Nothing else.</div></div>
+          <div><span class="lbl">Her screens in</span><div class="chips"><button class="chip" type="button">English</button><button class="chip on" type="button">Tiếng Việt</button></div></div>
+          <div><span class="lbl">Pay type</span><div class="chips"><button class="chip on" type="button">Commission</button><button class="chip" type="button">Hourly</button><button class="chip" type="button">Hourly + commission</button><button class="chip" type="button">Booth rent</button></div></div>
+          <div class="two"><label><span class="lbl">Commission %</span><input class="inp num" value="60%"></label><label><span class="lbl">Check / cash split</span><input class="inp num" value="70 / 30"></label></div>
+          <div class="cap">Tips: 100% to her. Card fee on tips: salon pays (CA rule, locked).</div>
+        </sc-if>
+        <sc-if value="{{isS3}}" hint-placeholder-val="{{false}}">
+          <div><span class="lbl">Skills · booking page only offers these with her</span><div class="chips"><button class="chip on" type="button">Gel</button><button class="chip on" type="button">Dip</button><button class="chip" type="button">Acrylic</button><button class="chip on" type="button">Pedicure</button><button class="chip" type="button">Nail art</button><button class="chip" type="button">Waxing</button></div></div>
+          <div><span class="lbl">Works on</span><div class="chips"><button class="chip" type="button">Mon</button><button class="chip on" type="button">Tue</button><button class="chip on" type="button">Wed</button><button class="chip on" type="button">Thu</button><button class="chip on" type="button">Fri</button><button class="chip on" type="button">Sat</button><button class="chip" type="button">Sun</button></div></div>
+          <div class="two"><label><span class="lbl">License #</span><input class="inp num" value="M 312 448"></label><label><span class="lbl">Expires</span><input class="inp num" value="03 / 2027"></label></div>
+          <div class="card" style="box-shadow:none;background:var(--surface);padding:12px 14px;font-size:14px;line-height:20px"><b>Linh Phạm · Tech · 60% · 70/30</b><br>We text her an invite. She sets her own PIN and joins the turn list when she clocks in.</div>
+        </sc-if>
+      </div>
+      <div style="padding:14px 22px;border-top:1px solid var(--line);display:flex;gap:10px"><button class="btn" type="button" onClick="{{back}}">{{backLbl}}</button><span style="flex:1"></span><button class="btn primary" type="button" onClick="{{next}}" style="padding:0 22px">{{nextLbl}}</button></div>
+    </section>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"sheetOpen":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { add: null, step: 1, lang: 'en' }; }
+  renderVals() {
+    const s = this.state;
+    const add = s.add === null ? !!this.props.sheetOpen : s.add;
+    const titles = ['', 'Who is joining?', 'Job + pay', 'Skills, days + license'];
+    return {
+      enC: s.lang === 'en' ? 'on' : '', viC: s.lang === 'vi' ? 'on' : '',
+      en: () => this.setState({ lang: 'en' }), vi: () => this.setState({ lang: 'vi' }),
+      add, openAdd: () => this.setState({ add: true, step: 1 }), closeAdd: () => this.setState({ add: false }),
+      stepN: s.step, stepTitle: titles[s.step],
+      s1: 'on', s2: s.step >= 2 ? 'on' : '', s3: s.step >= 3 ? 'on' : '',
+      isS1: s.step === 1, isS2: s.step === 2, isS3: s.step === 3,
+      backLbl: s.step === 1 ? 'Cancel' : '‹ Back',
+      nextLbl: s.step === 3 ? 'Add + text invite' : 'Next',
+      back: () => s.step === 1 ? this.setState({ add: false }) : this.setState({ step: s.step - 1 }),
+      next: () => s.step === 3 ? this.setState({ add: false, step: 1 }) : this.setState({ step: s.step + 1 }),
+      team: [['M', 'Mai', 'Owner', 'st in'], ['B', 'Bảo', 'Manager', 'st in'], ['H', 'Hạnh', 'Front desk', 'st in'], ['K', 'Kim', 'Tech', 'st in'], ['T', 'Tuấn', 'Tech', 'st in'], ['V', 'Vy', 'License due', 'st due'], ['L', 'Linh', 'Invited', 'st']].map(p => ({ i: p[0], n: p[1], r: p[2], st: p[3] })),
+      tiles: [['S', 'Salon info', 'Name, address, hours'], ['$', 'Services & prices', '24 services · 3 add-ons'], ['%', 'Pay & tips', 'Commission, splits, tips'], ['C', 'Card payments', 'Stripe on · S710 reader'], ['B', 'Booking page', 'polishosapp.com/mainails'], ['G', 'Gift cards & loyalty', '1 pt per $1'], ['P', 'Printers & devices', 'iPad · 1 printer'], ['Tx', 'Texts', 'Reminders on']].map(t => ({ ic: t[0], n: t[1], s: t[2] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

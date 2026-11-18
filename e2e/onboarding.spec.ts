@@ -23,6 +23,15 @@ test("owner goes from sign-up to a ready salon, and it survives a reload", async
   await page.fill("#np", "4085550177");
   await page.getByRole("button", { name: "Send invite" }).click();
   await expect(page.getByText("Invite waiting")).toBeVisible();
+  // Edit the invite, then remove it and undo
+  await page.getByRole("button", { name: "Edit Linh Tran" }).click();
+  await page.fill("#nn", "Linh Tran Ngoc");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByText("Linh Tran Ngoc", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Remove Linh Tran Ngoc" }).click();
+  await expect(page.getByText("Invite waiting")).toHaveCount(0);
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(page.getByText("Invite waiting")).toBeVisible();
   await foot.getByRole("button", { name: "Continue" }).click();
 
   await page.getByRole("button", { name: "Connect with Stripe" }).click();
@@ -61,10 +70,10 @@ test("staff joins in Vietnamese, weak PIN refused, then clocks in", async ({ pag
   await page.getByRole("button", { name: "Yes, this is me" }).click();
   await page.getByRole("button", { name: "Tiếng Việt" }).click();
   await page.getByRole("button", { name: "Tiếp tục" }).click();
-  for (const k of "1234") await page.locator(".key", { hasText: new RegExp(`^${k}$`) }).click();
+  for (const k of "123456") await page.locator(".key", { hasText: new RegExp(`^${k}$`) }).click();
   await expect(page.getByText("Dễ đoán quá. Thử số khác.")).toBeVisible();
   for (const pass of [0, 1]) {
-    for (const k of "2580") await page.locator(".key", { hasText: new RegExp(`^${k}$`) }).click();
+    for (const k of "258013") await page.locator(".key", { hasText: new RegExp(`^${k}$`) }).click();
     if (pass === 0) await expect(page.getByText("Nhập lại")).toBeVisible();
   }
   await page.getByRole("button", { name: "Bỏ qua" }).click();

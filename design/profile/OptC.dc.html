@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Profile option C</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.btn{height:36px;font-size:14px;padding:0 14px}
+.btn.primary{height:40px;font-size:15px}
+.inp{height:40px;font-size:15px}
+.chip{height:32px;font-size:13px;padding:0 12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.seg button{height:30px;padding:0 14px;border-radius:8px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer}
+.seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.gh{height:36px;display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--ink-soft);background:#FAFAFB;border-bottom:1px solid var(--line)}
+.mr{min-height:56px;font-size:15px}
+.mr .d{width:130px}
+.panel{width:420px;background:var(--paper);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.kv .row{min-height:44px;font-size:14px}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a class="on" href="#" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar"><span class="seg"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button class="{{t.cls}}" type="button" onClick="{{t.pick}}">{{t.label}}</button></sc-for></span><div class="title">{{title}}</div><span class="pill ok"><span class="dot"></span>Saved</span><sc-if value="{{isTeam}}" hint-placeholder-val="{{true}}"><button class="btn primary" type="button" onClick="{{goAdd}}" style="padding:0 16px">+ Add member</button></sc-if></header>
+    <div style="flex:1;display:flex;min-height:0">
+      <main style="flex:1;display:flex;flex-direction:column;gap:12px;padding:16px 20px;min-width:0;overflow:auto">
+        <sc-if value="{{isTeam}}" hint-placeholder-val="{{true}}">
+          <div class="card stat-grid in" style="--n:5;padding:16px 10px"><div><b>7</b><span class="cap">team</span></div><div><b>5</b><span class="cap">in today</span></div><div><b>$4,820</b><span class="cap">pay this week</span></div><div><b style="color:#E8590C">1</b><span class="cap">license due</span></div><div><b>1</b><span class="cap">invite open</span></div></div>
+          <div class="chips"><button class="chip on" type="button">All 7</button><button class="chip" type="button">Techs 4</button><button class="chip" type="button">Desk 1</button><button class="chip" type="button">Managers 1</button><button class="chip" type="button">Invited 1</button></div>
+          <div class="group in2">
+            <div class="gh">OWNER + MANAGERS · 3</div>
+            <sc-for list="{{lead}}" as="p" hint-placeholder-count="3"><button class="{{p.cls}}" type="button" onClick="{{p.pick}}"><span class="av" style="width:32px;height:32px">{{p.i}}</span><span class="grow"><b style="font-weight:600">{{p.n}}</b> <span class="cap">· {{p.r}}</span></span><span class="cap d">{{p.st}}</span><span class="num" style="width:110px;text-align:right;font-weight:600">{{p.pay}}</span></button></sc-for>
+            <div class="gh">TECHS · 4</div>
+            <sc-for list="{{techs}}" as="p" hint-placeholder-count="4"><button class="{{p.cls}}" type="button" onClick="{{p.pick}}"><span class="av" style="width:32px;height:32px">{{p.i}}</span><span class="grow"><b style="font-weight:600">{{p.n}}</b> <span class="cap">· {{p.r}}</span></span><span class="cap d">{{p.st}}</span><span class="num" style="width:110px;text-align:right;font-weight:600">{{p.pay}}</span></button></sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{isMe}}" hint-placeholder-val="{{false}}">
+          <div class="card stat-grid in" style="--n:4;padding:16px 10px"><div><b>Owner</b><span class="cap">role</span></div><div><b>EN</b><span class="cap">language</span></div><div><b>2</b><span class="cap">devices</span></div><div><b>On</b><span class="cap">daily report</span></div></div>
+          <div class="group in2"><button class="opt" type="button">Name + photo<span class="cap" style="margin-left:auto">Mai Nguyễn ›</span></button><button class="opt" type="button">Mobile · sign-in<span class="cap" style="margin-left:auto">(408) 555-0110 ›</span></button><button class="opt" type="button">Sign-in email<span class="cap" style="margin-left:auto">mai.owner@gmail.com ›</span></button><button class="opt" type="button">Language<span class="cap" style="margin-left:auto">English ›</span></button><button class="opt" type="button">Change PIN<span class="cap" style="margin-left:auto">6 digits ›</span></button><button class="opt" type="button">Notifications<span class="cap" style="margin-left:auto">Text + email ›</span></button><button class="opt" type="button" style="color:#E03131">Switch person</button></div>
+        </sc-if>
+        <sc-if value="{{isSalon}}" hint-placeholder-val="{{false}}">
+          <div class="group in" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))"><sc-for list="{{links}}" as="l" hint-placeholder-count="10"><button class="opt" type="button" style="border-right:1px solid #E5E5EA"><span style="flex:1"><b style="font-weight:600">{{l.n}}</b><span class="cap" style="display:block;font-size:12px">{{l.s}}</span></span><span class="cap">›</span></button></sc-for></div>
+        </sc-if>
+      </main>
+      <sc-if value="{{isTeam}}" hint-placeholder-val="{{true}}">
+        <aside class="panel">
+          <sc-if value="{{showMember}}" hint-placeholder-val="{{true}}">
+            <div class="fade" style="display:flex;flex-direction:column;flex:1;min-height:0">
+              <div style="padding:16px 20px;border-bottom:1px solid var(--line)"><div class="eyebrow">Tech · since Jun 2023</div><div style="display:flex;align-items:center;gap:10px;margin-top:4px"><div class="h2" style="flex:1">Kim Võ</div><button class="btn" type="button">Edit</button></div><div class="cap">Clocked in 9:30 · Tiếng Việt · Gel, Dip, Nail art</div></div>
+              <div style="flex:1;overflow:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+                <div class="group kv" style="border:1px solid var(--line);box-shadow:none">
+                  <div class="row"><span class="grow cap" style="font-size:14px">Mobile</span><span class="num">(408) 555-0133</span></div>
+                  <div class="row"><span class="grow cap" style="font-size:14px">Pay</span><span>Commission 60%</span></div>
+                  <div class="row"><span class="grow cap" style="font-size:14px">Check / cash</span><span class="num">70 / 30</span></div>
+                  <div class="row"><span class="grow cap" style="font-size:14px">Tips</span><span>100% to Kim</span></div>
+                  <div class="row"><span class="grow cap" style="font-size:14px">License</span><span class="num">M 284 117 · Aug 2027</span></div>
+                  <div class="row"><span class="grow cap" style="font-size:14px">Works</span><span>Tue – Sat</span></div>
+                  <div class="row"><span class="grow"><b>This week</b></span><b class="num">$1,284 + $312 tips</b></div>
+                </div>
+                <div style="display:flex;gap:8px"><input class="inp" placeholder="Note for managers (only you see)" aria-label="Manager note" style="flex:1"><button class="btn" type="button" style="height:40px">Add note</button></div>
+              </div>
+              <div style="padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px"><button class="btn" type="button" style="flex:1">Reset PIN</button><button class="btn" type="button" style="flex:1">Payout sheet</button></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{add}}" hint-placeholder-val="{{false}}">
+            <div class="fade" style="display:flex;flex-direction:column;flex:1;min-height:0">
+              <div style="padding:16px 20px;border-bottom:1px solid var(--line)"><div class="eyebrow">New member</div><div class="h2" style="margin-top:4px">Add to the team</div></div>
+              <div style="flex:1;overflow:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+                <div class="two"><label><span class="lbl">First name</span><input class="inp" value="Linh"></label><label><span class="lbl">Last name</span><input class="inp" value="Phạm"></label></div>
+                <label><span class="lbl">Mobile · sign-in</span><input class="inp num" value="(408) 555-0187"></label>
+                <label><span class="lbl">Email (optional)</span><input class="inp" placeholder="name@email.com"></label>
+                <div><span class="lbl">Role</span><div class="chips"><button class="chip" type="button">Manager</button><button class="chip" type="button">Front desk</button><button class="chip on" type="button">Tech</button></div></div>
+                <div><span class="lbl">Screens in</span><div class="chips"><button class="chip" type="button">English</button><button class="chip on" type="button">Tiếng Việt</button></div></div>
+                <div class="two"><label><span class="lbl">Pay</span><input class="inp" value="Commission 60%"></label><label><span class="lbl">Check / cash</span><input class="inp num" value="70 / 30"></label></div>
+                <div><span class="lbl">Skills</span><div class="chips"><button class="chip on" type="button">Gel</button><button class="chip on" type="button">Dip</button><button class="chip" type="button">Acrylic</button><button class="chip on" type="button">Pedicure</button><button class="chip" type="button">Nail art</button></div></div>
+                <div class="two"><label><span class="lbl">License #</span><input class="inp num" value="M 312 448"></label><label><span class="lbl">Expires</span><input class="inp num" value="03 / 2027"></label></div>
+                <div class="cap">She gets a text, sets her own PIN, and shows up on the turn list when she clocks in.</div>
+              </div>
+              <div style="padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px"><button class="btn" type="button" onClick="{{cancel}}">Cancel</button><button class="btn primary" type="button" style="flex:1" onClick="{{cancel}}">Add + text invite</button></div>
+            </div>
+          </sc-if>
+        </aside>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { tab: 'team', add: false, sel: 'Kim Võ' }; }
+  renderVals() {
+    const s = this.state;
+    const row = (p) => ({ i: p[0], n: p[1], r: p[2], st: p[3], pay: p[4], cls: 'opt mr' + (!s.add && s.sel === p[1] ? ' on' : ''), pick: () => this.setState({ sel: p[1], add: false }) });
+    const T = [['me', 'Me'], ['team', 'Team'], ['salon', 'Salon']];
+    return {
+      tabs: T.map(t => ({ label: t[1], cls: s.tab === t[0] ? 'on' : '', pick: () => this.setState({ tab: t[0] }) })),
+      title: s.tab === 'team' ? 'Team · 7 people' : s.tab === 'me' ? 'Mai Nguyễn · Owner' : 'Salon settings',
+      isTeam: s.tab === 'team', isMe: s.tab === 'me', isSalon: s.tab === 'salon',
+      add: s.add, showMember: !s.add,
+      goAdd: () => this.setState({ add: true }), cancel: () => this.setState({ add: false }),
+      lead: [['M', 'Mai Nguyễn', 'Owner', 'in', '—'], ['B', 'Bảo Trần', 'Manager', 'in 9:02', '$18/hr'], ['H', 'Hạnh Lê', 'Front desk', 'in 9:15', '$17/hr']].map(row),
+      techs: [['K', 'Kim Võ', 'Gel, Dip, Nail art', 'in 9:30', '60%'], ['T', 'Tuấn Đỗ', 'Acrylic, Pedicure', 'in 10:00', '$16.50 + 40%'], ['V', 'Vy Hoàng', 'License due Dec 3', 'off today', '55%'], ['L', 'Linh Phạm', 'Invited Nov 15', 'not joined', '60%']].map(row),
+      links: [
+        { n: 'Salon info', s: 'Name, address, hours, logo' }, { n: 'Services & prices', s: '24 services · 3 add-ons' },
+        { n: 'Pay & tips', s: 'Commission, splits, tip rules' }, { n: 'Card payments', s: 'Stripe connected · S710 reader' },
+        { n: 'Booking page', s: 'polishosapp.com/mainails' }, { n: 'Gift cards & loyalty', s: '1 pt per $1 · $10 at 300' },
+        { n: 'Printers & devices', s: 'Front desk iPad · 1 printer' }, { n: 'Texts', s: 'Reminders on · local number' },
+        { n: 'Receipts', s: 'Print + text · review link' }, { n: 'Support access', s: 'Off · last used Nov 2' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 "use client";
 // Print my earnings by PIN (PRD V1 #4, Main Screens · Profile "My earnings"): on the salon device a tech taps their name,
 // types their PIN and sees only their own earnings for today or this week, then prints the slip. Nothing stays on screen after.
+import { pinLenFor } from "@/lib/pin";
 import { useState } from "react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
@@ -10,6 +11,7 @@ import { formatCents } from "@/lib/money";
 import { useDesk } from "@/lib/desk";
 import { demoPayout, isoDay, nums, weekStart, type PayoutRow } from "@/lib/closeday";
 import { earningsDoc, printEarnings, type EarnText } from "@/lib/print/earnings";
+import { usePrintSettings } from "@/lib/print/settings";
 import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 
 const $ = formatCents;
@@ -33,18 +35,20 @@ export function EarningsSlip({ r }: { r: PayoutRow }) {
 }
 
 /** Slip text in the device's language + a print function for one or many people (each its own paper). */
-export function useEarningsPrint() {
+export function useEarningsPrint(salonId?: string | null, demo = false) {
+  const { settings } = usePrintSettings(salonId, demo);
   const t = useTranslations("payouts");
   const f = useFormatter();
   const txt: EarnText = {
     slipFor: (name) => t("slipFor", { name }), services: t("services"), cardTips: t("cardTips"), cashTips: t("cashTips"), feeOnTips: t("feeOnTips"),
     total: t("total"), byCheck: t("byCheck"), inCash: t("inCash"), signature: t("signature"), printed: t("printed"),
+    tips: t("tipsAll"), colTicket: t("colTicket"), colTips: t("colTips"), colService: t("colService"),
     pay: (r) => r.pay_type === "commission" ? t("commission", { pct: r.commission_pct ?? 0 }) : r.pay_type === "hourly" ? t("hourly", { hours: (r.minutes / 60).toFixed(1) })
       : r.pay_type === "booth_rent" ? t("booth") : t("pay"),
   };
   return (rows: PayoutRow[], salon: string, period: string, onEach?: (i: number) => void) => {
     const at = f.dateTime(new Date(), { dateStyle: "short", timeStyle: "short" });
-    return printEarnings(rows.map((r) => earningsDoc(r, salon, period, txt, at)), onEach);
+    return printEarnings(rows.map((r) => earningsDoc(r, salon, period, txt, at, settings.staff)), onEach);
   };
 }
 
@@ -55,7 +59,7 @@ export default function Earnings() {
   const [period, setPeriod] = useState<"today" | "week">("today");
   const [pinErr, setPinErr] = useState("");
   const [row, setRow] = useState<PayoutRow | null>(null);
-  const printSlips = useEarningsPrint();
+  const printSlips = useEarningsPrint(desk?.salonId, desk?.mode === "demo");
   const printer = usePrinter();
 
   if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
@@ -91,7 +95,7 @@ export default function Earnings() {
             <ListGroup>{desk.staff.map((s) => <button key={s.id} type="button" className="opt" data-testid={`earn-${s.name}`} onClick={() => setWho({ id: s.id, name: s.name })}><Avatar name={s.name} />{s.name}</button>)}</ListGroup>
           </> : !row ? <>
             <div className="h2">{t("pinFor", { name: who.name })}</div>
-            <PinKeypad error={pinErr} onDone={(p) => void submit(p)} />
+            <PinKeypad length={pinLenFor(who.id)} error={pinErr} onDone={(p) => void submit(p)} />
             <Button variant="ghost" onClick={reset}>{t("notMe")}</Button>
           </> : <>
             <div className="h2">{t("slipFor", { name: row.name })}</div>

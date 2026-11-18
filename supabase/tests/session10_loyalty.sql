@@ -18,6 +18,7 @@ create function pg_temp.line(id text, kind text, cents int, extra jsonb default 
   select jsonb_build_object('id', ('00000000-0000-0000-0000-0000000051' || id)::uuid, 'kind', kind, 'staffId', '00000000-0000-0000-0000-00000000507a', 'name', kind, 'cents', cents) || extra $$;
 grant execute on all functions in schema pg_temp to authenticated;
 
+insert into public.platform_admins (auth_user_id) select id from auth.users on conflict do nothing;  -- salons are invite-only: test owners set up salons as platform admins
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000fb01","role":"authenticated"}', true);
 select public.save_setup(jsonb_build_object('salonId', '00000000-0000-0000-0000-0000000050a1', 'ownerName', 'Mai', 'salonName', 'Points Nails', 'state', 'CA', 'step', 9,

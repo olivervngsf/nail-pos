@@ -67,10 +67,22 @@ test("payout sheet prints one slip per person (own page / own cut)", async ({ pa
   expect(one).toContain("Kim's earnings");
 });
 
+test("payout sheet: rows stay simple; tap a person to see facts + every ticket", async ({ page }) => {
+  await page.goto("/payouts");
+  await expect(page.getByTestId("po-Kim")).toBeVisible();
+  await expect(page.getByTestId("po-line-Kim")).toHaveCount(0);
+  await page.getByTestId("po-open-Kim").click();
+  await expect(page.getByTestId("po-detail-Kim")).toContainText("Avg ticket");
+  await expect(page.getByTestId("po-line-Kim")).toHaveCount(2);
+  await expect(page.getByTestId("po-line-Kim").first()).toContainText("#1011");
+  await page.getByTestId("po-open-Kim").click();
+  await expect(page.getByTestId("po-line-Kim")).toHaveCount(0);
+});
+
 test("print my earnings: name + PIN shows only that person's slip", async ({ page }) => {
   await page.goto("/earnings");
   await page.getByTestId("earn-Kim").click();
-  for (const d of "2580") await page.getByRole("button", { name: d, exact: true }).click();
+  for (const d of "258013") await page.getByRole("button", { name: d, exact: true }).click();
   await expect(page.getByTestId("slip")).toBeVisible();
   await expect(page.getByTestId("slip-total")).toHaveText("$1,616.00");
   await page.getByTestId("earn-done").click();

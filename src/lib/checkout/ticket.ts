@@ -44,7 +44,8 @@ export type Ticket = {
   number?: number;
   status: "open" | "paid" | "refunded";
   createdAt: string;
-  client?: { phone: string; name: string };
+  /** Who the ticket is for. Phone is the normal key; `id` links a client picked from Clients who has no phone; name is kept on the ticket either way. */
+  client?: { id?: string; phone: string; name: string };
   lines: ServiceLine[];
   discount?: Discount;
   /** Cash tip per staff id, cents. */
@@ -147,7 +148,7 @@ export function toPayload(t: Ticket) {
   }
   return {
     id: t.id, salonId: t.salonId, createdAt: t.createdAt, note: t.note, openedBy: t.openedBy, deviceId: t.deviceId,
-    client: t.client?.phone ? t.client : undefined, lines, payment: t.payment?.method === "cash" ? t.payment : undefined,
+    client: t.client && (t.client.phone || t.client.id || t.client.name.trim()) ? t.client : undefined, lines, payment: t.payment?.method === "cash" ? t.payment : undefined,
     seen: seenIds(t),
   };
 }

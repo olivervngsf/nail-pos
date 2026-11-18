@@ -1,0 +1,43 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Who.dc.html": {"h": 800, "title": "1.1 · Who signs in where (roles × devices)", "w": 1280, "x": 0, "y": 0, "page": "final"},
+    "Day.dc.html": {"h": 800, "title": "1.2 · One day at the salon (never signs out)", "w": 1280, "x": 1360, "y": 0, "page": "final"},
+    "Lock.dc.html": {"h": 800, "is_interactive": true, "title": "2.1 · Faces screen: Who’s working? → PIN → right screen per role", "w": 1280, "x": 0, "y": 1240, "page": "final"},
+    "Desk.dc.html": {"h": 800, "is_interactive": true, "title": "2.2 · Desk pop-up → Lock → faces → PIN back", "w": 1280, "x": 1360, "y": 1240, "page": "final"},
+    "Approve.dc.html": {"h": 800, "is_interactive": true, "title": "2.3 · Manager PIN for discount / refund / void", "w": 1280, "x": 2720, "y": 1240, "page": "final"},
+    "Kiosk.dc.html": {"h": 800, "is_interactive": true, "title": "3.1 · Tech: clock in/out + print my pay sheet", "w": 1280, "x": 0, "y": 2480, "page": "final"},
+    "Phones.dc.html": {"h": 920, "is_interactive": true, "title": "4.1 · Own phone: pop-up per role", "w": 1720, "x": 0, "y": 3720, "page": "final"},
+    "Menu2.dc.html": {"h": 800, "is_interactive": true, "title": "4.2 · Own computer (owner / manager): pop-up", "w": 1280, "x": 1800, "y": 3720, "page": "final"},
+    "Settings.dc.html": {"h": 800, "is_interactive": true, "title": "5.1 · Settings (owner / manager PIN) → Team → + Add member", "w": 1280, "x": 0, "y": 4960, "page": "final"},
+    "Log.dc.html": {"h": 800, "title": "5.2 · Settings → PIN activity (every PIN tracked)", "w": 1280, "x": 1360, "y": 4960, "page": "final"},
+    "PinRules.dc.html": {"h": 800, "is_interactive": true, "title": "5.3 · PIN rules — owner picks 6 or 10 digits", "w": 1280, "x": 2720, "y": 4960, "page": "final"},
+    "Devices.dc.html": {"h": 920, "is_interactive": true, "title": "5.4 · Settings → Devices: add a device by QR (desk / time clock / kiosk)", "w": 1720, "x": 4080, "y": 4960, "page": "final"},
+    "Main.dc.html": {"h": 800, "is_interactive": true, "title": "A · Client twin — profile left, tabs right, Add member drawer", "w": 1280, "x": 0, "y": 0, "page": "explore"},
+    "OptB.dc.html": {"h": 800, "is_interactive": true, "title": "B · Settings app — section list left, detail right", "w": 1280, "x": 1360, "y": 0, "page": "explore"},
+    "OptC.dc.html": {"h": 800, "is_interactive": true, "title": "C · Full-history clone — stats, list, detail panel", "w": 1280, "x": 0, "y": 920, "page": "explore"},
+    "OptD.dc.html": {"h": 800, "is_interactive": true, "title": "D · Hub tiles + 3-step Add member sheet", "w": 1280, "x": 1360, "y": 920, "page": "explore"},
+    "Menu1.dc.html": {"h": 800, "is_interactive": true, "title": "E1 · Avatar menu — simple", "w": 1280, "x": 0, "y": 2200, "page": "explore"},
+    "Menu3.dc.html": {"h": 800, "is_interactive": true, "title": "E3 · Avatar menu — shared iPad (switch person)", "w": 1280, "x": 1360, "y": 2200, "page": "explore"}
+  },
+  "createdOnFiles": {"at": "2026-11-17T18:00:00Z", "v": 1},
+  "designSystems": [],
+  "launch": {"view": "canvas", "page": "final"},
+  "noteOrder": ["t1", "t2", "s1", "s2", "f1", "f2", "f3", "f4", "f5", "fr"],
+  "notes": {
+    "f1": {"kind": "title1", "maxW": 2640, "text": "1 · Who signs in where", "x": 0, "y": -280, "page": "final"},
+    "f2": {"kind": "title1", "maxW": 4000, "text": "2 · Front desk monitor (always signed in, lock + PIN)", "x": 0, "y": 960, "page": "final"},
+    "f3": {"kind": "title1", "maxW": 2640, "text": "3 · Tech on the iPad / kiosk", "x": 0, "y": 2200, "page": "final"},
+    "f4": {"kind": "title1", "maxW": 3080, "text": "4 · Own phone + own computer", "x": 0, "y": 3440, "page": "final"},
+    "f5": {"kind": "title1", "maxW": 5800, "text": "5 · Settings + PIN tracking + PIN rules + Devices", "x": 0, "y": 4680, "page": "final"},
+    "fr": {"fill": "orange", "w": 440, "x": 2720, "y": 0, "page": "final", "text": "FINAL RULES\n1. Desk monitor / iPad = signed in as the salon. Never signs out.\n2. Switch person: pop-up → Lock → faces → face + PIN.\n3. Auto-lock after 2 min idle. Last person outlined = 1 tap back.\n4. Every PIN use logged (who, when, device, what, OK / wrong). 5 wrong → wait 1 min + owner text.\n5. Discount / refund / void = manager PIN pop-up.\n6. Tech at iPad/kiosk = clock in/out + own pay sheet (tickets, then totals). Nothing else.\n7. Settings = owner or manager PIN only. Team + Add member live there.\n8. Own phone / computer = phone code once, stays signed in; pop-up shows only that role’s items.\n9. Only the owner can sign a salon device out.\n10. PIN = 6 digits (default) or 10 digits (e.g. own phone number). Owner picks in Settings → PIN rules (5.3). Tweak pinLen on 2.1–2.3 to preview.\n11. Links: /desk (front desk) · /clock (time clock) · /kiosk (walk-ins) · /t (tech phone) · /me · /settings. New salon device = owner’s QR from Settings → Devices (5.4)."},
+    "s1": {"fill": "orange", "text": "All 4 show the same jobs:\n• Me: photo, name, phone, email, language, PIN, notifications, switch person\n• Salon settings (owner/manager)\n• Team: list + Add member with full details (role, language, pay type + rate, check/cash split, skills, license + expiry, workdays, invite text)\n\nClick around: every option is clickable (Play).\nComment with “Look:” or “Use A + C’s panel” etc.", "w": 360, "x": 2720, "y": 0, "page": "explore"},
+    "s2": {"fill": "orange", "text": "Not picked: A–D layouts, E1 simple menu, E3 face menu (replaced by the faces screen on the Final flow page). Kept here for reference; the Add member form from these feeds 5.1.", "w": 360, "x": 2720, "y": 2200, "page": "explore"},
+    "t1": {"kind": "title1", "maxW": 2640, "text": "Profile + Settings — options explored", "x": 0, "y": -280, "page": "explore"},
+    "t2": {"kind": "title1", "maxW": 2640, "text": "Avatar menu ideas", "x": 0, "y": 1920, "page": "explore"}
+  },
+  "order": ["Who.dc.html", "Day.dc.html", "Lock.dc.html", "Desk.dc.html", "Approve.dc.html", "Kiosk.dc.html", "Phones.dc.html", "Menu2.dc.html", "Settings.dc.html", "Log.dc.html", "PinRules.dc.html", "Devices.dc.html", "Main.dc.html", "OptB.dc.html", "OptC.dc.html", "OptD.dc.html", "Menu1.dc.html", "Menu3.dc.html"],
+  "pages": [{"id": "final", "name": "1 · Final flow"}, {"id": "explore", "name": "2 · Options explored"}],
+  "title": "Nail POS — Profile, PIN + Settings"
+}

@@ -73,7 +73,16 @@ export function useAppts(salonId: string, from: string, to: string) {
 /** Server copy merged in (other desks, booking page). This device's unsent edits win. */
 export async function pullAppts(salonId: string, from: string, to: string) {
   if (!isLive()) return;
-  const rows = await rpc<Appt[]>("appt_list", { p_salon: salonId, p_from: from, p_to: to });
+  merge(salonId, from, to, await rpc<Appt[]>("appt_list", { p_salon: salonId, p_from: from, p_to: to }));
+}
+
+/** Tech's phone: only my own bookings (no client phone numbers), via `my_appts`. */
+export async function pullMyAppts(salonId: string, from: string, to: string, staffId: string) {
+  if (!isLive()) return;
+  merge(salonId, from, to, await rpc<Appt[]>("my_appts", { p_salon: salonId, p_from: from, p_to: to }), staffId);
+}
+
+function merge(salonId: string, from: string, to: string, rows: Appt[], onlyStaff?: string) {
   const c = load();
   const seen = new Set<string>();
   for (const r of rows) {
@@ -83,7 +92,7 @@ export async function pullAppts(salonId: string, from: string, to: string) {
     c[r.id] = { ...r, salonId, client: r.client ?? undefined, synced: true };
   }
   // Gone on the server (another salon / range edge): keep only unsent local ones.
-  for (const a of Object.values(c)) if (a.salonId === salonId && a.start < to && a.end > from && a.synced && !seen.has(a.id)) delete c[a.id];
+  for (const a of Object.values(c)) if (a.salonId === salonId && a.start < to && a.end > from && a.synced && !seen.has(a.id) && (!onlyStaff || a.staffId === onlyStaff)) delete c[a.id];
   persist();
 }
 

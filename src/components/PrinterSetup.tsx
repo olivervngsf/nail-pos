@@ -34,3 +34,4 @@ export function PrinterSetup({ p }: { p: Printer }) {
     </div>
   );
 }
+
