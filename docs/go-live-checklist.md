@@ -30,3 +30,9 @@ Status Nov 18. Code is ready for invite-only salons. These steps need Oliver's c
 
 ## 5. First salon
 - polishosapp.com/admin → Make salon + invite → Text / Email the message → owner signs in (phone, email or Google) → setup.
+
+## 6. Legal + 2-step login
+- Have a lawyer read `/legal/terms`, `/legal/privacy`, `/legal/texts` (text in `src/lib/legal.ts`).
+- Make the inbox `support@polishosapp.com` (it is printed on those pages).
+- Supabase live project → Authentication → Multi-factor: TOTP on (default). Then turn on 2-step login for yourself and Elang at `/me`.
+- Use the `/legal/texts` + `/legal/privacy` links in the A2P 10DLC registration.

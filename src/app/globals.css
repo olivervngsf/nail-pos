@@ -966,3 +966,15 @@ button:disabled { cursor: not-allowed; }
 .dev-qr { display: grid; place-items: center; gap: 10px; text-align: center; }
 .dev-qr svg { width: 220px; height: 220px; }
 .dev-qr .go-code { height: auto; font-size: 26px; font-weight: 700; }
+
+/* Legal pages (/legal/*): plain reading column */
+.legal { max-width: 680px; margin: 0 auto; padding: 24px 20px 64px; display: flex; flex-direction: column; gap: 12px; font-size: 16px; line-height: 26px; }
+.legal-nav { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.legal-nav .seg a { text-decoration: none; color: inherit; }
+.legal section { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.legal p { margin: 0; }
+.legal-links { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+/* 2-step login */
+.tw-gate { position: fixed; inset: 0; z-index: 400; background: var(--bg, #F5F5F7); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.tw-qr { width: 176px; height: 176px; background: #fff; border-radius: 12px; padding: 8px; align-self: center; }
+.tw-code { letter-spacing: 0.3em; text-align: center; font-size: 22px; font-variant-numeric: tabular-nums; }
