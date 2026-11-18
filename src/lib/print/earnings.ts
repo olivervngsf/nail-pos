@@ -14,8 +14,8 @@ export type EarnText = {
   slipFor: (name: string) => string;
   services: string; pay: (r: PayoutRow) => string; cardTips: string; cashTips: string; tips: string; feeOnTips: string;
   total: string; byCheck: string; inCash: string; signature: string; printed: string;
-  /** "Ticket #1011" on the every-ticket list. */
-  ticketNo: (n: number) => string;
+  /** Every-ticket list column titles. */
+  colTicket: string; colTips: string; colService: string;
 };
 
 /** What the owner chose to show on staff slips (Settings → Printer). */
@@ -25,7 +25,11 @@ const $ = formatCents;
 
 export function earningsDoc(r: PayoutRow, salon: string, period: string, txt: EarnText, printedAt: string, o: StaffSlipOpts = PRINT_DEFAULTS.staff): ReceiptDoc {
   // Every ticket: just "Ticket #1011 ..... $45.00" per ticket (what it earned), then the total, the %, the tips.
-  const each: ReceiptDoc["rows"] = o.tickets ? (r.lines ?? []).map((l) => [txt.ticketNo(l.number), $(l.services_cents)] as [string, string]) : [];
+  // Every ticket: 3 columns — ticket #, its tips, its service amount — then the totals.
+  const each: ReceiptDoc["rows"] = o.tickets && r.lines?.length ? [
+    { cols: [txt.colTicket, txt.colTips, txt.colService], head: true },
+    ...r.lines.map((l) => ({ cols: [`#${l.number}`, $(l.tip_card_cents + l.tip_cash_cents), $(l.services_cents)] as [string, string, string] })),
+  ] : [];
   const tips: ReceiptDoc["rows"] = o.tipSplit
     ? [[txt.cardTips, $(r.tips_card_cents)], [txt.cashTips, $(r.tips_cash_cents)]]
     : [[txt.tips, $(r.tips_card_cents + r.tips_cash_cents)]];

@@ -10,7 +10,7 @@ const ESC = 0x1b, GS = 0x1d, LF = 0x0a;
 
 /** Print-only punctuation swaps (meaning stays clear): "·" → "-", "–" → "-", curly quotes → straight. */
 export const punct = (s: string) =>
-  s.replace(/[·•]/g, "-").replace(/[−–—]/g, "-").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/×/g, "x");
+  s.replace(/[·•]/g, "-").replace(/[−–—]/g, "-").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/×/g, "x").replace(/[→⟶]/g, "-");
 
 /** "Tuyết · Gel" → "Tuyet - Gel" (plain ASCII the printer can show as text). */
 export function plain(s: string): string {
@@ -28,6 +28,7 @@ export function docText(doc: ReceiptDoc): string[] {
     if (Array.isArray(r)) out.push(...r);
     else if ("bold" in r) out.push(...r.bold);
     else if ("item" in r) out.push(...r.item);
+    else if ("cols" in r) out.push(...r.cols);
     else out.push(r.text);
   }
   return out;
@@ -100,6 +101,13 @@ export function itemLines([name, note, amount]: [string, string, string], width:
   return [...wrap(plain(name), width - 2).map((t) => `  ${t}`), ...twoCol(`    ${note}`, amount, width)];
 }
 
+/** Three columns: left text, then two right-aligned amounts ("#1011        $9.00     $45.00"). */
+export function cols3([a, b, c]: [string, string, string], width: number): string {
+  const cw = Math.min(11, Math.floor(width / 3)), bw = cw;
+  const right = plain(b).padStart(bw) + plain(c).padStart(cw);
+  return plain(a).slice(0, width - right.length).padEnd(width - right.length) + right;
+}
+
 export function center(s: string, width: number): string {
   const t = plain(s).slice(0, width);
   return " ".repeat(Math.floor((width - t.length) / 2)) + t;
@@ -108,7 +116,7 @@ export function center(s: string, width: number): string {
 export type ReceiptDoc = {
   title: string;          // salon name
   sub?: string[];         // ticket #, date, client
-  rows: ([string, string] | "sep" | { bold: [string, string] } | { text: string } | { item: [string, string, string] })[];
+  rows: ([string, string] | "sep" | { bold: [string, string] } | { text: string } | { item: [string, string, string] } | { cols: [string, string, string]; head?: boolean })[];
   footer?: string[];
   /** Link printed as a QR code above the footer (digital receipt). */
   qr?: string;
@@ -126,6 +134,7 @@ export function receiptLines(doc: ReceiptDoc, paper: Paper): PrintLine[] {
     else if (Array.isArray(r)) twoCol(r[0], r[1], w).forEach((t) => out.push({ text: t }));
     else if ("bold" in r) twoCol(r.bold[0], r.bold[1], w).forEach((t) => out.push({ text: t, bold: true }));
     else if ("item" in r) itemLines(r.item, w).forEach((t) => out.push({ text: t }));
+    else if ("cols" in r) out.push({ text: cols3(r.cols, w), bold: r.head });
     else wrap(plain(r.text), w).forEach((t) => out.push({ text: t }));
   }
   out.push({ text: "-".repeat(w) });
