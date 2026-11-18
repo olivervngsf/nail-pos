@@ -8,7 +8,7 @@ import { Button, Drawer, LeftMenu, OfflineBanner, SyncPill, Toast, TopBar } from
 import { formatCents } from "@/lib/money";
 import { useStored } from "@/lib/useStored";
 import { useDesk, type Desk } from "@/lib/desk";
-import { putAppt, pullAppts, useAppts, type Appt } from "@/lib/booking/appts";
+import { isBlocked, newBreak, putAppt, pullAppts, useAppts, type Appt } from "@/lib/booking/appts";
 import { pullTickets, useTickets } from "@/lib/checkout/store";
 import { parseTicketScan } from "@/lib/print/print";
 import { ScanDialog } from "./ScanDialog";
@@ -163,6 +163,7 @@ function Calendar({ desk, refresh }: { desk: Desk; refresh: () => Promise<void> 
       <div className="col">
         <TopBar title={<span className="cal-top">
           <b className="cal-title" data-testid="cal-title">{title}</b>
+          {view === "day" && day === dayKey(new Date()) && <LiveClock />}
           <Button size="sm" variant="ghost" aria-label={t("prev")} onClick={() => step(-1)}>‹</Button>
           <Button size="sm" onClick={() => go(view, dayKey(new Date()))}>{t("today")}</Button>
           <Button size="sm" variant="ghost" aria-label={t("next")} onClick={() => step(1)}>›</Button>
@@ -207,7 +208,9 @@ function Calendar({ desk, refresh }: { desk: Desk; refresh: () => Promise<void> 
       {seatFor && (() => { const a = all.find((x) => x.id === seatFor); if (!a) return null;
         const nowM = new Date().getHours() * 60 + new Date().getMinutes();
         const order = turnOrder(deskT.staff.filter((x) => x.role === "tech"), list.filter((x) => dayKey(new Date(x.start)) === today), nowM);
-        return <SeatDrawer desk={deskT} a={a} order={order} onClose={() => setSeatFor(null)} say={say} />; })()}
+        return <SeatDrawer desk={deskT} a={a} order={order} onClose={() => setSeatFor(null)} say={say}
+          onLater={() => { setSeatFor(null); setDraft({ day: today, start: Math.min(20 * 60, Math.ceil((nowM + 30) / 15) * 15), minutes: a.services.reduce((x, s) => x + s.minutes, 0) || 45,
+            client: { name: a.client?.name ?? "", phone: a.client?.phone ?? "" }, services: a.services, replaces: a }); }} />; })()}
       {scanOpen && <ScanDialog onCode={(x) => void handleScan(x)} onClose={() => setScanOpen(false)} />}
       {toast && <Toast action={toast.undo ? { label: t("undo"), onClick: () => { toast.undo?.(); setToast(null); } } : undefined}>{toast.text}</Toast>}
     </div>
@@ -257,6 +260,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: 0, online: 0, walk: 0, unconf: 0, conf: 0, here: 0, chair: 0, ready: 0, cancel: 0 };
     for (const a of dayList) {
+      if (isBlocked(a)) continue;
       const k = kind(a);
       if (k !== "cancel") c.all++;
       if (ONLINE.has(a.source)) c.online++;
@@ -276,6 +280,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   }, [dayList, cols]);
   const ql = q.trim().toLowerCase(), qd = q.replace(/\D/g, "");
   const matches = (a: Appt) => {
+    if (isBlocked(a)) return filter === "all" && !ql && !cat;
     if (cat && !a.services.some((s) => desk.services.find((x) => x.id === s.serviceId || x.name === s.name)?.cat === cat)) return false;
     if (ql && !((a.client?.name ?? "").toLowerCase().includes(ql) || (qd.length >= 3 && (a.client?.phone ?? "").includes(qd))
       || (desk.staff.find((s) => s.id === a.staffId)?.name ?? "").toLowerCase().includes(ql))) return false;
@@ -434,7 +439,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
         <div className="cal-heads" style={{ gridTemplateColumns: `repeat(${shown.length}, minmax(0, 1fr))` }}>
           {shown.map((c) => {
             const s = desk.staff.find((x) => x.id === c.id);
-            const appts = dayList.filter((a) => (a.staffId ?? ANY) === c.id && live(a)).length;
+            const appts = dayList.filter((a) => (a.staffId ?? ANY) === c.id && live(a) && !isBlocked(a)).length;
             const late = !!s && !c.on && appts > 0 && isToday;
             const curA = isToday ? dayList.find((a) => a.staffId === c.id && live(a) && minutesOf(a.start) <= nowM && minutesOf(a.end) > nowM) : undefined;
             const dot = !c.on ? "#8E8E93" : curA ? "#2A55B0" : "#2F9E44";
@@ -444,7 +449,8 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                 <span className="av" style={{ width: 28, height: 28, fontSize: 12, boxShadow: c.id !== ANY ? `0 0 0 2px #fff, 0 0 0 3.5px ${dot}` : undefined }}>{c.name[0]}</span>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <b className="cal-hname">{c.name}{next?.id === c.id && <span className="tag jade cal-next">{t("next")}</span>}</b>
-                  {s && <span className="cal-hsub" style={{ color: curA ? "#2A55B0" : undefined }}>{sub}</span>}</span>
+                  {s && <span className="cal-hsub" style={{ color: curA ? "#2A55B0" : undefined }}>{sub}</span>}
+                  {s?.skills?.length ? <span className="cal-hsk" title={s.skills.join(" · ")}>{s.skills.join(" · ")}</span> : null}</span>
               </div>);
           })}
         </div>
@@ -460,8 +466,8 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
             onDragOver={onDragOver} onDragLeave={() => setDropAt(null)} onDrop={onDrop}>
             {Array.from({ length: (H1 - H0) / 30 }, (_, i) => <div key={i} className={i % 2 ? "cal-half" : "cal-hr"} style={{ top: i * 30 * PX }} />)}
             {shown.map((_, i) => i > 0 && <div key={i} className="cal-vl" style={{ left: `${(i / shown.length) * 100}%` }} />)}
-            {shown.map((c, i) => { const w = 100 / shown.length; return !c.on && c.id !== ANY && isToday && dayList.some((a) => a.staffId === c.id && live(a))
-              ? <div key={`late-${c.id}`} className="cal-latecol" style={{ left: `${i * w}%`, width: `${w}%` }} /> : null; })}
+            {shown.map((c, i) => { const w = 100 / shown.length; return !c.on && c.id !== ANY && isToday
+              ? <div key={`late-${c.id}`} className={dayList.some((a) => a.staffId === c.id && live(a) && !isBlocked(a)) ? "cal-latecol" : "cal-outcol"} style={{ left: `${i * w}%`, width: `${w}%` }} /> : null; })}
             {shown.map((c, ci) => {
               const mine = dayList.filter((a) => (a.staffId ?? ANY) === c.id);
               const ln = lanes(mine.map((a) => ({ id: a.id, start: minutesOf(a.start), end: minutesOf(a.end) })));
@@ -480,7 +486,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                 const usual = minutesOf(a.end) - minutesOf(a.start);
                 const inFor = isToday ? Math.max(0, nowM - minutesOf(a.start)) : 0;
                 const leftS = isToday ? Math.round(dayStart + minutesOf(a.end) * 60_000 - Date.now()) / 1000 : 0;
-                const status = overlapIds.has(a.id) && live(a) ? `⚠ ${t("overlap")}`
+                const status = k === "blocked" ? `${fmtMin(s)} – ${fmtMin(e)}` : overlapIds.has(a.id) && live(a) ? `⚠ ${t("overlap")}`
                   : k === "here" ? t("stx_here", { min: Math.max(0, Math.round((Date.now() - new Date(a.arrivedAt!).getTime()) / 60_000)) })
                   : k === "chair" && isToday ? (leftS >= 0 ? t("stx_left", { t: mmss(leftS) }) : t("stx_over", { t: mmss(-leftS) }))
                   : k === "chair" ? t("stx_chair", { min: inFor, usual })
@@ -493,7 +499,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                 return (
                   <div key={a.id} className={`cb ${k} ${a.source === "kiosk" || a.source === "walk_in" ? "walk" : ""} ${(e - s) < 30 ? "xs" : ""} ${drag && drag.kind !== "new" && drag.id === a.id ? "drag" : ""} ${matches(a) ? "" : "dim"}`}
                     style={{ top: (s - H0) * PX + 1, height: Math.max(22, (e - s) * PX - 2), left: `calc(${col * w + (L.lane * w) / L.lanes}% + 3px)`, width: `calc(${w / L.lanes}% - 6px)` }}
-                    data-testid="cal-block" data-name={a.client?.name ?? ""} role="button" tabIndex={0} aria-label={`${a.client?.name ?? t("walkIn")} ${fmtMin(s)}`}
+                    data-testid="cal-block" data-name={k === "blocked" ? "__break" : a.client?.name ?? ""} role="button" tabIndex={0} aria-label={`${a.client?.name ?? t("walkIn")} ${fmtMin(s)}`}
                     onKeyDown={(ev) => ev.key === "Enter" && onOpen(a.id)}
                     onContextMenu={(ev) => { ev.preventDefault(); ev.stopPropagation(); if (!hold.current) setMenu({ x: ev.clientX, y: ev.clientY, id: a.id }); }}
                     onPointerDown={(ev) => {
@@ -507,9 +513,9 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                       gridRef.current!.setPointerCapture(ev.pointerId);
                       setDrag(d0);
                     }}>
-                    <b>{a.client?.care ? "▲ " : ""}{a.client?.name || t("walkIn")}</b>
-                    {(e - s) >= 30 && L.lanes === 1 && <span className={`cb-src ${srcTag[0]}`}>{srcTag[1]}</span>}
-                    <span className="m">{svc}{svc ? " · " : ""}{fmtMin(s).replace(/ [AP]M$/, "")}</span>
+                    <b>{k === "blocked" ? t("brk") : <>{a.client?.care ? "▲ " : ""}{a.client?.name || t("walkIn")}</>}</b>
+                    {k !== "blocked" && (e - s) >= 30 && L.lanes === 1 && <span className={`cb-src ${srcTag[0]}`}>{srcTag[1]}</span>}
+                    {k !== "blocked" && <span className="m">{svc}{svc ? " · " : ""}{fmtMin(s).replace(/ [AP]M$/, "")}</span>}
                     <span className="s">{status}</span>
                     {k === "chair" && <span className="pb" style={{ width: `${Math.min(100, Math.round((inFor / Math.max(1, usual)) * 100))}%` }} />}
                     <span className="cb-rs" aria-hidden />
@@ -558,7 +564,13 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
           if (a) {
             const st = statusOf(a), before = { ...a }, nm = a.client?.name || t("walkIn"), s0 = minutesOf(a.start), e0 = minutesOf(a.end);
             const put = (patch: Partial<Appt>, msg: string) => { putAppt({ ...a, ...patch }); say(msg, () => putAppt(before)); };
-            title = `${nm} · ${fmtMin(s0)}`;
+            title = `${isBlocked(a) ? t("brk") : nm} · ${fmtMin(s0)}`;
+            if (isBlocked(a)) {
+              items.push({ label: t("m_longer"), run: go2(() => put({ end: at(day, e0 + 15) }, t("brkLen", { min: e0 - s0 + 15 }))) });
+              if (e0 - s0 > 15) items.push({ label: t("brkShorter"), run: go2(() => put({ end: at(day, e0 - 15) }, t("brkLen", { min: e0 - s0 - 15 }))) });
+              items.push({ label: t("m_move"), run: go2(() => setMoveId(a.id)) });
+              items.push({ label: t("brkRemove"), danger: true, run: go2(() => put({ status: "canceled" }, t("brkRemoved"))) });
+            } else {
             items.push({ label: t("m_open"), run: go2(() => onOpen(a.id)) });
             if ((st === "booked" || st === "confirmed") && !isHere(a) && a.source !== "kiosk" && a.source !== "walk_in")
               items.push({ label: t("hereBtn"), run: go2(() => put({ arrivedAt: new Date().toISOString() }, t("hereMsg", { name: nm }))) });
@@ -574,11 +586,15 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
               items.push({ label: t("noShow"), run: go2(() => put({ status: "no_show" }, t("noShowMsg"))) });
               items.push({ label: t("cancel"), danger: true, run: go2(() => put({ status: "canceled" }, t("canceledMsg"))) });
             }
+            }
           }
         } else if (menu.col !== undefined && menu.m !== undefined) {
           const c = cols[menu.col], m = menu.m;
           title = `${c?.name ?? ""} · ${fmtMin(m)}`;
           items.push({ label: t("m_newHere"), run: go2(() => onBook({ day, start: m, minutes: 45, staffId: c && c.id !== ANY ? c.id : undefined })) });
+          if (c && c.id !== ANY) items.push({ label: t("brkAdd"), run: go2(() => {
+            const b = newBreak(desk.salonId, c.id, day, m); putAppt(b);
+            say(t("brkAdded", { name: c.name, time: fmtMin(m) }), () => putAppt({ ...b, status: "canceled", updatedAt: "" })); }) });
           if (c && c.id !== ANY) for (const w of waiting.slice(0, 2)) items.push({ label: t("m_seatHere", { name: w.client?.name || t("walkIn") }), run: go2(() => {
             const b = { ...w }; seatAppt(desk, w, c.id, at(day, m)); say(t("droppedMsg", { name: w.client?.name || t("walkIn"), staff: c.name, time: fmtMin(m) }), () => putAppt(b)); }) });
         }
@@ -629,6 +645,7 @@ const mmss = (sec: number) => { const s = Math.max(0, Math.floor(sec)), h = Math
 /** Block look (Booking board Cal): unconf · conf · chair (in now) · ready (time's up, not paid) · paid · cancel. */
 export function blockKind(a: Appt, nowM: number): string {
   const st = statusOf(a);
+  if (st === "blocked") return "blocked";
   if (st === "canceled" || st === "no_show") return "cancel";
   if (st === "done") return "paid";
   if (st === "arrived") return nowM >= 0 && minutesOf(a.end) <= nowM ? "ready" : "chair";
@@ -640,7 +657,7 @@ function payHow(tk: ReturnType<typeof getTicket>, t: (k: "paidCard" | "paidCash"
   return m === "cash" ? t("paidCash") : m ? t("paidCard") : tk?.giftPays?.length ? t("paidGift") : t("paidCard");
 }
 
-const CLS: Record<string, string> = { booked: "unconf", confirmed: "conf", arrived: "chair", done: "paid", no_show: "cancel", canceled: "cancel" };
+const CLS: Record<string, string> = { blocked: "blocked", booked: "unconf", confirmed: "conf", arrived: "chair", done: "paid", no_show: "cancel", canceled: "cancel" };
 
 function MiniMonth({ day, list }: { day: string; list: Appt[] }) {
   const router = useRouter();
@@ -688,7 +705,7 @@ function WeekView({ desk, day, list, onDay, onOpen, onBook }: { desk: Desk; day:
                 return mine.map((a) => { const st = statusOf(a), sm = minutesOf(a.start), em = minutesOf(a.end), L = ln[a.id];
                   return (<button key={a.id} type="button" className={`cb ${CLS[st]} ${em - sm < 40 ? "xs" : ""}`} onClick={() => onOpen(a.id)} data-testid="week-block"
                     style={{ top: (sm - H0) * PX, height: Math.max(14, (em - sm) * PX - 2), left: `calc(${(L.lane * 100) / L.lanes}% + 2px)`, width: `calc(${100 / L.lanes}% - 4px)` }}>
-                    <b>{a.client?.name || t("walkIn")}</b><span className="m">{fmtMin(sm)} · {name(a.staffId)}</span></button>); }); })()}
+                    <b>{isBlocked(a) ? t("brk") : a.client?.name || t("walkIn")}</b><span className="m">{fmtMin(sm)} · {name(a.staffId)}</span></button>); }); })()}
             </div>))}
           {days.map((_, i) => i > 0 && <div key={i} className="cal-vl" style={{ left: `${(i / 7) * 100}%` }} />)}
         </div>
@@ -708,7 +725,7 @@ function MonthView({ day, list, onDay }: { day: string; list: Appt[]; onDay: (d:
       {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((x) => <div key={x} className="cap cal-mh">{x}</div>)}
       {Array.from({ length: 42 }, (_, i) => {
         const x = addDays(start, i), k = dayKey(x);
-        const mine = list.filter((a) => dayKey(new Date(a.start)) === k && live(a));
+        const mine = list.filter((a) => dayKey(new Date(a.start)) === k && live(a) && !isBlocked(a));
         return (
           <button key={k} type="button" className={`cal-mday ${x.getMonth() !== d.getMonth() ? "out" : ""} ${k === today ? "today" : ""}`} onClick={() => onDay(k)} data-testid="month-day">
             <span className="cal-mn">{x.getDate()}</span>
@@ -721,3 +738,10 @@ function MonthView({ day, list, onDay }: { day: string; list: Appt[]; onDay: (d:
   );
 }
 
+/** Ticking clock next to today's date (design: "Tue, Nov 17 12:46:05 PM"): the desk sees the exact time for countdowns. */
+function LiveClock() {
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => { setNow(new Date()); const id = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(id); }, []);
+  if (!now) return null;
+  return <span className="cal-clock num" aria-hidden data-testid="cal-clock">{now.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", second: "2-digit" })}</span>;
+}

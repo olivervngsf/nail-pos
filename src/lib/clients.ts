@@ -127,6 +127,17 @@ export async function getProfile(who: Who, id: string): Promise<Profile> {
   return p;
 }
 
+/** A client on a booking (by id, else by phone): their profile, or null when not on file / offline. */
+export async function profileFor(who: Who, c: { id?: string; phone?: string } | undefined): Promise<Profile | null> {
+  if (!c) return null;
+  if (who.mode === "demo") {
+    const d = c.phone?.replace(/\D/g, "").slice(-10);
+    return demoAll().find((x) => (c.id && x.id === c.id) || (!!d && (x.phone ?? "").replace(/\D/g, "").slice(-10) === d)) ?? null;
+  }
+  if (!c.id) return null;
+  try { return await getProfile(who, c.id); } catch { return null; }
+}
+
 /* ---------- writes ---------- */
 export type ClientEdit = { name: string; phone: string; email: string; birthday: string; shape: string; colors: string; care: string; notes: string; textsOk: boolean; language: "en" | "vi"; approvalId: string };
 export async function saveClient(who: Who, id: string | null, e: Partial<ClientEdit>): Promise<string> {

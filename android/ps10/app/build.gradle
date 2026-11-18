@@ -1,0 +1,48 @@
+plugins { id "com.android.application" }
+
+// Signing: a fixed key lets a new version install over the old one. The key never lives in the repo:
+// pass it with PS10_KEYSTORE (file path), PS10_KEYSTORE_PASSWORD, PS10_KEY_ALIAS, PS10_KEY_PASSWORD.
+// Without them the build is signed with a throwaway debug key (fine for a first try; updating then
+// needs "uninstall, install again").
+def ksFile = System.getenv("PS10_KEYSTORE")
+
+android {
+    namespace "com.polishos.terminal"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.polishos.terminal"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        if (ksFile) {
+            fixed {
+                storeFile file(ksFile)
+                storePassword System.getenv("PS10_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("PS10_KEY_ALIAS")
+                keyPassword System.getenv("PS10_KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig ksFile ? signingConfigs.fixed : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    lint { abortOnError false; checkReleaseBuilds false }
+}
+
+dependencies {
+    implementation "androidx.webkit:webkit:1.11.0"
+}

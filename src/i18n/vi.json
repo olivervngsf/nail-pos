@@ -835,7 +835,31 @@
     "b2_saveDup": "Đã có trong menu: chọn ở trên.",
     "b2_saveNet": "Lưu vào menu cần internet. Tạm thời chỉ thêm cho lịch hẹn này.",
     "b2_justThis": "Chỉ lịch hẹn này",
-    "b2_back": "Quay lại"
+    "b2_back": "Quay lại",
+    "brk": "Nghỉ",
+    "brkAdd": "Chặn 30 phút (nghỉ / ăn trưa)",
+    "brkAdded": "{name} nghỉ lúc {time}",
+    "brkRemove": "Bỏ giờ nghỉ",
+    "brkRemoved": "Đã bỏ giờ nghỉ",
+    "brkShorter": "Ngắn hơn 15 phút",
+    "brkLen": "Giờ nghỉ còn {min} phút",
+    "brkWhy": "Giờ bị chặn: đặt lịch online và thợ tự đặt sẽ bỏ qua. Kéo để dời, kéo cạnh dưới để đổi độ dài.",
+    "totalPreTip": "Tổng trước tip",
+    "cfTitle": "Khách",
+    "cfLast": "Lần trước",
+    "cfFirst": "Lần đầu",
+    "cfLikes": "Hay làm với",
+    "cfVisits": "Số lần",
+    "cfCare": "Lưu ý",
+    "cfNew": "Khách mới: chưa có lần nào.",
+    "wants": "Muốn làm",
+    "waitingFor": "Đang chờ",
+    "seatNowWith": "Cho ngồi ngay với",
+    "seatNowSub": "đang rảnh hoặc sắp rảnh · bạn quyết định",
+    "nobodyFree": "15 phút tới không ai rảnh. Đặt giờ khác, hoặc chọn người bên dưới.",
+    "everyoneElse": "Đang bận hoặc chưa vào",
+    "bookLater": "Đặt giờ khác…",
+    "rebookedLater": "đã đặt giờ khác"
   },
   "receiptPage": {
     "notFound": "Không tìm thấy hóa đơn.",
@@ -2134,7 +2158,8 @@
     "printMine": "In thu nhập",
     "language": "Ngôn ngữ",
     "languageSub": "Chỉ điện thoại này. Khách thấy ngôn ngữ riêng.",
-    "signOut": "Đăng xuất"
+    "signOut": "Đăng xuất",
+    "brk": "Nghỉ"
   },
   "go": {
     "title": "Cài thiết bị này",

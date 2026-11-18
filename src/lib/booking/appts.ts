@@ -8,7 +8,9 @@ import { isLive } from "@/lib/checkout/store";
 import { DEMO_DESK } from "@/lib/desk";
 import { at, dayKey } from "./grid";
 
-export type ApptStatus = "booked" | "confirmed" | "arrived" | "done" | "no_show" | "canceled" | "walked_out";
+export type ApptStatus = "booked" | "confirmed" | "arrived" | "done" | "no_show" | "canceled" | "walked_out" | "blocked";
+/** A break / blocked time on a tech's column (no client). Counts as busy everywhere, never as a booking. */
+export const isBlocked = (a: { status: string }) => a.status === "blocked";
 export type ApptSource = "desk" | "phone" | "walk_in" | "web" | "google" | "text" | "staff" | "website" | "instagram" | "qr" | "kiosk" | "staff_phone";
 export type ApptService = { serviceId?: string; name: string; minutes: number; cents: number };
 export type Appt = {
@@ -122,4 +124,10 @@ function demoSeed(): Record<string, Appt> {
     mk(6, kim, 11 * 60 + 30, "Rosa Diaz", "+14085550121", [svc("Fill", 45, 4000)], "booked", "phone"),
   ];
   return Object.fromEntries(list.map((a) => [a.id, a]));
+}
+
+/** New break on a tech's column (default 30 min). Saved like any booking: on the device first, then the server. */
+export function newBreak(salonId: string, staffId: string, day: string, startMin: number, minutes = 30): Appt {
+  return { id: crypto.randomUUID(), salonId, start: at(day, startMin), end: at(day, startMin + minutes), staffId,
+    client: { name: "", phone: "" }, services: [], status: "blocked", source: "desk", note: "", updatedAt: "" };
 }

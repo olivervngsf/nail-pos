@@ -33,6 +33,14 @@ export async function POST(req: Request) {
   if (x.pr.status !== "pending") return fail(409, x.pr.status === "paid" ? "Already paid. Thank you!" : "This pay link was cancelled. Ask the front desk.");
   const st = getStripe();
   if (!st) return fail(503, "Payments aren't switched on yet.");
+  // Tapped Pay before (went back, changed the tip, two tabs): close the older pay page first so only one can take money.
+  // If that one was already paid, record it and stop here.
+  if (x.pr.checkout_session) {
+    await st.checkout.sessions.expire(x.pr.checkout_session, {}, { stripeAccount: x.account }).catch(() => null);
+    const now = await settle(x.pr.id).catch(() => null);
+    if (!now) return fail(503, "Can't check your payment right now. Try again in a moment.");
+    if (now.status !== "pending") return fail(409, now.status === "paid" ? "Already paid. Thank you!" : "This pay link was cancelled. Ask the front desk.");
+  }
   const tip = Math.max(0, Math.min(Math.round(tipCents ?? 0), Number(x.pr.amount_cents) * 2));
   const origin = originOf(req);
   const items = [{ quantity: 1, price_data: { currency: "usd", unit_amount: Number(x.pr.amount_cents), product_data: { name: `${x.salon} · ticket #${x.number}` } } }];

@@ -29,6 +29,22 @@ describe("outbox", () => {
     expect(sent).toEqual(["a", "b"]); // nothing sent twice
   });
 
+  it("a write whose sender isn't loaded on this screen waits without holding back the ones behind it", async () => {
+    const sent: string[] = [];
+    registerHandler("test.write", async (item) => void sent.push((item.payload as { n: string }).n));
+    setOnline(false);
+    await enqueue("test.elsewhere", { n: "x" });
+    await enqueue("test.write", { n: "a" });
+    setOnline(true);
+    await syncNow();
+    expect(sent).toEqual(["a"]);
+    expect(getState().pending).toBe(1);
+    registerHandler("test.elsewhere", async (item) => void sent.push((item.payload as { n: string }).n));
+    await syncNow();
+    expect(sent).toEqual(["a", "x"]);
+    expect(getState().pending).toBe(0);
+  });
+
   it("keeps a failed write for the next try and stops so order is kept", async () => {
     const fn = vi.fn().mockRejectedValueOnce(new Error("server down")).mockResolvedValue(undefined);
     registerHandler("test.write", fn);
