@@ -346,6 +346,19 @@ export async function claimDevice(code: string): Promise<Device & { kind: Device
   localStorage.setItem(DEVICE_KEY, JSON.stringify(d));
   return { ...d, salonName: j.device.salonName };
 }
+/** QR device: ask the server for its current job/name (the owner may have changed it) and update the device copy.
+ *  Signed out by the owner → forget it. Returns the home it should be on now (null = not a QR device / offline). */
+export async function syncDevice(): Promise<string | null> {
+  const d = getDevice();
+  if (!d?.own || !SMS_ON) return null;
+  try {
+    const r = await rpc<{ id: string; salonId: string; name: string; kind: DeviceKind; active: boolean } | null>("my_device");
+    if (!r || !r.active) { forgetDevice(); return "/login"; }
+    const next = { ...d, name: r.name, kind: r.kind };
+    localStorage.setItem(DEVICE_KEY, JSON.stringify(next));
+    return DEVICE_HOME[r.kind];
+  } catch { return null; } // offline: keep the device copy
+}
 export function forgetDevice() {
   try {
     localStorage.removeItem(DEVICE_KEY);

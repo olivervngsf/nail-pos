@@ -3,7 +3,7 @@
 // Cached on the device so checkout still opens with no internet. Test copy (sign-in off) uses sample data.
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SMS_ON, getDevice, isSignedIn, myMemberships, rpc, type Device, type Membership, type Role } from "@/lib/auth";
+import { DEVICE_HOME, SMS_ON, getDevice, syncDevice, isSignedIn, myMemberships, rpc, type Device, type Membership, type Role } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase/client";
 import { NAIL_TEMPLATE } from "@/lib/onboarding/data";
 import { setLive } from "@/lib/checkout/store";
@@ -81,6 +81,10 @@ export function useDesk() {
       if (cached) { setLive(true); setDesk({ ...cached, pay: cached.pay ?? { ready: false, readers: [] }, device }); }
       try {
         if (!(await isSignedIn())) { if (!cached) router.replace("/login"); return; }
+        // QR device: the owner may have changed its job → go to the screen for that job.
+        const home = await syncDevice();
+        if (home && (Object.values(DEVICE_HOME) as string[]).includes(location.pathname) && location.pathname !== home
+          && !(home === "/desk" && location.pathname === "/today")) return router.replace(home);
         const list = (await myMemberships()).filter((x) => x.role !== "tech");
         if (!list.length) return router.replace("/t");
         const ms = list.find((x) => x.salon_id === savedSalon) ?? list[0];
