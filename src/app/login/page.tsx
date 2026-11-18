@@ -60,6 +60,7 @@ export default function LoginPage() {
         </>}
         {msg && <div className="hint err" role="alert">{msg}</div>}
         <div className="cap">New salon? <Link href="/setup">Set up your salon</Link></div>
+        <div className="cap legal-links"><Link href="/legal/terms">Terms</Link><Link href="/legal/privacy">Privacy</Link><Link href="/legal/texts">Text messages</Link></div>
       </div>
     </main>
   );

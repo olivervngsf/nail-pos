@@ -6,7 +6,7 @@ import Link from "next/link";
 import { rpc } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { fmtPhone } from "@/lib/onboarding/data";
-import { alertsFor, healthOf, isLive, stripeState, type Health, type SalonFacts } from "@/lib/admin/health";
+import { TEXTING, alertsFor, healthOf, isLive, stripeState, type Health, type SalonFacts, type Texting } from "@/lib/admin/health";
 import { GROUPS, dayIn, describe, lastDays, sampleSalon, whoLabel, type Group, type SalonDetail } from "@/lib/admin/salon";
 import { Button, Chip } from "@/components/kit";
 import { AdminShell, useAdmin, type Admin } from "../../shell";
@@ -79,7 +79,7 @@ function Salon({ admin, s }: { admin: Admin; s: SalonFacts }) {
         </div>
 
         <Totals s={s} d={d} />
-        <HealthRows s={s} d={d} now={now} />
+        <HealthRows s={s} d={d} now={now} admin={admin} />
         <ActivityLog d={d} />
       </section>
 
@@ -141,7 +141,15 @@ function Totals({ s, d }: { s: SalonFacts; d: SalonDetail | null }) {
   );
 }
 
-function HealthRows({ s, d, now }: { s: SalonFacts; d: SalonDetail | null; now: number }) {
+function HealthRows({ s, d, now, admin }: { s: SalonFacts; d: SalonDetail | null; now: number; admin: Admin }) {
+  const texting = s.texting ?? "not_started";
+  // We register each salon's texting number (10DLC) by hand, so an admin sets where it stands.
+  const setTexting = async (t: Texting) => {
+    if (t === texting) return;
+    if (admin.gate !== "live") return admin.say("Test version: sign in as an admin to change this.");
+    try { await rpc("admin_set_texting", { p_salon: s.salon_id, p_status: t }); admin.say("Texting status saved"); await admin.reload(); }
+    catch (e) { admin.say((e as Error).message); }
+  };
   const st = stripeState(s);
   const stripe: [string, Health] = {
     none: ["Not linked yet", "setup"], needs_info: ["Stripe needs more info from the owner", "warn"], charges_off: ["Card payments are off", "bad"],
@@ -168,7 +176,13 @@ function HealthRows({ s, d, now }: { s: SalonFacts; d: SalonDetail | null; now: 
       {d && !d.devices.length && row("Salon device", "None set up yet", isLive(s) ? "warn" : "setup")}
       {row("Setup", !s.owner_joined ? (s.invite_open ? "Owner invited, not joined yet" : "Invite expired") : isLive(s) ? "All 10 steps done" : `Step ${step} of 10`, !s.owner_joined ? "warn" : isLive(s) ? "good" : "setup")}
       {row("Team", team, null)}
-      {row("Texting", "Comes with salon texting (10DLC)", null)}
+      <div className="row s" data-testid="h-texting">
+        <span className={`ad-dot ${TEXTING[texting][1]}`} aria-hidden />
+        <span style={{ width: 130, color: "var(--ink-soft)" }}>Texting (10DLC)</span>
+        <span className="g ad-texting" role="group" aria-label="Texting status">
+          {(Object.keys(TEXTING) as Texting[]).map((t) => <Chip key={t} on={t === texting} aria-pressed={t === texting} onClick={() => void setTexting(t)}>{TEXTING[t][0]}</Chip>)}
+        </span>
+      </div>
     </div>
   );
 }

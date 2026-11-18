@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import en from "@/i18n/en.json";
 import vi from "@/i18n/vi.json";
 import { registerHandler, startSync } from "@/lib/offline/outbox";
+import TwoStepGate from "@/components/TwoStepGate";
 
 export type Lang = "en" | "vi";
 const MESSAGES = { en, vi };
@@ -47,6 +48,7 @@ export default function AppProviders({ children }: { children: React.ReactNode }
     <LangCtx.Provider value={{ lang, setLang }}>
       <NextIntlClientProvider locale={lang} messages={MESSAGES[lang]} timeZone="America/Los_Angeles">
         {children}
+        <TwoStepGate />
       </NextIntlClientProvider>
     </LangCtx.Provider>
   );

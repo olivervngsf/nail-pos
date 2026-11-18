@@ -8,7 +8,7 @@ import { Button, Drawer, LeftMenu, OfflineBanner, SyncPill, Toast, TopBar } from
 import { formatCents } from "@/lib/money";
 import { useStored } from "@/lib/useStored";
 import { useDesk, type Desk } from "@/lib/desk";
-import { putAppt, pullAppts, useAppts, type Appt } from "@/lib/booking/appts";
+import { isBlocked, newBreak, putAppt, pullAppts, useAppts, type Appt } from "@/lib/booking/appts";
 import { pullTickets, useTickets } from "@/lib/checkout/store";
 import { parseTicketScan } from "@/lib/print/print";
 import { ScanDialog } from "./ScanDialog";
@@ -16,6 +16,8 @@ import { isHere, isWaiting, onGrid, turnCounts, turnOrder } from "@/lib/booking/
 import { getTicket } from "@/lib/checkout/store";
 import { totals } from "@/lib/checkout/ticket";
 import { SeatDrawer, WalkInDrawer, Waitlist, seatAppt, useTick } from "./WalkIns";
+import { LiveBoard } from "./LiveBoard";
+import { liveBoard } from "@/lib/booking/board";
 import { addDays, at, clamp, dayKey, fmtMin, fromDayKey, lanes, minutesOf, overlapping, snap, startOfWeek } from "@/lib/booking/grid";
 import { BookDrawer, DetailsDrawer, statusOf, ticketFor, type BookDraft } from "./BookDrawers";
 
@@ -25,13 +27,13 @@ const ANY = "__any";
 type View = "day" | "week" | "month";
 
 export default function CalendarPage() {
-  const { desk, err } = useDesk();
+  const { desk, err, refresh } = useDesk();
   if (err) return <main style={{ padding: 24 }}><p className="hint err">{err}</p></main>;
   if (!desk) return <div className="app" aria-busy="true" />;
-  return <Calendar desk={desk} />;
+  return <Calendar desk={desk} refresh={refresh} />;
 }
 
-function Calendar({ desk }: { desk: Desk }) {
+function Calendar({ desk, refresh }: { desk: Desk; refresh: () => Promise<void> }) {
   const t = useTranslations("calendar");
   const router = useRouter();
   const sp = useSearchParams();
@@ -156,16 +158,17 @@ function Calendar({ desk }: { desk: Desk }) {
   for (const a of waiting) { const m = Math.round((Date.now() - new Date(a.arrivedAt || a.start).getTime()) / 60_000); if (m >= 20) alerts.push({ id: `w-${a.id}`, kind: "wait", text: t("longWait", { name: a.client?.name || t("walkIn"), min: m }) }); }
   for (const a of todayList) if (a.status === "booked" && minutesOf(a.start) > nowM && minutesOf(a.start) - nowM <= 120 && a.source !== "kiosk" && a.source !== "walk_in")
     alerts.push({ id: `u-${a.id}`, kind: "unconf", open: a.id, text: t("unconfSoon", { name: a.client?.name || t("walkIn"), time: fmtMin(minutesOf(a.start)) }) });
-  const ov = alerts.find((x) => x.kind === "overlap"), cover = alerts.find((x) => x.kind === "cover");
   return (
     <div className="app cal-app">
       <LeftMenu active="Calendar" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={desk.me.display_name[0]} />
       <div className="col">
         <TopBar title={<span className="cal-top">
-          <b className="cal-title" data-testid="cal-title">{title}</b>
-          <Button size="sm" variant="ghost" aria-label={t("prev")} onClick={() => step(-1)}>‹</Button>
-          <Button size="sm" onClick={() => go(view, dayKey(new Date()))}>{t("today")}</Button>
-          <Button size="sm" variant="ghost" aria-label={t("next")} onClick={() => step(1)}>›</Button>
+          <span className="cal-nav">
+            <Button size="sm" variant="ghost" aria-label={t("prev")} onClick={() => step(-1)}>‹</Button>
+            <Button size="sm" onClick={() => go(view, dayKey(new Date()))}>{t("today")}</Button>
+            <Button size="sm" variant="ghost" aria-label={t("next")} onClick={() => step(1)}>›</Button>
+          </span>
+          <b className="cal-title" data-testid="cal-title">{title}{view === "day" && day === dayKey(new Date()) && <LiveClock />}</b>
           <span className="seg cal-seg">{(["day", "week", "month"] as View[]).map((v) => (
             <button key={v} type="button" className={view === v ? "on" : ""} aria-pressed={view === v} onClick={() => go(v, day)} data-testid={`view-${v}`}>{t(v)}</button>))}</span>
         </span>}>
@@ -189,11 +192,6 @@ function Calendar({ desk }: { desk: Desk }) {
           <SyncPill />
           <Button variant="primary" onClick={() => setDraft({ day, start: snap(clamp(nowMin(), H0, H1 - 60), 15), minutes: 45 })} data-testid="book-new">{t("book")} <span className="kbd cal-kbd">N</span></Button>
         </TopBar>
-        {view === "day" && day === today && (ov || cover) && <div className="cal-banner" role="status">
-          {ov && <><b className="cal-bwarn">⚠ {ov.text}</b><span className="cal-bsub">{ov.sub}</span><button type="button" className="btn sm" onClick={() => setFilter(filter === "overlap" ? "all" : "overlap")}>{t("show")}</button></>}
-          <span style={{ flex: 1 }} />
-          {cover && <span className="cap">{cover.text}</span>}
-        </div>}
         <OfflineBanner />
         {desk.mode === "demo" && <div className="demo" style={{ margin: "8px 16px 0" }}>{t("demo")}</div>}
         {view === "day" && <DayView desk={deskT} day={day} list={list} onBook={setDraft} onOpen={setOpen} say={say}
@@ -201,13 +199,15 @@ function Calendar({ desk }: { desk: Desk }) {
         {view === "week" && <WeekView desk={desk} day={day} list={list} onDay={(d) => go("day", d)} onOpen={setOpen} onBook={setDraft} />}
         {view === "month" && <MonthView day={day} list={list} onDay={(d) => go("day", d)} />}
       </div>
-      {draft && <BookDrawer desk={desk} draft={draft} all={list} onClose={() => setDraft(null)} onBooked={(n, name) => { setDraft(null); say(t("booked", { n, name })); }} />}
+      {draft && <BookDrawer desk={desk} draft={draft} all={list} onClose={() => setDraft(null)} onBooked={(n, name) => { setDraft(null); say(t("booked", { n, name })); }} onMenuChanged={() => void refresh()} />}
       {opened && <DetailsDrawer desk={desk} a={opened} onClose={() => setOpen(null)} say={say} />}
       {walkIn && <WalkInDrawer desk={desk} today={today} all={all} onClose={() => setWalkIn(false)} say={(x) => say(x)} />}
       {seatFor && (() => { const a = all.find((x) => x.id === seatFor); if (!a) return null;
         const nowM = new Date().getHours() * 60 + new Date().getMinutes();
         const order = turnOrder(deskT.staff.filter((x) => x.role === "tech"), list.filter((x) => dayKey(new Date(x.start)) === today), nowM);
-        return <SeatDrawer desk={deskT} a={a} order={order} onClose={() => setSeatFor(null)} say={say} />; })()}
+        return <SeatDrawer desk={deskT} a={a} order={order} onClose={() => setSeatFor(null)} say={say}
+          onLater={() => { setSeatFor(null); setDraft({ day: today, start: Math.min(20 * 60, Math.ceil((nowM + 30) / 15) * 15), minutes: a.services.reduce((x, s) => x + s.minutes, 0) || 45,
+            client: { name: a.client?.name ?? "", phone: a.client?.phone ?? "" }, services: a.services, replaces: a }); }} />; })()}
       {scanOpen && <ScanDialog onCode={(x) => void handleScan(x)} onClose={() => setScanOpen(false)} />}
       {toast && <Toast action={toast.undo ? { label: t("undo"), onClick: () => { toast.undo?.(); setToast(null); } } : undefined}>{toast.text}</Toast>}
     </div>
@@ -235,7 +235,8 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   const [drag, setDrag] = useState<Drag | null>(null);
   const [dropAt, setDropAt] = useState<{ col: number; m: number } | null>(null);
   const [cat, setCat] = useState("");
-  const [avail, setAvail] = useState<"all" | "avail" | "working" | "out">("all");
+  const [{ off: coachOff }, setCoachOff] = useStored("nailpos.calCoach", () => ({ off: false }));
+  const [avail, setAvail] = useState<"all" | "busy" | "free" | "next" | "out">("all");
   const [phoneCol, setPhoneCol] = useState(0);
   const isToday = day === dayKey(new Date());
   const nowM = nowMin();
@@ -245,11 +246,16 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   const H0 = Math.min(9 * 60, ...dayList.map((a) => Math.floor(minutesOf(a.start) / 60) * 60));
   const H1 = Math.max(19 * 60, ...dayList.map((a) => Math.ceil(minutesOf(a.end) / 60) * 60));
   const techs = useMemo(() => desk.staff.filter((s) => s.role === "tech" || list.some((a) => a.staffId === s.id)), [desk.staff, list]);
-  const busyNow = (id: string) => isToday && dayList.some((a) => a.staffId === id && live(a) && minutesOf(a.start) <= nowM && minutesOf(a.end) > nowM);
   const order = turnOrder(techs, isToday ? dayList : [], nowM);
   const next = isToday ? order.find((f) => f.clockedIn && f.busyUntil === null) : undefined;
-  const nAvail = techs.filter((s) => s.clockedIn && !busyNow(s.id)).length, nWork = techs.filter((s) => s.clockedIn).length, nOut = techs.filter((s) => !s.clockedIn).length;
-  const staff = techs.filter((s) => avail === "all" || (avail === "avail" ? s.clockedIn && !busyNow(s.id) : avail === "working" ? s.clockedIn : !s.clockedIn));
+  // Tech filter (design: All · Busy · Free · Next up · Not in) = the Live board's states; other days: clocked in = free.
+  const nowSec = nowM * 60 + new Date().getSeconds();
+  const stateOf = useMemo(() => new Map(liveBoard(techs, isToday ? dayList : [], isToday ? nowSec : -1).map((r) => [r.id,
+    r.state === "busy" || r.state === "break" ? "busy" : r.state === "soon" ? "next" : r.state] as const)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [techs, dayList, isToday, nowM]);
+  const nOf = (k: string) => techs.filter((s) => stateOf.get(s.id) === k).length;
+  const staff = techs.filter((s) => avail === "all" || stateOf.get(s.id) === avail);
   const hasAny = dayList.some((a) => !a.staffId);
   const cols = useMemo(() => [...staff.map((s) => ({ id: s.id, name: s.name, on: s.clockedIn })), ...(hasAny ? [{ id: ANY, name: t("anyone"), on: true }] : [])], [staff, hasAny, t]);
   const colOf = (a: Appt) => cols.findIndex((c) => c.id === (a.staffId ?? ANY));
@@ -257,6 +263,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: 0, online: 0, walk: 0, unconf: 0, conf: 0, here: 0, chair: 0, ready: 0, cancel: 0 };
     for (const a of dayList) {
+      if (isBlocked(a)) continue;
       const k = kind(a);
       if (k !== "cancel") c.all++;
       if (ONLINE.has(a.source)) c.online++;
@@ -276,6 +283,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   }, [dayList, cols]);
   const ql = q.trim().toLowerCase(), qd = q.replace(/\D/g, "");
   const matches = (a: Appt) => {
+    if (isBlocked(a)) return filter === "all" && !ql && !cat;
     if (cat && !a.services.some((s) => desk.services.find((x) => x.id === s.serviceId || x.name === s.name)?.cat === cat)) return false;
     if (ql && !((a.client?.name ?? "").toLowerCase().includes(ql) || (qd.length >= 3 && (a.client?.phone ?? "").includes(qd))
       || (desk.staff.find((s) => s.id === a.staffId)?.name ?? "").toLowerCase().includes(ql))) return false;
@@ -364,7 +372,6 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   };
 
   const shown = narrow ? [cols[phoneCol] ?? cols[0]].filter(Boolean) : cols;
-  const freeN = order.filter((f) => f.clockedIn && f.busyUntil === null).length;
   const cats = [...new Set(desk.services.map((s) => s.cat))];
 
   // Drag a walk-in from the waitlist onto a column → seated with that tech at that time.
@@ -388,53 +395,35 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
 
   return (
     <main className="cal-main">
-      <aside className="cal-left">
-        {isToday && <Waitlist waiting={waiting} onSeat={onSeat} onWalkIn={onWalkIn} />}
-        <div style={{ flex: 1 }} />
+      <div className="cal-sub">
+        <span className="seg cal-avail" data-testid="tech-filter">{([["all", t("fAll"), techs.length], ["busy", t("fBusy"), nOf("busy")], ["free", t("fFree"), nOf("free")], ["next", t("fNext"), nOf("next")], ["out", t("fNotIn"), nOf("out")]] as const).map(([k, label, n]) => (
+          <button key={k} type="button" className={avail === k ? "on" : ""} aria-pressed={avail === k} onClick={() => setAvail(k)}>{label} <span className="n">{n}</span></button>))}</span>
+        <span className="vline" />
+        <span className="cap cal-rowlbl">{t("rowH")}</span>
+        <span className="seg cal-avail" data-testid="row-height">{ROW_LBL.map((l, i) => (
+          <button key={l} type="button" className={rowH.i === i ? "on" : ""} aria-pressed={rowH.i === i} onClick={() => setRowH({ i })}>{l}</button>))}</span>
+        <span style={{ flex: 1 }} />
+        <select className="cal-svc" value={cat} onChange={(e) => setCat(e.target.value)} aria-label={t("serviceAny")}>
+          <option value="">{t("serviceAny")}</option>
+          {cats.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </div>
+      <div className="cal-cards">
+      <aside className="cal-left card">
+        {isToday && <LiveBoard waiting={waiting} dayList={dayList} order={order} nextId={next?.id ?? null} onSeat={onSeat} onWalkIn={onWalkIn} onOpen={onOpen}
+          onBook={(sid) => onBook({ day, start: snap(clamp(nowM, H0, H1 - 60), 15), minutes: 45, staffId: sid })} />}
+        {!isToday && <div style={{ flex: 1 }} />}
         <MiniMonth day={day} list={list} />
       </aside>
-      <section className="cal-center">
-        <div className="cal-filters">
-          <select className="cal-svc" value={cat} onChange={(e) => setCat(e.target.value)} aria-label={t("serviceAny")}>
-            <option value="">{t("serviceAny")}</option>
-            {cats.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <span className="seg cal-avail">{([["all", t("fAll", { n: techs.length })], ["avail", t("fAvail", { n: nAvail })], ["working", t("fWorking", { n: nWork })], ["out", t("fNotIn", { n: nOut })]] as const).map(([k, label]) => (
-            <button key={k} type="button" className={avail === k ? "on" : ""} aria-pressed={avail === k} onClick={() => setAvail(k)}>{label}</button>))}</span>
-          <span className="cap cal-rowlbl">{t("rowH")}</span>
-          <span className="seg cal-avail" data-testid="row-height">{ROW_LBL.map((l, i) => (
-            <button key={l} type="button" className={rowH.i === i ? "on" : ""} aria-pressed={rowH.i === i} onClick={() => setRowH({ i })}>{l}</button>))}</span>
-          <span style={{ flex: 1 }} />
-        </div>
-        <div className="cal-counts" role="toolbar" aria-label={t("filter")}>
-          <span className="cal-cscroll">
-          {COUNTS.map(([k, , color]) => (<span key={k} style={{ display: "contents" }}>
-            {k === "online" && <span className="cal-sep" aria-hidden />}
-            <button type="button" className={`cal-cnt ${filter === k ? "on" : ""}`} aria-pressed={filter === k} title={t(`ct_${k}`)} data-testid={`count-${k}`}
-              onClick={() => setFilter(filter === k || k === "all" ? "all" : k)}>
-              {color && <i className="cal-cdot" style={{ background: color }} />}{t(`p_${k}`)}<span className="cal-cn">{counts[k]}</span></button></span>))}
-          {isToday && <button type="button" className={`cal-cnt cal-waitpill ${waiting.length ? "on" : ""}`} onClick={() => setWaitOpen(true)} data-testid="wait-pill">
-            {t("waitingN", { n: waiting.length })}</button>}
-          {isToday && <span className="cal-sep cal-wsep" aria-hidden />}
-          </span>
-          <span className="cal-key" tabIndex={0} aria-label={t("keyTitle")} data-testid="cal-key">
-            <span className="cal-keysw" aria-hidden><i className="unconf" /><i className="conf" /><i className="chair" /><i className="ready" /></span>{t("key")}
-            <span className="cal-keypop card" role="tooltip">
-              <b className="eyebrow">{t("keyTitle")}</b>
-              {(["unconf", "conf", "here", "chair", "ready", "paid", "cancel"] as const).map((k) => (
-                <span key={k} className="cal-kr"><i className={k} /><span><b>{t(`ct_${k}`)}</b>{t(`key_${k}`)}</span></span>))}
-              <span className="cap" style={{ marginTop: 6 }}>{t("key_src")}</span>
-              <span style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>{["srcTagOnline", "srcTagPhone", "srcTagDesk", "srcTagWalk"].map((k) => <span key={k} className={`cb-src ${k === "srcTagOnline" ? "web" : k === "srcTagWalk" ? "walk" : ""}`} style={{ position: "static" }}>{t(k)}</span>)}</span>
-            </span>
-          </span>
-        </div>
+      <section className="cal-center card">
+        {!coachOff && <div className="cal-coach" role="note"><b>{t("tryIt")}</b><span style={{ flex: 1 }}>{t("coach")}</span><button type="button" className="btn sm" onClick={() => setCoachOff({ off: true })}>{t("gotIt")}</button></div>}
         {narrow && <div className="cal-phonestaff">{cols.map((c, i) => <button key={c.id} type="button" className={`chip ${i === phoneCol ? "on" : ""}`} onClick={() => setPhoneCol(i)}>{c.name}</button>)}</div>}
         <div className="cal-scroll">
         <div className="cal-inner" style={{ minWidth: narrow ? undefined : `max(100%, ${52 + shown.length * MIN_COL}px)` }}>
         <div className="cal-heads" style={{ gridTemplateColumns: `repeat(${shown.length}, minmax(0, 1fr))` }}>
           {shown.map((c) => {
             const s = desk.staff.find((x) => x.id === c.id);
-            const appts = dayList.filter((a) => (a.staffId ?? ANY) === c.id && live(a)).length;
+            const appts = dayList.filter((a) => (a.staffId ?? ANY) === c.id && live(a) && !isBlocked(a)).length;
             const late = !!s && !c.on && appts > 0 && isToday;
             const curA = isToday ? dayList.find((a) => a.staffId === c.id && live(a) && minutesOf(a.start) <= nowM && minutesOf(a.end) > nowM) : undefined;
             const dot = !c.on ? "#8E8E93" : curA ? "#2A55B0" : "#2F9E44";
@@ -444,7 +433,8 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                 <span className="av" style={{ width: 28, height: 28, fontSize: 12, boxShadow: c.id !== ANY ? `0 0 0 2px #fff, 0 0 0 3.5px ${dot}` : undefined }}>{c.name[0]}</span>
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <b className="cal-hname">{c.name}{next?.id === c.id && <span className="tag jade cal-next">{t("next")}</span>}</b>
-                  {s && <span className="cal-hsub" style={{ color: curA ? "#2A55B0" : undefined }}>{sub}</span>}</span>
+                  {s && <span className="cal-hsub" style={{ color: curA ? "#2A55B0" : undefined }}>{sub}</span>}
+                  {s?.skills?.length ? <span className="cal-hsk" title={s.skills.join(" · ")}>{s.skills.join(" · ")}</span> : null}</span>
               </div>);
           })}
         </div>
@@ -460,8 +450,8 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
             onDragOver={onDragOver} onDragLeave={() => setDropAt(null)} onDrop={onDrop}>
             {Array.from({ length: (H1 - H0) / 30 }, (_, i) => <div key={i} className={i % 2 ? "cal-half" : "cal-hr"} style={{ top: i * 30 * PX }} />)}
             {shown.map((_, i) => i > 0 && <div key={i} className="cal-vl" style={{ left: `${(i / shown.length) * 100}%` }} />)}
-            {shown.map((c, i) => { const w = 100 / shown.length; return !c.on && c.id !== ANY && isToday && dayList.some((a) => a.staffId === c.id && live(a))
-              ? <div key={`late-${c.id}`} className="cal-latecol" style={{ left: `${i * w}%`, width: `${w}%` }} /> : null; })}
+            {shown.map((c, i) => { const w = 100 / shown.length; return !c.on && c.id !== ANY && isToday
+              ? <div key={`late-${c.id}`} className={dayList.some((a) => a.staffId === c.id && live(a) && !isBlocked(a)) ? "cal-latecol" : "cal-outcol"} style={{ left: `${i * w}%`, width: `${w}%` }} /> : null; })}
             {shown.map((c, ci) => {
               const mine = dayList.filter((a) => (a.staffId ?? ANY) === c.id);
               const ln = lanes(mine.map((a) => ({ id: a.id, start: minutesOf(a.start), end: minutesOf(a.end) })));
@@ -480,7 +470,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                 const usual = minutesOf(a.end) - minutesOf(a.start);
                 const inFor = isToday ? Math.max(0, nowM - minutesOf(a.start)) : 0;
                 const leftS = isToday ? Math.round(dayStart + minutesOf(a.end) * 60_000 - Date.now()) / 1000 : 0;
-                const status = overlapIds.has(a.id) && live(a) ? `⚠ ${t("overlap")}`
+                const status = k === "blocked" ? `${fmtMin(s)} – ${fmtMin(e)}` : overlapIds.has(a.id) && live(a) ? `⚠ ${t("overlap")}`
                   : k === "here" ? t("stx_here", { min: Math.max(0, Math.round((Date.now() - new Date(a.arrivedAt!).getTime()) / 60_000)) })
                   : k === "chair" && isToday ? (leftS >= 0 ? t("stx_left", { t: mmss(leftS) }) : t("stx_over", { t: mmss(-leftS) }))
                   : k === "chair" ? t("stx_chair", { min: inFor, usual })
@@ -493,7 +483,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                 return (
                   <div key={a.id} className={`cb ${k} ${a.source === "kiosk" || a.source === "walk_in" ? "walk" : ""} ${(e - s) < 30 ? "xs" : ""} ${drag && drag.kind !== "new" && drag.id === a.id ? "drag" : ""} ${matches(a) ? "" : "dim"}`}
                     style={{ top: (s - H0) * PX + 1, height: Math.max(22, (e - s) * PX - 2), left: `calc(${col * w + (L.lane * w) / L.lanes}% + 3px)`, width: `calc(${w / L.lanes}% - 6px)` }}
-                    data-testid="cal-block" data-name={a.client?.name ?? ""} role="button" tabIndex={0} aria-label={`${a.client?.name ?? t("walkIn")} ${fmtMin(s)}`}
+                    data-testid="cal-block" data-name={k === "blocked" ? "__break" : a.client?.name ?? ""} role="button" tabIndex={0} aria-label={`${a.client?.name ?? t("walkIn")} ${fmtMin(s)}`}
                     onKeyDown={(ev) => ev.key === "Enter" && onOpen(a.id)}
                     onContextMenu={(ev) => { ev.preventDefault(); ev.stopPropagation(); if (!hold.current) setMenu({ x: ev.clientX, y: ev.clientY, id: a.id }); }}
                     onPointerDown={(ev) => {
@@ -507,9 +497,9 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                       gridRef.current!.setPointerCapture(ev.pointerId);
                       setDrag(d0);
                     }}>
-                    <b>{a.client?.care ? "▲ " : ""}{a.client?.name || t("walkIn")}</b>
-                    {(e - s) >= 30 && L.lanes === 1 && <span className={`cb-src ${srcTag[0]}`}>{srcTag[1]}</span>}
-                    <span className="m">{svc}{svc ? " · " : ""}{fmtMin(s).replace(/ [AP]M$/, "")}</span>
+                    <b>{k === "blocked" ? t("brk") : <>{a.client?.care ? "▲ " : ""}{a.client?.name || t("walkIn")}</>}</b>
+                    {k !== "blocked" && (e - s) >= 30 && L.lanes === 1 && <span className={`cb-src ${srcTag[0]}`}>{srcTag[1]}</span>}
+                    {k !== "blocked" && <span className="m">{svc}{svc ? " · " : ""}{fmtMin(s).replace(/ [AP]M$/, "")}</span>}
                     <span className="s">{status}</span>
                     {k === "chair" && <span className="pb" style={{ width: `${Math.min(100, Math.round((inFor / Math.max(1, usual)) * 100))}%` }} />}
                     <span className="cb-rs" aria-hidden />
@@ -528,27 +518,29 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
         </div>
         </div>
         </div>
-        <div className="cap cal-foot cal-hint">{t("hint")}</div>
+        <div className="cal-counts" role="toolbar" aria-label={t("filter")}>
+          <span className="cal-cscroll"><span className="cap cal-show">{t("show")}</span>
+          {COUNTS.map(([k, , color]) => (<span key={k} style={{ display: "contents" }}>
+            <button type="button" className={`cal-cnt ${filter === k ? "on" : ""}`} aria-pressed={filter === k} title={t(`ct_${k}`)} data-testid={`count-${k}`}
+              onClick={() => setFilter(filter === k || k === "all" ? "all" : k)}>
+              {color && <i className="cal-cdot" style={{ background: color }} />}{t(`p_${k}`)}<span className="cal-cn">{counts[k]}</span></button></span>))}
+          {isToday && <button type="button" className={`cal-cnt cal-waitpill ${waiting.length ? "on" : ""}`} onClick={() => setWaitOpen(true)} data-testid="wait-pill">
+            {t("waitingN", { n: waiting.length })}</button>}
+          {isToday && <span className="cal-sep cal-wsep" aria-hidden />}
+          </span>
+          <span className="cal-key" tabIndex={0} aria-label={t("keyTitle")} data-testid="cal-key">
+            <span className="cal-keysw" aria-hidden><i className="unconf" /><i className="conf" /><i className="chair" /><i className="ready" /></span>{t("key")}
+            <span className="cal-keypop card" role="tooltip">
+              <b className="eyebrow">{t("keyTitle")}</b>
+              {(["unconf", "conf", "here", "chair", "ready", "paid", "cancel"] as const).map((k) => (
+                <span key={k} className="cal-kr"><i className={k} /><span><b>{t(`ct_${k}`)}</b>{t(`key_${k}`)}</span></span>))}
+              <span className="cap" style={{ marginTop: 6 }}>{t("key_src")}</span>
+              <span style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>{["srcTagOnline", "srcTagPhone", "srcTagDesk", "srcTagWalk"].map((k) => <span key={k} className={`cb-src ${k === "srcTagOnline" ? "web" : k === "srcTagWalk" ? "walk" : ""}`} style={{ position: "static" }}>{t(k)}</span>)}</span>
+            </span>
+          </span>
+        </div>
       </section>
-      <aside className="cal-right">
-        <div style={{ display: "flex", alignItems: "center" }}><b style={{ fontSize: 15, flex: 1 }}>{t("upNext")}</b><span className="tag jade">{t("freeNow", { n: freeN })}</span></div>
-        <div className="cap" style={{ marginTop: -4 }}>{t("turnFacts")}</div>
-        {order.map((f) => {
-          const free = f.clockedIn && f.busyUntil === null;
-          const tag = !f.clockedIn ? t("tagOut") : free ? t("tagFree") : t("tagBusy");
-          const sub = !f.clockedIn ? t("notInTurns", { n: f.turns }) : !free ? t("freeAtTurns", { time: fmtMin(f.busyUntil!).replace(/ [AP]M$/, ""), n: f.turns })
-            : f.freeSince ? t("openFor", { min: nowM - f.freeSince, n: f.turns }) : t("freeTurns", { n: f.turns });
-          return (
-            <div key={f.id} className={`cal-ucard ${free ? "free" : ""} ${f.clockedIn ? "" : "out"}`} data-testid={`up-${f.name}`}>
-              <span className="cal-dot" style={{ width: 8, height: 8, background: !f.clockedIn ? "#8E8E93" : free ? "#2F9E44" : "#E03131" }} />
-              <span style={{ flex: 1, minWidth: 0 }}><b>{f.name}</b> <span className={`cal-utag ${!f.clockedIn ? "out" : free ? "free" : "busy"}`}>{tag}</span>
-                <span className="cap" style={{ display: "block", fontSize: 12 }}>{sub}</span></span>
-              {f.clockedIn && <Button size="sm" onClick={() => onBook({ day, start: snap(clamp(f.busyUntil ?? nowM, H0, H1 - 60), 15), minutes: 45, staffId: f.id })}>{t("bookShort")}</Button>}
-            </div>);
-        })}
-        <div style={{ flex: 1 }} />
-        <div className="cap cal-keys">{t("shortcuts")} <span className="kbd">N</span> {t("kNew")} · <span className="kbd">T</span> {t("kToday")} · <span className="kbd">←</span><span className="kbd">→</span> {t("kDay")} · <span className="kbd">/</span> {t("kSearch")}</div>
-      </aside>
+      </div>
       {menu && (() => {
         const items: { label: string; run: () => void; danger?: boolean }[] = [];
         const go2 = (f: () => void) => () => { setMenu(null); f(); };
@@ -558,7 +550,13 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
           if (a) {
             const st = statusOf(a), before = { ...a }, nm = a.client?.name || t("walkIn"), s0 = minutesOf(a.start), e0 = minutesOf(a.end);
             const put = (patch: Partial<Appt>, msg: string) => { putAppt({ ...a, ...patch }); say(msg, () => putAppt(before)); };
-            title = `${nm} · ${fmtMin(s0)}`;
+            title = `${isBlocked(a) ? t("brk") : nm} · ${fmtMin(s0)}`;
+            if (isBlocked(a)) {
+              items.push({ label: t("m_longer"), run: go2(() => put({ end: at(day, e0 + 15) }, t("brkLen", { min: e0 - s0 + 15 }))) });
+              if (e0 - s0 > 15) items.push({ label: t("brkShorter"), run: go2(() => put({ end: at(day, e0 - 15) }, t("brkLen", { min: e0 - s0 - 15 }))) });
+              items.push({ label: t("m_move"), run: go2(() => setMoveId(a.id)) });
+              items.push({ label: t("brkRemove"), danger: true, run: go2(() => put({ status: "canceled" }, t("brkRemoved"))) });
+            } else {
             items.push({ label: t("m_open"), run: go2(() => onOpen(a.id)) });
             if ((st === "booked" || st === "confirmed") && !isHere(a) && a.source !== "kiosk" && a.source !== "walk_in")
               items.push({ label: t("hereBtn"), run: go2(() => put({ arrivedAt: new Date().toISOString() }, t("hereMsg", { name: nm }))) });
@@ -574,11 +572,15 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
               items.push({ label: t("noShow"), run: go2(() => put({ status: "no_show" }, t("noShowMsg"))) });
               items.push({ label: t("cancel"), danger: true, run: go2(() => put({ status: "canceled" }, t("canceledMsg"))) });
             }
+            }
           }
         } else if (menu.col !== undefined && menu.m !== undefined) {
           const c = cols[menu.col], m = menu.m;
           title = `${c?.name ?? ""} · ${fmtMin(m)}`;
           items.push({ label: t("m_newHere"), run: go2(() => onBook({ day, start: m, minutes: 45, staffId: c && c.id !== ANY ? c.id : undefined })) });
+          if (c && c.id !== ANY) items.push({ label: t("brkAdd"), run: go2(() => {
+            const b = newBreak(desk.salonId, c.id, day, m); putAppt(b);
+            say(t("brkAdded", { name: c.name, time: fmtMin(m) }), () => putAppt({ ...b, status: "canceled", updatedAt: "" })); }) });
           if (c && c.id !== ANY) for (const w of waiting.slice(0, 2)) items.push({ label: t("m_seatHere", { name: w.client?.name || t("walkIn") }), run: go2(() => {
             const b = { ...w }; seatAppt(desk, w, c.id, at(day, m)); say(t("droppedMsg", { name: w.client?.name || t("walkIn"), staff: c.name, time: fmtMin(m) }), () => putAppt(b)); }) });
         }
@@ -618,7 +620,8 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
 }
 
 const ONLINE = new Set(["web", "google", "website", "instagram", "qr", "text"]);
-const COUNTS: [string, string, string][] = [["all", "", ""], ["unconf", "", "#D9A979"], ["conf", "", "#B8B8C0"], ["here", "", "#1F7A33"], ["chair", "", "#2F9E44"], ["ready", "", "#E8590C"], ["cancel", "", "#C92A2A"], ["online", "", "#2A55B0"], ["walk", "", "#B35C00"]];
+/** Bottom "Show" pills (Live design): All · Not confirmed · Here · To bill · Cancelled · Online · Walk-in. */
+const COUNTS: [string, string, string][] = [["all", "", ""], ["unconf", "", ""], ["here", "", ""], ["ready", "", ""], ["cancel", "", ""], ["online", "", ""], ["walk", "", ""]];
 /** Timeline row height (px per minute), picked per device: S · M · L · XL. */
 const ROW_PX = [0.8, 1.1, 1.6, 2.2];
 const ROW_LBL = ["S", "M", "L", "XL"];
@@ -629,6 +632,7 @@ const mmss = (sec: number) => { const s = Math.max(0, Math.floor(sec)), h = Math
 /** Block look (Booking board Cal): unconf · conf · chair (in now) · ready (time's up, not paid) · paid · cancel. */
 export function blockKind(a: Appt, nowM: number): string {
   const st = statusOf(a);
+  if (st === "blocked") return "blocked";
   if (st === "canceled" || st === "no_show") return "cancel";
   if (st === "done") return "paid";
   if (st === "arrived") return nowM >= 0 && minutesOf(a.end) <= nowM ? "ready" : "chair";
@@ -640,24 +644,26 @@ function payHow(tk: ReturnType<typeof getTicket>, t: (k: "paidCard" | "paidCash"
   return m === "cash" ? t("paidCash") : m ? t("paidCard") : tk?.giftPays?.length ? t("paidGift") : t("paidCard");
 }
 
-const CLS: Record<string, string> = { booked: "unconf", confirmed: "conf", arrived: "chair", done: "paid", no_show: "cancel", canceled: "cancel" };
+const CLS: Record<string, string> = { blocked: "blocked", booked: "unconf", confirmed: "conf", arrived: "chair", done: "paid", no_show: "cancel", canceled: "cancel" };
 
 function MiniMonth({ day, list }: { day: string; list: Appt[] }) {
   const router = useRouter();
+  const t = useTranslations("calendar");
   const d = fromDayKey(day);
   const first = new Date(d.getFullYear(), d.getMonth(), 1);
   const start = startOfWeek(first);
   const busy = new Set(list.filter(live).map((a) => dayKey(new Date(a.start))));
   const today = dayKey(new Date());
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}><b style={{ fontSize: 14, flex: 1 }}>{d.toLocaleDateString(undefined, { month: "short", year: "numeric" })}</b></div>
+    <div className="cal-minibox">
+      <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}><b style={{ fontSize: 15, flex: 1 }}>{d.toLocaleDateString(undefined, { month: "long", year: "numeric" })}</b></div>
       <div className="cal-mini">
         {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((x, i) => <span key={i} className="cap">{x}</span>)}
         {Array.from({ length: 42 }, (_, i) => { const x = addDays(start, i), k = dayKey(x); return (
           <button key={k} type="button" className={`${k === day ? "sel" : ""} ${k === today ? "today" : ""} ${busy.has(k) ? "busy" : ""} ${x.getMonth() !== d.getMonth() ? "out" : ""}`}
             onClick={() => router.replace(`/calendar?view=day&d=${k}`)}>{x.getDate()}</button>); })}
       </div>
+      <div className="cap" style={{ fontSize: 11, marginTop: 4 }}>{t("miniHint")}</div>
     </div>
   );
 }
@@ -688,7 +694,7 @@ function WeekView({ desk, day, list, onDay, onOpen, onBook }: { desk: Desk; day:
                 return mine.map((a) => { const st = statusOf(a), sm = minutesOf(a.start), em = minutesOf(a.end), L = ln[a.id];
                   return (<button key={a.id} type="button" className={`cb ${CLS[st]} ${em - sm < 40 ? "xs" : ""}`} onClick={() => onOpen(a.id)} data-testid="week-block"
                     style={{ top: (sm - H0) * PX, height: Math.max(14, (em - sm) * PX - 2), left: `calc(${(L.lane * 100) / L.lanes}% + 2px)`, width: `calc(${100 / L.lanes}% - 4px)` }}>
-                    <b>{a.client?.name || t("walkIn")}</b><span className="m">{fmtMin(sm)} · {name(a.staffId)}</span></button>); }); })()}
+                    <b>{isBlocked(a) ? t("brk") : a.client?.name || t("walkIn")}</b><span className="m">{fmtMin(sm)} · {name(a.staffId)}</span></button>); }); })()}
             </div>))}
           {days.map((_, i) => i > 0 && <div key={i} className="cal-vl" style={{ left: `${(i / 7) * 100}%` }} />)}
         </div>
@@ -708,7 +714,7 @@ function MonthView({ day, list, onDay }: { day: string; list: Appt[]; onDay: (d:
       {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((x) => <div key={x} className="cap cal-mh">{x}</div>)}
       {Array.from({ length: 42 }, (_, i) => {
         const x = addDays(start, i), k = dayKey(x);
-        const mine = list.filter((a) => dayKey(new Date(a.start)) === k && live(a));
+        const mine = list.filter((a) => dayKey(new Date(a.start)) === k && live(a) && !isBlocked(a));
         return (
           <button key={k} type="button" className={`cal-mday ${x.getMonth() !== d.getMonth() ? "out" : ""} ${k === today ? "today" : ""}`} onClick={() => onDay(k)} data-testid="month-day">
             <span className="cal-mn">{x.getDate()}</span>
@@ -721,3 +727,10 @@ function MonthView({ day, list, onDay }: { day: string; list: Appt[]; onDay: (d:
   );
 }
 
+/** Ticking clock next to today's date (design: "Tue, Nov 17 12:46:05 PM"): the desk sees the exact time for countdowns. */
+function LiveClock() {
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => { setNow(new Date()); const id = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(id); }, []);
+  if (!now) return null;
+  return <span className="cal-clock num" aria-hidden data-testid="cal-clock">{now.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", second: "2-digit" })}</span>;
+}

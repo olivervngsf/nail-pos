@@ -332,6 +332,7 @@ function Flow({ page }: { page: Page }) {
                 <label className="cap" htmlFor="bw-name">{t("name")}</label>
                 <input id="bw-name" className="inp" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
                 <label className="bw-check-row"><input type="checkbox" checked={textsOk} onChange={(e) => setTextsOk(e.target.checked)} /> {t("texts")}</label>
+                <span className="cap" data-testid="texts-terms">{t("textsRates")} <a href="/legal/texts" target="_blank" rel="noreferrer">{t("textsTerms")}</a> · <a href="/legal/privacy" target="_blank" rel="noreferrer">{t("textsPrivacy")}</a></span>
               </div>
               <div className="bw-stack">
                 <label className="cap" htmlFor="bw-note">{t("note")}</label>
