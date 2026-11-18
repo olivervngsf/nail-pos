@@ -42,7 +42,7 @@ do $$ declare sid uuid := ((select v from t_out where k = 'made')->>'salon_id'):
   perform public.admin_handle(sid, 'setup_stuck');
   h := public.admin_health();
   if (select count(*) from jsonb_array_elements(h->'handled') x where (x->>'salon_id')::uuid = sid) <> 1 then raise exception 'FAIL: handled not once'; end if;
-  -- plan + texting (migration 20261217000001): no plan yet, texting set by an admin, date kept when the status stays the same
+  -- plan + texting (migration 20261219000001_admin_plan_texting): no plan yet, texting set by an admin, date kept when the status stays the same
   if not exists (select 1 from jsonb_array_elements(h->'salons') x where (x->>'salon_id')::uuid = sid and x->>'plan_status' = 'none' and x->>'texting' = 'not_started')
     then raise exception 'FAIL: plan/texting defaults'; end if;
   perform public.admin_set_texting(sid, 'waiting');
