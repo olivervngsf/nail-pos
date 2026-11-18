@@ -17,11 +17,13 @@ export type SetupState = {
   svcStage: "choose" | "reading" | "review";
   menu: Service[];
   staff: Staff[];
-  stripe: "start" | "stripe" | "done";
+  stripe: "start" | "stripe" | "pending" | "done"; // pending = sent to Stripe, Stripe still checking
+  stripeName?: string; // account name shown once connected
   reader: "start" | "done";
   readerLabel?: string;
   pairing: string;
-  printer: string;
+  printer: string; // "NETUM NT-1809 · Bluetooth", "Wi-Fi printer", "USB printer"
+  printWay?: "bt" | "wifi" | "usb";
   printed: boolean;
   device: "Front desk" | "Walk-in kiosk" | "Owner";
   deviceName: string;

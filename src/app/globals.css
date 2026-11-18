@@ -22,6 +22,11 @@ button:disabled { cursor: not-allowed; }
 .side { position: sticky; top: 0; height: 100dvh; }
 .prog { margin: 0; }
 .st { border: 0; background: transparent; text-align: left; cursor: pointer; font: inherit; }
+.st.has-sub { height: auto; min-height: 40px; padding: 6px 10px; }
+.st-name { display: flex; flex-direction: column; min-width: 0; }
+.st-sub { font-size: 12px; line-height: 16px; font-weight: 400; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.st-sub.good { color: var(--jade-text, #1E7A34); }
+.pr-paper { width: 100%; max-width: 240px; margin: 0 auto; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.12); padding: 16px 12px; font: 12px/18px ui-monospace, Menlo, monospace; color: var(--ink); white-space: pre; overflow: hidden; }
 .body { overflow: visible; max-width: 920px; width: 100%; }
 .foot { position: sticky; bottom: 0; height: auto; min-height: 76px; padding: 12px 64px calc(12px + env(safe-area-inset-bottom)); background: rgba(255,255,255,.88); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
 .mtop { display: none; }
@@ -731,3 +736,17 @@ button:disabled { cursor: not-allowed; }
 .bill-addon .g b { display: block; font-size: 15px; }
 .bill-refill { display: flex; align-items: center; gap: 8px; }
 @media (max-width: 720px) { .bill-plans { grid-template-columns: 1fr; } }
+/* Tech app (M13): bottom tabs are links. */
+.ptabs .ptab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--ink-soft);text-decoration:none;min-height:56px}
+.ptabs .ptab.on{color:var(--ink);font-weight:600}
+.ptabs{z-index:5;bottom:0}
+.t-row{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.t-row:last-child{border-bottom:0}
+.t-row .when{width:76px;flex:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+.t-row.paid{color:var(--ink-soft)}
+.t-row.chair{background:var(--jade-soft)}
+.t-bar{height:6px;border-radius:3px;background:var(--fill);overflow:hidden}
+.t-bar>span{display:block;height:100%;background:var(--ink)}
+.t-bar.jade>span{background:var(--jade)}
+.t-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.t-tiles .tile{padding:14px;gap:4px;font-size:14px;min-height:76px;box-sizing:border-box}
