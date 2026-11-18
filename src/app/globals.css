@@ -21,7 +21,8 @@ button:disabled { cursor: not-allowed; }
 .wiz { width: 100%; height: auto; min-height: 100dvh; }
 .side { position: sticky; top: 0; height: 100dvh; }
 /* left menu stays put while the page scrolls: profile always bottom-left */
-.app > .rail { position: sticky; top: 0; height: 100dvh; align-self: flex-start; box-sizing: border-box; flex: none; }
+/* z 32: its pop-ups sit over the page (calendar bar is 30) but under drawers/scrims (40+) and the lock screen (35) */
+.app > .rail { position: sticky; top: 0; z-index: 32; height: 100dvh; align-self: flex-start; box-sizing: border-box; flex: none; }
 .prog { margin: 0; }
 .st { border: 0; background: transparent; text-align: left; cursor: pointer; font: inherit; }
 .st.has-sub { height: auto; min-height: 40px; padding: 6px 10px; }
