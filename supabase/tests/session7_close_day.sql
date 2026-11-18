@@ -20,6 +20,7 @@ create function pg_temp.cash(pid text, cents int) returns jsonb language sql as 
   select jsonb_build_object('id', pg_temp.id(pid), 'method', 'cash', 'givenCents', cents) $$;
 grant execute on all functions in schema pg_temp to authenticated, service_role;
 
+insert into public.platform_admins (auth_user_id) select id from auth.users on conflict do nothing;  -- salons are invite-only: test owners set up salons as platform admins
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000ee01","role":"authenticated"}', true);
 select public.save_setup(jsonb_build_object('salonId', pg_temp.id('a01'), 'ownerName', 'Mai', 'salonName', 'Close Nails', 'state', 'CA', 'step', 9,
