@@ -6,6 +6,9 @@ insert into auth.users (id, phone, aud, role) values
   ('00000000-0000-0000-0000-00000000ff01', '14085550601', 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000ff02', '14085550602', 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000ff03', '14085550603', 'authenticated', 'authenticated');
+
+-- Salons are invite-only (Nov 17): test users may create salons like a platform admin.
+insert into public.platform_admins (auth_user_id) select id from auth.users where id::text like '00000000-0000-0000-0000-%' on conflict do nothing;
 create temp table t_out (k text primary key, v jsonb);
 grant all on t_out to authenticated, anon;
 create function pg_temp.bk(id text, startin text, mins int, staff text, phone text, extra jsonb default '{}') returns jsonb language sql as $$

@@ -7,6 +7,9 @@ insert into auth.users (id, phone, aud, role) values
   ('00000000-0000-0000-0000-00000000fb02', '14085551002', 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000fb03', '14085550142', 'authenticated', 'authenticated');   -- Lan, the client
 create temp table t_out (k text primary key, v jsonb);
+
+-- Salons are invite-only (Nov 17): test users may create salons like a platform admin.
+insert into public.platform_admins (auth_user_id) select id from auth.users where id::text like '00000000-0000-0000-0000-%' on conflict do nothing;
 grant all on t_out to authenticated, anon;
 create function pg_temp.tk(id text, lines jsonb, pay boolean default false) returns jsonb language sql as $$
   select public.save_ticket(jsonb_build_object('id', ('00000000-0000-0000-0000-0000000050' || id)::uuid, 'salonId', '00000000-0000-0000-0000-0000000050a1',

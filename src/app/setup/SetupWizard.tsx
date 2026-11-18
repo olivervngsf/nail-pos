@@ -43,8 +43,11 @@ export default function SetupWizard() {
     // Already signed in: go back to the salon you started (never make a second one), or to Today if it's done.
     if (s.stage !== "wizard") void (async () => {
       if (!(await isSignedIn())) return;
-      const owned = SMS_ON ? (await myMemberships().catch(() => [])).find((m) => m.role === "owner") : undefined;
+      const ms = SMS_ON ? await myMemberships().catch(() => []) : [];
+      const owned = ms.find((m) => m.role === "owner");
       if (owned && owned.setup_step >= 9) return router.replace("/today");
+      // Salons are made by PolishOS (invite only): no salon of your own → your home or the invite code screen.
+      if (SMS_ON && !owned) return router.replace(homeFor(ms));
       setS((p) => ({ ...withIds(owned ? { ...p, salonId: owned.salon_id } : p), stage: "wizard" }));
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -82,9 +85,7 @@ function SignIn({ s, set }: { s: SetupState; set: Set }) {
       const owned = (await myMemberships()).find((m) => m.role === "owner");
       if (owned && owned.setup_step >= 9) return router.replace("/today");
       if (owned) return enter(owned.salon_id); // keep setting up the salon you already started
-      const other = (await myMemberships())[0];
-      if (other) return router.replace(homeFor([other]));
-      enter();
+      return router.replace(homeFor(await myMemberships())); // no salon of your own: invite code screen (or your home)
     } catch (e) { setErr((e as Error).message); }
   };
   return (

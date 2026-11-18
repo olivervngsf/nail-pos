@@ -728,3 +728,13 @@ button:disabled { cursor: not-allowed; }
 .t-bar.jade>span{background:var(--jade)}
 .t-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .t-tiles .tile{padding:14px;gap:4px;font-size:14px;min-height:76px;box-sizing:border-box}
+
+/* PolishOS admin (/admin): salon list + new salon form */
+.adm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.adm-wide { grid-column: 1 / -1; }
+.adm-row { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; padding: 14px 16px; border-top: 1px solid var(--line); }
+.adm-row:first-child { border-top: 0; }
+.adm-row.adm-new { background: #F4FBF6; }
+.adm-acts { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; }
+.adm-status .chip { cursor: default; }
+@media (max-width: 640px) { .adm-grid { grid-template-columns: 1fr; } .adm-row { grid-template-columns: 1fr; } }

@@ -13,7 +13,10 @@
     "setup": "Cài đặt tiệm của tôi",
     "join": "Tôi là thợ: vào tiệm",
     "test": "Bản thử · chưa thu tiền thật.",
-    "signIn": "Tôi đã có tài khoản: đăng nhập"
+    "signIn": "Tôi đã có tài khoản: đăng nhập",
+    "signInMain": "Đăng nhập",
+    "haveCode": "Tôi có mã mời",
+    "askInvite": "Tiệm mới? PolishOS dùng lời mời. Liên hệ chúng tôi để nhận link mời."
   },
   "lang": {
     "label": "Ngôn ngữ",

@@ -10,6 +10,9 @@ insert into public.people (id, auth_user_id, phone, name) values
   ('00000000-0000-0000-0000-0000000008a1', '00000000-0000-0000-0000-00000000dd01', '+14085550401', 'Mai'),
   ('00000000-0000-0000-0000-0000000008a2', '00000000-0000-0000-0000-00000000dd02', '+14085550402', 'Bao'),
   ('00000000-0000-0000-0000-0000000008a3', '00000000-0000-0000-0000-00000000dd03', '+14085550403', 'Kim');
+
+-- Salons are invite-only (Nov 17): test users may create salons like a platform admin.
+insert into public.platform_admins (auth_user_id) select id from auth.users where id::text like '00000000-0000-0000-0000-%' on conflict do nothing;
 alter table public.salons disable trigger user;  -- salons are made by invite; this test makes one directly
 insert into public.salons (id, name, state) values ('00000000-0000-0000-0000-0000000008b1', 'Pin Nails', 'CA');
 alter table public.salons enable trigger user;

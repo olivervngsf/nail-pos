@@ -13,7 +13,10 @@
     "setup": "Set up my salon",
     "join": "I'm staff: join my salon",
     "test": "Test version · nothing is charged yet.",
-    "signIn": "I have an account: sign in"
+    "signIn": "I have an account: sign in",
+    "signInMain": "Sign in",
+    "haveCode": "I have an invite code",
+    "askInvite": "New salon? PolishOS is by invite. Ask us for your invite link."
   },
   "lang": {
     "label": "Language",

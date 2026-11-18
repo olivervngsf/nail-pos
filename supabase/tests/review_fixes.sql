@@ -10,6 +10,9 @@ insert into auth.users (id, phone, aud, role) values
   ('00000000-0000-0000-0000-00000000cc04', '14085550304', 'authenticated', 'authenticated'),  -- invited front desk (victim)
   ('00000000-0000-0000-0000-00000000cc05', '14085550305', 'authenticated', 'authenticated');  -- attacker
 create temp table t_out (k text primary key, v jsonb);
+
+-- Salons are invite-only (Nov 17): test users may create salons like a platform admin.
+insert into public.platform_admins (auth_user_id) select id from auth.users where id::text like '00000000-0000-0000-0000-%' on conflict do nothing;
 grant all on t_out to authenticated, anon, service_role;
 
 set local role authenticated;

@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { homeFor, isSignedIn, myMemberships } from "@/lib/auth";
+import { SMS_ON, homeFor, isSignedIn, myMemberships } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 import { useLang } from "@/components/AppProviders";
 import { Segmented } from "@/components/kit";
@@ -25,10 +25,17 @@ export default function Home() {
         </div>
         <h1 className="h1">PolishOS</h1>
         <p className="cap lead">{t("tagline")}</p>
-        <Link className="btn primary block" href="/setup">{t("setup")}</Link>
-        <Link className="btn block" href="/join/DEMO">{t("join")}</Link>
-        <Link className="btn ghost block" href="/login" data-testid="sign-in">{t("signIn")}</Link>
-        <div className="demo">{t("test")}</div>
+        {SMS_ON ? <>
+          {/* Real version: salons are made by PolishOS; owners and staff get an invite link + code. */}
+          <Link className="btn primary block" href="/login" data-testid="sign-in">{t("signInMain")}</Link>
+          <Link className="btn block" href="/invite" data-testid="have-code">{t("haveCode")}</Link>
+          <p className="cap" style={{ margin: 0 }}>{t("askInvite")}</p>
+        </> : <>
+          <Link className="btn primary block" href="/setup">{t("setup")}</Link>
+          <Link className="btn block" href="/join/DEMO">{t("join")}</Link>
+          <Link className="btn ghost block" href="/login" data-testid="sign-in">{t("signIn")}</Link>
+          <div className="demo">{t("test")}</div>
+        </>}
       </div>
     </main>
   );
