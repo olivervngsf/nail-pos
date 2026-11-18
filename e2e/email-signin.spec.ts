@@ -10,9 +10,20 @@ test("add a sign-in email on My profile", async ({ page }) => {
   await page.getByTestId("add-email").click();
   await page.getByTestId("add-email-input").fill("owner@example.com");
   await page.getByTestId("add-email-send").click();
+  await expect(page.getByTestId("add-email-sent")).toContainText("Check your email");
   await page.getByTestId("add-email-code").fill("123456");
   await page.getByTestId("add-email-confirm").click();
   await expect(page.getByTestId("signin-email")).toContainText("owner@example.com");
+  expect(errors).toEqual([]);
+});
+
+// The "Yes, this is my email" button opens /auth/confirm; a missing/old link says so instead of hanging.
+test("email confirm link: bad link shows a way back", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/auth/confirm");
+  await expect(page.getByTestId("confirm-email")).toHaveAttribute("data-state", "bad");
+  await expect(page.getByText("This link didn’t work")).toBeVisible();
   expect(errors).toEqual([]);
 });
 
