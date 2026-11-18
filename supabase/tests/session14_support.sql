@@ -1,4 +1,4 @@
--- M14 support access (migration 20261220000001_support_access): an admin sees health only until the owner turns support on;
+-- M14 support access (migration 20261222000001_support_access): an admin sees health only until the owner turns support on;
 -- then the admin can open the salon (as "PolishOS support"), every change is logged, and it ends by itself after 24 h or
 -- when ended. Only the owner can turn it on. Rolls back.
 begin;
