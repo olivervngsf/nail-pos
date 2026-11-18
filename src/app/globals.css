@@ -461,6 +461,10 @@ button:disabled { cursor: not-allowed; }
 .bw-when { display: flex; flex-direction: column; gap: 2px; padding-bottom: 16px; border-bottom: 1px dashed var(--line); }
 .bw-when b { font-size: 26px; letter-spacing: -0.02em; }
 .bw-where { display: flex; flex-direction: column; gap: 2px; padding-top: 14px; border-top: 1px dashed var(--line); font-size: 14px; }
+.bw-off .bw-when b, .bw-off .bw-line { text-decoration: line-through; color: var(--ink-soft); }
+.bw-slot.bw-mine { opacity: .45; cursor: default; text-decoration: line-through; }
+.btn.bw-danger { color: #b3261e; }
+.bw-done .bw-slots { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .bw-acts { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 6px; }
 .bw-empty { margin: 80px auto; text-align: center; padding: 0 16px; }
 .bw-body { flex: 1; display: flex; gap: 20px; padding: 20px 48px; align-items: flex-start; }
