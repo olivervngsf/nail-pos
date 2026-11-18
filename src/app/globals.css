@@ -266,6 +266,9 @@ button:disabled { cursor: not-allowed; }
 .cal-counts { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-bottom: 1px solid var(--line); flex: none; position: relative; }
 /* Top bar (alerts list) always above the filter row and the grid. */
 .cal-app .bar { position: relative; z-index: 30; }
+.cal-sep { flex: none; width: 1px; height: 18px; background: #D1D1D6; margin: 0 6px; }
+.cal-wsep { display: none; }
+@media (max-width: 899px) { .cal-wsep { display: block; order: -1; } }
 .cal-cscroll { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 .cal-cscroll::-webkit-scrollbar { display: none; }
 .cal-cnt { white-space: nowrap; flex: none; height: 26px; padding: 0 9px; border-radius: 999px; border: 0; background: transparent; font: inherit; font-size: 12px; font-weight: 600; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; flex: none; transition: background .2s; }

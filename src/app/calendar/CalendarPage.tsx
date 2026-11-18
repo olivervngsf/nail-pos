@@ -408,12 +408,14 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
         </div>
         <div className="cal-counts" role="toolbar" aria-label={t("filter")}>
           <span className="cal-cscroll">
-          {COUNTS.map(([k, , color]) => (
-            <button key={k} type="button" className={`cal-cnt ${filter === k ? "on" : ""}`} aria-pressed={filter === k} title={t(`ct_${k}`)} data-testid={`count-${k}`}
+          {COUNTS.map(([k, , color]) => (<span key={k} style={{ display: "contents" }}>
+            {k === "online" && <span className="cal-sep" aria-hidden />}
+            <button type="button" className={`cal-cnt ${filter === k ? "on" : ""}`} aria-pressed={filter === k} title={t(`ct_${k}`)} data-testid={`count-${k}`}
               onClick={() => setFilter(filter === k || k === "all" ? "all" : k)}>
-              {color && <i className="cal-cdot" style={{ background: color }} />}{t(`p_${k}`)}<span className="cal-cn">{counts[k]}</span></button>))}
+              {color && <i className="cal-cdot" style={{ background: color }} />}{t(`p_${k}`)}<span className="cal-cn">{counts[k]}</span></button></span>))}
           {isToday && <button type="button" className={`cal-cnt cal-waitpill ${waiting.length ? "on" : ""}`} onClick={() => setWaitOpen(true)} data-testid="wait-pill">
             {t("waitingN", { n: waiting.length })}</button>}
+          {isToday && <span className="cal-sep cal-wsep" aria-hidden />}
           </span>
           <span className="cal-key" tabIndex={0} aria-label={t("keyTitle")} data-testid="cal-key">
             <span className="cal-keysw" aria-hidden><i className="unconf" /><i className="conf" /><i className="chair" /><i className="ready" /></span>{t("key")}
