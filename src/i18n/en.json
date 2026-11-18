@@ -6,7 +6,7 @@
     "offline": "Offline · saved on this device",
     "waiting": "{count, plural, one {# change waiting to sync} other {# changes waiting to sync}}",
     "banner": "No internet. Keep working: everything saves on this device and sends when you're back online.",
-    "stuck": "{count} not saved · ask the owner"
+    "stuck": "{count} not saved · tap to retry"
   },
   "home": {
     "tagline": "Simple checkout and fair, clear pay for techs.",

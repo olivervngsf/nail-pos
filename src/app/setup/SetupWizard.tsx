@@ -1,6 +1,6 @@
 "use client";
 /* eslint-disable react/jsx-key -- step views return a [footer, body] pair, not a list */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PhoneCodeLogin from "@/components/PhoneCodeLogin";
@@ -9,7 +9,12 @@ import { api } from "@/lib/api";
 import { syncNow } from "@/lib/offline/outbox";
 import { queueSave, withIds } from "./sync";
 import { importMenu, shrinkPhoto } from "./menuImport";
-import { SyncPill } from "@/components/kit";
+import { Button, Segmented, SyncPill } from "@/components/kit";
+import { usePrinter } from "@/components/PrinterSetup";
+import { pickPrinter } from "@/lib/print/bluetooth";
+import { printDoc } from "@/lib/print/print";
+import { printInWindow } from "@/lib/print/slip";
+import { receiptLines, type Paper, type ReceiptDoc } from "@/lib/print/escpos";
 import { useStored } from "@/lib/useStored";
 import {
   STEPS, STATES, fmtHours, fmtMoney, fmtPhone, fmtTime, initials, newInviteCode, phoneOk, toMin,
@@ -128,12 +133,16 @@ function Wizard({ s, set, say, toast, setToast, reset }: WizProps) {
       <aside className="side" aria-label="Setup steps">
         <div className="brand"><span className="logo">{initials(salon)}</span>{salon} setup</div>
         <div className="prog" style={{ margin: "0 8px 14px" }}><span style={{ width: `${pct}%` }} /></div>
-        {STEPS.map((n, i) => (
-          <button key={n} type="button" className={`st ${i < s.step ? "done" : i === s.step ? "now" : ""}`} aria-current={i === s.step ? "step" : undefined} onClick={() => go(i)}>
-            <span className="n">{i < s.step ? "✓" : i + 1}</span>{n}
-          </button>
-        ))}
-        <div className="help">Stuck? Elang is on call on your setup day. Your progress saves after every step, even offline.</div>
+        {STEPS.map((n, i) => {
+          const sub = stepStatus(s, i);
+          return (
+            <button key={n} type="button" className={`st has-sub ${i < s.step ? "done" : i === s.step ? "now" : ""}`} aria-current={i === s.step ? "step" : undefined} onClick={() => go(i)}>
+              <span className="n">{i < s.step ? "✓" : i + 1}</span>
+              <span className="st-name">{n}{sub && <span className={`st-sub ${sub.good ? "good" : ""}`}>{sub.text}</span>}</span>
+            </button>
+          );
+        })}
+        <div className="help">Stuck? Elang is on call on your setup day. Your progress saves after every step, even offline. You can change any of this later in Settings.</div>
         <button type="button" className="btn ghost sm" style={{ marginTop: 8 }} onClick={() => { if (confirm("Start setup over? This clears what you entered on this device.")) reset(); }}>Start over</button>
       </aside>
       <div className="main">
@@ -169,6 +178,23 @@ function Wizard({ s, set, say, toast, setToast, reset }: WizProps) {
 type StepProps = { s: SetupState; set: Set; say: (t: string, undo?: () => void) => void; next: () => void; go: (i: number) => void };
 type StepView = (p: StepProps) => [Foot, React.ReactNode];
 const H1 = ({ children }: { children: React.ReactNode }) => <h1 className="h1" tabIndex={-1} style={{ outline: "none" }}>{children}</h1>;
+
+/** One short line under each step in the side list: what's set up so far ("Connected · Stripe", "NETUM · Bluetooth"). */
+export function stepStatus(s: SetupState, i: number): { text: string; good?: boolean } | null {
+  const staff = s.staff.filter((p) => p.status !== "You");
+  switch (i) {
+    case 0: return s.salonName.trim() ? { text: s.salonName.trim() } : null;
+    case 1: return s.menu.length ? { text: `${s.menu.length} services` } : null;
+    case 2: return staff.length ? { text: `${staff.length} invited · ${staff.filter((p) => p.status === "Joined").length} joined` } : null;
+    case 3: return s.stripe === "done" ? { text: "Connected · Stripe", good: true } : s.stripe === "pending" ? { text: "Stripe is checking" } : null;
+    case 4: return s.reader === "done" ? { text: `${s.readerLabel || "Front desk"} · Online`, good: true } : null;
+    case 5: return s.printer ? { text: s.printer, good: true } : null;
+    case 6: return s.step > 6 ? { text: s.deviceName } : null;
+    case 7: return s.clients === "file" ? { text: "Upload a file" } : s.clients === "later" ? { text: "Add as they come" } : null;
+    case 8: return s.test === "done" ? { text: "$1 test passed", good: true } : null;
+    default: return null;
+  }
+}
 
 /* 1. Salon info */
 const SalonInfo: StepView = ({ s, set, say }) => {
@@ -385,7 +411,7 @@ function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
   };
   return <>
     <H1>Add your staff</H1>
-    <div className="cap lead">Each person gets a text with a one-time link. They set their own PIN (6 digits; change it in Settings → PIN rules).</div>
+    <div className="cap lead">Each person gets a one-time invite link. They set their own PIN (6 digits; change it in Settings → PIN rules).</div>
     <div className="group">
       {s.staff.map((p) => (
         <div className="row m" key={p.inviteCode ?? p.phone} style={{ flexWrap: "wrap", paddingBlock: 8 }}>
@@ -405,7 +431,9 @@ function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
       ))}
     </div>
     <div><button className="btn" type="button" onClick={() => setOpen(true)}>+ Add staff</button></div>
-    <div className="demo">Test version: texts aren&apos;t sent yet. Copy the invite link and send it yourself, or open it to see what staff get on their phone.</div>
+    {SMS_ON
+      ? <div className="cap">Tap Copy invite link and text it to them yourself (automatic invite texts are coming).</div>
+      : <div className="demo">Test version: texts aren&apos;t sent yet. Copy the invite link and send it yourself, or open it to see what staff get on their phone.</div>}
     {open && <>
       <button className="scrim" aria-label="Close" onClick={() => setOpen(false)} />
       <div className="drawer" role="dialog" aria-label="Add staff">
@@ -430,7 +458,7 @@ function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
 
 /* 4. Connect payments */
 const Payments: StepView = ({ s, set }) => {
-  if (SMS_ON && s.stripe !== "done") return [{ lock: true }, <StripeConnect key="sc" s={s} set={set} />];
+  if (SMS_ON) return [{ lock: s.stripe !== "done" && s.stripe !== "pending" }, <StripeConnect key="sc" s={s} set={set} />];
   if (s.stripe === "stripe") return [{ lock: true }, (
     <div className="card" style={{ overflow: "hidden" }}>
       <div style={{ height: 44, display: "flex", alignItems: "center", padding: "0 16px", background: "#F6F8FA", borderBottom: "1px solid var(--line)", fontWeight: 700, color: "#635BFF" }}>stripe · {s.salonName || "Your salon"}</div>
@@ -492,18 +520,37 @@ const Reader: StepView = ({ s, set }) => {
   </>];
 };
 
-/* Real Stripe Connect (sign-in on): the salon's own Express account, Stripe's own sign-up page. */
+/* Real Stripe Connect (sign-in on): the salon's own Stripe account, Stripe's own sign-up page.
+   Shows where things stand every time: checking → not connected → Stripe needs X → Stripe checking → Connected. */
+type StripeStatus = { on?: boolean; connected?: boolean; chargesEnabled?: boolean; payoutsEnabled?: boolean; detailsSubmitted?: boolean; test?: boolean; state?: string; missing?: string[]; name?: string };
+const FEES = (
+  <div className="group">
+    <div className="row"><span className="g">Card reader (tap/chip)</span><b>2.7% + 5¢</b></div>
+    <div className="row"><span className="g">Pay link / QR</span><b>2.9% + 30¢</b></div>
+    <div className="row"><span className="g">Our fee on payments</span><b>$0 (flat monthly plan only)</b></div>
+  </div>
+);
 function StripeConnect({ s, set }: Pick<StepProps, "s" | "set">) {
-  const [st, setSt] = useState<{ on?: boolean; connected?: boolean; chargesEnabled?: boolean; detailsSubmitted?: boolean; test?: boolean; state?: string; missing?: string[] } | null>(null);
+  const [st, setSt] = useState<StripeStatus | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
-  useEffect(() => {
+  const check = useCallback(async () => {
     if (!s.salonId) return;
-    void api<NonNullable<typeof st>>("/api/stripe/status", { salonId: s.salonId }).then((r) => {
+    setErr("");
+    try {
+      const r = await api<StripeStatus>("/api/stripe/status", { salonId: s.salonId });
       setSt(r);
-      if (r.chargesEnabled) set((p) => ({ ...p, stripe: "done" }));
-    }).catch((e) => setErr((e as Error).message));
+      const next = r.chargesEnabled ? "done" : r.connected && r.detailsSubmitted && !r.missing?.length && r.state !== "rejected" ? "pending" : r.connected ? "stripe" : "start";
+      set((p) => (p.stripe === next && (!r.name || p.stripeName === r.name) ? p : { ...p, stripe: next, stripeName: r.name || p.stripeName }));
+    } catch (e) { setErr((e as Error).message); }
   }, [s.salonId, set]);
+  useEffect(() => { void check(); }, [check]);
+  // Stripe sometimes takes a minute after sign-up: look again every 15 s while it checks.
+  useEffect(() => {
+    if (s.stripe !== "pending") return;
+    const t = setInterval(() => void check(), 15000);
+    return () => clearInterval(t);
+  }, [s.stripe, check]);
   const go = async () => {
     setBusy(true); setErr("");
     try {
@@ -512,23 +559,52 @@ function StripeConnect({ s, set }: Pick<StepProps, "s" | "set">) {
       location.href = r.url;
     } catch (e) { setErr((e as Error).message); setBusy(false); }
   };
+  const name = st?.name || s.stripeName || s.salonName || "Your salon";
+  const testNote = st?.test && <div className="demo">Test payments: this site uses Stripe&apos;s test key, so no real money moves. On Stripe&apos;s page use test data (phone 000 000 0000, code 000000, SSN 000-00-0000, routing 110000000, account 000123456789). Real payments start when the live key is set.</div>;
+
+  if (st?.chargesEnabled) return <>
+    <H1>Payments connected</H1>
+    <div className="card pad" style={{ gap: 0, padding: 0 }} data-testid="stripe-connected">
+      <div style={{ display: "flex", alignItems: "center", gap: 14, padding: 16 }}>
+        <div className="okmark">✓</div>
+        <div style={{ flex: 1 }}><b style={{ fontSize: 17 }}>Stripe account connected</b><div className="cap">Money goes straight to your bank. We never hold it.</div></div>
+        <span className="pill ok"><span className="dot" aria-hidden />{st.test ? "Test" : "Live"}</span>
+      </div>
+      <div className="group" style={{ margin: "0 16px 16px" }}>
+        <div className="row"><span className="g">Account</span><b>{name}</b></div>
+        <div className="row"><span className="g">Card payments</span><b>On</b></div>
+        <div className="row"><span className="g">Payouts to your bank</span><b>{st.payoutsEnabled ? "On" : "Turning on"}</b></div>
+      </div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", padding: "0 16px 16px" }}>
+        <a className="btn stripe" href="https://dashboard.stripe.com" target="_blank" rel="noreferrer">Open Stripe dashboard</a>
+        <button className="btn" type="button" onClick={() => void check()}>Check again</button>
+      </div>
+    </div>
+    {FEES}
+    <div className="cap">Change bank or business details any time in your Stripe dashboard.</div>
+    {testNote}
+  </>;
+
+  const pending = st?.connected && s.stripe === "pending";
   return <>
     <H1>Connect payments</H1>
     <div className="cap lead">Your salon gets its own Stripe account. Money goes straight to your bank; we never hold it. Takes about 5 minutes: have your EIN (or SSN) and bank details ready.</div>
-    {st?.on === false && <div className="demo">Card payments aren&apos;t switched on for this site yet (Stripe key missing).</div>}
-    {st?.connected && !st.chargesEnabled && <div className="banner" role="status">{st.missing?.length ? <>Stripe still needs: {st.missing.join(" · ")}. Tap Continue with Stripe.</> : st.state === "rejected" ? "Stripe turned this account down. Contact us." : <>Stripe is checking your details. This usually takes a minute. <button type="button" className="btn ghost sm" onClick={() => location.reload()}>Check again</button></>}</div>}
-    <div className="card pad" style={{ gap: 12 }}>
+    {!st && !err && <div className="card pad" role="status" style={{ flexDirection: "row", alignItems: "center", gap: 10 }}><span className="dot pulse" aria-hidden /> Checking Stripe…</div>}
+    {st?.on === false && <div className="banner" role="status">Card payments aren&apos;t switched on for this site yet (Stripe key missing). Call us.</div>}
+    {pending && <div className="card pad" role="status" style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
+      <div className="okmark" style={{ background: "var(--orange)" }}>…</div>
+      <div style={{ flex: 1 }}><b style={{ fontSize: 17 }}>Connected · Stripe is checking your details</b><div className="cap">Usually a minute, sometimes a day. You can keep going; this updates by itself.</div></div>
+      <button type="button" className="btn sm" onClick={() => void check()}>Check again</button>
+    </div>}
+    {st?.connected && !pending && !st.chargesEnabled && <div className="banner" role="status">{st.state === "rejected" ? "Stripe turned this account down. Call us." : st.missing?.length ? <>Stripe still needs: {st.missing.join(" · ")}. Tap Continue with Stripe.</> : "Finish your details on Stripe. Tap Continue with Stripe."}</div>}
+    {!pending && <div className="card pad" style={{ gap: 12 }}>
       <b>What you&apos;ll need</b>
       <div className="cap" style={{ fontSize: 14, lineHeight: "22px" }}>Business name and type · EIN or SSN · Bank account for payouts · Your date of birth</div>
-      <div className="group">
-        <div className="row"><span className="g">Card reader (tap/chip)</span><b>2.7% + 5¢</b></div>
-        <div className="row"><span className="g">Pay link / QR</span><b>2.9% + 30¢</b></div>
-        <div className="row"><span className="g">Our fee on payments</span><b>$0 (flat monthly plan only)</b></div>
-      </div>
-      <button className="btn stripe" type="button" disabled={busy || st?.on === false || !s.salonId} style={{ alignSelf: "flex-start" }} onClick={() => void go()}>{st?.connected ? "Continue with Stripe" : "Connect with Stripe"}</button>
-      {st?.test && <div className="demo">Test mode: on Stripe&apos;s page use test data (phone 000 000 0000, code 000000, SSN 000-00-0000, routing 110000000, account 000123456789).</div>}
-      {err && <div className="hint err">{err}</div>}
-    </div>
+      {FEES}
+      <button className="btn stripe" type="button" disabled={busy || (!st && !err) || st?.on === false || !s.salonId} style={{ alignSelf: "flex-start" }} onClick={() => void go()}>{st?.connected ? "Continue with Stripe" : "Connect with Stripe"}</button>
+      {err && <div className="hint err">{err} <button type="button" className="btn ghost sm" onClick={() => void check()}>Try again</button></div>}
+    </div>}
+    {testNote}
   </>;
 }
 
@@ -561,20 +637,89 @@ function ReaderPair({ s, set }: Pick<StepProps, "s" | "set">) {
   </>;
 }
 
-/* 6. Printer */
-const Printer: StepView = ({ s, set }) => [{ skip: true }, <>
-  <H1>Receipt printer</H1>
-  <div className="cap lead">Pick your printer:</div>
-  <div className="group">
-    {["Epson TM-m30III · Wi-Fi", "Star mC-Print3 · USB"].map((p) => (
-      <button key={p} type="button" className={`opt ${s.printer === p ? "on" : ""}`} aria-pressed={s.printer === p} onClick={() => set((x) => ({ ...x, printer: p, printed: false }))}>
-        <span className="g">{p}</span><span className="cap">{s.printer === p ? "✓ chosen" : ""}</span>
-      </button>
-    ))}
-  </div>
-  {s.printer && <div><button className="btn" type="button" onClick={() => { set((x) => ({ ...x, printed: true })); window.print(); }}>{s.printed ? "✓ Test receipt sent" : "Print a test receipt"}</button></div>}
-  <div className="cap">iPhone browsers can&apos;t print to Bluetooth printers; use the desk computer or iPad on Wi-Fi.</div>
-</>];
+/* 6. Printer: Bluetooth (Android / Chrome, same picker as checkout), Wi-Fi or USB (the device's own print window). */
+const Printer: StepView = ({ s, set }) => [{ skip: true }, <PrinterStep key="pr" s={s} set={set} />];
+
+const PRINT_WAYS = [{ value: "bt", label: "Bluetooth" }, { value: "wifi", label: "Wi-Fi" }, { value: "usb", label: "USB (computer)" }] as const;
+const testDoc = (salon: string): ReceiptDoc => ({
+  title: salon || "Your salon",
+  sub: [`Test receipt · ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`],
+  rows: [["Gel manicure", "$35.00"], ["Tip", "$7.00"], "sep", { bold: ["TOTAL", "$42.00"] }],
+  footer: ["Your printer works."],
+});
+
+function PrinterStep({ s, set }: Pick<StepProps, "s" | "set">) {
+  const p = usePrinter();
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  // Default tab: Bluetooth where this browser can use it, else Wi-Fi (iPhone/iPad, Safari, Firefox).
+  const way = s.printWay ?? (p.ok ? "bt" : "wifi");
+  const setWay = (w: "bt" | "wifi" | "usb") => set((x) => ({ ...x, printWay: w, printer: w === "bt" ? (p.saved ? `${p.saved.name} · Bluetooth` : "") : w === "wifi" ? "Wi-Fi printer" : "USB printer", printed: false }));
+  // A Bluetooth printer already picked on this device (e.g. at checkout) counts.
+  useEffect(() => {
+    if (way === "bt" && p.saved && !s.printer) set((x) => ({ ...x, printWay: "bt", printer: `${p.saved!.name} · Bluetooth` }));
+  }, [way, p.saved, s.printer, set]);
+  const find = async () => {
+    setErr(""); setBusy(true);
+    try {
+      const got = await pickPrinter(p.paper);
+      p.refresh();
+      set((x) => ({ ...x, printWay: "bt", printer: `${got.name} · Bluetooth`, printed: false }));
+    } catch (e) { if (!/cancel/i.test((e as Error).message)) setErr((e as Error).message); }
+    setBusy(false);
+  };
+  const test = async () => {
+    setErr(""); setBusy(true);
+    const doc = testDoc(s.salonName);
+    try {
+      if (!(way === "bt" && (await printDoc(doc)))) await printInWindow([doc]);
+      set((x) => ({ ...x, printed: true, printer: x.printer || (way === "wifi" ? "Wi-Fi printer" : way === "usb" ? "USB printer" : x.printer) }));
+    } catch (e) { setErr((e as Error).message); }
+    setBusy(false);
+  };
+  const lines = receiptLines(testDoc(s.salonName), p.paper);
+  return <>
+    <H1>Receipt printer</H1>
+    <div className="cap lead">How is your printer connected?</div>
+    <Segmented label="Printer connection" value={way} onChange={(v) => setWay(v as "bt" | "wifi" | "usb")} options={[...PRINT_WAYS]} />
+    <div className="grid2" style={{ gap: 16, alignItems: "start" }}>
+      <div className="card pad" style={{ gap: 12 }}>
+        {way === "bt" && (p.ok ? <>
+          <b>Bluetooth printer</b>
+          {p.saved
+            ? <div className="group"><div className="row"><span className="g"><b>{p.saved.name}</b><span className="cap" style={{ display: "block" }}>Bluetooth · {p.saved.paper} mm · paired on this device</span></span><span className="pill ok"><span className="dot" aria-hidden />Ready</span></div></div>
+            : <div className="cap">Turn the printer on, then tap Find printer and pick it from the list.</div>}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+            <Button variant={p.saved ? undefined : "primary"} disabled={busy} onClick={() => void find()}>{p.saved ? "Change printer" : "Find printer"}</Button>
+            {p.saved && <Segmented label="Paper size" value={String(p.paper)} onChange={(v) => p.setPaper(Number(v) as Paper)} options={[{ value: "58", label: "58 mm" }, { value: "80", label: "80 mm" }]} />}
+          </div>
+        </> : <>
+          <b>Bluetooth isn&apos;t available here</b>
+          <div className="cap">{p.ios ? "iPhone and iPad browsers can't reach Bluetooth printers. Use a Wi-Fi printer, or set up the Bluetooth printer from an Android tablet or Chrome on a computer." : "This browser can't use Bluetooth. Open PolishOS in Chrome (Android or computer), or use a Wi-Fi / USB printer."}</div>
+          <div><Button onClick={() => setWay("wifi")}>Use a Wi-Fi printer</Button></div>
+        </>)}
+        {way === "wifi" && <>
+          <b>Wi-Fi printer</b>
+          <div className="cap">Put the printer on the salon Wi-Fi (its own setup button or app). This {p.ios ? "iPad/iPhone" : "device"} then sees it like any printer: tap Print a test receipt and pick it in the print window.</div>
+          <div className="cap">Works with Epson TM-m30, Star mC-Print and most AirPrint receipt printers.</div>
+        </>}
+        {way === "usb" && <>
+          <b>USB printer</b>
+          <div className="cap">Plug the printer into the front desk computer and install its driver. Tap Print a test receipt and pick it in the print window. Set paper to 80 mm (or 58 mm) there.</div>
+        </>}
+        {(way !== "bt" || (p.ok && p.saved)) && <div><Button variant="primary" disabled={busy} onClick={() => void test()}>{s.printed ? "✓ Printed · print again" : "Print a test receipt"}</Button></div>}
+        {err && <div className="hint err" role="alert">{err}</div>}
+      </div>
+      <div className="card pad" style={{ gap: 10 }}>
+        <span className="cap">What prints</span>
+        <div className="pr-paper" aria-label="Test receipt preview">
+          {lines.map((l, i) => "qr" in l ? null : <div key={i} style={{ fontWeight: l.bold ? 700 : 400 }}>{l.text || " "}</div>)}
+        </div>
+        <span className="cap" style={{ textAlign: "center" }}>Choose what prints later in Settings → Printer.</span>
+      </div>
+    </div>
+  </>;
+}
 
 /* 7. This device */
 const Device: StepView = ({ s, set }) => [{}, <>

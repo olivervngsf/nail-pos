@@ -6,7 +6,7 @@
     "offline": "Mất mạng · đã lưu trên máy",
     "waiting": "{count, plural, other {# thay đổi đang chờ gửi}}",
     "banner": "Mất mạng. Cứ làm tiếp: mọi thứ lưu trên máy này và tự gửi khi có mạng lại.",
-    "stuck": "{count} chưa lưu được · báo chủ tiệm"
+    "stuck": "{count} chưa lưu được · bấm để thử lại"
   },
   "home": {
     "tagline": "Tính tiền đơn giản, lương thợ rõ ràng.",
