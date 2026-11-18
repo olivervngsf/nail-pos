@@ -1369,8 +1369,9 @@
     "priceNote": "Phí nhà mạng đã gồm trong 2¢. Khách đã nhắn STOP và tin lỗi không bị tính. Bạn thấy phí trước mỗi lần gửi.",
     "warnAt": "Báo tôi ở",
     "autoAdd": "Tự động nạp",
-    "autoAddSub": "Tắt trừ khi bạn bật: nạp {add} khi sắp hết, tối đa {max} một tháng.",
-    "sendPromo": "Gửi tin khuyến mãi"
+    "autoAddSub": "Tắt trừ khi bạn bật: khi tín dụng thấp, thẻ của gói bị trừ {add}, tối đa {max} mỗi tháng.",
+    "sendPromo": "Gửi tin khuyến mãi",
+    "cardAdd": "Trả ngay bằng thẻ của gói. Chưa có thẻ hoặc thẻ cần xác nhận? Trang Stripe sẽ mở để trả."
   },
   "account": {
     "menu": "Tài khoản",
