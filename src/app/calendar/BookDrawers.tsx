@@ -10,15 +10,18 @@ import { formatCents } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { getActing, type Desk } from "@/lib/desk";
 import { getTicket, putTicket } from "@/lib/checkout/store";
-import { putAppt, type Appt, type ApptService, type ApptSource } from "@/lib/booking/appts";
+import { isBlocked, putAppt, type Appt, type ApptService, type ApptSource } from "@/lib/booking/appts";
 import { at, fmtMin, isFree, minutesOf, repeatDays } from "@/lib/booking/grid";
 import { catColor, codeHits, parseTime, withCodes } from "@/lib/booking/serviceCodes";
 import { isHere } from "@/lib/booking/turns";
 import { skillsNeeded } from "@/lib/booking/skills";
 import { GoodFit, SkillTags } from "./SkillTags";
 import { CustomService } from "./CustomService";
+import { ClientFacts } from "./ClientFacts";
 
-export type BookDraft = { day: string; start: number; minutes: number; staffId?: string };
+export type BookDraft = { day: string; start: number; minutes: number; staffId?: string;
+  /** "Book a later time" from a waiting walk-in: start with their name, phone and services; the walk-in leaves the waitlist once booked. */
+  client?: { name: string; phone: string }; services?: ApptService[]; replaces?: Appt };
 
 /** Open (or reuse) the checkout ticket for a booking: client + services with the tech. Saved on the device, synced later. */
 export function ticketFor(desk: Desk, a: Appt, staffId: string | null): string {
@@ -48,10 +51,10 @@ type Found = { client_id: string; name: string; notes: string; visits: number; l
 export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged }: { desk: Desk; draft: BookDraft; all: Appt[]; onClose: () => void; onBooked: (n: number, name: string) => void; onMenuChanged?: () => void }) {
   const t = useTranslations("calendar");
   const [source, setSource] = useState<ApptSource>("phone");
-  const [phone, setPhone] = useState("");
-  const [name, setName] = useState("");
+  const [phone, setPhone] = useState(draft.client?.phone ? fmtPhone(draft.client.phone) : "");
+  const [name, setName] = useState(draft.client?.name ?? "");
   const [found, setFound] = useState<Found | null>(null);
-  const [svcs, setSvcs] = useState<ApptService[]>([]);
+  const [svcs, setSvcs] = useState<ApptService[]>(draft.services ?? []);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
   const [staffId, setStaffId] = useState<string | undefined>(draft.staffId);
@@ -109,6 +112,8 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
       putAppt({ id: crypto.randomUUID(), salonId: desk.salonId, start: at(d, typed), end: at(d, typed + minutes), staffId: staffId ?? null,
         client, services: svcs, status: "booked", source, note, repeat: rule, repeatRuleId: rule?.id, updatedAt: "" });
     }
+    const old = draft.replaces ? all.find((x) => x.id === draft.replaces!.id) ?? draft.replaces : undefined;
+    if (old) putAppt({ ...old, status: "canceled", note: [old.note, t("rebookedLater")].filter(Boolean).join(" · "), updatedAt: "" });
     onBooked(days.length, client.name || fmtPhone(client.phone));
   };
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -209,6 +214,16 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
   const markHere = () => { const before = { ...a }; putAppt({ ...a, arrivedAt: new Date().toISOString() }); say(t("hereMsg", { name: a.client?.name || t("walkIn") }), () => putAppt(before)); onClose(); };
   const hereMin = here ? Math.max(0, Math.round((Date.now() - new Date(a.arrivedAt!).getTime()) / 60_000)) : 0;
   const sm = minutesOf(a.start), em = minutesOf(a.end);
+  if (isBlocked(a)) return (
+    <Drawer title={t("brk")} onClose={onClose} footer={<Button variant="ghost" block onClick={() => set("canceled", t("brkRemoved"))} data-testid="break-remove">{t("brkRemove")}</Button>}>
+      <div className="group">
+        <div className="row"><span className="grow cap">{t("when")}</span><b className="num">{fmtMin(sm)} – {fmtMin(em)}</b></div>
+        <div className="row"><span className="grow cap">{t("with")}</span><b>{staff?.name ?? t("anyone")}</b></div>
+      </div>
+      <div className="cap">{t("brkWhy")}</div>
+    </Drawer>
+  );
+  const total = a.services.reduce((x, s) => x + s.cents, 0);
   return (
     <Drawer title={a.client?.name || t("walkIn")} onClose={onClose} footer={<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       {canHere && <Button variant="primary" block onClick={markHere} data-testid="here-btn">{t("hereBtn")}</Button>}
@@ -232,7 +247,10 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
         <div className="row"><span className="grow cap">{t("with")}</span><b>{staff?.name ?? t("anyone")}</b></div>
         <div className="row"><span className="grow cap">{t("phone")}</span><b className="num">{a.client?.phone ? fmtPhone(a.client.phone) : "—"}</b></div>
         {a.services.map((s, i) => <div key={i} className="row"><span className="grow">{s.name}</span><span className="cap">{t("min", { n: s.minutes })}</span><b className="num">{formatCents(s.cents)}</b></div>)}
+        {a.services.length > 0 && <div className="row"><b className="grow">{t("totalPreTip")}</b><b className="num" data-testid="appt-total">{formatCents(total)}</b></div>}
       </div>
+      <div className="eyebrow">{t("cfTitle")}</div>
+      <ClientFacts desk={desk} client={a.client} />
       {a.note && <div className="cap" style={{ background: "#F5F5F7", borderRadius: 8, padding: "6px 8px" }}>{a.note}</div>}
       {a.client?.id && <a className="cap" href={`/clients/${a.client.id}`} style={{ fontWeight: 600 }}>{t("profile")} ›</a>}
       <div className="cap">{t("dragHint")}</div>

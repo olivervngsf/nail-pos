@@ -835,7 +835,31 @@
     "b2_saveDup": "Already on the menu: pick it above.",
     "b2_saveNet": "Saving to the menu needs internet. Add it to this booking only for now.",
     "b2_justThis": "This booking only",
-    "b2_back": "Back"
+    "b2_back": "Back",
+    "brk": "Break",
+    "brkAdd": "Block 30 min (break / lunch)",
+    "brkAdded": "Break for {name} at {time}",
+    "brkRemove": "Remove break",
+    "brkRemoved": "Break removed",
+    "brkShorter": "15 min shorter",
+    "brkLen": "Break is now {min} min",
+    "brkWhy": "Blocked time: online booking and staff booking skip it. Drag to move, drag the bottom edge to change length.",
+    "totalPreTip": "Total before tip",
+    "cfTitle": "Client",
+    "cfLast": "Last visit",
+    "cfFirst": "First visit",
+    "cfLikes": "Usually sees",
+    "cfVisits": "Visits",
+    "cfCare": "Care note",
+    "cfNew": "New client: no visits on file yet.",
+    "wants": "Wants",
+    "waitingFor": "Waiting",
+    "seatNowWith": "Seat now with",
+    "seatNowSub": "free or almost free · you decide",
+    "nobodyFree": "Nobody free in the next 15 min. Book a later time, or pick someone below.",
+    "everyoneElse": "Busy or not in",
+    "bookLater": "Book a later time…",
+    "rebookedLater": "booked a later time"
   },
   "receiptPage": {
     "notFound": "Receipt not found.",
@@ -2134,7 +2158,8 @@
     "printMine": "Print my earnings",
     "language": "Language",
     "languageSub": "Only this phone. Clients see their own language.",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "brk": "Break"
   },
   "go": {
     "title": "Set up this device",

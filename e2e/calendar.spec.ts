@@ -23,6 +23,26 @@ test("calendar: custom service saved to the menu needs an owner/manager PIN", as
   expect(errors).toEqual([]);
 });
 
+test("calendar: break blocks time on a tech, not counted as a booking", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  test.skip(test.info().project.name === "phone", "right-click is for mouse; phone uses long-press on a booking");
+  await page.goto("/calendar");
+  const all = page.getByTestId("count-all");
+  const before = await all.textContent();
+  const grid = page.getByTestId("cal-grid");
+  const g = (await grid.boundingBox())!;
+  await grid.click({ button: "right", position: { x: 40, y: g.height - 30 } });  // last slot of the day: always empty
+  await page.getByRole("menuitem", { name: /Block 30 min/ }).click();
+  const brk = page.locator('[data-testid="cal-block"][data-name="__break"]');
+  await expect(brk).toContainText("Break");
+  await expect(all).toHaveText(before!);                                           // a break is not a booking
+  await brk.click();
+  await page.getByTestId("break-remove").click();
+  await expect(brk).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test("calendar: book, move with undo, check in, week + month", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));

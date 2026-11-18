@@ -327,6 +327,9 @@ button:disabled { cursor: not-allowed; }
 .bk-techs { display: flex; flex-direction: column; gap: 6px; max-height: 312px; overflow: auto; padding: 2px; }
 .bk-tech { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--paper); font: inherit; text-align: left; cursor: pointer; color: var(--ink); flex: none; }
 .bk-tech.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+/* Break / blocked time on a tech's column (striped grey, never counted as a booking). */
+.cb.blocked { background: repeating-linear-gradient(135deg, #F3F3F6 0 6px, #E9E9EF 6px 12px); box-shadow: inset 0 0 0 1px #DCDCE3; color: #5E5E66; }
+.cb.blocked b { color: #3A3A42; }
 /* Custom service: "Also save to the menu" switch row. */
 .bk-save { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); cursor: pointer; font-size: 13px; }
 .bk-save input { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--ink); flex: none; }
@@ -341,6 +344,10 @@ button:disabled { cursor: not-allowed; }
 .cal-body { display: flex; position: relative; flex: 1; }
 .cal-body > .cal-hours { position: sticky; left: 0; z-index: 5; background: var(--surface); }
 .cal-hname { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 13px; }
+.cal-hsk { display: block; font-size: 10.5px; line-height: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.cal-outcol { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, rgba(22,22,26,.035) 0 6px, transparent 6px 12px); pointer-events: none; }
+.cal-clock { font-size: 14px; color: var(--ink-soft); font-weight: 500; font-variant-numeric: tabular-nums; margin: 0 4px; }
+@media (max-width: 899px) { .cal-clock { display: none; } }
 .cal-hsub { display: block; font-size: 11px; line-height: 14px; color: var(--ink-soft); white-space: nowrap; font-weight: 600; }
 .cal-foot { flex: none; padding: 6px 12px; border-top: 1px solid var(--line); font-size: 11.5px; }
 .cal-rowlbl { font-size: 12px; }
