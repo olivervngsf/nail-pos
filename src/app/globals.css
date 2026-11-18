@@ -263,7 +263,7 @@ button:disabled { cursor: not-allowed; }
 .cal-left { border-right: 1px solid var(--line); }
 .cal-right { border-left: 1px solid var(--line); gap: 8px; }
 .cal-center { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
-.cal-counts { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-bottom: 1px solid var(--line); flex: none; position: relative; z-index: 7; }
+.cal-counts { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-bottom: 1px solid var(--line); flex: none; position: relative; }
 /* Top bar (alerts list) always above the filter row and the grid. */
 .cal-app .bar { position: relative; z-index: 30; }
 .cal-cscroll { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none; }
@@ -703,3 +703,6 @@ button:disabled { cursor: not-allowed; }
 .po-tix th:first-child,.po-tix td:first-child{text-align:left;padding-left:0}
 .po-tix th{font-weight:600;color:var(--ink-soft,#5C5C5E);text-transform:uppercase;letter-spacing:.04em;font-size:11px}
 @media print{.po-more{display:none}}
+
+/* iPad held upright (600–899 px): keep the left menu; only phones hide it. */
+@media (min-width: 600px) and (max-width: 899px) { .cl-app .rail, .cal-app .rail, .cd-app .rail, .nm-app .rail { display: flex; } }
