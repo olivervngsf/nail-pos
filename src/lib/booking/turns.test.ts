@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Appt } from "./appts";
 import { at, dayKey } from "./grid";
-import { isWaiting, nextWalkCode, onGrid, turnCounts, turnOrder, waitedMin } from "./turns";
+import { isHere, isWaiting, nextWalkCode, onGrid, turnCounts, turnOrder, waitedMin } from "./turns";
 
 const day = dayKey(new Date());
 const ap = (id: string, staffId: string | null, s: number, e: number, extra: Partial<Appt> = {}): Appt =>
@@ -47,5 +47,16 @@ describe("turns", () => {
     const o = turnOrder(staff, appts, 620);
     expect(o.map((x) => x.id)).toEqual(["t", "n", "k", "l", "h"]);   // Tuyet free since 9:40 beats Ngoc free since 10:00
     expect(o[3].busyUntil).toBe(660);
+  });
+});
+
+describe("checked in (here)", () => {
+  const b = { source: "phone", status: "confirmed", arrivedAt: null, ticketId: null } as unknown as Appt;
+  it("is here only after check-in and before the ticket", () => {
+    expect(isHere(b)).toBe(false);
+    expect(isHere({ ...b, arrivedAt: new Date().toISOString() })).toBe(true);
+    expect(isHere({ ...b, arrivedAt: new Date().toISOString(), ticketId: "t1" })).toBe(false);
+    expect(isHere({ ...b, arrivedAt: new Date().toISOString(), source: "kiosk" })).toBe(false);
+    expect(isHere({ ...b, arrivedAt: new Date().toISOString(), status: "canceled" })).toBe(false);
   });
 });
