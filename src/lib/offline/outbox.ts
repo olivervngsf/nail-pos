@@ -122,14 +122,17 @@ async function runOnce(): Promise<void> {
     const d = getDb();
     emit({ syncing: true });
     try {
+      // Items whose sender isn't loaded on this screen (e.g. a booking save while on Checkout) wait for a later run;
+      // they must not hold back the tickets and payments behind them.
+      const later = new Set<number>();
       for (;;) {
-        const item = await d.outbox.orderBy("seq").first();
+        const item = await d.outbox.orderBy("seq").filter((i) => !later.has(i.seq!)).first();
         if (!item) break;
         const handler = handlers.get(item.kind);
         if (!handler) {
-          await d.outbox.update(item.seq!, { tries: item.tries + 1, lastError: `no handler for ${item.kind}` });
-          emit({ lastError: `no handler for ${item.kind}` });
-          break;
+          later.add(item.seq!);
+          if (item.lastError !== `no handler for ${item.kind}`) await d.outbox.update(item.seq!, { lastError: `no handler for ${item.kind}` });
+          continue;
         }
         try {
           await handler(item);

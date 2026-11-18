@@ -17,6 +17,9 @@ export async function POST(req: Request) {
   if (notDesk) return fail(403, "Only the front desk, a manager or the owner can refund.");
   if (t.status === "refunded") return Response.json({ status: "refunded" });
   if (t.status !== "paid") return fail(409, "Only a paid ticket can be refunded.");
+  // A gift card sold on this ticket and already partly spent: a full refund would give that money back twice.
+  const { data: block } = await db.rpc("refund_block", { p_ticket: t.id });
+  if (block) return fail(409, block as string);
   // Owner/manager OK for this ticket, used once, within 15 minutes.
   const { data: approver } = await db.rpc("use_refund_ok", { p_approval: approvalId ?? null, p_ticket: t.id });
   if (!approver) return fail(403, "A refund needs an owner or manager OK.");

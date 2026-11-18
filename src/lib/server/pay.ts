@@ -93,7 +93,9 @@ export async function settle(prId: string, seenIntent?: string | null): Promise<
   for (const l of lines ?? []) if (l.staff_id) byStaff.set(l.staff_id, (byStaff.get(l.staff_id) ?? 0) + Number(l.amount_cents));
   const staff = [...byStaff.keys()];
   const parts = tip > 0 && staff.length ? splitCents(tip, staff.map((s) => byStaff.get(s) || 1)) : [];
-  const tips = staff.map((s, i) => ({ staffId: s, cents: parts[i] ?? 0 }));
+  // No tech on the ticket (e.g. only a gift card sold) but the client tipped on the reader: keep the tip on the ticket
+  // with no name, so the ticket total still equals the money taken.
+  const tips: { staffId: string | null; cents: number }[] = staff.length ? staff.map((s, i) => ({ staffId: s, cents: parts[i] ?? 0 })) : tip > 0 ? [{ staffId: null, cents: tip }] : [];
 
   const { data, error } = await db.rpc("settle_card", { p: {
     payRequestId: pr.id, paymentIntent: pi.id, amountCents: pi.amount_received, tipCents: tip, feeCents: bt?.fee ?? 0,
