@@ -906,6 +906,8 @@
     "cancelRule": "Đổi hoặc hủy trước {hours} giờ. Không cần thẻ.",
     "booked": "Đã đặt xong, {name}",
     "bookedTexted": "Đã nhắn xác nhận tới {phone}",
+    "atDesk": "Xong rồi. Đến nơi chỉ cần nói tên ở quầy.",
+    "callUs": "Cần hỏi? Gọi",
     "addCal": "Thêm vào lịch",
     "again": "Đặt lịch nữa",
     "visit": "Lịch của bạn",
