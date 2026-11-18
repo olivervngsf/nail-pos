@@ -1,13 +1,15 @@
 "use client";
 // Settings → Billing: the salon's PolishOS plan on Stripe Billing (our platform account). Monthly vs yearly cards,
 // status + renewal, switch, cancel at period end / keep, Stripe's billing page for card + invoices.
-// Owner changes; manager reads. No Stripe (test version / not switched on) = sample plan kept on this device.
+// Text battery row = the salon text credit (src/lib/texting/credit.ts). Owner changes; manager reads. No Stripe (test version / not switched on) = sample plan kept on this device.
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button, DataTable, Drawer, StatusPill, Toast } from "@/components/kit";
 import { api } from "@/lib/api";
 import { formatCents } from "@/lib/money";
 import { useStored } from "@/lib/useStored";
+import { creditLevel, textsLeft, useCredit } from "@/lib/texting/credit";
 import SettingsShell, { type Access } from "../SettingsShell";
 
 type Cycle = "monthly" | "yearly";
@@ -20,6 +22,7 @@ type View = {
 type Demo = { cycle: Cycle; status: "trialing" | "canceling"; renews: string };
 
 const PRICE: Record<Cycle, number> = { monthly: 4900, yearly: 3900 };
+const TEXT_PACK = { texts: 500, cents: 1000 }; // = text credit $10 (2¢ a text), same balance as Settings → Texting & credit
 const LIVE = new Set(["trialing", "active", "past_due", "unpaid", "incomplete", "paused"]);
 const plus = (days: number) => { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString(); };
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -42,6 +45,9 @@ function BillingView({ a }: { a: Access }) {
   const [toast, setToast] = useState("");
   const say = (m: string) => { setToast(m); setTimeout(() => setToast(""), 2500); };
   const dis = !a.owner || !!busy;
+  // Text battery = the salon's text credit (one balance, shared with the menu ring + Texting & credit).
+  const { credit, add } = useCredit(a.demo ? undefined : a.salonId);
+  const lowTexts = !!credit && creditLevel(credit) !== "good";
 
   const load = useCallback(async () => {
     if (a.demo) return;
@@ -138,6 +144,16 @@ function BillingView({ a }: { a: Access }) {
           <span className="cap">{t("cancelNote")}</span>
         </div>
       )}
+
+      <div className="eyebrow">{t("addOns")}</div>
+      <section className="card pad">
+        <div className="bill-addon">
+          <div className="g"><b>{t("battery")}</b><span className="cap">{t("batteryNote", { n: TEXT_PACK.texts, price: formatCents(TEXT_PACK.cents) })}</span></div>
+          <span className={`pill${lowTexts ? " warn" : ""}`} data-testid="text-balance">{credit ? `${t("left", { n: textsLeft(credit) })} · ${formatCents(credit.balanceCents)}` : "…"}</span>
+          <Button variant="primary" disabled={dis || !credit} data-testid="buy-texts" onClick={() => { void add(TEXT_PACK.cents).then(() => say(t("added", { n: TEXT_PACK.texts }))).catch((e: Error) => say(e.message)); }}>{t("buy", { price: formatCents(TEXT_PACK.cents) })}</Button>
+        </div>
+        <Link className="cap" href="/settings/texting" data-testid="manage-credit">{t("manageCredit")}</Link>
+      </section>
 
       <div className="set-two">
         <div>
