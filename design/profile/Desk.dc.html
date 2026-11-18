@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Desk monitor lock</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.app{position:relative}
+.btn{height:36px;font-size:14px;padding:0 14px}
+.avbtn{border:0;background:transparent;padding:6px;border-radius:12px;cursor:pointer}
+.avbtn.on{background:var(--fill);box-shadow:0 0 0 2px var(--ink)}
+.pop{position:absolute;left:84px;bottom:14px;width:320px;background:var(--paper);border-radius:16px;box-shadow:0 12px 48px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:6;overflow:hidden;animation:fadeUp .25s var(--ease) both}
+.mi{display:flex;align-items:center;gap:10px;width:100%;height:44px;padding:0 16px;border:0;background:transparent;font:inherit;font-size:15px;color:var(--ink);text-align:left;cursor:pointer;box-sizing:border-box}
+.mi:hover{background:var(--surface)}
+.mi .cap{margin-left:auto}
+.lockbtn{margin:8px 12px;height:48px;border-radius:12px;border:0;background:var(--ink);color:#fff;font:inherit;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;width:calc(100% - 24px)}
+.full{position:absolute;inset:0;background:var(--surface);z-index:8;display:flex;flex-direction:column;align-items:center;padding:36px 0;box-sizing:border-box;gap:20px;animation:fadeIn .3s ease both}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;width:820px}
+.fc{border:0;font:inherit;cursor:pointer;background:var(--paper);border-radius:20px;box-shadow:var(--shadow);padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--ink);position:relative}
+.fc .av{width:64px;height:64px;font-size:24px}
+.fc .ind{position:absolute;top:10px;right:10px;height:20px;padding:0 7px;border-radius:999px;font-size:11px;font-weight:600;display:flex;align-items:center;background:var(--jade-soft);color:#1F7A33}
+.fc.last{box-shadow:0 0 0 2px var(--ink)}
+.modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:380px;background:var(--paper);border-radius:24px;box-shadow:0 24px 80px rgba(28,28,30,.25);z-index:10;padding:22px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:12px}
+.pd{display:flex;gap:14px}
+.pd span{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink)}
+.pd span.f{background:var(--ink)}
+.kp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.kp button{height:54px;border:0;border-radius:12px;background:var(--fill);font:inherit;font-size:22px;font-weight:600;cursor:pointer;color:var(--ink)}
+.dim{opacity:.55}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a class="on" href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <button class="{{avCls}}" type="button" onClick="{{toggle}}" aria-label="Account menu"><span class="av" style="width:32px;height:32px">{{ci}}</span></button>
+  </nav>
+  <div class="{{colCls}}">
+    <header class="bar"><div class="title">Today · Tue, Nov 17</div><span class="pill">Front desk computer · as {{cn}}</span><span class="pill ok"><span class="dot"></span>Saved</span></header>
+    <main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:20px 24px">
+      <div class="card stat-grid" style="--n:4;padding:16px 10px"><div><b>14</b><span class="cap">waiting + booked</span></div><div><b>31</b><span class="cap">clients</span></div><div><b>5</b><span class="cap">techs in</span></div><div><b>12 min</b><span class="cap">walk-in wait</span></div></div>
+      <div class="group"><div class="row s"><span class="av">K</span><span class="grow">Kim Võ · Gel color manicure</span><span class="cap">free at 2:40</span></div><div class="row s"><span class="av">T</span><span class="grow">Tuấn Đỗ · Deluxe spa pedicure</span><span class="cap">free at 3:05</span></div><div class="row s"><span class="av">V</span><span class="grow">Vy Hoàng · open</span><span class="cap">free now</span></div></div>
+    </main>
+  </div>
+  <sc-if value="{{menu}}" hint-placeholder-val="{{true}}">
+    <button class="scrim" type="button" aria-label="Close menu" onClick="{{toggle}}" style="background:transparent"></button>
+    <div class="pop" role="menu" aria-label="Account">
+      <div style="padding:14px 16px;display:flex;align-items:center;gap:10px;background:var(--surface)"><span class="av lg" style="width:44px;height:44px">{{ci}}</span><span style="flex:1"><b style="display:block;font-size:15px">{{cfull}}</b><span class="cap">{{crole}} · clocked in 9:00</span></span></div>
+      <button class="lockbtn" type="button" onClick="{{lock}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>Lock · show faces</button>
+      <button class="mi" type="button" onClick="{{lock}}">Switch person<span class="cap">face + PIN</span></button>
+      <button class="mi" type="button">My profile</button>
+      <button class="mi" type="button">My earnings<span class="cap">print slip</span></button>
+      <button class="mi" type="button">Clock out<span class="cap">ends my shift</span></button>
+      <button class="mi" type="button">Settings<span class="cap">owner / manager PIN</span></button>
+      <div style="padding:8px 16px 12px;border-top:1px solid var(--line)" class="cap">This computer stays signed in as Mai Nails. Only the owner can sign it out (Settings → Devices).</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{locked}}" hint-placeholder-val="{{false}}">
+    <div class="full">
+      <div style="display:flex;align-items:center;gap:12px;width:820px"><div class="logo" style="margin:0">MN</div><div style="flex:1"><div class="h1" style="font-size:26px">Who’s working?</div><div class="cap">Locked by {{cn}} at 2:14 PM · open tickets kept</div></div><span class="pill ok"><span class="dot"></span>Online</span></div>
+      <div class="grid4"><sc-for list="{{faces}}" as="f" hint-placeholder-count="8"><button class="{{f.cls}}" type="button" onClick="{{f.pick}}"><span class="ind">In</span><span class="av">{{f.i}}</span><b style="font-size:16px">{{f.n}}</b><span class="cap">{{f.r}}</span></button></sc-for></div>
+      <div class="cap">Last person is outlined: one tap + PIN and you’re back where you left off.</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{pin}}" hint-placeholder-val="{{false}}">
+    <div class="scrim" style="z-index:9"></div>
+    <div class="modal" role="dialog" aria-label="Enter PIN">
+      <span class="av" style="width:56px;height:56px;font-size:22px">{{pi}}</span>
+      <div style="font-size:20px;font-weight:600">{{pn}}, your PIN</div>
+      <div class="pd"><sc-for list="{{dots}}" as="d" hint-placeholder-count="6"><span class="{{d.c}}"></span></sc-for></div>
+      <div class="cap">{{lenNote}}</div>
+      <div class="kp"><sc-for list="{{keys}}" as="k" hint-placeholder-count="12"><button type="button" onClick="{{k.tap}}">{{k.l}}</button></sc-for></div>
+      <button class="btn ghost" type="button" onClick="{{cancelPin}}">Not me</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"pinLen":{"editor":"enum","options":["6","10"],"default":"6"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { v: 'menu', cur: 'Hạnh', pick: null, n: 0 }; }
+  renderVals() {
+    const s = this.state;
+    const P = { 'Hạnh': ['H', 'Hạnh Lê', 'Front desk'], 'Lan': ['L', 'Lan Phan', 'Front desk'], 'Bảo': ['B', 'Bảo Trần', 'Manager'], 'Mai': ['M', 'Mai Nguyễn', 'Owner'], 'Kim': ['K', 'Kim Võ', 'Tech'], 'Tuấn': ['T', 'Tuấn Đỗ', 'Tech'], 'Vy': ['V', 'Vy Hoàng', 'Tech'], 'Linh': ['P', 'Linh Phạm', 'Tech'] };
+    const c = P[s.cur];
+    const L = Number(this.props.pinLen ?? 6);
+    const tap = () => {
+      const n = s.n + 1;
+      if (n >= L) this.setState({ v: 'desk', cur: s.pick, pick: null, n: 0 });
+      else this.setState({ n });
+    };
+    const f = (i) => s.n >= i ? 'f' : '';
+    return {
+      menu: s.v === 'menu', locked: s.v === 'lock' || s.v === 'pin', pin: s.v === 'pin',
+      colCls: 'col' + (s.v === 'menu' ? ' dim' : ''),
+      avCls: 'avbtn' + (s.v === 'menu' ? ' on' : ''),
+      toggle: () => this.setState({ v: s.v === 'menu' ? 'desk' : 'menu' }),
+      lock: () => this.setState({ v: 'lock' }),
+      ci: c[0], cn: s.cur, cfull: c[1], crole: c[2],
+      faces: Object.keys(P).map(k => ({ i: P[k][0], n: k, r: P[k][2], cls: 'fc' + (k === s.cur ? ' last' : ''), pick: () => this.setState({ v: 'pin', pick: k, n: 0 }) })),
+      pi: s.pick ? P[s.pick][0] : '', pn: s.pick || '',
+      dots: Array.from({ length: L }, (_, i) => ({ c: f(i + 1) })),
+      lenNote: L + '-digit PIN · salon rule',
+      keys: ['1','2','3','4','5','6','7','8','9','','0','⌫'].map(l => ({ l, tap: l === '⌫' ? () => this.setState({ n: Math.max(0, s.n - 1) }) : l === '' ? null : tap })),
+      cancelPin: () => this.setState({ v: 'lock', pick: null, n: 0 })
+    };
+  }
+}
+</script>
+</body>
+</html>

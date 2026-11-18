@@ -10,6 +10,7 @@ insert into auth.users (id, phone, aud, role) values
 create temp table t_out (k text primary key, v jsonb);
 grant all on t_out to authenticated, anon;
 
+insert into public.platform_admins (auth_user_id) select id from auth.users on conflict do nothing;  -- salons are invite-only: test owners set up salons as platform admins
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000fe01","role":"authenticated"}', true);
 -- open every day 9–19
@@ -32,6 +33,15 @@ do $$ begin perform public.salon_photo_add(gen_random_uuid(), '00000000-0000-000
 insert into t_out values ('slug_bad', public.booking_settings_save('00000000-0000-0000-0000-0000000020a1', '{"slug": "Lo tus!"}'));
 insert into t_out values ('slug_reserved', public.booking_settings_save('00000000-0000-0000-0000-0000000020a1', '{"slug": "checkout"}'));
 insert into t_out values ('slug_ok', public.booking_settings_save('00000000-0000-0000-0000-0000000020a1', '{"slug": "lotus", "group_max": 2}'));
+-- a save only changes what was sent: slug only / on only / one number / a null keep the other rules
+insert into t_out values ('rules_before', (select booking_settings from public.salons where id = '00000000-0000-0000-0000-0000000020a1'));
+select public.booking_settings_save('00000000-0000-0000-0000-0000000020a1', '{"slug": "lotus"}');
+select public.booking_settings_save('00000000-0000-0000-0000-0000000020a1', '{"on": true}');
+select public.booking_settings_save('00000000-0000-0000-0000-0000000020a1', '{"days_ahead": null}');
+insert into t_out values ('rules_after', (select booking_settings from public.salons where id = '00000000-0000-0000-0000-0000000020a1'));
+select public.booking_settings_save('00000000-0000-0000-0000-0000000020a1', '{"cancel_hours": 99}');
+insert into t_out values ('rules_one', (select booking_settings from public.salons where id = '00000000-0000-0000-0000-0000000020a1'));
+select public.booking_settings_save('00000000-0000-0000-0000-0000000020a1', '{"cancel_hours": 2}');
 -- name change no longer moves a chosen slug
 select public.save_setup(jsonb_build_object('salonId', '00000000-0000-0000-0000-0000000020a1', 'salonName', 'Lotus Two'));
 -- a desk booking: Kim 10:00–11:00 tomorrow
@@ -120,6 +130,9 @@ declare o jsonb := (select jsonb_object_agg(k, v) from t_out);
 begin
   if o->>'slug' <> 'lotus-nails-spa' then raise exception 'FAIL slug from name: %', o->'slug'; end if;
   if o->'slug_bad'->>'reason' <> 'slug_bad' or o->'slug_reserved'->>'reason' <> 'slug_taken' or o->'slug_ok'->>'slug' <> 'lotus' then raise exception 'FAIL slug rules: % % %', o->'slug_bad', o->'slug_reserved', o->'slug_ok'; end if;
+  if o->'rules_after' <> o->'rules_before' or (o->'rules_before'->>'group_max')::int <> 2 or (o->'rules_before'->>'days_ahead')::int <> 30
+     or (o->'rules_one'->>'cancel_hours')::int <> 48 or (o->'rules_one') - 'cancel_hours' <> (o->'rules_before') - 'cancel_hours'
+     then raise exception 'FAIL partial save: % % %', o->'rules_before', o->'rules_after', o->'rules_one'; end if;
   if jsonb_array_length(o->'page'->'services') <> 1 or jsonb_array_length(o->'page'->'staff') <> 2 or o->'page'->'salon'->>'name' <> 'Lotus Two'
      or (o->'page') ? 'clients' or (o->'page'->'staff'->0) ? 'phone' then raise exception 'FAIL page: %', o->'page'; end if;
   if (o->>'no_page')::boolean is not true then raise exception 'FAIL unknown slug'; end if;

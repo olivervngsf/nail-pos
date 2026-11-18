@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Who signs in where</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.mx{display:grid;grid-template-columns:180px repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.mx > div{background:var(--paper);padding:12px 14px;font-size:14px;line-height:20px}
+.mx .hd{background:#FAFAFB;font-size:13px;font-weight:600}
+.mx .hd .cap{display:block;font-weight:400;font-size:12px}
+.mx .rl b{display:block;font-size:16px}
+.k{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600;margin-right:4px}
+.k.code{background:#E7F0FD;color:#1B4F9C}
+.k.pin{background:var(--orange-soft);color:#A3410A}
+.k.no{background:var(--fill);color:var(--ink-soft)}
+</style>
+</helmet>
+<div style="width:1280px;height:800px;box-sizing:border-box;padding:36px 44px;background:var(--surface);display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;gap:16px">
+    <div class="card" style="flex:1;padding:16px 18px;display:flex;gap:14px;align-items:center"><span class="k code" style="height:30px;font-size:14px">Phone code</span><span style="font-size:15px;line-height:21px"><b>= your account.</b> 6-digit text, once per device. Proves WHO you are. You stay signed in.</span></div>
+    <div class="card" style="flex:1;padding:16px 18px;display:flex;gap:14px;align-items:center"><span class="k pin" style="height:30px;font-size:14px">PIN</span><span style="font-size:15px;line-height:21px"><b>= who is at the shared iPad right now.</b> 6 or 10 digits (owner picks in Settings → PIN rules), every switch. Never signs the iPad out.</span></div>
+  </div>
+  <div class="mx">
+    <div class="hd">Role</div>
+    <div class="hd">Salon iPad (front desk)<span class="cap">Signed in as the SALON, always on</span></div>
+    <div class="hd">Own phone<span class="cap">polishosapp.com · their account</span></div>
+    <div class="hd">Own computer (home / office)<span class="cap">their account</span></div>
+
+    <div class="rl"><b>Owner</b><span class="cap">Mai</span></div>
+    <div><span class="k pin">PIN</span>Face + PIN → everything, incl. Settings + Close day. Can sign the iPad out (rare).</div>
+    <div><span class="k code">Code once</span>Numbers, approve discounts, alerts. Menu E2.</div>
+    <div><span class="k code">Code once</span>Settings, Team + Add member, payouts. Menu E2 → Settings (F).</div>
+
+    <div class="rl"><b>Manager</b><span class="cap">Bảo</span></div>
+    <div><span class="k pin">PIN</span>Face + PIN → desk + Settings (no pay changes). Approves discount / refund with PIN pop-up.</div>
+    <div><span class="k code">Code once</span>Calendar, team today, approve from phone.</div>
+    <div><span class="k code">Code once</span>Same as phone, bigger.</div>
+
+    <div class="rl"><b>Front desk</b><span class="cap">Hạnh, Lan</span></div>
+    <div><span class="k pin">PIN</span>Face + PIN → Checkout, Calendar, Clients. Shift change = next person taps face + PIN.</div>
+    <div><span class="k no">Optional</span>Own schedule + earnings only.</div>
+    <div><span class="k no">Not needed</span></div>
+
+    <div class="rl"><b>Tech</b><span class="cap">Kim, Tuấn, Vy</span></div>
+    <div><span class="k pin">PIN</span>Face + PIN → clock in/out, see own earnings / print slip. Then iPad goes straight back to “Who’s working?”</div>
+    <div><span class="k code">Code once</span>Tech app /t: own tickets, add service from slip QR, own bookings, earnings.</div>
+    <div><span class="k no">Not needed</span></div>
+  </div>
+  <div class="cap" style="font-size:14px;line-height:20px">Walk-in clients never sign in. They use the kiosk (/kiosk) or the desk adds them by phone number. Every action on the iPad is saved under the person whose PIN was last entered.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

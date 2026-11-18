@@ -1,15 +1,14 @@
 "use client";
-// One way to print a receipt or ticket slip: Bluetooth thermal printer when this browser can (Android Chrome, Bluefy),
-// text when the paper is plain English, an image when it has Vietnamese letters. Returns false when the caller
-// should use the computer's print window instead.
-import { needsImage, receiptBytes, type ReceiptDoc } from "./escpos";
-import { receiptImageBytes } from "./raster";
+// One way to print a receipt or ticket slip: Bluetooth thermal printer when this browser can (Android Chrome, Bluefy).
+// Always printer text (fast): Vietnamese accents print without marks ("Tuyết" → "Tuyet"). The image way (raster.ts,
+// keeps accents) was too slow on the NETUM. Returns false when the caller should use the computer's print window.
+import { receiptBytes, type ReceiptDoc } from "./escpos";
 import { canBluetooth, printBytes, savedPrinter } from "./bluetooth";
 
 export async function printDoc(doc: ReceiptDoc): Promise<boolean> {
   if (!canBluetooth()) return false;
   const paper = savedPrinter()?.paper ?? 58;
-  await printBytes(needsImage(doc) ? await receiptImageBytes(doc, paper) : receiptBytes(doc, paper), paper);
+  await printBytes(receiptBytes(doc, paper), paper);
   return true;
 }
 

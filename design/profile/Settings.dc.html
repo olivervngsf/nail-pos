@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings with side nav</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.app{position:relative}
+.btn{height:36px;font-size:14px;padding:0 14px}
+.btn.primary{height:40px;font-size:15px}
+.inp{height:40px;font-size:15px}
+.chip{height:32px;font-size:13px;padding:0 12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.snav{width:236px;background:var(--paper);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:14px 10px;gap:2px;overflow:auto}
+.snav .sh{font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--ink-soft);padding:12px 10px 4px}
+.snav button{display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;border:0;border-radius:8px;background:transparent;font:inherit;font-size:14px;color:var(--ink);text-align:left;cursor:pointer}
+.snav button:hover{background:var(--surface)}
+.snav button.on{background:var(--fill);font-weight:600}
+.snav button .cap{margin-left:auto;font-size:12px}
+.mr{min-height:56px}
+.phadd{width:64px;height:64px;border-radius:50%;border:1.5px dashed #C7C7CC;background:var(--surface);font:inherit;font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="Menu1.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"></path></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"></path></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"></path><path d="M9 8h6M9 12h6"></path></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a class="on" href="Menu1.dc.html" aria-label="Account menu"><span class="av" style="width:32px;height:32px;background:#E9D7CB">M</span></a>
+  </nav>
+  <aside class="snav" aria-label="Settings sections">
+    <div style="font-size:20px;font-weight:600;padding:4px 10px 6px">Settings</div>
+    <div class="sh">ME</div>
+    <sc-for list="{{me}}" as="n" hint-placeholder-count="4"><button class="{{n.cls}}" type="button" onClick="{{n.pick}}">{{n.l}}<span class="cap">{{n.v}}</span></button></sc-for>
+    <div class="sh">SALON · OWNER + MANAGER</div>
+    <sc-for list="{{salon}}" as="n" hint-placeholder-count="11"><button class="{{n.cls}}" type="button" onClick="{{n.pick}}">{{n.l}}<span class="cap">{{n.v}}</span></button></sc-for>
+    <div style="flex:1"></div>
+    <button type="button" style="color:#E03131">Sign out</button>
+  </aside>
+  <div class="col">
+    <header class="bar"><div class="title">{{title}}</div><span class="pill ok"><span class="dot"></span>Saved</span><sc-if value="{{isTeam}}" hint-placeholder-val="{{true}}"><button class="btn primary" type="button" onClick="{{openAdd}}" style="padding:0 16px">+ Add member</button></sc-if></header>
+    <main style="flex:1;display:flex;flex-direction:column;gap:12px;padding:16px 20px;min-height:0;overflow:auto">
+      <sc-if value="{{isTeam}}" hint-placeholder-val="{{true}}">
+        <div style="display:flex;gap:6px;align-items:center"><button class="chip on" type="button">All 7</button><button class="chip" type="button">Techs 4</button><button class="chip" type="button">Desk + managers 2</button><button class="chip" type="button">Invited 1</button><span style="flex:1"></span><input class="inp" placeholder="Search name or phone" aria-label="Search team" style="width:220px;height:36px;font-size:14px"></div>
+        <div class="group fade">
+          <sc-for list="{{team}}" as="p" hint-placeholder-count="7"><button class="opt mr" type="button"><span class="av" style="width:36px;height:36px">{{p.i}}</span><span style="flex:1;min-width:0"><b style="display:block;font-size:15px">{{p.n}}</b><span class="cap">{{p.sub}}</span></span><span class="{{p.tagCls}}">{{p.tag}}</span><span class="cap" style="width:130px;text-align:right">{{p.pay}}</span><span class="cap">›</span></button></sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{isProfile}}" hint-placeholder-val="{{false}}">
+        <div class="card fade" style="padding:20px;display:flex;flex-direction:column;gap:14px;max-width:640px">
+          <div style="display:flex;align-items:center;gap:16px"><span class="av" style="width:72px;height:72px;font-size:26px;background:#E9D7CB">M</span><div style="flex:1"><div class="h2">Mai Nguyễn</div><div class="cap">Owner · Mai Nails · since Mar 2021</div></div><button class="btn" type="button">Change photo</button></div>
+          <div class="two"><label><span class="lbl">Name</span><input class="inp" value="Mai Nguyễn"></label><label><span class="lbl">Mobile · sign-in</span><input class="inp num" value="(408) 555-0110"></label><label><span class="lbl">Sign-in email</span><input class="inp" value="mai.owner@gmail.com"></label><label><span class="lbl">Birthday</span><input class="inp num" value="04 / 12"></label></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{isOther}}" hint-placeholder-val="{{false}}">
+        <div class="card fade" style="padding:20px;max-width:640px"><div class="h2">{{title}}</div><div class="cap" style="margin-top:6px">Same pattern: one card per setting, changes save on their own (Saved pill).</div></div>
+      </sc-if>
+    </main>
+  </div>
+  <sc-if value="{{add}}" hint-placeholder-val="{{false}}">
+    <button class="scrim" type="button" aria-label="Close" onClick="{{closeAdd}}"></button>
+    <aside class="drawer" aria-label="Add member">
+      <div class="drawer-h"><span style="flex:1">Add team member</span><button class="btn ghost" type="button" onClick="{{closeAdd}}" aria-label="Close">✕</button></div>
+      <div class="drawer-b">
+        <div style="display:flex;align-items:center;gap:14px"><button class="phadd" type="button">+ Photo</button><span class="cap">Optional. Helps the desk pick the right person.</span></div>
+        <div class="two"><label><span class="lbl">First name</span><input class="inp" value="Linh"></label><label><span class="lbl">Last name</span><input class="inp" value="Phạm"></label></div>
+        <label><span class="lbl">Mobile · she signs in with this</span><input class="inp num" value="(408) 555-0187"></label>
+        <label><span class="lbl">Email (optional)</span><input class="inp" placeholder="name@email.com"></label>
+        <div><span class="lbl">Role</span><div class="chips"><button class="chip" type="button">Manager</button><button class="chip" type="button">Front desk</button><button class="chip on" type="button">Tech</button></div></div>
+        <div><span class="lbl">Her screens in</span><div class="chips"><button class="chip" type="button">English</button><button class="chip on" type="button">Tiếng Việt</button></div></div>
+        <div><span class="lbl">Pay type</span><div class="chips"><button class="chip on" type="button">Commission</button><button class="chip" type="button">Hourly</button><button class="chip" type="button">Hourly + commission</button><button class="chip" type="button">Booth rent</button></div></div>
+        <div class="two"><label><span class="lbl">Commission %</span><input class="inp num" value="60%"></label><label><span class="lbl">Check / cash</span><input class="inp num" value="70 / 30"></label></div>
+        <div><span class="lbl">Skills</span><div class="chips"><button class="chip on" type="button">Gel</button><button class="chip on" type="button">Dip</button><button class="chip" type="button">Acrylic</button><button class="chip on" type="button">Pedicure</button><button class="chip" type="button">Nail art</button></div></div>
+        <div class="two"><label><span class="lbl">License #</span><input class="inp num" value="M 312 448"></label><label><span class="lbl">Expires</span><input class="inp num" value="03 / 2027"></label></div>
+      </div>
+      <div class="drawer-f"><button class="btn" type="button" onClick="{{closeAdd}}">Cancel</button><button class="btn primary" type="button" style="flex:1" onClick="{{closeAdd}}">Add + text invite</button></div>
+    </aside>
+  </sc-if>
+<p style="margin: 0; position: absolute; left: 612px; top: 0px"><br></p></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { sec: 'Team', add: false }; }
+  renderVals() {
+    const s = this.state;
+    const mk = (a) => a.map(n => ({ l: n[0], v: n[1], cls: s.sec === n[0] ? 'on' : '', pick: () => this.setState({ sec: n[0], add: false }) }));
+    return {
+      me: mk([['Profile', ''], ['Sign-in + PIN', ''], ['Language', 'EN'], ['Notifications', '']]),
+      salon: mk([['Salon info', ''], ['Team', '7'], ['Services & prices', '24'], ['Pay & tips', ''], ['Card payments', 'On'], ['Booking page', 'On'], ['Gift cards & loyalty', ''], ['Printers & devices', '2'], ['Texts', 'On'], ['Receipts', ''], ['PIN rules', '6 digits'], ['PIN activity', ''], ['Support access', 'Off']]),
+      title: s.sec === 'Team' ? 'Team · 7 people' : s.sec,
+      isTeam: s.sec === 'Team', isProfile: s.sec === 'Profile', isOther: s.sec !== 'Team' && s.sec !== 'Profile',
+      add: s.add, openAdd: () => this.setState({ add: true }), closeAdd: () => this.setState({ add: false }),
+      team: [
+        ['M', 'Mai Nguyễn', 'Owner · (408) 555-0110', 'Owner', 'tag jade', '—'],
+        ['B', 'Bảo Trần', 'Manager · in since 9:02', 'Manager', 'tag', '$18/hr'],
+        ['H', 'Hạnh Lê', 'Front desk · in since 9:15', 'Front desk', 'tag', '$17/hr'],
+        ['K', 'Kim Võ', 'Tech · Gel, Dip, Nail art', 'Tech', 'tag', '60% · 70/30'],
+        ['T', 'Tuấn Đỗ', 'Tech · Acrylic, Pedicure', 'Tech', 'tag', '$16.50 + 40%'],
+        ['V', 'Vy Hoàng', 'License expires Dec 3', 'License due', 'tag', '55% · 60/40'],
+        ['L', 'Linh Phạm', 'Invite sent Nov 15 · not opened', 'Invited', 'tag', '60% · 70/30']
+      ].map(p => ({ i: p[0], n: p[1], sub: p[2], tag: p[3], tagCls: p[4], pay: p[5] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

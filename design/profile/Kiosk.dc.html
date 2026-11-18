@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tech kiosk clock and pay sheet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.wrap{width:1280px;height:800px;position:relative;background:var(--surface);display:flex;flex-direction:column;align-items:center;padding:32px 0;box-sizing:border-box;gap:18px;overflow:hidden}
+.big{height:120px;border:0;border-radius:24px;font:inherit;font-size:26px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.big .cap{font-size:15px;font-weight:500}
+.seg button{height:34px;padding:0 16px;border-radius:9px;border:0;background:transparent;font:inherit;font-size:14px;font-weight:600;color:var(--ink-soft);cursor:pointer}
+.seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.slip{width:300px;max-height:600px;overflow:auto;box-sizing:border-box;background:#fff;border-radius:6px;box-shadow:0 8px 30px rgba(28,28,30,.12);padding:18px;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:20px;color:#1C1C1E}
+.slip .r{display:flex}
+.slip .r span:first-child{flex:1}
+.toast2{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:14px;padding:12px 18px;font-size:15px;animation:fadeUp .3s var(--ease) both}
+</style>
+</helmet>
+<div class="wrap">
+  <div style="display:flex;align-items:center;gap:14px;width:1000px"><span class="av" style="width:56px;height:56px;font-size:22px">K</span><div style="flex:1"><div class="h1" style="font-size:26px">Hi Kim</div><div class="cap">Tech · only your own info shows here · goes back to faces in {{secs}} s</div></div><a class="btn" href="Lock.dc.html" style="height:44px">Done</a></div>
+  <div style="display:flex;gap:20px;width:1000px;flex:1;min-height:0">
+    <div style="flex:1;display:flex;flex-direction:column;gap:14px">
+      <button class="big" type="button" onClick="{{clock}}" style="{{clkStyle}}">{{clkBtn}}<span class="cap">{{clkSub}}</span></button>
+      <div class="card" style="padding:18px;display:flex;flex-direction:column;gap:14px;flex:1">
+        <div style="display:flex;align-items:center;gap:10px"><b style="font-size:18px;flex:1">My pay sheet</b><span class="seg"><sc-for list="{{periods}}" as="p" hint-placeholder-count="3"><button class="{{p.cls}}" type="button" onClick="{{p.pick}}">{{p.l}}</button></sc-for></span></div>
+        <div class="stat-grid" style="--n:3"><div><b>{{earn}}</b><span class="cap">earned</span></div><div><b>{{tips}}</b><span class="cap">tips</span></div><div><b>{{cnt}}</b><span class="cap">services</span></div></div>
+        <div class="cap" style="font-size:14px">Check {{chk}} · cash {{cash}} (70 / 30). Card tips paid in full — salon pays the card fee.</div>
+        <div style="display:flex;gap:10px;margin-top:auto"><button class="btn primary" type="button" onClick="{{print}}" style="flex:1;height:52px">Print my pay sheet</button><button class="btn" type="button" style="height:52px">Text it to me</button></div>
+      </div>
+    </div>
+    <div style="width:340px;display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div class="cap">Slip preview</div>
+      <div class="slip">
+        <div style="text-align:center;font-weight:600">MAI NAILS</div>
+        <div style="text-align:center">Kim Võ · {{periodLbl}}</div>
+        <div style="border-top:1px dashed #999;margin:8px 0"></div>
+        <div class="r" style="font-weight:600"><span>{{detailHd}}</span><span>Service</span></div>
+        <sc-for list="{{rows}}" as="x" hint-placeholder-count="6">
+          <div style="padding:3px 0;border-bottom:1px dotted #DDD"><div class="r"><span>{{x.a}}</span><span>{{x.b}}</span></div><div style="color:#5C5C5E;font-size:12px;line-height:16px">{{x.c}}</div></div>
+        </sc-for>
+        <div style="border-top:1px dashed #999;margin:8px 0"></div>
+        <div class="r"><span>Services ({{cnt}})</span><span>{{sales}}</span></div>
+        <div class="r"><span>Commission 60%</span><span>{{earn}}</span></div>
+        <div class="r"><span>Tips card</span><span>{{tipsCard}}</span></div>
+        <div class="r"><span>Tips cash</span><span>{{tipsCash}}</span></div>
+        <div style="border-top:1px dashed #999;margin:8px 0"></div>
+        <div class="r" style="font-weight:600"><span>Total</span><span>{{total}}</span></div>
+        <div class="r"><span>By check</span><span>{{chk}}</span></div>
+        <div class="r"><span>By cash</span><span>{{cash}}</span></div>
+        <div style="border-top:1px dashed #999;margin:8px 0"></div>
+        <div>Hours: {{hrs}}</div>
+        <div>Printed by PIN · 11:42 AM · iPad</div>
+      </div>
+    </div>
+  </div>
+  <sc-if value="{{toast}}" hint-placeholder-val="{{false}}"><div class="toast2">Printing… saved in PIN activity: “Kim · print pay sheet”</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { inn: true, per: 'week', toast: false }; }
+  renderVals() {
+    const s = this.state;
+    const D = {
+      day: ['Today', '$198.00', '$54.00', 6, '$330.00', '$40.00', '$14.00', '$252.00', '$176.40', '$75.60', '5 h 12 min'],
+      week: ['Nov 11 – 17', '$1,284.00', '$312.00', 38, '$2,140.00', '$236.00', '$76.00', '$1,596.00', '$1,117.20', '$478.80', '38 h 40 min'],
+      period: ['Nov 1 – 15', '$2,402.40', '$588.00', 71, '$4,004.00', '$440.00', '$148.00', '$2,990.40', '$2,093.28', '$897.12', '74 h 05 min']
+    };
+    const d = D[s.per];
+    const T = [['9:40 #1031', '$45.00', 'Gel color manicure · tip $8 card'], ['10:30 #1035', '$48.00', 'Deluxe spa pedicure · tip $10 card'], ['11:20 #1038', '$52.00', 'Gel mani + French tip · tip $7 cash'], ['12:15 #1043', '$50.00', 'Dip powder · tip $12 card'], ['1:30 #1047', '$38.00', 'Regular spa pedicure · tip $7 cash'], ['2:20 #1050', '$97.00', 'Acrylic full set + art · tip $10 card']];
+    const W = [['Wed 11/11 · 8 tickets', '$420.00', 'tips $58'], ['Thu 11/12 · 7 tickets', '$380.00', 'tips $52'], ['Fri 11/13 · 8 tickets', '$455.00', 'tips $66'], ['Sat 11/14 · 9 tickets', '$555.00', 'tips $82'], ['Tue 11/17 · 6 tickets', '$330.00', 'tips $54 · tap Today for each ticket']];
+    const PP = [['Tue 11/3 · 6 tickets', '$330.00', 'tips $48'], ['Wed 11/4 · 6 tickets', '$350.00', 'tips $52'], ['Thu 11/5 · 7 tickets', '$365.00', 'tips $55'], ['Fri 11/6 · 7 tickets', '$398.00', 'tips $60'], ['Sat 11/7 · 8 tickets', '$451.00', 'tips $68'], ['Tue 11/10 · 5 tickets', '$300.00', 'tips $47'], ['Wed 11/11 · 8 tickets', '$420.00', 'tips $58'], ['Thu 11/12 · 7 tickets', '$380.00', 'tips $52'], ['Fri 11/13 · 8 tickets', '$455.00', 'tips $66'], ['Sat 11/14 · 9 tickets', '$555.00', 'tips $82']];
+    const rowsSrc = s.per === 'day' ? T : s.per === 'week' ? W : PP;
+    const P = [['day', 'Today'], ['week', 'This week'], ['period', 'Pay period']];
+    return {
+      secs: 28,
+      detailHd: s.per === 'day' ? 'Tickets' : 'Days worked',
+      rows: rowsSrc.map(r => ({ a: r[0], b: r[1], c: r[2] })),
+      clkBtn: s.inn ? 'Clock out' : 'Clock in',
+      clkSub: s.inn ? 'In since 9:30 AM · #3 on turn list' : 'Not on the turn list',
+      clkStyle: s.inn ? 'background:var(--paper);color:var(--ink);box-shadow:var(--shadow)' : 'background:var(--jade);color:#fff',
+      clock: () => this.setState({ inn: !s.inn }),
+      periods: P.map(p => ({ l: p[1], cls: s.per === p[0] ? 'on' : '', pick: () => this.setState({ per: p[0] }) })),
+      periodLbl: d[0], earn: d[1], tips: d[2], cnt: d[3], sales: d[4], tipsCard: d[5], tipsCash: d[6], total: d[7], chk: d[8], cash: d[9], hrs: d[10],
+      toast: s.toast, print: () => this.setState({ toast: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

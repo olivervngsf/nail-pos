@@ -8,7 +8,7 @@ import { DEMO_DESK } from "@/lib/desk";
 
 export type ClientFilter = "all" | "regular" | "lost" | "new" | "bday" | "gift";
 export type ClientRow = {
-  id: string; name: string; phone: string | null; tag: "regular" | "lost" | "new" | null; visits: number; last_visit: string | null;
+  id: string; number?: number; name: string; phone: string | null; tag: "regular" | "lost" | "new" | null; visits: number; last_visit: string | null;
   usual_service: string | null; usual_staff: string | null; gap_days: number | null; care: boolean; gift_cents: number;
 };
 export type ClientList = { counts: Record<ClientFilter, number>; rows: ClientRow[] };
@@ -19,10 +19,17 @@ export type Visit = {
   payments: { method: string; cents: number; fee: number; brand: string | null; last4: string | null }[] | null;
 };
 export type Profile = {
-  id: string; name: string; phone: string | null; email: string | null; language: "en" | "vi"; texts_ok: boolean; birthday: string | null; since: string;
+  id: string; number?: number; name: string; phone: string | null; email: string | null; language: "en" | "vi"; texts_ok: boolean; birthday: string | null; since: string;
   notes: string; care: string; shape: string; colors: string; usual_staff_id: string | null; usual_staff: string | null; usual_service: string | null;
   tag: ClientRow["tag"];
-  stats: { visits: number; spent: number; avg: number; avg_tip: number; gap_days: number | null; last_visit: string | null };
+  stats: { visits: number; spent: number; avg: number; avg_tip: number; tips?: number; gap_days: number | null; last_visit: string | null };
+  /** Who set the allergy / care note and when (any staff member can). */
+  care_by?: string | null; care_at?: string | null;
+  /** Owner / manager only: null for everyone else (the server never sends it to them). */
+  private_note?: { body: string; by: string | null; at: string } | null;
+  /** Owner / manager looking: sees the private note, can tap Show on the phone number. */
+  can_edit?: boolean;
+  points?: number;
   gift_cards: { last4: string; balance_cents: number; sold_at: string | null }[];
   notes_log: { id: string; body: string; ticket_id: string | null; by: string | null; at: string }[];
   photos: { id: string; path: string; ticket_id: string | null; at: string; by: string | null; url?: string }[];
@@ -59,6 +66,7 @@ const DEMO: Profile[] = [
   mk("c3", "Thu Le", "+14085550166", "lost", 57, 28, "Gel color manicure", "Tuyết", {}),
   mk("c4", "Mai Pham", "+14085550170", "regular", 0, 14, "Acrylic full set", "Kim", { gift: 5000 }),
   mk("c5", "Sara Lopez", "+14085550155", "new", 2, null, "Pedicure + design", "Tuyết", {}),
+  mk("c6", "Lan Tran", "+14085550388", null, 46, 60, "Gel pedicure", "Linh", {}),
 ];
 function mk(id: string, name: string, phone: string, tag: ClientRow["tag"], lastDays: number, gap: number | null, svc: string, staff: string,
   o: { care?: string; shape?: string; colors?: string; notes?: string; birthdayMonthNow?: boolean; gift?: number }): Profile {
@@ -72,13 +80,18 @@ function mk(id: string, name: string, phone: string, tag: ClientRow["tag"], last
   return {
     id, name, phone, email: null, language: "en", texts_ok: true, birthday: bday, since: day(lastDays + n * (gap ?? 0) + 200), notes: o.notes ?? "", care: o.care ?? "",
     shape: o.shape ?? "", colors: o.colors ?? "", usual_staff_id: null, usual_staff: staff, usual_service: svc, tag,
-    stats: { visits: n, spent: n * 4500, avg: 4500, avg_tip: 900, gap_days: gap, last_visit: day(lastDays) },
     gift_cards: o.gift ? [{ last4: "4821", balance_cents: o.gift, sold_at: day(45) }] : [],
     notes_log: id === "c1" ? [{ id: "n1", body: "Nude pink (OPI Bubble Bath), short almond. Skin a bit red at cuticles: gentle remover next time.", ticket_id: "c1-v0", by: staff, at: day(lastDays) }] : [],
     photos: [], visits,
+    care_by: o.care ? staff : null, care_at: o.care ? day(lastDays) : null, can_edit: true, points: n * 45,
+    private_note: id === "c1" ? { body: "Asked twice for a discount; owner said no.", by: "Mai", at: day(lastDays + 28) } : null,
+    stats: { visits: n, spent: n * 4500, avg: 4500, avg_tip: 900, tips: n * 900, gap_days: gap, last_visit: day(lastDays) },
   };
 }
-const DKEY = "nailpos.demoClients.v1";
+// Client numbers are random 5 digits per salon (never confused with a phone's last 4).
+const DEMO_NUMBERS = [48213, 70562, 31947, 85120, 26374, 59081];
+DEMO.forEach((p, i) => { p.number = DEMO_NUMBERS[i]; });
+const DKEY = "nailpos.demoClients.v4";
 function demoAll(): Profile[] { try { const r = localStorage.getItem(DKEY); if (r) return JSON.parse(r); } catch { /* */ } return DEMO; }
 function demoPut(p: Profile) { const all = demoAll(); const i = all.findIndex((x) => x.id === p.id); if (i >= 0) all[i] = p; else all.unshift(p); try { localStorage.setItem(DKEY, JSON.stringify(all)); } catch { /* */ } }
 const thisMonth = (d: string | null) => !!d && Number(d.slice(5, 7)) === new Date().getMonth() + 1;
@@ -88,14 +101,16 @@ export async function listClients(who: Who, filter: ClientFilter, q: string): Pr
   if (who.mode === "live") return rpc<ClientList>("client_list", { p_salon: who.salonId, p_filter: filter, p_q: q });
   const all = demoAll();
   const ql = q.trim().toLowerCase(), qd = q.replace(/\D/g, "");
-  const match = (p: Profile) => !ql || p.name.toLowerCase().includes(ql) || (qd.length >= 3 && (p.phone ?? "").replace(/\D/g, "").includes(qd));
+  const num = /^#?\d{1,6}$/.test(q.trim()) ? Number(qd) : null;
+  const match = (p: Profile) => !ql || p.name.toLowerCase().includes(ql) || (num !== null && p.number === num)
+    || (!q.trim().startsWith("#") && qd.length >= 3 && (p.phone ?? "").replace(/\D/g, "").includes(qd));
   const ok: Record<ClientFilter, (p: Profile) => boolean> = {
     all: () => true, regular: (p) => p.tag === "regular" || p.tag === "lost", lost: (p) => p.tag === "lost", new: (p) => p.tag === "new",
     bday: (p) => thisMonth(p.birthday), gift: (p) => p.gift_cards.some((g) => g.balance_cents > 0),
   };
   const counts = Object.fromEntries(Object.entries(ok).map(([k, f]) => [k, all.filter(f).length])) as Record<ClientFilter, number>;
   const rows = all.filter((p) => ok[filter](p) && match(p)).map((p) => ({
-    id: p.id, name: p.name, phone: p.phone, tag: p.tag, visits: p.stats.visits, last_visit: p.stats.last_visit, usual_service: p.usual_service,
+    id: p.id, number: p.number, name: p.name, phone: p.phone, tag: p.tag, visits: p.stats.visits, last_visit: p.stats.last_visit, usual_service: p.usual_service,
     usual_staff: p.usual_staff, gap_days: p.stats.gap_days, care: !!p.care, gift_cents: p.gift_cards.reduce((a, g) => a + g.balance_cents, 0),
   }));
   return { counts, rows };
@@ -113,12 +128,12 @@ export async function getProfile(who: Who, id: string): Promise<Profile> {
 }
 
 /* ---------- writes ---------- */
-export type ClientEdit = { name: string; phone: string; email: string; birthday: string; shape: string; colors: string; care: string; notes: string; textsOk: boolean; language: "en" | "vi" };
+export type ClientEdit = { name: string; phone: string; email: string; birthday: string; shape: string; colors: string; care: string; notes: string; textsOk: boolean; language: "en" | "vi"; approvalId: string };
 export async function saveClient(who: Who, id: string | null, e: Partial<ClientEdit>): Promise<string> {
   if (who.mode === "demo") {
     const cur = id ? demoAll().find((x) => x.id === id) : undefined;
     const p: Profile = cur ?? mk(crypto.randomUUID(), e.name ?? "", e.phone ?? "", "new", 0, null, "", "", {});
-    if (!cur) { p.visits = []; p.stats = { visits: 0, spent: 0, avg: 0, avg_tip: 0, gap_days: null, last_visit: null }; p.since = new Date().toISOString(); }
+    if (!cur) { const used = new Set(demoAll().map((x) => x.number)); do p.number = 10000 + Math.floor(Math.random() * 90000); while (used.has(p.number)); p.visits = []; p.stats = { visits: 0, spent: 0, avg: 0, avg_tip: 0, gap_days: null, last_visit: null }; p.since = new Date().toISOString(); }
     demoPut({ ...p, name: e.name ?? p.name, phone: e.phone ?? p.phone, email: e.email ?? p.email, birthday: e.birthday ?? p.birthday, shape: e.shape ?? p.shape,
       colors: e.colors ?? p.colors, care: e.care ?? p.care, notes: e.notes ?? p.notes, texts_ok: e.textsOk ?? p.texts_ok, language: e.language ?? p.language });
     return p.id;
@@ -156,3 +171,45 @@ export async function addPhoto(who: Who, p: Profile, file: File, ticketId: strin
 
 /** "every 4 wk" from days between visits. */
 export const everyWeeks = (gap: number | null) => (gap ? Math.max(1, Math.round(gap / 7)) : null);
+
+/* ---------- version D (Nov 17): care note, private note, show phone ---------- */
+/** sessionStorage key: the client a "New ticket" from Clients is for ({phone, name}); Checkout picks it up. */
+export const NEW_FOR = "nailpos.newTicketFor";
+
+/** Allergy / care note: any staff member (techs too). Shows who + when. */
+export async function setCare(who: Who, p: Profile, care: string) {
+  if (who.mode === "demo") { demoPut({ ...p, care: care.trim(), care_by: who.name, care_at: new Date().toISOString() }); return; }
+  await rpc("client_set_care", { p_client: p.id, p_care: care });
+}
+
+/** Private note: owner / manager only (the server refuses everyone else). */
+export async function setPrivate(who: Who, p: Profile, body: string) {
+  if (who.mode === "demo") { demoPut({ ...p, private_note: body.trim() ? { body: body.trim(), by: who.name, at: new Date().toISOString() } : null }); return; }
+  await rpc("client_set_private", { p_client: p.id, p_body: body });
+}
+
+/** Owner / manager tapped Show on the phone number: written to the salon's activity log. */
+export async function phoneViewed(who: Who, p: Profile) {
+  if (who.mode === "live") await rpc("client_phone_viewed", { p_client: p.id });
+}
+
+export const last4 = (phone: string | null) => (phone ? phone.replace(/\D/g, "").slice(-4) : "");
+const DAY = 86400000;
+export const daysSince = (iso: string | null) => (iso ? Math.floor((Date.now() - new Date(iso).getTime()) / DAY) : null);
+
+/** When this client is due back (last visit + usual gap). null = no pattern yet. */
+export function dueBack(gapDays: number | null, lastVisit: string | null): { inDays: number; on: Date } | null {
+  if (!gapDays || !lastVisit) return null;
+  const on = new Date(new Date(lastVisit).getTime() + gapDays * DAY);
+  return { inDays: Math.round((on.getTime() - Date.now()) / DAY), on };
+}
+
+/** Days until the next birthday (0 = today). Birthday stored as YYYY-MM-DD (year unused). */
+export function birthdayIn(birthday: string | null, now = new Date()): number | null {
+  if (!birthday) return null;
+  const [, m, d] = birthday.split("-").map(Number);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let next = new Date(now.getFullYear(), m - 1, d);
+  if (next < today) next = new Date(now.getFullYear() + 1, m - 1, d);
+  return Math.round((next.getTime() - today.getTime()) / DAY);
+}

@@ -14,6 +14,7 @@ import { defaultHours, fmtPhone, phoneOk, toMin } from "@/lib/onboarding/data";
 import { allAppts, pullAppts, putAppt, useAppts } from "@/lib/booking/appts";
 import { addDays, at, dayKey, fmtMin, freeStarts, fromDayKey, minutesOf } from "@/lib/booking/grid";
 import { setLive } from "@/lib/checkout/store";
+import { TechTabs } from "../tech";
 
 type Me = { salonId: string; salonName: string; id: string; name: string; live: boolean };
 type Svc = { id: string; name: string; minutes: number; cents: number };
@@ -219,6 +220,7 @@ function Book({ me }: { me: Me }) {
         </div>}
       </div>
       {toast && <Toast action={toast.undo ? { label: t("undo"), onClick: toast.undo } : undefined}>{toast.text}</Toast>}
+      <TechTabs />
     </div>
   );
 }

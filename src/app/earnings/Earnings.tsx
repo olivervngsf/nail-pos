@@ -1,18 +1,22 @@
 "use client";
 // Print my earnings by PIN (PRD V1 #4, Main Screens · Profile "My earnings"): on the salon device a tech taps their name,
 // types their PIN and sees only their own earnings for today or this week, then prints the slip. Nothing stays on screen after.
+import { pinLenFor } from "@/lib/pin";
 import { useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, LeftMenu, ListGroup, PinKeypad, Segmented, SyncPill, TopBar } from "@/components/kit";
 import { pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { useDesk } from "@/lib/desk";
 import { demoPayout, isoDay, nums, weekStart, type PayoutRow } from "@/lib/closeday";
+import { earningsDoc, printEarnings, type EarnText } from "@/lib/print/earnings";
+import { usePrintSettings } from "@/lib/print/settings";
+import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 
 const $ = formatCents;
 
-export function EarningsSlip({ r, salon, period }: { r: PayoutRow; salon: string; period: string }) {
+export function EarningsSlip({ r }: { r: PayoutRow }) {
   const t = useTranslations("payouts");
   return (
     <>
@@ -26,22 +30,26 @@ export function EarningsSlip({ r, salon, period }: { r: PayoutRow; salon: string
         <div className="line" style={{ padding: "10px 0", fontWeight: 700, fontSize: 18 }}><span>{t("total")}</span><span data-testid="slip-total">{$(r.total_cents)}</span></div>
         <div className="cap" style={{ paddingBottom: 8 }}>{t("splitLine", { check: $(r.check_cents), cash: $(r.cash_cents) })}</div>
       </div>
-      <div className="receipt-print" aria-hidden>
-        <div style={{ textAlign: "center", fontWeight: 600, fontSize: 16 }}>{salon}</div>
-        <div style={{ textAlign: "center" }}>{t("slipFor", { name: r.name })} · {period}</div>
-        <hr />
-        <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>
-        <div className="rl"><span>{t("pay")}</span><span>{$(r.pay_cents)}</span></div>
-        <div className="rl"><span>{t("cardTips")}</span><span>{$(r.tips_card_cents)}</span></div>
-        <div className="rl"><span>{t("cashTips")}</span><span>{$(r.tips_cash_cents)}</span></div>
-        {r.tip_fee_cents > 0 && <div className="rl"><span>{t("feeOnTips")}</span><span>−{$(r.tip_fee_cents)}</span></div>}
-        <hr />
-        <div className="rl" style={{ fontWeight: 700 }}><span>{t("total")}</span><span>{$(r.total_cents)}</span></div>
-        <div className="rl"><span>{t("byCheck")}</span><span>{$(r.check_cents)}</span></div>
-        <div className="rl"><span>{t("inCash")}</span><span>{$(r.cash_cents)}</span></div>
-      </div>
     </>
   );
+}
+
+/** Slip text in the device's language + a print function for one or many people (each its own paper). */
+export function useEarningsPrint(salonId?: string | null, demo = false) {
+  const { settings } = usePrintSettings(salonId, demo);
+  const t = useTranslations("payouts");
+  const f = useFormatter();
+  const txt: EarnText = {
+    slipFor: (name) => t("slipFor", { name }), services: t("services"), cardTips: t("cardTips"), cashTips: t("cashTips"), feeOnTips: t("feeOnTips"),
+    total: t("total"), byCheck: t("byCheck"), inCash: t("inCash"), signature: t("signature"), printed: t("printed"),
+    tips: t("tipsAll"), colTicket: t("colTicket"), colTips: t("colTips"), colService: t("colService"),
+    pay: (r) => r.pay_type === "commission" ? t("commission", { pct: r.commission_pct ?? 0 }) : r.pay_type === "hourly" ? t("hourly", { hours: (r.minutes / 60).toFixed(1) })
+      : r.pay_type === "booth_rent" ? t("booth") : t("pay"),
+  };
+  return (rows: PayoutRow[], salon: string, period: string, onEach?: (i: number) => void) => {
+    const at = f.dateTime(new Date(), { dateStyle: "short", timeStyle: "short" });
+    return printEarnings(rows.map((r) => earningsDoc(r, salon, period, txt, at, settings.staff)), onEach);
+  };
 }
 
 export default function Earnings() {
@@ -51,6 +59,8 @@ export default function Earnings() {
   const [period, setPeriod] = useState<"today" | "week">("today");
   const [pinErr, setPinErr] = useState("");
   const [row, setRow] = useState<PayoutRow | null>(null);
+  const printSlips = useEarningsPrint(desk?.salonId, desk?.mode === "demo");
+  const printer = usePrinter();
 
   if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
   if (!desk) return <div className="app" aria-busy="true" />;
@@ -85,13 +95,15 @@ export default function Earnings() {
             <ListGroup>{desk.staff.map((s) => <button key={s.id} type="button" className="opt" data-testid={`earn-${s.name}`} onClick={() => setWho({ id: s.id, name: s.name })}><Avatar name={s.name} />{s.name}</button>)}</ListGroup>
           </> : !row ? <>
             <div className="h2">{t("pinFor", { name: who.name })}</div>
-            <PinKeypad error={pinErr} onDone={(p) => void submit(p)} />
+            <PinKeypad length={pinLenFor(who.id)} error={pinErr} onDone={(p) => void submit(p)} />
             <Button variant="ghost" onClick={reset}>{t("notMe")}</Button>
           </> : <>
             <div className="h2">{t("slipFor", { name: row.name })}</div>
             <div className="cap">{periodLabel}</div>
-            <EarningsSlip r={row} salon={desk.salonName} period={periodLabel} />
-            <Button variant="primary" block onClick={() => window.print()}>{t("printMine")}</Button>
+            <EarningsSlip r={row} />
+            <Button variant="primary" block data-testid="earn-print" onClick={() => void printSlips([row], desk.salonName, periodLabel).then(printer.refresh).catch((e) => setPinErr(t("printFail", { msg: (e as Error).message })))}>{t("printMine")}</Button>
+            <PrinterSetup p={printer} />
+            {pinErr && <p className="hint err">{pinErr}</p>}
             <Button block data-testid="earn-done" onClick={reset}>{t("done")}</Button>
           </>}
         </main>

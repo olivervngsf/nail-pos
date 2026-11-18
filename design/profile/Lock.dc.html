@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>iPad who is working</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.wrap{width:1280px;height:800px;position:relative;background:var(--surface);overflow:hidden;display:flex;flex-direction:column;align-items:center;padding:40px 0;box-sizing:border-box;gap:22px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;width:860px}
+.fc{border:0;font:inherit;cursor:pointer;background:var(--paper);border-radius:20px;box-shadow:var(--shadow);padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink);position:relative}
+.fc:hover{transform:translateY(-1px)}
+.fc .av{width:72px;height:72px;font-size:26px}
+.fc b{font-size:17px}
+.fc .ind{position:absolute;top:12px;right:12px;height:22px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:600;display:flex;align-items:center}
+.ind.in{background:var(--jade-soft);color:#1F7A33}
+.ind.out{background:var(--fill);color:var(--ink-soft)}
+.modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:400px;background:var(--paper);border-radius:24px;box-shadow:0 24px 80px rgba(28,28,30,.25);z-index:6;padding:24px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:14px}
+.pd{display:flex;gap:14px}
+.pd span{width:16px;height:16px;border-radius:50%;border:2px solid var(--ink)}
+.pd span.f{background:var(--ink)}
+.kp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%}
+.kp button{height:60px;border:0;border-radius:14px;background:var(--fill);font:inherit;font-size:24px;font-weight:600;cursor:pointer;color:var(--ink)}
+.kp button:active{background:#E0E0E5}
+.btn{height:44px;font-size:15px}
+.big{font-size:22px;font-weight:600;text-align:center}
+</style>
+</helmet>
+<div class="wrap">
+  <div style="display:flex;align-items:center;gap:12px;width:860px"><div class="logo" style="margin:0">MN</div><div style="flex:1"><div class="h1" style="font-size:26px">Who’s working?</div><div class="cap">Mai Nails · salon iPad · tap your face</div></div><span class="pill ok"><span class="dot"></span>Online</span><button class="btn" type="button" style="height:40px">EN / VI</button></div>
+  <div class="grid4"><sc-for list="{{faces}}" as="f" hint-placeholder-count="8"><button class="fc" type="button" onClick="{{f.pick}}"><span class="{{f.indCls}}">{{f.ind}}</span><span class="av" style="{{f.bg}}">{{f.i}}</span><b>{{f.n}}</b><span class="cap">{{f.r}}</span></button></sc-for></div>
+  <div class="cap" style="font-size:14px">New here? Ask the owner to add you (Settings → Team). Walk-in clients: use the kiosk.</div>
+  <sc-if value="{{showPin}}" hint-placeholder-val="{{false}}">
+    <button class="scrim" type="button" aria-label="Cancel" onClick="{{cancel}}"></button>
+    <div class="modal" role="dialog" aria-label="Enter PIN">
+      <span class="av" style="width:64px;height:64px;font-size:24px">{{pi}}</span>
+      <div class="big">{{pn}}, your PIN</div>
+      <div class="pd"><sc-for list="{{dots}}" as="d" hint-placeholder-count="6"><span class="{{d.c}}"></span></sc-for></div>
+      <div class="cap">{{lenNote}}</div>
+      <div class="kp"><sc-for list="{{keys}}" as="k" hint-placeholder-count="12"><button type="button" onClick="{{k.tap}}">{{k.l}}</button></sc-for></div>
+      <button class="btn ghost" type="button" onClick="{{cancel}}">Not me · Forgot PIN? Ask the owner</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{showDone}}" hint-placeholder-val="{{false}}">
+    <div class="scrim" style="background:rgba(28,28,30,.22)"></div>
+    <div class="modal" role="dialog" aria-label="Done">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--jade-soft);display:flex;align-items:center;justify-content:center;font-size:28px;color:#1F7A33">✓</div>
+      <div class="big">{{doneT}}</div>
+      <div class="cap" style="text-align:center;font-size:15px;line-height:21px">{{doneS}}</div>
+      <div style="display:flex;gap:10px;width:100%"><button class="btn" type="button" style="flex:1" onClick="{{cancel}}">{{doneB1}}</button><button class="btn primary" type="button" style="flex:1;height:44px" onClick="{{cancel}}">{{doneB2}}</button></div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"pinLen":{"editor":"enum","options":["6","10"],"default":"6"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { who: null, n: 0 }; }
+  renderVals() {
+    const s = this.state;
+    const F = [
+      ['H', 'Hạnh', 'Front desk', 'in', 'desk'], ['L', 'Lan', 'Front desk', 'out', 'desk'], ['B', 'Bảo', 'Manager', 'in', 'mgr'], ['M', 'Mai', 'Owner', 'in', 'owner'],
+      ['K', 'Kim', 'Tech', 'out', 'tech'], ['T', 'Tuấn', 'Tech', 'in', 'tech'], ['V', 'Vy', 'Tech', 'in', 'tech'], ['P', 'Linh', 'Tech', 'out', 'tech']
+    ];
+    const cur = F.find(f => f[1] === s.who);
+    const L = Number(this.props.pinLen ?? 6);
+    const done = !!cur && s.n >= L;
+    const tap = () => this.setState({ n: Math.min(L, s.n + 1) });
+    const msgs = {
+      desk: ['Hi ' + (cur ? cur[1] : '') + ' — opening Today', 'Clocked in 9:00. Sales now save under your name. iPad locks after 2 min idle.', 'Clock in only', 'Open the desk'],
+      mgr: ['Bảo — manager mode', 'Desk + approvals + Settings (no pay changes).', 'Clock in only', 'Open the desk'],
+      owner: ['Mai — owner mode', 'Everything, incl. Settings, Close day, sign out this iPad.', 'Cancel', 'Open'],
+      tech: [(cur ? cur[1] : '') + ' clocked in 9:30', 'You’re #3 on the turn list. The iPad goes back to faces in 3 s.', 'Print my earnings', 'Done']
+    };
+    const m = cur ? msgs[cur[4]] : ['', '', '', ''];
+    const fill = (i) => s.n >= i ? 'f' : '';
+    return {
+      faces: F.map(f => ({ i: f[0], n: f[1], r: f[2], ind: f[3] === 'in' ? 'In' : 'Out', indCls: 'ind ' + f[3], bg: f[1] === 'Mai' ? 'background:#E9D7CB' : '', pick: () => this.setState({ who: f[1], n: 0 }) })),
+      showPin: !!cur && !done, showDone: done,
+      pi: cur ? cur[0] : '', pn: cur ? cur[1] : '',
+      dots: Array.from({ length: L }, (_, i) => ({ c: fill(i + 1) })),
+      lenNote: L + '-digit PIN · salon rule',
+      keys: ['1','2','3','4','5','6','7','8','9','','0','⌫'].map(l => ({ l, tap: l === '⌫' ? () => this.setState({ n: Math.max(0, s.n - 1) }) : l === '' ? null : tap })),
+      cancel: () => this.setState({ who: null, n: 0 }),
+      doneT: m[0], doneS: m[1], doneB1: m[2], doneB2: m[3]
+    };
+  }
+}
+</script>
+</body>
+</html>

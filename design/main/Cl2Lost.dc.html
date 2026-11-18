@@ -2,25 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Clients: lost regulars</title>
+<title>Spec: full history</title>
 <script src="./support.js"></script>
-<link rel="stylesheet" href="ds/nailsalonosdesignsystem_afaa02/styles.css">
-<link rel="stylesheet" href="pos.css">
+<link rel="stylesheet" href="kit.css">
 <link rel="stylesheet" href="annot.css">
 </head>
 <body>
 <x-dc>
-<helmet><style>body{margin:0}</style></helmet>
+<helmet><style>body{margin:0}.af-title{font-weight:600}.af-notes{font-family:"Inter",-apple-system,sans-serif}.pin{font-weight:600}</style></helmet>
 <div class="af">
   <div class="af-screen">
-    <dc-import name="Clients" filter="lost" hint-size="1280px,800px"></dc-import>
-    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="2"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+    <dc-import name="ClientFull" hint-size="1280px,800px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
   </div>
   <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
     <div class="eyebrow">Annotations · C2</div>
-    <div class="af-title">Lost regulars</div>
-    <sc-for list="{{pins}}" as="p" hint-placeholder-count="2"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt">{{p.t}}</div></div></sc-for>
-    <div class="af-next">Toast confirms who got the text.</div>
+    <div class="af-title">Client full history</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt" style="font-size:13px;line-height:18px">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Opened from "Full history" or "+8 more" on the profile. Same data on the staff phone (C3). Export = owner only.</div>
   </div></sc-if></aside>
 </div>
 </x-dc>
@@ -28,8 +27,18 @@
 class Component extends DCLogic {
   constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
   renderVals() {
-    const P = [[110, 190, "Banner: how many + one tap “Text we miss you” (only clients who said yes to texts)."], [110, 270, "Rows show their normal gap so the owner sees why they count as lost."]];
-    return { show: this.state.show, toggleLabel: this.state.show ? "Hide notes" : "Show notes", toggleNotes: () => this.setState({ show: !this.state.show }), yes: true, pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+    const P = [
+      [102, 26, 'Back to the client profile. Phone stays masked (••0142).'],
+      [100, 100, 'Lifetime: visits, spent, tips, how often, photos.'],
+      [100, 158, 'Filter by year or tech.'],
+      [100, 196, 'Grouped by year, with the year total.'],
+      [100, 232, 'Each visit: services · tech · cash/card/gift card · tip · photo · price. Tap → ticket on the right.'],
+      [904, 84, 'Ticket #, date + time, tech, how it was paid.'],
+      [904, 236, 'Lines + tip (100% to the tech) + card fee shown (salon pays, never taken silently) + total.'],
+      [904, 360, 'Photos + note from that visit.'],
+      [904, 770, 'Resend receipt (text/email) · Book same again.']
+    ];
+    return { show: this.state.show, toggleLabel: this.state.show ? 'Hide notes' : 'Show notes', toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
   }
 }
 </script>

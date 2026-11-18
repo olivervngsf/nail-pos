@@ -2,14 +2,18 @@
 // Payout sheet (PRD "Tech payout sheet", issue #15): per person for a day / week / any range — services done, pay (commission
 // on full price or hourly from clock-ins), card + cash tips (salon keeps none), card fee on tips only where the state allows,
 // total, and how it's paid: check vs cash (owner sets % per person). Print the sheet or one slip per person; export CSV for payroll.
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { Button, LeftMenu, OfflineBanner, Segmented, SyncPill, Toast, TopBar } from "@/components/kit";
 import { rpc } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { useDesk } from "@/lib/desk";
 import { addDays, demoPayout, isoDay, nums, payoutCsv, weekStart, type PayoutRow } from "@/lib/closeday";
+import { worked } from "@/lib/print/earnings";
+import { useEarningsPrint } from "@/app/earnings/Earnings";
+import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
+import { usePrintSettings } from "@/lib/print/settings";
 
 const $ = formatCents;
 type Range = "today" | "week" | "last" | "custom";
@@ -23,7 +27,13 @@ export default function Payouts() {
   const [to, setTo] = useState(today);
   const [rows, setRows] = useState<PayoutRow[] | null>(null);
   const [loadErr, setLoadErr] = useState("");
-  const [slips, setSlips] = useState(false);
+  const [printing, setPrinting] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
+  const printSlips = useEarningsPrint(desk?.salonId, desk?.mode === "demo");
+  const { settings: prints } = usePrintSettings(desk?.salonId, desk?.mode === "demo");
+  const printer = usePrinter();
+  const f = useFormatter();
+  const when = (iso: string) => f.dateTime(new Date(iso), { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" });
   const [toast, setToast] = useState("");
   const say = (s: string) => { setToast(s); setTimeout(() => setToast(""), 3500); };
 
@@ -61,9 +71,47 @@ export default function Payouts() {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = `payroll-${from}-to-${to}.csv`; a.click();
   };
-  const print = (asSlips: boolean) => { setSlips(asSlips); setTimeout(() => window.print(), 50); };
+  const period = from === to ? from : `${from} → ${to}`;
+  // One paper per person (Bluetooth NETUM: each slip its own job + cut; computer: one page each).
+  const printPeople = async (people: PayoutRow[]) => {
+    if (!people.length) return say(t("noneToPrint"));
+    setPrinting(true);
+    try {
+      const n = await printSlips(people, desk.salonName, period, (i) => people.length > 1 && setToast(t("printing", { n: i + 1, total: people.length })));
+      say(t("printedN", { count: n }));
+      printer.refresh();
+    } catch (e) { say(t("printFail", { msg: (e as Error).message })); }
+    setPrinting(false);
+  };
   const payLabel = (r: PayoutRow) => r.pay_type === "commission" ? t("commission", { pct: r.commission_pct ?? 0 })
-    : r.pay_type === "hourly" ? t("hourly", { hours: (r.minutes / 60).toFixed(1) }) : r.pay_type === "booth_rent" ? t("booth") : "—";
+    : r.pay_type === "hourly" ? t("hourly", { hours: (r.minutes / 60).toFixed(1) }) : r.pay_type === "booth_rent" ? t("booth") : t("noPayType");
+  const time = (iso: string) => f.dateTime(new Date(iso), { hour: "numeric", minute: "2-digit" });
+  // Tap a person: what the owner wants to know, then every ticket (service + tips).
+  const Details = ({ r }: { r: PayoutRow }) => {
+    const lines = r.lines ?? [], tips = r.tips_card_cents + r.tips_cash_cents;
+    const facts: [string, string][] = [
+      [t("avgTicket"), r.tickets ? $(Math.round(r.services_cents / r.tickets)) : "—"],
+      [t("tipRate"), r.services_cents ? t("tipRateV", { pct: Math.round(tips * 1000 / r.services_cents) / 10 }) : "—"],
+      ...(lines.length ? [[t("firstLast"), `${when(lines[0].at)} · ${time(lines[lines.length - 1].at)}`] as [string, string]] : []),
+      ...(r.minutes ? [[t("hours"), (r.minutes / 60).toFixed(1)] as [string, string]] : []),
+    ];
+    return (
+      <div className="po-detail" data-testid={`po-detail-${r.name}`}>
+        <div className="po-facts">{facts.map(([k, v]) => <div key={k}><span className="cap">{k}</span><b>{v}</b></div>)}</div>
+        {lines.length === 0 ? <p className="cap">{t("noTickets")}</p> : (
+          <table className="po-tix">
+            <thead><tr><th>{t("colTicket")}</th><th style={{ textAlign: "left" }}>{t("colServices")}</th><th>{t("colAmount")}</th><th>{t("colCardTip")}</th><th>{t("colCashTip")}</th></tr></thead>
+            <tbody>{lines.map((l) => (
+              <tr key={l.number} data-testid={`po-line-${r.name}`}>
+                <td>#{l.number}<span className="cap" style={{ display: "block" }}>{when(l.at)}</span></td>
+                <td style={{ textAlign: "left" }}>{l.services}</td><td>{$(l.services_cents)}</td>
+                <td>{l.tip_card_cents ? $(l.tip_card_cents) : "—"}</td><td>{l.tip_cash_cents ? $(l.tip_cash_cents) : "—"}</td>
+              </tr>))}</tbody>
+          </table>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="app cd-app">
@@ -83,29 +131,38 @@ export default function Payouts() {
               </>}
               <span className="cap">{from === to ? from : `${from} → ${to}`}</span>
               <span style={{ flex: 1 }} />
-              <Button onClick={() => print(false)} disabled={!rows?.length}>{t("printSheet")}</Button>
-              <Button onClick={() => print(true)} disabled={!rows?.length}>{t("printSlips")}</Button>
+              <Button onClick={() => window.print()} disabled={!rows?.length}>{t("printSheet")}</Button>
+              <Button data-testid="po-slips" onClick={() => void printPeople((rows ?? []).filter(worked))} disabled={!rows?.length || printing}>{t("printSlips")}</Button>
               <Button variant="primary" data-testid="po-csv" onClick={csv} disabled={!rows?.length}>{t("exportCsv")}</Button>
             </div>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}><PrinterSetup p={printer} /><Link className="btn ghost sm" href="/settings/printer" data-testid="printer-settings-link">{t("printSettings")}</Link></div>
             {loadErr && <p className="hint err">{loadErr} <Button size="sm" onClick={() => void load()}>{t("retry")}</Button></p>}
             <section className="card" style={{ padding: "8px 18px", overflowX: "auto" }}>
               <table className="cd-table" data-testid="po-table">
                 <thead><tr><th>{t("person")}</th><th>{t("services")}</th><th>{t("pay")}</th><th>{t("cardTips")}</th><th>{t("cashTips")}</th><th>{t("feeOnTips")}</th>
-                  <th>{t("total")}</th><th>{t("checkPct")}</th><th>{t("byCheck")}</th><th>{t("inCash")}</th></tr></thead>
+                  <th>{t("total")}</th><th>{t("checkPct")}</th><th>{t("byCheck")}</th><th>{t("inCash")}</th><th /></tr></thead>
                 <tbody>
-                  {rows === null ? <tr><td colSpan={10} className="cap">{t("loading")}</td></tr> : rows.length === 0 ? <tr><td colSpan={10} className="cap">{t("empty")}</td></tr> : rows.map((r) => (
-                    <tr key={r.membership_id} data-testid={`po-${r.name}`}>
-                      <td><b>{r.name}</b><span className="cap" style={{ display: "block" }}>{payLabel(r)} · {t("tickets", { count: r.tickets })}</span></td>
+                  {rows === null ? <tr><td colSpan={11} className="cap">{t("loading")}</td></tr> : rows.length === 0 ? <tr><td colSpan={11} className="cap">{t("empty")}</td></tr> : rows.map((r) => (
+                    <Fragment key={r.membership_id}>
+                    <tr data-testid={`po-${r.name}`}>
+                      <td><button type="button" className="po-who" aria-expanded={open === r.membership_id} data-testid={`po-open-${r.name}`}
+                        onClick={() => setOpen(open === r.membership_id ? null : r.membership_id)}>
+                        <span className="po-chev" aria-hidden>{open === r.membership_id ? "▾" : "▸"}</span>
+                        <span><b>{r.name}</b><span className="cap" style={{ display: "block" }}>{payLabel(r)} · {t("tickets", { count: r.tickets })}</span></span>
+                      </button></td>
                       <td>{$(r.services_cents)}</td><td>{$(r.pay_cents)}</td><td>{$(r.tips_card_cents)}</td><td>{$(r.tips_cash_cents)}</td><td>{$(r.tip_fee_cents)}</td>
                       <td><b>{$(r.total_cents)}</b></td>
                       <td><input inputMode="numeric" aria-label={t("checkPctFor", { name: r.name })} defaultValue={r.check_pct} key={`${r.membership_id}-${r.check_pct}`}
                         onBlur={(e) => { const v = Number(e.target.value); if (Number.isFinite(v) && v !== r.check_pct) void setPct(r, v); }} />%</td>
                       <td>{$(r.check_cents)}</td><td>{$(r.cash_cents)}</td>
+                      <td><Button size="sm" data-testid={`po-print-${r.name}`} disabled={printing} onClick={() => void printPeople([r])}>{t("printOne")}</Button></td>
                     </tr>
+                    {open === r.membership_id && <tr className="po-more"><td colSpan={11}><Details r={r} /></td></tr>}
+                    </Fragment>
                   ))}
                 </tbody>
                 {!!rows?.length && <tfoot><tr style={{ fontWeight: 600 }}><td>{t("allStaff")}</td><td>{$(sum("services_cents"))}</td><td>{$(sum("pay_cents"))}</td><td>{$(sum("tips_card_cents"))}</td>
-                  <td>{$(sum("tips_cash_cents"))}</td><td>{$(sum("tip_fee_cents"))}</td><td data-testid="po-total">{$(sum("total_cents"))}</td><td /><td>{$(sum("check_cents"))}</td><td>{$(sum("cash_cents"))}</td></tr></tfoot>}
+                  <td>{$(sum("tips_cash_cents"))}</td><td>{$(sum("tip_fee_cents"))}</td><td data-testid="po-total">{$(sum("total_cents"))}</td><td /><td>{$(sum("check_cents"))}</td><td>{$(sum("cash_cents"))}</td><td /></tr></tfoot>}
               </table>
             </section>
             <div className="cap">{t("note")}</div>
@@ -115,26 +172,28 @@ export default function Payouts() {
 
       {rows && (
         <div className="receipt-print" aria-hidden>
-          {(slips ? rows : [null]).map((one, i) => (
-            <div key={one?.membership_id ?? "all"} style={i ? { breakBefore: "page" } : undefined}>
-              <div style={{ textAlign: "center", fontWeight: 600, fontSize: 16 }}>{desk.salonName}</div>
-              <div style={{ textAlign: "center" }}>{one ? t("slipFor", { name: one.name }) : t("title")} · {from === to ? from : `${from} → ${to}`}</div>
+          <div style={{ textAlign: "center", fontWeight: 600, fontSize: 16 }}>{desk.salonName}</div>
+          <div style={{ textAlign: "center" }}>{t("title")} · {period}</div>
+          <hr />
+          {rows.map((r) => (
+            <div key={r.membership_id}>
+              <b>{r.name}</b>
+              {prints.staff.tickets && !!r.lines?.length && <>
+                <div className="rl" style={{ fontWeight: 600 }}><span style={{ flex: 1 }}>{t("colTicket")}</span><span style={{ width: "6em", textAlign: "right" }}>{t("colTips")}</span><span style={{ width: "6em", textAlign: "right" }}>{t("colService")}</span></div>
+                {r.lines.map((l) => (
+                  <div key={l.number} className="rl"><span style={{ flex: 1 }}>#{l.number}</span><span style={{ width: "6em", textAlign: "right" }}>{$(l.tip_card_cents + l.tip_cash_cents)}</span><span style={{ width: "6em", textAlign: "right" }}>{$(l.services_cents)}</span></div>
+                ))}
+                <hr />
+              </>}
+              <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>
+              <div className="rl"><span>{payLabel(r)}</span><span>{$(r.pay_cents)}</span></div>
+              <div className="rl"><span>{t("cardTips")}</span><span>{$(r.tips_card_cents)}</span></div>
+              <div className="rl"><span>{t("cashTips")}</span><span>{$(r.tips_cash_cents)}</span></div>
+              {r.tip_fee_cents > 0 && <div className="rl"><span>{t("feeOnTips")}</span><span>−{$(r.tip_fee_cents)}</span></div>}
+              <div className="rl" style={{ fontWeight: 700 }}><span>{t("total")}</span><span>{$(r.total_cents)}</span></div>
+              <div className="rl"><span>{t("byCheck")} ({r.check_pct}%)</span><span>{$(r.check_cents)}</span></div>
+              <div className="rl"><span>{t("inCash")}</span><span>{$(r.cash_cents)}</span></div>
               <hr />
-              {(one ? [one] : rows).map((r) => (
-                <div key={r.membership_id}>
-                  {!one && <b>{r.name}</b>}
-                  <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>
-                  <div className="rl"><span>{payLabel(r)}</span><span>{$(r.pay_cents)}</span></div>
-                  <div className="rl"><span>{t("cardTips")}</span><span>{$(r.tips_card_cents)}</span></div>
-                  <div className="rl"><span>{t("cashTips")}</span><span>{$(r.tips_cash_cents)}</span></div>
-                  {r.tip_fee_cents > 0 && <div className="rl"><span>{t("feeOnTips")}</span><span>−{$(r.tip_fee_cents)}</span></div>}
-                  <div className="rl" style={{ fontWeight: 700 }}><span>{t("total")}</span><span>{$(r.total_cents)}</span></div>
-                  <div className="rl"><span>{t("byCheck")} ({r.check_pct}%)</span><span>{$(r.check_cents)}</span></div>
-                  <div className="rl"><span>{t("inCash")}</span><span>{$(r.cash_cents)}</span></div>
-                  <hr />
-                </div>
-              ))}
-              {one && <div style={{ marginTop: 18 }}>{t("signature")} ____________________</div>}
             </div>
           ))}
         </div>

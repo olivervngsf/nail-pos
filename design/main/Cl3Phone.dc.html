@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec: client phone</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="kit.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}.af-title{font-weight:600}.af-notes{font-family:"Inter",-apple-system,sans-serif}.pin{font-weight:600}</style></helmet>
+<div class="afp">
+  <div class="afp-screen">
+    <dc-import name="ClientPhone" hint-size="390px,844px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+  </div>
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
+    <div class="eyebrow">Annotations · C3</div>
+    <div class="af-title">Client profile on a staff phone</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="9"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt" style="font-size:13px;line-height:18px">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Tweaks: role (owner / tech) and language (EN / VI). Staff screens follow each person's language; client texts stay English.</div>
+  </div></sc-if></aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":750,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
+  renderVals() {
+    const P = [
+      [52, 26, 'Back to client list. "Saved" = works offline, syncs later.'],
+      [42, 96, 'Name, tag, ••last 4 digits only. Pencil (Edit) = owner/manager only, always visible on touch.'],
+      [42, 168, 'Care note: whole salon sees it, incl. techs. Who + when.'],
+      [42, 238, 'Private note: owner + manager only. Gone when role = tech.'],
+      [42, 300, 'Top next step, button full width (44px+ for touch).'],
+      [42, 450, '3 key numbers: visits, avg ticket, how often. Lifetime spend stays on desktop.'],
+      [42, 510, 'Last 2 visits. "Full history" opens the visit list on the phone.'],
+      [42, 676, 'Photos: tech adds after service; "+8" → history.'],
+      [42, 808, 'Fixed bottom bar: Text · Book · New ticket.']
+    ];
+    return { show: this.state.show, toggleLabel: this.state.show ? 'Hide notes' : 'Show notes', toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

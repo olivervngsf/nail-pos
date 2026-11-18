@@ -1,102 +1,114 @@
 "use client";
-// Tech's own phone: who I am, clock in/out, my earnings (today / this week, print), language, sign out.
+// Tech app · Home (Tech App board T1): hello + clock in/out, today so far (own money only), who is in my chair now,
+// my next client, quick tiles. Bookings and money are this tech's own only.
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { ROLE_LABEL, SMS_ON, isSignedIn, myMemberships, rpc, signOut, type Membership } from "@/lib/auth";
-import { useLang } from "@/components/AppProviders";
-import { Button, Card, ListGroup, PhoneBar, Row, Segmented, SyncPill, Toast } from "@/components/kit";
-import { EarningsSlip } from "@/app/earnings/Earnings";
-import { isoDay, nums, weekStart, type PayoutRow } from "@/lib/closeday";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { rpc } from "@/lib/auth";
+import { Avatar, Button, Card, Toast } from "@/components/kit";
+import { formatCents } from "@/lib/money";
+import { isoDay } from "@/lib/closeday";
+import { TechShell, useTechMe } from "./tech";
+import { svcNames, timeOf, useMyAppts, useMyEarnings } from "./data";
 
 type Staff = { membership_id: string; clocked_in: boolean; last_clock: string | null };
-const time = (iso: string | null) => (iso ? new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "");
+const $ = formatCents;
 
 export default function TechHome() {
-  const router = useRouter();
-  const { lang, setLang } = useLang();
-  const [m, setM] = useState<Membership | null>(null);
-  const [me, setMe] = useState<Staff | null>(null);
+  const t = useTranslations("tech");
+  const { me, err } = useTechMe();
+  const [clock, setClock] = useState<Staff | null>(null);
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState("");
-  const [err, setErr] = useState("");
+  const say = (s: string) => { setToast(s); setTimeout(() => setToast(""), 3000); };
 
-  useEffect(() => {
-    if (!SMS_ON) return;
-    void (async () => {
-      if (!(await isSignedIn())) return router.replace("/login");
-      try {
-        const list = await myMemberships();
-        const t = list.find((x) => x.role === "tech") ?? list[0];
-        if (!t) return router.replace("/setup");
-        setM(t);
-        if (t.language && t.language !== lang) setLang(t.language);
-      } catch (e) { setErr((e as Error).message); }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  const loadClock = useCallback(async () => {
+    if (!me) return;
+    if (!me.live) { setClock((c) => c ?? { membership_id: me.id, clocked_in: true, last_clock: new Date(new Date().setHours(9, 2, 0, 0)).toISOString() }); return; }
+    const list = await rpc<Staff[]>("today_staff", { p_salon: me.salonId });
+    setClock(list.find((s) => s.membership_id === me.id) ?? null);
+  }, [me]);
+  useEffect(() => { void loadClock().catch(() => {}); }, [loadClock]);
 
-  const load = useCallback(async () => {
-    if (!m) return;
-    const list = await rpc<Staff[]>("today_staff", { p_salon: m.salon_id });
-    setMe(list.find((s) => s.membership_id === m.membership_id) ?? null);
-  }, [m]);
-  useEffect(() => { void load().catch((e) => setErr((e as Error).message)); }, [load]);
+  const today = isoDay();
+  const day = useMyAppts(me, today, 1);
+  const week = useMyEarnings(me, "week");
+  const todayEarn = useMyEarnings(me, "today");
+  const now = Date.now();
+  const inChair = useMemo(() => day.find((a) => a.status === "arrived" && a.ticketStatus !== "paid"), [day]);
+  const next = useMemo(() => day.find((a) => (a.status === "booked" || a.status === "confirmed") && new Date(a.end).getTime() > now), [day, now]);
+  const left = day.filter((a) => a.status !== "done" && a.ticketStatus !== "paid").length;
 
-  // My earnings (only mine: my_earnings checks who is signed in).
-  const [period, setPeriod] = useState<"today" | "week">("today");
-  const [earn, setEarn] = useState<PayoutRow | null>(null);
-  useEffect(() => {
-    if (!m) return;
-    const today = isoDay();
-    void rpc<PayoutRow | null>("my_earnings", { p_salon: m.salon_id, p_from: period === "today" ? today : weekStart(today), p_to: today })
-      .then((r) => setEarn(r ? nums(r) : null)).catch(() => setEarn(null));
-  }, [m, period]);
+  const doClock = async () => {
+    if (!me) return;
+    setBusy(true);
+    try {
+      const out = !!clock?.clocked_in;
+      if (me.live) { await rpc("clock_self", { p_salon: me.salonId, p_kind: out ? "out" : "in" }); await loadClock(); }
+      else setClock({ membership_id: me.id, clocked_in: !out, last_clock: new Date().toISOString() });
+      say(out ? t("clockedOut") : t("clockedIn"));
+    } catch (e) { say((e as Error).message); }
+    setBusy(false);
+  };
 
-  const vi = lang === "vi";
-  if (!SMS_ON) return <div className="phone"><PhoneBar title="PolishOS" /><div className="pbody"><div className="demo">Sign-in is off in this test copy.</div><Link className="btn" href="/t/book">Book a client (test)</Link></div></div>;
-  if (err) return <div className="phone"><PhoneBar title="PolishOS" /><div className="pbody"><p className="hint err">{err}</p><Button onClick={() => location.reload()}>Try again</Button></div></div>;
-  if (!m) return <div className="phone" aria-busy="true" />;
-
-  const first = m.display_name.split(" ")[0];
+  const first = me?.name.split(" ")[0] ?? "";
+  const tips = todayEarn ? todayEarn.tips_card_cents + todayEarn.tips_cash_cents : 0;
   return (
-    <div className="phone">
-      <PhoneBar title={m.salon_name} right={<SyncPill />} />
-      <div className="pbody in">
-        <h1 className="h2">{vi ? `Chào ${first}` : `Hi ${first}`}</h1>
-        <Card pad>
-          {me?.clocked_in
-            ? <><b>{vi ? "Đã chấm công" : "Clocked in"} · {time(me.last_clock)}</b><span className="cap">{m.salon_name}</span></>
-            : <span className="cap">{me?.last_clock ? `${vi ? "Ra lúc" : "Out at"} ${time(me.last_clock)}` : vi ? "Chưa chấm công hôm nay" : "Not clocked in yet"}</span>}
-          <Button variant={me?.clocked_in ? "default" : "primary"} block disabled={busy} data-testid="clock" onClick={async () => {
-            setBusy(true);
-            try {
-              await rpc("clock_self", { p_salon: m.salon_id, p_kind: me?.clocked_in ? "out" : "in" });
-              setToast(me?.clocked_in ? (vi ? "Đã chấm công ra" : "Clocked out") : (vi ? "Đã chấm công vào" : "Clocked in"));
-              setTimeout(() => setToast(""), 3000);
-              await load();
-            } catch (e) { setErr((e as Error).message); }
-            setBusy(false);
-          }}>{me?.clocked_in ? (vi ? "Chấm công ra" : "Clock out") : (vi ? "Chấm công vào" : "Clock in")}</Button>
-          <span className="cap">{vi ? "Sau này: chỉ chấm công được khi ở tiệm (Wi-Fi hoặc vị trí)." : "Later: clock-in only works at the salon (Wi-Fi or location)."}</span>
-        </Card>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <b>{vi ? "Thu nhập của tôi" : "My earnings"}</b>
-          <Segmented label={vi ? "Thời gian" : "Period"} value={period} onChange={setPeriod} options={[{ value: "today", label: vi ? "Hôm nay" : "Today" }, { value: "week", label: vi ? "Tuần này" : "This week" }]} />
+    <TechShell title={t("tab_home")} me={me} err={err}>
+      {me && <>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <Avatar name={me.name} />
+          <div style={{ flex: 1 }}>
+            <b style={{ fontSize: 17 }}>{t("hi", { name: first })}</b>
+            <span className="cap" style={{ display: "block" }} data-testid="clock-state">
+              {clock?.clocked_in ? t("clockedInAt", { time: clock.last_clock ? timeOf(clock.last_clock) : "" }) : clock?.last_clock ? t("outAt", { time: timeOf(clock.last_clock) }) : t("notIn")}
+            </span>
+          </div>
+          <Button size="sm" variant={clock?.clocked_in ? "default" : "primary"} disabled={busy} data-testid="clock" onClick={() => void doClock()}>
+            {clock?.clocked_in ? t("clockOut") : t("clockIn")}
+          </Button>
         </div>
-        {earn ? <>
-          <EarningsSlip r={earn} salon={m.salon_name} period={period === "today" ? isoDay() : `${weekStart(isoDay())} → ${isoDay()}`} />
-          <Button onClick={() => window.print()}>{vi ? "In thu nhập" : "Print my earnings"}</Button>
-        </> : <span className="cap">{vi ? "Chưa có thu nhập trong thời gian này." : "No earnings yet for this period."}</span>}
-        <ListGroup>
-          <Row title={vi ? "Vai trò" : "Role"} right={<b>{ROLE_LABEL[m.role]}</b>} />
-          <Row title={vi ? "Ngôn ngữ" : "Language"} right={<Segmented label="Language" value={lang} onChange={setLang} options={[{ value: "en", label: "EN" }, { value: "vi", label: "VI" }]} />} />
-        </ListGroup>
-        <Link className="btn primary" href="/t/book" data-testid="tech-book">{vi ? "Đặt lịch cho khách" : "Book a client"}</Link>
-        <Link className="btn" href="/clients" data-testid="tech-clients">{vi ? "Khách hàng: ghi chú + ảnh" : "Clients: notes + photos"}</Link>
-        <Button variant="ghost" data-testid="sign-out" onClick={async () => { await signOut(); router.replace("/login"); }}>{vi ? "Đăng xuất" : "Sign out"}</Button>
-      </div>
+
+        <Card pad>
+          <div className="cap">{t("todaySoFar")}</div>
+          <div className="money" data-testid="today-total">{todayEarn ? $(todayEarn.total_cents) : "—"}</div>
+          {todayEarn && <div className="cap num">{t("todayLine", { services: $(todayEarn.services_cents), tips: $(tips), card: $(todayEarn.tips_card_cents), cash: $(todayEarn.tips_cash_cents), n: todayEarn.tickets })}</div>}
+        </Card>
+
+        {inChair && <InChair name={inChair.client?.name ?? t("walkIn")} what={svcNames(inChair)} start={inChair.arrivedAt ?? inChair.start} planned={(new Date(inChair.end).getTime() - new Date(inChair.start).getTime()) / 60000} />}
+
+        {next ? (
+          <Link href={`/t/schedule?open=${next.id}`} className="card" style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "inherit" }} data-testid="next-client">
+            <span style={{ flex: 1 }}><b>{t("nextAt", { time: timeOf(next.start), name: next.client?.name ?? t("walkIn") })}</b>
+              <span className="cap" style={{ display: "block", color: next.status === "confirmed" ? undefined : "#B5470A" }}>{svcNames(next)} · {next.status === "confirmed" ? t("confirmed") : t("notConfirmed")}</span></span>
+            <span className="cap">›</span>
+          </Link>
+        ) : <div className="cap">{t("noNext")}</div>}
+
+        <div className="t-tiles">
+          <Link className="tile" href="/t/book" data-testid="tech-book"><b>{t("bookTile")}</b><span className="cap">{t("bookSub")}</span></Link>
+          <Link className="tile" href="/t/schedule"><b>{t("tab_schedule")}</b><span className="cap">{t("clientsToday", { n: left })}</span></Link>
+          <Link className="tile" href="/t/earnings"><b>{t("myEarnings")}</b><span className="cap">{week ? t("weekAmount", { amount: $(week.total_cents) }) : "—"}</span></Link>
+          <Link className="tile" href="/clients" data-testid="tech-clients"><b>{t("clientsTile")}</b><span className="cap">{t("clientsSub")}</span></Link>
+        </div>
+        <span className="cap">{t("clockLater")}</span>
+      </>}
       {toast && <Toast>{toast}</Toast>}
+    </TechShell>
+  );
+}
+
+/** Who is in my chair: minutes so far vs the usual time for the service. */
+function InChair({ name, what, start, planned }: { name: string; what: string; start: string; planned: number }) {
+  const t = useTranslations("tech");
+  const [mins, setMins] = useState(() => Math.max(0, Math.round((Date.now() - new Date(start).getTime()) / 60000)));
+  useEffect(() => { const i = setInterval(() => setMins(Math.max(0, Math.round((Date.now() - new Date(start).getTime()) / 60000))), 30000); return () => clearInterval(i); }, [start]);
+  const pct = Math.min(100, Math.round((mins / Math.max(planned, 1)) * 100));
+  return (
+    <div className="card" style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 6, background: "var(--jade-soft)" }} data-testid="in-chair">
+      <b>{t("inChair", { name })}</b>
+      <span className="cap">{t("inChairSub", { what, mins, usual: Math.round(planned) })}</span>
+      <div className="t-bar jade"><span style={{ width: `${pct}%` }} /></div>
     </div>
   );
 }

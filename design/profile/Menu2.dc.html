@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avatar menu rich</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.app{position:relative}
+.btn{height:36px;font-size:14px;padding:0 14px}
+.avbtn{border:0;background:transparent;padding:6px;border-radius:12px;cursor:pointer}
+.avbtn.on{background:var(--fill);box-shadow:0 0 0 2px var(--ink)}
+.pop{position:absolute;left:84px;bottom:14px;width:340px;background:var(--paper);border-radius:16px;box-shadow:0 12px 48px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:6;overflow:hidden;animation:fadeUp .25s var(--ease) both}
+.mi{display:flex;align-items:center;gap:10px;width:100%;height:42px;padding:0 16px;border:0;background:transparent;font:inherit;font-size:15px;color:var(--ink);text-align:left;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.mi:hover{background:var(--surface);color:var(--ink)}
+.mi .cap{margin-left:auto}
+.sec{padding:10px 16px 4px;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--ink-soft)}
+.sal{display:flex;align-items:center;gap:10px;width:100%;height:40px;padding:0 16px;border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;text-align:left}
+.sal .lg2{width:24px;height:24px;border-radius:7px;background:var(--ink);color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.dim{opacity:.55}
+.dot.off{background:#C7C7CC}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a class="on" href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <button class="{{avCls}}" type="button" onClick="{{toggle}}" aria-label="Account menu"><span class="av" style="width:32px;height:32px;background:#E9D7CB">M</span></button>
+  </nav>
+  <div class="col dim">
+    <header class="bar"><div class="title">Today · Tue, Nov 17</div><span class="pill ok"><span class="dot"></span>Saved</span></header>
+    <main style="flex:1;display:flex;flex-direction:column;gap:14px;padding:20px 24px">
+      <div class="card stat-grid" style="--n:4;padding:16px 10px"><div><b>$1,846</b><span class="cap">sales today</span></div><div><b>31</b><span class="cap">clients</span></div><div><b>$59.55</b><span class="cap">avg ticket</span></div><div><b>12 min</b><span class="cap">walk-in wait</span></div></div>
+      <div class="group"><div class="row s"><span class="av">K</span><span class="grow">Kim Võ · Gel color manicure</span><span class="cap">free at 2:40</span></div><div class="row s"><span class="av">T</span><span class="grow">Tuấn Đỗ · Deluxe spa pedicure</span><span class="cap">free at 3:05</span></div><div class="row s"><span class="av">V</span><span class="grow">Vy Hoàng · open</span><span class="cap">free now</span></div></div>
+    </main>
+  </div>
+  <sc-if value="{{open}}" hint-placeholder-val="{{true}}">
+    <button class="scrim" type="button" aria-label="Close menu" onClick="{{toggle}}" style="background:transparent"></button>
+    <div class="pop" role="menu" aria-label="Account">
+      <div style="padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--surface)">
+        <div style="display:flex;align-items:center;gap:12px"><span class="av lg" style="background:#E9D7CB">M</span><span style="flex:1"><b style="display:block;font-size:16px">Mai Nguyễn</b><span class="cap num">(408) 555-0110</span></span><a class="btn" href="Settings.dc.html" style="height:32px;font-size:13px;background:var(--paper)">Edit</a></div>
+        <div style="display:flex;align-items:center;gap:10px;background:var(--paper);border-radius:12px;padding:10px 12px"><span class="{{clkDot}}"></span><span style="flex:1;font-size:14px"><b>{{clkText}}</b><span class="cap" style="display:block">{{clkSub}}</span></span><button class="btn" type="button" onClick="{{clock}}" style="height:32px;font-size:13px">{{clkBtn}}</button></div>
+      </div>
+      <div class="sec">SALON</div>
+      <button class="sal" type="button"><span class="lg2">MN</span><span style="flex:1">Mai Nails · Wildwood</span><b>✓</b></button>
+      <button class="sal" type="button"><span class="lg2" style="background:#8E8E93">M2</span><span style="flex:1">Mai Nails 2 · Lake Ave</span></button>
+      <div style="height:1px;background:var(--line);margin:6px 0"></div>
+      <a class="mi" href="Settings.dc.html">My profile</a>
+      <a class="mi" href="Settings.dc.html">Settings<span class="cap">Team, pay, services</span></a>
+      <button class="mi" type="button">My earnings<span class="cap">$0 · owner</span></button>
+      <button class="mi" type="button">Language<span class="cap">English ›</span></button>
+      <button class="mi" type="button">Help + support</button>
+      <div style="display:flex;gap:8px;padding:10px 16px 14px;border-top:1px solid var(--line);margin-top:6px"><button class="btn" type="button" style="flex:1">Lock screen</button><button class="btn" type="button" style="flex:1;color:#E03131">Sign out</button></div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { open: true, inn: true }; }
+  renderVals() {
+    const s = this.state;
+    return {
+      open: s.open, avCls: 'avbtn' + (s.open ? ' on' : ''),
+      toggle: () => this.setState({ open: !s.open }),
+      clkDot: s.inn ? 'dot' : 'dot off', clkText: s.inn ? 'Clocked in 9:00 AM' : 'Clocked out',
+      clkSub: s.inn ? '5 h 12 min today' : 'Not on the turn list', clkBtn: s.inn ? 'Clock out' : 'Clock in',
+      clock: () => this.setState({ inn: !s.inn })
+    };
+  }
+}
+</script>
+</body>
+</html>

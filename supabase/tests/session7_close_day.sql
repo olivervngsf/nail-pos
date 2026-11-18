@@ -20,6 +20,7 @@ create function pg_temp.cash(pid text, cents int) returns jsonb language sql as 
   select jsonb_build_object('id', pg_temp.id(pid), 'method', 'cash', 'givenCents', cents) $$;
 grant execute on all functions in schema pg_temp to authenticated, service_role;
 
+insert into public.platform_admins (auth_user_id) select id from auth.users on conflict do nothing;  -- salons are invite-only: test owners set up salons as platform admins
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000ee01","role":"authenticated"}', true);
 select public.save_setup(jsonb_build_object('salonId', pg_temp.id('a01'), 'ownerName', 'Mai', 'salonName', 'Close Nails', 'state', 'CA', 'step', 9,
@@ -33,7 +34,7 @@ update public.salons set time_zone = 'UTC' where id = pg_temp.id('a01');
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000ee02","role":"authenticated"}', true);
 select public.claim_memberships();
-select public.set_my_pin(pg_temp.id('a01'), '2580');
+select public.set_my_pin(pg_temp.id('a01'), '258013');
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000ee03","role":"authenticated"}', true);
 select public.claim_memberships();
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000ee01","role":"authenticated"}', true);
@@ -114,8 +115,8 @@ insert into t_out values ('tomorrow', public.day_summary(pg_temp.id('a01'), curr
 insert into t_out values ('sheet', public.payout_sheet(pg_temp.id('a01'), current_date, current_date));
 insert into t_out values ('yday', public.payout_sheet(pg_temp.id('a01'), current_date - 1, current_date - 1));
 -- PIN on the salon device: Kim's own slip; wrong PIN shows nothing
-insert into t_out values ('pin', public.pin_earnings((select (v #>> '{}')::uuid from t_out where k = 'device'), pg_temp.id('f01'), '2580', current_date, current_date));
-insert into t_out values ('pin_bad', public.pin_earnings((select (v #>> '{}')::uuid from t_out where k = 'device'), pg_temp.id('f01'), '1111', current_date, current_date));
+insert into t_out values ('pin', public.pin_earnings((select (v #>> '{}')::uuid from t_out where k = 'device'), pg_temp.id('f01'), '258013', current_date, current_date));
+insert into t_out values ('pin_bad', public.pin_earnings((select (v #>> '{}')::uuid from t_out where k = 'device'), pg_temp.id('f01'), '111111', current_date, current_date));
 reset role;
 
 do $$

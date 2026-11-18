@@ -43,10 +43,46 @@ test("payout sheet: totals, check % changes the split, CSV export", async ({ pag
   expect(dl.suggestedFilename()).toMatch(/^payroll-\d{4}-\d{2}-\d{2}-to-\d{4}-\d{2}-\d{2}\.csv$/);
 });
 
+test("payout sheet prints one slip per person (own page / own cut)", async ({ page }) => {
+  // Record the hidden print page instead of opening the print dialog.
+  await page.addInitScript(() => {
+    const d = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, "srcdoc")!;
+    Object.defineProperty(HTMLIFrameElement.prototype, "srcdoc", { set(v: string) { (window as unknown as { __printed: string[] }).__printed = [...((window as unknown as { __printed?: string[] }).__printed ?? []), v]; d.set!.call(this, v); }, get() { return d.get!.call(this); } });
+    window.print = () => {};
+  });
+  await page.goto("/payouts");
+  await expect(page.getByTestId("po-Kim")).toBeVisible();
+  const names = await page.locator("[data-testid^='po-print-']").evaluateAll((els) => els.map((e) => e.getAttribute("data-testid")!.slice(9)));
+  await page.getByTestId("po-slips").click();
+  await expect(page.getByText(/Printed \d+ slip/)).toBeVisible();
+  const html = (await page.evaluate(() => (window as unknown as { __printed: string[] }).__printed))[0];
+  const pages = html.split("<section>").slice(1);
+  expect(pages.length).toBe(names.length);
+  pages.forEach((p, i) => { expect(p).toContain(`${names[i]}&#39;s earnings`.replace("&#39;", "'")); for (const other of names) if (other !== names[i]) expect(p).not.toContain(`${other}'s earnings`); });
+  // One person only.
+  await page.getByTestId("po-print-Kim").click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __printed: string[] }).__printed.length)).toBe(2);
+  const one = await page.evaluate(() => (window as unknown as { __printed: string[] }).__printed[1]);
+  expect(one.split("<section>").length - 1).toBe(1);
+  expect(one).toContain("Kim's earnings");
+});
+
+test("payout sheet: rows stay simple; tap a person to see facts + every ticket", async ({ page }) => {
+  await page.goto("/payouts");
+  await expect(page.getByTestId("po-Kim")).toBeVisible();
+  await expect(page.getByTestId("po-line-Kim")).toHaveCount(0);
+  await page.getByTestId("po-open-Kim").click();
+  await expect(page.getByTestId("po-detail-Kim")).toContainText("Avg ticket");
+  await expect(page.getByTestId("po-line-Kim")).toHaveCount(2);
+  await expect(page.getByTestId("po-line-Kim").first()).toContainText("#1011");
+  await page.getByTestId("po-open-Kim").click();
+  await expect(page.getByTestId("po-line-Kim")).toHaveCount(0);
+});
+
 test("print my earnings: name + PIN shows only that person's slip", async ({ page }) => {
   await page.goto("/earnings");
   await page.getByTestId("earn-Kim").click();
-  for (const d of "2580") await page.getByRole("button", { name: d, exact: true }).click();
+  for (const d of "258013") await page.getByRole("button", { name: d, exact: true }).click();
   await expect(page.getByTestId("slip")).toBeVisible();
   await expect(page.getByTestId("slip-total")).toHaveText("$1,616.00");
   await page.getByTestId("earn-done").click();

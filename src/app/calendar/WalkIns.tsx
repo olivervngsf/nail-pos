@@ -12,8 +12,10 @@ import type { Desk } from "@/lib/desk";
 import { putAppt, type Appt } from "@/lib/booking/appts";
 import { dayKey, fmtMin } from "@/lib/booking/grid";
 import { nextWalkCode, waitedMin, type TurnFact } from "@/lib/booking/turns";
+import { skillsNeeded } from "@/lib/booking/skills";
+import { GoodFit, SkillTags } from "./SkillTags";
 import { ticketFor } from "./BookDrawers";
-import { printTicketSlip } from "@/lib/print/slip";
+import { printTicketSlip, slipWhen } from "@/lib/print/slip";
 
 const REASONS = ["asked", "skill", "free", "other"] as const;
 
@@ -105,13 +107,15 @@ export function SeatDrawer({ desk, a, order, onClose, say }: { desk: Desk; a: Ap
   const [reason, setReason] = useState<(typeof REASONS)[number] | null>(a.staffId && a.staffId !== next?.id ? "asked" : null);
   const skipped = !!next && !!pick && pick !== next.id;
   const tc = useTranslations("checkout");
+  const need = skillsNeeded(a.services.map((x) => ({ name: x.name, cat: desk.services.find((d) => d.id === x.serviceId)?.cat })));
+  const skillsOf = (id: string) => desk.staff.find((s) => s.id === id)?.skills;
   const seat = (slip = false) => {
     if (!pick) return;
     const before = { ...a };
     const ticketId = seatAppt(desk, a, pick, new Date().toISOString(), skipped && reason ? t(`why_${reason}`) : null);
     // Ticket slip: the client carries it to the tech, who scans it to add services; the desk scans it back to charge.
     if (slip) void printTicketSlip(ticketId, desk.salonName, { ticket: tc("slipTicket"), forTech: tc("slipForTech"), back: tc("slipBack") },
-      new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })).catch((e) => say((e as Error).message));
+      slipWhen(new Date())).catch((e) => say((e as Error).message));
     const who = order.find((f) => f.id === pick)?.name ?? "";
     say(t("seatedMsg", { name: a.client?.name || t("walkIn"), staff: who }), () => putAppt(before));
     onClose();
@@ -139,7 +143,7 @@ export function SeatDrawer({ desk, a, order, onClose, say }: { desk: Desk; a: Ap
           <button key={f.id} type="button" className={`opt ${pick === f.id ? "on" : ""}`} onClick={() => setPick(f.id)} data-testid={`seat-${f.name}`} aria-pressed={pick === f.id}
             style={!f.clockedIn ? { opacity: 0.55 } : undefined}>
             <span className={`cal-dot ${f.clockedIn ? "on" : ""}`} />
-            <span className="grow" style={{ display: "flex", flexDirection: "column" }}><b>{f.name}{a.staffId === f.id ? ` · ${t("asked")}` : ""}</b><span className="cap">{fact(f)}</span></span>
+            <span className="grow" style={{ display: "flex", flexDirection: "column" }}><b>{f.name}{a.staffId === f.id ? ` · ${t("asked")}` : ""} <GoodFit have={skillsOf(f.id)} need={need} /></b><span className="cap">{fact(f)}</span><SkillTags have={skillsOf(f.id)} need={need} /></span>
             {next?.id === f.id && <span className="tag jade">{t("nextTurn")}</span>}
             {pick === f.id && <span aria-hidden>✓</span>}
           </button>))}

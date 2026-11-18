@@ -85,6 +85,17 @@ export async function retryParked() {
   await refreshCount();
 }
 
+/** Forget saves of one kind that are waiting or parked (e.g. a setup save aimed at a salon this person can't change).
+ *  Only for kinds where a newer full copy replaces the old one; never for tickets or payments. */
+export async function dropQueued(kind: string) {
+  const d = getDb();
+  await d.transaction("rw", d.outbox, d.parked, async () => {
+    await d.outbox.where("kind").equals(kind).delete();
+    await d.parked.where("kind").equals(kind).delete();
+  });
+  await refreshCount();
+}
+
 /** Save an action on this device and try to send it now. Returns its clientId. */
 export async function enqueue(kind: string, payload: unknown, clientId = uuid()): Promise<string> {
   await getDb().outbox.add({ clientId, kind, payload, deviceTime: new Date().toISOString(), tries: 0 });

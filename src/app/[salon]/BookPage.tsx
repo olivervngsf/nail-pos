@@ -29,7 +29,7 @@ export default function BookPage({ slug }: { slug: string }) {
   return <Flow page={page} />;
 }
 
-function Header({ page }: { page: Page }) {
+export function Header({ page }: { page: Page }) {
   const t = useTranslations("book");
   const today = hoursOn(page, dayKey(new Date()));
   const now = new Date().getHours() * 60 + new Date().getMinutes();
@@ -41,7 +41,7 @@ function Header({ page }: { page: Page }) {
       <div className="bw-logo">{initials(page.salon.name)}</div>
       <div className="bw-who">
         <h1 className="bw-name">{page.salon.name}</h1>
-        <div className="cap">{[page.salon.address, page.salon.phone].filter(Boolean).join(" · ")}</div>
+        <div className="cap">{[page.salon.address, page.salon.phone && fmtPhone(page.salon.phone)].filter(Boolean).join(" · ")}</div>
         <div className="cap">
           {open ? <b className="bw-open">{t("openNow")}</b> : <b>{t("closedNow")}</b>}
           {today && (open ? <> · {t("until", { time: fmtMin(today.close) })}</> : now < today.open ? <> · {t("opens", { time: fmtMin(today.open) })}</> : null)}
@@ -117,7 +117,7 @@ function Flow({ page }: { page: Page }) {
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
-  const [done, setDone] = useState<{ ids: string[]; staff: string[]; day: string; start: number } | null>(null);
+  const [done, setDone] = useState<{ staff: string[]; day: string; start: number; token?: string } | null>(null);
 
   const svc = useMemo(() => Object.fromEntries(page.services.map((s) => [s.id, s])), [page]);
   const minsOf = useCallback((g: Guest) => g.serviceIds.reduce((a, id) => a + (svc[id]?.minutes ?? 0), 0), [svc]);
@@ -161,7 +161,7 @@ function Flow({ page }: { page: Page }) {
     setBusy(true);
     try {
       const r = await book(page, { src, day, start: slot, phone: e164(phone), name: name.trim(), textsOk, note: note.trim(), guests });
-      if (r.ok) { setDone({ ids: r.ids, staff: r.staff, day, start: slot }); setView("done"); }
+      if (r.ok) { setDone({ staff: r.staff, day, start: slot, token: r.token }); setView("done"); }
       else {
         setMsg(t(r.reason === "taken" ? "taken" : r.reason === "too_many" ? "tooMany" : "bad"));
         if (r.reason === "taken") { setSlot(null); setView("time"); }
@@ -187,30 +187,56 @@ function Flow({ page }: { page: Page }) {
   );
 
   if (view === "done" && done) {
-    const when = `${fromDayKey(done.day).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })} · ${fmtMin(done.start)}`;
+    const manage = done.token ? `${window.location.origin}/b/${done.token}` : `${window.location.origin}/${page.salon.slug}`;
     const ics = `data:text/calendar;charset=utf-8,${encodeURIComponent(bookingIcs({
-      uid: done.ids[0] ?? `${page.salon.slug}-${done.day}-${done.start}`,
+      uid: done.token ?? `${page.salon.slug}-${done.day}-${done.start}`,
       salon: { name: page.salon.name, address: page.salon.address, phone: page.salon.phone, tz: page.salon.timeZone ?? "America/Los_Angeles" },
-      day: done.day, start: done.start, minutes: longest, when, firstName: name.trim().split(" ")[0],
+      day: done.day, start: done.start, minutes: longest,
+      when: `${fromDayKey(done.day).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })} · ${fmtMin(done.start)}`,
+      firstName: name.trim().split(" ")[0],
       lines: guests.flatMap((x, i) => x.serviceIds.map((id) => [svc[id]?.name, done.staff[i]].filter(Boolean).join(" · "))),
       total: `${hasFrom ? "from " : ""}${formatCents(total)}`,
-      manageUrl: `${window.location.origin}/${page.salon.slug}`,
-      cancelHours: page.salon.settings.cancel_hours, ownerNote: page.salon.settings.calendar_note, alarmMin: page.salon.settings.calendar_alarm_min,
+      manageUrl: manage, cancelHours: page.salon.settings.cancel_hours,
+      ownerNote: page.salon.settings.calendar_note, alarmMin: page.salon.settings.calendar_alarm_min,
     }))}`;
+    const first = name.trim().split(" ")[0];
+    const longDay = fromDayKey(done.day).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
     return (
       <div className="bw">
         <Header page={page} />
-        <div className="bw-door in" data-testid="booked">
-          <div className="bw-check">✓</div>
-          <h2 className="h1 bw-center">{t("booked", { name: name.trim().split(" ")[0] })}</h2>
-          <p className="bw-center">{when} · {done.staff.map((s) => t("with", { name: s })).join(", ")}</p>
-          {textsOk && <p className="cap bw-center">{t("bookedTexted", { phone: fmtPhone(phone) })}</p>}
-          <div className="bw-row">
-            <a className="btn" href={ics} download={`${page.salon.slug}-booking.ics`}>{t("addCal")}</a>
-            {page.salon.address && <a className="btn" target="_blank" rel="noreferrer" href={`https://maps.google.com/?q=${encodeURIComponent(page.salon.address)}`}>{t("directions")}</a>}
-            <Button onClick={restart}>{t("again")}</Button>
+        <div className="bw-done in" data-testid="booked">
+          <div className="bw-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
+          <h2 className="h1 bw-center">{t("booked", { name: first.charAt(0).toUpperCase() + first.slice(1) })}</h2>
+          <p className="cap bw-center">{textsOk ? t("bookedTexted", { phone: fmtPhone(phone) }) : t("atDesk")}</p>
+
+          <div className="bw-ticket">
+            <div className="bw-when">
+              <span className="eyebrow">{longDay}</span>
+              <b className="num">{fmtMin(done.start)} – {fmtMin(done.start + longest)}</b>
+              <span className="cap">{done.staff.map((s) => t("with", { name: s })).join(", ")} · {dur(longest)}</span>
+            </div>
+            <div className="bw-stack">
+              {guests.map((x, i) => x.serviceIds.length ? (
+                <div key={i} className="bw-stack">
+                  {group && <span className="eyebrow">{guestLabel(i)}</span>}
+                  {x.serviceIds.map((id) => svc[id] && <div key={id} className="bw-line"><span className="bw-grow">{svc[id].name}<span className="cap">{dur(svc[id].minutes)}</span></span><span className="num">{svc[id].from ? "from " : ""}{formatCents(svc[id].cents)}</span></div>)}
+                </div>) : null)}
+              <div className="bw-line bw-total"><span>{t("total")}</span><b className="num">{hasFrom ? "from " : ""}{formatCents(total)}</b></div>
+              <p className="cap">{t("tipNote")}</p>
+            </div>
+            {page.salon.address && <div className="bw-where"><b>{page.salon.name}</b><span className="cap">{page.salon.address}</span></div>}
           </div>
-          <p className="cap bw-center">{t("cancelRule", { hours: page.salon.settings.cancel_hours })}</p>
+
+          <div className="bw-acts">
+            <a className="btn primary" href={ics} download={`${page.salon.slug}-booking.ics`}>{t("addCal")}</a>
+            {page.salon.address && <a className="btn" target="_blank" rel="noreferrer" href={`https://maps.google.com/?q=${encodeURIComponent(`${page.salon.name}, ${page.salon.address}`)}`}>{t("directions")}</a>}
+            <Button variant="ghost" onClick={restart}>{t("again")}</Button>
+          </div>
+          <p className="cap bw-center">
+            {done.token ? <a href={`/b/${done.token}`} data-testid="manage-link">{t("mLink")}</a> : t("cancelRule", { hours: page.salon.settings.cancel_hours })}
+            {done.token && <> · {t("mRule", { hours: page.salon.settings.cancel_hours })}</>}
+            {page.salon.phone && <> {t("callUs")} <a href={`tel:${page.salon.phone}`}>{fmtPhone(page.salon.phone)}</a></>}
+          </p>
         </div>
       </div>
     );
