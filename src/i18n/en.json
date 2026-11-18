@@ -734,6 +734,8 @@
     "cancelRule": "Change or cancel up to {hours} hours before. No card needed.",
     "booked": "You're booked, {name}",
     "bookedTexted": "Confirmation texted to {phone}",
+    "atDesk": "All set. Just give your name at the front desk.",
+    "callUs": "Questions? Call",
     "addCal": "Add to calendar",
     "again": "Book again",
     "visit": "Your visit",

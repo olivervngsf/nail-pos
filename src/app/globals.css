@@ -264,7 +264,16 @@ button:disabled { cursor: not-allowed; }
 .bw-doorbtn b { font-size: 17px; }
 .bw-ico { width: 40px; height: 40px; border-radius: 12px; background: var(--fill); display: flex; align-items: center; justify-content: center; font-size: 18px; flex: none; }
 .bw-center { text-align: center; }
-.bw-check { width: 64px; height: 64px; border-radius: 50%; background: #2f9e44; color: #fff; font-size: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+.bw-check { width: 56px; height: 56px; border-radius: 50%; background: #2f9e44; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 2px; box-shadow: 0 0 0 8px #eaf5ec; animation: bw-pop .45s var(--ease, ease) both; }
+@keyframes bw-pop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .bw-check { animation: none; } }
+.bw-done { width: min(480px, 100% - 32px); margin: 36px auto 48px; display: flex; flex-direction: column; gap: 10px; }
+.bw-done .h1 { margin: 6px 0 0; }
+.bw-ticket { margin-top: 10px; background: var(--paper); border-radius: 20px; box-shadow: var(--shadow); padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.bw-when { display: flex; flex-direction: column; gap: 2px; padding-bottom: 16px; border-bottom: 1px dashed var(--line); }
+.bw-when b { font-size: 26px; letter-spacing: -0.02em; }
+.bw-where { display: flex; flex-direction: column; gap: 2px; padding-top: 14px; border-top: 1px dashed var(--line); font-size: 14px; }
+.bw-acts { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 6px; }
 .bw-empty { margin: 80px auto; text-align: center; padding: 0 16px; }
 .bw-body { flex: 1; display: flex; gap: 20px; padding: 20px 48px; align-items: flex-start; }
 .bw-main { flex: 1; min-width: 0; background: var(--paper); border-radius: 20px; box-shadow: var(--shadow); padding: 20px; display: flex; flex-direction: column; gap: 12px; }
