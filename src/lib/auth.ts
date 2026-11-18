@@ -250,7 +250,6 @@ export async function myMemberships(): Promise<Membership[]> {
   return (data ?? []) as Membership[];
 }
 
-/** Where to go after sign-in: owner with unfinished setup → /setup, desk roles → /today, tech → /t, nobody yet → /setup. */
 /** Where to go after sign-in. A platform admin (us) with no salon goes to /admin, not salon setup. */
 export function homeFor(ms: Membership[], admin = false): string {
   if (!ms.length) return admin ? "/admin" : "/setup";
@@ -306,10 +305,10 @@ export function forgetDevice() {
   }
 }
 
-export type PinResult = { ok: boolean; reason?: "wrong" | "locked" | "no_pin" | "device" | "person"; tries_left?: number; until?: string; membership_id?: string; name?: string; role?: Role };
+export type PinResult = { ok: boolean; reason?: "wrong" | "locked" | "no_pin" | "device" | "person" | "weak"; tries_left?: number; until?: string; membership_id?: string; name?: string; role?: Role };
 export const pinMessage = (r: PinResult) =>
   r.reason === "wrong" ? `Wrong PIN. ${r.tries_left} ${r.tries_left === 1 ? "try" : "tries"} left.`
-  : r.reason === "locked" ? `Locked for 5 minutes after 5 wrong PINs. Ask the owner to reset it.`
-  : r.reason === "no_pin" ? "No PIN yet. Join from the invite text to make one."
+  : r.reason === "locked" ? `Locked after too many wrong PINs. Try again in a minute, or ask the owner.`
+  : r.reason === "no_pin" ? "No PIN yet. Make one on your phone (My profile) or from the invite text."
   : r.reason === "device" ? "This device isn't a salon device for this salon."
   : "Can't check that PIN.";

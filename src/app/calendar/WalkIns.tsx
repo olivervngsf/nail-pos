@@ -13,7 +13,7 @@ import { putAppt, type Appt } from "@/lib/booking/appts";
 import { dayKey, fmtMin } from "@/lib/booking/grid";
 import { nextWalkCode, waitedMin, type TurnFact } from "@/lib/booking/turns";
 import { ticketFor } from "./BookDrawers";
-import { printTicketSlip } from "@/lib/print/slip";
+import { printTicketSlip, slipWhen } from "@/lib/print/slip";
 
 const REASONS = ["asked", "skill", "free", "other"] as const;
 
@@ -111,7 +111,7 @@ export function SeatDrawer({ desk, a, order, onClose, say }: { desk: Desk; a: Ap
     const ticketId = seatAppt(desk, a, pick, new Date().toISOString(), skipped && reason ? t(`why_${reason}`) : null);
     // Ticket slip: the client carries it to the tech, who scans it to add services; the desk scans it back to charge.
     if (slip) void printTicketSlip(ticketId, desk.salonName, { ticket: tc("slipTicket"), forTech: tc("slipForTech"), back: tc("slipBack") },
-      new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })).catch((e) => say((e as Error).message));
+      slipWhen(new Date())).catch((e) => say((e as Error).message));
     const who = order.find((f) => f.id === pick)?.name ?? "";
     say(t("seatedMsg", { name: a.client?.name || t("walkIn"), staff: who }), () => putAppt(before));
     onClose();

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PIN activity log</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.btn{height:36px;font-size:14px;padding:0 14px}
+.chip{height:32px;font-size:13px;padding:0 12px}
+.snav{width:236px;background:var(--paper);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:14px 10px;gap:2px}
+.snav .sh{font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--ink-soft);padding:12px 10px 4px}
+.snav span.n{display:flex;align-items:center;height:32px;padding:0 10px;border-radius:8px;font-size:14px}
+.snav span.n.on{background:var(--fill);font-weight:600}
+.dtable td{font-size:14px}
+.res{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:600}
+.res.ok{background:var(--jade-soft);color:#1F7A33}
+.res.bad{background:#FDECEC;color:#B42318}
+.res.warn{background:var(--orange-soft);color:#A3410A}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a class="on" href="#" aria-label="Account menu"><span class="av" style="width:32px;height:32px;background:#E9D7CB">M</span></a>
+  </nav>
+  <aside class="snav" aria-label="Settings sections">
+    <div style="font-size:20px;font-weight:700;padding:4px 10px 6px">Settings</div>
+    <div class="sh">ME</div><span class="n">Profile</span><span class="n">Sign-in + PIN</span>
+    <div class="sh">SALON</div><span class="n">Salon info</span><span class="n">Team</span><span class="n">Services &amp; prices</span><span class="n">Pay &amp; tips</span><span class="n">Card payments</span><span class="n">Devices</span><span class="n">PIN rules</span><span class="n on">PIN activity</span><span class="n">Support access</span>
+  </aside>
+  <div class="col">
+    <header class="bar"><div class="title">PIN activity · who did what</div><button class="btn" type="button">Export CSV</button></header>
+    <main style="flex:1;display:flex;flex-direction:column;gap:12px;padding:16px 20px;min-height:0">
+      <div class="card stat-grid" style="--n:4;padding:14px 10px"><div><b>142</b><span class="cap">PIN uses today</span></div><div><b>9</b><span class="cap">people</span></div><div><b>3</b><span class="cap">manager approvals</span></div><div><b style="color:#B42318">4</b><span class="cap">wrong PINs</span></div></div>
+      <div style="display:flex;gap:6px"><button class="chip on" type="button">Today</button><button class="chip" type="button">This week</button><button class="chip" type="button">All people</button><button class="chip" type="button">All devices</button><button class="chip" type="button">Only problems</button></div>
+      <div class="group" style="flex:1;overflow:auto">
+        <table class="dtable">
+          <thead><tr><th>Time</th><th style="text-align:left">Person</th><th style="text-align:left">Device</th><th style="text-align:left">What for</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>2:16 PM</td><td style="text-align:left">Lan Phan · desk</td><td style="text-align:left">Front desk computer</td><td style="text-align:left">Unlock (after Hạnh locked)</td><td><span class="res ok">OK</span></td></tr>
+            <tr><td>2:14 PM</td><td style="text-align:left">Hạnh Lê · desk</td><td style="text-align:left">Front desk computer</td><td style="text-align:left">Locked screen</td><td><span class="res ok">Lock</span></td></tr>
+            <tr><td>12:10 PM</td><td style="text-align:left">Bảo Trần · manager</td><td style="text-align:left">Front desk computer</td><td style="text-align:left">Approve $5 off · ticket #1043</td><td><span class="res ok">OK</span></td></tr>
+            <tr><td>11:42 AM</td><td style="text-align:left">Vy Hoàng · tech</td><td style="text-align:left">Salon iPad (kiosk)</td><td style="text-align:left">Print my pay sheet</td><td><span class="res ok">OK</span></td></tr>
+            <tr><td>11:05 AM</td><td style="text-align:left">Tuấn Đỗ · tech</td><td style="text-align:left">Salon iPad (kiosk)</td><td style="text-align:left">Unlock</td><td><span class="res bad">Wrong PIN × 3</span></td></tr>
+            <tr><td>10:58 AM</td><td style="text-align:left">Unknown → Mai</td><td style="text-align:left">Front desk computer</td><td style="text-align:left">Open Settings</td><td><span class="res warn">5 wrong · locked 1 min · owner texted</span></td></tr>
+            <tr><td>9:30 AM</td><td style="text-align:left">Kim Võ · tech</td><td style="text-align:left">Salon iPad (kiosk)</td><td style="text-align:left">Clock in</td><td><span class="res ok">OK</span></td></tr>
+            <tr><td>9:00 AM</td><td style="text-align:left">Hạnh Lê · desk</td><td style="text-align:left">Front desk computer</td><td style="text-align:left">Unlock + clock in</td><td><span class="res ok">OK</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="cap">Saved by the server, can’t be edited or deleted. Owner + manager see this. Kept 2 years.</div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

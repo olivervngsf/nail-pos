@@ -14,8 +14,8 @@ export type EarnText = {
   slipFor: (name: string) => string;
   services: string; pay: (r: PayoutRow) => string; cardTips: string; cashTips: string; tips: string; feeOnTips: string;
   total: string; byCheck: string; inCash: string; signature: string; printed: string;
-  /** "(tip $9.00)" after a service on the every-ticket list. */
-  tipOn: (amount: string) => string;
+  /** "Ticket #1011" on the every-ticket list. */
+  ticketNo: (n: number) => string;
 };
 
 /** What the owner chose to show on staff slips (Settings → Printer). */
@@ -24,11 +24,8 @@ export type StaffSlipOpts = PrintSettings["staff"];
 const $ = formatCents;
 
 export function earningsDoc(r: PayoutRow, salon: string, period: string, txt: EarnText, printedAt: string, o: StaffSlipOpts = PRINT_DEFAULTS.staff): ReceiptDoc {
-  // Every ticket: one line each under "Services (n)": what was done (tip $x) ...... service amount.
-  const each: ReceiptDoc["rows"] = o.tickets ? (r.lines ?? []).map((l) => {
-    const tip = l.tip_card_cents + l.tip_cash_cents;
-    return { item: [l.services || "-", tip ? txt.tipOn($(tip)) : "", $(l.services_cents)] as [string, string, string] };
-  }) : [];
+  // Every ticket: just "Ticket #1011 ..... $45.00" per ticket (what it earned), then the total, the %, the tips.
+  const each: ReceiptDoc["rows"] = o.tickets ? (r.lines ?? []).map((l) => [txt.ticketNo(l.number), $(l.services_cents)] as [string, string]) : [];
   const tips: ReceiptDoc["rows"] = o.tipSplit
     ? [[txt.cardTips, $(r.tips_card_cents)], [txt.cashTips, $(r.tips_cash_cents)]]
     : [[txt.tips, $(r.tips_card_cents + r.tips_cash_cents)]];
@@ -36,8 +33,9 @@ export function earningsDoc(r: PayoutRow, salon: string, period: string, txt: Ea
     title: salon,
     sub: [txt.slipFor(r.name), period],
     rows: [
-      [`${txt.services} (${r.tickets})`, $(r.services_cents)],
       ...each,
+      ...(each.length ? ["sep"] as ReceiptDoc["rows"] : []),
+      [`${txt.services} (${r.tickets})`, $(r.services_cents)],
       [txt.pay(r), $(r.pay_cents)],
       ...tips,
       ...(r.tip_fee_cents > 0 ? [[txt.feeOnTips, `-${$(r.tip_fee_cents)}`] as [string, string]] : []),

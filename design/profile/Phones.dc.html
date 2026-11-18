@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone pop-up per role</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.ph2{width:380px;height:800px;border-radius:44px;background:#1C1C1E;padding:10px;box-sizing:border-box;flex:none}
+.scr2{width:100%;height:100%;border-radius:34px;background:var(--surface);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.tb{height:56px;display:flex;align-items:center;gap:10px;padding:0 16px;margin-top:28px}
+.tb b{flex:1;font-size:20px}
+.avb{border:0;padding:3px;border-radius:50%;background:transparent;cursor:pointer}
+.avb.on{box-shadow:0 0 0 2px var(--ink)}
+.bg{padding:0 16px;display:flex;flex-direction:column;gap:10px;opacity:.5}
+.sheet3{position:absolute;left:0;right:0;bottom:0;background:var(--paper);border-radius:24px 24px 34px 34px;box-shadow:0 -12px 40px rgba(28,28,30,.2);z-index:6;padding:8px 0 18px;animation:fadeUp .3s var(--ease) both}
+.grab{width:40px;height:5px;border-radius:3px;background:#D1D1D6;margin:0 auto 10px}
+.hd3{display:flex;align-items:center;gap:12px;padding:0 18px 12px}
+.clk{margin:0 14px 8px;border-radius:14px;background:var(--surface);padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:14px}
+.it{display:flex;align-items:center;width:100%;min-height:48px;padding:0 18px;border:0;border-top:1px solid var(--line);background:transparent;font:inherit;font-size:16px;color:var(--ink);text-align:left;cursor:pointer;box-sizing:border-box}
+.it .cap{margin-left:auto}
+.dot.off{background:#C7C7CC}
+.lbl2{font-size:15px;font-weight:700;text-align:center}
+</style>
+</helmet>
+<div style="width:1720px;height:920px;box-sizing:border-box;padding:28px 40px;background:#ECECEF;display:flex;gap:40px">
+  <sc-for list="{{roles}}" as="r" hint-placeholder-count="4">
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center">
+      <div class="lbl2">{{r.label}}<span class="cap" style="display:block;font-weight:400">{{r.where}}</span></div>
+      <div class="ph2"><div class="scr2">
+        <div class="tb"><b>{{r.page}}</b><button class="{{r.avCls}}" type="button" onClick="{{r.toggle}}" aria-label="Account menu"><span class="av" style="width:34px;height:34px">{{r.i}}</span></button></div>
+        <div class="bg"><div class="card" style="height:90px"></div><div class="card" style="height:150px"></div><div class="card" style="height:120px"></div></div>
+        <sc-if value="{{r.open}}" hint-placeholder-val="{{true}}">
+          <button class="scrim" type="button" aria-label="Close" onClick="{{r.toggle}}"></button>
+          <div class="sheet3" role="menu" aria-label="Account">
+            <div class="grab"></div>
+            <div class="hd3"><span class="av lg">{{r.i}}</span><span style="flex:1"><b style="display:block;font-size:17px">{{r.name}}</b><span class="cap">{{r.sub}}</span></span></div>
+            <div class="clk"><span class="{{r.dot}}"></span><span style="flex:1"><b>{{r.clk}}</b><span class="cap" style="display:block">{{r.clkSub}}</span></span><button class="btn" type="button" onClick="{{r.clock}}" style="height:36px;font-size:14px;background:var(--paper)">{{r.clkBtn}}</button></div>
+            <sc-for list="{{r.items}}" as="it" hint-placeholder-count="5"><button class="it" type="button">{{it.l}}<span class="cap">{{it.v}}</span></button></sc-for>
+            <button class="it" type="button" style="color:#E03131">Sign out of this phone</button>
+          </div>
+        </sc-if>
+      </div></div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1720,"height":920}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { closed: {}, out: {} }; }
+  renderVals() {
+    const s = this.state;
+    const R = [
+      { k: 'o', label: 'Owner', where: 'Mai · own phone', page: 'Numbers', i: 'M', name: 'Mai Nguyễn', sub: 'Owner · Mai Nails ▾ (switch salon)',
+        items: [['My profile', ''], ['Settings', 'Team, pay, services'], ['Team · + Add member', '7'], ['Approvals', '1 waiting'], ['Language', 'English']] },
+      { k: 'm', label: 'Manager', where: 'Bảo · own phone', page: 'Today', i: 'B', name: 'Bảo Trần', sub: 'Manager · Mai Nails',
+        items: [['My profile', ''], ['Settings', 'no pay changes'], ['Approvals', '1 waiting'], ['My earnings', 'this week'], ['Language', 'Tiếng Việt']] },
+      { k: 'd', label: 'Front desk', where: 'Hạnh · own phone', page: 'My week', i: 'H', name: 'Hạnh Lê', sub: 'Front desk · Mai Nails',
+        items: [['My profile', ''], ['My schedule', 'Tue – Sat'], ['My earnings', '$612 this week'], ['Language', 'Tiếng Việt']] },
+      { k: 't', label: 'Tech', where: 'Kim · own phone (tech app)', page: 'My tickets', i: 'K', name: 'Kim Võ', sub: 'Tech · Mai Nails',
+        items: [['My profile', 'photo, skills'], ['My earnings + pay sheet', '$1,284'], ['My bookings', '3 today'], ['Change PIN', '6 digits'], ['Language', 'Tiếng Việt']] }
+    ];
+    return {
+      roles: R.map(r => {
+        const open = !s.closed[r.k];
+        const inn = !s.out[r.k];
+        return Object.assign({}, r, {
+          open, avCls: 'avb' + (open ? ' on' : ''),
+          toggle: () => this.setState({ closed: Object.assign({}, s.closed, { [r.k]: open }) }),
+          dot: inn ? 'dot' : 'dot off', clk: inn ? 'Clocked in 9:30' : 'Clocked out',
+          clkSub: inn ? (r.k === 't' ? '#3 on turn list · at salon Wi-Fi' : 'at salon Wi-Fi') : 'Only works at the salon',
+          clkBtn: inn ? 'Clock out' : 'Clock in',
+          clock: () => this.setState({ out: Object.assign({}, s.out, { [r.k]: inn }) }),
+          items: r.items.map(x => ({ l: x[0], v: x[1] }))
+        });
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

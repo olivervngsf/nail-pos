@@ -10,14 +10,19 @@ import { cachedPrintSettings, type PrintSettings } from "./settings";
 
 export type SlipText = { ticket: string; forTech: string; back: string };
 
+/** Date with year + time, e.g. "Nov 17, 2026, 2:05 PM". */
+export const slipWhen = (d: Date) => d.toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+
 export function slipDoc(salonName: string, t: Ticket, when: string, txt: SlipText, o: PrintSettings["slip"] = cachedPrintSettings(t.salonId).slip): ReceiptDoc {
+  // Tech name(s) at the top, under the date; then the services, one per line.
+  const techs = [...new Set(t.lines.map((l) => l.staffName).filter(Boolean))].join(", ");
   return {
     title: salonName,
-    sub: [when],
+    sub: [when, ...(o.staff && techs ? [techs] : [])],
     rows: [
       { bold: [txt.ticket, t.number ? `#${t.number}` : ticketLabel(t)] },
       ...(o.client && t.client?.name ? [{ text: t.client.name }] : []),
-      ...t.lines.map((l) => [l.name, o.staff ? l.staffName ?? "" : ""] as [string, string]),
+      ...t.lines.map((l) => ({ text: l.name })),
     ],
     footer: [txt.forTech, txt.back],
     qr: `${location.origin}/t/ticket/${t.id}`,

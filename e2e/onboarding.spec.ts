@@ -61,10 +61,10 @@ test("staff joins in Vietnamese, weak PIN refused, then clocks in", async ({ pag
   await page.getByRole("button", { name: "Yes, this is me" }).click();
   await page.getByRole("button", { name: "Tiếng Việt" }).click();
   await page.getByRole("button", { name: "Tiếp tục" }).click();
-  for (const k of "1234") await page.locator(".key", { hasText: new RegExp(`^${k}$`) }).click();
+  for (const k of "123456") await page.locator(".key", { hasText: new RegExp(`^${k}$`) }).click();
   await expect(page.getByText("Dễ đoán quá. Thử số khác.")).toBeVisible();
   for (const pass of [0, 1]) {
-    for (const k of "2580") await page.locator(".key", { hasText: new RegExp(`^${k}$`) }).click();
+    for (const k of "258013") await page.locator(".key", { hasText: new RegExp(`^${k}$`) }).click();
     if (pass === 0) await expect(page.getByText("Nhập lại")).toBeVisible();
   }
   await page.getByRole("button", { name: "Bỏ qua" }).click();
