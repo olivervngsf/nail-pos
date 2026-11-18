@@ -1,0 +1,47 @@
+name: Backup + restore test
+# Every night 3:17 am Pacific: copy the LIVE database, restore it into a throwaway Postgres, check every table's row count.
+# A failure emails the repo owner. Supabase's own daily backups (paid plan) are the first copy; this proves a copy restores.
+# Needs repo secret LIVE_DB_URL. Optional BACKUP_PASSPHRASE = keep an encrypted copy for 14 days (Actions → run → Artifacts).
+on:
+  schedule:
+    - cron: "17 11 * * *"
+  workflow_dispatch:
+
+concurrency: live-db-backup
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HAS_PASS: ${{ secrets.BACKUP_PASSPHRASE != '' }}
+    services:
+      restore:
+        image: postgres:17
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Skip if the live database isn't connected yet
+        id: has
+        run: echo "ok=${{ secrets.LIVE_DB_URL != '' }}" >> "$GITHUB_OUTPUT"
+      - name: Install Postgres 17 tools
+        if: steps.has.outputs.ok == 'true'
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -q && sudo apt-get install -y -q postgresql-client-17
+          echo /usr/lib/postgresql/17/bin >> "$GITHUB_PATH"
+      - name: Back up + restore test
+        if: steps.has.outputs.ok == 'true'
+        run: scripts/backup-restore-test.sh "live-$(date -u +%F).dump"
+        env:
+          LIVE_DB_URL: ${{ secrets.LIVE_DB_URL }}
+          RESTORE_DB_URL: postgres://postgres:postgres@localhost:5432/postgres
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      - name: Keep the encrypted copy (14 days)
+        if: steps.has.outputs.ok == 'true' && env.HAS_PASS == 'true'
+        uses: actions/upload-artifact@v4
+        with: { name: live-db-backup, path: "*.dump.gpg", retention-days: 14 }

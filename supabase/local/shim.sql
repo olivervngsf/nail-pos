@@ -13,6 +13,11 @@ create function auth.uid() returns uuid language sql stable as $$
   select nullif(current_setting('request.jwt.claims', true)::jsonb->>'sub', '')::uuid $$;
 create function auth.role() returns text language sql stable as $$
   select current_setting('request.jwt.claims', true)::jsonb->>'role' $$;
+create function auth.jwt() returns jsonb language sql stable as $$
+  select nullif(current_setting('request.jwt.claims', true), '')::jsonb $$;
+-- 2-step sign-in: verified authenticator apps (only the columns our SQL reads).
+create table auth.mfa_factors (id uuid primary key, user_id uuid not null references auth.users(id), friendly_name text, factor_type text, status text,
+  created_at timestamptz default now(), updated_at timestamptz default now(), secret text);
 grant usage on schema auth, extensions, public to anon, authenticated, service_role;
 grant execute on all functions in schema auth to anon, authenticated, service_role;
 grant select on auth.users to service_role;
