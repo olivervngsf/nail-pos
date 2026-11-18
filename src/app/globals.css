@@ -728,3 +728,35 @@ button:disabled { cursor: not-allowed; }
 .t-bar.jade>span{background:var(--jade)}
 .t-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .t-tiles .tile{padding:14px;gap:4px;font-size:14px;min-height:76px;box-sizing:border-box}
+
+/* ---------- Founder Admin (/admin, /admin/salons; board https://claude.ai/artifact/WpMg52SxZ9Hzz577hUtSeg) ---------- */
+.ad-app .col { overflow: auto; }
+.ad-main { padding: 24px; display: flex; flex-direction: column; gap: 20px; max-width: 1240px; width: 100%; box-sizing: border-box; margin: 0 auto; }
+.ad-title { display: flex; align-items: center; gap: 8px; }
+.ad-tabs { display: none; gap: 6px; }
+.ad-tabs .chip { text-decoration: none; color: var(--ink); }
+.ad-tabs .chip.on { color: #fff; }
+.ad-badge { position: absolute; top: 2px; right: 8px; min-width: 18px; height: 18px; padding: 0 4px; box-sizing: border-box; border-radius: 999px; background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.ad-split { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.ad-wide-col { flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.ad-side { flex: 1 1 300px; display: flex; flex-direction: column; gap: 16px; }
+.ad-alert { display: flex; flex-direction: column; gap: 10px; }
+.ad-alert.bad { box-shadow: 0 0 0 2px var(--red), var(--shadow); }
+.ad-pill { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; background: var(--fill); color: var(--ink-soft); }
+.ad-pill.good { background: var(--jade-soft); color: #1E7A33; }
+.ad-pill.warn { background: var(--orange-soft); color: var(--orange-text); }
+.ad-pill.bad { background: #FDECEC; color: #B42318; }
+.ad-dot { width: 10px; height: 10px; border-radius: 999px; flex: 0 0 10px; background: var(--muted); }
+.ad-dot.good { background: var(--jade); } .ad-dot.warn { background: var(--orange); } .ad-dot.bad { background: var(--red); }
+.ad-link { color: var(--ink); text-decoration: none; }
+.ad-link:hover { background: var(--fill); }
+.ad-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+.ad-tablehead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 16px; }
+.ad-table td, .ad-table th { text-align: left !important; white-space: nowrap; }
+.ad-table td { height: 60px; }
+.ad-table tr:target td { background: var(--orange-soft); }
+@media (max-width: 899px) {
+  .ad-app .rail, .ad-wide { display: none; }
+  .ad-tabs { display: inline-flex; }
+  .ad-main { padding: 16px; }
+}
