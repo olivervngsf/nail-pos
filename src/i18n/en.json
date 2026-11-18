@@ -1844,7 +1844,10 @@
         "open": "Due",
         "other": "Closed"
       }
-    }
+    },
+    "signInTitle": "Sign in to see Settings",
+    "signInBody": "Settings are for the owner and managers. Sign in with your phone number first.",
+    "signIn": "Sign in"
   },
   "promo": {
     "title": "Send promo text",
