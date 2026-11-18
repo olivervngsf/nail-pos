@@ -1,52 +1,51 @@
 "use client";
-// After sign-in: if this person turned on 2-step, ask for the 6 digits before any screen opens.
-// The server keeps every salon closed until then anyway (`_aal_ok`), so this is the friendly front door.
+// Signed in, but this person turned on 2-step login and this session has not passed it yet:
+// cover the app and ask for the 6-digit code. Nothing shows for anyone else.
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
-import { useLang } from "@/components/AppProviders";
 import { signOut } from "@/lib/auth";
-import { twoStepCheck, twoStepNeeded, twoStepOn } from "@/lib/twostep";
+import { checkCode, codeOk, myFactors, needsSecondStep } from "@/lib/mfa";
+import { getSupabase } from "@/lib/supabase/client";
+import { useLang } from "@/components/AppProviders";
 
 export default function TwoStepGate() {
-  const path = usePathname();
   const { lang } = useLang();
   const vi = lang === "vi";
-  const [need, setNeed] = useState<{ id: string } | null>(null);
+  const [need, setNeed] = useState(false);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    let live = true;
-    void (async () => {
-      try {
-        if (!(await twoStepNeeded())) { if (live) setNeed(null); return; }
-        const f = await twoStepOn();
-        if (live) setNeed(f);
-      } catch { /* offline: the server still guards */ }
-    })();
-    return () => { live = false; };
-  }, [path]);
-
+    const c = getSupabase();
+    if (!c) return;
+    const look = () => void needsSecondStep().then(setNeed).catch(() => {});
+    look();
+    const { data } = c.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_IN" || ev === "SIGNED_OUT" || ev === "MFA_CHALLENGE_VERIFIED") setTimeout(look, 0); });
+    return () => data.subscription.unsubscribe();
+  }, []);
   if (!need) return null;
+
   const go = async () => {
     setBusy(true); setErr("");
-    const e = await twoStepCheck(need.id, code);
+    const f = (await myFactors())[0];
+    const e = f ? await checkCode(f.id, code) : "No authenticator app found";
     setBusy(false);
-    if (e) { setErr(e); setCode(""); return; }
-    location.reload();
+    if (e) { setErr(vi ? "Mã không đúng. Thử mã mới." : "That code is not right. Try the newest code."); setCode(""); return; }
+    setNeed(false); setCode("");
   };
+
   return (
-    <div className="go-page two-step-gate" role="dialog" aria-modal="true" data-testid="two-step-gate">
-      <div className="card pad go-card">
-        <h1 className="h1">{vi ? "Nhập mã 6 số" : "Enter your 6-digit code"}</h1>
-        <p className="cap">{vi ? "Mở app xác thực trên điện thoại và gõ mã PolishOS." : "Open your authenticator app and type the PolishOS code."}</p>
-        <input className="inp go-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} autoFocus value={code} aria-label={vi ? "Mã 6 số" : "6-digit code"}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} onKeyDown={(e) => { if (e.key === "Enter" && code.length === 6) void go(); }} />
-        <button type="button" className="btn primary block" disabled={busy || code.length !== 6} onClick={() => void go()}>{busy ? "…" : (vi ? "Tiếp" : "Continue")}</button>
-        {err && <p className="hint err" role="alert">{err}</p>}
+    <div className="tw-gate" role="dialog" aria-modal="true" aria-label={vi ? "Đăng nhập 2 bước" : "2-step login"} data-testid="two-step-gate">
+      <div className="card pad in" style={{ width: "100%", maxWidth: 380, padding: 28, gap: 14 }}>
+        <div className="logo" style={{ margin: 0 }}>P</div>
+        <b className="h2">{vi ? "Nhập mã 6 số" : "Enter your 6-digit code"}</b>
+        <span className="cap">{vi ? "Mở ứng dụng xác thực của bạn và nhập mã cho PolishOS." : "Open your authenticator app and enter the code for PolishOS."}</span>
+        <input className="inp tw-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} autoFocus data-testid="two-step-gate-code"
+          onChange={(e) => { setErr(""); setCode(e.target.value.replace(/\D/g, "")); }} onKeyDown={(e) => e.key === "Enter" && codeOk(code) && void go()} />
+        {err && <span className="hint err" role="alert" style={{ margin: 0 }}>{err}</span>}
+        <button type="button" className="btn primary block" disabled={busy || !codeOk(code)} onClick={() => void go()}>{busy ? "…" : vi ? "Tiếp tục" : "Continue"}</button>
         <button type="button" className="btn ghost" onClick={async () => { await signOut(); location.href = "/login"; }}>{vi ? "Đăng xuất" : "Sign out"}</button>
-        <p className="cap">{vi ? "Mất điện thoại? Gọi PolishOS để tắt giúp sau khi xác minh." : "Lost your phone? Call PolishOS: we turn it off after checking it's you."}</p>
+        <span className="cap">{vi ? "Mất điện thoại? Nhắn cho PolishOS để được giúp." : "Lost your phone? Contact PolishOS for help."}</span>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { alertsFor, healthOf, openAlerts, sampleOverview, stripeState, totals, vsWeekAgo } from "./health";
+import { alertsFor, healthOf, income, openAlerts, pilotDay, planOf, sampleOverview, stripeState, totals, vsWeekAgo } from "./health";
 
 const NOW = "2026-11-18T20:00:00Z";
 const o = sampleOverview(NOW);
@@ -26,7 +26,24 @@ describe("admin health", () => {
     const open = openAlerts(o);
     expect(open.some((a) => a.salon_id === "s-lotus")).toBe(false);
     expect(open[0].level).toBe("bad");
-    expect(open).toHaveLength(3);
+    expect(open).toHaveLength(4);
+  });
+
+  it("plan, pilot day, our income", () => {
+    expect(planOf(by("s-cosmo"))).toBe("paid");
+    expect(planOf(by("s-lotus"))).toBe("pilot");
+    expect(planOf(by("s-vy"))).toBe("none");
+    expect(pilotDay(by("s-lotus"), NOW)).toBe(20);
+    expect(pilotDay(by("s-cosmo"), NOW)).toBeNull();
+    expect(income(o)).toEqual({ cents: 9800, paid: 2, pilot: 3 });
+    expect(planOf({ ...by("s-cosmo"), plan_status: "past_due" })).toBe("late");
+    expect(planOf({ ...by("s-cosmo"), plan_status: undefined })).toBe("none");
+  });
+
+  it("texting: waiting a week or more = alert", () => {
+    expect(alertsFor(by("s-bella"), NOW).map((a) => a.kind)).toEqual(["texting_waiting"]);
+    expect(alertsFor(by("s-bella"), NOW)[0].why).toContain("10DLC day 9");
+    expect(alertsFor({ ...by("s-bella"), texting_at: "2026-11-15T20:00:00Z" }, NOW)).toEqual([]);
   });
 
   it("totals + vs last week", () => {

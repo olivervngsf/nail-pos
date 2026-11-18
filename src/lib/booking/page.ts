@@ -12,9 +12,9 @@ export const DEMO_SLUG = "demo";
 export type PageService = { id: string; cat: string; name: string; minutes: number; cents: number; from: boolean };
 export type PageStaff = { id: string; name: string };
 export type PageHours = { weekday: number; open: boolean; opens: string | null; closes: string | null };
-export type PageRules = { on?: boolean; days_ahead: number; latest_before_close: number; group_max: number; cancel_hours: number; min_notice: number };
+export type PageRules = { on?: boolean; days_ahead: number; latest_before_close: number; group_max: number; cancel_hours: number; min_notice: number; calendar_note?: string; calendar_alarm_min?: number };
 export type BookPage = {
-  salon: { name: string; phone: string | null; address: string | null; slug: string; settings: PageRules };
+  salon: { name: string; phone: string | null; address: string | null; slug: string; timeZone?: string; settings: PageRules };
   hours: PageHours[]; photos: { path: string; label: string }[]; services: PageService[]; staff: PageStaff[];
 };
 export type Guest = { name?: string; serviceIds: string[]; staffId?: string | null };
@@ -30,9 +30,13 @@ export const photoUrl = (path: string) => {
 export const sourceOf = (src: string | null): ApptSource =>
   (["google", "website", "instagram", "qr", "text"] as const).find((s) => s === src) ?? "web";
 
+/** Test version: the calendar note + reminder the owner set in Settings → Booking page (saved on this device). */
+const demoSaved = (): Partial<PageRules> => { try { return JSON.parse(localStorage.getItem("nailpos.demoBookPage.v1") || "null")?.settings ?? {}; } catch { return {}; } };
+const demoNote = () => { const n = demoSaved().calendar_note; return typeof n === "string" ? n : "Parking: free lot behind the salon. Running late? Call us."; };
+
 function demoPage(): BookPage {
   return {
-    salon: { name: DEMO_DESK.salonName, phone: "(408) 555-0100", address: "1234 Story Rd, San Jose, CA", slug: DEMO_SLUG, settings: RULES },
+    salon: { name: DEMO_DESK.salonName, phone: "(408) 555-0100", address: "1234 Story Rd, San Jose, CA", slug: DEMO_SLUG, timeZone: "America/Los_Angeles", settings: { ...RULES, calendar_note: demoNote(), calendar_alarm_min: demoSaved().calendar_alarm_min ?? 60 } },
     hours: defaultHours().map((h, i) => ({ weekday: i, open: h.on, opens: h.open, closes: h.close })),
     photos: [{ path: "demo:1", label: "Salon" }, { path: "demo:2", label: "Gel art" }, { path: "demo:3", label: "Pedi chairs" }, { path: "demo:4", label: "Nail art" }],
     services: DEMO_DESK.services.map((s) => ({ id: s.id, cat: s.cat, name: s.name, minutes: s.minutes, cents: s.cents, from: s.priceFrom })),

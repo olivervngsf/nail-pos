@@ -20,7 +20,7 @@ Built in code (Nov 18). ✅ = done in code; ☐ = needs a click from Oliver or E
 - ✅ Database changes only through GitHub (`db-live.yml`).
 
 ## Logins
-- ✅ 2-step sign-in: My profile → 2-step sign-in → scan the QR in an authenticator app → 6 digits. After that every sign-in asks for the code, and the **server** keeps every salon closed until it's entered (`_aal_ok`, migration `20261216000001_two_step`). Salon devices (QR) aren't affected. Owners see "Recommended".
+- ✅ 2-step sign-in: My profile → Sign in → 2-step login (owners + managers) → scan the QR in an authenticator app → 6 digits. After that every sign-in asks for the code, and the **server** keeps every salon closed until it's entered (`_aal_ok`, migration `20261223000001_two_step`). Salon devices (QR) aren't affected.
   - ☐ Supabase (test + live) → Authentication → Multi-Factor → **TOTP: enabled** (on by default; check).
   - ☐ Turn it on for Oliver + Elang first (admins).
   - Lost phone: an admin removes the app in Supabase → Authentication → Users → the person → Factors (after checking it's them).
@@ -31,7 +31,7 @@ Built in code (Nov 18). ✅ = done in code; ☐ = needs a click from Oliver or E
 - ☐ Spending alerts: Vercel (Settings → Billing → Spend management, e.g. $50), Supabase (Usage → spend cap on), Stripe (our platform account: email on every payout/dispute), Twilio (Usage triggers at $20 / $50), Anthropic console (monthly limit).
 
 ## Legal
-- Terms, Privacy, texting consent pages: being built in a separate session (`/terms`, `/privacy`, `/legal` routes reserved). Have a lawyer read them before the first salon.
+- ✅ Terms, Privacy, texting consent pages: `/legal/terms`, `/legal/privacy`, `/legal/texts` (draft). Have a lawyer read them before the first salon.
 
 ## Founder Admin + support access
-- Founder Admin home + salon pages: merged (PR #67). Support access (owner-granted, 24 h, logged): PR #72.
+- ✅ Founder Admin home + salon pages, and support access (owner-granted, 24 h, logged): merged.

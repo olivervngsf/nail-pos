@@ -7,13 +7,18 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { formatCents } from "@/lib/money";
 import { creditLevel, creditPct, textsLeft, useCredit } from "@/lib/texting/credit";
+import { isAdminRole, useMe } from "@/lib/me";
 
 const COLOR = { good: "var(--jade)", low: "var(--orange)", empty: "var(--red)" } as const;
 const C = 2 * Math.PI * 10;
 
 export function CreditRing() {
   const t = useTranslations("credit");
-  const { credit } = useCredit();
+  // Same "who + which salon" as the profile pop-up: own login = my role; salon device = the person who unlocked with a PIN.
+  const { me, isDevice, acting, ready } = useMe();
+  const role = isDevice ? acting?.role : me?.role;
+  const allowed = !!me && !!role && isAdminRole(role);
+  const { credit } = useCredit(allowed ? me!.salonId : undefined, ready && allowed);
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {

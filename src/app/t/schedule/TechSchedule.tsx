@@ -55,14 +55,14 @@ function Day({ day, list, onOpen }: { day: string; list: Appt[]; onOpen: (id: st
     if (nx && new Date(nx.start).getTime() - new Date(a.end).getTime() >= 30 * 60000) rows.push({ gap: [a.end, nx.start] });
   });
   return <>
-    <b data-testid="day-title">{dayLabel(day, { weekday: "short", month: "short", day: "numeric" })} · {t("clientsN", { n: list.length })}{booked ? ` · ${$(booked)}` : ""}</b>
+    <b data-testid="day-title">{dayLabel(day, { weekday: "short", month: "short", day: "numeric" })} · {t("clientsN", { n: list.filter((x) => x.status !== "blocked").length })}{booked ? ` · ${$(booked)}` : ""}</b>
     {list.length === 0 ? <p className="cap">{t("noClients")}</p> : (
       <div className="card" style={{ padding: 0 }} data-testid="my-day">
         {rows.map((r, i) => "gap" in r
           ? <Link key={`g${i}`} href="/t/book" className="t-row" style={{ textDecoration: "none" }}><span className="when cap">{timeOf(r.gap[0])}</span><span className="cap" style={{ flex: 1 }}>{t("freeGap", { from: timeOf(r.gap[0]), to: timeOf(r.gap[1]) })}</span><span className="cap">+</span></Link>
           : <button key={r.a.id} type="button" className={`t-row${r.a.ticketStatus === "paid" || r.a.status === "done" ? " paid" : r.a.status === "arrived" ? " chair" : ""}`} onClick={() => onOpen(r.a.id)} data-testid="my-appt">
               <span className="when"><b>{timeOf(r.a.start)}</b></span>
-              <span style={{ flex: 1, minWidth: 0 }}><b>{r.a.client?.name || t("walkIn")}</b><span className="cap" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{svcNames(r.a)}</span></span>
+              <span style={{ flex: 1, minWidth: 0 }}><b>{r.a.status === "blocked" ? t("brk") : r.a.client?.name || t("walkIn")}</b><span className="cap" style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{svcNames(r.a)}</span></span>
               <Status a={r.a} />
             </button>)}
       </div>
@@ -75,6 +75,7 @@ function Status({ a }: { a: Appt }) {
   if (a.ticketStatus === "paid" || a.status === "done") return <span className="tag">{t("sPaid")}</span>;
   if (a.status === "arrived") return <span className="tag jade">{t("sChair")}</span>;
   if (a.status === "confirmed") return <span className="tag">{t("confirmed")}</span>;
+  if (a.status === "blocked") return <span className="tag">{t("brk")}</span>;
   return <span className="tag" style={{ background: "var(--orange-soft)", color: "#B5470A" }}>{t("notConfirmed")}</span>;
 }
 

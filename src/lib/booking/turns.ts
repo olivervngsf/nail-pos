@@ -7,8 +7,9 @@ const WALK = new Set(["kiosk", "walk_in"]);
 export const isWaiting = (a: Appt) => WALK.has(a.source) && (a.status === "booked" || a.status === "confirmed") && !a.ticketId;
 /** A booked client who checked in (kiosk or desk) and is waiting for their tech: arrived time set, no ticket yet. */
 export const isHere = (a: Appt) => !WALK.has(a.source) && (a.status === "booked" || a.status === "confirmed") && !!a.arrivedAt && !a.ticketId;
-/** Shown on the calendar grid (waiting walk-ins + walk-outs live in the waitlist instead). */
-export const onGrid = (a: Appt) => !isWaiting(a) && a.status !== "walked_out";
+/** Shown on the calendar grid (waiting walk-ins + walk-outs live in the waitlist instead; a walk-in moved to a later
+ *  booking was never on the grid, so it isn't shown as a cancelled block either). */
+export const onGrid = (a: Appt) => !isWaiting(a) && a.status !== "walked_out" && !(WALK.has(a.source) && a.status === "canceled" && !a.ticketId);
 /** Minutes since they came in. */
 export const waitedMin = (a: Pick<Appt, "start" | "arrivedAt">, now = Date.now()) => Math.max(0, Math.round((now - new Date(a.arrivedAt || a.start).getTime()) / 60_000));
 

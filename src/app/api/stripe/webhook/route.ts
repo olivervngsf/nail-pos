@@ -20,9 +20,10 @@ export async function POST(req: Request) {
   if (dup && dup.code !== "23505") return new Response(dup.message, { status: 500 });
 
   if ((ev.type === "payment_intent.succeeded" || ev.type === "payment_intent.payment_failed") && meta.pay_request) {
-    await settle(meta.pay_request);
+    await settle(meta.pay_request, (ev.data.object as Stripe.PaymentIntent).id);
   } else if (ev.type === "checkout.session.completed" && meta.pay_request) {
-    await settle(meta.pay_request);
+    const cs = ev.data.object as Stripe.Checkout.Session;
+    await settle(meta.pay_request, typeof cs.payment_intent === "string" ? cs.payment_intent : cs.payment_intent?.id);
   } else if (ev.type === "charge.refunded") {
     // Refund made in the Stripe dashboard (or ours, seen again): record it once, full or part.
     const ch = ev.data.object as Stripe.Charge;

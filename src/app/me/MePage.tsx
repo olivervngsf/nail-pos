@@ -105,7 +105,7 @@ export default function MePage() {
             <SignInEmail vi={vi} />
             <div className="sep" />
             <SignInPassword vi={vi} />
-            {!isDevice && <><div className="sep" /><TwoStep vi={vi} owner={me.role === "owner"} /></>}
+            {isAdminRole(me.role) && !isDevice && <><div className="sep" /><TwoStep vi={vi} /></>}
           </section>
 
           <ListGroup>

@@ -27,7 +27,7 @@ body{margin:0}
 .ucard.out{opacity:.6}
 .mini{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;text-align:center;font-size:12px}
 .mini span{height:26px;line-height:26px;border-radius:8px;position:relative}
-.mini span.today{background:#1C1C1E;color:#fff;font-weight:700}
+.mini span.today{background:#1C1C1E;color:#fff;font-weight:600}
 .mini span.busy::after{content:"";position:absolute;left:50%;bottom:2px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:#2F9E44}
 .filters{position:absolute;left:316px;right:240px;top:90px;height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;box-sizing:border-box}
 .counts{position:absolute;left:316px;right:240px;top:134px;height:34px;display:flex;align-items:center;gap:4px;padding:0 10px;box-sizing:border-box;border-bottom:1px solid #E5E5EA}
@@ -79,7 +79,7 @@ body{margin:0}
 .bk:hover .rs::after{opacity:1}
 .now{position:absolute;left:-6px;right:0;height:2px;background:#E03131;pointer-events:none;z-index:2}
 .now::before{content:"";position:absolute;left:0;top:-4px;width:10px;height:10px;border-radius:50%;background:#E03131}
-.nowlbl{position:absolute;left:318px;font-size:11px;font-weight:700;color:#E03131;transform:translateY(-7px)}
+.nowlbl{position:absolute;left:318px;font-size:11px;font-weight:600;color:#E03131;transform:translateY(-7px)}
 .qcard .chip{height:32px;padding:0 11px;font-size:13px}
 .insp{position:absolute;right:0;top:56px;bottom:0;width:380px;background:#fff;box-shadow:-12px 0 40px rgba(28,28,30,.16);z-index:12;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;animation:slideIn .3s cubic-bezier(.2,.8,.2,1) both}
 .insp .row{cursor:default}
@@ -101,7 +101,7 @@ body{margin:0}
 .peek{position:absolute;width:290px;background:#fff;border-radius:14px;box-shadow:0 14px 40px rgba(28,28,30,.2),0 0 0 1px rgba(0,0,0,.04);z-index:9;padding:14px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:18px;animation:popin .18s ease both;cursor:default}
 .acount{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#E8590C;color:#fff;font-size:11px;line-height:18px;box-sizing:border-box}
 .alp{position:absolute;right:16px;top:58px;width:380px;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(28,28,30,.22),0 0 0 1px rgba(0,0,0,.04);z-index:11;padding:8px 0;animation:popin .2s cubic-bezier(.2,.8,.2,1) both}
-.alp .ah{display:flex;align-items:center;padding:8px 16px 10px;font-size:15px;font-weight:700}
+.alp .ah{display:flex;align-items:center;padding:8px 16px 10px;font-size:15px;font-weight:600}
 .alr{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #E5E5EA}
 .alr .ai{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
 .alr .at{flex:1;min-width:0;font-size:13px;line-height:18px}
@@ -131,7 +131,7 @@ body{margin:0}
   </nav>
 
   <div class="top">
-    <div style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Mon, Nov 16</div>
+    <div style="font-size:18px;font-weight:600;letter-spacing:-0.02em">Mon, Nov 16</div>
     <button class="mbtn" type="button" aria-label="Previous day" style="background:transparent">‹</button>
     <button class="mbtn" type="button">Today</button>
     <button class="mbtn" type="button" aria-label="Next day" style="background:transparent">›</button>
@@ -143,7 +143,7 @@ body{margin:0}
   </div>
 
   <div class="banner">
-    <span style="display:inline-flex;align-items:center;gap:6px;font-weight:700;color:#B5470A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg>Overlap: Kim 1:30–2:00 PM</span><span>Tiffany and Mai are both with Kim — nobody was moved.</span>
+    <span style="display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#B5470A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg>Overlap: Kim 1:30–2:00 PM</span><span>Tiffany and Mai are both with Kim — nobody was moved.</span>
     <button class="mbtn" type="button" onClick="{{showAlert}}" style="height:26px;background:#fff">Show</button>
     <span style="flex:1"></span>
     <span class="cap">Hoa is 24 min late · 2 bookings need cover</span>

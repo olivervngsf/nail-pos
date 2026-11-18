@@ -14,6 +14,7 @@ import { dayKey, fmtMin } from "@/lib/booking/grid";
 import { nextWalkCode, waitedMin, type TurnFact } from "@/lib/booking/turns";
 import { skillsNeeded } from "@/lib/booking/skills";
 import { GoodFit, SkillTags } from "./SkillTags";
+import { ClientFacts } from "./ClientFacts";
 import { ticketFor } from "./BookDrawers";
 import { printTicketSlip, slipWhen } from "@/lib/print/slip";
 
@@ -99,7 +100,7 @@ export function WalkInDrawer({ desk, today, all, onClose, say }: { desk: Desk; t
   );
 }
 
-export function SeatDrawer({ desk, a, order, onClose, say }: { desk: Desk; a: Appt; order: TurnFact[]; onClose: () => void; say: (s: string, undo?: () => void) => void }) {
+export function SeatDrawer({ desk, a, order, onClose, say, onLater }: { desk: Desk; a: Appt; order: TurnFact[]; onClose: () => void; say: (s: string, undo?: () => void) => void; onLater?: () => void }) {
   const t = useTranslations("calendar");
   const nowM = new Date().getHours() * 60 + new Date().getMinutes();
   const next = order.find((f) => f.clockedIn && f.busyUntil === null) ?? null;
@@ -109,6 +110,9 @@ export function SeatDrawer({ desk, a, order, onClose, say }: { desk: Desk; a: Ap
   const tc = useTranslations("checkout");
   const need = skillsNeeded(a.services.map((x) => ({ name: x.name, cat: desk.services.find((d) => d.id === x.serviceId)?.cat })));
   const skillsOf = (id: string) => desk.staff.find((s) => s.id === id)?.skills;
+  /** Free now or free within 15 min: shown first ("Seat now with"). Everyone else below, still pickable. */
+  const soon = (f: TurnFact) => f.clockedIn && (f.busyUntil === null || f.busyUntil - nowM <= 15);
+  const sorted = [...order.filter(soon), ...order.filter((f) => !soon(f))];
   const seat = (slip = false) => {
     if (!pick) return;
     const before = { ...a };
@@ -130,23 +134,31 @@ export function SeatDrawer({ desk, a, order, onClose, say }: { desk: Desk; a: Ap
       footer={<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {desk.mode === "live" && <Button variant="primary" block disabled={!pick} onClick={() => seat(true)} data-testid="seat-slip">{pick ? t("seatSlip", { name: order.find((f) => f.id === pick)?.name ?? "" }) : t("pickTech")}</Button>}
         <Button variant={desk.mode === "live" ? "default" : "primary"} block disabled={!pick} onClick={() => seat()} data-testid="seat-save">{pick ? t("seatWith", { name: order.find((f) => f.id === pick)?.name ?? "" }) : t("pickTech")}</Button>
+        {onLater && <Button block onClick={onLater} data-testid="book-later">{t("bookLater")}</Button>}
         <Button variant="ghost" block data-testid="walked-out" onClick={() => {
           const before = { ...a };
           walkOut(a);
           say(t("walkedOutMsg", { name: a.client?.name || t("walkIn"), min: waitedMin(a) }), () => putAppt(before));
           onClose();
         }}>{t("walkedOut")}</Button></div>}>
-      <div className="cap">{a.services.map((s) => `${s.name} · ${formatCents(s.cents)}`).join(" + ") || t("notSure")} · {t("waitingMin", { n: waitedMin(a) })}</div>
-      <div className="cap">{t("turnFacts")}</div>
+      <div className="group" data-testid="wait-facts">
+        <div className="row"><span className="grow cap">{t("wants")}</span><b style={{ textAlign: "right" }}>{a.services.map((s) => s.name).join(" + ") || t("notSure")}</b></div>
+        {a.services.length > 0 && <div className="row"><span className="grow cap">{t("totalPreTip")}</span><b className="num">{formatCents(a.services.reduce((x, s) => x + s.cents, 0))}</b></div>}
+        <div className="row"><span className="grow cap">{t("waitingFor")}</span><span className="tag" style={{ background: "var(--orange-soft)", color: "#B5470A" }}>{t("waitingMin", { n: waitedMin(a) })}</span></div>
+      </div>
+      <ClientFacts desk={desk} client={a.client} />
+      <div className="sec-h" style={{ display: "flex", alignItems: "baseline", gap: 8 }}><b>{t("seatNowWith")}</b><span className="cap" style={{ marginLeft: "auto" }}>{t("seatNowSub")}</span></div>
       <div className="group">
-        {order.map((f) => (
+        {sorted.filter(soon).length === 0 && <div className="row cap" data-testid="nobody-free">{t("nobodyFree")}</div>}
+        {sorted.map((f, i) => (<span key={f.id} style={{ display: "contents" }}>
+          {i > 0 && soon(sorted[i - 1]) && !soon(f) && <div className="row cap" style={{ background: "#F5F5F7" }}>{t("everyoneElse")}</div>}
           <button key={f.id} type="button" className={`opt ${pick === f.id ? "on" : ""}`} onClick={() => setPick(f.id)} data-testid={`seat-${f.name}`} aria-pressed={pick === f.id}
             style={!f.clockedIn ? { opacity: 0.55 } : undefined}>
             <span className={`cal-dot ${f.clockedIn ? "on" : ""}`} />
             <span className="grow" style={{ display: "flex", flexDirection: "column" }}><b>{f.name}{a.staffId === f.id ? ` · ${t("asked")}` : ""} <GoodFit have={skillsOf(f.id)} need={need} /></b><span className="cap">{fact(f)}</span><SkillTags have={skillsOf(f.id)} need={need} /></span>
             {next?.id === f.id && <span className="tag jade">{t("nextTurn")}</span>}
             {pick === f.id && <span aria-hidden>✓</span>}
-          </button>))}
+          </button></span>))}
       </div>
       {skipped && <><div className="cap">{t("whyOptional", { name: next!.name })}</div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{REASONS.map((r) => <Chip key={r} on={reason === r} onClick={() => setReason(reason === r ? null : r)}>{t(`why_${r}`)}</Chip>)}</div></>}

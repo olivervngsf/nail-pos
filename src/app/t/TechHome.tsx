@@ -37,7 +37,7 @@ export default function TechHome() {
   const now = Date.now();
   const inChair = useMemo(() => day.find((a) => a.status === "arrived" && a.ticketStatus !== "paid"), [day]);
   const next = useMemo(() => day.find((a) => (a.status === "booked" || a.status === "confirmed") && new Date(a.end).getTime() > now), [day, now]);
-  const left = day.filter((a) => a.status !== "done" && a.ticketStatus !== "paid").length;
+  const left = day.filter((a) => a.status !== "done" && a.status !== "blocked" && a.ticketStatus !== "paid").length;
 
   const doClock = async () => {
     if (!me) return;

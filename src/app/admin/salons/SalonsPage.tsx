@@ -1,5 +1,6 @@
 "use client";
-// Founder Admin · Salons tab (variation A): business at a glance + one table of every salon (setup, today, Stripe, devices, health).
+// Founder Admin · Salons tab (variation A): business at a glance (incl. our income) + one table of every salon
+// (plan, setup, today, Stripe, texting, devices, health) + open alerts on the side.
 // Add salon by invite (admin_create_salon) in a drawer; owners not joined yet get Copy invite / New code (admin_new_code).
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -7,14 +8,20 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { e164, rpc, showCode } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
-import { alertsFor, healthOf, isLive, openAlerts, stripeState, totals, vsWeekAgo, type Health, type SalonFacts, type StripeState } from "@/lib/admin/health";
+import { PLAN_CENTS, TEXTING, alertsFor, healthOf, income, isLive, openAlerts, pilotDay, planOf, stripeState, totals, vsWeekAgo, type Alert, type Health, type SalonFacts, type StripeState } from "@/lib/admin/health";
 import { Button, Chip, Drawer, Field, ProgressBar } from "@/components/kit";
 import { AdminShell, useAdmin } from "../shell";
 
 const $0 = (c: number) => formatCents(Math.round(c / 100) * 100).replace(/\.00$/, "");
 type Invite = { salon_id: string; code: string | null; owner_name: string | null };
-type Filter = "all" | "action" | "setup" | "live";
+type Filter = "all" | "action" | "pilot" | "setup" | "live";
 const HEALTH: Record<Health, string> = { good: "Good", warn: "Needs action", bad: "Problem", setup: "Setting up" };
+const planLabel = (s: SalonFacts, now: string) => {
+  const p = planOf(s);
+  if (p === "pilot") return `Pilot day ${pilotDay(s, now) ?? 1}`;
+  if (p === "paid") return `Paid $${PLAN_CENTS[s.plan_cycle ?? "monthly"] / 100}`;
+  return p === "late" ? "Payment late" : "No plan yet";
+};
 const STRIPE: Record<StripeState, [string, Health]> = {
   none: ["Not linked", "setup"], needs_info: ["Needs info", "warn"], charges_off: ["Cards off", "bad"], payouts_paused: ["Payouts paused", "bad"], live: ["Live", "good"],
 };
@@ -35,8 +42,11 @@ export default function SalonsPage() {
 
   const o = admin.data;
   const rows = useMemo(() => (o ? o.salons.map((s) => ({ s, health: healthOf(s, alertsFor(s, o.now)) })) : []), [o]);
-  const shown = rows.filter(({ s, health }) => filter === "all" || (filter === "action" ? health === "warn" || health === "bad" : filter === "live" ? isLive(s) : !isLive(s)));
-  const count = (f: Filter) => rows.filter(({ s, health }) => (f === "action" ? health === "warn" || health === "bad" : f === "live" ? isLive(s) : !isLive(s))).length;
+  const fits = (f: Filter, s: SalonFacts, health: Health) =>
+    f === "all" || (f === "action" ? health === "warn" || health === "bad" : f === "pilot" ? planOf(s) === "pilot" : f === "live" ? isLive(s) : !isLive(s));
+  const shown = rows.filter(({ s, health }) => fits(filter, s, health));
+  const count = (f: Filter) => rows.filter(({ s, health }) => fits(f, s, health)).length;
+  const alerts = o ? openAlerts(o) : [];
 
   const copy = (t: string) => { void navigator.clipboard?.writeText(t).then(() => admin.say("Copied")); };
   const inviteText = (owner: string, salon: string, code: string) =>
@@ -51,32 +61,35 @@ export default function SalonsPage() {
     <AdminShell tab="salons" admin={admin} title="Salons" actions={<Button variant="primary" onClick={() => setAdding(true)} data-testid="add-salon-open">+ Add salon by invite</Button>}>
       {o && <>
         <Tiles o={o} />
-        <section className="group" style={{ padding: 0 }} data-testid="salon-list">
+        <div className="ad-split">
+        <section className="group ad-wide-col" style={{ padding: 0, gap: 0 }} data-testid="salon-list">
           <div className="ad-tablehead">
             <h2 className="h2" style={{ margin: "0 auto 0 0" }}>All salons</h2>
-            {(["all", "action", "setup", "live"] as Filter[]).map((f) => (
+            {(["all", "action", "pilot", "setup", "live"] as Filter[]).map((f) => (
               <Chip key={f} on={filter === f} aria-pressed={filter === f} onClick={() => setFilter(f)} data-testid={`f-${f}`}>
-                {{ all: "All", action: "Needs action", setup: "Setting up", live: "Live" }[f]} {f === "all" ? rows.length : count(f)}
+                {{ all: "All", action: "Needs action", pilot: "Pilot", setup: "Setting up", live: "Live" }[f]} {f === "all" ? rows.length : count(f)}
               </Chip>
             ))}
           </div>
           <div style={{ overflowX: "auto" }}>
             <table className="dtable ad-table">
-              <thead><tr>{["Salon", "Setup", "Today", "Stripe", "Devices", "Health", ""].map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
+              <thead><tr>{["Salon", "Setup", "Today", "Stripe", "Texting", "In use", "Health", ""].map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
               <tbody>
                 {shown.map(({ s, health }) => {
                   const st = STRIPE[stripeState(s)];
+                  const tx = TEXTING[s.texting ?? "not_started"];
                   const inv = invites.find((i) => i.salon_id === s.salon_id);
                   const step = Math.min(s.setup_step + 1, 10);
                   return (
                     <tr key={s.salon_id} id={`s-${s.salon_id}`}>
-                      <td><Link href={`/admin/salons/${s.salon_id}`} className="ad-name" data-testid="salon-link">{s.salon_name} ›</Link><div className="cap">{s.owner_name ?? "No owner"}{s.owner_phone ? ` · ${fmtPhone(s.owner_phone.replace(/^\+1/, ""))}` : ""} · {s.staff} staff · {s.state}</div></td>
-                      <td style={{ minWidth: 110 }}>{s.owner_joined
+                      <td><Link href={`/admin/salons/${s.salon_id}`} className="ad-name" data-testid="salon-link">{s.salon_name} ›</Link><div className="cap">{s.owner_name ?? "No owner"} · {s.staff} staff · {planLabel(s, o.now)}</div></td>
+                      <td style={{ minWidth: 84 }}>{s.owner_joined
                         ? <><ProgressBar value={isLive(s) ? 1 : step / 10} thickness="thin" ink label={`Setup ${step} of 10`} /><div className="cap">{isLive(s) ? "Done" : `Step ${step} of 10`}</div></>
                         : <span className="cap">Owner not joined</span>}</td>
                       <td className="num"><b style={{ fontWeight: 600 }}>{$0(s.cents_today)}</b><div className="cap">{s.tickets_today} tickets</div></td>
                       <td><span className={`ad-pill ${st[1]}`}>{st[0]}</span></td>
-                      <td className="num">{s.devices ? `${s.devices_online} of ${s.devices} in use` : <span className="cap">None</span>}</td>
+                      <td><span className={`ad-pill ${tx[1]}`} data-testid="texting">{tx[0]}</span></td>
+                      <td className="num">{s.devices ? `${s.devices_online} of ${s.devices}` : <span className="cap">None</span>}</td>
                       <td><span className={`ad-pill ${health}`}>{HEALTH[health]}</span></td>
                       <td>{!s.owner_joined && s.owner_name && <span style={{ display: "inline-flex", gap: 6 }}>
                         {inv?.code && <Button size="sm" onClick={() => copy(inviteText(s.owner_name!, s.salon_name, inv.code!))}>Copy invite · {inv.code}</Button>}
@@ -85,14 +98,47 @@ export default function SalonsPage() {
                     </tr>
                   );
                 })}
-                {!shown.length && <tr><td colSpan={7} className="cap">No salons here.</td></tr>}
+                {!shown.length && <tr><td colSpan={8} className="cap">No salons here.</td></tr>}
               </tbody>
             </table>
           </div>
         </section>
+        <aside className="card pad ad-side" style={{ gap: 12 }} aria-label="Alerts" data-testid="alerts">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <h2 className="h2" style={{ margin: 0 }}>Alerts</h2>
+            <span className={`ad-pill ${alerts.length ? "warn" : "good"}`}>{alerts.length ? `${alerts.length} open` : "All good"}</span>
+          </div>
+          {alerts.map((a) => <AlertMini key={a.salon_id + a.kind} a={a} now={Date.parse(o.now)} onHandle={admin.handle} />)}
+          {!alerts.length && <p className="cap" style={{ margin: 0 }}>Nothing needs you right now.</p>}
+        </aside>
+        </div>
       </>}
       {adding && <AddSalon live={admin.gate === "live"} onClose={closeAdd} onMade={() => { void admin.reload(); void loadInvites(); }} copy={copy} inviteText={inviteText} />}
     </AdminShell>
+  );
+}
+
+const ago = (iso: string | null, now: number) => {
+  if (!iso) return "";
+  const m = Math.round((now - Date.parse(iso)) / 60000);
+  if (m < 60) return `${Math.max(m, 1)} min ago`;
+  if (m < 1440) return `${Math.round(m / 60)} h ago`;
+  return `${Math.round(m / 1440)} days ago`;
+};
+function AlertMini({ a, now, onHandle }: { a: Alert; now: number; onHandle: (salon: string, kind: string) => Promise<void> }) {
+  return (
+    <article className="ad-mini" data-testid="alert-mini">
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <span className={`ad-pill ${a.level}`}>{a.level === "bad" ? "Problem" : "Needs action"}</span>
+        {a.since && <span className="cap">{ago(a.since, now)}</span>}
+      </div>
+      <b style={{ fontWeight: 600 }}>{a.title}</b>
+      <span className="cap">{a.salon} · {a.why}</span>
+      <div style={{ display: "flex", gap: 8 }}>
+        <Link className="btn sm" href={`/admin/salons/${a.salon_id}`}>Open salon</Link>
+        <Button size="sm" onClick={() => void onHandle(a.salon_id, a.kind)}>Handled</Button>
+      </div>
+    </article>
   );
 }
 
@@ -100,8 +146,10 @@ function Tiles({ o }: { o: NonNullable<ReturnType<typeof useAdmin>["data"]> }) {
   const t = totals(o);
   const atRisk = openAlerts(o).filter((a) => a.level === "bad");
   const weekday = new Date(o.now).toLocaleDateString("en-US", { weekday: "short" });
+  const inc = income(o);
   const tiles = [
-    { label: "Active salons", value: String(t.salons), sub: `${t.live} live · ${t.settingUp} setting up` },
+    { label: "Active salons", value: String(t.salons), sub: `${inc.pilot} pilot · ${inc.paid} paid · ${t.settingUp} setting up` },
+    { label: "Our income", value: `$${Math.round(inc.cents / 100)}/mo`, sub: inc.paid ? `${inc.paid} paid plan${inc.paid === 1 ? "" : "s"} · pilots free` : "No paid plans yet · pilots free" },
     { label: "Card + cash today", value: $0(t.centsToday), sub: "Salons’ money, not ours" },
     { label: "Tickets today", value: String(t.ticketsToday), sub: vsWeekAgo(t.ticketsToday, t.ticketsWeekAgo, weekday) ?? "No tickets last week" },
     { label: "At risk", value: String(new Set(atRisk.map((a) => a.salon_id)).size), sub: atRisk.map((a) => a.salon).filter((v, i, a) => a.indexOf(v) === i).join(", ") || "None" },
@@ -109,7 +157,7 @@ function Tiles({ o }: { o: NonNullable<ReturnType<typeof useAdmin>["data"]> }) {
   return (
     <section className="ad-tiles" aria-label="Business at a glance">
       {tiles.map((k) => (
-        <div key={k.label} className="card pad">
+        <div key={k.label} className="card pad" data-testid={`tile-${k.label.toLowerCase().replace(/[^a-z]+/g, "-")}`}>
           <div className="eyebrow">{k.label}</div>
           <div className="num" style={{ fontSize: 28, lineHeight: "34px", fontWeight: 700, letterSpacing: "-0.03em", marginTop: 4 }}>{k.value}</div>
           <div className="cap">{k.sub}</div>

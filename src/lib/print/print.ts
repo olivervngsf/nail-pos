@@ -6,7 +6,7 @@ import { receiptBytes, type ReceiptDoc } from "./escpos";
 import { canBluetooth, printBytes, savedPrinter } from "./bluetooth";
 
 export async function printDoc(doc: ReceiptDoc): Promise<boolean> {
-  if (!canBluetooth()) return false;
+  if (!canBluetooth() && !savedPrinter()?.via) return false;
   const paper = savedPrinter()?.paper ?? 58;
   await printBytes(receiptBytes(doc, paper), paper);
   return true;

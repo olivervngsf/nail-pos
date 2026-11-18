@@ -38,6 +38,7 @@ const LABELS: Record<string, [string, Group, ("bad" | "warn" | "good")?]> = {
   "pin.reset": ["PIN reset", "devices"],
   "client.phone_viewed": ["Client phone shown", "devices"],
   "admin.alert_handled": ["Alert marked handled", "support", "good"],
+  "admin.texting": ["Texting status changed", "support"],
   "admin.note": ["Call note", "notes"],
 };
 
