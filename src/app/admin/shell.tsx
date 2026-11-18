@@ -74,10 +74,12 @@ export function useAdmin(): Admin {
 const ICONS = {
   home: <><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z" /><path d="M10 21a2 2 0 0 0 4 0" /></>,
   salons: <><rect x="4" y="4" width="7" height="7" rx="1.5" /><rect x="13" y="4" width="7" height="7" rx="1.5" /><rect x="4" y="13" width="7" height="7" rx="1.5" /><rect x="13" y="13" width="7" height="7" rx="1.5" /></>,
+  system: <><rect x="4" y="5" width="16" height="11" rx="2" /><path d="M9 20h6M12 16v4M7.5 11l2-2 2 2.5 2.5-3.5 2.5 3" /></>,
   support: <><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3.5" /><path d="M6.3 6.3l3.2 3.2M14.5 14.5l3.2 3.2M17.7 6.3l-3.2 3.2M9.5 14.5l-3.2 3.2" /></>,
 };
 const TABS = [{ key: "home", label: "Home", href: "/admin" }, { key: "salons", label: "Salons", href: "/admin/salons" },
-  { key: "support", label: "Support", href: "/admin/support" }] as const;
+  { key: "support", label: "Support", href: "/admin/support" },
+  { key: "system", label: "System", href: "/admin/system" }] as const;
 export type Tab = (typeof TABS)[number]["key"];
 
 export function AdminShell({ tab, admin, title, actions, children }: { tab: Tab; admin: Admin; title: string; actions?: ReactNode; children: ReactNode }) {
