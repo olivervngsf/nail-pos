@@ -5,7 +5,7 @@ import Link from "next/link";
 import PhoneCodeLogin from "@/components/PhoneCodeLogin";
 import EmailCodeLogin from "@/components/EmailCodeLogin";
 import PasswordLogin from "@/components/PasswordLogin";
-import { GOOGLE_ON, SMS_ON, amPlatformAdmin, homeFor, isLoneGoogleAccount, isSignedIn, lastLoginWay, myMemberships, rememberLoginWay, signInWithGoogle, signOut, type LoginWay } from "@/lib/auth";
+import { GOOGLE_ON, SMS_ON, amPlatformAdmin, claimMine, homeFor, isSignedIn, lastLoginWay, myMemberships, redeemInvite, rememberLoginWay, signInWithGoogle, type LoginWay } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,12 +19,14 @@ export default function LoginPage() {
     if (used) rememberLoginWay(used);
     if (!SMS_ON) { router.push("/setup"); return; }
     try {
-      const ms = await myMemberships();
-      if (await isLoneGoogleAccount(ms)) {
-        await signOut();
-        setMsg("This Google account isn't connected to a login yet. Sign in with your phone once, then menu (top right) → Connect Google.");
-        return;
+      await claimMine(); // invite waiting for this phone or (Google / email) verified email
+      // Came from an invite link: join that salon now.
+      const invite = new URLSearchParams(location.search).get("invite");
+      if (invite) {
+        const e = await redeemInvite(invite);
+        if (e) { setMsg(e); return; }
       }
+      const ms = await myMemberships();
       // Came from a link that needs sign-in (e.g. a ticket slip QR): go back there.
       const next = new URLSearchParams(location.search).get("next");
       router.push(next && next.startsWith("/") && !next.startsWith("//") ? next : homeFor(ms, !ms.length && (await amPlatformAdmin())));

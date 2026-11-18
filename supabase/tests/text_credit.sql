@@ -1,4 +1,4 @@
--- Text credit in SQL: balance = ledger sum; owner adds (once per request id), manager sees but can't add, tech sees nothing,
+-- Text credit in SQL: balance = ledger sum; credit added only by the server after a Stripe payment (once per payment), app can't add free credit, manager sees, tech sees nothing,
 -- another salon sees nothing; a promo send takes people × parts × 2¢ all-or-nothing; settings save; promo_send counts only
 -- clients who said yes, works out parts on the server (accents = 70 letters), applies once per id, refuses when short. Rolls back.
 begin;
@@ -21,17 +21,25 @@ select public.save_setup(jsonb_build_object('salonId', '00000000-0000-0000-0000-
     jsonb_build_object('id', '00000000-0000-0000-0000-00000000607a', 'name', 'Linh', 'phone', '+14085552002', 'role', 'manager'),
     jsonb_build_object('id', '00000000-0000-0000-0000-00000000607b', 'name', 'Kim', 'phone', '+14085552003', 'role', 'tech'))));
 insert into t_out values ('empty', public.text_credit_get('00000000-0000-0000-0000-0000000060a1'));
-select public.text_credit_add('00000000-0000-0000-0000-0000000060a1', 2500, 'req-0000-1');
-insert into t_out values ('twice', public.text_credit_add('00000000-0000-0000-0000-0000000060a1', 2500, 'req-0000-1'));   -- same request: once
-do $$ begin perform public.text_credit_add('00000000-0000-0000-0000-0000000060a1', 100, 'req-0000-2');
+-- The app can't add free credit any more: credit comes only from a paid Stripe payment (server, once per payment).
+do $$ begin perform public.text_credit_add('00000000-0000-0000-0000-0000000060a1', 2500, 'req-0000-1');
+  raise exception 'FAIL: app added free credit'; exception when insufficient_privilege then null; end $$;
+do $$ begin perform public._text_credit_paid('00000000-0000-0000-0000-0000000060a1', 2500, 'stripe:pi_test_0001', null, 'x');
+  raise exception 'FAIL: app called server add'; exception when insufficient_privilege then null; end $$;
+reset role;
+select public._text_credit_paid('00000000-0000-0000-0000-0000000060a1', 2500, 'stripe:pi_test_0001', null, 'Added credit · visa ••4242');
+insert into t_out values ('twice', jsonb_build_object('balanceCents', public._text_credit_paid('00000000-0000-0000-0000-0000000060a1', 2500, 'stripe:pi_test_0001', null, 'Added credit · visa ••4242')));   -- same payment: once
+do $$ begin perform public._text_credit_paid('00000000-0000-0000-0000-0000000060a1', 100, 'stripe:pi_test_0002', null, 'x');
   raise exception 'FAIL: under $5'; exception when others then if sqlerrm not like '%$5 to $500%' then raise; end if; end $$;
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000fc01","role":"authenticated"}', true);
 insert into t_out values ('saved', public.text_credit_settings_save('00000000-0000-0000-0000-0000000060a1', '{"warnPct": 30, "autoAddOn": false}'));
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000fc02","role":"authenticated"}', true);
 select public.claim_memberships();
 insert into t_out values ('mgr', public.text_credit_get('00000000-0000-0000-0000-0000000060a1'));
 do $$ begin perform public.text_credit_add('00000000-0000-0000-0000-0000000060a1', 1000, 'req-0000-3');
-  raise exception 'FAIL: manager added'; exception when others then if sqlerrm not like '%only the owner%' then raise; end if; end $$;
+  raise exception 'FAIL: manager added'; exception when insufficient_privilege then null; end $$;
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000fc03","role":"authenticated"}', true);
 select public.claim_memberships();

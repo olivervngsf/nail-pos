@@ -1,7 +1,7 @@
 "use client";
 // Walk-in check-in iPad at the door. Booking board Kiosk K1–K4: welcome (language, wait now), phone keypad,
 // "same as last time?" + service tiles + optional tech, done (#n in line, ticket B·n, resets in 10 s).
-// Today's booking for that phone → marked arrived. Otherwise a walk-in joins the line as a kiosk booking.
+// Today's booking for that phone → checked in ("Here" on the calendar, the desk + tech see it). Otherwise a walk-in joins the line.
 // Saved on this device first (works offline), synced to the calendar through the outbox.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -15,7 +15,7 @@ import { formatCents } from "@/lib/money";
 import { pullAppts, putAppt, useAppts, type Appt } from "@/lib/booking/appts";
 import { at, dayKey, fmtMin, minutesOf } from "@/lib/booking/grid";
 import { isLive } from "@/lib/checkout/store";
-import { isWaiting, nextWalkCode } from "@/lib/booking/turns";
+import { isHere, isWaiting, nextWalkCode } from "@/lib/booking/turns";
 
 type Step = "welcome" | "phone" | "services" | "done";
 type Last = { first: string; last: { id: string | null; name: string; staffId: string | null }[] | null } | null;
@@ -49,7 +49,7 @@ function Kiosk({ desk }: { desk: Desk }) {
   const [name, setName] = useState("");
   const [pick, setPick] = useState<string | "same" | "unsure" | null>(null);
   const [staff, setStaff] = useState<string | null>(null);
-  const [done, setDone] = useState<{ kind: "appt"; name: string; time: string } | { kind: "line"; n: number; ticket: string; min: number } | null>(null);
+  const [done, setDone] = useState<{ kind: "appt"; name: string; time: string; tech: string } | { kind: "line"; n: number; ticket: string; min: number } | null>(null);
   const [left, setLeft] = useState(RESET_S);
   const timer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
@@ -76,11 +76,12 @@ function Kiosk({ desk }: { desk: Desk }) {
   const svcOf = (id: string) => desk.services.find((s) => s.id === id);
 
   const lookup = async () => {
-    // Booked for today? → arrived.
-    const mine = appts.find((a) => a.client?.phone === phone && (a.status === "booked" || a.status === "confirmed") && a.source !== "kiosk");
+    // Booked for today? → checked in ("Here"). The tech starts the service from the calendar (that opens the ticket).
+    const mine = appts.filter((a) => a.client?.phone === phone && (a.status === "booked" || a.status === "confirmed") && a.source !== "kiosk" && a.source !== "walk_in")
+      .sort((x, y) => Math.abs(new Date(x.start).getTime() - Date.now()) - Math.abs(new Date(y.start).getTime() - Date.now()))[0];
     if (mine) {
-      putAppt({ ...mine, status: "arrived" });
-      setDone({ kind: "appt", name: mine.client?.name.split(" ")[0] ?? "", time: fmtMin(minutesOf(mine.start)) });
+      if (!isHere(mine)) putAppt({ ...mine, status: "confirmed", arrivedAt: new Date().toISOString() });
+      setDone({ kind: "appt", name: mine.client?.name.split(" ")[0] ?? "", time: fmtMin(minutesOf(mine.start)), tech: desk.staff.find((s) => s.id === mine.staffId)?.name ?? "" });
       setStep("done");
       return;
     }
@@ -175,6 +176,7 @@ function Kiosk({ desk }: { desk: Desk }) {
           </> : <>
             <h1 className="h1">{t("appt", { name: done.name })}</h1>
             <p>{t("apptSub", { time: done.time })}</p>
+            {done.tech && <p className="cap" data-testid="ki-tech">{t("apptTech", { tech: done.tech })}</p>}
           </>}
           <p className="cap">{t("reset", { s: left })}</p>
           <Button onClick={reset}>{t("done")}</Button>
