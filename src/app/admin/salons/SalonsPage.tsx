@@ -2,6 +2,7 @@
 // Founder Admin · Salons tab (variation A): business at a glance + one table of every salon (setup, today, Stripe, devices, health).
 // Add salon by invite (admin_create_salon) in a drawer; owners not joined yet get Copy invite / New code (admin_new_code).
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { e164, rpc } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
@@ -69,7 +70,7 @@ export default function SalonsPage() {
                   const step = Math.min(s.setup_step + 1, 10);
                   return (
                     <tr key={s.salon_id} id={`s-${s.salon_id}`}>
-                      <td><b style={{ fontWeight: 600 }}>{s.salon_name}</b><div className="cap">{s.owner_name ?? "No owner"}{s.owner_phone ? ` · ${fmtPhone(s.owner_phone.replace(/^\+1/, ""))}` : ""} · {s.staff} staff · {s.state}</div></td>
+                      <td><Link href={`/admin/salons/${s.salon_id}`} className="ad-name" data-testid="salon-link">{s.salon_name} ›</Link><div className="cap">{s.owner_name ?? "No owner"}{s.owner_phone ? ` · ${fmtPhone(s.owner_phone.replace(/^\+1/, ""))}` : ""} · {s.staff} staff · {s.state}</div></td>
                       <td style={{ minWidth: 110 }}>{s.owner_joined
                         ? <><ProgressBar value={isLive(s) ? 1 : step / 10} thickness="thin" ink label={`Setup ${step} of 10`} /><div className="cap">{isLive(s) ? "Done" : `Step ${step} of 10`}</div></>
                         : <span className="cap">Owner not joined</span>}</td>

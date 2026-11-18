@@ -84,7 +84,7 @@ function Inbox({ o, onHandle }: { o: Overview; onHandle: (salon: string, kind: s
           {o.salons.map((s) => {
             const h = healthOf(s, alertsFor(s, o.now));
             return (
-              <Link key={s.salon_id} href={`/admin/salons#s-${s.salon_id}`} className="row s ad-link">
+              <Link key={s.salon_id} href={`/admin/salons/${s.salon_id}`} className="row s ad-link">
                 <span className={`ad-dot ${h}`} aria-hidden />
                 <span className="g">{s.salon_name}</span>
                 <span className="num cap">{s.owner_joined && s.setup_step >= 9 ? $0(s.cents_today) : "Setting up"}</span>
@@ -109,7 +109,7 @@ function AlertCard({ a, big, now, onHandle }: { a: Alert; big?: boolean; now: nu
       <p className="cap" style={{ margin: 0, fontSize: 14 }}>{a.why}</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {phone && <a className={`btn${big ? " primary" : ""}`} href={`tel:${a.phone}`}>Call {a.owner?.split(" ")[0] ?? "owner"} · {phone}</a>}
-        <Link className="btn" href={`/admin/salons#s-${a.salon_id}`}>Open salon</Link>
+        <Link className="btn" href={`/admin/salons/${a.salon_id}`}>Open salon</Link>
         <Button style={{ marginLeft: "auto" }} onClick={() => void onHandle(a.salon_id, a.kind)} data-testid="handled">Handled</Button>
       </div>
     </article>

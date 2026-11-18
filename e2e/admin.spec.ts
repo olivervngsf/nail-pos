@@ -29,3 +29,29 @@ test("admin: inbox, handled, salons table, filters, add salon drawer", async ({ 
   await expect(page.getByTestId("add-salon").getByRole("alert")).toContainText("owner name are needed");
   expect(errors).toEqual([]);
 });
+
+// Salon page (board A2 + A8): totals, health rows, open alerts + Handled, activity filters, call note.
+test("admin: salon page", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/admin/salons");
+  await page.getByTestId("salon-link").filter({ hasText: "Happy Nails" }).click();
+  await expect(page.getByTestId("salon-name")).toHaveText("Happy Nails");
+  await expect(page.getByTestId("salon-health")).toHaveText("Problem");
+  await expect(page.getByTestId("salon-today")).toContainText("$1,550");
+  await expect(page.getByTestId("h-stripe")).toContainText("Payouts paused");
+  await expect(page.getByTestId("salon-alert")).toHaveCount(1);
+  await page.getByTestId("salon-alert").getByRole("button", { name: "Handled" }).click();
+  await expect(page.getByTestId("salon-alert")).toHaveCount(0);
+
+  const rows = page.getByTestId("activity").locator(".row.m");
+  await expect(rows).toHaveCount(9);
+  await page.getByTestId("act-money").click();
+  await expect(rows).toHaveCount(2);
+  await page.getByTestId("act-all").click();
+
+  await page.getByLabel("Call note").fill("Owner sends the bank paper tonight.");
+  await page.getByTestId("note-save").click();
+  await expect(rows.first()).toContainText("Owner sends the bank paper tonight.");
+  expect(errors).toEqual([]);
+});

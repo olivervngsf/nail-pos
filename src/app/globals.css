@@ -760,3 +760,9 @@ button:disabled { cursor: not-allowed; }
   .ad-tabs { display: inline-flex; }
   .ad-main { padding: 16px; }
 }
+.ad-name { font-weight: 600; color: var(--ink); text-decoration: none; }
+.ad-name:hover { text-decoration: underline; }
+.ad-bars { display: flex; gap: 8px; align-items: flex-end; height: 110px; }
+.ad-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; }
+.ad-bar i { display: block; width: 100%; max-width: 40px; border-radius: 6px 6px 2px 2px; margin-top: auto; }
+.ad-bar span { font-size: 11px; color: var(--ink-soft); }
