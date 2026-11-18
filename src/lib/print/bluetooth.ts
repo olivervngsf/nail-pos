@@ -27,7 +27,7 @@ export const isIOS = () => typeof navigator !== "undefined" && /iPad|iPhone|iPod
 
 const KEY = "nailpos.printer";
 // via "serial" = a terminal's built-in printer (old-style Bluetooth serial, e.g. "InnerPrinter"), reached through Web Serial.
-export type SavedPrinter = { id: string; name: string; paper: Paper; via?: "serial" };
+export type SavedPrinter = { id: string; name: string; paper: Paper; via?: "serial" | "rawbt" };
 export function savedPrinter(): SavedPrinter | null {
   try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch { return null; }
 }
@@ -120,9 +120,27 @@ async function serialPrint(bytes: Uint8Array, paper: Paper): Promise<void> {
   }
 }
 
+// ── RawBT helper app ─────────────────────────────────────────────────────────────────────────────────────────────
+// When Chrome can't see the built-in printer at all: the free RawBT app (Play Store) is a print driver that can.
+// The printer is picked once inside RawBT; we hand it the same bytes through an Android link.
+/** Use the RawBT app on this device as the printer. */
+export function pickRawbt(paper: Paper): SavedPrinter {
+  const p: SavedPrinter = { id: "rawbt", name: "RawBT app", paper, via: "rawbt" };
+  savePrinter(p);
+  return p;
+}
+function rawbtPrint(bytes: Uint8Array) {
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 1) bin += String.fromCharCode(bytes[i]);
+  // Opens RawBT (or its Play Store page when it isn't installed).
+  window.location.href = `intent:base64,${btoa(bin)}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
+}
+
 /** Send receipt bytes in small pieces (Bluetooth sends ~100 bytes at a time). */
 export async function printBytes(bytes: Uint8Array, paper: Paper): Promise<void> {
-  if (savedPrinter()?.via === "serial") return serialPrint(bytes, paper);
+  const via = savedPrinter()?.via;
+  if (via === "rawbt") return rawbtPrint(bytes);
+  if (via === "serial") return serialPrint(bytes, paper);
   if (!(await reconnect().catch(() => false))) await pickPrinter(paper);
   const c = pipe!;
   const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));

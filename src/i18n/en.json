@@ -211,6 +211,8 @@
     "btChange": "Change printer",
     "btAll": "Show all Bluetooth",
     "btBuiltIn": "Built-in printer",
+    "btRawbt": "Use the RawBT app",
+    "btRawbtHint": "Printer not in the list? Install the free RawBT app from the Play Store, pick InnerPrinter inside it, then tap:",
     "btNone": "No printer found. Turn the printer on, then try again.",
     "btIos": "Bluetooth printing on iPhone/iPad: open PolishOS in the Bluefy browser.",
     "scanReceipt": "Scan for your digital receipt",
