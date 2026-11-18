@@ -1,24 +1,30 @@
 "use client";
-// Settings → Billing: the salon's PolishOS plan (monthly vs yearly), status + next renewal, payment card, invoices,
-// add-ons (text battery), cancel. Owner changes; manager reads. Test version: plan kept on this device until
-// Stripe Billing is wired (prices are the pilot proposal, not final).
-import { useState } from "react";
+// Settings → Billing: the salon's PolishOS plan on Stripe Billing (our platform account). Monthly vs yearly cards,
+// status + renewal, switch, cancel at period end / keep, Stripe's billing page for card + invoices.
+// Owner changes; manager reads. No Stripe (test version / not switched on) = sample plan kept on this device.
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, DataTable, Drawer, StatusPill, Toast } from "@/components/kit";
+import { api } from "@/lib/api";
 import { formatCents } from "@/lib/money";
 import { useStored } from "@/lib/useStored";
 import SettingsShell, { type Access } from "../SettingsShell";
 
 type Cycle = "monthly" | "yearly";
-type Status = "trial" | "active" | "canceling";
-type Billing = { cycle: Cycle; status: Status; renews: string; texts: number; refill: boolean };
+type View = {
+  status: string; cycle: Cycle | null; periodEnd: string | null; trialEnd: string | null; cancelAtPeriodEnd: boolean;
+  card: { brand: string; last4: string; exp: string } | null;
+  invoices: { id: string; date: string; cents: number; status: string; url: string | null }[];
+  prices: Record<Cycle, number>; hadPlan: boolean; test?: boolean;
+};
+type Demo = { cycle: Cycle; status: "trialing" | "canceling"; renews: string };
 
-export const PRICE: Record<Cycle, number> = { monthly: 4900, yearly: 3900 }; // cents per month
-const TEXT_PACK = { texts: 500, cents: 1000 };
-
-const plus = (days: number) => { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().slice(0, 10); };
-const fmtDate = (iso: string) => new Date(iso + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
-const daysTo = (iso: string) => Math.max(0, Math.round((new Date(iso + "T12:00:00").getTime() - Date.now()) / 864e5));
+const PRICE: Record<Cycle, number> = { monthly: 4900, yearly: 3900 };
+const LIVE = new Set(["trialing", "active", "past_due", "unpaid", "incomplete", "paused"]);
+const plus = (days: number) => { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString(); };
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+const daysTo = (iso: string) => Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 864e5));
+const dollars = (c: number) => formatCents(c).replace(/\.00$/, "");
 
 export default function BillingPage() {
   const t = useTranslations("settings");
@@ -27,101 +33,144 @@ export default function BillingPage() {
 
 function BillingView({ a }: { a: Access }) {
   const t = useTranslations("settings.bill");
-  const [b, setB] = useStored<Billing>(`nailpos.billing.${a.salonId}`, () => ({ cycle: "monthly", status: "trial", renews: plus(30), texts: 420, refill: false }));
+  const [v, setV] = useState<View | null>(null);
+  const [off, setOff] = useState(a.demo);
+  const [demo, setDemo] = useStored<Demo>(`nailpos.billing.${a.salonId}`, () => ({ cycle: "monthly", status: "trialing", renews: plus(30) }));
+  const [busy, setBusy] = useState("");
+  const [err, setErr] = useState("");
   const [cancel, setCancel] = useState(false);
   const [toast, setToast] = useState("");
   const say = (m: string) => { setToast(m); setTimeout(() => setToast(""), 2500); };
-  const dis = !a.owner;
+  const dis = !a.owner || !!busy;
 
-  const pick = (cycle: Cycle) => {
-    if (dis || cycle === b.cycle) return;
-    setB({ ...b, cycle, status: b.status === "canceling" ? "active" : b.status });
-    say(t("switched", { plan: t(cycle) }));
+  const load = useCallback(async () => {
+    if (a.demo) return;
+    try {
+      const r = await api<View & { on?: boolean }>("/api/billing", { salonId: a.salonId, action: "status" });
+      if (r.on === false) setOff(true); else setV(r);
+    } catch (e) { setErr((e as Error).message); }
+  }, [a.demo, a.salonId]);
+  useEffect(() => {
+    void load();
+    const q = new URLSearchParams(location.search).get("billing");
+    if (q === "done") say(t("started"));
+    if (q) history.replaceState(null, "", location.pathname);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [load]);
+
+  // One shape for real + sample plan.
+  const view: View | null = off
+    ? { status: demo.status === "canceling" ? "trialing" : demo.status, cycle: demo.cycle, periodEnd: demo.renews, trialEnd: demo.renews, cancelAtPeriodEnd: demo.status === "canceling", card: { brand: "visa", last4: "4242", exp: "08/2028" }, invoices: [], prices: PRICE, hadPlan: true }
+    : v;
+
+  const act = async (action: "start" | "cycle" | "cancel" | "resume" | "portal", cycle?: Cycle) => {
+    setErr("");
+    if (off) {
+      if (action === "cycle" && cycle) { setDemo({ ...demo, cycle, status: "trialing" }); say(t("switched", { plan: t(cycle) })); }
+      else if (action === "cancel") { setDemo({ ...demo, status: "canceling" }); say(t("canceled", { d: fmtDate(demo.renews) })); }
+      else if (action === "resume") { setDemo({ ...demo, status: "trialing" }); say(t("resumed")); }
+      else say(t("manageSoon"));
+      return;
+    }
+    setBusy(action + (cycle ?? ""));
+    try {
+      const r = await api<View & { url?: string }>("/api/billing", { salonId: a.salonId, action, cycle });
+      if (r.url) { location.href = r.url; return; }
+      setV(r);
+      say(action === "cycle" ? t("switched", { plan: t(cycle!) }) : action === "cancel" ? t("canceled", { d: r.periodEnd ? fmtDate(r.periodEnd) : "" }) : t("resumed"));
+    } catch (e) { setErr((e as Error).message); }
+    setBusy("");
   };
-  const statusPill = b.status === "trial" ? <StatusPill tone="ok">{t("st.trial")}</StatusPill>
-    : b.status === "active" ? <StatusPill tone="ok">{t("st.active")}</StatusPill>
-    : <StatusPill tone="warn">{t("st.canceling")}</StatusPill>;
-  const lowTexts = b.texts < 100;
+
+  if (!view) return <div className="bill">{err ? <p className="hint err">{err}</p> : <span className="cap" role="status">{t("loading")}</span>}</div>;
+
+  const live = LIVE.has(view.status);
+  const trial = view.status === "trialing";
+  const ends = trial ? view.trialEnd : view.periodEnd;
+  const pill = view.cancelAtPeriodEnd ? <StatusPill tone="warn">{t("st.canceling")}</StatusPill>
+    : trial ? <StatusPill tone="ok">{t("st.trial")}</StatusPill>
+    : view.status === "active" ? <StatusPill tone="ok">{t("st.active")}</StatusPill>
+    : <StatusPill tone="warn">{t(`st.${view.status === "past_due" || view.status === "unpaid" ? "pastDue" : "other"}`)}</StatusPill>;
 
   return (
     <div className="bill" data-testid="billing">
       {!a.owner && <div className="note">{t("ownerOnly")}</div>}
+      {(view.status === "past_due" || view.status === "unpaid") && (
+        <div className="banner" role="alert">{t("pastDueNote")} <Button size="sm" disabled={dis} onClick={() => void act("portal")}>{t("updateCard")}</Button></div>
+      )}
+      {!live && <p className="cap" style={{ margin: 0 }}>{view.hadPlan ? t("pickAgain") : t("pickFirst")}</p>}
       <div className="bill-plans">
         {(["monthly", "yearly"] as const).map((c) => {
-          const on = b.cycle === c;
+          const on = live && view.cycle === c;
           return (
             <section key={c} className={`card pad bill-plan${on ? " on" : ""}`} data-testid={`plan-${c}`}>
               <div className="bill-plan-h">
                 <b>{on && <span className="bill-check" aria-hidden>✓</span>}{t(c)}</b>
-                {on ? <span className="cap">{t("current")}</span> : c === "yearly" && <span className="tag jade">{t("save", { pct: Math.round((1 - PRICE.yearly / PRICE.monthly) * 100) })}</span>}
+                {on ? <span className="cap">{t("current")}</span> : c === "yearly" && <span className="tag jade">{t("save", { pct: Math.round((1 - view.prices.yearly / view.prices.monthly) * 100) })}</span>}
               </div>
-              <div className="bill-price"><span className="num">{formatCents(PRICE[c]).replace(/\.00$/, "")}</span><span className="cap">{t(`per.${c}`)}</span></div>
-              {on ? (
+              <div className="bill-price"><span className="num">{dollars(view.prices[c])}</span><span className="cap">{t(`per.${c}`)}</span></div>
+              {on && (
                 <div className="group bill-facts">
-                  <div className="row xs"><span className="g">{t("status")}</span>{statusPill}</div>
-                  <div className="row xs"><span className="g">{b.status === "canceling" ? t("ends") : b.status === "trial" ? t("firstCharge") : t("renews")}</span><span className="num">{fmtDate(b.renews)} · {t("days", { n: daysTo(b.renews) })}</span></div>
+                  <div className="row xs"><span className="g">{t("status")}</span>{pill}</div>
+                  {ends && <div className="row xs"><span className="g">{view.cancelAtPeriodEnd ? t("ends") : trial ? t("firstCharge") : t("renews")}</span><span className="num">{fmtDate(ends)} · {t("days", { n: daysTo(ends) })}</span></div>}
                 </div>
-              ) : null}
+              )}
               <ul className="bill-list">
                 {(c === "monthly" ? ["staff", "all", "texts", "support"] : ["allMonthly", "yearTotal"]).map((k) => (
-                  <li key={k}>{t(`f.${k}`, { total: formatCents(PRICE.yearly * 12) })}</li>
+                  <li key={k}>{t(`f.${k}`, { total: formatCents(view.prices.yearly * 12) })}</li>
                 ))}
               </ul>
               <div className="bill-plan-f">
-                {on ? (b.status === "canceling"
-                  ? <Button variant="primary" disabled={dis} onClick={() => { setB({ ...b, status: "active" }); say(t("resumed")); }}>{t("resume")}</Button>
-                  : <Button disabled={dis} onClick={() => say(t("manageSoon"))}>{t("manage")}</Button>)
-                  : <Button variant="ghost" disabled={dis} data-testid={`switch-${c}`} onClick={() => pick(c)}>{t("switchTo", { plan: t(c) })}</Button>}
+                {!live ? <Button variant={c === "monthly" ? "primary" : "default"} disabled={dis} data-testid={`start-${c}`} onClick={() => void act("start", c)}>{busy === `start${c}` ? t("opening") : view.hadPlan ? t("choose", { plan: t(c) }) : t("startTrial")}</Button>
+                  : on ? (view.cancelAtPeriodEnd
+                    ? <Button variant="primary" disabled={dis} onClick={() => void act("resume")}>{t("resume")}</Button>
+                    : <Button disabled={dis} data-testid="manage" onClick={() => void act("portal")}>{busy === "portal" ? t("opening") : t("manage")}</Button>)
+                  : <Button variant="ghost" disabled={dis} data-testid={`switch-${c}`} onClick={() => void act("cycle", c)}>{busy === `cycle${c}` ? t("saving") : t("switchTo", { plan: t(c) })}</Button>}
               </div>
             </section>
           );
         })}
       </div>
 
-      {b.status !== "canceling" && (
+      {live && !view.cancelAtPeriodEnd && (
         <div className="bill-cancel">
           <Button size="sm" disabled={dis} data-testid="cancel-sub" onClick={() => setCancel(true)}>{t("cancel")}</Button>
           <span className="cap">{t("cancelNote")}</span>
         </div>
       )}
 
-      <div className="eyebrow">{t("addOns")}</div>
-      <section className="card pad">
-        <div className="bill-addon">
-          <div className="g"><b>{t("battery")}</b><span className="cap">{t("batteryNote", { n: TEXT_PACK.texts, price: formatCents(TEXT_PACK.cents) })}</span></div>
-          <span className={`pill${lowTexts ? " warn" : ""}`} data-testid="text-balance">{t("left", { n: b.texts })}</span>
-          <Button variant="primary" disabled={dis} data-testid="buy-texts" onClick={() => { setB({ ...b, texts: b.texts + TEXT_PACK.texts }); say(t("added", { n: TEXT_PACK.texts })); }}>{t("buy", { price: formatCents(TEXT_PACK.cents) })}</Button>
-        </div>
-        <label className="bill-refill cap">
-          <input type="checkbox" checked={b.refill} disabled={dis} onChange={(e) => setB({ ...b, refill: e.target.checked })} /> {t("refill")}
-        </label>
-      </section>
-
       <div className="set-two">
         <div>
           <div className="eyebrow" style={{ marginBottom: 8 }}>{t("payWith")}</div>
           <div className="group">
-            <div className="row s"><span className="g"><b>Visa ••4242</b><span className="cap">{t("expires", { d: "08/2028" })}</span></span><Button size="sm" disabled={dis} onClick={() => say(t("manageSoon"))}>{t("change")}</Button></div>
+            {view.card
+              ? <div className="row s"><span className="g"><b style={{ textTransform: "capitalize" }}>{view.card.brand} ••{view.card.last4}</b><span className="cap">{t("expires", { d: view.card.exp })}</span></span><Button size="sm" disabled={dis || !view.hadPlan} onClick={() => void act("portal")}>{t("change")}</Button></div>
+              : <div className="row s"><span className="g cap">{t("noCard")}</span></div>}
           </div>
         </div>
         <div>
           <div className="eyebrow" style={{ marginBottom: 8 }}>{t("invoices")}</div>
-          {b.status === "trial"
-            ? <div className="card pad cap">{t("noInvoices")}</div>
-            : <div className="set-table"><DataTable head={[t("date"), t("amount"), ""]} rows={[[fmtDate(plus(-1)), formatCents(b.cycle === "yearly" ? PRICE.yearly * 12 : PRICE.monthly), <span key="p" className="tag jade">{t("paid")}</span>]]} /></div>}
+          {view.invoices.length === 0
+            ? <div className="card pad cap">{trial ? t("noInvoicesTrial") : t("noInvoices")}</div>
+            : <div className="set-table"><DataTable head={[t("date"), t("amount"), ""]} rows={view.invoices.map((i) => [
+                fmtDate(i.date), formatCents(i.cents),
+                i.url ? <a key="u" href={i.url} target="_blank" rel="noreferrer" className={`tag${i.status === "paid" ? " jade" : ""}`}>{t(`inv.${i.status === "paid" ? "paid" : i.status === "open" ? "open" : "other"}`)} ↗</a>
+                  : <span key="s" className="tag">{t(`inv.${i.status === "paid" ? "paid" : "other"}`)}</span>,
+              ])} /></div>}
         </div>
       </div>
 
-      <div className="demo">{t("demo")}</div>
+      {off ? <div className="demo">{t("demo")}</div> : view.test && <div className="demo">{t("testMode")}</div>}
+      {err && <p className="hint err">{err}</p>}
 
-      {cancel && (
+      {cancel && ends && (
         <Drawer title={t("cancelTitle")} onClose={() => setCancel(false)} footer={
           <div style={{ display: "flex", gap: 8, width: "100%" }}>
             <Button block onClick={() => setCancel(false)}>{t("keep")}</Button>
-            <Button block variant="primary" data-testid="confirm-cancel" onClick={() => { setB({ ...b, status: "canceling" }); setCancel(false); say(t("canceled", { d: fmtDate(b.renews) })); }}>{t("cancelYes")}</Button>
+            <Button block variant="primary" data-testid="confirm-cancel" onClick={() => { setCancel(false); void act("cancel"); }}>{t("cancelYes")}</Button>
           </div>
         }>
-          <p>{t("cancelBody", { d: fmtDate(b.renews) })}</p>
+          <p>{t("cancelBody", { d: fmtDate(view.periodEnd ?? ends) })}</p>
           <ul className="bill-list"><li>{t("keep1")}</li><li>{t("keep2")}</li><li>{t("keep3")}</li></ul>
         </Drawer>
       )}

@@ -1727,13 +1727,14 @@
       },
       "status": "Trạng thái",
       "renews": "Gia hạn kế tiếp",
-      "firstCharge": "Hết dùng thử miễn phí",
       "ends": "Gói kết thúc",
       "days": "{n} ngày",
       "st": {
         "trial": "Dùng thử miễn phí",
         "active": "Đang hoạt động",
-        "canceling": "Không gia hạn"
+        "canceling": "Không gia hạn",
+        "pastDue": "Thanh toán lỗi",
+        "other": "Cần xem lại"
       },
       "f": {
         "staff": "Bao gồm mọi nhân viên (1–20)",
@@ -1744,7 +1745,7 @@
         "yearTotal": "{total} mỗi năm một lần"
       },
       "manage": "Quản lý",
-      "manageSoon": "Sắp có: mở Stripe để đổi thẻ hoặc gói.",
+      "manageSoon": "Mở Stripe để đổi thẻ, đổi gói hoặc xem hóa đơn (khi Stripe được bật).",
       "switchTo": "Đổi sang {plan}",
       "switched": "Đã đổi sang {plan}",
       "resume": "Giữ gói của tôi",
@@ -1759,13 +1760,6 @@
       "keep": "Giữ gói",
       "cancelYes": "Hủy cuối kỳ",
       "canceled": "Gói kết thúc {d}",
-      "addOns": "Thêm",
-      "battery": "Pin tin nhắn",
-      "batteryNote": "Tin quảng cáo (ưu đãi, mời khách quay lại). {n} tin giá {price}. Tin nhắc hẹn + hóa đơn không dùng pin.",
-      "left": "Còn {n} tin",
-      "buy": "Thêm {price}",
-      "added": "Đã thêm {n} tin",
-      "refill": "Tự nạp khi dưới 20% (tối đa 1 gói mỗi tháng)",
       "payWith": "Thẻ thanh toán",
       "expires": "Hết hạn {d}",
       "change": "Đổi",
@@ -1773,9 +1767,27 @@
       "noInvoices": "Chưa có hóa đơn. Tính tiền lần đầu sau dùng thử.",
       "date": "Ngày",
       "amount": "Số tiền",
-      "paid": "Đã trả",
       "ownerOnly": "Chỉ chủ tiệm được đổi gói.",
-      "demo": "Bản thử: gói + thẻ là mẫu, chỉ lưu trên máy này. Giá là đề xuất cho thí điểm, chưa chốt."
+      "demo": "Bản thử: gói + thẻ là mẫu, chỉ lưu trên máy này. Giá là đề xuất cho thí điểm, chưa chốt.",
+      "firstCharge": "Hết dùng thử miễn phí",
+      "loading": "Đang tải gói…",
+      "started": "Đã bắt đầu gói. Cảm ơn bạn!",
+      "opening": "Đang mở Stripe…",
+      "saving": "Đang lưu…",
+      "choose": "Chọn {plan}",
+      "startTrial": "Dùng thử miễn phí 30 ngày",
+      "pickFirst": "Chọn một gói. 30 ngày đầu miễn phí; chỉ tính tiền thẻ sau thời gian dùng thử. Hủy bất cứ lúc nào.",
+      "pickAgain": "Gói đã kết thúc. Chọn gói để tiếp tục dùng PolishOS.",
+      "pastDueNote": "Lần thanh toán gần nhất không thành công. Cập nhật thẻ để giữ gói.",
+      "updateCard": "Cập nhật thẻ",
+      "noCard": "Chưa có thẻ. Bạn sẽ thêm thẻ khi bắt đầu gói.",
+      "noInvoicesTrial": "Chưa có hóa đơn. Tính tiền lần đầu sau dùng thử.",
+      "testMode": "Stripe chế độ thử: dùng thẻ 4242 4242 4242 4242, ngày hết hạn bất kỳ trong tương lai, CVC bất kỳ. Không phải tiền thật.",
+      "inv": {
+        "paid": "Đã trả",
+        "open": "Chưa trả",
+        "other": "Đã đóng"
+      }
     }
   },
   "tech": {

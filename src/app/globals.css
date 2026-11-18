@@ -731,10 +731,6 @@ button:disabled { cursor: not-allowed; }
 .bill-list li::before { content: "✓"; margin-right: 8px; color: var(--ink-soft); }
 .bill-plan-f { margin-top: auto; display: flex; justify-content: center; }
 .bill-cancel { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.bill-addon { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.bill-addon .g { flex: 1; min-width: 200px; }
-.bill-addon .g b { display: block; font-size: 15px; }
-.bill-refill { display: flex; align-items: center; gap: 8px; }
 @media (max-width: 720px) { .bill-plans { grid-template-columns: 1fr; } }
 /* Tech app (M13): bottom tabs are links. */
 .ptabs .ptab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--ink-soft);text-decoration:none;min-height:56px}

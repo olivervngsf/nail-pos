@@ -1727,13 +1727,14 @@
       },
       "status": "Status",
       "renews": "Next renewal",
-      "firstCharge": "Free pilot ends",
       "ends": "Plan ends",
       "days": "{n} days",
       "st": {
         "trial": "Free pilot",
         "active": "Active",
-        "canceling": "Not renewing"
+        "canceling": "Not renewing",
+        "pastDue": "Payment failed",
+        "other": "Needs attention"
       },
       "f": {
         "staff": "All staff included (1–20)",
@@ -1744,7 +1745,7 @@
         "yearTotal": "{total} once a year"
       },
       "manage": "Manage",
-      "manageSoon": "Coming soon: opens Stripe to change your card or plan.",
+      "manageSoon": "Opens Stripe to change your card, plan or see invoices (when Stripe is switched on).",
       "switchTo": "Switch to {plan}",
       "switched": "Switched to {plan}",
       "resume": "Keep my plan",
@@ -1759,13 +1760,6 @@
       "keep": "Keep plan",
       "cancelYes": "Cancel at period end",
       "canceled": "Plan ends {d}",
-      "addOns": "Add-ons",
-      "battery": "Text battery",
-      "batteryNote": "Marketing texts (deals, win-back). {n} texts for {price}. Reminder + receipt texts never use it.",
-      "left": "{n} texts left",
-      "buy": "Add {price}",
-      "added": "Added {n} texts",
-      "refill": "Refill when below 20% (max 1 pack a month)",
       "payWith": "Payment method",
       "expires": "Expires {d}",
       "change": "Change",
@@ -1773,9 +1767,27 @@
       "noInvoices": "No invoices yet. First charge after the free pilot.",
       "date": "Date",
       "amount": "Amount",
-      "paid": "Paid",
       "ownerOnly": "Only the owner can change billing.",
-      "demo": "Test version: plan + card are samples and stay on this device. Prices are the pilot proposal, not final."
+      "demo": "Test version: plan + card are samples and stay on this device. Prices are the pilot proposal, not final.",
+      "firstCharge": "Free pilot ends",
+      "loading": "Loading your plan…",
+      "started": "Plan started. Thank you!",
+      "opening": "Opening Stripe…",
+      "saving": "Saving…",
+      "choose": "Choose {plan}",
+      "startTrial": "Start 30-day free pilot",
+      "pickFirst": "Pick a plan. First 30 days are free; your card is charged only after the pilot. Cancel anytime.",
+      "pickAgain": "Your plan has ended. Pick a plan to keep using PolishOS.",
+      "pastDueNote": "Your last payment didn't go through. Update your card to keep your plan.",
+      "updateCard": "Update card",
+      "noCard": "No card yet. You'll add one when you start a plan.",
+      "noInvoicesTrial": "No invoices yet. First charge after the free pilot.",
+      "testMode": "Stripe test mode: use card 4242 4242 4242 4242, any future date, any CVC. No real money.",
+      "inv": {
+        "paid": "Paid",
+        "open": "Due",
+        "other": "Closed"
+      }
     }
   },
   "tech": {
