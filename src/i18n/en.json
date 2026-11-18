@@ -1122,7 +1122,9 @@
     "slipTickets": "Every ticket",
     "ticketsTitle": "Tickets (service + tips)",
     "tipCard": "Tip (card)",
-    "tipCash": "Tip (cash)"
+    "tipCash": "Tip (cash)",
+    "colTips": "Tips",
+    "colService": "Service"
   },
   "numbers": {
     "title": "Numbers",
@@ -1312,7 +1314,7 @@
     "rQrSub": "Client scans it to see the receipt on their phone.",
     "rThanks": "Thank-you line",
     "sTickets": "Every ticket",
-    "sTicketsSub": "One line per ticket: Ticket #1011 ... what it earned, then the total.",
+    "sTicketsSub": "A list under the name: Ticket | Tips | Service, then the totals.",
     "sTipSplit": "Card tips and cash tips on separate lines",
     "sCheckCash": "By check / in cash",
     "sSignature": "Signature line (Received by)",

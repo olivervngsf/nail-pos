@@ -1122,7 +1122,9 @@
     "slipTickets": "Từng vé",
     "ticketsTitle": "Các vé (dịch vụ + tip)",
     "tipCard": "Tip (thẻ)",
-    "tipCash": "Tip (tiền mặt)"
+    "tipCash": "Tip (tiền mặt)",
+    "colTips": "Tip",
+    "colService": "Dịch vụ"
   },
   "numbers": {
     "title": "Số liệu",
@@ -1312,7 +1314,7 @@
     "rQrSub": "Khách quét để xem hóa đơn trên điện thoại.",
     "rThanks": "Dòng cảm ơn",
     "sTickets": "Từng vé",
-    "sTicketsSub": "Mỗi vé một dòng: Vé #1011 ... số tiền, rồi tổng.",
+    "sTicketsSub": "Danh sách: Vé | Tip | Dịch vụ, rồi tổng.",
     "sTipSplit": "Tip thẻ và tip tiền mặt riêng dòng",
     "sCheckCash": "Trả bằng check / tiền mặt",
     "sSignature": "Dòng ký nhận",
