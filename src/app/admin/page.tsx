@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import AdminPage from "./AdminPage";
+import AdminHome from "./AdminHome";
 
-export const metadata: Metadata = { title: "Salons · PolishOS admin" };
+export const metadata: Metadata = { title: "Admin · PolishOS" };
+
 export default function Page() {
-  return <AdminPage />;
+  return <AdminHome />;
 }

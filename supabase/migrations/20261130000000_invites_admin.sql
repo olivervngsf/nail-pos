@@ -1,33 +1,33 @@
+-- Backfill (Nov 18): this was applied to the test project on Nov 17 by another session as two migrations,
+-- `invites_admin` + `invites_admin_lockdown`, but the file never reached the repo. Same SQL, in one file, so fresh
+-- databases (and the live project) get /admin, is_platform_admin and invite-only salons. Do not apply again to the test project.
+
 -- Invite-only salons (Nov 17). Only platform admins (Oliver, Elang, our staff) create salons. The owner gets a link + code;
 -- they sign in any way (phone code, email code, password, Google) and the invite attaches when their phone or verified email
 -- matches, or when they type the code. Salon creation from the setup wizard is closed for everyone else.
 
--- ---------- platform admins (us) ----------
 create table public.platform_admins (
   auth_user_id uuid primary key references auth.users(id),
   note text not null default '',
   created_at timestamptz not null default now()
 );
-alter table public.platform_admins enable row level security; -- no policies: only security definer functions read it
+alter table public.platform_admins enable row level security;
 
 create function public.is_platform_admin() returns boolean
 language sql stable security definer set search_path = '' as $$
   select exists (select 1 from public.platform_admins where auth_user_id = (select auth.uid()));
 $$;
 
--- ---------- invites can be matched by email too ----------
-alter table public.memberships add column if not exists email text; -- also added by profile_pin_settings
-create index if not exists memberships_email_lower on public.memberships (lower(email)) where email is not null;
-alter table public.invites add column if not exists created_by uuid references auth.users(id);
+alter table public.memberships add column email text;
+create index on public.memberships (lower(email)) where email is not null;
+alter table public.invites add column created_by uuid references auth.users(id);
 
--- Verified email of the signed-in user (Google + email codes are verified; an unconfirmed email never matches).
 create function public._auth_email() returns text
 language sql stable security definer set search_path = '' as $$
   select lower(u.email) from auth.users u
   where u.id = (select auth.uid()) and coalesce(u.email, '') <> '' and u.email_confirmed_at is not null;
 $$;
 
--- The person for this login. Signed in without a phone (Google / email): use the phone on the membership being claimed.
 create function public._person_for(p_phone text, p_name text) returns uuid
 language plpgsql security definer set search_path = '' as $$
 declare uid uuid := (select auth.uid()); pid uuid; owner uuid;
@@ -47,7 +47,6 @@ begin
   return pid;
 end $$;
 
--- After sign-in: link every membership waiting for this phone OR this verified email.
 create or replace function public.claim_memberships() returns int
 language plpgsql security definer set search_path = '' as $$
 declare ph text := public._auth_phone(); em text := public._auth_email(); pid uuid; fm public.memberships; n int;
@@ -56,7 +55,7 @@ begin
   where m.person_id is null and m.archived_at is null and (m.phone = ph or (em is not null and lower(m.email) = em))
   order by (m.phone = ph) desc nulls last, m.created_at limit 1;
   if ph is not null then
-    pid := public._ensure_person(fm.display_name); -- same as before: raises if this phone belongs to another account
+    pid := public._ensure_person(fm.display_name);
   else
     select id into pid from public.people where auth_user_id = (select auth.uid());
     if pid is null then
@@ -64,7 +63,7 @@ begin
       begin
         pid := public._person_for(fm.phone, fm.display_name);
       exception when raise_exception then
-        return 0; -- the invite's phone already has another login: they can still type the code
+        return 0;
       end;
     end if;
   end if;
@@ -80,7 +79,6 @@ begin
   return n;
 end $$;
 
--- Typed or linked code: attach that invite to whoever is signed in. Returns the salon id.
 create function public.redeem_invite(p_code text) returns uuid
 language plpgsql security definer set search_path = '' as $$
 declare i public.invites; m public.memberships; pid uuid;
@@ -89,7 +87,7 @@ begin
   if i.code is null then raise exception 'invite not found'; end if;
   select * into m from public.memberships where id = i.membership_id and archived_at is null;
   if m.id is null then raise exception 'invite not found'; end if;
-  if m.person_id is not null and m.person_id = public.my_person_id() then return m.salon_id; end if; -- already yours
+  if m.person_id is not null and m.person_id = public.my_person_id() then return m.salon_id; end if;
   if i.used_at is not null or m.person_id is not null then raise exception 'invite used'; end if;
   if i.expires_at < now() then raise exception 'invite expired'; end if;
   pid := public._person_for(m.phone, m.display_name);
@@ -102,7 +100,6 @@ begin
   return m.salon_id;
 end $$;
 
--- get_invite: also accept codes typed with a dash / spaces.
 create or replace function public.get_invite(p_code text)
 returns table (salon_name text, display_name text, role public.member_role, owner_name text, phone_last4 text, status text)
 language sql stable security definer set search_path = '' as $$
@@ -114,7 +111,6 @@ language sql stable security definer set search_path = '' as $$
   where i.code = upper(replace(trim(p_code), '-', '')) and m.archived_at is null;
 $$;
 
--- 8 letters/numbers without look-alikes (no 0/O, 1/I/L): hard to guess, easy to read aloud.
 create function public._invite_code() returns text
 language plpgsql volatile set search_path = '' as $$
 declare a text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; c text;
@@ -127,7 +123,6 @@ begin
   return c;
 end $$;
 
--- ---------- admin: create a salon + owner invite ----------
 create function public.admin_create_salon(p_salon text, p_state text, p_owner text, p_phone text, p_email text default null)
 returns jsonb
 language plpgsql security definer set search_path = '' as $$
@@ -144,7 +139,6 @@ begin
   return jsonb_build_object('salon_id', sid, 'code', c);
 end $$;
 
--- New owner code (old one stops working). Only while the owner hasn't joined yet.
 create function public.admin_new_code(p_salon uuid) returns text
 language plpgsql security definer set search_path = '' as $$
 declare m public.memberships; c text := public._invite_code();
@@ -158,7 +152,6 @@ begin
   return c;
 end $$;
 
--- Every salon, for our admin page: health only (no client data).
 create function public.admin_salons()
 returns table (salon_id uuid, salon_name text, state text, created_at timestamptz, setup_step smallint, owner_name text, owner_phone text,
   owner_email text, owner_joined boolean, code text, code_expires timestamptz, staff int)
@@ -173,8 +166,6 @@ language sql stable security definer set search_path = '' as $$
   order by s.created_at desc;
 $$;
 
--- ---------- close self-serve salon creation ----------
--- save_setup used to make a new salon for anyone signed in. Now only a salon that already exists (made by us) can be set up.
 create or replace function public._no_self_serve_salon() returns trigger
 language plpgsql security definer set search_path = '' as $$
 begin
@@ -185,8 +176,16 @@ begin
 end $$;
 create trigger no_self_serve_salon before insert on public.salons for each row execute function public._no_self_serve_salon();
 
+create or replace function public._slug_reserved() returns text[] language sql immutable set search_path = '' as $$
+  select array['book', 'kiosk', 'setup', 'login', 'today', 'checkout', 'clients', 'calendar', 'settings', 'pay', 'join', 'api', 'admin', 'gift-cards', 'kit', 'paid',
+    't', 'r', 'c', 'me', 'close-day', 'salon', 'demo', 'numbers', 'loyalty', 'payouts', 'help', 'invite', 'earnings'];
+$$;
+
 revoke execute on function public.is_platform_admin(), public._auth_email(), public._person_for(text, text), public.redeem_invite(text),
   public._invite_code(), public.admin_create_salon(text, text, text, text, text), public.admin_new_code(uuid), public.admin_salons(),
   public._no_self_serve_salon() from public, anon;
 grant execute on function public.is_platform_admin(), public.redeem_invite(text), public.admin_create_salon(text, text, text, text, text),
   public.admin_new_code(uuid), public.admin_salons() to authenticated;
+
+-- invites_admin_lockdown: internal helpers of the invite system are not callable from the app.
+revoke execute on function public._auth_email(), public._person_for(text, text), public._invite_code(), public._no_self_serve_salon() from authenticated;

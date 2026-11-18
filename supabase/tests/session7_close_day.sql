@@ -7,9 +7,6 @@ insert into auth.users (id, phone, aud, role) values
   ('00000000-0000-0000-0000-00000000ee02', '14085550502', 'authenticated', 'authenticated'),  -- tech Kim
   ('00000000-0000-0000-0000-00000000ee03', '14085550503', 'authenticated', 'authenticated');  -- front desk Lan
 create temp table t_out (k text primary key, v jsonb);
-
--- Salons are invite-only (Nov 17): test users may create salons like a platform admin.
-insert into public.platform_admins (auth_user_id) select id from auth.users where id::text like '00000000-0000-0000-0000-%' on conflict do nothing;
 grant all on t_out to authenticated, anon, service_role;
 create function pg_temp.id(x text) returns uuid language sql immutable as $$ select ('00000000-0000-0000-0000-000000009' || x)::uuid $$;
 create function pg_temp.tk(tid text, lines jsonb, pay jsonb default null) returns jsonb language sql as $$
@@ -23,6 +20,7 @@ create function pg_temp.cash(pid text, cents int) returns jsonb language sql as 
   select jsonb_build_object('id', pg_temp.id(pid), 'method', 'cash', 'givenCents', cents) $$;
 grant execute on all functions in schema pg_temp to authenticated, service_role;
 
+insert into public.platform_admins (auth_user_id) select id from auth.users on conflict do nothing;  -- salons are invite-only: test owners set up salons as platform admins
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000ee01","role":"authenticated"}', true);
 select public.save_setup(jsonb_build_object('salonId', pg_temp.id('a01'), 'ownerName', 'Mai', 'salonName', 'Close Nails', 'state', 'CA', 'step', 9,

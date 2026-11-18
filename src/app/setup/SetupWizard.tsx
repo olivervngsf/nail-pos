@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PhoneCodeLogin from "@/components/PhoneCodeLogin";
-import { SMS_ON, homeFor, isSignedIn, myMemberships } from "@/lib/auth";
+import { SMS_ON, amPlatformAdmin, homeFor, isSignedIn, myMemberships } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { syncNow } from "@/lib/offline/outbox";
 import { queueSave, withIds } from "./sync";
@@ -46,8 +46,8 @@ export default function SetupWizard() {
       const ms = SMS_ON ? await myMemberships().catch(() => []) : [];
       const owned = ms.find((m) => m.role === "owner");
       if (owned && owned.setup_step >= 9) return router.replace("/today");
-      // Salons are made by PolishOS (invite only): no salon of your own → your home or the invite code screen.
-      if (SMS_ON && !owned) return router.replace(homeFor(ms));
+      // Salons are made by PolishOS (invite only): no salon of your own → your home, /admin (us) or the invite code screen.
+      if (SMS_ON && !owned) return router.replace(homeFor(ms, !ms.length && (await amPlatformAdmin())));
       setS((p) => ({ ...withIds(owned ? { ...p, salonId: owned.salon_id } : p), stage: "wizard" }));
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,7 +85,9 @@ function SignIn({ s, set }: { s: SetupState; set: Set }) {
       const owned = (await myMemberships()).find((m) => m.role === "owner");
       if (owned && owned.setup_step >= 9) return router.replace("/today");
       if (owned) return enter(owned.salon_id); // keep setting up the salon you already started
-      return router.replace(homeFor(await myMemberships())); // no salon of your own: invite code screen (or your home)
+      const ms = await myMemberships();
+      // No salon of your own: your home, /admin (us) or the invite code screen.
+      return router.replace(homeFor(ms, !ms.length && (await amPlatformAdmin())));
     } catch (e) { setErr((e as Error).message); }
   };
   return (

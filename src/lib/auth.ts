@@ -257,12 +257,6 @@ export async function redeemInvite(code: string): Promise<string | null> {
   return "Couldn't join. Check internet and try again.";
 }
 
-export async function isPlatformAdmin(): Promise<boolean> {
-  if (!SMS_ON) return false;
-  const { data } = await sb().rpc("is_platform_admin");
-  return data === true;
-}
-
 /** Links invites waiting for this phone or verified email (e.g. right after Google). Never throws. */
 export async function claimMine() {
   if (SMS_ON) await getSupabase()?.rpc("claim_memberships").then(() => {}, () => {});
@@ -282,10 +276,10 @@ export async function myMemberships(): Promise<Membership[]> {
   return (data ?? []) as Membership[];
 }
 
-/** Where to go after sign-in: owner with unfinished setup → /setup, desk roles → /today, tech → /t,
- *  no salon yet → /invite (type your invite code; salons are made by PolishOS). Test copy: /setup. */
-export function homeFor(ms: Membership[]): string {
-  if (!ms.length) return SMS_ON ? "/invite" : "/setup";
+/** Where to go after sign-in: owner with unfinished setup → /setup, desk roles → /today, tech → /t.
+ *  No salon yet: platform admin (us) → /admin; anyone else → /invite (type your invite code; salons are made by PolishOS). Test copy: /setup. */
+export function homeFor(ms: Membership[], admin = false): string {
+  if (!ms.length) return admin ? "/admin" : SMS_ON ? "/invite" : "/setup";
   const m = ms[0];
   if (m.role === "owner" && m.setup_step < 9) return "/setup";
   return m.role === "tech" ? "/t" : "/today";
@@ -300,6 +294,11 @@ export async function signOut() {
   } catch {
     /* ignore */
   }
+}
+
+/** Is the signed-in person a platform admin (Oliver, Elang)? False on any error. */
+export async function amPlatformAdmin(): Promise<boolean> {
+  try { return Boolean(await rpc<boolean>("is_platform_admin")); } catch { return false; }
 }
 
 export async function rpc<T = unknown>(fn: string, args?: Record<string, unknown>): Promise<T> {

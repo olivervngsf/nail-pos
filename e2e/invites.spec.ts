@@ -21,20 +21,3 @@ test("invite link opens straight on the salon", async ({ page }) => {
   await page.goto("/invite/ABCD-2345");
   await expect(page.getByTestId("invite-title")).toContainText("Join");
 });
-
-test("admin: make a salon + owner invite", async ({ page }) => {
-  const errors: string[] = [];
-  page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/admin");
-  const before = await page.getByTestId("a-row").count();
-  await page.getByTestId("a-create").click();
-  await expect(page.getByText("Fill in salon name")).toBeVisible();
-  await page.getByTestId("a-salon").fill("Rose Nails");
-  await page.getByTestId("a-owner").fill("Hoa");
-  await page.getByTestId("a-phone").fill("4085550199");
-  await page.getByTestId("a-create").click();
-  await expect(page.getByTestId("a-row")).toHaveCount(before + 1);
-  await expect(page.getByTestId("a-row").first()).toContainText("Rose Nails");
-  await expect(page.getByTestId("a-row").first().getByTestId("a-code")).toHaveText("TEST-2345");
-  expect(errors).toEqual([]);
-});

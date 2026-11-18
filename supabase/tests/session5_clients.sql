@@ -5,9 +5,6 @@ insert into auth.users (id, phone, aud, role) values
   ('00000000-0000-0000-0000-00000000ee01', '14085550501', 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000ee02', '14085550502', 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000ee03', '14085550503', 'authenticated', 'authenticated');
-
--- Salons are invite-only (Nov 17): test users may create salons like a platform admin.
-insert into public.platform_admins (auth_user_id) select id from auth.users where id::text like '00000000-0000-0000-0000-%' on conflict do nothing;
 create temp table t_out (k text primary key, v jsonb);
 grant all on t_out to authenticated, anon;
 create function pg_temp.visit(tid int, phone text, name text, cents int, days_ago int) returns void language plpgsql security definer as $$
@@ -21,6 +18,7 @@ begin
 end $$;
 grant execute on all functions in schema pg_temp to authenticated;
 
+insert into public.platform_admins (auth_user_id) select id from auth.users on conflict do nothing;  -- salons are invite-only: test owners set up salons as platform admins
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000ee01","role":"authenticated"}', true);
 select public.save_setup(jsonb_build_object('salonId', '00000000-0000-0000-0000-0000000009a1', 'ownerName', 'Mai', 'salonName', 'Client Nails', 'state', 'CA', 'step', 9,

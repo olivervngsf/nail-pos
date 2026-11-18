@@ -6,12 +6,10 @@ insert into auth.users (id, phone, aud, role) values
   ('00000000-0000-0000-0000-0000000000a1', '14085550001', 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-0000000000b1', '14085550002', 'authenticated', 'authenticated');
 
--- Salons are invite-only (Nov 17): test users may create salons like a platform admin.
-insert into public.platform_admins (auth_user_id) select id from auth.users where id::text like '00000000-0000-0000-0000-%' on conflict do nothing;
-
 create temp table wall_ids (who text primary key, salon uuid);
 grant all on wall_ids to authenticated, anon;
 
+insert into public.platform_admins (auth_user_id) select id from auth.users on conflict do nothing;  -- salons are invite-only: test owners set up salons as platform admins
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 insert into wall_ids values ('a', public.create_salon('Salon A', 'CA', 'Owner A', '+14085550001'));

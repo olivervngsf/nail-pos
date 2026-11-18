@@ -6,9 +6,6 @@ insert into auth.users (id, phone, aud, role) values
   ('00000000-0000-0000-0000-00000000fd01', '14085550801', 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000fd02', '14085550802', 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000fd03', '14085550803', 'authenticated', 'authenticated');
-
--- Salons are invite-only (Nov 17): test users may create salons like a platform admin.
-insert into public.platform_admins (auth_user_id) select id from auth.users where id::text like '00000000-0000-0000-0000-%' on conflict do nothing;
 create temp table t_out (k text primary key, v jsonb);
 grant all on t_out to authenticated, anon;
 -- Fixed time: today at noon in the salon's time zone (so the test never straddles midnight).
@@ -21,6 +18,7 @@ create function pg_temp.walk(id text, ago text, extra jsonb default '{}') return
     'updatedAt', now()) || extra) $$;
 grant execute on all functions in schema pg_temp to authenticated;
 
+insert into public.platform_admins (auth_user_id) select id from auth.users on conflict do nothing;  -- salons are invite-only: test owners set up salons as platform admins
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000fd01","role":"authenticated"}', true);
 select public.save_setup(jsonb_build_object('salonId', '00000000-0000-0000-0000-0000000030a1', 'ownerName', 'Mai', 'salonName', 'Turn Nails', 'state', 'CA', 'step', 9,
