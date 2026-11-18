@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SMS_ON, homeFor, isSignedIn, myMemberships } from "@/lib/auth";
+import { SMS_ON, amPlatformAdmin, homeFor, isSignedIn, myMemberships } from "@/lib/auth";
 import { useTranslations } from "next-intl";
 import { useLang } from "@/components/AppProviders";
 import { Segmented } from "@/components/kit";
@@ -14,7 +14,11 @@ export default function Home() {
   const router = useRouter();
   // Already signed in on this device → skip the start screen, go to your home (Today, tech phone or setup).
   useEffect(() => {
-    void isSignedIn().then(async (yes) => { if (yes) router.replace(homeFor(await myMemberships())); }).catch(() => { /* offline: stay here */ });
+    void isSignedIn().then(async (yes) => {
+      if (!yes) return;
+      const ms = await myMemberships();
+      router.replace(homeFor(ms, !ms.length && (await amPlatformAdmin()))); // admin with no salon → /admin
+    }).catch(() => { /* offline: stay here */ });
   }, [router]);
   return (
     <main style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
