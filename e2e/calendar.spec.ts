@@ -28,6 +28,7 @@ test("calendar: break blocks time on a tech, not counted as a booking", async ({
   page.on("pageerror", (e) => errors.push(e.message));
   test.skip(test.info().project.name === "phone", "right-click is for mouse; phone uses long-press on a booking");
   await page.goto("/calendar");
+  await expect(page.getByTestId("cal-block").first()).toBeVisible();   // sample day loaded
   const all = page.getByTestId("count-all");
   const before = await all.textContent();
   const grid = page.getByTestId("cal-grid");
