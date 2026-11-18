@@ -6,7 +6,7 @@
     "offline": "Offline · saved on this device",
     "waiting": "{count, plural, one {# change waiting to sync} other {# changes waiting to sync}}",
     "banner": "No internet. Keep working: everything saves on this device and sends when you're back online.",
-    "stuck": "{count} not saved · ask the owner"
+    "stuck": "{count} not saved · tap to retry"
   },
   "home": {
     "tagline": "Simple checkout and fair, clear pay for techs.",
@@ -1436,7 +1436,9 @@
       "loyalty": "Loyalty",
       "giftCards": "Gift cards",
       "payouts": "Payout sheet",
-      "printer": "Printer"
+      "printer": "Printer",
+      "payments": "Payments",
+      "reader": "Card reader"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -1657,6 +1659,59 @@
       "saved": "Saved",
       "cancel": "Cancel",
       "save": "Save"
+    },
+    "pay": {
+      "lead": "Your salon's own Stripe account. Card money goes straight to your bank; we never hold it.",
+      "loading": "Checking Stripe…",
+      "live": "Live",
+      "test": "Test",
+      "checking": "Stripe is checking",
+      "needsInfo": "Needs info",
+      "notConnected": "Not connected",
+      "off": "Card payments aren't switched on for this site yet. Call us.",
+      "account": "Account",
+      "cards": "Card payments",
+      "payouts": "Payouts to your bank",
+      "on": "On",
+      "notYet": "Not yet",
+      "rejected": "Stripe turned this account down. Call us.",
+      "missing": "Stripe still needs: {list}. Tap Continue with Stripe.",
+      "pendingWhy": "Stripe is checking your details. Usually a minute, sometimes a day. This page updates by itself.",
+      "finish": "Finish your details on Stripe. Tap Continue with Stripe.",
+      "need": "Takes about 5 minutes. Have your EIN (or SSN), bank details and date of birth ready.",
+      "dashboard": "Open Stripe dashboard",
+      "connect": "Connect with Stripe",
+      "continue": "Continue with Stripe",
+      "checkAgain": "Check again",
+      "feeReader": "Card reader (tap/chip)",
+      "feeLink": "Pay link / QR",
+      "feeUs": "Our fee on payments",
+      "feeUsV": "$0 (flat monthly plan only)",
+      "bankHow": "Change bank account, business details or payout timing in your Stripe dashboard.",
+      "testNote": "Test payments: this site uses Stripe's test key, so no real money moves. Real payments start when the live key is set."
+    },
+    "reader": {
+      "loading": "Checking readers…",
+      "off": "Card payments aren't switched on for this site yet. Call us.",
+      "needStripe": "Connect payments first.",
+      "toPayments": "Go to Payments",
+      "testReader": "Test reader (no real cards)",
+      "online": "Online",
+      "offline": "Offline",
+      "unknown": "Can't tell",
+      "remove": "Remove",
+      "removeAsk": "Remove “{name}” from the salon? You can pair it again later.",
+      "none": "No card reader yet.",
+      "add": "Add a card reader",
+      "addAnother": "Add another reader",
+      "s1": "Plug in the Stripe S710 and connect it to the salon Wi-Fi.",
+      "s2": "On the reader: Settings · Generate pairing code.",
+      "s3": "Type the 3 words it shows.",
+      "code": "Pairing code",
+      "name": "Reader name",
+      "connect": "Connect reader",
+      "useTest": "No reader yet: add a test reader",
+      "refresh": "Refresh"
     }
   }
 }
