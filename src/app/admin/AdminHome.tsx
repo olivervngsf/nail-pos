@@ -1,139 +1,117 @@
 "use client";
-// Platform admin (Oliver, Elang): every salon at a glance + add a salon by invite.
-// Quick version of the Founder Admin board: salon health, alerts and support access come later.
-// Data: admin_salons() / admin_create_salon() / admin_new_code() (migration invites_admin); all check is_platform_admin().
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { SMS_ON, amPlatformAdmin, e164, isSignedIn, myMemberships, rpc, signOut } from "@/lib/auth";
-import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
-import { Button, Field, ListGroup, Row, Tag, Toast, TopBar } from "@/components/kit";
+// Founder Admin · Home = alerts inbox (variation B): what needs us today, worst first; Handled hides it for the day (logged).
+// Side: today's totals across salons + every salon with a health dot. Salons tab (variation A) = /admin/salons.
+import Link from "next/link";
+import { formatCents } from "@/lib/money";
+import { fmtPhone } from "@/lib/onboarding/data";
+import { alertsFor, healthOf, openAlerts, totals, vsWeekAgo, type Alert, type Overview } from "@/lib/admin/health";
+import { Button } from "@/components/kit";
+import { AdminShell, useAdmin } from "./shell";
 
-type Salon = {
-  salon_id: string; salon_name: string; state: string; created_at: string; setup_step: number; owner_name: string | null;
-  owner_phone: string | null; owner_email: string | null; owner_joined: boolean; code: string | null; code_expires: string | null; staff: number;
+const $0 = (c: number) => formatCents(Math.round(c / 100) * 100).replace(/\.00$/, "");
+const hello = (now: Date) => (now.getHours() < 12 ? "Good morning" : now.getHours() < 18 ? "Good afternoon" : "Good evening");
+const ago = (iso: string | null, now: number) => {
+  if (!iso) return "";
+  const m = Math.round((now - Date.parse(iso)) / 60000);
+  if (m < 60) return `${Math.max(m, 1)} min ago`;
+  if (m < 1440) return `${Math.round(m / 60)} h ago`;
+  return `${Math.round(m / 1440)} days ago`;
 };
-type Made = { salon_id: string; code: string; salon: string; owner: string; phone: string };
-const day = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+const time = (iso: string) => new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 
 export default function AdminHome() {
-  const router = useRouter();
-  const [state, setState] = useState<"loading" | "no" | "ok">("loading");
-  const [hasSalon, setHasSalon] = useState(false);
-  const [salons, setSalons] = useState<Salon[]>([]);
-  const [f, setF] = useState({ salon: "", state: "CA", owner: "", phone: "", email: "" });
-  const [err, setErr] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [made, setMade] = useState<Made | null>(null);
-  const [toast, setToast] = useState("");
-  const say = (t: string) => { setToast(t); setTimeout(() => setToast(""), 3000); };
-
-  const load = useCallback(async () => {
-    try { setSalons(await rpc<Salon[]>("admin_salons")); } catch (e) { setErr((e as Error).message); }
-  }, []);
-
-  useEffect(() => {
-    if (!SMS_ON) { setState("no"); return; }
-    void (async () => {
-      if (!(await isSignedIn())) return router.replace("/login?next=/admin");
-      if (!(await amPlatformAdmin())) { setState("no"); return; }
-      setHasSalon((await myMemberships().catch(() => [])).length > 0);
-      setState("ok");
-      void load();
-    })();
-  }, [router, load]);
-
-  const create = async () => {
-    setErr("");
-    if (!f.salon.trim() || !f.owner.trim()) return setErr("Salon name and owner name are needed.");
-    if (!phoneOk(f.phone)) return setErr("Owner phone: 10 digits, like (408) 555-0110.");
-    setBusy(true);
-    try {
-      const r = await rpc<{ salon_id: string; code: string }>("admin_create_salon", {
-        p_salon: f.salon.trim(), p_state: f.state, p_owner: f.owner.trim(), p_phone: e164(f.phone), p_email: f.email.trim() || null,
-      });
-      setMade({ ...r, salon: f.salon.trim(), owner: f.owner.trim(), phone: f.phone });
-      setF({ salon: "", state: "CA", owner: "", phone: "", email: "" });
-      void load();
-    } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
-  };
-
-  const newCode = async (s: Salon) => {
-    try { await rpc<string>("admin_new_code", { p_salon: s.salon_id }); say(`New code for ${s.salon_name}`); void load(); }
-    catch (e) { say((e as Error).message); }
-  };
-
-  const copy = (t: string) => { void navigator.clipboard?.writeText(t).then(() => say("Copied")); };
-  const inviteText = (m: { owner: string; salon: string; code: string }) =>
-    `Hi ${m.owner}, your PolishOS salon "${m.salon}" is ready. Sign in at ${location.origin}/login with this phone number. Invite code: ${m.code}`;
-
-  if (state === "loading") return <div className="app" aria-busy="true" />;
-  if (state === "no") return (
-    <main style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div className="card pad" style={{ maxWidth: 420, width: "100%", padding: 28, gap: 12 }}>
-        <h1 className="h2">Admins only</h1>
-        <p className="cap">This page is for the PolishOS team. Sign in with an admin phone.</p>
-        <Button onClick={async () => { await signOut(); router.replace("/login"); }}>Sign in as someone else</Button>
-      </div>
-    </main>
-  );
-
-  const waiting = salons.filter((s) => !s.owner_joined).length;
+  const admin = useAdmin();
   return (
-    <div className="app" style={{ display: "block" }}>
-      <TopBar title="PolishOS admin">
-        {hasSalon && <Button onClick={() => router.push("/today")}>Open Today</Button>}
-        <Button variant="ghost" data-testid="sign-out" onClick={async () => { await signOut(); router.replace("/login"); }}>Sign out</Button>
-      </TopBar>
-      <main style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20, maxWidth: 980, width: "100%", margin: "0 auto" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-          <h1 className="h1">Salons</h1>
-          <span className="cap">{salons.length} salons · {waiting} owner{waiting === 1 ? "" : "s"} not joined yet</span>
+    <AdminShell tab="home" admin={admin} title="Founder Admin">
+      {admin.data && <Inbox o={admin.data} onHandle={admin.handle} />}
+    </AdminShell>
+  );
+}
+
+function Inbox({ o, onHandle }: { o: Overview; onHandle: (salon: string, kind: string) => Promise<void> }) {
+  const now = new Date(o.now);
+  const alerts = openAlerts(o);
+  const t = totals(o);
+  const fine = o.salons.filter((s) => !alertsFor(s, o.now).length).length;
+  const bad = alerts.filter((a) => a.level === "bad");
+  const warn = alerts.filter((a) => a.level === "warn");
+  const weekday = now.toLocaleDateString("en-US", { weekday: "short" });
+  const trend = vsWeekAgo(t.ticketsToday, t.ticketsWeekAgo, weekday);
+  const name = (id: string) => o.salons.find((s) => s.salon_id === id)?.salon_name ?? "Salon";
+  const kindTitle = (id: string, kind: string) => {
+    const s = o.salons.find((x) => x.salon_id === id);
+    return (s && alertsFor(s, o.now).find((a) => a.kind === kind)?.title) ?? kind.replace(/_/g, " ");
+  };
+
+  return (
+    <div className="ad-split">
+      <section className="ad-wide-col" aria-label="Needs you">
+        <div>
+          <div className="eyebrow">{now.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</div>
+          <h1 className="h1" style={{ margin: "2px 0 4px" }}>{hello(now)}{o.me ? `, ${o.me.split(" ")[0]}` : ""}</h1>
+          <p style={{ margin: 0, color: "var(--ink-soft)" }} data-testid="inbox-sum">
+            {alerts.length ? `${alerts.length} thing${alerts.length === 1 ? "" : "s"} need you today.` : "Nothing needs you today."} {fine} salon{fine === 1 ? " is" : "s are"} fine.
+          </p>
         </div>
 
-        <section className="card pad" style={{ display: "flex", flexDirection: "column", gap: 12 }} data-testid="add-salon">
-          <div className="eyebrow">Add salon by invite</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
-            <Field id="a-salon" label="Salon name" value={f.salon} onChange={(e) => setF({ ...f, salon: e.target.value })} />
-            <div>
-              <label className="lbl" htmlFor="a-state">State</label>
-              <select className="inp" id="a-state" value={f.state} onChange={(e) => setF({ ...f, state: e.target.value })}>
-                {["CA", "TX", "FL", "NY", "WA", "MN", "GA", "IL", "NJ", "PA", "VA", "NC", "AZ", "MA", "CO", "OR", "NV", "OTHER"].map((x) => <option key={x}>{x}</option>)}
-              </select>
-            </div>
-            <Field id="a-owner" label="Owner name" value={f.owner} onChange={(e) => setF({ ...f, owner: e.target.value })} />
-            <Field id="a-phone" label="Owner mobile" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} />
-            <Field id="a-email" label="Owner email (optional)" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
-          </div>
-          {err && <div className="hint err" role="alert">{err}</div>}
-          <div><Button variant="primary" disabled={busy} onClick={() => void create()}>{busy ? "Adding…" : "Add salon + invite"}</Button></div>
-          <p className="cap">The owner signs in with this phone (or email) and the salon is theirs. They finish the 10 setup steps themselves.</p>
-          {made && (
-            <div className="card pad" style={{ gap: 8, display: "flex", flexDirection: "column" }} data-testid="invite-made">
-              <b>{made.salon} is ready for {made.owner}</b>
-              <span className="cap">Invite code <b style={{ fontFamily: "monospace", fontSize: 16 }}>{made.code}</b> · sign in at {location.origin}/login with {made.phone}</span>
-              <div><Button size="sm" onClick={() => copy(inviteText(made))}>Copy invite text</Button></div>
-            </div>
-          )}
-        </section>
+        {bad.length > 0 && <><div className="eyebrow">Now</div>{bad.map((a) => <AlertCard key={a.salon_id + a.kind} a={a} big now={+now} onHandle={onHandle} />)}</>}
+        {warn.length > 0 && <><div className="eyebrow">Today</div>{warn.map((a) => <AlertCard key={a.salon_id + a.kind} a={a} now={+now} onHandle={onHandle} />)}</>}
+        {!alerts.length && <div className="card pad" style={{ textAlign: "center", padding: 32 }}><div className="h2">All good</div><p className="cap">Every salon is healthy right now.</p></div>}
 
-        <ListGroup data-testid="salon-list">
-          {salons.map((s) => (
-            <Row key={s.salon_id} size="m"
-              title={<b style={{ fontWeight: 600 }}>{s.salon_name}</b>}
-              sub={`${s.state} · ${s.owner_name ?? "No owner"}${s.owner_phone ? ` · ${fmtPhone(s.owner_phone.replace(/^\+1/, ""))}` : ""} · ${s.staff} staff · added ${day(s.created_at)}`}
-              right={<span style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
-                {s.owner_joined
-                  ? (s.setup_step >= 9 ? <Tag tone="jade">Live</Tag> : <Tag>Setup {Math.min(s.setup_step + 1, 10)}/10</Tag>)
-                  : <Tag>Owner not joined</Tag>}
-                {!s.owner_joined && s.code && <Button size="sm" onClick={() => copy(inviteText({ owner: s.owner_name ?? "", salon: s.salon_name, code: s.code! }))}>Copy invite · {s.code}</Button>}
-                {!s.owner_joined && s.owner_name && <Button size="sm" variant="ghost" onClick={() => void newCode(s)}>New code</Button>}
-              </span>} />
-          ))}
-          {!salons.length && <Row title={<span className="cap">No salons yet.</span>} />}
-        </ListGroup>
-        <p className="cap">Salon health, alerts and owner-granted support access come with the full Founder Admin build. Admins see salons and owners only, never client or staff private data.</p>
-      </main>
-      {toast && <Toast>{toast}</Toast>}
+        {o.handled.length > 0 && <>
+          <div className="eyebrow">Done today</div>
+          <div className="group" data-testid="done-today">
+            {o.handled.map((h) => (
+              <div key={h.salon_id + h.kind} className="row s"><span className="g">{name(h.salon_id)}: {kindTitle(h.salon_id, h.kind)}</span><span className="cap">{h.by} · {time(h.at)}</span></div>
+            ))}
+          </div>
+        </>}
+      </section>
+
+      <aside className="ad-side" aria-label="All salons today">
+        <div className="card pad">
+          <div className="eyebrow">Today, all salons</div>
+          <div className="money" style={{ marginTop: 6 }} data-testid="today-total">{$0(t.centsToday)}</div>
+          <div className="cap">{t.ticketsToday} tickets{trend ? ` · ${trend}` : ""} · salons’ money, not ours</div>
+          <div style={{ display: "flex", gap: 24, marginTop: 14 }}>
+            <div><b className="num" style={{ fontSize: 18 }}>{t.salons}</b><div className="cap">salons</div></div>
+            <div><b className="num" style={{ fontSize: 18 }}>{t.live}</b><div className="cap">live</div></div>
+            <div><b className="num" style={{ fontSize: 18 }}>{t.settingUp}</b><div className="cap">setting up</div></div>
+          </div>
+        </div>
+        <div className="group">
+          <div className="row s" style={{ justifyContent: "space-between" }}><b style={{ fontWeight: 600 }}>Salons</b><Link className="btn sm" href="/admin/salons?add=1">+ Invite</Link></div>
+          {o.salons.map((s) => {
+            const h = healthOf(s, alertsFor(s, o.now));
+            return (
+              <Link key={s.salon_id} href={`/admin/salons/${s.salon_id}`} className="row s ad-link">
+                <span className={`ad-dot ${h}`} aria-hidden />
+                <span className="g">{s.salon_name}</span>
+                <span className="num cap">{s.owner_joined && s.setup_step >= 9 ? $0(s.cents_today) : "Setting up"}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </aside>
     </div>
+  );
+}
+
+function AlertCard({ a, big, now, onHandle }: { a: Alert; big?: boolean; now: number; onHandle: (salon: string, kind: string) => Promise<void> }) {
+  const phone = a.phone ? fmtPhone(a.phone.replace(/^\+1/, "")) : "";
+  return (
+    <article className={`card pad ad-alert${big ? " bad" : ""}`} data-testid="alert">
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <span className={`ad-pill ${a.level}`}>{a.level === "bad" ? "Problem" : "Needs action"}</span>
+        {a.since && <span className="cap">{ago(a.since, now)}</span>}
+      </div>
+      <h2 className={big ? "h2" : ""} style={{ margin: 0, fontSize: big ? undefined : 16, fontWeight: 600 }}>{a.salon}: {a.title}</h2>
+      <p className="cap" style={{ margin: 0, fontSize: 14 }}>{a.why}</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        {phone && <a className={`btn${big ? " primary" : ""}`} href={`tel:${a.phone}`}>Call {a.owner?.split(" ")[0] ?? "owner"} · {phone}</a>}
+        <Link className="btn" href={`/admin/salons/${a.salon_id}`}>Open salon</Link>
+        <Button style={{ marginLeft: "auto" }} onClick={() => void onHandle(a.salon_id, a.kind)} data-testid="handled">Handled</Button>
+      </div>
+    </article>
   );
 }

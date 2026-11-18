@@ -1,7 +1,7 @@
 -- M14 · Support access (Founder Admin A2/A4/A8, System Design "Founder Admin", issue #21).
 -- The owner turns support on for 24 hours. Only then can a platform admin (Oliver, Elang) open the salon's screens.
 -- Every change the admin makes is written to audit_log; it ends by itself after 24 h, or when the owner or admin ends it.
--- Without a grant, admins see salon health only (admin_salon, other branch): counts and totals, never client names, phones or tech pay.
+-- Without a grant, admins see salon health only (admin_salon): counts and totals, never client names, phones or tech pay.
 
 create table public.support_grants (
   id uuid primary key default gen_random_uuid(),
@@ -27,11 +27,12 @@ $$;
 revoke execute on function public._support_on(uuid) from public, anon;
 grant execute on function public._support_on(uuid) to authenticated;
 
--- The salon wall lets support in only during a grant (same view as the owner).
+-- The salon wall lets support in only during a grant (same view as the owner). Keeps QR device logins (device_qr).
 create or replace function public.is_member(s uuid) returns boolean
 language sql stable security definer set search_path = '' as $$
   select exists (select 1 from public.memberships m join public.people p on p.id = m.person_id
     where m.salon_id = s and p.auth_user_id = (select auth.uid()) and m.archived_at is null)
+    or public._device_of(s, array['front_desk', 'clock', 'kiosk'])
     or public._support_on(s);
 $$;
 create or replace function public.is_admin(s uuid) returns boolean
@@ -39,6 +40,7 @@ language sql stable security definer set search_path = '' as $$
   select exists (select 1 from public.memberships m join public.people p on p.id = m.person_id
     where m.salon_id = s and p.auth_user_id = (select auth.uid()) and m.archived_at is null
       and m.role in ('owner', 'manager'))
+    or public._device_of(s, array['front_desk'])
     or public._support_on(s);
 $$;
 create or replace function public._is_desk(p_salon uuid) returns boolean
@@ -46,28 +48,35 @@ language sql stable security definer set search_path = '' as $$
   select exists (select 1 from public.memberships m join public.people p on p.id = m.person_id
     where m.salon_id = p_salon and p.auth_user_id = (select auth.uid()) and m.archived_at is null
       and m.role in ('owner', 'manager', 'front_desk'))
+    or public._device_of(p_salon, array['front_desk', 'kiosk'])
     or public._support_on(p_salon);
 $$;
 
--- Salons you can open: your memberships + (admins) salons in an open support window, shown as "PolishOS support".
+-- Salons you can open: your memberships + QR device logins (device_qr) + (admins) salons in an open support window,
+-- shown as "PolishOS support" with support_until set.
 drop function public.my_memberships();
 create function public.my_memberships()
 returns table (membership_id uuid, salon_id uuid, salon_name text, role public.member_role, display_name text, setup_step smallint,
   has_pin boolean, language text, support_until timestamptz)
 language sql stable security definer set search_path = '' as $$
-  select * from (
-    select m.id, s.id, s.name, m.role, m.display_name, s.setup_step, m.pin_hash is not null, p.language, null::timestamptz
+  select x.membership_id, x.salon_id, x.salon_name, x.role, x.display_name, x.setup_step, x.has_pin, x.language, x.support_until from (
+    select m.id as membership_id, s.id as salon_id, s.name as salon_name, m.role, m.display_name, s.setup_step, m.pin_hash is not null as has_pin, p.language,
+      null::timestamptz as support_until, 0 as k, (m.role = 'owner') as is_owner, s.created_at
     from public.memberships m join public.salons s on s.id = m.salon_id join public.people p on p.id = m.person_id
     where p.auth_user_id = (select auth.uid()) and m.archived_at is null and s.archived_at is null
-    order by (m.role = 'owner') desc, s.created_at
-  ) mine
-  union all
-  select null::uuid, s.id, s.name, 'owner'::public.member_role, 'PolishOS support', s.setup_step, false,
-    coalesce((select p.language from public.people p where p.auth_user_id = (select auth.uid())), 'en'), g.ends_at
-  from public.support_grants g join public.salons s on s.id = g.salon_id
-  where public.is_platform_admin() and g.ended_at is null and g.ends_at > now() and s.archived_at is null
-    and not exists (select 1 from public.memberships m join public.people p on p.id = m.person_id
-      where m.salon_id = s.id and p.auth_user_id = (select auth.uid()) and m.archived_at is null);
+    union all
+    select null::uuid, s.id, s.name, (case when d.kind = 'front_desk' then 'manager' else 'front_desk' end)::public.member_role,
+      d.name, s.setup_step, false, 'en', null::timestamptz, 0, false, s.created_at
+    from public.device_logins dl join public.devices d on d.id = dl.device_id join public.salons s on s.id = d.salon_id
+    where dl.auth_user_id = (select auth.uid()) and d.archived_at is null and s.archived_at is null
+    union all
+    select null::uuid, s.id, s.name, 'owner'::public.member_role, 'PolishOS support', s.setup_step, false,
+      coalesce((select p.language from public.people p where p.auth_user_id = (select auth.uid())), 'en'), g.ends_at, 1, false, s.created_at
+    from public.support_grants g join public.salons s on s.id = g.salon_id
+    where public.is_platform_admin() and g.ended_at is null and g.ends_at > now() and s.archived_at is null
+      and not exists (select 1 from public.memberships m join public.people p on p.id = m.person_id
+        where m.salon_id = s.id and p.auth_user_id = (select auth.uid()) and m.archived_at is null)
+  ) x order by x.k, x.is_owner desc, x.created_at;
 $$;
 revoke execute on function public.my_memberships() from public, anon;
 grant execute on function public.my_memberships() to authenticated;
@@ -149,7 +158,7 @@ do $$ declare t text; begin
   end loop;
 end $$;
 
--- Admin list: salons with support on right now (name, until, the owner's reason). Health + activity live in admin_salon.
+-- Admin list: salons with support on right now (name, until, the owner's reason). Health + activity: admin_salon (/admin/salons/[id]).
 create function public.admin_support_on() returns table (salon_id uuid, salon_name text, until timestamptz, since timestamptz, reason text)
 language sql stable security definer set search_path = '' as $$
   select distinct on (g.salon_id) g.salon_id, s.name, g.ends_at, g.starts_at, g.reason

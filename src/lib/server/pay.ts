@@ -43,19 +43,22 @@ type PayRequest = { id: string; salon_id: string; ticket_id: string; method: "ca
 /** Look at Stripe for this pay request; when paid, record it (safe to call many times). Returns the pay request status.
  *  A try that was cancelled or failed is still checked: if the card went through anyway, settle_card records it as
  *  'extra' (flagged to refund) so money is never taken without a record. */
-export async function settle(prId: string): Promise<{ status: string; error?: string | null }> {
+export async function settle(prId: string, seenIntent?: string | null): Promise<{ status: string; error?: string | null }> {
   const db = asServer(), st = getStripe();
   if (!db || !st) throw new Error("Payments aren't switched on yet.");
   const { data: pr } = await db.from("pay_requests").select("*").eq("id", prId).single<PayRequest>();
   if (!pr) throw new Error("No such payment.");
   const pending = pr.status === "pending";
-  if (pr.status === "paid" || (!pending && !pr.payment_intent && !pr.checkout_session)) return { status: pr.status, error: pr.error };
+  // A payment Stripe told us about (webhook) that isn't the one on file, e.g. an older pay page the client still had open:
+  // look at that one, so it's recorded (settle_card flags it 'extra' to refund if the ticket doesn't need it).
+  const other = seenIntent && seenIntent !== pr.payment_intent ? seenIntent : null;
+  if (!other && (pr.status === "paid" || (!pending && !pr.payment_intent && !pr.checkout_session))) return { status: pr.status, error: pr.error };
   const { data: acct } = await db.from("stripe_accounts").select("account_id").eq("salon_id", pr.salon_id).single();
   if (!acct) throw new Error("Salon has no Stripe account.");
   const opts = { stripeAccount: acct.account_id as string };
   const still = { status: pr.status, error: pr.error };
 
-  let piId = pr.payment_intent;
+  let piId = other ?? pr.payment_intent;
   if (!piId && pr.checkout_session) {
     const cs = await st.checkout.sessions.retrieve(pr.checkout_session, {}, opts);
     if (cs.payment_status !== "paid" || !cs.payment_intent) return still;
@@ -64,6 +67,7 @@ export async function settle(prId: string): Promise<{ status: string; error?: st
   if (!piId) return still;
 
   const pi = await st.paymentIntents.retrieve(piId, { expand: ["latest_charge.balance_transaction"] }, opts);
+  if (other && pi.metadata?.pay_request !== pr.id) return still; // not this try's money
   if (pr.method === "card_reader" && pi.status !== "succeeded") {
     // Reader declined / cancelled: tell the desk.
     if (pending && pr.reader_id) {
@@ -89,7 +93,9 @@ export async function settle(prId: string): Promise<{ status: string; error?: st
   for (const l of lines ?? []) if (l.staff_id) byStaff.set(l.staff_id, (byStaff.get(l.staff_id) ?? 0) + Number(l.amount_cents));
   const staff = [...byStaff.keys()];
   const parts = tip > 0 && staff.length ? splitCents(tip, staff.map((s) => byStaff.get(s) || 1)) : [];
-  const tips = staff.map((s, i) => ({ staffId: s, cents: parts[i] ?? 0 }));
+  // No tech on the ticket (e.g. only a gift card sold) but the client tipped on the reader: keep the tip on the ticket
+  // with no name, so the ticket total still equals the money taken.
+  const tips: { staffId: string | null; cents: number }[] = staff.length ? staff.map((s, i) => ({ staffId: s, cents: parts[i] ?? 0 })) : tip > 0 ? [{ staffId: null, cents: tip }] : [];
 
   const { data, error } = await db.rpc("settle_card", { p: {
     payRequestId: pr.id, paymentIntent: pi.id, amountCents: pi.amount_received, tipCents: tip, feeCents: bt?.fee ?? 0,

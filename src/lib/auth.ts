@@ -10,7 +10,7 @@ export const e164 = (phone: string) => "+1" + phone.replace(/\D/g, "").replace(/
 
 export type Role = "owner" | "manager" | "front_desk" | "tech";
 export type Membership = {
-  /** null on a support row (platform admin inside a salon while the owner allows support, migration support_access). */
+  /** null = a salon device set up by QR (not a person), or a support window (support_until set; migration support_access). */
   membership_id: string;
   salon_id: string;
   salon_name: string;
@@ -204,8 +204,10 @@ export const GOOGLE_ON = SMS_ON && process.env.NEXT_PUBLIC_GOOGLE_LOGIN === "on"
 /** Leaves the page for Google, comes back to /login, which finishes sign-in. */
 export async function signInWithGoogle(): Promise<string | null> {
   try {
-    const next = new URLSearchParams(location.search).get("next");
-    const back = `${location.origin}/login?google=1${next ? `&next=${encodeURIComponent(next)}` : ""}`;
+    // Keep ?next= and ?invite= through the trip to Google and back.
+    const q = new URLSearchParams(location.search), keep = new URLSearchParams({ google: "1" });
+    for (const k of ["next", "invite"]) { const v = q.get(k); if (v) keep.set(k, v); }
+    const back = `${location.origin}/login?${keep}`;
     const { error } = await sb().auth.signInWithOAuth({ provider: "google", options: { redirectTo: back } });
     return error ? "Google sign-in isn't ready yet. Use your phone number." : null;
   } catch (e) {
@@ -232,11 +234,35 @@ export async function googleEmail(): Promise<string | null> {
   return g ? String(g.identity_data?.email ?? "Google") : null;
 }
 
-/** After Google sign-in: an account with no phone and no salon = Google wasn't connected to anyone. Undo it. */
-export async function isLoneGoogleAccount(ms: Membership[]): Promise<boolean> {
-  if (ms.length) return false;
-  const { data } = await sb().auth.getUser();
-  return !!data.user && !data.user.phone && data.user.app_metadata?.provider === "google";
+/* ---------- invites (salons are made by PolishOS; owner + staff join with a link or code) ---------- */
+/** "abcd-2345 " → "ABCD2345" */
+export const cleanCode = (c: string) => c.toUpperCase().replace(/[^A-Z0-9]/g, "");
+export const showCode = (c: string) => (c.length === 8 ? `${c.slice(0, 4)}-${c.slice(4)}` : c);
+export type InviteInfo = { salon_name: string; display_name: string; role: Role; owner_name: string | null; phone_last4: string; status: "open" | "used" | "expired" };
+
+export async function getInvite(code: string): Promise<InviteInfo | null> {
+  const { data, error } = await sb().rpc("get_invite", { p_code: cleanCode(code) });
+  if (error) throw new Error("Can't check the code. Check internet and try again.");
+  return ((data ?? []) as InviteInfo[])[0] ?? null;
+}
+
+/** Attach the invite to whoever is signed in. Returns an error in plain words, or null. */
+export async function redeemInvite(code: string): Promise<string | null> {
+  if (!SMS_ON) return null;
+  const { error } = await sb().rpc("redeem_invite", { p_code: cleanCode(code) });
+  if (!error) return null;
+  const m = error.message;
+  if (/not found/.test(m)) return "We can't find that code. Check the letters and numbers.";
+  if (/used/.test(m)) return "This invite was already used. Ask for a new one.";
+  if (/expired/.test(m)) return "This invite ran out (7 days). Ask for a new one.";
+  if (/already in salon/.test(m)) return "You're already in this salon.";
+  if (/phone has a login/.test(m)) return "That phone number already has a login. Sign in with it instead.";
+  return "Couldn't join. Check internet and try again.";
+}
+
+/** Links invites waiting for this phone or verified email (e.g. right after Google). Never throws. */
+export async function claimMine() {
+  if (SMS_ON) await getSupabase()?.rpc("claim_memberships").then(() => {}, () => {});
 }
 
 export async function isSignedIn(): Promise<boolean> {
@@ -253,11 +279,13 @@ export async function myMemberships(): Promise<Membership[]> {
   return (data ?? []) as Membership[];
 }
 
-/** Where to go after sign-in. A platform admin (us) with no salon goes to /admin, not salon setup. */
+/** Where to go after sign-in: owner with unfinished setup → /setup, desk roles → /today, tech → /t.
+ *  No salon yet: platform admin (us) → /admin; anyone else → /invite (type your invite code; salons are made by PolishOS). Test copy: /setup. */
 export function homeFor(all: Membership[], admin = false): string {
   const ms = all.filter((m) => !m.support_until);   // support windows are opened from /admin, never a home
-  if (!ms.length) return admin ? "/admin" : "/setup";
+  if (!ms.length) return admin ? "/admin" : SMS_ON ? "/invite" : "/setup";
   const m = ms[0];
+  if (!m.membership_id) return DEVICE_HOME[getDevice()?.kind ?? "front_desk"];
   if (m.role === "owner" && m.setup_step < 9) return "/setup";
   return m.role === "tech" ? "/t" : "/today";
 }
@@ -285,7 +313,10 @@ export async function rpc<T = unknown>(fn: string, args?: Record<string, unknown
 }
 
 /* ---------- salon device (owner signs this device in once) ---------- */
-export type Device = { id: string; salonId: string; name: string };
+export type DeviceKind = "front_desk" | "clock" | "kiosk";
+export const DEVICE_HOME: Record<DeviceKind, string> = { front_desk: "/desk", clock: "/clock", kiosk: "/kiosk" };
+/** kind + own = set up by QR: the device has its own login (never the owner's). */
+export type Device = { id: string; salonId: string; name: string; kind?: DeviceKind; own?: boolean };
 const DEVICE_KEY = "nailpos.device";
 export function getDevice(): Device | null {
   try {
@@ -300,6 +331,37 @@ export async function makeSalonDevice(salonId: string, name: string): Promise<De
   const d = { id, salonId, name };
   localStorage.setItem(DEVICE_KEY, JSON.stringify(d));
   return d;
+}
+/** Tablet side of QR set-up: trade the 8-letter code for the device's own login, sign in, remember the device. */
+export async function claimDevice(code: string): Promise<Device & { kind: DeviceKind; salonName?: string }> {
+  if (!SMS_ON) {
+    const d = { id: "demo-device", salonId: "demo", name: "Front desk iPad", kind: "front_desk" as const, own: true };
+    localStorage.setItem(DEVICE_KEY, JSON.stringify(d));
+    return { ...d, salonName: "Test Nails" };
+  }
+  const r = await fetch("/api/device/claim", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code }) });
+  const j = (await r.json().catch(() => ({}))) as { email?: string; password?: string; device?: Device & { kind: DeviceKind; salonName?: string }; error?: string };
+  if (!r.ok || !j.email || !j.password || !j.device) throw new Error(j.error ?? "bad_code");
+  await sb().auth.signOut({ scope: "local" });
+  try { ["nailpos.acting", "nailpos.me", "nailpos.salon"].forEach((k) => localStorage.removeItem(k)); } catch { /* storage blocked */ }
+  const { error } = await sb().auth.signInWithPassword({ email: j.email, password: j.password });
+  if (error) throw new Error(error.message);
+  const d = { id: j.device.id, salonId: j.device.salonId, name: j.device.name, kind: j.device.kind, own: true };
+  localStorage.setItem(DEVICE_KEY, JSON.stringify(d));
+  return { ...d, salonName: j.device.salonName };
+}
+/** QR device: ask the server for its current job/name (the owner may have changed it) and update the device copy.
+ *  Signed out by the owner → forget it. Returns the home it should be on now (null = not a QR device / offline). */
+export async function syncDevice(): Promise<string | null> {
+  const d = getDevice();
+  if (!d?.own || !SMS_ON) return null;
+  try {
+    const r = await rpc<{ id: string; salonId: string; name: string; kind: DeviceKind; active: boolean } | null>("my_device");
+    if (!r || !r.active) { forgetDevice(); return "/login"; }
+    const next = { ...d, name: r.name, kind: r.kind };
+    localStorage.setItem(DEVICE_KEY, JSON.stringify(next));
+    return DEVICE_HOME[r.kind];
+  } catch { return null; } // offline: keep the device copy
 }
 export function forgetDevice() {
   try {

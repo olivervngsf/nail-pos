@@ -5,20 +5,20 @@ import { rpc } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase/client";
 import { DEMO_DESK } from "@/lib/desk";
 import { defaultHours, toMin } from "@/lib/onboarding/data";
-import { allAppts, putAppt, type ApptSource } from "./appts";
+import { allAppts, getAppt, putAppt, type ApptSource } from "./appts";
 import { addDays, at, dayKey, freeStarts, fromDayKey, minutesOf } from "./grid";
 
 export const DEMO_SLUG = "demo";
 export type PageService = { id: string; cat: string; name: string; minutes: number; cents: number; from: boolean };
 export type PageStaff = { id: string; name: string };
 export type PageHours = { weekday: number; open: boolean; opens: string | null; closes: string | null };
-export type PageRules = { on?: boolean; days_ahead: number; latest_before_close: number; group_max: number; cancel_hours: number; min_notice: number };
+export type PageRules = { on?: boolean; days_ahead: number; latest_before_close: number; group_max: number; cancel_hours: number; min_notice: number; calendar_note?: string; calendar_alarm_min?: number };
 export type BookPage = {
-  salon: { name: string; phone: string | null; address: string | null; slug: string; settings: PageRules };
+  salon: { name: string; phone: string | null; address: string | null; slug: string; timeZone?: string; settings: PageRules };
   hours: PageHours[]; photos: { path: string; label: string }[]; services: PageService[]; staff: PageStaff[];
 };
 export type Guest = { name?: string; serviceIds: string[]; staffId?: string | null };
-export type BookResult = { ok: true; ids: string[]; staff: string[] } | { ok: false; reason: "taken" | "closed" | "too_many" | "bad" };
+export type BookResult = { ok: true; ids: string[]; staff: string[]; token?: string } | { ok: false; reason: "taken" | "closed" | "too_many" | "bad" };
 
 const RULES: PageRules = { days_ahead: 30, latest_before_close: 60, group_max: 6, cancel_hours: 2, min_notice: 30 };
 const isDemo = (slug: string) => slug === DEMO_SLUG || !getSupabase();
@@ -30,9 +30,13 @@ export const photoUrl = (path: string) => {
 export const sourceOf = (src: string | null): ApptSource =>
   (["google", "website", "instagram", "qr", "text"] as const).find((s) => s === src) ?? "web";
 
+/** Test version: the calendar note + reminder the owner set in Settings → Booking page (saved on this device). */
+const demoSaved = (): Partial<PageRules> => { try { return JSON.parse(localStorage.getItem("nailpos.demoBookPage.v1") || "null")?.settings ?? {}; } catch { return {}; } };
+const demoNote = () => { const n = demoSaved().calendar_note; return typeof n === "string" ? n : "Parking: free lot behind the salon. Running late? Call us."; };
+
 function demoPage(): BookPage {
   return {
-    salon: { name: DEMO_DESK.salonName, phone: "(408) 555-0100", address: "1234 Story Rd, San Jose, CA", slug: DEMO_SLUG, settings: RULES },
+    salon: { name: DEMO_DESK.salonName, phone: "(408) 555-0100", address: "1234 Story Rd, San Jose, CA", slug: DEMO_SLUG, timeZone: "America/Los_Angeles", settings: { ...RULES, calendar_note: demoNote(), calendar_alarm_min: demoSaved().calendar_alarm_min ?? 60 } },
     hours: defaultHours().map((h, i) => ({ weekday: i, open: h.on, opens: h.open, closes: h.close })),
     photos: [{ path: "demo:1", label: "Salon" }, { path: "demo:2", label: "Gel art" }, { path: "demo:3", label: "Pedi chairs" }, { path: "demo:4", label: "Nail art" }],
     services: DEMO_DESK.services.map((s) => ({ id: s.id, cat: s.cat, name: s.name, minutes: s.minutes, cents: s.cents, from: s.priceFrom })),
@@ -64,11 +68,11 @@ export function bookDays(page: BookPage, from = new Date()): string[] {
 }
 
 /** Busy spans for one tech on a day, from this device's calendar (test salon). */
-function demoBusy(staffId: string, day: string) {
-  return allAppts().filter((a) => a.staffId === staffId && a.status !== "canceled" && a.status !== "no_show" && dayKey(new Date(a.start)) === day)
+function demoBusy(staffId: string, day: string, skip: string[] = []) {
+  return allAppts().filter((a) => a.staffId === staffId && !skip.includes(a.id) && a.status !== "canceled" && a.status !== "no_show" && dayKey(new Date(a.start)) === day)
     .map((a) => ({ id: a.id, start: minutesOf(a.start), end: minutesOf(a.end) }));
 }
-function demoFree(page: BookPage, day: string, staffId: string | null, minutes: number, publicPage = true): Record<number, string[]> {
+function demoFree(page: BookPage, day: string, staffId: string | null, minutes: number, publicPage = true, skip: string[] = []): Record<number, string[]> {
   const h = hoursOn(page, day);
   if (!h) return {};
   const now = new Date();
@@ -77,7 +81,7 @@ function demoFree(page: BookPage, day: string, staffId: string | null, minutes: 
   const out: Record<number, string[]> = {};
   for (const s of page.staff) {
     if (staffId && s.id !== staffId) continue;
-    for (const m of freeStarts(demoBusy(s.id, day), h.open, close, minutes, notBefore)) (out[m] ??= []).push(s.id);
+    for (const m of freeStarts(demoBusy(s.id, day, skip), h.open, close, minutes, notBefore)) (out[m] ??= []).push(s.id);
   }
   return out;
 }
@@ -120,5 +124,63 @@ export async function book(page: BookPage, p: { src: ApptSource; day: string; st
       services: svc(g).map((s) => ({ serviceId: s.id, name: s.name, minutes: s.minutes, cents: s.cents })), status: "booked", source: p.src, note: p.note, updatedAt: "" });
     return id;
   });
-  return { ok: true, ids, staff: staff.map((s) => page.staff.find((x) => x.id === s)?.name ?? "") };
+  return { ok: true, ids, staff: staff.map((s) => page.staff.find((x) => x.id === s)?.name ?? ""), token: DEMO_TOKEN + ids.join(".") };
+}
+
+// ---------- change / cancel link (polishosapp.com/b/<token>) ----------
+// The long random token in the link is the key (no sign-in). A group booked together moves or cancels together.
+const DEMO_TOKEN = "demo-";
+export type ManageGuest = { name: string; staff: string | null; minutes: number; services: { name: string; minutes: number; cents: number }[] };
+export type Manage = {
+  page: BookPage; status: "live" | "canceled" | "done"; canChange: boolean;
+  day: string; start: number; name: string; guests: ManageGuest[];
+};
+export type ManageResult = { ok: true } | { ok: false; reason: "too_late" | "taken" | "gone" };
+
+const demoParty = (token: string) => token.slice(DEMO_TOKEN.length).split(".").map((id) => getAppt(id)).filter(Boolean);
+const liveOnes = <T extends { status: string }>(list: T[]) => list.filter((a) => a.status === "booked" || a.status === "confirmed");
+
+export async function loadManage(token: string): Promise<Manage | null> {
+  if (token.startsWith(DEMO_TOKEN) || !getSupabase()) {
+    const all = token.startsWith(DEMO_TOKEN) ? demoParty(token) : [];
+    if (!all.length) return null;
+    const page = demoPage(), live = liveOnes(all), shown = live.length ? live : all, first = shown[0];
+    return {
+      page, status: live.length ? "live" : first.status === "canceled" ? "canceled" : "done",
+      canChange: live.length > 0 && new Date(first.start).getTime() - page.salon.settings.cancel_hours * 3600_000 > Date.now(),
+      day: dayKey(new Date(first.start)), start: minutesOf(first.start), name: (first.client?.name ?? "").split(" ")[0],
+      guests: shown.map((a) => ({ name: (a.client?.name ?? "").split(" ")[0], staff: page.staff.find((s) => s.id === a.staffId)?.name ?? null,
+        minutes: Math.round((new Date(a.end).getTime() - new Date(a.start).getTime()) / 60000), services: a.services })),
+    };
+  }
+  type Raw = Omit<Manage, "page"> & Pick<BookPage, "salon" | "hours">;
+  const r = await rpc<Raw | null>("book_manage", { p_token: token });
+  if (!r) return null;
+  const { salon, hours, ...rest } = r;
+  return { ...rest, page: { salon: { ...salon, settings: { ...RULES, ...salon.settings } }, hours, photos: [], services: [], staff: [] } };
+}
+
+/** Free times to move to: every guest keeps their nail tech; their own booking doesn't count as busy. */
+export async function moveSlots(token: string, page: BookPage, day: string): Promise<number[]> {
+  if (!token.startsWith(DEMO_TOKEN)) return rpc<number[]>("book_move_slots", { p_token: token, p_day: day });
+  const live = liveOnes(demoParty(token)), skip = live.map((a) => a.id);
+  const per = live.map((a) => Object.keys(demoFree(page, day, a.staffId ?? null, minutesOf(a.end) - minutesOf(a.start), true, skip)).map(Number));
+  return (per[0] ?? []).filter((m) => per.every((p) => p.includes(m))).sort((a, b) => a - b);
+}
+
+export async function moveBooking(token: string, page: BookPage, day: string, start: number): Promise<ManageResult> {
+  if (!token.startsWith(DEMO_TOKEN)) return rpc<ManageResult>("book_move", { p_token: token, p_day: day, p_start: start });
+  const live = liveOnes(demoParty(token));
+  if (!live.length) return { ok: false, reason: "gone" };
+  if (!(await moveSlots(token, page, day)).includes(start)) return { ok: false, reason: "taken" };
+  for (const a of live) putAppt({ ...a, start: at(day, start), end: at(day, start + minutesOf(a.end) - minutesOf(a.start)), status: "booked" });
+  return { ok: true };
+}
+
+export async function cancelBooking(token: string): Promise<ManageResult> {
+  if (!token.startsWith(DEMO_TOKEN)) return rpc<ManageResult>("book_cancel", { p_token: token });
+  const live = liveOnes(demoParty(token));
+  if (!live.length) return { ok: false, reason: "gone" };
+  for (const a of live) putAppt({ ...a, status: "canceled" });
+  return { ok: true };
 }

@@ -33,8 +33,20 @@ export default function SettingsShell({ title, actions, children }: { title: str
   const t = useTranslations("settings");
   const path = usePathname();
   const router = useRouter();
-  const { me, isDevice, acting, device } = useMe();
-  if (!me) return <div className="app" aria-busy="true" />;
+  const { me, isDevice, acting, device, ready } = useMe();
+  if (!me) {
+    // Not signed in on this device (or no salon yet): say so instead of a blank page.
+    if (!ready) return <div className="app" aria-busy="true" />;
+    return (
+      <main style={{ padding: 24, display: "flex", justifyContent: "center" }}>
+        <div className="card pad" style={{ maxWidth: 420, width: "100%" }} data-testid="settings-signin">
+          <div className="h2">{t("signInTitle")}</div>
+          <p className="cap">{t("signInBody")}</p>
+          <Button variant="primary" onClick={() => router.push(`/login?next=${encodeURIComponent(path ?? "/settings")}`)}>{t("signIn")}</Button>
+        </div>
+      </main>
+    );
+  }
   const role: Role = isDevice ? (acting?.role ?? "tech") : me.role;
   const ok = isAdminRole(role);
   const a: Access = { salonId: me.salonId, salonName: me.salonName, role, owner: role === "owner", demo: !SMS_ON };

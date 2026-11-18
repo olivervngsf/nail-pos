@@ -85,6 +85,17 @@ export async function retryParked() {
   await refreshCount();
 }
 
+/** Forget saves of one kind that are waiting or parked (e.g. a setup save aimed at a salon this person can't change).
+ *  Only for kinds where a newer full copy replaces the old one; never for tickets or payments. */
+export async function dropQueued(kind: string) {
+  const d = getDb();
+  await d.transaction("rw", d.outbox, d.parked, async () => {
+    await d.outbox.where("kind").equals(kind).delete();
+    await d.parked.where("kind").equals(kind).delete();
+  });
+  await refreshCount();
+}
+
 /** Save an action on this device and try to send it now. Returns its clientId. */
 export async function enqueue(kind: string, payload: unknown, clientId = uuid()): Promise<string> {
   await getDb().outbox.add({ clientId, kind, payload, deviceTime: new Date().toISOString(), tries: 0 });
@@ -111,14 +122,17 @@ async function runOnce(): Promise<void> {
     const d = getDb();
     emit({ syncing: true });
     try {
+      // Items whose sender isn't loaded on this screen (e.g. a booking save while on Checkout) wait for a later run;
+      // they must not hold back the tickets and payments behind them.
+      const later = new Set<number>();
       for (;;) {
-        const item = await d.outbox.orderBy("seq").first();
+        const item = await d.outbox.orderBy("seq").filter((i) => !later.has(i.seq!)).first();
         if (!item) break;
         const handler = handlers.get(item.kind);
         if (!handler) {
-          await d.outbox.update(item.seq!, { tries: item.tries + 1, lastError: `no handler for ${item.kind}` });
-          emit({ lastError: `no handler for ${item.kind}` });
-          break;
+          later.add(item.seq!);
+          if (item.lastError !== `no handler for ${item.kind}`) await d.outbox.update(item.seq!, { lastError: `no handler for ${item.kind}` });
+          continue;
         }
         try {
           await handler(item);

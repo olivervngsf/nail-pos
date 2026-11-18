@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import PhoneCodeLogin from "@/components/PhoneCodeLogin";
 import { SMS_ON, amPlatformAdmin, homeFor, isSignedIn, myMemberships } from "@/lib/auth";
 import { api } from "@/lib/api";
-import { syncNow } from "@/lib/offline/outbox";
+import { dropQueued, syncNow } from "@/lib/offline/outbox";
 import { queueSave, withIds } from "./sync";
 import { importMenu, shrinkPhoto } from "./menuImport";
 import { Button, Segmented, SyncPill } from "@/components/kit";
@@ -43,24 +43,64 @@ export default function SetupWizard() {
     // Already signed in: go back to the salon you started (never make a second one), or to Today if it's done.
     if (s.stage !== "wizard") void (async () => {
       if (!(await isSignedIn())) return;
-      const mine = SMS_ON ? await myMemberships().catch(() => []) : [];
-      const owned = mine.find((m) => m.role === "owner");
+      const ms = SMS_ON ? await myMemberships().catch(() => []) : [];
+      const owned = ms.find((m) => m.role === "owner");
       if (owned && owned.setup_step >= 9) return router.replace("/today");
-      // Platform admins (us) don't set up a salon here: salons are made by invite on /admin.
-      if (SMS_ON && !mine.length && (await amPlatformAdmin())) return router.replace("/admin");
+      // Salons are made by PolishOS (invite only): no salon of your own → your home, /admin (us) or the invite code screen.
+      if (SMS_ON && !owned) return router.replace(homeFor(ms, !ms.length && (await amPlatformAdmin())));
       setS((p) => ({ ...withIds(owned ? { ...p, salonId: owned.salon_id } : p), stage: "wizard" }));
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
+  // Signed in for real: the wizard must point at a salon this person owns or manages. Salons are made by invite only
+  // (PolishOS team on /admin), so a salon id made on this device is refused by the server ("1 not saved"). Move to
+  // the invited salon, or show "you need an invite" instead of letting the owner fill steps that never save.
+  const [noInvite, setNoInvite] = useState(false);
+  useEffect(() => {
+    if (!ready || !SMS_ON || s.stage !== "wizard") return;
+    void (async () => {
+      if (!(await isSignedIn())) return;
+      const mine = await myMemberships().catch(() => null);
+      if (!mine) return; // offline: keep going, the queue sends later
+      if (mine.some((m) => m.salon_id === s.salonId && (m.role === "owner" || m.role === "manager"))) return setNoInvite(false);
+      const owned = mine.find((m) => m.role === "owner");
+      await dropQueued("setup.save"); // saves aimed at the wrong salon would never go through
+      if (owned) {
+        if (owned.setup_step >= 9) return router.replace("/today");
+        setS((p) => ({ ...p, salonId: owned.salon_id }));
+        return;
+      }
+      if (await amPlatformAdmin()) return router.replace("/admin");
+      setNoInvite(true);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, s.stage, s.salonId]);
   // Save to the database (through the offline queue) every time the step changes.
   useEffect(() => {
-    if (ready && s.stage === "wizard") queueSave(withIds(s));
+    if (ready && s.stage === "wizard" && !noInvite) queueSave(withIds(s));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, s.stage, s.step]);
+  }, [ready, s.stage, s.step, s.salonId, noInvite]);
 
   if (!ready) return <div className="wiz" aria-busy="true" />;
   if (s.stage !== "wizard") return <SignIn s={s} set={set} />;
+  if (noInvite) return <NoInvite />;
   return <Wizard s={s} set={set} say={say} toast={toast} setToast={setToast} reset={reset} />;
+}
+
+/* Signed in, but no salon to set up: salons are added by the PolishOS team, the owner gets an invite link + code. */
+function NoInvite() {
+  return (
+    <Centered>
+      <div className="logo" style={{ margin: 0 }}>P</div>
+      <h1 className="h1" style={{ margin: 0 }}>You need an invite</h1>
+      <p className="cap" style={{ margin: 0, fontSize: 15, lineHeight: "22px" }}>
+        PolishOS adds each salon for you. Ask us to add yours with your phone number, then sign in with that number:
+        your salon opens here. Nothing you typed on this device was saved to a salon.
+      </p>
+      <Link className="btn primary" href="/login">Sign in with another number</Link>
+      <div className="cap">Questions? Call or text Elang.</div>
+    </Centered>
+  );
 }
 
 /* ---------- sign up / sign in ---------- */
@@ -85,10 +125,9 @@ function SignIn({ s, set }: { s: SetupState; set: Set }) {
       const owned = (await myMemberships()).find((m) => m.role === "owner");
       if (owned && owned.setup_step >= 9) return router.replace("/today");
       if (owned) return enter(owned.salon_id); // keep setting up the salon you already started
-      const other = (await myMemberships())[0];
-      if (other) return router.replace(homeFor([other]));
-      if (await amPlatformAdmin()) return router.replace("/admin");
-      enter();
+      const ms = await myMemberships();
+      // No salon of your own: your home, /admin (us) or the invite code screen.
+      return router.replace(homeFor(ms, !ms.length && (await amPlatformAdmin())));
     } catch (e) { setErr((e as Error).message); }
   };
   return (
@@ -395,6 +434,7 @@ const StaffStep: StepView = ({ s, set, say }) => [{ label: s.staff.length > 1 ? 
 
 function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
   const [open, setOpen] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null); // null = adding someone new
   const blank: NewStaff = { name: "", phone: "", role: "Tech", pay: "Commission 60%" };
   const [n, setN] = useState<NewStaff>(blank);
   const [tried, setTried] = useState(false);
@@ -405,9 +445,27 @@ function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
     return `${origin}/join/${code}?n=${encodeURIComponent(name)}&r=${encodeURIComponent(role)}&s=${encodeURIComponent(s.salonName || "Your salon")}&o=${encodeURIComponent((s.ownerName || "the owner").split(" ")[0])}`;
   };
   const bad = !n.name.trim() || !phoneOk(n.phone);
+  const close = () => { setOpen(false); setEditId(null); setN(blank); setTried(false); };
+  const startAdd = () => { setEditId(null); setN(blank); setTried(false); setOpen(true); };
+  const startEdit = (p: (typeof s.staff)[number]) => {
+    setEditId(p.id ?? null);
+    setN({ name: p.name, phone: p.phone, role: p.role === "Owner" ? "Tech" : p.role, pay: p.pay ?? "Commission 60%" });
+    setTried(false); setOpen(true);
+  };
+  const remove = (p: (typeof s.staff)[number]) => {
+    const before = s.staff;
+    set((x) => ({ ...x, staff: x.staff.filter((y) => y.id !== p.id) }));
+    say(`${p.name} removed · invite link no longer works`, () => set((x) => ({ ...x, staff: before })));
+  };
   const invite = () => {
     setTried(true);
     if (bad) return;
+    if (editId) {
+      set((p) => ({ ...p, staff: p.staff.map((x) => x.id === editId ? { ...x, name: n.name.trim(), phone: n.phone, role: n.role, pay: n.pay } : x) }));
+      say(`Saved ${n.name.trim()}`);
+      close();
+      return;
+    }
     const added = { id: crypto.randomUUID(), name: n.name.trim(), phone: n.phone, role: n.role, pay: n.pay, status: "Invited" as const, inviteCode: newInviteCode() };
     set((p) => ({ ...p, staff: [...p.staff, added] }));
     setOpen(false); setN(blank); setTried(false);
@@ -430,18 +488,20 @@ function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
               }}>{copied === p.inviteCode ? "✓ Copied" : "Copy invite link"}</button>
               <a className="btn ghost sm" href={link(p.inviteCode, p.name, p.role)} target="_blank" rel="noreferrer">Open ›</a>
             </>}
+            <button type="button" className="btn ghost sm" aria-label={`Edit ${p.name}`} onClick={() => startEdit(p)}>Edit</button>
+            {p.status !== "Joined" && <button type="button" className="btn ghost sm" style={{ color: "var(--red)" }} aria-label={`Remove ${p.name}`} onClick={() => remove(p)}>Remove</button>}
           </>}
         </div>
       ))}
     </div>
-    <div><button className="btn" type="button" onClick={() => setOpen(true)}>+ Add staff</button></div>
+    <div><button className="btn" type="button" onClick={startAdd}>+ Add staff</button></div>
     {SMS_ON
       ? <div className="cap">Tap Copy invite link and text it to them yourself (automatic invite texts are coming).</div>
       : <div className="demo">Test version: texts aren&apos;t sent yet. Copy the invite link and send it yourself, or open it to see what staff get on their phone.</div>}
     {open && <>
-      <button className="scrim" aria-label="Close" onClick={() => setOpen(false)} />
-      <div className="drawer" role="dialog" aria-label="Add staff">
-        <div className="drawer-h"><span style={{ flex: 1 }}>Add staff</span><button className="btn ghost sm" type="button" aria-label="Close" onClick={() => setOpen(false)}>✕</button></div>
+      <button className="scrim" aria-label="Close" onClick={close} />
+      <div className="drawer" role="dialog" aria-label={editId ? "Edit staff" : "Add staff"}>
+        <div className="drawer-h"><span style={{ flex: 1 }}>{editId ? "Edit staff" : "Add staff"}</span><button className="btn ghost sm" type="button" aria-label="Close" onClick={close}>✕</button></div>
         <div className="drawer-b">
           <div><label className="lbl" htmlFor="nn">Name</label><input className={`inp ${tried && !n.name.trim() ? "err" : ""}`} id="nn" value={n.name} autoFocus onChange={(e) => setN({ ...n, name: e.target.value })} /></div>
           <div><label className="lbl" htmlFor="np">Mobile number (we text the invite)</label>
@@ -452,9 +512,9 @@ function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
           <div><span className="lbl">How they&apos;re paid</span><div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {(["Commission 60%", "Hourly $16", "Booth rent"] as PayType[]).map((p) => <button key={p} type="button" className={`chip ${n.pay === p ? "on" : ""}`} aria-pressed={n.pay === p} onClick={() => setN({ ...n, pay: p })}>{p}</button>)}
           </div></div>
-          <div className="cap">The link works once and ends in 7 days. Reminder text after 24 h.</div>
+          <div className="cap">{editId ? "Their invite link stays the same." : "The link works once and ends in 7 days."}</div>
         </div>
-        <div className="drawer-f"><button className="btn ghost" type="button" onClick={() => setOpen(false)}>Cancel</button><button className="btn primary" type="button" style={{ flex: 1, height: 48, fontSize: 16 }} onClick={invite}>Send invite</button></div>
+        <div className="drawer-f"><button className="btn ghost" type="button" onClick={close}>Cancel</button><button className="btn primary" type="button" style={{ flex: 1, height: 48, fontSize: 16 }} onClick={invite}>{editId ? "Save" : "Send invite"}</button></div>
       </div>
     </>}
   </>;
@@ -465,7 +525,7 @@ const Payments: StepView = ({ s, set }) => {
   if (SMS_ON) return [{ lock: s.stripe !== "done" && s.stripe !== "pending" }, <StripeConnect key="sc" s={s} set={set} />];
   if (s.stripe === "stripe") return [{ lock: true }, (
     <div className="card" style={{ overflow: "hidden" }}>
-      <div style={{ height: 44, display: "flex", alignItems: "center", padding: "0 16px", background: "#F6F8FA", borderBottom: "1px solid var(--line)", fontWeight: 700, color: "#635BFF" }}>stripe · {s.salonName || "Your salon"}</div>
+      <div style={{ height: 44, display: "flex", alignItems: "center", padding: "0 16px", background: "#F6F8FA", borderBottom: "1px solid var(--line)", fontWeight: 600, color: "#635BFF" }}>stripe · {s.salonName || "Your salon"}</div>
       <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
         <div className="demo">Test version: this stands in for Stripe&apos;s own secure sign-up page (Stripe Connect comes in a later step). Nothing here is sent.</div>
         <div className="grid2">

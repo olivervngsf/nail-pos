@@ -6,6 +6,7 @@ import en from "@/i18n/en.json";
 import vi from "@/i18n/vi.json";
 import { registerHandler, startSync } from "@/lib/offline/outbox";
 import SupportBanner from "@/components/SupportBanner";
+import TwoStepGate from "@/components/TwoStepGate";
 
 export type Lang = "en" | "vi";
 const MESSAGES = { en, vi };
@@ -49,6 +50,7 @@ export default function AppProviders({ children }: { children: React.ReactNode }
       <NextIntlClientProvider locale={lang} messages={MESSAGES[lang]} timeZone="America/Los_Angeles">
         <SupportBanner />
         {children}
+        <TwoStepGate />
       </NextIntlClientProvider>
     </LangCtx.Provider>
   );

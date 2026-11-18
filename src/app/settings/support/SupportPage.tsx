@@ -1,7 +1,7 @@
 "use client";
 // Settings → Support (Founder Admin A2/A4, issue #21): the owner lets the PolishOS team (Oliver, Elang) into the salon for
 // 24 hours, sees it's on + time left, ends it any time, and sees every step support took (what + when).
-// Server: support_grant / support_end / support_status (migration 20261212000001_support_access). Only the owner can turn it on.
+// Server: support_grant / support_end / support_status (migration 20261218000001_support_access). Only the owner can turn it on.
 import { useCallback, useEffect, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button, Field, ListGroup, Row, Tag, Toast } from "@/components/kit";

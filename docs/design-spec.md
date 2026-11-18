@@ -50,12 +50,13 @@ Selection is **ink**, never jade (jade = money/OK only). Color is never the only
 ### Type (system font: `-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto`)
 | Class | Size / line | Weight | Letter spacing |
 |---|---|---|---|
-| `.h1` | 28/34 (hero variants 40/46) | 700 | −0.025em |
+| `.h1` | 28/34 (hero variants 40/46) | 600 | −0.025em |
 | `.h2` | 20/26 | 600 | −0.02em |
 | `.money` | 34/40 (variants 26, 28, 30, 40, 44, 56) | 700 | −0.03em, tabular numbers |
 | body / rows | 15–17 | 400–600 | −0.01em |
 | `.cap` | 13/18 | 400 | 0 |
 | `.eyebrow` | 12, UPPERCASE | 600 | +0.04em |
+- **Weight rule (Nov 17):** semibold (600) is the default for emphasis, titles, names, buttons and `<b>`. Bold (700) only on purpose: big money (`.money`), KPI numbers, totals on receipts/slips, codes (OTP). Never bold body text.
 - Every money number uses `font-variant-numeric: tabular-nums` (`.num`).
 - Font smoothing: `-webkit-font-smoothing: antialiased`.
 
@@ -70,7 +71,7 @@ Selection is **ink**, never jade (jade = money/OK only). Color is never the only
 | Component | Spec |
 |---|---|
 | App shell (desktop) | 1280×800. Left rail 76px (logo 36px dark square r10, items 60px wide, 22px stroke icons 1.75, 11px labels; active = `--fill` bg + 600). Top bar 56px, translucent `rgba(245,245,247,.8)` + `backdrop-filter: saturate(180%) blur(20px)`, hairline bottom. |
-| Wizard shell (setup) | 1280×800. Side 288px: brand row, progress bar 4px (fill animates width .6s), 10 step rows 40px (number circle 24px; done = filled ink + ✓; now = `--fill` bg + bold). Help box at bottom. Footer 76px: Back (ghost) · spacer · Saved pill · Continue (primary, 200px). |
+| Wizard shell (setup) | 1280×800. Side 288px: brand row, progress bar 4px (fill animates width .6s), 10 step rows 40px (number circle 24px; done = filled ink + ✓; now = `--fill` bg + semibold). Help box at bottom. Footer 76px: Back (ghost) · spacer · Saved pill · Continue (primary, 200px). |
 | Phone shell | 390×844, `--surface` bg, top bar 52px centered 17/600 title. |
 | `.btn` | 44px tall, r10, `--fill` bg, 15/600. Hover `#E6E6EA`. Press `scale(.98)`. |
 | `.btn.primary` | 52px tall, r14, ink bg, white 17/600. Hover opacity .88. |
@@ -114,7 +115,7 @@ Example data used everywhere: Ticket #1042, client **Lan Tran** (408) 555-0142, 
 |---|---|---|---|
 | 1 | Ticket (`Main`) | Rail + bar ("Ticket #1042", Saved pill, "Hạnh · Front desk" → Profile). Left: "Services" h1 + segmented By staff / By service; grouped rows per service (avatar, name, staff · time, price); "Add service" row (dashed avatar); buttons Discount $/%, Gift card, Note; total card (Services, discount, gift card, hairline, "Due now" money 34px + **Charge $65.00** primary 260px). Right card 320px = client panel: avatar 52, name, phone, "Regular" tag; 3 stat tiles (12 visits, $68 avg ticket, 4 wk comes every); Last visit; Notes; Gift card balance; "Open client profile →". | Charge → Pay |
 | 2 | Pay (`Pay`) | Centered: ticket line, **$65.00** 56px, "+ tip". 2×2 tiles max 880px: Card reader (fee 2.7% + 5¢ · paid by salon), Cash (No fee · works offline), QR code / pay link (fee 2.9% + 30¢), Split. | Card → Reader · Cash → Cash · QR → PhoneQR · Split = not designed yet · "‹ Ticket" back |
-| 3a | Card reader (`Reader`) | Left card: amount, 4-step grouped list; offline warning box (orange-soft); buttons Cancel · other method, Replay, "See paid screen →". Right: phone-shaped reader mock 320×600 (r40 frame, r30 screen). | **Auto-plays**: every 2.2s step advances 1→4. Step states: done = ink ✓ (pop), now = orange ring + pulsing dot + bold, next = grey ring. Reader mock swaps with `.fade`: "Add a tip?" (18% $11.70 / 20% $13.00 / 25% $16.25, Custom $18.00 selected, No tip, "100% of your tip goes to your nail staff.") → "Tap, insert or swipe" $83.00 with pulsing ring → "Approved" ✓ pop. Replay restarts. |
+| 3a | Card reader (`Reader`) | Left card: amount, 4-step grouped list; offline warning box (orange-soft); buttons Cancel · other method, Replay, "See paid screen →". Right: phone-shaped reader mock 320×600 (r40 frame, r30 screen). | **Auto-plays**: every 2.2s step advances 1→4. Step states: done = ink ✓ (pop), now = orange ring + pulsing dot + semibold, next = grey ring. Reader mock swaps with `.fade`: "Add a tip?" (18% $11.70 / 20% $13.00 / 25% $16.25, Custom $18.00 selected, No tip, "100% of your tip goes to your nail staff.") → "Tap, insert or swipe" $83.00 with pulsing ring → "Approved" ✓ pop. Replay restarts. |
 | 3b | Cash (`Cash`) | Bar shows **warn** pill "Offline · 3 tickets waiting to sync". Left card: Due $65.00; "Client gave" 4 quick buttons $65/$70/$80/$100; Change box (money 40px); cash tips per staff inputs (Kim $7.00, Ngọc $11.00); note "No internet needed…". Right: 3×4 keypad, **Cash received**. | Tapping a quick amount selects it (ink) and recomputes Change = given − 65 (fade). Cash received → Done. Keypad not wired yet (build: typing sets "Client gave"). |
 | 4 | Paid (`Done`) | Bar pill "Confirmed by Stripe". Left card: ✓ pop 56px, **$83.00** Visa ••4242, sub line; table Staff / Service / Card tip / Fee on tip (Kim $35 $7 $0; Ngọc $55 $11 $0); note on tip split; "Money for this ticket" box: Card charged $83.00, Card fee −$2.29, Tips to staff −$18.00, **Salon keeps $62.71**. Right: Receipt group (Print, Text (408)…, Email, No receipt), "Book next visit?" card (Mon, Dec 14 with Kim, Book it), **New ticket**. | Text → PhoneClientReceipt · New ticket → Ticket |
 | P1 | QR (`PhoneQR`) | Amount, QR 220px in card, pulsing orange dot "Waiting for Lan to pay…", Text pay link button, primary "Client scans → their phone", fee note. | → PhoneClientPay |
