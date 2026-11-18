@@ -25,14 +25,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-      - name: Skip if the live database isn't connected yet
+      - name: Check the live database is connected (repo secret LIVE_DB_URL)
         id: has
-        run: echo "ok=${{ secrets.LIVE_DB_URL != '' }}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "ok=${{ secrets.LIVE_DB_URL != '' }}" >> "$GITHUB_OUTPUT"
+          if [ "${{ secrets.LIVE_DB_URL != '' }}" != "true" ]; then
+            msg="Live database NOT updated: the repo secret LIVE_DB_URL is missing (Settings → Secrets and variables → Actions)."
+            echo "::warning title=Live database skipped::$msg"
+            echo "### ⚠️ $msg" >> "$GITHUB_STEP_SUMMARY"
+            # Run by hand = you meant it to run: fail red instead of a green skip.
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then exit 1; fi
+          fi
       - name: Install psql
         if: steps.has.outputs.ok == 'true'
         run: sudo apt-get update -q && sudo apt-get install -y -q postgresql-client
       - name: Run new migrations on live
         if: steps.has.outputs.ok == 'true'
-        run: scripts/db-push-live.sh ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}
+        run: |
+          set -o pipefail
+          rc=0
+          scripts/db-push-live.sh ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }} 2>&1 | tee out.txt || rc=$?
+          { echo "### Live database"; echo '```'; grep -E "running|would run|live database|FAILED" out.txt || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit $rc
         env:
           LIVE_DB_URL: ${{ secrets.LIVE_DB_URL }}

@@ -1,0 +1,23 @@
+name: Uptime
+# Every 10 minutes: is polishosapp.com up and can it reach the database? (/api/health)
+# A failed run = GitHub emails the repo owner (Settings → Notifications → Actions: "Send notifications for failed workflows only").
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check the live site (3 tries, 20 s apart)
+        run: |
+          url="${UPTIME_URL:-https://polishosapp.com}/api/health"
+          for i in 1 2 3; do
+            body=$(curl -fsS --max-time 15 "$url") && { echo "up: $body"; exit 0; }
+            echo "try $i failed"; sleep 20
+          done
+          echo "::error::$url is DOWN (3 tries)"; exit 1
+        env:
+          UPTIME_URL: ${{ vars.UPTIME_URL }}
