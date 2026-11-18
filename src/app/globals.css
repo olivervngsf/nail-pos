@@ -46,7 +46,8 @@ button:disabled { cursor: not-allowed; }
 .drawer { position: fixed; width: min(440px, 100%); z-index: 41; }
 .drawer-f { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
 .sheet { position: fixed; z-index: 41; }
-.toast { position: fixed; min-width: 0; width: max-content; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 50; }
+/* Centred without transform (the fade-in animation ends at transform:none, which pushed it half off a phone screen). */
+.toast { position: fixed; min-width: 0; width: max-content; max-width: calc(100% - 32px); left: 0; right: 0; margin-inline: auto; transform: none; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 50; }
 /* kit .seg uses <span>; the app uses real buttons */
 .seg button { height: 28px; padding: 0 12px; border-radius: 7px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
 .seg button.on { background: var(--paper); color: var(--ink); box-shadow: 0 0 0 .5px rgba(22,22,26,.08), 0 1px 3px rgba(22,22,26,.10); }
