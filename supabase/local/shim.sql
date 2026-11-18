@@ -8,7 +8,7 @@ end $$;
 create schema extensions;
 create extension pgcrypto schema extensions;
 create schema auth;
-create table auth.users (id uuid primary key, phone text, email text, aud text, role text, created_at timestamptz default now());
+create table auth.users (id uuid primary key, phone text, email text, email_confirmed_at timestamptz, raw_user_meta_data jsonb default '{}', aud text, role text, created_at timestamptz default now());
 create function auth.uid() returns uuid language sql stable as $$
   select nullif(current_setting('request.jwt.claims', true)::jsonb->>'sub', '')::uuid $$;
 create function auth.role() returns text language sql stable as $$
