@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, LeftMenu, ListGroup, OfflineBanner, SyncPill, Tag, TopBar } from "@/components/kit";
-import AccountMenu from "@/components/AccountMenu";
 import { formatCents } from "@/lib/money";
 import { getActing, useDesk } from "@/lib/desk";
 import { NEW_FOR } from "@/lib/clients";
@@ -83,7 +82,6 @@ export default function CheckoutHome() {
   const open = all.filter((x) => x.status === "open" && (x.lines.length || x.client?.name || x.number));
   const paid = all.filter((x) => x.status === "paid" && (x.payment?.at ?? x.createdAt) >= today);
   const acting = getActing();
-  const who = acting ? { name: acting.name, role: acting.role } : { name: desk.me.display_name, role: desk.me.role };
 
   const newTicket = () => {
     const id = crypto.randomUUID();
@@ -112,7 +110,6 @@ export default function CheckoutHome() {
       <div className="col">
         <TopBar title={desk.salonName}>
           <SyncPill />
-          <AccountMenu name={who.name} role={who.role} salon={desk.salonName} />
         </TopBar>
         <OfflineBanner />
         <main style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20, maxWidth: 980, width: "100%" }}>

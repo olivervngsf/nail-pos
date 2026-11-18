@@ -2,10 +2,14 @@
 // One React component per Design System piece. They only put kit classes (design/kit/kit.css) on real elements:
 // never add a look here; change the kit, then `npm run kit:sync`.
 import { useEffect, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
-import Link from "next/link";
+import RailAccount from "@/components/RailAccount";
 import { useTranslations } from "next-intl";
+<<<<<<< HEAD
 import { subscribe, type SyncState } from "@/lib/offline/outbox";
 import { CreditRing } from "@/components/CreditRing";
+=======
+import { retryParked, subscribe, syncNow, type SyncState } from "@/lib/offline/outbox";
+>>>>>>> origin/main
 
 const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(" ");
 
@@ -53,8 +57,8 @@ export function Stepper({ value, onChange, step = 1, min = -Infinity, max = Infi
   );
 }
 
-/** 4-digit PIN pad. Calls onDone with the 4 digits. */
-export function PinKeypad({ length = 4, onDone, error }: { length?: number; onDone: (pin: string) => void; error?: string }) {
+/** PIN pad (6 or 10 digits by salon rule; a person's older PIN keeps its own length). Calls onDone with all digits. */
+export function PinKeypad({ length = 6, onDone, error }: { length?: number; onDone: (pin: string) => void; error?: string }) {
   const [pin, setPin] = useState("");
   const press = (k: string) => {
     if (k === "del") return setPin((p) => p.slice(0, -1));
@@ -186,7 +190,7 @@ const MENU = [
   { name: "Close day", href: "/close-day", icon: <><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z" /><path d="M9 8h6M9 12h6" /></> },
 ] as const;
 export type MenuItem = (typeof MENU)[number]["name"] | "Me";
-/** Desktop left menu (design/kit/rail.py). Same on every desk screen; only the active item changes. */
+/** Desktop left menu (design/kit/rail.py). Same on every desk screen; only the active item changes. Bottom: profile pop-up. */
 export function LeftMenu({ active, salonInitials = "NP", me }: { active: MenuItem; salonInitials?: string; me?: string }) {
   return (
     <nav className="rail" aria-label="Menu">
@@ -198,8 +202,12 @@ export function LeftMenu({ active, salonInitials = "NP", me }: { active: MenuIte
         </a>
       ))}
       <div style={{ flex: 1 }} />
+<<<<<<< HEAD
       <CreditRing />
       {me && <Link href="/me" className={active === "Me" ? "on" : ""} aria-label="My profile"><span className="av">{me}</span></Link>}
+=======
+      <RailAccount initial={me} />
+>>>>>>> origin/main
     </nav>
   );
 }
@@ -217,7 +225,8 @@ export function SyncPill() {
   const s = useSyncState();
   if (!s.online) return <span className="pill warn" data-testid="sync-pill" data-state="offline"><span aria-hidden>▲</span>{s.pending ? t("waiting", { count: s.pending }) : t("offline")}</span>;
   // Something the server kept refusing: kept on this device, but someone needs to look (hover shows why).
-  if (s.parked) return <span className="pill warn" data-testid="sync-pill" data-state="stuck" title={s.lastError}><span aria-hidden>!</span>{t("stuck", { count: s.parked })}</span>;
+  // Tap to send them again (e.g. after signing in, or once the server is fixed).
+  if (s.parked) return <button type="button" className="pill warn" style={{ cursor: "pointer", font: "inherit", fontSize: 12, color: "var(--ink)" }} data-testid="sync-pill" data-state="stuck" title={s.lastError} onClick={() => void retryParked().then(syncNow)}><span aria-hidden>!</span>{t("stuck", { count: s.parked })}</button>;
   if (s.syncing || s.pending) return <span className="pill" data-testid="sync-pill" data-state="syncing"><span className="dot pulse" aria-hidden />{t("syncing")}</span>;
   return <span className="pill ok" data-testid="sync-pill" data-state="online"><span className="dot" aria-hidden />{t("saved")}</span>;
 }

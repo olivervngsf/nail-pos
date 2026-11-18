@@ -1,13 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-// Email sign-in (test copy): add a sign-in email from the profile menu (code confirms it), then sign in with email + code.
-test("add a sign-in email from the profile menu", async ({ page }) => {
+// Email sign-in (test copy): add a sign-in email on My profile (code confirms it), then sign in with email + code.
+test("add a sign-in email on My profile", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
-  test.skip(test.info().project.name === "phone", "profile menu lives on desk screens (desktop)");
-  await page.goto("/checkout");
-  await page.getByTestId("account-menu").click();
+  await page.goto("/me");
   await expect(page.getByTestId("signin-email")).toContainText("None yet");
   await page.getByTestId("add-email").click();
   await page.getByTestId("add-email-input").fill("owner@example.com");
@@ -35,12 +33,10 @@ test("sign in with email + code", async ({ page }) => {
 });
 
 // Password (test copy): set one from the menu, then sign in with it; forgot password = code → new password.
-test("set a password from the profile menu", async ({ page }) => {
+test("set a password on My profile", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  test.skip(test.info().project.name === "phone", "profile menu lives on desk screens (desktop)");
-  await page.goto("/checkout");
-  await page.getByTestId("account-menu").click();
+  await page.goto("/me");
   await expect(page.getByTestId("password-state")).toContainText("None yet");
   await page.getByTestId("set-password").click();
   await page.getByTestId("set-password-input").fill("short");
