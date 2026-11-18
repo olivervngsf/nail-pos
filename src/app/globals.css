@@ -17,9 +17,11 @@ button:disabled { cursor: not-allowed; }
 @media (max-width: 640px) { .h1 { font-size: 24px; line-height: 30px; } }
 
 /* 2. real-screen sizing for kit shells */
-.app { width: 100%; height: auto; min-height: 100dvh; }
+.app { width: 100%; height: auto; min-height: 100dvh; overflow: visible; overflow-x: clip; }
 .wiz { width: 100%; height: auto; min-height: 100dvh; }
 .side { position: sticky; top: 0; height: 100dvh; }
+/* left menu stays put while the page scrolls: profile always bottom-left */
+.app > .rail { position: sticky; top: 0; height: 100dvh; align-self: flex-start; box-sizing: border-box; flex: none; }
 .prog { margin: 0; }
 .st { border: 0; background: transparent; text-align: left; cursor: pointer; font: inherit; }
 .st.has-sub { height: auto; min-height: 40px; padding: 6px 10px; }
