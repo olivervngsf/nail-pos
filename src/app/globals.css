@@ -636,3 +636,19 @@ button:disabled { cursor: not-allowed; }
 .ps-paper .b{font-weight:700}
 .ps-qr{width:96px;height:96px;margin:6px auto;border:2px dashed #111;display:flex;align-items:center;justify-content:center;font-weight:700}
 @media (max-width:860px){.ps{grid-template-columns:1fr}.ps-right{position:static}}
+/* Text credit ring (left menu) + popover, and the Manage credit page. */
+.cr{position:relative;display:flex;justify-content:center;margin-bottom:6px}
+.cr-ring{width:44px;height:44px;border-radius:12px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.cr-ring:hover{background:var(--fill)}
+.cr-ring.cr-open{background:var(--paper);box-shadow:0 0 0 2px var(--ink)}
+.cr-pop{position:absolute;left:58px;bottom:0;width:280px;padding:6px 0;z-index:30;text-align:left}
+.cr-head{padding:8px 16px}
+.cr-body{padding:12px 16px;display:flex;flex-direction:column;gap:8px}
+.cr-link{display:flex;align-items:center;height:42px;padding:0 16px;font-size:15px;text-decoration:none;color:var(--ink)}
+.cr-link:hover{background:var(--fill)}
+.tc{flex:1;overflow:auto;padding:20px 24px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-content:start}
+.tc-main,.tc-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.tc-adds{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+@media (max-width:899px){.tc{grid-template-columns:1fr;padding:16px}}
+.rail .cr-pop a.cr-link{width:auto;flex-direction:row;align-items:center;gap:0;padding:0 16px;border-radius:0;font-size:15px;color:var(--ink)}
+.rail .cr-pop a.cr-link:hover{background:var(--fill)}
