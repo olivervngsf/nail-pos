@@ -14,6 +14,9 @@ import { putAppt, type Appt, type ApptService, type ApptSource } from "@/lib/boo
 import { at, fmtMin, isFree, minutesOf, repeatDays } from "@/lib/booking/grid";
 import { catColor, codeHits, parseTime, withCodes } from "@/lib/booking/serviceCodes";
 import { isHere } from "@/lib/booking/turns";
+import { skillsNeeded } from "@/lib/booking/skills";
+import { GoodFit, SkillTags } from "./SkillTags";
+import { CustomService } from "./CustomService";
 
 export type BookDraft = { day: string; start: number; minutes: number; staffId?: string };
 
@@ -42,7 +45,7 @@ export function statusOf(a: Appt): Appt["status"] {
 
 type Found = { client_id: string; name: string; notes: string; visits: number; last_services: string | null };
 
-export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk; draft: BookDraft; all: Appt[]; onClose: () => void; onBooked: (n: number, name: string) => void }) {
+export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged }: { desk: Desk; draft: BookDraft; all: Appt[]; onClose: () => void; onBooked: (n: number, name: string) => void; onMenuChanged?: () => void }) {
   const t = useTranslations("calendar");
   const [source, setSource] = useState<ApptSource>("phone");
   const [phone, setPhone] = useState("");
@@ -59,7 +62,7 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
   const [day, setDay] = useState(draft.day);
   const [rep, setRep] = useState<{ every: number; times: number } | null>(null);
   const [note, setNote] = useState("");
-  const [cx, setCx] = useState<{ name: string; price: string; min: string } | null>(null);
+  const [cx, setCx] = useState(false);
   const minutes = svcs.reduce((a, s) => a + s.minutes, 0) || draft.minutes;
 
   useEffect(() => {
@@ -86,6 +89,7 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
     .map((a) => ({ id: a.id, start: minutesOf(a.start), end: minutesOf(a.end) }));
   const busyTill = (sid: string) => { const b = busyOf(sid).filter((x) => x.start < start + minutes && start < x.end).sort((x, y) => y.end - x.end)[0]; return b?.end; };
   const techs = desk.staff.filter((s) => s.role === "tech");
+  const need = skillsNeeded(svcs.map((x) => ({ name: x.name, cat: desk.services.find((d) => d.id === x.serviceId)?.cat })));
   const who = [...techs].filter((s) => !tq || s.name.toLowerCase().includes(tq.toLowerCase()))
     .sort((a, b) => Number(isFree(busyOf(b.id), start, start + minutes)) - Number(isFree(busyOf(a.id), start, start + minutes)) || Number(b.clockedIn) - Number(a.clockedIn));
   // A typed start time that can't be read blocks Book (never save at the old time by mistake).
@@ -95,13 +99,6 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
   const add = (s: { id?: string; name: string; minutes: number; cents: number }) => setSvcs((x) => [...x, { serviceId: s.id, name: s.name, minutes: s.minutes, cents: s.cents }]);
   const addCodes = () => { if (!hits.length) return; hits.forEach(add); setQ(""); };
   const commitTime = () => { if (tText === null) return; const m = parseTime(tText); if (m === null) { setTErr(true); return; } setStart(m); setTText(null); setTErr(false); };
-  const addCustom = () => {
-    if (!cx) return;
-    const cents = Math.round(parseFloat(cx.price.replace(/[^0-9.]/g, "")) * 100);
-    if (!cx.name.trim() || !Number.isFinite(cents)) return;
-    add({ name: cx.name.trim(), minutes: Math.max(5, parseInt(cx.min, 10) || 30), cents });
-    setCx(null);
-  };
   const book = () => {
     const typed: number | null = tText === null ? start : parseTime(tText);
     if (typed === null) { setTErr(true); return; }
@@ -150,17 +147,8 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
               <b><span className="bk-code" style={{ background: col[0], color: col[1] }}>{s.code}</span>{s.name}</b>
               <span>{t("min", { n: s.minutes })} · {formatCents(s.cents).replace(/\.00$/, "")}{s.priceFrom ? "+" : ""}{n > 1 ? ` · ×${n}` : ""}</span></button>); })}</div>
         </div>); })}</div>
-      {!cx ? <button type="button" className="bk-cxbtn" onClick={() => setCx({ name: "", price: "", min: "" })}>{t("b2_custom")}</button>
-        : <div className="bk-cx">
-          <b style={{ fontSize: 13 }}>{t("b2_customTitle")}</b>
-          <input className="inp" placeholder={t("b2_customName")} aria-label={t("b2_customName")} value={cx.name} onChange={(e) => setCx({ ...cx, name: e.target.value })} style={{ height: 40 }} />
-          <div style={{ display: "flex", gap: 8 }}>
-            <input className="inp" inputMode="decimal" placeholder={t("b2_customPrice")} aria-label={t("b2_customPrice")} value={cx.price} onChange={(e) => setCx({ ...cx, price: e.target.value })} style={{ height: 40 }} />
-            <input className="inp" inputMode="numeric" placeholder={t("b2_customMin")} aria-label={t("b2_customMin")} value={cx.min} onChange={(e) => setCx({ ...cx, min: e.target.value })} style={{ height: 40 }} />
-          </div>
-          <span className="cap">{t("b2_customNote")}</span>
-          <div style={{ display: "flex", gap: 8 }}><Button onClick={() => setCx(null)}>{t("b2_cancel")}</Button><Button variant="primary" onClick={addCustom} disabled={!cx.name.trim() || !cx.price.trim()}>{t("b2_customAdd")}</Button></div>
-        </div>}
+      {!cx ? <button type="button" className="bk-cxbtn" onClick={() => setCx(true)} data-testid="cx-open">{t("b2_custom")}</button>
+        : <CustomService desk={desk} cats={cats} cat0={cat} onAdd={add} onClose={() => setCx(false)} onMenuChanged={onMenuChanged} />}
 
       <div className="eyebrow">{t("b2_when")}</div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -181,14 +169,14 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
         <Chip onClick={() => { setStart(Math.min(21 * 60, start + 15)); setTText(null); }}>+15</Chip>
       </div>
 
-      <div className="eyebrow">{t("who")}</div>
+      <div className="eyebrow">{t("who")}{need.length > 0 && <span className="cap" style={{ textTransform: "none", letterSpacing: 0, marginLeft: 8 }} data-testid="skill-need">{t("sk_need", { list: need.join(" · ") })}</span>}</div>
       {techs.length > 5 && <input className="inp" placeholder={t("b2_findTech")} aria-label={t("b2_findTech")} value={tq} onChange={(e) => setTq(e.target.value)} style={{ height: 36 }} />}
       <div className="bk-techs">
         <button type="button" className={`bk-tech ${!staffId ? "on" : ""}`} onClick={() => setStaffId(undefined)}><span className="av" style={{ width: 30, height: 30 }}>★</span><span style={{ flex: 1, minWidth: 0 }}><b>{t("anyone")}</b></span></button>
         {who.map((s) => { const free = isFree(busyOf(s.id), start, start + minutes), till = busyTill(s.id); return (
           <button key={s.id} type="button" className={`bk-tech ${staffId === s.id ? "on" : ""}`} onClick={() => setStaffId(s.id)} data-testid={`book-staff-${s.name}`}>
             <span className="av" style={{ width: 30, height: 30, boxShadow: `0 0 0 2px #fff, 0 0 0 3.5px ${!s.clockedIn ? "#8E8E93" : free ? "#2F9E44" : "#E8590C"}` }}>{s.name[0]}</span>
-            <span style={{ flex: 1, minWidth: 0 }}><b>{s.name}</b><span className="cap" style={{ display: "block" }}>{t("headSub", { t: s.turns, a: busyOf(s.id).length })}</span></span>
+            <span style={{ flex: 1, minWidth: 0 }}><b>{s.name}</b> <GoodFit have={s.skills} need={need} /><span className="cap" style={{ display: "block" }}>{t("headSub", { t: s.turns, a: busyOf(s.id).length })}</span><SkillTags have={s.skills} need={need} /></span>
             <span className="cap" style={{ fontWeight: 600, color: free ? "#1F7A33" : "#B5470A" }}>{free ? t("b2_free") : t("b2_busyTill", { time: fmtMin(till ?? start) })}</span>
           </button>); })}
       </div>

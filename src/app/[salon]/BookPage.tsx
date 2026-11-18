@@ -10,7 +10,8 @@ import { formatCents } from "@/lib/money";
 import { e164 } from "@/lib/auth";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { DEMO_SLUG, book, bookDays, hello, hoursOn, loadPage, loadSlots, photoUrl, sourceOf, type BookPage as Page, type Guest } from "@/lib/booking/page";
-import { at, dayKey, fmtMin, fromDayKey } from "@/lib/booking/grid";
+import { dayKey, fmtMin, fromDayKey } from "@/lib/booking/grid";
+import { bookingIcs } from "@/lib/booking/ics";
 
 type View = "door" | "services" | "staff" | "time" | "details" | "done";
 const ORDER: View[] = ["services", "staff", "time", "details"];
@@ -28,11 +29,12 @@ export default function BookPage({ slug }: { slug: string }) {
   return <Flow page={page} />;
 }
 
-function Header({ page }: { page: Page }) {
+export function Header({ page }: { page: Page }) {
   const t = useTranslations("book");
   const today = hoursOn(page, dayKey(new Date()));
   const now = new Date().getHours() * 60 + new Date().getMinutes();
   const open = today && now >= today.open && now < today.close;
+  const [viewing, setViewing] = useState<number | null>(null);
   const map = page.salon.address ? `https://maps.google.com/?q=${encodeURIComponent(`${page.salon.name}, ${page.salon.address}`)}` : null;
   return (
     <header className="bw-hdr">
@@ -47,15 +49,49 @@ function Header({ page }: { page: Page }) {
         </div>
       </div>
       {page.photos.length > 0 && (
-        <div className="bw-photos" aria-label="Salon photos">
+        <div className="bw-photos" aria-label={t("photos")}>
           {page.photos.slice(0, 4).map((p, i) => {
             const url = photoUrl(p.path);
-            return <div key={p.path} className="bw-ph" style={url ? { backgroundImage: `url(${url})` } : { background: PH[i % PH.length] }}>{p.label}</div>;
+            return <button type="button" key={p.path} className="bw-ph" data-testid="bw-photo" aria-label={t("photoOpen", { label: p.label || i + 1 })} onClick={() => setViewing(i)}
+              style={url ? { backgroundImage: `url(${url})` } : { background: PH[i % PH.length] }}>{p.label}</button>;
           })}
-          {page.photos.length > 4 && <div className="bw-ph" style={{ background: PH[4] }}>+ {page.photos.length - 4}</div>}
+          {page.photos.length > 4 && <button type="button" className="bw-ph" style={{ background: PH[4] }} onClick={() => setViewing(4)}>+ {page.photos.length - 4}</button>}
         </div>
       )}
+      {viewing !== null && <PhotoViewer photos={page.photos} start={viewing} onClose={() => setViewing(null)} />}
     </header>
+  );
+}
+
+/** Full-size salon photos: tap a photo → big view; arrows, swipe, keys (← → Esc); tap outside to close. */
+function PhotoViewer({ photos, start, onClose }: { photos: Page["photos"]; start: number; onClose: () => void }) {
+  const t = useTranslations("book");
+  const [i, setI] = useState(start);
+  const n = photos.length;
+  const go = useCallback((d: number) => setI((x) => (x + d + n) % n), [n]);
+  const [x0, setX0] = useState<number | null>(null);
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); if (e.key === "ArrowRight") go(1); if (e.key === "ArrowLeft") go(-1); };
+    window.addEventListener("keydown", k);
+    const o = document.body.style.overflow; document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", k); document.body.style.overflow = o; };
+  }, [go, onClose]);
+  const p = photos[i], url = photoUrl(p.path);
+  return (
+    <div className="bw-lb" role="dialog" aria-modal="true" aria-label={t("photos")} data-testid="bw-viewer" onClick={onClose}
+      onTouchStart={(e) => setX0(e.touches[0].clientX)} onTouchEnd={(e) => { if (x0 !== null) { const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1); } setX0(null); }}>
+      <button type="button" className="bw-lb-x" aria-label={t("photoClose")} autoFocus onClick={onClose}>✕</button>
+      <figure className="bw-lb-fig" onClick={(e) => e.stopPropagation()}>
+        {/* Plain img: full-size Storage photo, shown on demand only. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {url ? <img src={url} alt={p.label} /> : <div className="bw-lb-ph" style={{ background: PH[i % PH.length] }} />}
+        <figcaption>{p.label && <b>{p.label}</b>}<span className="cap">{i + 1} / {n}</span></figcaption>
+      </figure>
+      {n > 1 && <>
+        <button type="button" className="bw-lb-nav prev" aria-label={t("photoPrev")} onClick={(e) => { e.stopPropagation(); go(-1); }}>‹</button>
+        <button type="button" className="bw-lb-nav next" aria-label={t("photoNext")} onClick={(e) => { e.stopPropagation(); go(1); }}>›</button>
+      </>}
+    </div>
   );
 }
 
@@ -81,7 +117,7 @@ function Flow({ page }: { page: Page }) {
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
-  const [done, setDone] = useState<{ staff: string[]; day: string; start: number } | null>(null);
+  const [done, setDone] = useState<{ staff: string[]; day: string; start: number; token?: string } | null>(null);
 
   const svc = useMemo(() => Object.fromEntries(page.services.map((s) => [s.id, s])), [page]);
   const minsOf = useCallback((g: Guest) => g.serviceIds.reduce((a, id) => a + (svc[id]?.minutes ?? 0), 0), [svc]);
@@ -125,7 +161,7 @@ function Flow({ page }: { page: Page }) {
     setBusy(true);
     try {
       const r = await book(page, { src, day, start: slot, phone: e164(phone), name: name.trim(), textsOk, note: note.trim(), guests });
-      if (r.ok) { setDone({ staff: r.staff, day, start: slot }); setView("done"); }
+      if (r.ok) { setDone({ staff: r.staff, day, start: slot, token: r.token }); setView("done"); }
       else {
         setMsg(t(r.reason === "taken" ? "taken" : r.reason === "too_many" ? "tooMany" : "bad"));
         if (r.reason === "taken") { setSlot(null); setView("time"); }
@@ -151,10 +187,18 @@ function Flow({ page }: { page: Page }) {
   );
 
   if (view === "done" && done) {
-    const start = at(done.day, done.start), end = at(done.day, done.start + longest);
-    const ics = `data:text/calendar;charset=utf-8,${encodeURIComponent(["BEGIN:VCALENDAR", "VERSION:2.0", "BEGIN:VEVENT",
-      `DTSTART:${start.replace(/[-:]/g, "").replace(/\.\d+/, "")}`, `DTEND:${end.replace(/[-:]/g, "").replace(/\.\d+/, "")}`,
-      `SUMMARY:${page.salon.name}`, `LOCATION:${page.salon.address ?? ""}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n"))}`;
+    const manage = done.token ? `${window.location.origin}/b/${done.token}` : `${window.location.origin}/${page.salon.slug}`;
+    const ics = `data:text/calendar;charset=utf-8,${encodeURIComponent(bookingIcs({
+      uid: done.token ?? `${page.salon.slug}-${done.day}-${done.start}`,
+      salon: { name: page.salon.name, address: page.salon.address, phone: page.salon.phone, tz: page.salon.timeZone ?? "America/Los_Angeles" },
+      day: done.day, start: done.start, minutes: longest,
+      when: `${fromDayKey(done.day).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })} · ${fmtMin(done.start)}`,
+      firstName: name.trim().split(" ")[0],
+      lines: guests.flatMap((x, i) => x.serviceIds.map((id) => [svc[id]?.name, done.staff[i]].filter(Boolean).join(" · "))),
+      total: `${hasFrom ? "from " : ""}${formatCents(total)}`,
+      manageUrl: manage, cancelHours: page.salon.settings.cancel_hours,
+      ownerNote: page.salon.settings.calendar_note, alarmMin: page.salon.settings.calendar_alarm_min,
+    }))}`;
     const first = name.trim().split(" ")[0];
     const longDay = fromDayKey(done.day).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
     return (
@@ -184,12 +228,13 @@ function Flow({ page }: { page: Page }) {
           </div>
 
           <div className="bw-acts">
-            <a className="btn primary" href={ics} download="booking.ics">{t("addCal")}</a>
+            <a className="btn primary" href={ics} download={`${page.salon.slug}-booking.ics`}>{t("addCal")}</a>
             {page.salon.address && <a className="btn" target="_blank" rel="noreferrer" href={`https://maps.google.com/?q=${encodeURIComponent(`${page.salon.name}, ${page.salon.address}`)}`}>{t("directions")}</a>}
             <Button variant="ghost" onClick={restart}>{t("again")}</Button>
           </div>
           <p className="cap bw-center">
-            {t("cancelRule", { hours: page.salon.settings.cancel_hours })}
+            {done.token ? <a href={`/b/${done.token}`} data-testid="manage-link">{t("mLink")}</a> : t("cancelRule", { hours: page.salon.settings.cancel_hours })}
+            {done.token && <> · {t("mRule", { hours: page.salon.settings.cancel_hours })}</>}
             {page.salon.phone && <> {t("callUs")} <a href={`tel:${page.salon.phone}`}>{fmtPhone(page.salon.phone)}</a></>}
           </p>
         </div>
@@ -287,6 +332,7 @@ function Flow({ page }: { page: Page }) {
                 <label className="cap" htmlFor="bw-name">{t("name")}</label>
                 <input id="bw-name" className="inp" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
                 <label className="bw-check-row"><input type="checkbox" checked={textsOk} onChange={(e) => setTextsOk(e.target.checked)} /> {t("texts")}</label>
+                <span className="cap" data-testid="texts-terms">{t("textsRates")} <a href="/legal/texts" target="_blank" rel="noreferrer">{t("textsTerms")}</a> · <a href="/legal/privacy" target="_blank" rel="noreferrer">{t("textsPrivacy")}</a></span>
               </div>
               <div className="bw-stack">
                 <label className="cap" htmlFor="bw-note">{t("note")}</label>

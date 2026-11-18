@@ -8,6 +8,7 @@ import { Avatar, Button, LeftMenu, ListGroup, PinKeypad, Segmented, SyncPill, To
 import { useLang } from "@/components/AppProviders";
 import SignInEmail from "@/components/SignInEmail";
 import SignInPassword from "@/components/SignInPassword";
+import TwoStep from "@/components/TwoStep";
 import { rpc, signOut, SMS_ON } from "@/lib/auth";
 import { cachedRules, pinProblem, saveRules, type PinRules } from "@/lib/pin";
 import { isAdminRole, useMe } from "@/lib/me";
@@ -104,6 +105,7 @@ export default function MePage() {
             <SignInEmail vi={vi} />
             <div className="sep" />
             <SignInPassword vi={vi} />
+            {isAdminRole(me.role) && !isDevice && <><div className="sep" /><TwoStep vi={vi} /></>}
           </section>
 
           <ListGroup>

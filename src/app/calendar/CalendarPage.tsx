@@ -25,13 +25,13 @@ const ANY = "__any";
 type View = "day" | "week" | "month";
 
 export default function CalendarPage() {
-  const { desk, err } = useDesk();
+  const { desk, err, refresh } = useDesk();
   if (err) return <main style={{ padding: 24 }}><p className="hint err">{err}</p></main>;
   if (!desk) return <div className="app" aria-busy="true" />;
-  return <Calendar desk={desk} />;
+  return <Calendar desk={desk} refresh={refresh} />;
 }
 
-function Calendar({ desk }: { desk: Desk }) {
+function Calendar({ desk, refresh }: { desk: Desk; refresh: () => Promise<void> }) {
   const t = useTranslations("calendar");
   const router = useRouter();
   const sp = useSearchParams();
@@ -201,7 +201,7 @@ function Calendar({ desk }: { desk: Desk }) {
         {view === "week" && <WeekView desk={desk} day={day} list={list} onDay={(d) => go("day", d)} onOpen={setOpen} onBook={setDraft} />}
         {view === "month" && <MonthView day={day} list={list} onDay={(d) => go("day", d)} />}
       </div>
-      {draft && <BookDrawer desk={desk} draft={draft} all={list} onClose={() => setDraft(null)} onBooked={(n, name) => { setDraft(null); say(t("booked", { n, name })); }} />}
+      {draft && <BookDrawer desk={desk} draft={draft} all={list} onClose={() => setDraft(null)} onBooked={(n, name) => { setDraft(null); say(t("booked", { n, name })); }} onMenuChanged={() => void refresh()} />}
       {opened && <DetailsDrawer desk={desk} a={opened} onClose={() => setOpen(null)} say={say} />}
       {walkIn && <WalkInDrawer desk={desk} today={today} all={all} onClose={() => setWalkIn(false)} say={(x) => say(x)} />}
       {seatFor && (() => { const a = all.find((x) => x.id === seatFor); if (!a) return null;

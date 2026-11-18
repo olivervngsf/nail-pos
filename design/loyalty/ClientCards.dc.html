@@ -12,7 +12,7 @@
 <style>
 body{margin:0}
 .cc{flex:1;display:flex;flex-direction:column;gap:12px;padding:16px;min-height:0}
-.mini{width:44px;height:30px;border-radius:7px;background:#1C1C1E;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:flex-end;padding:3px 5px;box-sizing:border-box;flex:none}
+.mini{width:44px;height:30px;border-radius:7px;background:#1C1C1E;color:#fff;font-size:9px;font-weight:600;display:flex;align-items:flex-end;padding:3px 5px;box-sizing:border-box;flex:none}
 .mini.pl{background:#5C5C5E}
 .row.new{background:var(--jade-soft)}
 </style>
@@ -44,7 +44,7 @@ body{margin:0}
     <div style="flex:1"></div>
     <button class="btn primary block" type="button" onClick="{{add}}">Add card</button>
   </div></sc-if>
-  <sc-if value="{{isOk}}" hint-placeholder-val="{{false}}"><div class="toast"><span style="flex:1">Card •••• 0147 added · $100.00</span><a href="GiftUse.dc.html" style="color:#fff;font-weight:700">At the salon ›</a></div></sc-if>
+  <sc-if value="{{isOk}}" hint-placeholder-val="{{false}}"><div class="toast"><span style="flex:1">Card •••• 0147 added · $100.00</span><a href="GiftUse.dc.html" style="color:#fff;font-weight:600">At the salon ›</a></div></sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"step":{"editor":"enum","options":["list","add","ok","error"],"default":"list"},"$preview":{"width":390,"height":844}}'>

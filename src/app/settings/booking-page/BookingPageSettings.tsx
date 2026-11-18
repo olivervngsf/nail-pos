@@ -6,11 +6,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import QRCode from "qrcode";
 import { useTranslations } from "next-intl";
-import { Button, LeftMenu, OfflineBanner, Stepper, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
+import { Button, Chip, LeftMenu, Segmented, OfflineBanner, Stepper, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
 import { rpc } from "@/lib/auth";
 import { useDesk, type Desk } from "@/lib/desk";
 import { getSupabase } from "@/lib/supabase/client";
-import { DEMO_SLUG, photoUrl, type PageRules } from "@/lib/booking/page";
+import { DEMO_SLUG, loadPage, photoUrl, type PageRules } from "@/lib/booking/page";
 import { pullAppts, useAppts } from "@/lib/booking/appts";
 import { addDays, at, dayKey } from "@/lib/booking/grid";
 
@@ -18,6 +18,16 @@ type Photo = { id: string; path: string; label: string; url?: string };
 type Conf = { slug: string; settings: PageRules; photos: Photo[]; services: { id: string; cat: string; name: string; online: boolean }[] };
 const DEMO_KEY = "nailpos.demoBookPage.v1";
 const RULES: PageRules = { on: true, days_ahead: 30, latest_before_close: 60, group_max: 6, cancel_hours: 2, min_notice: 30 };
+const NOTE_MAX = 500;
+const Ico = ({ d, label }: { d: React.ReactNode; label?: string }) => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"
+    {...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true })}>{d}</svg>);
+const Lock = () => <Ico d={<><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></>} />;
+const Pencil = () => <Ico d={<><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></>} />;
+const Bell = () => <Ico d={<><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></>} />;
+const Pin = () => <Ico d={<><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>} />;
+const LinkIco = () => <Ico d={<><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" /><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" /></>} />;
+const ALARMS = [0, 30, 60, 120, 1440] as const;
 const PH = ["#C9A79A", "#B07C8E", "#8C9C88", "#D7B88F", "#6E7A8C"];
 
 export default function BookingPageSettings() {
@@ -43,6 +53,8 @@ function Settings({ desk }: { desk: Desk }) {
   const [rules, setRules] = useState<PageRules>(RULES);
   const [msg, setMsg] = useState("");
   const [toast, setToast] = useState("");
+  // Salon address + phone for the calendar preview (same data the booking page shows).
+  const [info, setInfo] = useState<{ address: string | null; phone: string | null } | null>(null);
   const say = (s: string) => { setToast(s); setTimeout(() => setToast(""), 2500); };
 
   const load = useCallback(async () => {
@@ -52,6 +64,7 @@ function Settings({ desk }: { desk: Desk }) {
     setConf(c); setSlug(c.slug); setRules({ ...RULES, ...c.settings });
   }, [demo, desk]);
   useEffect(() => { if (admin) void load().catch((e) => setMsg((e as Error).message)); }, [admin, load]);
+  useEffect(() => { if (conf?.slug) void loadPage(demo ? DEMO_SLUG : conf.slug).then((p) => p && setInfo({ address: p.salon.address, phone: p.salon.phone })).catch(() => {}); }, [conf?.slug, demo]);
   const saveDemo = (c: Conf) => { setConf(c); try { localStorage.setItem(DEMO_KEY, JSON.stringify(c)); } catch { /* */ } };
 
   // Bookings by source, last 30 days (from the calendar).
@@ -128,6 +141,9 @@ function Settings({ desk }: { desk: Desk }) {
   };
 
   const on = rules.on !== false;
+  const note = rules.calendar_note ?? "";
+  const alarm = rules.calendar_alarm_min ?? 60;
+  const alarmLabel = (m: number) => (m >= 1440 ? t("alarmDay") : m >= 60 ? t("alarmHr", { n: m / 60 }) : t("alarmMin", { n: m }));
   const initials = desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   return (
     <div className="app">
@@ -194,7 +210,7 @@ function Settings({ desk }: { desk: Desk }) {
             </section>
 
             <section className="card pad bp-sec">
-              <h2 className="h2">{t("rules")}</h2>
+              <h2 className="h2" id="bp-rules">{t("rules")}</h2>
               <div className="group">
                 <div className="opt"><span className="bw-grow">{t("daysAhead")}</span><Stepper label={t("daysAhead")} value={rules.days_ahead} min={1} max={90} step={1} format={(n) => t("daysN", { n })} onChange={(v) => setRules({ ...rules, days_ahead: v })} /></div>
                 <div className="opt"><span className="bw-grow">{t("latest")}</span><Stepper label={t("latest")} value={rules.latest_before_close} min={0} max={240} step={15} format={(n) => t("beforeClose", { n })} onChange={(v) => setRules({ ...rules, latest_before_close: v })} /></div>
@@ -205,6 +221,61 @@ function Settings({ desk }: { desk: Desk }) {
               <Button variant="primary" data-testid="bp-save-rules" onClick={() => void save({ days_ahead: rules.days_ahead, latest_before_close: rules.latest_before_close, group_max: rules.group_max, cancel_hours: rules.cancel_hours })}>{t("save")}</Button>
             </section>
           </div>
+
+          <section className="card pad bp-sec" data-testid="bp-cal">
+            <div>
+              <h2 className="h2">{t("calTitle")}</h2>
+              <p className="cap">{t("calSub")}</p>
+            </div>
+            <div className="bp-two bp-cal-grid">
+              <div className="bp-sec">
+                <span className="eyebrow bp-mine"><Pencil />{t("calMine")}</span>
+                <div className="bp-field">
+                  <label htmlFor="bp-cal-note" className="bp-lbl">{t("calNoteLabel")}</label>
+                  <textarea id="bp-cal-note" className="inp bp-note" data-testid="bp-cal-note" rows={4} maxLength={NOTE_MAX}
+                    placeholder={t("calPh")} value={note} onChange={(e) => setRules({ ...rules, calendar_note: e.target.value })} />
+                  <div className="bp-ideas">
+                    <span className="cap">{t("calAdd")}</span>
+                    {(["calIdeaPark", "calIdeaEarly", "calIdeaLate", "calIdeaGel"] as const).map((k) => (
+                      <Chip key={k} disabled={note.includes(t(k).trim())} onClick={() => setRules({ ...rules, calendar_note: `${note.trim() ? `${note.trimEnd()}\n` : ""}${t(k)}`.slice(0, NOTE_MAX) })}>+ {t(k).replace(/:\s*$/, "")}</Chip>))}
+                    <span className="cap bp-left">{t("calLeft", { n: NOTE_MAX - note.length })}</span>
+                  </div>
+                </div>
+                <div className="bp-field" data-testid="bp-alarm">
+                  <span className="bp-lbl">{t("alarm")}</span>
+                  <Segmented label={t("alarm")} value={String(alarm)} onChange={(v) => setRules({ ...rules, calendar_alarm_min: Number(v) })}
+                    options={ALARMS.map((m) => ({ value: String(m), label: t(`seg${m}` as "seg0") }))} />
+                </div>
+                <div className="bp-row bp-foot">
+                  <span className="cap">{t("calSaveHint")}</span>
+                  <Button variant="primary" data-testid="bp-save-cal" onClick={() => void save({ calendar_note: note.trim(), calendar_alarm_min: alarm })}>{t("save")}</Button>
+                </div>
+              </div>
+
+              <div className="bp-sec">
+                <div className="bp-row">
+                  <span className="eyebrow">{t("calPreview")}</span>
+                  <span className="bp-legend"><span><Lock />{t("calAuto")}</span><span className="bp-mine"><Pencil />{t("calMine")}</span></span>
+                </div>
+                <div className="bp-ev" aria-label={t("calPreview")}>
+                  <div className="bp-ev-head">
+                    <i />
+                    <div><b>{desk.salonName} – Gel manicure</b><span>Tue, Nov 17 · 11:00 – 11:50 AM</span></div>
+                    <Lock />
+                  </div>
+                  <div className="bp-ev-row mine" data-testid="bp-alarm-preview"><Bell />{alarm ? t("alarmAt", { when: alarmLabel(alarm) }) : t("alarmNone")}<Pencil /></div>
+                  <div className="bp-ev-row"><Pin />{[desk.salonName, info?.address].filter(Boolean).join(", ")}<Lock /></div>
+                  <div className="bp-ev-row"><LinkIco />{url().replace(/^https?:\/\//, "")}<Lock /></div>
+                  <div className="bp-ev-notes">
+                    <span className="eyebrow">{t("calNotes")}</span>
+                    <span className="bp-ev-auto">{t("calAutoNote", { hours: rules.cancel_hours, phone: info?.phone ?? "" })}</span>
+                    {note.trim() ? <span className="bp-ev-own" data-testid="bp-cal-preview">{note.trim()}</span> : <span className="bp-ev-own empty">{t("calNoteEmpty")}</span>}
+                  </div>
+                </div>
+                <p className="cap">{t.rich("calFrom", { rules: (c) => <a href="#bp-rules">{c}</a> })}</p>
+              </div>
+            </div>
+          </section>
 
           <div className="bp-two">
             <section className="card pad bp-sec">
