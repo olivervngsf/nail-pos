@@ -1,12 +1,12 @@
 "use client";
 // Checkout · one ticket (Checkout board Tk1–Tk7, Pay, Cash Cs1–Cs2, Done, An5 receipt).
 // Saved on this device after every tap; sent to the server through the outbox (works offline).
+import { pinLenFor } from "@/lib/pin";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
-import AccountMenu from "@/components/AccountMenu";
 import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
@@ -18,6 +18,7 @@ import { demoSettle, giftUndo } from "@/lib/checkout/gift";
 import { receiptBytes, type ReceiptDoc } from "@/lib/print/escpos";
 import { canBluetooth, printBytes } from "@/lib/print/bluetooth";
 import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
+import { usePrintSettings, type PrintSettings } from "@/lib/print/settings";
 import { printTicketSlip } from "@/lib/print/slip";
 import { clientLoyalty, pointsFor, type ClientLoyalty } from "@/lib/loyalty/loyalty";
 import { getProfile, type Profile, type Who } from "@/lib/clients";
@@ -46,8 +47,6 @@ export default function TicketScreen({ id }: { id: string }) {
   if (!ticket) return <Centered><h1 className="h2">{t("none")}</h1><Button variant="primary" onClick={() => router.push("/checkout")}>{t("title")}</Button></Centered>;
 
   const save = (patch: Partial<Ticket>, now = false) => { touchActing(); putTicket({ ...ticket, ...patch }, { now }); };
-  const acting = getActing();
-  const who = acting ? { name: acting.name, role: acting.role } : { name: desk.me.display_name, role: desk.me.role };
   const title = ticket.status !== "open" ? `${t("ticket", { n: ticketLabel(ticket) })} · ${t("paid")}` : step === "pay" ? t("howPay") : step === "cash" ? t("cash") : t("ticket", { n: ticketLabel(ticket) });
 
   return (
@@ -60,7 +59,6 @@ export default function TicketScreen({ id }: { id: string }) {
           {title}
         </span>}>
           <SyncPill />
-          <AccountMenu name={who.name} role={who.role} salon={desk.salonName} />
         </TopBar>
         <OfflineBanner />
         {desk.mode === "demo" && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
@@ -103,7 +101,7 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
     setSlipBusy(true); setSlipMsg("");
     try {
       await printTicketSlip(ticket.id, desk.salonName, { ticket: t("slipTicket"), forTech: t("slipForTech"), back: t("slipBack") },
-        f.dateTime(new Date(ticket.createdAt), { timeStyle: "short" }));
+        f.dateTime(new Date(ticket.createdAt), { dateStyle: "medium", timeStyle: "short" }));
       setSlipMsg(t("slipPrinted"));
     } catch (e) { setSlipMsg((e as Error).message); }
     setSlipBusy(false);
@@ -296,7 +294,7 @@ function DiscountDrawer({ desk, subtotal, current, onClose, onApply }: { desk: D
             <span className="cap">{t("whoApproves")}</span>
             <ListGroup>{managers.map((m) => <button key={m.id} type="button" className="opt" onClick={() => setApprover(m.id)}><Avatar name={m.name} />{m.name}<span className="cap">{ROLE_LABEL[m.role]}</span></button>)}</ListGroup>
           </>
-        : <><span className="cap">{t("pinHint")}</span><PinKeypad error={pinErr} onDone={(p) => void check(p)} /></>}
+        : <><span className="cap">{t("pinHint")}</span><PinKeypad length={pinLenFor(approver)} error={pinErr} onDone={(p) => void check(p)} /></>}
       {pinErr && (ok || (desk.mode === "live" && !desk.device)) && <span className="hint err">{pinErr}</span>}
       <div className="cap">{t("commissionNote")}</div>
     </Drawer>
@@ -758,7 +756,7 @@ function RefundDrawer({ desk, ticket, amount, card, onClose, say }: { desk: Desk
       {ok ? <div className="note">{t("approvedBy", { name: ok.name })}</div>
         : desk.mode === "live" && !desk.device ? (meIsAdmin ? <Button onClick={() => void approve()}>OK</Button> : <span className="hint err">{t("notManager")}</span>)
         : desk.mode === "live" && !approver ? <ListGroup>{managers.map((m) => <button key={m.id} type="button" className="opt" onClick={() => setApprover(m.id)}><Avatar name={m.name} />{m.name}<span className="cap">{ROLE_LABEL[m.role]}</span></button>)}</ListGroup>
-        : <PinKeypad error={err} onDone={(p) => void approve(p)} />}
+        : <PinKeypad length={pinLenFor(approver)} error={err} onDone={(p) => void approve(p)} />}
       {err && ok && <span className="hint err">{err}</span>}
       {err && !ok && desk.mode === "live" && !desk.device && <span className="hint err">{err}</span>}
     </Drawer>
@@ -766,23 +764,23 @@ function RefundDrawer({ desk, ticket, amount, card, onClose, say }: { desk: Desk
 }
 
 /** Receipt as plain lines (for Bluetooth thermal printers). Client copy: no card fee (that's the salon's cost). */
-function receiptDoc(desk: Desk, ticket: Ticket, t: ReturnType<typeof useTranslations>, when: string): ReceiptDoc {
+function receiptDoc(desk: Desk, ticket: Ticket, t: ReturnType<typeof useTranslations>, when: string, o: PrintSettings["receipt"]): ReceiptDoc {
   const sum = totals(ticket);
   const pay = ticket.payment;
   const given = pay?.givenCents ?? sum.total;
-  const rows: ReceiptDoc["rows"] = ticket.lines.map((l) => [`${l.name}${l.staffName ? ` - ${l.staffName}` : ""}`, $(l.cents)] as [string, string]);
+  const rows: ReceiptDoc["rows"] = ticket.lines.map((l) => [`${l.name}${o.staff && l.staffName ? ` - ${l.staffName}` : ""}`, $(l.cents)] as [string, string]);
   if (sum.discount > 0) rows.push([t("discountLine", { reason: ticket.discount?.reason ?? "" }), `-${$(sum.discount)}`]);
-  for (const [id, c] of Object.entries(ticket.tips)) if (c > 0) rows.push([`${t("tip")} - ${ticket.lines.find((l) => l.staffId === id)?.staffName ?? ""}`, $(c)]);
+  if (o.tips) for (const [id, c] of Object.entries(ticket.tips)) if (c > 0) rows.push([o.staff ? `${t("tip")} - ${ticket.lines.find((l) => l.staffId === id)?.staffName ?? ""}` : t("tip"), $(c)]);
   rows.push("sep", { bold: [t("total"), $(pay && pay.method !== "cash" ? pay.amountCents ?? sum.total : sum.total)] });
   if (pay && pay.method !== "cash") rows.push([pay.brand ? `${pay.brand.toUpperCase()} ${pay.last4 ?? ""}` : t("qr"), $(pay.amountCents ?? sum.total)]);
   else rows.push([t("cash"), $(given)], [t("change"), $(given - sum.total)]);
   if (ticket.status === "refunded") rows.push({ text: t("refunded", { amount: $(pay?.amountCents ?? sum.total) }) });
   return {
     title: desk.salonName,
-    sub: [`${t("receiptFor")} ${ticketLabel(ticket)}`, when, ...(ticket.client?.name ? [ticket.client.name] : [])],
+    sub: [`${t("receiptFor")} ${ticketLabel(ticket)}`, when, ...(o.client && ticket.client?.name ? [ticket.client.name] : [])],
     rows,
-    footer: [t("thanks", { name: "" }), ...(digitalReceiptUrl(desk, ticket) ? [t("scanReceipt")] : []), "PolishOS"],
-    qr: digitalReceiptUrl(desk, ticket),
+    footer: [o.thanks || t("thanks", { name: "" }), ...(o.qr && digitalReceiptUrl(desk, ticket) ? [t("scanReceipt")] : []), "PolishOS"],
+    qr: o.qr ? digitalReceiptUrl(desk, ticket) : undefined,
   };
 }
 
@@ -796,12 +794,13 @@ function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say
   const t = useTranslations("checkout");
   const f = useFormatter();
   const p = usePrinter();
+  const { settings } = usePrintSettings(desk.salonId, desk.mode === "demo");
   const [busy, setBusy] = useState(false);
   if (!p.ok) return <PrinterSetup p={p} />;
   const go = async () => {
     setBusy(true);
     try {
-      const doc = receiptDoc(desk, ticket, t, f.dateTime(new Date(ticket.payment?.at ?? ticket.createdAt), { dateStyle: "medium", timeStyle: "short" }));
+      const doc = receiptDoc(desk, ticket, t, f.dateTime(new Date(ticket.payment?.at ?? ticket.createdAt), { dateStyle: "medium", timeStyle: "short" }), settings.receipt);
       await printBytes(receiptBytes(doc, p.paper), p.paper); // text = fast; accents print plain
       p.refresh();
       logReceipt(ticket, "print");
@@ -824,8 +823,9 @@ function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say
 function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
+  const { settings: { receipt: o } } = usePrintSettings(desk.salonId, desk.mode === "demo");
   const [qr, setQr] = useState("");
-  const url = digitalReceiptUrl(desk, ticket);
+  const url = o.qr ? digitalReceiptUrl(desk, ticket) : undefined;
   useEffect(() => { if (url) void QRCode.toDataURL(url, { width: 160, margin: 1 }).then(setQr); }, [url]);
   const sum = totals(ticket);
   const given = ticket.payment?.givenCents ?? sum.left;
@@ -833,13 +833,13 @@ function PrintReceipt({ desk, ticket }: { desk: Desk; ticket: Ticket }) {
     <div className="receipt-print" aria-hidden>
       <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16 }}>{desk.salonName}</div>
       <div style={{ textAlign: "center" }}>{t("receiptFor")} {ticketLabel(ticket)} · {f.dateTime(new Date(ticket.payment?.at ?? ticket.createdAt), { dateStyle: "medium", timeStyle: "short" })}</div>
-      {ticket.client?.name && <div style={{ textAlign: "center" }}>{t("thanks", { name: `, ${ticket.client.name}` })}</div>}
+      <div style={{ textAlign: "center" }}>{o.thanks || t("thanks", { name: o.client && ticket.client?.name ? `, ${ticket.client.name}` : "" })}</div>
       <hr />
-      {ticket.lines.map((l) => <div key={l.id} className="rl"><span>{l.name}{l.staffName ? ` · ${l.staffName}` : ""}</span><span>{$(l.cents)}</span></div>)}
+      {ticket.lines.map((l) => <div key={l.id} className="rl"><span>{l.name}{o.staff && l.staffName ? ` · ${l.staffName}` : ""}</span><span>{$(l.cents)}</span></div>)}
       {sum.discount > 0 && <div className="rl"><span>{t("discountLine", { reason: ticket.discount?.reason ?? "" })}</span><span>−{$(sum.discount)}</span></div>}
       {(ticket.gifts ?? []).map((g) => <div key={g.id}><div className="rl"><span>{g.kind === "reload" ? t("giftReload", { last4: g.last4 }) : t("giftSold", { last4: g.last4 })}</span><span>{$(g.cents)}</span></div>
         {g.code && <div style={{ fontFamily: "monospace" }}>{g.code}</div>}</div>)}
-      {Object.entries(ticket.tips).filter(([, c]) => c > 0).map(([id, c]) => <div key={id} className="rl"><span>{t("cashTip")} · {ticket.lines.find((l) => l.staffId === id)?.staffName}</span><span>{$(c)}</span></div>)}
+      {o.tips && Object.entries(ticket.tips).filter(([, c]) => c > 0).map(([id, c]) => <div key={id} className="rl"><span>{t("cashTip")}{o.staff ? ` · ${ticket.lines.find((l) => l.staffId === id)?.staffName ?? ""}` : ""}</span><span>{$(c)}</span></div>)}
       <hr />
       <div className="rl" style={{ fontWeight: 700 }}><span>{t("total")}</span><span>{$(sum.total)}</span></div>
       {(ticket.giftPays ?? []).map((g) => <div key={g.id} className="rl"><span>{t("giftUsed", { last4: g.last4 })}{g.balanceAfter != null ? ` (${t("giftLeft", { amount: $(g.balanceAfter) })})` : ""}</span><span>{$(g.cents)}</span></div>)}

@@ -12,6 +12,7 @@ insert into auth.users (id, phone, aud, role) values
 create temp table t_out (k text primary key, v jsonb);
 grant all on t_out to authenticated, anon, service_role;
 
+insert into public.platform_admins (auth_user_id) select id from auth.users on conflict do nothing;  -- salons are invite-only: test owners set up salons as platform admins
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000cc01","role":"authenticated"}', true);
 select public.save_setup(jsonb_build_object(
@@ -22,7 +23,7 @@ select public.save_setup(jsonb_build_object(
     jsonb_build_object('id', '00000000-0000-0000-0000-0000000007f2', 'name', 'Hoa', 'phone', '+14085550302', 'role', 'manager'),
     jsonb_build_object('id', '00000000-0000-0000-0000-0000000007f3', 'name', 'Kim', 'phone', '+14085550303', 'role', 'tech'),
     jsonb_build_object('id', '00000000-0000-0000-0000-0000000007f4', 'name', 'Lan', 'phone', '+14085550304', 'role', 'front_desk'))));
-select public.set_my_pin('00000000-0000-0000-0000-0000000007a1', '2580');
+select public.set_my_pin('00000000-0000-0000-0000-0000000007a1', '258013');
 insert into t_out values ('device', to_jsonb(public.register_device('00000000-0000-0000-0000-0000000007a1', 'Front desk iPad')));
 insert into t_out values ('owner_ms', to_jsonb((select id from public.memberships where salon_id = '00000000-0000-0000-0000-0000000007a1' and role = 'owner')));
 
@@ -40,7 +41,7 @@ do $$ declare n int; begin
   exception when insufficient_privilege then null; end;
   begin perform pin_fails from public.memberships limit 1; raise exception 'FAIL: tech read pin_fails';
   exception when insufficient_privilege then null; end;
-  if (public.pin_unlock((select (v #>> '{}')::uuid from t_out where k = 'device'), (select (v #>> '{}')::uuid from t_out where k = 'owner_ms'), '2580'))->>'reason' <> 'device'
+  if (public.pin_unlock((select (v #>> '{}')::uuid from t_out where k = 'device'), (select (v #>> '{}')::uuid from t_out where k = 'owner_ms'), '258013'))->>'reason' <> 'device'
   then raise exception 'FAIL: tech tried a PIN from own phone'; end if;
 end $$;
 

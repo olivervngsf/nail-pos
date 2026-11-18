@@ -12,7 +12,8 @@ import { useDesk } from "@/lib/desk";
 import { addDays, demoPayout, isoDay, nums, payoutCsv, weekStart, type PayoutRow } from "@/lib/closeday";
 import { worked } from "@/lib/print/earnings";
 import { useEarningsPrint } from "@/app/earnings/Earnings";
-import { PrinterSetup, SlipDetailPick, usePrinter, useSlipDetail } from "@/components/PrinterSetup";
+import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
+import { usePrintSettings } from "@/lib/print/settings";
 
 const $ = formatCents;
 type Range = "today" | "week" | "last" | "custom";
@@ -28,9 +29,9 @@ export default function Payouts() {
   const [loadErr, setLoadErr] = useState("");
   const [printing, setPrinting] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
-  const printSlips = useEarningsPrint();
+  const printSlips = useEarningsPrint(desk?.salonId, desk?.mode === "demo");
+  const { settings: prints } = usePrintSettings(desk?.salonId, desk?.mode === "demo");
   const printer = usePrinter();
-  const slip = useSlipDetail();
   const f = useFormatter();
   const when = (iso: string) => f.dateTime(new Date(iso), { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" });
   const [toast, setToast] = useState("");
@@ -76,7 +77,7 @@ export default function Payouts() {
     if (!people.length) return say(t("noneToPrint"));
     setPrinting(true);
     try {
-      const n = await printSlips(people, desk.salonName, period, slip.detail, (i) => people.length > 1 && setToast(t("printing", { n: i + 1, total: people.length })));
+      const n = await printSlips(people, desk.salonName, period, (i) => people.length > 1 && setToast(t("printing", { n: i + 1, total: people.length })));
       say(t("printedN", { count: n }));
       printer.refresh();
     } catch (e) { say(t("printFail", { msg: (e as Error).message })); }
@@ -134,7 +135,7 @@ export default function Payouts() {
               <Button data-testid="po-slips" onClick={() => void printPeople((rows ?? []).filter(worked))} disabled={!rows?.length || printing}>{t("printSlips")}</Button>
               <Button variant="primary" data-testid="po-csv" onClick={csv} disabled={!rows?.length}>{t("exportCsv")}</Button>
             </div>
-            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}><SlipDetailPick d={slip} /><PrinterSetup p={printer} /></div>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}><PrinterSetup p={printer} /><Link className="btn ghost sm" href="/settings/printer" data-testid="printer-settings-link">{t("printSettings")}</Link></div>
             {loadErr && <p className="hint err">{loadErr} <Button size="sm" onClick={() => void load()}>{t("retry")}</Button></p>}
             <section className="card" style={{ padding: "8px 18px", overflowX: "auto" }}>
               <table className="cd-table" data-testid="po-table">
@@ -177,13 +178,13 @@ export default function Payouts() {
           {rows.map((r) => (
             <div key={r.membership_id}>
               <b>{r.name}</b>
-              {slip.detail === "tickets" && (r.lines ?? []).map((l) => (
-                <div key={l.number}>
-                  <div className="rl"><span>#{l.number} {when(l.at)} {l.services}</span><span>{$(l.services_cents)}</span></div>
-                  {!!l.tip_card_cents && <div className="rl"><span>&nbsp;&nbsp;{t("tipCard")}</span><span>{$(l.tip_card_cents)}</span></div>}
-                  {!!l.tip_cash_cents && <div className="rl"><span>&nbsp;&nbsp;{t("tipCash")}</span><span>{$(l.tip_cash_cents)}</span></div>}
-                </div>
-              ))}
+              {prints.staff.tickets && !!r.lines?.length && <>
+                <div className="rl" style={{ fontWeight: 700 }}><span style={{ flex: 1 }}>{t("colTicket")}</span><span style={{ width: "6em", textAlign: "right" }}>{t("colTips")}</span><span style={{ width: "6em", textAlign: "right" }}>{t("colService")}</span></div>
+                {r.lines.map((l) => (
+                  <div key={l.number} className="rl"><span style={{ flex: 1 }}>#{l.number}</span><span style={{ width: "6em", textAlign: "right" }}>{$(l.tip_card_cents + l.tip_cash_cents)}</span><span style={{ width: "6em", textAlign: "right" }}>{$(l.services_cents)}</span></div>
+                ))}
+                <hr />
+              </>}
               <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>
               <div className="rl"><span>{payLabel(r)}</span><span>{$(r.pay_cents)}</span></div>
               <div className="rl"><span>{t("cardTips")}</span><span>{$(r.tips_card_cents)}</span></div>

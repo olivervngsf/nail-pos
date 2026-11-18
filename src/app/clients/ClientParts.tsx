@@ -1,5 +1,6 @@
 "use client";
 // Shared pieces for Clients (C1–C2) and Client history (H1–H2): stats, care box, edit drawer, photo button, money words.
+import { pinLenFor } from "@/lib/pin";
 import { useEffect, useRef, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, Drawer, Field, ListGroup, PinKeypad } from "@/components/kit";
@@ -151,7 +152,7 @@ export function EditDrawer({ who, p, onClose, onSaved }: { who: Who; p: Profile 
             <ListGroup>{ok.approvers.map((m) => <button key={m.id} type="button" className="opt" onClick={() => ok.setApprover(m.id)}><Avatar name={m.name} />{m.name}<span className="cap">{ROLE_LABEL[m.role]}</span></button>)}</ListGroup>
             {ok.err && <span className="hint err">{okErr(ok.err)}</span>}
           </>
-        : <><span className="cap">{t("okPin")}</span><PinKeypad error={ok.err ? okErr(ok.err) : undefined} onDone={(pin) => void ok.checkPin(pin)} /></>}
+        : <><span className="cap">{t("okPin")}</span><PinKeypad length={pinLenFor(ok.approver)} error={ok.err ? okErr(ok.err) : undefined} onDone={(pin) => void ok.checkPin(pin)} /></>}
       <div className="cap">{t("okMore")}</div>
     </Drawer>
   );

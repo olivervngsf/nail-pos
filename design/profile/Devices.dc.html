@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Devices and QR setup</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.btn{height:36px;font-size:14px;padding:0 14px}
+.btn.primary{height:44px;font-size:15px}
+.ph2{width:380px;height:800px;border-radius:44px;background:#1C1C1E;padding:10px;box-sizing:border-box;flex:none}
+.scr2{width:100%;height:100%;border-radius:34px;background:var(--surface);overflow:hidden;display:flex;flex-direction:column;padding:44px 18px 18px;box-sizing:border-box;gap:12px}
+.job{display:flex;align-items:center;gap:12px;width:100%;border:1.5px solid var(--line);background:var(--paper);border-radius:16px;padding:12px 14px;font:inherit;text-align:left;cursor:pointer;color:var(--ink)}
+.job.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.job .ic{width:40px;height:40px;border-radius:11px;background:var(--fill);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none}
+.qr{display:grid;grid-template-columns:repeat(21,8px);grid-auto-rows:8px;padding:12px;background:#fff;border-radius:12px;box-shadow:var(--shadow)}
+.qr span{background:#fff}
+.qr span.b{background:#1C1C1E}
+.tab{width:560px;height:400px;border-radius:28px;background:#1C1C1E;padding:12px;box-sizing:border-box}
+.tabs{width:100%;height:100%;border-radius:18px;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.code{display:flex;gap:8px}
+.code span{width:44px;height:54px;border-radius:12px;background:var(--paper);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}
+.dv{display:flex;align-items:center;gap:12px;min-height:60px;padding:0 16px;border-bottom:1px solid var(--line);font-size:14px}
+.dv:last-child{border-bottom:0}
+.dv .ic{width:36px;height:36px;border-radius:10px;background:var(--fill);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex:none}
+.lbl2{font-size:15px;font-weight:700;text-align:center}
+.on-dot{width:8px;height:8px;border-radius:50%;background:var(--jade);display:inline-block;margin-right:4px}
+.off-dot{width:8px;height:8px;border-radius:50%;background:#C7C7CC;display:inline-block;margin-right:4px}
+</style>
+</helmet>
+<div style="width:1720px;height:920px;box-sizing:border-box;padding:28px 36px;background:#ECECEF;display:flex;gap:36px">
+  <div style="display:flex;flex-direction:column;gap:12px;align-items:center">
+    <div class="lbl2">① Owner’s phone<span class="cap" style="display:block;font-weight:400">Settings → Devices → + Add a device</span></div>
+    <div class="ph2"><div class="scr2">
+      <sc-if value="{{isPick}}" hint-placeholder-val="{{true}}">
+        <div class="h2">What is this device for?</div>
+        <sc-for list="{{jobs}}" as="j" hint-placeholder-count="3"><button class="{{j.cls}}" type="button" onClick="{{j.pick}}"><span class="ic">{{j.ic}}</span><span style="flex:1"><b style="display:block;font-size:16px">{{j.n}}</b><span class="cap">{{j.s}}</span></span></button></sc-for>
+        <label style="margin-top:4px"><span class="lbl">Name it</span><input class="inp" value="{{devName}}" style="height:44px;font-size:16px"></label>
+        <div style="flex:1"></div>
+        <button class="btn primary" type="button" onClick="{{showQr}}">Show QR code</button>
+      </sc-if>
+      <sc-if value="{{isQr}}" hint-placeholder-val="{{false}}">
+        <div class="h2">Scan with the {{jobName}}</div>
+        <div class="cap">Point its camera here, or open <b>polishosapp.com/go</b> and type the code.</div>
+        <div style="display:flex;justify-content:center"><div class="qr" role="img" aria-label="Setup QR code"><sc-for list="{{qr}}" as="q" hint-placeholder-count="441"><span class="{{q.c}}"></span></sc-for></div></div>
+        <div style="text-align:center;font-size:28px;font-weight:700;letter-spacing:.2em">7KQ-2MD</div>
+        <div class="cap" style="text-align:center">Works once · expires in 9:41 · only for Mai Nails</div>
+        <div style="flex:1"></div>
+        <button class="btn primary" type="button" onClick="{{connect}}">Simulate: tablet scanned</button>
+        <button class="btn" type="button" onClick="{{back}}">Back</button>
+      </sc-if>
+      <sc-if value="{{isDone}}" hint-placeholder-val="{{false}}">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center">
+          <div style="width:72px;height:72px;border-radius:50%;background:var(--jade-soft);color:#1F7A33;font-size:32px;display:flex;align-items:center;justify-content:center">✓</div>
+          <div class="h2">{{devName}} is ready</div>
+          <div class="cap" style="font-size:15px;line-height:21px">Set up as {{jobName}}. It opens {{jobUrl}} and shows the faces screen. Logged in PIN activity.</div>
+          <div class="cap" style="font-size:13px;line-height:19px">Tip: turn on Guided Access (iPad) or Screen pinning (Android) so it stays on this screen.</div>
+        </div>
+        <button class="btn primary" type="button" onClick="{{back}}">Add another device</button>
+      </sc-if>
+    </div></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px;align-items:center;padding-top:0">
+    <div class="lbl2">② The new tablet · iPad or Android<span class="cap" style="display:block;font-weight:400">opens polishosapp.com/go in Safari or Chrome · nobody signs in on it</span></div>
+    <div class="tab"><div class="tabs">
+      <sc-if value="{{notDone}}" hint-placeholder-val="{{true}}">
+        <div class="logo" style="margin:0;width:48px;height:48px;font-size:16px">P</div>
+        <div class="h2">Set up this device</div>
+        <div class="cap">Scan the QR on the owner’s phone, or type the code</div>
+        <div class="code"><span>7</span><span>K</span><span>Q</span><span>2</span><span>M</span><span>D</span></div>
+        <button class="btn" type="button" style="height:44px">Use camera to scan</button>
+      </sc-if>
+      <sc-if value="{{isDone}}" hint-placeholder-val="{{false}}">
+        <div class="logo" style="margin:0;width:48px;height:48px;font-size:16px">MN</div>
+        <div class="h2">Mai Nails · {{jobName}}</div>
+        <div class="cap">Who’s working? → tap your face</div>
+        <div style="display:flex;gap:10px"><span class="av" style="width:52px;height:52px;font-size:18px">H</span><span class="av" style="width:52px;height:52px;font-size:18px">K</span><span class="av" style="width:52px;height:52px;font-size:18px">T</span><span class="av" style="width:52px;height:52px;font-size:18px">V</span></div>
+      </sc-if>
+    </div></div>
+    <div class="card" style="width:560px;box-sizing:border-box;padding:14px 16px;font-size:14px;line-height:20px"><b>Why QR:</b> no typing on the tablet, owner never signs in on a shared device, the code works once and only for 10 min, and the device can only do its one job.</div>
+    <div class="card" style="width:560px;box-sizing:border-box;padding:14px 16px;font-size:14px;line-height:20px"><b>Works the same on iOS + Android:</b> the built-in camera scans the QR on both (no app to install) · runs in Safari (iPhone/iPad) or Chrome (Android) · “Add to Home Screen” gives a full-screen icon on both · keep it on one screen with Guided Access (iPad) or Screen pinning (Android) · any cheap Android tablet works as a time clock.</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0">
+    <div class="lbl2">③ Settings → Devices<span class="cap" style="display:block;font-weight:400">owner sees + controls every device</span></div>
+    <div class="group">
+      <sc-for list="{{devices}}" as="d" hint-placeholder-count="4">
+        <div class="dv"><span class="ic">{{d.ic}}</span><span style="flex:1;min-width:0"><b style="display:block;font-size:15px">{{d.n}}</b><span class="cap">{{d.job}} · {{d.url}} · {{d.os}}</span></span><span class="cap" style="width:110px"><span class="{{d.dot}}"></span>{{d.seen}}</span></div>
+      </sc-for>
+    </div>
+    <div class="card" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+      <b style="font-size:15px">Front desk iPad</b>
+      <div class="cap">Set up Nov 3 by Mai · printer: Front desk printer · reader: S710</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button">Rename</button><button class="btn" type="button">Change job</button><button class="btn" type="button" style="color:#E03131">Sign out this device</button></div>
+    </div>
+    <div class="cap" style="font-size:13px">Owner only. Sign out works instantly, even if the device is stolen.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1720,"height":920}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { v: 'pick', job: 'clock' }; }
+  renderVals() {
+    const s = this.state;
+    const J = { desk: ['D', 'Front desk', 'Checkout, calendar, clients · face + PIN', '/desk', 'Front desk iPad 2'], clock: ['C', 'Time clock', 'Staff clock in/out + own pay sheet', '/clock', 'Back room tablet'], kiosk: ['K', 'Walk-in kiosk', 'Clients check in at the door', '/kiosk', 'Door kiosk'] };
+    const j = J[s.job];
+    const qr = [];
+    for (let r = 0; r < 21; r++) for (let c = 0; c < 21; c++) {
+      const inF = (rr, cc) => rr >= 0 && rr < 7 && cc >= 0 && cc < 7 && (rr === 0 || rr === 6 || cc === 0 || cc === 6 || (rr >= 2 && rr <= 4 && cc >= 2 && cc <= 4));
+      const f = inF(r, c) || inF(r, c - 14) || inF(r - 14, c);
+      const near = (r < 8 && c < 8) || (r < 8 && c > 12) || (r > 12 && c < 8);
+      const b = f || (!near && ((r * 7 + c * 13 + r * c) % 5 < 2));
+      qr.push({ c: b ? 'b' : '' });
+    }
+    const list = [['D', 'Front desk iPad', 'Front desk', '/desk', 'on-dot', 'now', 'iPad · Safari'], ['C', 'Back room tablet', 'Time clock', '/clock', 'on-dot', '2 min ago', 'Android · Chrome'], ['K', 'Door kiosk', 'Walk-in kiosk', '/kiosk', 'off-dot', 'yesterday', 'Android · Chrome'], ['L', 'Mai’s laptop', 'Own login (owner)', '/settings', 'on-dot', '1 h ago', 'Mac · Chrome']];
+    if (s.v === 'done') list.unshift([j[0], j[4], j[1], j[3], 'on-dot', 'just now', s.job === 'desk' ? 'iPad · Safari' : 'Android · Chrome']);
+    return {
+      isPick: s.v === 'pick', isQr: s.v === 'qr', isDone: s.v === 'done', notDone: s.v !== 'done',
+      jobs: Object.keys(J).map(k => ({ ic: J[k][0], n: J[k][1], s: J[k][2], cls: 'job' + (s.job === k ? ' on' : ''), pick: () => this.setState({ job: k }) })),
+      jobName: j[1], jobUrl: 'polishosapp.com' + j[3], devName: j[4],
+      showQr: () => this.setState({ v: 'qr' }), connect: () => this.setState({ v: 'done' }), back: () => this.setState({ v: 'pick' }),
+      qr,
+      devices: list.map(d => ({ ic: d[0], n: d[1], job: d[2], url: d[3], dot: d[4], seen: d[5], os: d[6] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

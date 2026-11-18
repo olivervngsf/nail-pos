@@ -2,6 +2,7 @@
 // Close day (Main Screens · CloseDay Z1–Z5): 1 open tickets → 2 count the cash drawer → 3 card money checked with Stripe →
 // 4 tips per staff → 5 closed. Every number comes from the server (day_summary); closing saves a locked record (close_day).
 // Front desk can fill it in; finishing needs an owner/manager (own login) or a manager PIN on the salon device.
+import { pinLenFor } from "@/lib/pin";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -293,7 +294,7 @@ export default function CloseDay() {
       {pin && (
         <Drawer title={t("closeWithPin")} onClose={() => setPin(null)}>
           {!pin.approver ? <ListGroup>{admins.map((m) => <button key={m.id} type="button" className="opt" onClick={() => setPin({ approver: m.id, err: "" })}><Avatar name={m.name} />{m.name}</button>)}</ListGroup>
-            : <PinKeypad error={pin.err} onDone={(c) => void checkPin(c)} />}
+            : <PinKeypad length={pinLenFor(pin.approver)} error={pin.err} onDone={(c) => void checkPin(c)} />}
         </Drawer>
       )}
 
