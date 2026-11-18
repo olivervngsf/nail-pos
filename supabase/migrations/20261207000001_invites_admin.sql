@@ -16,9 +16,9 @@ language sql stable security definer set search_path = '' as $$
 $$;
 
 -- ---------- invites can be matched by email too ----------
-alter table public.memberships add column email text;
-create index on public.memberships (lower(email)) where email is not null;
-alter table public.invites add column created_by uuid references auth.users(id);
+alter table public.memberships add column if not exists email text; -- also added by profile_pin_settings
+create index if not exists memberships_email_lower on public.memberships (lower(email)) where email is not null;
+alter table public.invites add column if not exists created_by uuid references auth.users(id);
 
 -- Verified email of the signed-in user (Google + email codes are verified; an unconfirmed email never matches).
 create function public._auth_email() returns text
