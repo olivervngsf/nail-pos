@@ -76,7 +76,7 @@ export default function SalonsPage() {
                         : <span className="cap">Owner not joined</span>}</td>
                       <td className="num"><b style={{ fontWeight: 600 }}>{$0(s.cents_today)}</b><div className="cap">{s.tickets_today} tickets</div></td>
                       <td><span className={`ad-pill ${st[1]}`}>{st[0]}</span></td>
-                      <td className="num">{s.devices ? `${s.devices_online} of ${s.devices} online` : <span className="cap">None</span>}</td>
+                      <td className="num">{s.devices ? `${s.devices_online} of ${s.devices} in use` : <span className="cap">None</span>}</td>
                       <td><span className={`ad-pill ${health}`}>{HEALTH[health]}</span></td>
                       <td>{!s.owner_joined && s.owner_name && <span style={{ display: "inline-flex", gap: 6 }}>
                         {inv?.code && <Button size="sm" onClick={() => copy(inviteText(s.owner_name!, s.salon_name, inv.code!))}>Copy invite · {inv.code}</Button>}

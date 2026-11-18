@@ -163,7 +163,7 @@ function HealthRows({ s, d, now }: { s: SalonFacts; d: SalonDetail | null; now: 
       {row("Card reader", d ? (d.readers.length ? d.readers.map((r) => r.label + (r.simulated ? " (test)" : "")).join(", ") : "None paired") : "…", d ? (d.readers.length ? "good" : isLive(s) ? "warn" : "setup") : null)}
       {(d?.devices ?? []).map((x) => {
         const on = x.last_seen && now - Date.parse(x.last_seen) < ONLINE_MS;
-        return <div key={x.name + x.kind}>{row(x.kind === "clock" ? "Time clock" : "Salon device", `${x.name} · ${on ? "online" : `last seen ${when(x.last_seen, now)}`}`, on ? "good" : "warn")}</div>;
+        return <div key={x.name + x.kind}>{row(x.kind === "clock" ? "Time clock" : "Salon device", `${x.name} · ${on ? "in use now" : `last used ${when(x.last_seen, now)}`}`, on ? "good" : "warn")}</div>;
       })}
       {d && !d.devices.length && row("Salon device", "None set up yet", isLive(s) ? "warn" : "setup")}
       {row("Setup", !s.owner_joined ? (s.invite_open ? "Owner invited, not joined yet" : "Invite expired") : isLive(s) ? "All 10 steps done" : `Step ${step} of 10`, !s.owner_joined ? "warn" : isLive(s) ? "good" : "setup")}

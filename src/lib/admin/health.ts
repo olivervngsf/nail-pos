@@ -41,7 +41,7 @@ export function alertsFor(s: SalonFacts, nowIso: string): Alert[] {
   if (st === "payouts_paused") out.push({ ...base, kind: "stripe_payouts", level: "bad", title: "Stripe paused payouts", why: "Card money still comes in, but it won’t reach the salon’s bank until the owner answers Stripe.", since: null });
   if (st === "charges_off" && isLive(s)) out.push({ ...base, kind: "stripe_charges", level: "bad", title: "Card payments are off", why: "Stripe turned off card payments. The desk can only take cash.", since: null });
   if (isLive(s) && s.devices > 0 && s.devices_online === 0 && s.device_last_seen && now - Date.parse(s.device_last_seen) > D)
-    out.push({ ...base, kind: "devices_offline", level: "warn", title: "No salon device online for a day", why: `Last seen ${plural(days(s.device_last_seen, now), "day")} ago. Tablet off or signed out?`, since: s.device_last_seen });
+    out.push({ ...base, kind: "devices_offline", level: "warn", title: "No salon device used for a day", why: `Last PIN on a device ${plural(days(s.device_last_seen, now), "day")} ago. Tablet off or signed out?`, since: s.device_last_seen });
   if (isLive(s) && s.tickets_7d === 0 && days(s.created_at, now) >= 3)
     out.push({ ...base, kind: "no_tickets", level: "warn", title: "No tickets in 7 days", why: "Live salon but nothing rung up. Back on the old system?", since: s.last_ticket_at });
   if (s.owner_joined && s.setup_step < SETUP_DONE) {

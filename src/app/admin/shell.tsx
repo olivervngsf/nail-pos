@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SMS_ON, amPlatformAdmin, isSignedIn, myMemberships, rpc, signOut } from "@/lib/auth";
+import { SMS_ON, isSignedIn, myMemberships, rpc, signOut } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase/client";
 import { openAlerts, sampleOverview, type Overview } from "@/lib/admin/health";
 import { Button, OfflineBanner, Toast, TopBar } from "@/components/kit";
@@ -43,7 +43,16 @@ export function useAdmin(): Admin {
     if (!getSupabase() || !SMS_ON) { setGate("demo"); setData(sampleOverview()); return; }
     void (async () => {
       if (!(await isSignedIn())) return router.replace("/login?next=/admin");
-      if (!(await amPlatformAdmin())) { setGate("no"); return; }
+      let admin: boolean;
+      try { admin = Boolean(await rpc<boolean>("is_platform_admin")); }
+      catch {
+        // Can't reach the server (offline): signed in + saved overview from an earlier admin visit → show that.
+        let cached: { at: string; o: Overview } | null = null;
+        try { cached = JSON.parse(localStorage.getItem(CACHE) ?? "null"); } catch { /* ignore */ }
+        if (cached) { setData(cached.o); setSavedAt(cached.at); setGate("live"); } else setGate("no");
+        return;
+      }
+      if (!admin) { setGate("no"); try { localStorage.removeItem(CACHE); } catch { /* ignore */ } return; }
       setHasSalon((await myMemberships().catch(() => [])).length > 0);
       setGate("live");
       await reload();
@@ -72,7 +81,7 @@ export type Tab = (typeof TABS)[number]["key"];
 export function AdminShell({ tab, admin, title, actions, children }: { tab: Tab; admin: Admin; title: string; actions?: ReactNode; children: ReactNode }) {
   const router = useRouter();
   const open = admin.data ? openAlerts(admin.data).length : 0;
-  const out = async () => { await signOut(); router.replace("/login"); };
+  const out = async () => { try { localStorage.removeItem(CACHE); } catch { /* ignore */ } await signOut(); router.replace("/login"); };
 
   if (admin.gate === "loading") return <div className="app" aria-busy="true" />;
   if (admin.gate === "no") return (
