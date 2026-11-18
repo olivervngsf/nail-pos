@@ -12,7 +12,7 @@
 <style>
 body{margin:0}
 .wrap{width:1280px;height:800px;position:relative;background:var(--surface);display:flex;flex-direction:column;align-items:center;padding:32px 0;box-sizing:border-box;gap:18px;overflow:hidden}
-.big{height:120px;border:0;border-radius:24px;font:inherit;font-size:26px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.big{height:120px;border:0;border-radius:24px;font:inherit;font-size:26px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
 .big .cap{font-size:15px;font-weight:500}
 .seg button{height:34px;padding:0 16px;border-radius:9px;border:0;background:transparent;font:inherit;font-size:14px;font-weight:600;color:var(--ink-soft);cursor:pointer}
 .seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
@@ -37,10 +37,10 @@ body{margin:0}
     <div style="width:340px;display:flex;flex-direction:column;align-items:center;gap:8px">
       <div class="cap">Slip preview</div>
       <div class="slip">
-        <div style="text-align:center;font-weight:700">MAI NAILS</div>
+        <div style="text-align:center;font-weight:600">MAI NAILS</div>
         <div style="text-align:center">Kim Võ · {{periodLbl}}</div>
         <div style="border-top:1px dashed #999;margin:8px 0"></div>
-        <div class="r" style="font-weight:700"><span>{{detailHd}}</span><span>Service</span></div>
+        <div class="r" style="font-weight:600"><span>{{detailHd}}</span><span>Service</span></div>
         <sc-for list="{{rows}}" as="x" hint-placeholder-count="6">
           <div style="padding:3px 0;border-bottom:1px dotted #DDD"><div class="r"><span>{{x.a}}</span><span>{{x.b}}</span></div><div style="color:#5C5C5E;font-size:12px;line-height:16px">{{x.c}}</div></div>
         </sc-for>
@@ -50,7 +50,7 @@ body{margin:0}
         <div class="r"><span>Tips card</span><span>{{tipsCard}}</span></div>
         <div class="r"><span>Tips cash</span><span>{{tipsCash}}</span></div>
         <div style="border-top:1px dashed #999;margin:8px 0"></div>
-        <div class="r" style="font-weight:700"><span>Total</span><span>{{total}}</span></div>
+        <div class="r" style="font-weight:600"><span>Total</span><span>{{total}}</span></div>
         <div class="r"><span>By check</span><span>{{chk}}</span></div>
         <div class="r"><span>By cash</span><span>{{cash}}</span></div>
         <div style="border-top:1px dashed #999;margin:8px 0"></div>
