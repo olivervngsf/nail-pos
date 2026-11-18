@@ -714,6 +714,41 @@ button:disabled { cursor: not-allowed; }
 .ps-paper .b{font-weight:700}
 .ps-qr{width:96px;height:96px;margin:6px auto;border:2px dashed #111;display:flex;align-items:center;justify-content:center;font-weight:700}
 @media (max-width:860px){.ps{grid-template-columns:1fr}.ps-right{position:static}}
+/* Text credit ring (left menu) + popover, and the Manage credit page. */
+.cr{position:relative;display:flex;justify-content:center;margin-bottom:6px}
+.cr-ring{width:44px;height:44px;border-radius:12px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.cr-ring:hover{background:var(--fill)}
+.cr-ring.cr-open{background:var(--paper);box-shadow:0 0 0 2px var(--ink)}
+.cr-pop{position:absolute;left:58px;bottom:0;width:280px;padding:6px 0;z-index:30;text-align:left}
+.cr-head{padding:8px 16px}
+.cr-body{padding:12px 16px;display:flex;flex-direction:column;gap:8px}
+.cr-link{display:flex;align-items:center;height:42px;padding:0 16px;font-size:15px;text-decoration:none;color:var(--ink)}
+.cr-link:hover{background:var(--fill)}
+.tc{flex:1;overflow:auto;padding:20px 24px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-content:start}
+.tc-main,.tc-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.tc-adds{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+@media (max-width:899px){.tc{grid-template-columns:1fr;padding:16px}}
+.rail .cr-pop a.cr-link{width:auto;flex-direction:row;align-items:center;gap:0;padding:0 16px;border-radius:0;font-size:15px;color:var(--ink)}
+.rail .cr-pop a.cr-link:hover{background:var(--fill)}
+.set-main .tc{padding:0;flex:none}
+
+/* Settings → Billing */
+.bill { display: flex; flex-direction: column; gap: 12px; max-width: 880px; }
+.bill-plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.bill-plan { border: 1.5px solid var(--line); gap: 14px; }
+.bill-plan.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.bill-plan-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.bill-plan-h b { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; }
+.bill-check { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; }
+.bill-price { display: flex; align-items: center; gap: 10px; }
+.bill-price .num { font-size: 40px; line-height: 44px; font-weight: 700; letter-spacing: -0.03em; }
+.bill-price .cap { max-width: 120px; }
+.bill-facts { box-shadow: none; border: 1px solid var(--line); }
+.bill-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.bill-list li::before { content: "✓"; margin-right: 8px; color: var(--ink-soft); }
+.bill-plan-f { margin-top: auto; display: flex; justify-content: center; }
+.bill-cancel { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+@media (max-width: 720px) { .bill-plans { grid-template-columns: 1fr; } }
 /* Tech app (M13): bottom tabs are links. */
 .ptabs .ptab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--ink-soft);text-decoration:none;min-height:56px}
 .ptabs .ptab.on{color:var(--ink);font-weight:600}
@@ -728,6 +763,9 @@ button:disabled { cursor: not-allowed; }
 .t-bar.jade>span{background:var(--jade)}
 .t-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .t-tiles .tile{padding:14px;gap:4px;font-size:14px;min-height:76px;box-sizing:border-box}
+.bill-addon { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.bill-addon .g { flex: 1; min-width: 200px; }
+.bill-addon .g b { display: block; font-size: 15px; }
 
 /* ---------- Founder Admin (/admin, /admin/salons; board https://claude.ai/artifact/WpMg52SxZ9Hzz577hUtSeg) ---------- */
 .ad-app .col { overflow: auto; }
