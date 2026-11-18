@@ -1440,7 +1440,8 @@
       "payouts": "Bảng lương",
       "printer": "Máy in",
       "payments": "Thanh toán",
-      "reader": "Máy quẹt thẻ"
+      "reader": "Máy quẹt thẻ",
+      "billing": "Thanh toán gói"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -1714,6 +1715,67 @@
       "connect": "Kết nối máy",
       "useTest": "Chưa có máy: thêm máy thử",
       "refresh": "Làm mới"
+    },
+    "bill": {
+      "monthly": "Hàng tháng",
+      "yearly": "Hàng năm",
+      "current": "Gói hiện tại",
+      "save": "Tiết kiệm {pct}%",
+      "per": {
+        "monthly": "mỗi tháng, trả hàng tháng",
+        "yearly": "mỗi tháng, trả theo năm"
+      },
+      "status": "Trạng thái",
+      "renews": "Gia hạn kế tiếp",
+      "firstCharge": "Hết dùng thử miễn phí",
+      "ends": "Gói kết thúc",
+      "days": "{n} ngày",
+      "st": {
+        "trial": "Dùng thử miễn phí",
+        "active": "Đang hoạt động",
+        "canceling": "Không gia hạn"
+      },
+      "f": {
+        "staff": "Bao gồm mọi nhân viên (1–20)",
+        "all": "Tính tiền, trả lương, đặt hẹn, khách, số liệu",
+        "texts": "Tin nhắn nhắc hẹn + hóa đơn đã bao gồm",
+        "support": "Ngày cài đặt + hỗ trợ qua điện thoại",
+        "allMonthly": "Mọi thứ trong gói tháng",
+        "yearTotal": "{total} mỗi năm một lần"
+      },
+      "manage": "Quản lý",
+      "manageSoon": "Sắp có: mở Stripe để đổi thẻ hoặc gói.",
+      "switchTo": "Đổi sang {plan}",
+      "switched": "Đã đổi sang {plan}",
+      "resume": "Giữ gói của tôi",
+      "resumed": "Gói sẽ được gia hạn",
+      "cancel": "Hủy gói",
+      "cancelNote": "Dữ liệu tiệm vẫn là của bạn. Có thể xuất bất cứ lúc nào, kể cả sau khi hủy.",
+      "cancelTitle": "Hủy gói?",
+      "cancelBody": "PolishOS vẫn chạy đến {d}. Sau đó:",
+      "keep1": "Khách, phiếu và lương vẫn được lưu và có thể xuất ra.",
+      "keep2": "Tiền thẻ vẫn vào tài khoản Stripe của bạn như cũ.",
+      "keep3": "Quay lại bất cứ lúc nào, tiếp tục như cũ.",
+      "keep": "Giữ gói",
+      "cancelYes": "Hủy cuối kỳ",
+      "canceled": "Gói kết thúc {d}",
+      "addOns": "Thêm",
+      "battery": "Pin tin nhắn",
+      "batteryNote": "Tin quảng cáo (ưu đãi, mời khách quay lại). {n} tin giá {price}. Tin nhắc hẹn + hóa đơn không dùng pin.",
+      "left": "Còn {n} tin",
+      "buy": "Thêm {price}",
+      "added": "Đã thêm {n} tin",
+      "refill": "Tự nạp khi dưới 20% (tối đa 1 gói mỗi tháng)",
+      "payWith": "Thẻ thanh toán",
+      "expires": "Hết hạn {d}",
+      "change": "Đổi",
+      "invoices": "Hóa đơn",
+      "noInvoices": "Chưa có hóa đơn. Tính tiền lần đầu sau dùng thử.",
+      "date": "Ngày",
+      "amount": "Số tiền",
+      "paid": "Đã trả",
+      "ownerOnly": "Chỉ chủ tiệm được đổi gói.",
+      "demo": "Bản thử: gói + thẻ là mẫu, chỉ lưu trên máy này. Giá là đề xuất cho thí điểm, chưa chốt."
     }
   },
   "tech": {
