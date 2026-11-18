@@ -3,18 +3,20 @@
 // add-ons (text battery), cancel. Owner changes; manager reads. Test version: plan kept on this device until
 // Stripe Billing is wired (prices are the pilot proposal, not final).
 import { useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button, DataTable, Drawer, StatusPill, Toast } from "@/components/kit";
 import { formatCents } from "@/lib/money";
 import { useStored } from "@/lib/useStored";
+import { creditLevel, textsLeft, useCredit } from "@/lib/texting/credit";
 import SettingsShell, { type Access } from "../SettingsShell";
 
 type Cycle = "monthly" | "yearly";
 type Status = "trial" | "active" | "canceling";
-type Billing = { cycle: Cycle; status: Status; renews: string; texts: number; refill: boolean };
+type Billing = { cycle: Cycle; status: Status; renews: string };
 
 export const PRICE: Record<Cycle, number> = { monthly: 4900, yearly: 3900 }; // cents per month
-const TEXT_PACK = { texts: 500, cents: 1000 };
+const TEXT_PACK = { texts: 500, cents: 1000 };   // = text credit $10 (2¢ a text), same balance as Settings → Texting & credit
 
 const plus = (days: number) => { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().slice(0, 10); };
 const fmtDate = (iso: string) => new Date(iso + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
@@ -27,7 +29,7 @@ export default function BillingPage() {
 
 function BillingView({ a }: { a: Access }) {
   const t = useTranslations("settings.bill");
-  const [b, setB] = useStored<Billing>(`nailpos.billing.${a.salonId}`, () => ({ cycle: "monthly", status: "trial", renews: plus(30), texts: 420, refill: false }));
+  const [b, setB] = useStored<Billing>(`nailpos.billing.${a.salonId}`, () => ({ cycle: "monthly", status: "trial", renews: plus(30) }));
   const [cancel, setCancel] = useState(false);
   const [toast, setToast] = useState("");
   const say = (m: string) => { setToast(m); setTimeout(() => setToast(""), 2500); };
@@ -41,7 +43,9 @@ function BillingView({ a }: { a: Access }) {
   const statusPill = b.status === "trial" ? <StatusPill tone="ok">{t("st.trial")}</StatusPill>
     : b.status === "active" ? <StatusPill tone="ok">{t("st.active")}</StatusPill>
     : <StatusPill tone="warn">{t("st.canceling")}</StatusPill>;
-  const lowTexts = b.texts < 100;
+  // Text battery = the salon's real text credit (one balance, shared with the menu ring + Texting & credit).
+  const { credit, add } = useCredit(a.demo ? undefined : a.salonId);
+  const lowTexts = !!credit && creditLevel(credit) !== "good";
 
   return (
     <div className="bill" data-testid="billing">
@@ -89,12 +93,10 @@ function BillingView({ a }: { a: Access }) {
       <section className="card pad">
         <div className="bill-addon">
           <div className="g"><b>{t("battery")}</b><span className="cap">{t("batteryNote", { n: TEXT_PACK.texts, price: formatCents(TEXT_PACK.cents) })}</span></div>
-          <span className={`pill${lowTexts ? " warn" : ""}`} data-testid="text-balance">{t("left", { n: b.texts })}</span>
-          <Button variant="primary" disabled={dis} data-testid="buy-texts" onClick={() => { setB({ ...b, texts: b.texts + TEXT_PACK.texts }); say(t("added", { n: TEXT_PACK.texts })); }}>{t("buy", { price: formatCents(TEXT_PACK.cents) })}</Button>
+          <span className={`pill${lowTexts ? " warn" : ""}`} data-testid="text-balance">{credit ? `${t("left", { n: textsLeft(credit) })} · ${formatCents(credit.balanceCents)}` : "…"}</span>
+          <Button variant="primary" disabled={dis || !credit} data-testid="buy-texts" onClick={() => { void add(TEXT_PACK.cents).then(() => say(t("added", { n: TEXT_PACK.texts }))).catch((e: Error) => say(e.message)); }}>{t("buy", { price: formatCents(TEXT_PACK.cents) })}</Button>
         </div>
-        <label className="bill-refill cap">
-          <input type="checkbox" checked={b.refill} disabled={dis} onChange={(e) => setB({ ...b, refill: e.target.checked })} /> {t("refill")}
-        </label>
+        <Link className="cap" href="/settings/texting" data-testid="manage-credit">{t("manageCredit")}</Link>
       </section>
 
       <div className="set-two">

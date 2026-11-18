@@ -5,6 +5,7 @@ import { useEffect, useState, type ButtonHTMLAttributes, type InputHTMLAttribute
 import RailAccount from "@/components/RailAccount";
 import { useTranslations } from "next-intl";
 import { retryParked, subscribe, syncNow, type SyncState } from "@/lib/offline/outbox";
+import { CreditRing } from "@/components/CreditRing";
 
 const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(" ");
 
@@ -197,6 +198,7 @@ export function LeftMenu({ active, salonInitials = "NP", me }: { active: MenuIte
         </a>
       ))}
       <div style={{ flex: 1 }} />
+      <CreditRing />
       <RailAccount initial={me} />
     </nav>
   );
