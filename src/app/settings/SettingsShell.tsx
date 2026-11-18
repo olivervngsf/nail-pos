@@ -21,6 +21,7 @@ const NAV = [
   { href: "/settings/reader", key: "reader", group: "salon" },
   { href: "/settings/texting", key: "texting", group: "salon" },
   { href: "/settings/billing", key: "billing", group: "salon" },
+  { href: "/settings/support", key: "support", group: "salon" },
   { href: "/settings/printer", key: "printer", group: "more" },
   { href: "/settings/booking-page", key: "bookingPage", group: "more" },
   { href: "/loyalty", key: "loyalty", group: "more" },

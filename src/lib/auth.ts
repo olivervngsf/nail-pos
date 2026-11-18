@@ -10,6 +10,7 @@ export const e164 = (phone: string) => "+1" + phone.replace(/\D/g, "").replace(/
 
 export type Role = "owner" | "manager" | "front_desk" | "tech";
 export type Membership = {
+  /** null on a support row (platform admin inside a salon while the owner allows support, migration support_access). */
   membership_id: string;
   salon_id: string;
   salon_name: string;
@@ -18,6 +19,8 @@ export type Membership = {
   setup_step: number;
   has_pin: boolean;
   language: "en" | "vi";
+  /** Set = this is a support window (shown as "PolishOS support"), not a real membership; ends at this time. */
+  support_until?: string | null;
 };
 
 export const ROLE_LABEL: Record<Role, string> = { owner: "Owner", manager: "Manager", front_desk: "Front desk", tech: "Tech" };
@@ -251,7 +254,8 @@ export async function myMemberships(): Promise<Membership[]> {
 }
 
 /** Where to go after sign-in. A platform admin (us) with no salon goes to /admin, not salon setup. */
-export function homeFor(ms: Membership[], admin = false): string {
+export function homeFor(all: Membership[], admin = false): string {
+  const ms = all.filter((m) => !m.support_until);   // support windows are opened from /admin, never a home
   if (!ms.length) return admin ? "/admin" : "/setup";
   const m = ms[0];
   if (m.role === "owner" && m.setup_step < 9) return "/setup";

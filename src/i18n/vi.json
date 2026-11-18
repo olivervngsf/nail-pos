@@ -1485,7 +1485,8 @@
       "payments": "Thanh toán",
       "reader": "Máy quẹt thẻ",
       "texting": "Tin nhắn & tín dụng",
-      "billing": "Thanh toán gói"
+      "billing": "Thanh toán gói",
+      "support": "Hỗ trợ"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -1841,6 +1842,32 @@
         "open": "Chưa trả",
         "other": "Đã đóng"
       }
+    },
+    "support": {
+      "title": "Cho PolishOS hỗ trợ",
+      "on": "Bật",
+      "off": "Tắt",
+      "what": "Bật khi anh/chị gọi nhờ hỗ trợ. Trong 24 giờ, đội PolishOS (Oliver, Elang) có thể mở màn hình của tiệm để sửa cùng anh/chị. Tự tắt sau đó.",
+      "onFor": "Đang hỗ trợ · còn {h} giờ {m} phút (đến {until})",
+      "endNow": "Kết thúc ngay",
+      "why": "Cần hỗ trợ việc gì? (không bắt buộc)",
+      "whyHint": "Máy thẻ không kết nối",
+      "turnOn": "Bật trong 24 giờ",
+      "ownerOnly": "Chỉ chủ tiệm mới bật được hỗ trợ.",
+      "rules": "Cách hoạt động",
+      "rule1": "Tắt trừ khi anh/chị bật. Khi tắt, đội chỉ thấy tình trạng tiệm (số lượng và tổng), không bao giờ thấy tên, số điện thoại, ghi chú của khách hay lương thợ.",
+      "rule2": "Tự tắt sau 24 giờ. Anh/chị (hoặc đội) có thể kết thúc bất cứ lúc nào.",
+      "rule3": "Mọi thay đổi trong lúc hỗ trợ đều được ghi lại ở đây, kèm giờ.",
+      "rule4": "Đội không bao giờ lấy tiền hay đổi lương thợ mà không hỏi anh/chị trước.",
+      "log": "Nhật ký hỗ trợ",
+      "noLog": "Chưa có gì.",
+      "logOn": "Đã bật hỗ trợ",
+      "logOff": "Đã kết thúc hỗ trợ",
+      "logChange": "Hỗ trợ đã đổi: {what}",
+      "past": "{n, plural, other {# lần hỗ trợ trước}}",
+      "onToast": "Đã bật hỗ trợ trong 24 giờ",
+      "offToast": "Đã kết thúc hỗ trợ",
+      "demo": "Bản thử: thay đổi chỉ lưu trên máy này."
     }
   },
   "promo": {

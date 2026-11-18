@@ -766,3 +766,6 @@ button:disabled { cursor: not-allowed; }
 .bill-addon { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .bill-addon .g { flex: 1; min-width: 200px; }
 .bill-addon .g b { display: block; font-size: 15px; }
+/* Support mode strip (admin inside a salon, owner allowed it): pinned to the top of every screen. */
+.support-banner { position: sticky; top: 0; z-index: 60; height: auto; min-height: 40px; flex-wrap: wrap; padding: 6px 16px; }
+.support-banner .grow { flex: 1; min-width: 180px; }

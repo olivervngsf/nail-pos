@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import en from "@/i18n/en.json";
 import vi from "@/i18n/vi.json";
 import { registerHandler, startSync } from "@/lib/offline/outbox";
+import SupportBanner from "@/components/SupportBanner";
 
 export type Lang = "en" | "vi";
 const MESSAGES = { en, vi };
@@ -46,6 +47,7 @@ export default function AppProviders({ children }: { children: React.ReactNode }
   return (
     <LangCtx.Provider value={{ lang, setLang }}>
       <NextIntlClientProvider locale={lang} messages={MESSAGES[lang]} timeZone="America/Los_Angeles">
+        <SupportBanner />
         {children}
       </NextIntlClientProvider>
     </LangCtx.Provider>
