@@ -916,3 +916,4 @@ button:disabled { cursor: not-allowed; }
 .dev-qr { display: grid; place-items: center; gap: 10px; text-align: center; }
 .dev-qr svg { width: 220px; height: 220px; }
 .dev-qr .go-code { height: auto; font-size: 26px; font-weight: 700; }
+.two-step-gate { position: fixed; inset: 0; z-index: 1000; }
