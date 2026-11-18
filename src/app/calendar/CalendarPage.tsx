@@ -10,12 +10,12 @@ import { useStored } from "@/lib/useStored";
 import { useDesk, type Desk } from "@/lib/desk";
 import { putAppt, pullAppts, useAppts, type Appt } from "@/lib/booking/appts";
 import { pullTickets, useTickets } from "@/lib/checkout/store";
-import { isWaiting, onGrid, turnCounts, turnOrder } from "@/lib/booking/turns";
+import { isHere, isWaiting, onGrid, turnCounts, turnOrder } from "@/lib/booking/turns";
 import { getTicket } from "@/lib/checkout/store";
 import { totals } from "@/lib/checkout/ticket";
 import { SeatDrawer, WalkInDrawer, Waitlist, seatAppt, useTick } from "./WalkIns";
 import { addDays, at, clamp, dayKey, fmtMin, fromDayKey, lanes, minutesOf, overlapping, snap, startOfWeek } from "@/lib/booking/grid";
-import { BookDrawer, DetailsDrawer, statusOf, type BookDraft } from "./BookDrawers";
+import { BookDrawer, DetailsDrawer, statusOf, ticketFor, type BookDraft } from "./BookDrawers";
 
 const H0 = 8 * 60, H1 = 21 * 60;     // grid 8 AM – 9 PM
 const PX = 1.1;                      // px per minute
@@ -111,7 +111,10 @@ function Calendar({ desk }: { desk: Desk }) {
   // Alerts (facts that need someone): overlaps, staff not in with bookings, long waits, not confirmed soon.
   const nowM = new Date().getHours() * 60 + new Date().getMinutes();
   const todayList = list.filter((a) => dayKey(new Date(a.start)) === today && a.status !== "canceled" && a.status !== "no_show");
-  const alerts: { id: string; text: string; sub?: string; open?: string; kind: "overlap" | "cover" | "wait" | "unconf" }[] = [];
+  const alerts: { id: string; text: string; sub?: string; open?: string; kind: "overlap" | "cover" | "wait" | "unconf" | "here" }[] = [];
+  for (const a of todayList) if (isHere(a)) alerts.push({ id: `h-${a.id}`, kind: "here", open: a.id,
+    text: t("hereAlert", { name: a.client?.name || t("walkIn"), min: Math.max(0, Math.round((Date.now() - new Date(a.arrivedAt!).getTime()) / 60_000)) }),
+    sub: t("hereAlertSub", { time: fmtMin(minutesOf(a.start)), who: deskT.staff.find((s) => s.id === a.staffId)?.name ?? t("anyone") }) });
   for (const s of deskT.staff) {
     const mine = todayList.filter((a) => a.staffId === s.id).sort((x, y) => x.start.localeCompare(y.start));
     for (let i = 0; i < mine.length; i++) for (let j = i + 1; j < mine.length; j++) {
@@ -185,7 +188,7 @@ const live = (a: Appt) => a.status !== "canceled" && a.status !== "no_show";
 type Drag =
   | { kind: "move"; id: string; y0: number; x0: number; start: number; dur: number; col: number; dy: number; dcol: number; moved: boolean }
   | { kind: "resize"; id: string; y0: number; start: number; dur: number; dy: number }
-  | { kind: "new"; col: number; a: number; b: number };
+  | { kind: "new"; col: number; a: number; b: number; touch?: boolean };
 
 function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalkIn, q, filter, setFilter }: { desk: Desk; day: string; list: Appt[]; onBook: (d: BookDraft) => void; onOpen: (id: string) => void; say: (s: string, undo?: () => void) => void;
   waiting: Appt[]; onSeat: (a: Appt) => void; onWalkIn: () => void; q: string; filter: string; setFilter: (f: string) => void }) {
@@ -219,7 +222,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   const colOf = (a: Appt) => cols.findIndex((c) => c.id === (a.staffId ?? ANY));
   const kind = (a: Appt) => blockKind(a, isToday ? nowM : -1);
   const counts = useMemo(() => {
-    const c: Record<string, number> = { all: 0, online: 0, walk: 0, unconf: 0, conf: 0, chair: 0, ready: 0, cancel: 0 };
+    const c: Record<string, number> = { all: 0, online: 0, walk: 0, unconf: 0, conf: 0, here: 0, chair: 0, ready: 0, cancel: 0 };
     for (const a of dayList) {
       const k = kind(a);
       if (k !== "cancel") c.all++;
@@ -255,22 +258,49 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   const yMin = (clientY: number) => { const r = gridRef.current!.getBoundingClientRect(); return H0 + (clientY - r.top) / PX; };
   const xCol = (clientX: number) => { const r = gridRef.current!.getBoundingClientRect(); return clamp(Math.floor((clientX - r.left) / colW()), 0, cols.length - 1); };
 
+  // Touch (iPad/phone): nothing happens on a swipe, so scrolling never books or moves by mistake.
+  // Hold ~0.45 s (small buzz) → then drag. Tap a booking = open it; tap empty time = a hint.
+  const hold = useRef<{ timer?: ReturnType<typeof setTimeout>; x: number; y: number; fired: boolean; tap?: () => void; pid: number } | null>(null);
+  const stopScroll = useCallback((ev: TouchEvent) => { if (ev.cancelable) ev.preventDefault(); }, []);
+  const holdStart = (e: React.PointerEvent, fire: () => void, tap?: () => void) => {
+    const h: NonNullable<typeof hold.current> = { x: e.clientX, y: e.clientY, fired: false, tap, pid: e.pointerId };
+    h.timer = setTimeout(() => {
+      h.fired = true;
+      navigator.vibrate?.(15);
+      try { gridRef.current?.setPointerCapture(h.pid); } catch { /* pointer already gone */ }
+      document.addEventListener("touchmove", stopScroll, { passive: false });
+      fire();
+    }, 450);
+    hold.current = h;
+  };
+  const holdEnd = () => { const h = hold.current; hold.current = null; if (h?.timer) clearTimeout(h.timer); document.removeEventListener("touchmove", stopScroll); return h; };
+  useEffect(() => () => document.removeEventListener("touchmove", stopScroll), [stopScroll]);
+  const [menu, setMenu] = useState<{ x: number; y: number; id?: string; col?: number; m?: number } | null>(null);
+  const [moveId, setMoveId] = useState<string | null>(null);
+  const router = useRouter();
+
   const onGridDown = (e: React.PointerEvent) => {
+    if (e.button === 2) return;
     if ((e.target as HTMLElement).closest(".cb")) return;
     const m = snap(yMin(e.clientY) - 7, 15);
     const col = narrow ? phoneCol : xCol(e.clientX);
+    if (e.pointerType === "touch") { holdStart(e, () => setDrag({ kind: "new", col, a: m, b: m + 45, touch: true }), () => say(t("holdHint"))); return; }
     gridRef.current!.setPointerCapture(e.pointerId);
     setDrag({ kind: "new", col, a: m, b: m + 15 });
   };
   const onMove = (e: React.PointerEvent) => {
+    const h = hold.current;
+    if (h && !h.fired) { if (Math.abs(e.clientX - h.x) + Math.abs(e.clientY - h.y) > 10) holdEnd(); return; }
     if (!drag) return;
-    if (drag.kind === "new") setDrag({ ...drag, b: Math.max(drag.a + 15, snap(yMin(e.clientY), 15)) });
+    if (drag.kind === "new") { if (drag.touch && h && Math.abs(e.clientY - h.y) < 8) return; setDrag({ ...drag, b: Math.max(drag.a + 15, snap(yMin(e.clientY), 15)) }); }
     else if (drag.kind === "move") {
       const dy = snap((e.clientY - drag.y0) / PX, 15), dcol = narrow ? 0 : Math.round((e.clientX - drag.x0) / colW());
       setDrag({ ...drag, dy, dcol, moved: drag.moved || Math.abs(e.clientY - drag.y0) > 4 || Math.abs(e.clientX - drag.x0) > 6 });
     } else setDrag({ ...drag, dy: snap((e.clientY - drag.y0) / PX, 15) });
   };
-  const onUp = () => {
+  const onUp = (ev?: React.PointerEvent) => {
+    const h = holdEnd();
+    if (h && !h.fired) { setDrag(null); h.tap?.(); return; }
     const d = drag;
     setDrag(null);
     if (!d) return;
@@ -281,7 +311,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
     }
     const a = list.find((x) => x.id === d.id);
     if (!a) return;
-    if (d.kind === "move" && !d.moved) { onOpen(a.id); return; }
+    if (d.kind === "move" && !d.moved) { if (h?.fired && ev) setMenu({ x: ev.clientX, y: ev.clientY, id: a.id }); else onOpen(a.id); return; }
     const before = { ...a };
     let next: Appt;
     if (d.kind === "move") {
@@ -356,7 +386,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
             <span className="cal-keysw" aria-hidden><i className="unconf" /><i className="conf" /><i className="chair" /><i className="ready" /></span>{t("key")}
             <span className="cal-keypop card" role="tooltip">
               <b className="eyebrow">{t("keyTitle")}</b>
-              {(["unconf", "conf", "chair", "ready", "paid", "cancel"] as const).map((k) => (
+              {(["unconf", "conf", "here", "chair", "ready", "paid", "cancel"] as const).map((k) => (
                 <span key={k} className="cal-kr"><i className={k} /><span><b>{t(`ct_${k}`)}</b>{t(`key_${k}`)}</span></span>))}
               <span className="cap" style={{ marginTop: 6 }}>{t("key_src")}</span>
               <span style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>{["srcTagOnline", "srcTagPhone", "srcTagDesk", "srcTagWalk"].map((k) => <span key={k} className={`cb-src ${k === "srcTagOnline" ? "web" : k === "srcTagWalk" ? "walk" : ""}`} style={{ position: "static" }}>{t(k)}</span>)}</span>
@@ -389,7 +419,9 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
             {isToday && nowM >= H0 && nowM <= H1 && <div className="cal-nowlbl" style={{ top: (nowM - H0) * PX }}>{fmtMin(nowM).replace(/ [AP]M$/, "")}</div>}
           </div>
           <div ref={gridRef} className="cal-grid" style={{ height: (H1 - H0) * PX }} data-testid="cal-grid"
-            onPointerDown={onGridDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={() => setDrag(null)}
+            onPointerDown={onGridDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={() => { if (hold.current?.fired) return; holdEnd(); setDrag(null); }}
+            onContextMenu={(e) => { e.preventDefault(); if (hold.current || (e.target as HTMLElement).closest(".cb")) return;
+              setMenu({ x: e.clientX, y: e.clientY, col: narrow ? phoneCol : xCol(e.clientX), m: clamp(snap(yMin(e.clientY) - 7, 15), H0, H1 - 15) }); }}
             onDragOver={onDragOver} onDragLeave={() => setDropAt(null)} onDrop={onDrop}>
             {Array.from({ length: (H1 - H0) / 30 }, (_, i) => <div key={i} className={i % 2 ? "cal-half" : "cal-hr"} style={{ top: i * 30 * PX }} />)}
             {shown.map((_, i) => i > 0 && <div key={i} className="cal-vl" style={{ left: `${(i / shown.length) * 100}%` }} />)}
@@ -414,6 +446,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                 const inFor = isToday ? Math.max(0, nowM - minutesOf(a.start)) : 0;
                 const leftS = isToday ? Math.round(dayStart + minutesOf(a.end) * 60_000 - Date.now()) / 1000 : 0;
                 const status = overlapIds.has(a.id) && live(a) ? `⚠ ${t("overlap")}`
+                  : k === "here" ? t("stx_here", { min: Math.max(0, Math.round((Date.now() - new Date(a.arrivedAt!).getTime()) / 60_000)) })
                   : k === "chair" && isToday ? (leftS >= 0 ? t("stx_left", { t: mmss(leftS) }) : t("stx_over", { t: mmss(-leftS) }))
                   : k === "chair" ? t("stx_chair", { min: inFor, usual })
                   : k === "ready" ? t("stx_ready", { amt: formatCents(tk ? totals(tk).toPay : a.services.reduce((x, y) => x + y.cents, 0)).replace(/\.00$/, "") })
@@ -427,13 +460,17 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                     style={{ top: (s - H0) * PX + 1, height: Math.max(22, (e - s) * PX - 2), left: `calc(${col * w + (L.lane * w) / L.lanes}% + 3px)`, width: `calc(${w / L.lanes}% - 6px)` }}
                     data-testid="cal-block" data-name={a.client?.name ?? ""} role="button" tabIndex={0} aria-label={`${a.client?.name ?? t("walkIn")} ${fmtMin(s)}`}
                     onKeyDown={(ev) => ev.key === "Enter" && onOpen(a.id)}
+                    onContextMenu={(ev) => { ev.preventDefault(); ev.stopPropagation(); if (!hold.current) setMenu({ x: ev.clientX, y: ev.clientY, id: a.id }); }}
                     onPointerDown={(ev) => {
-                      if (st === "done" || st === "canceled" || st === "no_show") { ev.stopPropagation(); onOpen(a.id); return; }
+                      if (ev.button === 2) return;
                       ev.stopPropagation();
-                      gridRef.current!.setPointerCapture(ev.pointerId);
+                      if (st === "done" || st === "canceled" || st === "no_show") { if (ev.pointerType === "touch") holdStart(ev, () => { /* nothing to move */ }, () => onOpen(a.id)); else onOpen(a.id); return; }
                       const resize = (ev.target as HTMLElement).classList.contains("cb-rs");
-                      setDrag(resize ? { kind: "resize", id: a.id, y0: ev.clientY, start: s, dur: e - s, dy: 0 }
-                        : { kind: "move", id: a.id, y0: ev.clientY, x0: ev.clientX, start: s, dur: e - s, col: colOf(a), dy: 0, dcol: 0, moved: false });
+                      const d0: Drag = resize ? { kind: "resize", id: a.id, y0: ev.clientY, start: s, dur: e - s, dy: 0 }
+                        : { kind: "move", id: a.id, y0: ev.clientY, x0: ev.clientX, start: s, dur: e - s, col: colOf(a), dy: 0, dcol: 0, moved: false };
+                      if (ev.pointerType === "touch") { holdStart(ev, () => setDrag(d0), () => onOpen(a.id)); return; }
+                      gridRef.current!.setPointerCapture(ev.pointerId);
+                      setDrag(d0);
                     }}>
                     <b>{a.client?.care ? "▲ " : ""}{a.client?.name || t("walkIn")}</b>
                     {(e - s) >= 30 && L.lanes === 1 && <span className={`cb-src ${srcTag[0]}`}>{srcTag[1]}</span>}
@@ -477,6 +514,67 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
         <div style={{ flex: 1 }} />
         <div className="cap cal-keys">{t("shortcuts")} <span className="kbd">N</span> {t("kNew")} · <span className="kbd">T</span> {t("kToday")} · <span className="kbd">←</span><span className="kbd">→</span> {t("kDay")} · <span className="kbd">/</span> {t("kSearch")}</div>
       </aside>
+      {menu && (() => {
+        const items: { label: string; run: () => void; danger?: boolean }[] = [];
+        const go2 = (f: () => void) => () => { setMenu(null); f(); };
+        let title = "";
+        if (menu.id) {
+          const a = list.find((x) => x.id === menu.id);
+          if (a) {
+            const st = statusOf(a), before = { ...a }, nm = a.client?.name || t("walkIn"), s0 = minutesOf(a.start), e0 = minutesOf(a.end);
+            const put = (patch: Partial<Appt>, msg: string) => { putAppt({ ...a, ...patch }); say(msg, () => putAppt(before)); };
+            title = `${nm} · ${fmtMin(s0)}`;
+            items.push({ label: t("m_open"), run: go2(() => onOpen(a.id)) });
+            if ((st === "booked" || st === "confirmed") && !isHere(a) && a.source !== "kiosk" && a.source !== "walk_in")
+              items.push({ label: t("hereBtn"), run: go2(() => put({ arrivedAt: new Date().toISOString() }, t("hereMsg", { name: nm }))) });
+            if (st === "booked" || st === "confirmed") items.push({ label: t("startService"), run: go2(() => { const id = ticketFor(desk, a, a.staffId ?? null); putAppt({ ...a, status: "arrived", ticketId: id }); router.push(`/checkout/${id}`); }) });
+            if (st === "booked") items.push({ label: t("confirm"), run: go2(() => put({ status: "confirmed" }, t("confirmedMsg"))) });
+            if (st === "booked" || st === "confirmed" || st === "arrived") {
+              items.push({ label: t("m_later"), run: go2(() => put({ start: at(day, s0 + 15), end: at(day, e0 + 15) }, t("m_movedMsg", { name: nm, time: fmtMin(s0 + 15) }))) });
+              items.push({ label: t("m_earlier"), run: go2(() => put({ start: at(day, Math.max(H0, s0 - 15)), end: at(day, Math.max(H0, s0 - 15) + e0 - s0) }, t("m_movedMsg", { name: nm, time: fmtMin(Math.max(H0, s0 - 15)) }))) });
+              items.push({ label: t("m_longer"), run: go2(() => put({ end: at(day, e0 + 15) }, t("resized", { name: nm, min: e0 - s0 + 15 }))) });
+              items.push({ label: t("m_move"), run: go2(() => setMoveId(a.id)) });
+            }
+            if (st === "booked" || st === "confirmed") {
+              items.push({ label: t("noShow"), run: go2(() => put({ status: "no_show" }, t("noShowMsg"))) });
+              items.push({ label: t("cancel"), danger: true, run: go2(() => put({ status: "canceled" }, t("canceledMsg"))) });
+            }
+          }
+        } else if (menu.col !== undefined && menu.m !== undefined) {
+          const c = cols[menu.col], m = menu.m;
+          title = `${c?.name ?? ""} · ${fmtMin(m)}`;
+          items.push({ label: t("m_newHere"), run: go2(() => onBook({ day, start: m, minutes: 45, staffId: c && c.id !== ANY ? c.id : undefined })) });
+          if (c && c.id !== ANY) for (const w of waiting.slice(0, 2)) items.push({ label: t("m_seatHere", { name: w.client?.name || t("walkIn") }), run: go2(() => {
+            const b = { ...w }; seatAppt(desk, w, c.id, at(day, m)); say(t("droppedMsg", { name: w.client?.name || t("walkIn"), staff: c.name, time: fmtMin(m) }), () => putAppt(b)); }) });
+        }
+        if (!items.length) return null;
+        const vw = typeof window !== "undefined" ? window.innerWidth : 1200, vh = typeof window !== "undefined" ? window.innerHeight : 800;
+        return <>
+          <button type="button" className="cal-mscrim" aria-label={t("close")} onClick={() => setMenu(null)} onContextMenu={(e) => { e.preventDefault(); setMenu(null); }} />
+          <div className="cal-menu card" role="menu" aria-label={title} style={{ left: Math.max(8, Math.min(menu.x, vw - 250)), top: Math.max(8, Math.min(menu.y, vh - 40 - items.length * 36)) }} data-testid="cal-menu">
+            <div className="cal-menuh">{title}</div>
+            {items.map((x) => <button key={x.label} type="button" role="menuitem" className={`cal-mi ${x.danger ? "danger" : ""}`} onClick={x.run}>{x.label}</button>)}
+          </div>
+        </>;
+      })()}
+      {moveId && (() => {
+        const a = list.find((x) => x.id === moveId);
+        if (!a) return null;
+        const s0 = minutesOf(a.start), e0 = minutesOf(a.end), ci = colOf(a);
+        const put = (patch: Partial<Appt>) => putAppt({ ...a, ...patch });
+        const toCol = (k: number) => { const c = cols[clamp(ci + k, 0, cols.length - 1)]; if (c) put({ staffId: c.id === ANY ? null : c.id }); };
+        return (
+          <div className="cal-movebar" role="toolbar" aria-label={t("m_move")} data-testid="move-bar">
+            <span className="cal-mvt"><b>{a.client?.name || t("walkIn")}</b> · {fmtMin(s0)} · {desk.staff.find((x) => x.id === a.staffId)?.name ?? t("anyone")}</span>
+            <button type="button" aria-label={t("mv_earlier")} onClick={() => put({ start: at(day, Math.max(H0, s0 - 15)), end: at(day, Math.max(H0, s0 - 15) + e0 - s0) })}>↑ 15</button>
+            <button type="button" aria-label={t("mv_later")} onClick={() => put({ start: at(day, s0 + 15), end: at(day, e0 + 15) })}>↓ 15</button>
+            {!narrow && <button type="button" aria-label={t("mv_left")} onClick={() => toCol(-1)}>◀</button>}
+            {!narrow && <button type="button" aria-label={t("mv_right")} onClick={() => toCol(1)}>▶</button>}
+            <button type="button" aria-label={t("mv_shorter")} onClick={() => put({ end: at(day, Math.max(s0 + 15, e0 - 15)) })}>−15m</button>
+            <button type="button" aria-label={t("mv_longer")} onClick={() => put({ end: at(day, e0 + 15) })}>+15m</button>
+            <button type="button" className="on" onClick={() => { setMoveId(null); say(t("m_movedMsg", { name: a.client?.name || t("walkIn"), time: fmtMin(s0) })); }}>{t("mv_done")}</button>
+          </div>);
+      })()}
       {waitOpen && <Drawer title={t("waitlist")} onClose={() => setWaitOpen(false)}>
         <Waitlist waiting={waiting} onSeat={(a) => { setWaitOpen(false); onSeat(a); }} onWalkIn={() => { setWaitOpen(false); onWalkIn(); }} />
       </Drawer>}
@@ -485,7 +583,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
 }
 
 const ONLINE = new Set(["web", "google", "website", "instagram", "qr", "text"]);
-const COUNTS: [string, string, string][] = [["all", "", ""], ["unconf", "", "#D9A979"], ["conf", "", "#B8B8C0"], ["chair", "", "#2F9E44"], ["ready", "", "#E8590C"], ["cancel", "", "#C92A2A"], ["online", "", "#2A55B0"], ["walk", "", "#B35C00"]];
+const COUNTS: [string, string, string][] = [["all", "", ""], ["unconf", "", "#D9A979"], ["conf", "", "#B8B8C0"], ["here", "", "#1F7A33"], ["chair", "", "#2F9E44"], ["ready", "", "#E8590C"], ["cancel", "", "#C92A2A"], ["online", "", "#2A55B0"], ["walk", "", "#B35C00"]];
 /** Timeline row height (px per minute), picked per device: S · M · L · XL. */
 const ROW_PX = [0.8, 1.1, 1.6, 2.2];
 const ROW_LBL = ["S", "M", "L", "XL"];
@@ -499,6 +597,7 @@ export function blockKind(a: Appt, nowM: number): string {
   if (st === "canceled" || st === "no_show") return "cancel";
   if (st === "done") return "paid";
   if (st === "arrived") return nowM >= 0 && minutesOf(a.end) <= nowM ? "ready" : "chair";
+  if (isHere(a)) return "here";
   return st === "confirmed" ? "conf" : "unconf";
 }
 function payHow(tk: ReturnType<typeof getTicket>, t: (k: "paidCard" | "paidCash" | "paidGift") => string) {

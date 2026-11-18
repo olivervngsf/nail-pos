@@ -272,6 +272,20 @@ button:disabled { cursor: not-allowed; }
 .cal-heads { display: grid; margin-left: 52px; border-bottom: 1px solid var(--line); height: 56px; flex: none; }
 /* Booking panel: nothing in the scrolling body may be squashed (lists scroll inside their own box). */
 .drawer-b > * { flex-shrink: 0; }
+.cb.here { background: #fff; border: 2px solid #2F9E44; }
+.cb.here .s { color: #1F7A33; }
+.cal-keysw i.here, .cal-kr i.here { background: #fff; border: 2px solid #2F9E44; }
+.cal-mscrim { position: fixed; inset: 0; z-index: 44; border: 0; background: transparent; cursor: default; }
+.cal-menu { position: fixed; z-index: 45; width: 240px; padding: 6px; display: flex; flex-direction: column; box-shadow: 0 18px 50px rgba(28,28,30,.22), 0 0 0 1px rgba(0,0,0,.04); animation: popin .15s cubic-bezier(.2,.8,.2,1) both; }
+.cal-menuh { font-size: 11px; font-weight: 600; color: var(--muted); padding: 6px 10px 4px; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-mi { height: 34px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; font: inherit; font-size: 13.5px; color: var(--ink); text-align: left; cursor: pointer; }
+.cal-mi:hover, .cal-mi:focus-visible { background: var(--fill); outline: none; }
+.cal-mi.danger { color: var(--red); }
+@media (pointer: coarse) { .cal-mi { height: 44px; font-size: 15px; } }
+.cal-movebar { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 40; display: flex; align-items: center; gap: 6px; padding: 8px 8px 8px 16px; border-radius: 14px; background: var(--ink); color: #fff; box-shadow: 0 12px 32px rgba(0,0,0,.28); max-width: calc(100vw - 24px); flex-wrap: wrap; }
+.cal-movebar .cal-mvt { font-size: 13px; margin-right: 6px; }
+.cal-movebar button { height: 40px; min-width: 44px; padding: 0 10px; border: 0; border-radius: 9px; background: rgba(255,255,255,.14); color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.cal-movebar button.on { background: #fff; color: var(--ink); }
 .bk-sum { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-soft); }
 .bk-code { display: inline-block; min-width: 26px; text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; font-weight: 700; border-radius: 5px; padding: 1px 5px; margin-right: 6px; flex: none; }
 .bk-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 2px; }
@@ -328,7 +342,7 @@ button:disabled { cursor: not-allowed; }
 .cal-scroll { flex: 1; overflow: auto; display: flex; position: relative; }
 .cal-hours { width: 52px; flex: none; position: relative; }
 .cal-hl { position: absolute; right: 6px; font-size: 11px; color: var(--ink-soft); transform: translateY(-7px); }
-.cal-grid { flex: 1; position: relative; cursor: copy; touch-action: none; user-select: none; }
+.cal-grid { flex: 1; position: relative; cursor: copy; touch-action: pan-x pan-y; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .cal-hr, .cal-half { position: absolute; left: 0; right: 0; height: 1px; background: #E5E5EA; pointer-events: none; }
 .cal-half { background: #EEEEF1; }
 .cal-vl { position: absolute; top: 0; bottom: 0; width: 1px; background: #E5E5EA; pointer-events: none; }

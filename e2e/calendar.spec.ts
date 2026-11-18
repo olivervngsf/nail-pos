@@ -47,6 +47,22 @@ test("calendar: book, move with undo, check in, week + month", async ({ page }) 
   await vy.click();
   await page.getByTestId("confirm").click();
   await expect(vy).toContainText("Confirmed");
+  if (!phone) {
+    // Right-click → menu → client is here (green "Here"), then 15 min later + Undo
+    await vy.click({ button: "right" });
+    await expect(page.getByTestId("cal-menu")).toBeVisible();
+    await page.getByRole("menuitem", { name: "Client is here (check in)" }).click();
+    await expect(vy).toContainText("Here");
+    await vy.click({ button: "right" });
+    await page.getByRole("menuitem", { name: "15 min later" }).click();
+    await expect(vy).toContainText("pedicure · 3:15");
+    await page.getByRole("button", { name: "Undo" }).click();
+    await expect(vy).toContainText("pedicure · 3:00");
+  } else {
+    await vy.click();
+    await page.getByTestId("here-btn").click();
+    await expect(vy).toContainText("Here");
+  }
   await vy.click();
   await page.getByTestId("check-in").click();
   await expect(page).toHaveURL(/\/checkout\//);

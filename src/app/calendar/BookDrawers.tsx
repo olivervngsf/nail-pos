@@ -13,6 +13,7 @@ import { getTicket, putTicket } from "@/lib/checkout/store";
 import { putAppt, type Appt, type ApptService, type ApptSource } from "@/lib/booking/appts";
 import { at, fmtMin, isFree, minutesOf, repeatDays } from "@/lib/booking/grid";
 import { catColor, codeHits, parseTime, withCodes } from "@/lib/booking/serviceCodes";
+import { isHere } from "@/lib/booking/turns";
 
 export type BookDraft = { day: string; start: number; minutes: number; staffId?: string };
 
@@ -211,10 +212,15 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
     putAppt({ ...a, status: "arrived", ticketId: id });
     router.push(`/checkout/${id}`);
   };
+  const here = isHere(a);
+  const canHere = (st === "booked" || st === "confirmed") && !here && a.source !== "kiosk" && a.source !== "walk_in";
+  const markHere = () => { const before = { ...a }; putAppt({ ...a, arrivedAt: new Date().toISOString() }); say(t("hereMsg", { name: a.client?.name || t("walkIn") }), () => putAppt(before)); onClose(); };
+  const hereMin = here ? Math.max(0, Math.round((Date.now() - new Date(a.arrivedAt!).getTime()) / 60_000)) : 0;
   const sm = minutesOf(a.start), em = minutesOf(a.end);
   return (
     <Drawer title={a.client?.name || t("walkIn")} onClose={onClose} footer={<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      {(st === "booked" || st === "confirmed" || st === "arrived") && <Button variant="primary" block onClick={checkIn} data-testid="check-in">{st === "arrived" ? t("openTicket") : t("checkIn")}</Button>}
+      {canHere && <Button variant="primary" block onClick={markHere} data-testid="here-btn">{t("hereBtn")}</Button>}
+      {(st === "booked" || st === "confirmed" || st === "arrived") && <Button variant={canHere ? "default" : "primary"} block onClick={checkIn} data-testid="check-in">{st === "arrived" ? t("openTicket") : t("startService")}</Button>}
       {st === "done" && a.ticketId && <Button block onClick={() => router.push(`/checkout/${a.ticketId}`)}>{t("openTicket")}</Button>}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {st === "booked" && <Button onClick={() => set("confirmed", t("confirmedMsg"))} data-testid="confirm">{t("confirm")}</Button>}
@@ -224,7 +230,7 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
       </div>
     </div>}>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <span className={`tag ${st === "confirmed" || st === "arrived" ? "jade" : ""}`} data-testid="appt-status">{t(`st_${st}`)}</span>
+        <span className={`tag ${st === "confirmed" || st === "arrived" || here ? "jade" : ""}`} data-testid="appt-status">{here ? t("hereTag", { min: hereMin }) : t(`st_${st}`)}</span>
         <span className="tag">{t(`src_${a.source}`)}</span>
         {a.repeatRuleId && <span className="tag">{t("repeats")}</span>}
       </div>
