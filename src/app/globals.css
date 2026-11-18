@@ -709,3 +709,17 @@ button:disabled { cursor: not-allowed; }
 .ps-paper .b{font-weight:700}
 .ps-qr{width:96px;height:96px;margin:6px auto;border:2px dashed #111;display:flex;align-items:center;justify-content:center;font-weight:700}
 @media (max-width:860px){.ps{grid-template-columns:1fr}.ps-right{position:static}}
+/* Tech app (M13): bottom tabs are links. */
+.ptabs .ptab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--ink-soft);text-decoration:none;min-height:56px}
+.ptabs .ptab.on{color:var(--ink);font-weight:600}
+.ptabs{z-index:5;bottom:0}
+.t-row{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.t-row:last-child{border-bottom:0}
+.t-row .when{width:76px;flex:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+.t-row.paid{color:var(--ink-soft)}
+.t-row.chair{background:var(--jade-soft)}
+.t-bar{height:6px;border-radius:3px;background:var(--fill);overflow:hidden}
+.t-bar>span{display:block;height:100%;background:var(--ink)}
+.t-bar.jade>span{background:var(--jade)}
+.t-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.t-tiles .tile{padding:14px;gap:4px;font-size:14px;min-height:76px;box-sizing:border-box}
