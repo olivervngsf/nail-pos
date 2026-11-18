@@ -1,20 +1,22 @@
 "use client";
 // Tech scans the ticket slip QR → this page on their phone: tap the services they did; they go on the ticket
 // under their name. Front desk sees them appear and charges. (Ticket slip flow.)
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, PhoneBar, Toast } from "@/components/kit";
 import { getSupabase } from "@/lib/supabase/client";
 import { SMS_ON, isSignedIn, rpc } from "@/lib/auth";
 import { formatCents as $ } from "@/lib/money";
 
 type Line = { id: string; name: string; cents: number; staff_id: string | null; staff: string | null };
-type T = { id: string; number: number; status: string; salon_id: string; me: string | null; client: string | null; salon: string; lines: Line[] };
+type Tip = { cash_cents: number; card_cents: number; fee_cents: number };
+type T = { id: string; number: number; status: string; paid_at: string | null; salon_id: string; me: string | null; client: string | null; salon: string; my_tip: Tip | null; lines: Line[] };
 type Svc = { id: string; category: string; name: string; minutes: number; price_cents: number; price_from: boolean };
 
 export default function TechTicket({ id }: { id: string }) {
   const t = useTranslations("slip");
+  const f = useFormatter();
   const router = useRouter();
   const [tk, setTk] = useState<T | null>(null);
   const [me, setMe] = useState<string | null>(null);
@@ -23,12 +25,14 @@ export default function TechTicket({ id }: { id: string }) {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState("");
+  const poll = useRef<ReturnType<typeof setInterval>>(undefined);
 
   // Techs can't read tickets in general; tech_ticket shows just this one (no client phone).
   const load = useCallback(async () => {
     try {
       const data = await rpc<T>("tech_ticket", { p_ticket: id });
       setTk(data);
+      if (data.status !== "open") clearInterval(poll.current);
       return data;
     } catch { setErr(t("notFound")); return undefined; }
   }, [id, t]);
@@ -44,8 +48,8 @@ export default function TechTicket({ id }: { id: string }) {
       const { data } = await getSupabase()!.from("services").select("id,category,name,minutes,price_cents,price_from").eq("salon_id", x.salon_id).is("archived_at", null).order("sort");
       setSvc((data ?? []) as Svc[]);
     })();
-    const iv = setInterval(() => void load(), 8000);
-    return () => clearInterval(iv);
+    poll.current = setInterval(() => void load(), 8000);
+    return () => clearInterval(poll.current);
   }, [id, load, router, t]);
 
   const say = (s: string) => { setToast(s); setTimeout(() => setToast(""), 2500); };
@@ -77,7 +81,10 @@ export default function TechTicket({ id }: { id: string }) {
           <Avatar name={tk.client || "?"} />
           <div style={{ flex: 1 }}><div className="h2">{tk.client || t("walkIn")}</div><div className="cap">{tk.salon}</div></div>
         </div>
-        {!open && <div className="note">{t("paid")}</div>}
+        {!open && <div className="note" data-testid="slip-closed">
+          <b>{tk.status === "paid" ? t("paidAt", { time: tk.paid_at ? f.dateTime(new Date(tk.paid_at), { hour: "numeric", minute: "2-digit" }) : "" }) : tk.status === "refunded" ? t("refunded") : t("voided")}</b>
+          <div className="cap">{t("locked")}</div>
+        </div>}
 
         <div className="eyebrow">{t("yours")}</div>
         <div className="group" data-testid="my-lines">
@@ -93,6 +100,20 @@ export default function TechTicket({ id }: { id: string }) {
         {others.length > 0 && <>
           <div className="eyebrow">{t("others")}</div>
           <div className="group">{others.map((l) => <div className="row s" key={l.id}><span className="g">{l.name}<span className="cap">{l.staff ?? t("noTech")}</span></span><span className="num">{$(Number(l.cents))}</span></div>)}</div>
+        </>}
+
+        {!open && tk.my_tip && <>
+          <div className="eyebrow">{t("yourTip")}</div>
+          <div className="group" data-testid="my-tip"><div className="row">
+            {tk.my_tip.cash_cents + tk.my_tip.card_cents > 0 ? <>
+              <span className="g"><b style={{ fontWeight: 600 }} className="num">{$(Number(tk.my_tip.cash_cents) + Number(tk.my_tip.card_cents))}</b>
+                <span className="cap" style={{ display: "block" }}>{[
+                  Number(tk.my_tip.cash_cents) > 0 && t("tipCash", { amount: $(Number(tk.my_tip.cash_cents)) }),
+                  Number(tk.my_tip.card_cents) > 0 && t("tipCard", { amount: $(Number(tk.my_tip.card_cents)) }),
+                  Number(tk.my_tip.fee_cents) > 0 && t("tipFee", { amount: $(Number(tk.my_tip.fee_cents)) }),
+                ].filter(Boolean).join(" · ")}</span></span>
+            </> : <span className="cap">{t("noTip")}</span>}
+          </div></div>
         </>}
 
         {open && <>
