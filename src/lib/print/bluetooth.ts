@@ -51,12 +51,13 @@ async function findPipe(d: Dev): Promise<Char> {
 }
 
 /** Pick the printer (shows the browser's list). Must be called from a tap. */
-export async function pickPrinter(paper: Paper): Promise<SavedPrinter> {
+export async function pickPrinter(paper: Paper, all = false): Promise<SavedPrinter> {
   const b = bt();
   if (!b) throw new Error(isIOS() ? "On iPhone or iPad, open PolishOS in the Bluefy browser to print by Bluetooth." : "This browser can't use Bluetooth. Use Chrome.");
-  // Show printers first; if none match, the browser list can show everything.
-  dev = await b.requestDevice({ filters: [...SERVICES.map((sv) => ({ services: [sv] })), ...NAME_PREFIXES.map((namePrefix) => ({ namePrefix }))], optionalServices: SERVICES })
-    .catch((e: Error) => { if (/cancel/i.test(e.message)) throw e; return b.requestDevice({ acceptAllDevices: true, optionalServices: SERVICES }); });
+  // Show printers first; `all` = every Bluetooth device nearby (for a printer with an unusual name).
+  const everything = () => b.requestDevice({ acceptAllDevices: true, optionalServices: SERVICES });
+  dev = all ? await everything() : await b.requestDevice({ filters: [...SERVICES.map((sv) => ({ services: [sv] })), ...NAME_PREFIXES.map((namePrefix) => ({ namePrefix }))], optionalServices: SERVICES })
+    .catch((e: Error) => { if (/cancel/i.test(e.message)) throw e; return everything(); });
   pipe = await findPipe(dev);
   const p = { id: dev.id, name: dev.name || "Bluetooth printer", paper };
   savePrinter(p);
