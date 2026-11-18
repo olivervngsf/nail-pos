@@ -83,15 +83,16 @@ const SPP = "00001101-0000-1000-8000-00805f9b34fb";
 type Port = { open(o: { baudRate: number }): Promise<void>; close(): Promise<void>; writable: WritableStream<Uint8Array> | null };
 type Serial = { requestPort(o?: unknown): Promise<Port>; getPorts(): Promise<Port[]> };
 const serial = (): Serial | null => (typeof navigator !== "undefined" && "serial" in navigator ? (navigator as unknown as { serial: Serial }).serial : null);
-/** Only offered on Android: on a computer the serial list is cables, not printers. */
-export const canBuiltIn = () => !!serial() && /Android/i.test(navigator.userAgent);
+/** Only offered on Android: on a computer the serial list is cables, not printers. Shown even when this browser
+ * has no Web Serial, so the tap can say "update Chrome" instead of the button just missing. */
+export const canBuiltIn = () => typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
 
 let port: Port | null = null;
 
 /** Pick the terminal's own printer (shows the browser's list). Must be called from a tap. */
 export async function pickBuiltIn(paper: Paper): Promise<SavedPrinter> {
   const sr = serial();
-  if (!sr) throw new Error("This browser can't reach a built-in printer. Update Chrome.");
+  if (!sr) throw new Error(`This browser can't reach a built-in printer. Open PolishOS in Google Chrome and update it in the Play Store (now: ${navigator.userAgent.match(/Chrome\/\d+/)?.[0] ?? "not Chrome"}).`);
   port = await sr.requestPort({ filters: [{ bluetoothServiceClassId: SPP }] });
   const p: SavedPrinter = { id: "serial", name: "Built-in printer", paper, via: "serial" };
   savePrinter(p);
