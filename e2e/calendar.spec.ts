@@ -21,6 +21,11 @@ test("calendar: book, move with undo, check in, week + month", async ({ page }) 
   await page.getByTestId("book-q").fill("p1");
   await page.getByTestId("book-q").press("Enter");
   await expect(page.getByRole("button", { name: /^Remove Regular spa pedicure/ })).toBeVisible();
+  // Skills: a pedicure needs "Pedicure" → Tuyết is a good fit, Kim isn't set up for it (facts only, still pickable)
+  await expect(page.getByTestId("skill-need")).toContainText("Pedicure");
+  await expect(page.getByTestId("book-staff-Tuyết").getByTestId("good-fit")).toBeVisible();
+  await expect(page.getByTestId("book-staff-Kim").getByTestId("good-fit")).toHaveCount(0);
+  await expect(page.getByTestId("book-staff-Kim").locator(".sk-tag.no")).toHaveText("Pedicure");
   await page.getByTestId("book-staff-Kim").click();
   await page.getByTestId("book-save").click();
   await expect(page.locator('[data-testid="cal-block"][data-name="Vy Ho"]')).toBeVisible();

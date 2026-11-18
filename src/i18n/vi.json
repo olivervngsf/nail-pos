@@ -816,7 +816,11 @@
     "kSearch": "tìm",
     "shortcuts": "Phím tắt:",
     "droppedMsg": "{name} → {staff} lúc {time} · đã bỏ khỏi danh sách chờ",
-    "seatSlip": "Xếp với {name} + in phiếu"
+    "seatSlip": "Xếp với {name} + in phiếu",
+    "sk_need": "Cần {list}",
+    "sk_fit": "Hợp",
+    "sk_has": "Làm được {s}",
+    "sk_not": "Chưa có kỹ năng {s}"
   },
   "receiptPage": {
     "notFound": "Không tìm thấy hóa đơn.",

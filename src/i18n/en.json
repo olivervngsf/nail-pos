@@ -816,7 +816,11 @@
     "kSearch": "search",
     "shortcuts": "Shortcuts:",
     "droppedMsg": "{name} → {staff} at {time} · removed from waitlist",
-    "seatSlip": "Seat with {name} + print slip"
+    "seatSlip": "Seat with {name} + print slip",
+    "sk_need": "Needs {list}",
+    "sk_fit": "Good fit",
+    "sk_has": "Does {s}",
+    "sk_not": "Not set up for {s}"
   },
   "receiptPage": {
     "notFound": "Receipt not found.",
