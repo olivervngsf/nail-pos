@@ -5,6 +5,8 @@ import { dayKey, minutesOf } from "./grid";
 const WALK = new Set(["kiosk", "walk_in"]);
 /** A walk-in still waiting (no tech, no ticket yet). */
 export const isWaiting = (a: Appt) => WALK.has(a.source) && (a.status === "booked" || a.status === "confirmed") && !a.ticketId;
+/** A booked client who checked in (kiosk or desk) and is waiting for their tech: arrived time set, no ticket yet. */
+export const isHere = (a: Appt) => !WALK.has(a.source) && (a.status === "booked" || a.status === "confirmed") && !!a.arrivedAt && !a.ticketId;
 /** Shown on the calendar grid (waiting walk-ins + walk-outs live in the waitlist instead). */
 export const onGrid = (a: Appt) => !isWaiting(a) && a.status !== "walked_out";
 /** Minutes since they came in. */
