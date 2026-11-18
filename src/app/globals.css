@@ -324,6 +324,11 @@ button:disabled { cursor: not-allowed; }
 .bk-techs { display: flex; flex-direction: column; gap: 6px; max-height: 312px; overflow: auto; padding: 2px; }
 .bk-tech { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--paper); font: inherit; text-align: left; cursor: pointer; color: var(--ink); flex: none; }
 .bk-tech.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+/* Tech skills (facts only): ✓ has a skill the services need, struck = doesn't, plain = other skills. */
+.sk-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.sk-tag { font-size: 11px; line-height: 16px; padding: 0 6px; border-radius: 6px; background: #F2F2F5; color: #5E5E66; font-weight: 500; white-space: nowrap; }
+.sk-tag.yes { background: #EAF6EF; color: #1F7A3E; font-weight: 600; }
+.sk-tag.no { color: #8E8E93; text-decoration: line-through; background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
 .bk-note { height: auto; min-height: 84px; padding: 10px 12px; resize: vertical; line-height: 21px; }
 .cal-inner { display: flex; flex-direction: column; flex: 1 0 auto; min-height: 100%; }
 .cal-inner > .cal-heads { position: sticky; top: 0; z-index: 6; margin-left: 0; padding-left: 52px; background: var(--paper); }

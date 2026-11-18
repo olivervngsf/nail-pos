@@ -14,6 +14,8 @@ import { putAppt, type Appt, type ApptService, type ApptSource } from "@/lib/boo
 import { at, fmtMin, isFree, minutesOf, repeatDays } from "@/lib/booking/grid";
 import { catColor, codeHits, parseTime, withCodes } from "@/lib/booking/serviceCodes";
 import { isHere } from "@/lib/booking/turns";
+import { skillsNeeded } from "@/lib/booking/skills";
+import { GoodFit, SkillTags } from "./SkillTags";
 
 export type BookDraft = { day: string; start: number; minutes: number; staffId?: string };
 
@@ -86,6 +88,7 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
     .map((a) => ({ id: a.id, start: minutesOf(a.start), end: minutesOf(a.end) }));
   const busyTill = (sid: string) => { const b = busyOf(sid).filter((x) => x.start < start + minutes && start < x.end).sort((x, y) => y.end - x.end)[0]; return b?.end; };
   const techs = desk.staff.filter((s) => s.role === "tech");
+  const need = skillsNeeded(svcs.map((x) => ({ name: x.name, cat: desk.services.find((d) => d.id === x.serviceId)?.cat })));
   const who = [...techs].filter((s) => !tq || s.name.toLowerCase().includes(tq.toLowerCase()))
     .sort((a, b) => Number(isFree(busyOf(b.id), start, start + minutes)) - Number(isFree(busyOf(a.id), start, start + minutes)) || Number(b.clockedIn) - Number(a.clockedIn));
   // A typed start time that can't be read blocks Book (never save at the old time by mistake).
@@ -181,14 +184,14 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
         <Chip onClick={() => { setStart(Math.min(21 * 60, start + 15)); setTText(null); }}>+15</Chip>
       </div>
 
-      <div className="eyebrow">{t("who")}</div>
+      <div className="eyebrow">{t("who")}{need.length > 0 && <span className="cap" style={{ textTransform: "none", letterSpacing: 0, marginLeft: 8 }} data-testid="skill-need">{t("sk_need", { list: need.join(" · ") })}</span>}</div>
       {techs.length > 5 && <input className="inp" placeholder={t("b2_findTech")} aria-label={t("b2_findTech")} value={tq} onChange={(e) => setTq(e.target.value)} style={{ height: 36 }} />}
       <div className="bk-techs">
         <button type="button" className={`bk-tech ${!staffId ? "on" : ""}`} onClick={() => setStaffId(undefined)}><span className="av" style={{ width: 30, height: 30 }}>★</span><span style={{ flex: 1, minWidth: 0 }}><b>{t("anyone")}</b></span></button>
         {who.map((s) => { const free = isFree(busyOf(s.id), start, start + minutes), till = busyTill(s.id); return (
           <button key={s.id} type="button" className={`bk-tech ${staffId === s.id ? "on" : ""}`} onClick={() => setStaffId(s.id)} data-testid={`book-staff-${s.name}`}>
             <span className="av" style={{ width: 30, height: 30, boxShadow: `0 0 0 2px #fff, 0 0 0 3.5px ${!s.clockedIn ? "#8E8E93" : free ? "#2F9E44" : "#E8590C"}` }}>{s.name[0]}</span>
-            <span style={{ flex: 1, minWidth: 0 }}><b>{s.name}</b><span className="cap" style={{ display: "block" }}>{t("headSub", { t: s.turns, a: busyOf(s.id).length })}</span></span>
+            <span style={{ flex: 1, minWidth: 0 }}><b>{s.name}</b> <GoodFit have={s.skills} need={need} /><span className="cap" style={{ display: "block" }}>{t("headSub", { t: s.turns, a: busyOf(s.id).length })}</span><SkillTags have={s.skills} need={need} /></span>
             <span className="cap" style={{ fontWeight: 600, color: free ? "#1F7A33" : "#B5470A" }}>{free ? t("b2_free") : t("b2_busyTill", { time: fmtMin(till ?? start) })}</span>
           </button>); })}
       </div>
