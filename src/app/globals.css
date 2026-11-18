@@ -270,6 +270,29 @@ button:disabled { cursor: not-allowed; }
 .cal-cnt:hover { background: #EFEFF2; }
 .cal-cnt.on { background: #1C1C1E; color: #fff; }
 .cal-heads { display: grid; margin-left: 52px; border-bottom: 1px solid var(--line); height: 56px; flex: none; }
+/* Booking panel: nothing in the scrolling body may be squashed (lists scroll inside their own box). */
+.drawer-b > * { flex-shrink: 0; }
+.bk-sum { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-soft); }
+.bk-code { display: inline-block; min-width: 26px; text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; font-weight: 700; border-radius: 5px; padding: 1px 5px; margin-right: 6px; flex: none; }
+.bk-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 2px; }
+.bk-groups { display: flex; flex-direction: column; gap: 8px; }
+.bk-grp { border-radius: 14px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.bk-gh { display: flex; gap: 6px; align-items: center; font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 0 4px; }
+.bk-gh span { font-weight: 500; opacity: .7; }
+.bk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.bk-svc { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 10px; border-radius: 11px; border: 1px solid transparent; background: var(--paper); font: inherit; text-align: left; cursor: pointer; color: var(--ink); min-height: 44px; }
+.bk-svc b { font-size: 13px; font-weight: 600; display: flex; align-items: center; }
+.bk-svc > span { font-size: 11.5px; color: var(--ink-soft); }
+.bk-cxbtn { height: 40px; border-radius: 11px; border: 1px dashed #C9C9D1; background: var(--paper); font: inherit; font-size: 13px; font-weight: 600; color: var(--ink); cursor: pointer; }
+.bk-cx { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; border: 1px dashed #C9C9D1; background: var(--paper); }
+.bk-tbx { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border-radius: 12px; background: var(--surface); }
+.bk-tbx:focus-within { box-shadow: 0 0 0 2px var(--ink); }
+.bk-tbx input { border: 0; background: transparent; font: inherit; font-size: 17px; font-weight: 700; padding: 0; width: 100%; outline: none; color: var(--ink); }
+.bk-tbx b { font-size: 17px; }
+.bk-techs { display: flex; flex-direction: column; gap: 6px; max-height: 312px; overflow: auto; padding: 2px; }
+.bk-tech { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--paper); font: inherit; text-align: left; cursor: pointer; color: var(--ink); flex: none; }
+.bk-tech.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.bk-note { height: auto; min-height: 84px; padding: 10px 12px; resize: vertical; line-height: 21px; }
 .cal-inner { display: flex; flex-direction: column; flex: 1 0 auto; min-height: 100%; }
 .cal-inner > .cal-heads { position: sticky; top: 0; z-index: 6; margin-left: 0; padding-left: 52px; background: var(--paper); }
 .cal-body { display: flex; position: relative; flex: 1; }

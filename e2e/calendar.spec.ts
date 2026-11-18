@@ -12,10 +12,15 @@ test("calendar: book, move with undo, check in, week + month", async ({ page }) 
   // Book (offline): phone first, a service, Kim, 3:00 PM
   await page.context().setOffline(true);
   await page.getByTestId("book-new").click();
-  await page.getByTestId("book-time").selectOption(String(15 * 60));
+  // Start time is typed ("3p" = 3:00 PM); service by its code: "p1" + Enter
+  await page.getByTestId("book-time").fill("3p");
+  await page.getByTestId("book-time").press("Enter");
+  await expect(page.getByTestId("book-time")).toHaveValue("3:00 PM");
   await page.getByTestId("book-phone").fill("4085550188");
   await page.getByTestId("book-name").fill("Vy Ho");
-  await page.getByTestId("book-svc").first().click();
+  await page.getByTestId("book-q").fill("p1");
+  await page.getByTestId("book-q").press("Enter");
+  await expect(page.getByRole("button", { name: /^Remove Regular spa pedicure/ })).toBeVisible();
   await page.getByTestId("book-staff-Kim").click();
   await page.getByTestId("book-save").click();
   await expect(page.locator('[data-testid="cal-block"][data-name="Vy Ho"]')).toBeVisible();
