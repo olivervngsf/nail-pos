@@ -22,7 +22,7 @@ test("calendar: book, move with undo, check in, week + month", async ({ page }) 
   await page.context().setOffline(false);
   await page.reload();
   const vy = page.locator('[data-testid="cal-block"][data-name="Vy Ho"]');
-  await expect(vy).toContainText("· 3:00 ·");
+  await expect(vy).toContainText("pedicure · 3:00");
 
   if (!phone) {
     // Drag Vy down 1 hour → 4:00 PM, then Undo → back at 3:00 PM
@@ -31,9 +31,9 @@ test("calendar: book, move with undo, check in, week + month", async ({ page }) 
     await page.mouse.down();
     await page.mouse.move(box.x + box.width / 2, box.y + 8 + 66, { steps: 6 });
     await page.mouse.up();
-    await expect(vy).toContainText("· 4:00 ·");
+    await expect(vy).toContainText("pedicure · 4:00");
     await page.getByRole("button", { name: "Undo" }).click();
-    await expect(vy).toContainText("· 3:00 ·");
+    await expect(vy).toContainText("pedicure · 3:00");
     // Overlap is shown (Mai + Rosa with Kim), never moved
     await expect(page.locator('[data-testid="cal-block"][data-name="Rosa Diaz"]')).toContainText("Overlap");
   }

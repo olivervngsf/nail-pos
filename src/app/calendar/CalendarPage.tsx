@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button, Drawer, LeftMenu, OfflineBanner, SyncPill, Toast, TopBar } from "@/components/kit";
 import { formatCents } from "@/lib/money";
+import { useStored } from "@/lib/useStored";
 import { useDesk, type Desk } from "@/lib/desk";
 import { putAppt, pullAppts, useAppts, type Appt } from "@/lib/booking/appts";
 import { pullTickets, useTickets } from "@/lib/checkout/store";
@@ -140,8 +141,10 @@ function Calendar({ desk }: { desk: Desk }) {
         </span>}>
           <label className="cal-search"><input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("search")} aria-label={t("search")} data-testid="cal-search" /><span className="kbd">/</span></label>
           <span className="cal-alertwrap">
-            <button type="button" className={`cal-alertbtn ${alerts.length ? "on" : ""}`} onClick={() => setAlertsOpen((x) => !x)} aria-expanded={alertsOpen} data-testid="alerts">
-              ⚠ <span className="cal-alabel">{t("alerts")}</span>{alerts.length > 0 && <span className="cal-acount">{alerts.length}</span>}</button>
+            <button type="button" className={`cal-alertbtn ${alerts.length ? "on" : ""}`} onClick={() => setAlertsOpen((x) => !x)} aria-expanded={alertsOpen}
+              aria-label={`${t("alerts")} ${alerts.length}`} title={t("alerts")} data-testid="alerts">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4" /></svg>
+              {alerts.length > 0 && <span className="cal-acount">{alerts.length}</span>}</button>
             {alertsOpen && <div className="cal-alp card" role="dialog" aria-label={t("alerts")}>
               {alerts.length === 0 ? <div className="cap" style={{ padding: "8px 16px" }}>{t("noAlerts")}</div> : alerts.map((x) => (
                 <button key={x.id} type="button" className="cal-alr" onClick={() => { setAlertsOpen(false); if (x.kind === "overlap") { go("day", today); setFilter("overlap"); } else if (x.open) setOpen(x.open); else if (x.kind === "wait") go("day", today); }}>
@@ -188,7 +191,10 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   waiting: Appt[]; onSeat: (a: Appt) => void; onWalkIn: () => void; q: string; filter: string; setFilter: (f: string) => void }) {
   const [waitOpen, setWaitOpen] = useState(false);
   const t = useTranslations("calendar");
-  useTick();
+  const isToday0 = day === dayKey(new Date());
+  useTick(isToday0 ? 1000 : 30_000);
+  const [rowH, setRowH] = useStored("nailpos.calRowH", () => ({ i: 1 }));
+  const PX = ROW_PX[rowH.i] ?? 1.1;
   const gridRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
   const [dropAt, setDropAt] = useState<{ col: number; m: number } | null>(null);
@@ -197,6 +203,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   const [phoneCol, setPhoneCol] = useState(0);
   const isToday = day === dayKey(new Date());
   const nowM = nowMin();
+  const dayStart = fromDayKey(day).getTime();
   const dayList = list.filter((a) => dayKey(new Date(a.start)) === day);
   // Grid hours: 9 AM – 7 PM, stretched to fit any booking outside that.
   const H0 = Math.min(9 * 60, ...dayList.map((a) => Math.floor(minutesOf(a.start) / 60) * 60));
@@ -331,36 +338,52 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
           </select>
           <span className="seg cal-avail">{([["all", t("fAll", { n: techs.length })], ["avail", t("fAvail", { n: nAvail })], ["working", t("fWorking", { n: nWork })], ["out", t("fNotIn", { n: nOut })]] as const).map(([k, label]) => (
             <button key={k} type="button" className={avail === k ? "on" : ""} aria-pressed={avail === k} onClick={() => setAvail(k)}>{label}</button>))}</span>
+          <span className="cap cal-rowlbl">{t("rowH")}</span>
+          <span className="seg cal-avail" data-testid="row-height">{ROW_LBL.map((l, i) => (
+            <button key={l} type="button" className={rowH.i === i ? "on" : ""} aria-pressed={rowH.i === i} onClick={() => setRowH({ i })}>{l}</button>))}</span>
           <span style={{ flex: 1 }} />
-          <span className="cap cal-hint">{t("hint")}</span>
         </div>
         <div className="cal-counts" role="toolbar" aria-label={t("filter")}>
-          {COUNTS.map(([k, icon, color]) => (
+          <span className="cal-cscroll">
+          {COUNTS.map(([k, , color]) => (
             <button key={k} type="button" className={`cal-cnt ${filter === k ? "on" : ""}`} aria-pressed={filter === k} title={t(`ct_${k}`)} data-testid={`count-${k}`}
               onClick={() => setFilter(filter === k || k === "all" ? "all" : k)}>
-              {icon && <span style={{ color: filter === k ? undefined : color }}>{icon}</span>}{counts[k]}
-              {(k === "all" || k === "online" || k === "walk") && <span style={{ fontWeight: 500, opacity: 0.75 }}>{t(k === "all" ? "c_booked" : k === "online" ? "c_online" : "c_walk")}</span>}</button>))}
+              {color && <i className="cal-cdot" style={{ background: color }} />}{t(`p_${k}`)}<span className="cal-cn">{counts[k]}</span></button>))}
           {isToday && <button type="button" className={`cal-cnt cal-waitpill ${waiting.length ? "on" : ""}`} onClick={() => setWaitOpen(true)} data-testid="wait-pill">
             {t("waitingN", { n: waiting.length })}</button>}
+          </span>
+          <span className="cal-key" tabIndex={0} aria-label={t("keyTitle")} data-testid="cal-key">
+            <span className="cal-keysw" aria-hidden><i className="unconf" /><i className="conf" /><i className="chair" /><i className="ready" /></span>{t("key")}
+            <span className="cal-keypop card" role="tooltip">
+              <b className="eyebrow">{t("keyTitle")}</b>
+              {(["unconf", "conf", "chair", "ready", "paid", "cancel"] as const).map((k) => (
+                <span key={k} className="cal-kr"><i className={k} /><span><b>{t(`ct_${k}`)}</b>{t(`key_${k}`)}</span></span>))}
+              <span className="cap" style={{ marginTop: 6 }}>{t("key_src")}</span>
+              <span style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>{["srcTagOnline", "srcTagPhone", "srcTagDesk", "srcTagWalk"].map((k) => <span key={k} className={`cb-src ${k === "srcTagOnline" ? "web" : k === "srcTagWalk" ? "walk" : ""}`} style={{ position: "static" }}>{t(k)}</span>)}</span>
+            </span>
+          </span>
         </div>
         {narrow && <div className="cal-phonestaff">{cols.map((c, i) => <button key={c.id} type="button" className={`chip ${i === phoneCol ? "on" : ""}`} onClick={() => setPhoneCol(i)}>{c.name}</button>)}</div>}
+        <div className="cal-scroll">
+        <div className="cal-inner" style={{ minWidth: narrow ? undefined : `max(100%, ${52 + shown.length * MIN_COL}px)` }}>
         <div className="cal-heads" style={{ gridTemplateColumns: `repeat(${shown.length}, minmax(0, 1fr))` }}>
           {shown.map((c) => {
             const s = desk.staff.find((x) => x.id === c.id);
             const appts = dayList.filter((a) => (a.staffId ?? ANY) === c.id && live(a)).length;
             const late = !!s && !c.on && appts > 0 && isToday;
-            const dot = !c.on ? "#8E8E93" : busyNow(c.id) ? "#E03131" : "#2F9E44";
+            const curA = isToday ? dayList.find((a) => a.staffId === c.id && live(a) && minutesOf(a.start) <= nowM && minutesOf(a.end) > nowM) : undefined;
+            const dot = !c.on ? "#8E8E93" : curA ? "#2A55B0" : "#2F9E44";
+            const sub = !s ? "" : !c.on ? t("notInSub", { a: appts }) : curA ? t("headBusy", { left: `${minutesOf(curA.end) - nowM} min`, t: s.turns }) : isToday ? t("headFree", { t: s.turns }) : t("headSub", { t: s.turns, a: appts });
             return (
               <div key={c.id} className={`cal-head ${late ? "late" : ""}`} data-testid={`head-${c.name}`}>
-                <span className="av" style={{ width: 28, height: 28, fontSize: 12 }}>{c.name[0]}</span>
-                <span style={{ flex: 1, minWidth: 0 }}><b style={{ display: "flex", alignItems: "center", gap: 4 }}>{c.id !== ANY && <span className="cal-dot" style={{ background: dot }} />}{c.name}</b>
-                  {s && <span className="cap" style={{ fontSize: 11, display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {c.on ? t("headSub", { t: s.turns, a: appts }) : t("notInSub", { a: appts })}</span>}</span>
-                {next?.id === c.id && <span className="tag jade cal-next">{t("next")}</span>}
+                <span className="av" style={{ width: 28, height: 28, fontSize: 12, boxShadow: c.id !== ANY ? `0 0 0 2px #fff, 0 0 0 3.5px ${dot}` : undefined }}>{c.name[0]}</span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <b className="cal-hname">{c.name}{next?.id === c.id && <span className="tag jade cal-next">{t("next")}</span>}</b>
+                  {s && <span className="cal-hsub" style={{ color: curA ? "#2A55B0" : undefined }}>{sub}</span>}</span>
               </div>);
           })}
         </div>
-        <div className="cal-scroll">
+        <div className="cal-body">
           <div className="cal-hours" style={{ height: (H1 - H0) * PX }}>
             {Array.from({ length: (H1 - H0) / 60 + 1 }, (_, i) => <div key={i} className="cal-hl" style={{ top: i * 60 * PX }}>{fmtMin(H0 + i * 60).replace(":00", "")}</div>)}
             {isToday && nowM >= H0 && nowM <= H1 && <div className="cal-nowlbl" style={{ top: (nowM - H0) * PX }}>{fmtMin(nowM).replace(/ [AP]M$/, "")}</div>}
@@ -389,13 +412,16 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                 const svc = a.services.map((x) => x.name).join(" + ");
                 const usual = minutesOf(a.end) - minutesOf(a.start);
                 const inFor = isToday ? Math.max(0, nowM - minutesOf(a.start)) : 0;
+                const leftS = isToday ? Math.round(dayStart + minutesOf(a.end) * 60_000 - Date.now()) / 1000 : 0;
                 const status = overlapIds.has(a.id) && live(a) ? `⚠ ${t("overlap")}`
+                  : k === "chair" && isToday ? (leftS >= 0 ? t("stx_left", { t: mmss(leftS) }) : t("stx_over", { t: mmss(-leftS) }))
                   : k === "chair" ? t("stx_chair", { min: inFor, usual })
                   : k === "ready" ? t("stx_ready", { amt: formatCents(tk ? totals(tk).toPay : a.services.reduce((x, y) => x + y.cents, 0)).replace(/\.00$/, "") })
                   : k === "paid" ? t("stx_paid", { how: payHow(tk, t) })
                   : k === "cancel" ? (st === "no_show" ? t("stx_noshow") : t("stx_cancel"))
                   : k === "conf" ? t("stx_conf") : t("stx_unconf");
-                const src = ONLINE.has(a.source) ? t("srcOnline") : t(`src_${a.source}`);
+                const srcTag = ONLINE.has(a.source) ? ["web", t("srcTagOnline")] : a.source === "kiosk" || a.source === "walk_in" ? ["walk", t("srcTagWalk")]
+                  : a.source === "phone" ? ["", t("srcTagPhone")] : ["", t("srcTagDesk")];
                 return (
                   <div key={a.id} className={`cb ${k} ${a.source === "kiosk" || a.source === "walk_in" ? "walk" : ""} ${(e - s) < 30 ? "xs" : ""} ${drag && drag.kind !== "new" && drag.id === a.id ? "drag" : ""} ${matches(a) ? "" : "dim"}`}
                     style={{ top: (s - H0) * PX + 1, height: Math.max(22, (e - s) * PX - 2), left: `calc(${col * w + (L.lane * w) / L.lanes}% + 3px)`, width: `calc(${w / L.lanes}% - 6px)` }}
@@ -410,7 +436,8 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
                         : { kind: "move", id: a.id, y0: ev.clientY, x0: ev.clientX, start: s, dur: e - s, col: colOf(a), dy: 0, dcol: 0, moved: false });
                     }}>
                     <b>{a.client?.care ? "▲ " : ""}{a.client?.name || t("walkIn")}</b>
-                    <span className="m">{svc}{svc ? " · " : ""}{fmtMin(s).replace(/ [AP]M$/, "")} · {src}</span>
+                    {(e - s) >= 30 && L.lanes === 1 && <span className={`cb-src ${srcTag[0]}`}>{srcTag[1]}</span>}
+                    <span className="m">{svc}{svc ? " · " : ""}{fmtMin(s).replace(/ [AP]M$/, "")}</span>
                     <span className="s">{status}</span>
                     {k === "chair" && <span className="pb" style={{ width: `${Math.min(100, Math.round((inFor / Math.max(1, usual)) * 100))}%` }} />}
                     <span className="cb-rs" aria-hidden />
@@ -427,6 +454,9 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
             {isToday && nowM >= H0 && nowM <= H1 && <div className="cal-now" style={{ top: (nowM - H0) * PX }} />}
           </div>
         </div>
+        </div>
+        </div>
+        <div className="cap cal-foot cal-hint">{t("hint")}</div>
       </section>
       <aside className="cal-right">
         <div style={{ display: "flex", alignItems: "center" }}><b style={{ fontSize: 15, flex: 1 }}>{t("upNext")}</b><span className="tag jade">{t("freeNow", { n: freeN })}</span></div>
@@ -455,7 +485,14 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
 }
 
 const ONLINE = new Set(["web", "google", "website", "instagram", "qr", "text"]);
-const COUNTS: [string, string, string][] = [["all", "▮", ""], ["online", "", ""], ["walk", "⏱", ""], ["unconf", "?", "#B5470A"], ["conf", "✓", "#1F7A33"], ["chair", "●", "#2F9E44"], ["ready", "$", "#B5470A"], ["cancel", "✕", "#C92A2A"]];
+const COUNTS: [string, string, string][] = [["all", "", ""], ["unconf", "", "#D9A979"], ["conf", "", "#B8B8C0"], ["chair", "", "#2F9E44"], ["ready", "", "#E8590C"], ["cancel", "", "#C92A2A"], ["online", "", "#2A55B0"], ["walk", "", "#B35C00"]];
+/** Timeline row height (px per minute), picked per device: S · M · L · XL. */
+const ROW_PX = [0.8, 1.1, 1.6, 2.2];
+const ROW_LBL = ["S", "M", "L", "XL"];
+/** Min width per staff column: with 10–20 techs the grid scrolls sideways instead of squashing names. */
+const MIN_COL = 140;
+const mmss = (sec: number) => { const s = Math.max(0, Math.floor(sec)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+  return `${h ? `${h}:${String(m).padStart(2, "0")}` : m}:${String(x).padStart(2, "0")}`; };
 /** Block look (Booking board Cal): unconf · conf · chair (in now) · ready (time's up, not paid) · paid · cancel. */
 export function blockKind(a: Appt, nowM: number): string {
   const st = statusOf(a);
