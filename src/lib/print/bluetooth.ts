@@ -85,7 +85,8 @@ type Serial = { requestPort(o?: unknown): Promise<Port>; getPorts(): Promise<Por
 const serial = (): Serial | null => (typeof navigator !== "undefined" && "serial" in navigator ? (navigator as unknown as { serial: Serial }).serial : null);
 /** Only offered on Android: on a computer the serial list is cables, not printers. Shown even when this browser
  * has no Web Serial, so the tap can say "update Chrome" instead of the button just missing. */
-export const canBuiltIn = () => typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
+// Chrome's "Desktop site" mode hides "Android" (says Linux), so a Linux touch screen counts too.
+export const canBuiltIn = () => typeof navigator !== "undefined" && (/Android/i.test(navigator.userAgent) || (/Linux/i.test(navigator.userAgent) && navigator.maxTouchPoints > 0));
 
 let port: Port | null = null;
 

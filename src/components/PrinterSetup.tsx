@@ -13,7 +13,7 @@ export function usePrinter() {
   const [ios, setIos] = useState(false);
   const [err, setErr] = useState("");
   const [builtIn, setBuiltIn] = useState(false);
-  useEffect(() => { setSaved(savedPrinter()); setOk(canBluetooth()); setIos(isIOS()); setBuiltIn(canBuiltIn()); }, []);
+  useEffect(() => { setSaved(savedPrinter()); setOk(canBluetooth() || canBuiltIn()); setIos(isIOS()); setBuiltIn(canBuiltIn()); }, []);
   const paper: Paper = saved?.paper ?? 58;
   return {
     ok, ios, saved, paper, err, builtIn,
@@ -30,7 +30,8 @@ export function usePrinter() {
 }
 export type Printer = ReturnType<typeof usePrinter>;
 
-/** "NETUM · 58 mm" (or "Tap to pick your printer") + paper + Change printer. Nothing on a browser without Bluetooth. */
+/** "NETUM · 58 mm" (or "Tap to pick your printer") + paper + Change printer. Nothing on a browser without Bluetooth
+ * (a terminal with a printer inside still gets the row: its browser may have no Bluetooth but can reach that printer). */
 export function PrinterSetup({ p }: { p: Printer }) {
   const t = useTranslations("checkout");
   if (!p.ok) return p.ios ? <div className="row s"><span className="g cap">{t("btIos")}</span></div> : null;
