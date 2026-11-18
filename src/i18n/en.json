@@ -630,7 +630,7 @@
     "b2_customName": "Name (e.g. Nail repair, 1 nail)",
     "b2_customPrice": "Price $",
     "b2_customMin": "Minutes (30)",
-    "b2_customNote": "Only on this booking. To keep it for next time, the owner adds it in Services.",
+    "b2_customNote": "Only on this booking. Tick “Save to the menu” to keep it for next time.",
     "b2_cancel": "Cancel",
     "b2_customAdd": "Add",
     "b2_when": "When",
@@ -824,7 +824,18 @@
     "sk_need": "Needs {list}",
     "sk_fit": "Good fit",
     "sk_has": "Does {s}",
-    "sk_not": "Not set up for {s}"
+    "sk_not": "Not set up for {s}",
+    "b2_saveMenu": "Also save to the menu",
+    "b2_saveMenuSub": "Next time it's one tap. Needs an owner or manager OK.",
+    "b2_saveGroup": "Menu group",
+    "b2_saveAdd": "Save + add",
+    "b2_saveOkTitle": "Owner or manager OK",
+    "b2_saveOkWhy": "Adding “{name}” to the salon's menu needs an owner or manager OK.",
+    "b2_saveDenied": "Only an owner or manager can add to the menu. Use the salon device, or add it to this booking only.",
+    "b2_saveDup": "Already on the menu: pick it above.",
+    "b2_saveNet": "Saving to the menu needs internet. Add it to this booking only for now.",
+    "b2_justThis": "This booking only",
+    "b2_back": "Back"
   },
   "receiptPage": {
     "notFound": "Receipt not found.",

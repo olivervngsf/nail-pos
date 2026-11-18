@@ -2,6 +2,27 @@ import { expect, test } from "@playwright/test";
 
 // Booking calendar (test copy): book by phone with a service, drag to move (15-min snap) + undo, overlap shown,
 // check in → ticket at checkout, week + month views, booking made offline stays.
+test("calendar: custom service saved to the menu needs an owner/manager PIN", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/calendar");
+  await page.getByTestId("book-new").click();
+  await page.getByTestId("cx-open").click();
+  await page.getByTestId("cx-name").fill("Regular spa pedicure");
+  await page.getByTestId("cx-price").fill("38");
+  await page.getByTestId("cx-save").click();
+  await expect(page.getByText("Already on the menu")).toBeVisible();   // same name as a menu service
+  await expect(page.getByTestId("cx-add")).toBeDisabled();
+  await page.getByTestId("cx-name").fill("Nail repair");
+  await page.getByTestId("cx-price").fill("7");
+  await page.getByTestId("cx-add").click();
+  await expect(page.getByTestId("menu-ok")).toContainText("Nail repair");
+  for (const k of "148203") await page.getByTestId("menu-ok").getByRole("button", { name: k, exact: true }).click();
+  await expect(page.getByRole("button", { name: /^Remove Nail repair/ })).toBeVisible();
+  await expect(page.getByTestId("menu-ok")).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test("calendar: book, move with undo, check in, week + month", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));

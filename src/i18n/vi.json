@@ -630,7 +630,7 @@
     "b2_customName": "Tên (vd: Sửa móng, 1 móng)",
     "b2_customPrice": "Giá $",
     "b2_customMin": "Phút (30)",
-    "b2_customNote": "Chỉ cho lịch này. Muốn giữ lần sau, chủ tiệm thêm trong Dịch vụ.",
+    "b2_customNote": "Chỉ cho lịch hẹn này. Chọn “Lưu vào menu” để dùng lần sau.",
     "b2_cancel": "Hủy",
     "b2_customAdd": "Thêm",
     "b2_when": "Khi nào",
@@ -824,7 +824,18 @@
     "sk_need": "Cần {list}",
     "sk_fit": "Hợp",
     "sk_has": "Làm được {s}",
-    "sk_not": "Chưa có kỹ năng {s}"
+    "sk_not": "Chưa có kỹ năng {s}",
+    "b2_saveMenu": "Lưu luôn vào menu",
+    "b2_saveMenuSub": "Lần sau chỉ một chạm. Cần chủ hoặc quản lý đồng ý.",
+    "b2_saveGroup": "Nhóm trong menu",
+    "b2_saveAdd": "Lưu + thêm",
+    "b2_saveOkTitle": "Chủ hoặc quản lý đồng ý",
+    "b2_saveOkWhy": "Thêm “{name}” vào menu của tiệm cần chủ hoặc quản lý đồng ý.",
+    "b2_saveDenied": "Chỉ chủ hoặc quản lý được thêm vào menu. Dùng máy của tiệm, hoặc chỉ thêm cho lịch hẹn này.",
+    "b2_saveDup": "Đã có trong menu: chọn ở trên.",
+    "b2_saveNet": "Lưu vào menu cần internet. Tạm thời chỉ thêm cho lịch hẹn này.",
+    "b2_justThis": "Chỉ lịch hẹn này",
+    "b2_back": "Quay lại"
   },
   "receiptPage": {
     "notFound": "Không tìm thấy hóa đơn.",
