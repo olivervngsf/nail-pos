@@ -4,12 +4,8 @@
 import { useEffect, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
 import RailAccount from "@/components/RailAccount";
 import { useTranslations } from "next-intl";
-<<<<<<< HEAD
-import { subscribe, type SyncState } from "@/lib/offline/outbox";
-import { CreditRing } from "@/components/CreditRing";
-=======
 import { retryParked, subscribe, syncNow, type SyncState } from "@/lib/offline/outbox";
->>>>>>> origin/main
+import { CreditRing } from "@/components/CreditRing";
 
 const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(" ");
 
@@ -202,12 +198,8 @@ export function LeftMenu({ active, salonInitials = "NP", me }: { active: MenuIte
         </a>
       ))}
       <div style={{ flex: 1 }} />
-<<<<<<< HEAD
       <CreditRing />
-      {me && <Link href="/me" className={active === "Me" ? "on" : ""} aria-label="My profile"><span className="av">{me}</span></Link>}
-=======
       <RailAccount initial={me} />
->>>>>>> origin/main
     </nav>
   );
 }

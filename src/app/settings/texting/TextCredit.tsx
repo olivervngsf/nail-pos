@@ -3,10 +3,10 @@
 // Service texts are part of the plan and never use credit. Promo texts use prepaid credit (2¢ per text part).
 // Every add and every send is a ledger row with the balance after it. Adding credit = test stub (no card charged yet).
 import { useState } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Button, Chip, LeftMenu, OfflineBanner, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
-import { useDesk } from "@/lib/desk";
+import { Button, Chip, Switch, Toast } from "@/components/kit";
+import SettingsShell, { type Access } from "../SettingsShell";
+import PromoSend from "./PromoSend";
 import { formatCents } from "@/lib/money";
 import { creditLevel, creditPct, textsLeft, useCredit } from "@/lib/texting/credit";
 
@@ -15,15 +15,24 @@ const COLOR = { good: "var(--jade)", low: "var(--orange)", empty: "var(--red)" }
 
 export default function TextCredit() {
   const t = useTranslations("credit");
-  const { desk } = useDesk();
-  const { credit, demo, add, saveSettings } = useCredit(desk?.mode === "live" ? desk.salonId : undefined);
+  const [sendOpen, setSendOpen] = useState(false);
+  return (
+    <SettingsShell title={t("title")} actions={<Button variant="primary" onClick={() => setSendOpen(true)} data-testid="promo-open">{t("sendPromo")}</Button>}>
+      {(a) => <Body a={a} sendOpen={sendOpen} setSendOpen={setSendOpen} />}
+    </SettingsShell>
+  );
+}
+
+function Body({ a, sendOpen, setSendOpen }: { a: Access; sendOpen: boolean; setSendOpen: (v: boolean) => void }) {
+  const t = useTranslations("credit");
+  const tp = useTranslations("promo");
+  const { credit, demo, add, saveSettings, audience, send } = useCredit(a.demo ? undefined : a.salonId);
   const [pick, setPick] = useState(2500);
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState("");
   const [msg, setMsg] = useState("");
-  const owner = demo || desk?.me.role === "owner";
-  const initials = (desk?.salonName ?? "PolishOS").split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
-  const flash = (s: string) => { setToast(s); setTimeout(() => setToast(""), 2200); };
+  const owner = demo || a.owner;
+  const flash = (s: string) => { setToast(s); setTimeout(() => setToast(""), 2600); };
 
   const doAdd = async () => {
     setBusy(true); setMsg("");
@@ -38,22 +47,12 @@ export default function TextCredit() {
       flash(t("saved"));
     } catch { setMsg(t("failed")); }
   };
-
+  if (!credit) return <p className="cap" aria-busy="true">…</p>;
+  const level = creditLevel(credit);
+  const pct = creditPct(credit);
   return (
-    <div className="app nm-app">
-      <LeftMenu active="Today" salonInitials={initials} me={desk?.me.display_name[0]} />
-      <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/today">‹ {t("back")}</Link>{t("title")}</span>}>
-          <SyncPill />
-        </TopBar>
-        <OfflineBanner />
-        {!credit ? (
-          <main style={{ padding: 24 }}>{desk && <p className="hint err">{t("adminOnly")}</p>}</main>
-        ) : (() => {
-          const level = creditLevel(credit);
-          const pct = creditPct(credit);
-          return (
-            <main className="tc">
+    <>
+            <div className="tc">
               <div className="tc-main">
                 {demo && <div className="demo">{t("demo")}</div>}
                 {msg && <p className="hint err" role="alert">{msg}</p>}
@@ -124,11 +123,11 @@ export default function TextCredit() {
                   </div>
                 </section>
               </div>
-            </main>
-          );
-        })()}
-      </div>
+            </div>
+      {sendOpen && <PromoSend credit={credit} loadAudience={audience} send={send} onClose={() => setSendOpen(false)}
+        onAddCredit={() => { setSendOpen(false); setMsg(owner ? tp("addFirst") : t("ownerAdds")); }}
+        onSent={(n, cents) => { setSendOpen(false); flash(tp("sent", { n, money: formatCents(cents) })); }} />}
       {toast && <Toast>{toast}</Toast>}
-    </div>
+    </>
   );
 }

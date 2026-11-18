@@ -730,3 +730,4 @@ button:disabled { cursor: not-allowed; }
 @media (max-width:899px){.tc{grid-template-columns:1fr;padding:16px}}
 .rail .cr-pop a.cr-link{width:auto;flex-direction:row;align-items:center;gap:0;padding:0 16px;border-radius:0;font-size:15px;color:var(--ink)}
 .rail .cr-pop a.cr-link:hover{background:var(--fill)}
+.set-main .tc{padding:0;flex:none}

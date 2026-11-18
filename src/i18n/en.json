@@ -1327,7 +1327,6 @@
     "preview": "Preview",
     "note": "Prints use plain letters (fast): Vietnamese accents print without marks. Changes apply to every device in the salon."
   },
-<<<<<<< HEAD
   "credit": {
     "ringLabel": "Text credit · {money}",
     "title": "Texting & credit",
@@ -1368,8 +1367,9 @@
     "priceNote": "Carrier fees are in the 2¢. Clients who said STOP and failed texts are never charged. You see the cost before every send.",
     "warnAt": "Warn me at",
     "autoAdd": "Auto add",
-    "autoAddSub": "Off unless you turn it on: add {add} when low, max {max} a month."
-=======
+    "autoAddSub": "Off unless you turn it on: add {add} when low, max {max} a month.",
+    "sendPromo": "Send promo text"
+  },
   "account": {
     "menu": "My account",
     "lock": "Lock · show faces",
@@ -1481,7 +1481,8 @@
       "payouts": "Payout sheet",
       "printer": "Printer",
       "payments": "Payments",
-      "reader": "Card reader"
+      "reader": "Card reader",
+      "texting": "Texting & credit"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -1756,6 +1757,36 @@
       "useTest": "No reader yet: add a test reader",
       "refresh": "Refresh"
     }
->>>>>>> origin/main
+  },
+  "promo": {
+    "title": "Send promo text",
+    "testNote": "Test version: the cost is real and credit is taken, but no text goes out yet. Real sending starts when your salon has its own texting number.",
+    "who": "Who gets it",
+    "all": "All who said yes · {n}",
+    "lapsed": "Not seen 60+ days · {n}",
+    "saidNo": "{n} clients said no to texts (or STOP): never sent, never charged.",
+    "message": "Message",
+    "placeholder": "Cosmo Nails: 15% off all services until 11/30. Book: polishosapp.com/cosmo. Reply STOP to stop.",
+    "partsHint": "Plain letters: 160 per part. Vietnamese accents: 70 per part.",
+    "partsPlain": "{n} letters · plain · {parts} part(s)",
+    "partsAccents": "{n} letters · has Vietnamese accents · {parts} part(s)",
+    "noAccents": "Send without accents",
+    "noAccentsSub": "Cheaper: 160 letters per part instead of 70",
+    "costTitle": "Cost before you send",
+    "people": "People",
+    "parts": "Parts per text",
+    "texts": "Texts × 2¢",
+    "thisSend": "This send",
+    "beforeAfter": "Credit now → after",
+    "save": "Turn off accents to save {money}",
+    "short": "Not enough credit: {money} short. Nothing is sent until you add credit.",
+    "addCredit": "Add credit first",
+    "sendIdle": "Write a message",
+    "sendBtn": "Send to {n} · {money}",
+    "cancel": "Cancel",
+    "failed": "Could not send. Check the internet and try again.",
+    "noNet": "Can't load your client list. Check the internet.",
+    "sent": "Recorded: {n} people · {money} (test version, no texts sent)",
+    "addFirst": "Add credit below, then send."
   }
 }

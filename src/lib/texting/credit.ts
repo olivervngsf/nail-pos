@@ -34,10 +34,11 @@ export function creditLevel(c: Pick<Credit, "balanceCents" | "lastAddCents" | "w
 }
 export const textsLeft = (c: Pick<Credit, "balanceCents">) => Math.max(0, Math.floor(c.balanceCents / CENTS_PER_TEXT));
 
-/** Text parts for one message: plain letters = 160 (153 each when split); any accent/emoji = 70 (67 each). */
-const GSM = /^[A-Za-z0-9 \r\n@£$¥èéùìòÇØøÅå_^{}\\[~\]|€ÆæßÉ!"#¤%&'()*+,\-./:;<=>?¡ÄÖÑÜ§¿äöñüà]*$/;
+/** Text parts for one message: plain letters (A–Z, 0–9, normal symbols) = 160 (153 each when split);
+ *  anything else (Vietnamese accents, emoji) = 70 (67 each). Same rule as `_text_parts` in the database. */
+const PLAIN = /^[\x20-\x7E\n\r]*$/;
 export function textParts(msg: string): { parts: number; plain: boolean; letters: number } {
-  const plain = GSM.test(msg);
+  const plain = PLAIN.test(msg);
   const letters = [...msg].length;
   if (!letters) return { parts: 0, plain, letters };
   const [one, many] = plain ? [160, 153] : [70, 67];
@@ -51,6 +52,9 @@ export function sendCost(people: number, msg: string) {
 }
 /** Same message with Vietnamese accents taken off (cheaper: 160 letters a part). */
 export const stripAccents = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
+
+export type Audience = { all: number; lapsed: number; saidNo: number };
+export const DEMO_AUDIENCE: Audience = { all: 212, lapsed: 96, saidNo: 9 };
 
 /* ---------- sample data (test version, sign-in off) ---------- */
 const day = (d: number) => new Date(Date.now() - d * 864e5).toISOString();
@@ -128,5 +132,31 @@ export function useCredit(salonId?: string) {
     setCredit(c);
   }, [demo, salon]);
 
-  return { credit, demo, add, saveSettings, reload: load };
+  /** Who can get a promo text (clients who said yes). */
+  const audience = useCallback(async (): Promise<Audience | null> => {
+    if (demo) return DEMO_AUDIENCE;
+    if (!salon) return null;
+    return rpc<Audience | null>("promo_audience", { p_salon: salon });
+  }, [demo, salon]);
+
+  /** Promo send (TEST VERSION: recorded + credit taken, no text goes out). The server works out the cost again. */
+  const send = useCallback(async (p: { id: string; message: string; audience: "all" | "lapsed" }) => {
+    if (demo) {
+      const people = p.audience === "all" ? DEMO_AUDIENCE.all : DEMO_AUDIENCE.lapsed;
+      const { texts, cents } = sendCost(people, p.message);
+      const cur = credit ?? DEMO_CREDIT;
+      if (cents > cur.balanceCents) throw new Error(`not enough text credit: need ${cents}, have ${cur.balanceCents}`);
+      const balanceCents = cur.balanceCents - cents;
+      const row: CreditRow = { id: Date.now(), at: new Date().toISOString(), kind: "spend", label: p.message.slice(0, 40), texts, cents: -cents, who: "You", balanceCents };
+      const n = { ...cur, balanceCents, spentMonthCents: cur.spentMonthCents + cents, lastSend: { label: row.label, cents: -cents, texts, at: row.at }, rows: [row, ...cur.rows] };
+      saveDemo(n); setCredit(n);
+      return { people, cents, balanceCents };
+    }
+    if (!salon) throw new Error("No salon");
+    const r = await rpc<{ people: number; cents: number; balanceCents: number }>("promo_send", { p_salon: salon, p });
+    await load();
+    return r;
+  }, [demo, salon, credit, load]);
+
+  return { credit, demo, add, saveSettings, audience, send, reload: load };
 }

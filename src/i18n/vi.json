@@ -1367,7 +1367,8 @@
     "priceNote": "Phí nhà mạng đã gồm trong 2¢. Khách đã nhắn STOP và tin lỗi không bị tính. Bạn thấy phí trước mỗi lần gửi.",
     "warnAt": "Báo tôi ở",
     "autoAdd": "Tự động nạp",
-    "autoAddSub": "Tắt trừ khi bạn bật: nạp {add} khi sắp hết, tối đa {max} một tháng."
+    "autoAddSub": "Tắt trừ khi bạn bật: nạp {add} khi sắp hết, tối đa {max} một tháng.",
+    "sendPromo": "Gửi tin khuyến mãi"
   },
   "account": {
     "menu": "Tài khoản",
@@ -1480,7 +1481,8 @@
       "payouts": "Bảng lương",
       "printer": "Máy in",
       "payments": "Thanh toán",
-      "reader": "Máy quẹt thẻ"
+      "reader": "Máy quẹt thẻ",
+      "texting": "Tin nhắn & tín dụng"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -1755,5 +1757,36 @@
       "useTest": "Chưa có máy: thêm máy thử",
       "refresh": "Làm mới"
     }
+  },
+  "promo": {
+    "title": "Gửi tin khuyến mãi",
+    "testNote": "Bản thử: phí là thật và trừ tín dụng, nhưng chưa gửi tin. Gửi thật khi tiệm có số nhắn tin riêng.",
+    "who": "Gửi cho ai",
+    "all": "Khách đồng ý nhận · {n}",
+    "lapsed": "Chưa quay lại 60+ ngày · {n}",
+    "saidNo": "{n} khách không nhận tin (hoặc STOP): không gửi, không tính phí.",
+    "message": "Nội dung",
+    "placeholder": "Cosmo Nails: giảm 15% mọi dịch vụ đến 30/11. Đặt lịch: polishosapp.com/cosmo. Nhắn STOP để ngừng.",
+    "partsHint": "Không dấu: 160 ký tự một phần. Có dấu: 70 ký tự một phần.",
+    "partsPlain": "{n} ký tự · không dấu · {parts} phần",
+    "partsAccents": "{n} ký tự · có dấu · {parts} phần",
+    "noAccents": "Gửi không dấu",
+    "noAccentsSub": "Rẻ hơn: 160 ký tự một phần thay vì 70",
+    "costTitle": "Phí trước khi gửi",
+    "people": "Số khách",
+    "parts": "Phần mỗi tin",
+    "texts": "Tin × 2¢",
+    "thisSend": "Lần gửi này",
+    "beforeAfter": "Tín dụng hiện có → sau khi gửi",
+    "save": "Bỏ dấu để tiết kiệm {money}",
+    "short": "Không đủ tín dụng: thiếu {money}. Chưa gửi cho đến khi nạp thêm.",
+    "addCredit": "Nạp tín dụng trước",
+    "sendIdle": "Viết nội dung",
+    "sendBtn": "Gửi {n} khách · {money}",
+    "cancel": "Huỷ",
+    "failed": "Không gửi được. Kiểm tra internet rồi thử lại.",
+    "noNet": "Không tải được danh sách khách. Kiểm tra internet.",
+    "sent": "Đã ghi: {n} khách · {money} (bản thử, chưa gửi tin)",
+    "addFirst": "Nạp tín dụng bên dưới rồi gửi."
   }
 }
