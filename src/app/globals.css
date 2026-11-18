@@ -709,3 +709,25 @@ button:disabled { cursor: not-allowed; }
 .ps-paper .b{font-weight:700}
 .ps-qr{width:96px;height:96px;margin:6px auto;border:2px dashed #111;display:flex;align-items:center;justify-content:center;font-weight:700}
 @media (max-width:860px){.ps{grid-template-columns:1fr}.ps-right{position:static}}
+
+/* Settings → Billing */
+.bill { display: flex; flex-direction: column; gap: 12px; max-width: 880px; }
+.bill-plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.bill-plan { border: 1.5px solid var(--line); gap: 14px; }
+.bill-plan.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.bill-plan-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.bill-plan-h b { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; }
+.bill-check { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; }
+.bill-price { display: flex; align-items: center; gap: 10px; }
+.bill-price .num { font-size: 40px; line-height: 44px; font-weight: 700; letter-spacing: -0.03em; }
+.bill-price .cap { max-width: 120px; }
+.bill-facts { box-shadow: none; border: 1px solid var(--line); }
+.bill-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.bill-list li::before { content: "✓"; margin-right: 8px; color: var(--ink-soft); }
+.bill-plan-f { margin-top: auto; display: flex; justify-content: center; }
+.bill-cancel { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.bill-addon { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.bill-addon .g { flex: 1; min-width: 200px; }
+.bill-addon .g b { display: block; font-size: 15px; }
+.bill-refill { display: flex; align-items: center; gap: 8px; }
+@media (max-width: 720px) { .bill-plans { grid-template-columns: 1fr; } }
