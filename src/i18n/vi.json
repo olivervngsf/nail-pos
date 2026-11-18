@@ -938,6 +938,7 @@
     "lineSub": "Khoảng {min} phút. Mời ngồi — chúng tôi sẽ nhắn tin.",
     "appt": "Đã check in, {name}",
     "apptSub": "Lịch hẹn lúc {time}. Mời ngồi — chúng tôi sẽ gọi.",
+    "apptTech": "Đã báo {tech} là bạn đã đến.",
     "reset": "Quầy đã thấy bạn. Màn hình tự quay lại sau {s} giây.",
     "back": "Quay lại",
     "done": "Xong",

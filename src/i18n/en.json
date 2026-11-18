@@ -938,6 +938,7 @@
     "lineSub": "About {min} min. Have a seat — we'll text you.",
     "appt": "You're checked in, {name}",
     "apptSub": "Your {time} appointment. Have a seat — we'll call you.",
+    "apptTech": "We let {tech} know you're here.",
     "reset": "Front desk sees you now. This screen resets in {s} s.",
     "back": "Back",
     "done": "Done",
