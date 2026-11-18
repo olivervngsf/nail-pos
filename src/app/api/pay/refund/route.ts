@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   const { data: approver } = await db.rpc("use_refund_ok", { p_approval: approvalId ?? null, p_ticket: t.id });
   if (!approver) return fail(403, "A refund needs an owner or manager OK.");
   const ok = { membership_id: approver as string };
-  const { data: pay } = await db.from("payments").select("method,stripe_payment_intent").eq("ticket_id", t.id).eq("status", "paid").order("at", { ascending: false }).limit(1).single();
+  const { data: pay } = await db.from("payments").select("method,stripe_payment_intent").eq("ticket_id", t.id).eq("status", "paid").neq("method", "gift_card").order("at", { ascending: false }).limit(1).maybeSingle();
   let refundId: string | null = null;
   if (pay?.stripe_payment_intent) {
     const st = getStripe();
