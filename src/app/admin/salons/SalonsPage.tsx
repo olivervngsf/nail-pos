@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { e164, rpc } from "@/lib/auth";
+import { e164, rpc, showCode } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { alertsFor, healthOf, isLive, openAlerts, stripeState, totals, vsWeekAgo, type Health, type SalonFacts, type StripeState } from "@/lib/admin/health";
@@ -40,7 +40,7 @@ export default function SalonsPage() {
 
   const copy = (t: string) => { void navigator.clipboard?.writeText(t).then(() => admin.say("Copied")); };
   const inviteText = (owner: string, salon: string, code: string) =>
-    `Hi ${owner}, your PolishOS salon "${salon}" is ready. Sign in at ${location.origin}/login with this phone number. Invite code: ${code}`;
+    `Hi ${owner}, your PolishOS salon "${salon}" is ready. Open ${location.origin}/invite/${code} and sign in with this phone or email (or Google). Invite code: ${showCode(code)} (good for 7 days).`;
   const newCode = async (s: SalonFacts) => {
     try { await rpc<string>("admin_new_code", { p_salon: s.salon_id }); admin.say(`New code for ${s.salon_name}`); void loadInvites(); void admin.reload(); }
     catch (e) { admin.say((e as Error).message); }
@@ -150,7 +150,7 @@ function AddSalon({ live, onClose, onMade, copy, inviteText }: {
       {made ? (
         <div className="card pad" style={{ display: "flex", flexDirection: "column", gap: 8 }} data-testid="invite-made">
           <b>{made.salon} is ready for {made.owner}</b>
-          <span className="cap">Invite code <b style={{ fontFamily: "monospace", fontSize: 16 }}>{made.code}</b> · sign in at {location.origin}/login with {made.phone}</span>
+          <span className="cap">Invite code <b style={{ fontFamily: "monospace", fontSize: 16 }}>{made.code}</b> · link {location.origin}/invite/{made.code} · or sign in with {made.phone}</span>
           <div><Button size="sm" onClick={() => copy(inviteText(made.owner, made.salon, made.code))}>Copy invite text</Button></div>
         </div>
       ) : (
