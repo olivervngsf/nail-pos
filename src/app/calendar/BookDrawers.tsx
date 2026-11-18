@@ -16,6 +16,7 @@ import { catColor, codeHits, parseTime, withCodes } from "@/lib/booking/serviceC
 import { isHere } from "@/lib/booking/turns";
 import { skillsNeeded } from "@/lib/booking/skills";
 import { GoodFit, SkillTags } from "./SkillTags";
+import { CustomService } from "./CustomService";
 
 export type BookDraft = { day: string; start: number; minutes: number; staffId?: string };
 
@@ -44,7 +45,7 @@ export function statusOf(a: Appt): Appt["status"] {
 
 type Found = { client_id: string; name: string; notes: string; visits: number; last_services: string | null };
 
-export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk; draft: BookDraft; all: Appt[]; onClose: () => void; onBooked: (n: number, name: string) => void }) {
+export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged }: { desk: Desk; draft: BookDraft; all: Appt[]; onClose: () => void; onBooked: (n: number, name: string) => void; onMenuChanged?: () => void }) {
   const t = useTranslations("calendar");
   const [source, setSource] = useState<ApptSource>("phone");
   const [phone, setPhone] = useState("");
@@ -61,7 +62,7 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
   const [day, setDay] = useState(draft.day);
   const [rep, setRep] = useState<{ every: number; times: number } | null>(null);
   const [note, setNote] = useState("");
-  const [cx, setCx] = useState<{ name: string; price: string; min: string } | null>(null);
+  const [cx, setCx] = useState(false);
   const minutes = svcs.reduce((a, s) => a + s.minutes, 0) || draft.minutes;
 
   useEffect(() => {
@@ -98,13 +99,6 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
   const add = (s: { id?: string; name: string; minutes: number; cents: number }) => setSvcs((x) => [...x, { serviceId: s.id, name: s.name, minutes: s.minutes, cents: s.cents }]);
   const addCodes = () => { if (!hits.length) return; hits.forEach(add); setQ(""); };
   const commitTime = () => { if (tText === null) return; const m = parseTime(tText); if (m === null) { setTErr(true); return; } setStart(m); setTText(null); setTErr(false); };
-  const addCustom = () => {
-    if (!cx) return;
-    const cents = Math.round(parseFloat(cx.price.replace(/[^0-9.]/g, "")) * 100);
-    if (!cx.name.trim() || !Number.isFinite(cents)) return;
-    add({ name: cx.name.trim(), minutes: Math.max(5, parseInt(cx.min, 10) || 30), cents });
-    setCx(null);
-  };
   const book = () => {
     const typed: number | null = tText === null ? start : parseTime(tText);
     if (typed === null) { setTErr(true); return; }
@@ -153,17 +147,8 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
               <b><span className="bk-code" style={{ background: col[0], color: col[1] }}>{s.code}</span>{s.name}</b>
               <span>{t("min", { n: s.minutes })} · {formatCents(s.cents).replace(/\.00$/, "")}{s.priceFrom ? "+" : ""}{n > 1 ? ` · ×${n}` : ""}</span></button>); })}</div>
         </div>); })}</div>
-      {!cx ? <button type="button" className="bk-cxbtn" onClick={() => setCx({ name: "", price: "", min: "" })}>{t("b2_custom")}</button>
-        : <div className="bk-cx">
-          <b style={{ fontSize: 13 }}>{t("b2_customTitle")}</b>
-          <input className="inp" placeholder={t("b2_customName")} aria-label={t("b2_customName")} value={cx.name} onChange={(e) => setCx({ ...cx, name: e.target.value })} style={{ height: 40 }} />
-          <div style={{ display: "flex", gap: 8 }}>
-            <input className="inp" inputMode="decimal" placeholder={t("b2_customPrice")} aria-label={t("b2_customPrice")} value={cx.price} onChange={(e) => setCx({ ...cx, price: e.target.value })} style={{ height: 40 }} />
-            <input className="inp" inputMode="numeric" placeholder={t("b2_customMin")} aria-label={t("b2_customMin")} value={cx.min} onChange={(e) => setCx({ ...cx, min: e.target.value })} style={{ height: 40 }} />
-          </div>
-          <span className="cap">{t("b2_customNote")}</span>
-          <div style={{ display: "flex", gap: 8 }}><Button onClick={() => setCx(null)}>{t("b2_cancel")}</Button><Button variant="primary" onClick={addCustom} disabled={!cx.name.trim() || !cx.price.trim()}>{t("b2_customAdd")}</Button></div>
-        </div>}
+      {!cx ? <button type="button" className="bk-cxbtn" onClick={() => setCx(true)} data-testid="cx-open">{t("b2_custom")}</button>
+        : <CustomService desk={desk} cats={cats} cat0={cat} onAdd={add} onClose={() => setCx(false)} onMenuChanged={onMenuChanged} />}
 
       <div className="eyebrow">{t("b2_when")}</div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
