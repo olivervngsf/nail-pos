@@ -263,7 +263,9 @@ button:disabled { cursor: not-allowed; }
 .cal-left { border-right: 1px solid var(--line); }
 .cal-right { border-left: 1px solid var(--line); gap: 8px; }
 .cal-center { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
-.cal-counts { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-bottom: 1px solid var(--line); flex: none; position: relative; z-index: 8; }
+.cal-counts { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-bottom: 1px solid var(--line); flex: none; position: relative; z-index: 7; }
+/* Top bar (alerts list) always above the filter row and the grid. */
+.cal-app .bar { position: relative; z-index: 30; }
 .cal-cscroll { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 .cal-cscroll::-webkit-scrollbar { display: none; }
 .cal-cnt { white-space: nowrap; flex: none; height: 26px; padding: 0 9px; border-radius: 999px; border: 0; background: transparent; font: inherit; font-size: 12px; font-weight: 600; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; flex: none; transition: background .2s; }
