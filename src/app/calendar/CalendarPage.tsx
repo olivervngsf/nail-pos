@@ -16,7 +16,7 @@ import { isHere, isWaiting, onGrid, turnCounts, turnOrder } from "@/lib/booking/
 import { getTicket } from "@/lib/checkout/store";
 import { totals } from "@/lib/checkout/ticket";
 import { SeatDrawer, WalkInDrawer, Waitlist, seatAppt, useTick } from "./WalkIns";
-import { LiveBoard } from "./LiveBoard";
+import { DayPlan, LiveBoard } from "./LiveBoard";
 import { liveBoard } from "@/lib/booking/board";
 import { addDays, at, clamp, dayKey, fmtMin, fromDayKey, lanes, minutesOf, overlapping, snap, startOfWeek } from "@/lib/booking/grid";
 import { BookDrawer, DetailsDrawer, statusOf, ticketFor, type BookDraft } from "./BookDrawers";
@@ -250,14 +250,14 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   const next = isToday ? order.find((f) => f.clockedIn && f.busyUntil === null) : undefined;
   // Tech filter (design: All · Busy · Free · Next up · Not in) = the Live board's states; other days: clocked in = free.
   const nowSec = nowM * 60 + new Date().getSeconds();
-  const stateOf = useMemo(() => new Map(liveBoard(techs, isToday ? dayList : [], isToday ? nowSec : -1).map((r) => [r.id,
+  const stateOf = useMemo(() => new Map(liveBoard(isToday ? techs : techs.map((x) => ({ ...x, clockedIn: true })), isToday ? dayList : [], isToday ? nowSec : -1).map((r) => [r.id,
     r.state === "busy" || r.state === "break" ? "busy" : r.state === "soon" ? "next" : r.state] as const)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [techs, dayList, isToday, nowM]);
   const nOf = (k: string) => techs.filter((s) => stateOf.get(s.id) === k).length;
   const staff = techs.filter((s) => avail === "all" || stateOf.get(s.id) === avail);
   const hasAny = dayList.some((a) => !a.staffId);
-  const cols = useMemo(() => [...staff.map((s) => ({ id: s.id, name: s.name, on: s.clockedIn })), ...(hasAny ? [{ id: ANY, name: t("anyone"), on: true }] : [])], [staff, hasAny, t]);
+  const cols = useMemo(() => [...staff.map((s) => ({ id: s.id, name: s.name, on: isToday ? s.clockedIn : true })), ...(hasAny ? [{ id: ANY, name: t("anyone"), on: true }] : [])], [staff, hasAny, t, isToday]);
   const colOf = (a: Appt) => cols.findIndex((c) => c.id === (a.staffId ?? ANY));
   const kind = (a: Appt) => blockKind(a, isToday ? nowM : -1);
   const counts = useMemo(() => {
@@ -412,7 +412,9 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
       <aside className="cal-left card">
         {isToday && <LiveBoard waiting={waiting} dayList={dayList} order={order} nextId={next?.id ?? null} onSeat={onSeat} onWalkIn={onWalkIn} onOpen={onOpen}
           onBook={(sid) => onBook({ day, start: snap(clamp(nowM, H0, H1 - 60), 15), minutes: 45, staffId: sid })} />}
-        {!isToday && <div style={{ flex: 1 }} />}
+        {!isToday && <DayPlan day={day} dayList={dayList} techs={techs} onOpen={onOpen}
+          onToday={() => router.replace(`/calendar?view=day&d=${dayKey(new Date())}`)}
+          onBook={(sid) => onBook({ day, start: snap(clamp(10 * 60, H0, H1 - 60), 15), minutes: 45, staffId: sid })} />}
         <MiniMonth day={day} list={list} />
       </aside>
       <section className="cal-center card">
