@@ -1777,7 +1777,9 @@
       "st": {
         "trial": "Free pilot",
         "active": "Active",
-        "canceling": "Not renewing"
+        "canceling": "Not renewing",
+        "pastDue": "Payment failed",
+        "other": "Needs attention"
       },
       "f": {
         "staff": "All staff included (1–20)",
@@ -1788,7 +1790,7 @@
         "yearTotal": "{total} once a year"
       },
       "manage": "Manage",
-      "manageSoon": "Coming soon: opens Stripe to change your card or plan.",
+      "manageSoon": "Opens Stripe to change your card, plan or see invoices (when Stripe is switched on).",
       "switchTo": "Switch to {plan}",
       "switched": "Switched to {plan}",
       "resume": "Keep my plan",
@@ -1820,7 +1822,25 @@
       "paid": "Paid",
       "ownerOnly": "Only the owner can change billing.",
       "demo": "Test version: plan + card are samples and stay on this device. Prices are the pilot proposal, not final.",
-      "manageCredit": "Every send and top-up, auto add and promo texts: Texting & credit ›"
+      "manageCredit": "Every send and top-up, auto add and promo texts: Texting & credit ›",
+      "loading": "Loading your plan…",
+      "started": "Plan started. Thank you!",
+      "opening": "Opening Stripe…",
+      "saving": "Saving…",
+      "choose": "Choose {plan}",
+      "startTrial": "Start 30-day free pilot",
+      "pickFirst": "Pick a plan. First 30 days are free; your card is charged only after the pilot. Cancel anytime.",
+      "pickAgain": "Your plan has ended. Pick a plan to keep using PolishOS.",
+      "pastDueNote": "Your last payment didn't go through. Update your card to keep your plan.",
+      "updateCard": "Update card",
+      "noCard": "No card yet. You'll add one when you start a plan.",
+      "noInvoicesTrial": "No invoices yet. First charge after the free pilot.",
+      "testMode": "Stripe test mode: use card 4242 4242 4242 4242, any future date, any CVC. No real money.",
+      "inv": {
+        "paid": "Paid",
+        "open": "Due",
+        "other": "Closed"
+      }
     }
   },
   "promo": {
