@@ -10,7 +10,7 @@ export const e164 = (phone: string) => "+1" + phone.replace(/\D/g, "").replace(/
 
 export type Role = "owner" | "manager" | "front_desk" | "tech";
 export type Membership = {
-  membership_id: string;
+  membership_id: string; // empty (null from the server) = this login is a salon device set up by QR, not a person
   salon_id: string;
   salon_name: string;
   role: Role;
@@ -254,6 +254,7 @@ export async function myMemberships(): Promise<Membership[]> {
 export function homeFor(ms: Membership[], admin = false): string {
   if (!ms.length) return admin ? "/admin" : "/setup";
   const m = ms[0];
+  if (!m.membership_id) return DEVICE_HOME[getDevice()?.kind ?? "front_desk"];
   if (m.role === "owner" && m.setup_step < 9) return "/setup";
   return m.role === "tech" ? "/t" : "/today";
 }
@@ -281,7 +282,10 @@ export async function rpc<T = unknown>(fn: string, args?: Record<string, unknown
 }
 
 /* ---------- salon device (owner signs this device in once) ---------- */
-export type Device = { id: string; salonId: string; name: string };
+export type DeviceKind = "front_desk" | "clock" | "kiosk";
+export const DEVICE_HOME: Record<DeviceKind, string> = { front_desk: "/desk", clock: "/clock", kiosk: "/kiosk" };
+/** kind + own = set up by QR: the device has its own login (never the owner's). */
+export type Device = { id: string; salonId: string; name: string; kind?: DeviceKind; own?: boolean };
 const DEVICE_KEY = "nailpos.device";
 export function getDevice(): Device | null {
   try {
@@ -296,6 +300,24 @@ export async function makeSalonDevice(salonId: string, name: string): Promise<De
   const d = { id, salonId, name };
   localStorage.setItem(DEVICE_KEY, JSON.stringify(d));
   return d;
+}
+/** Tablet side of QR set-up: trade the 8-letter code for the device's own login, sign in, remember the device. */
+export async function claimDevice(code: string): Promise<Device & { kind: DeviceKind; salonName?: string }> {
+  if (!SMS_ON) {
+    const d = { id: "demo-device", salonId: "demo", name: "Front desk iPad", kind: "front_desk" as const, own: true };
+    localStorage.setItem(DEVICE_KEY, JSON.stringify(d));
+    return { ...d, salonName: "Test Nails" };
+  }
+  const r = await fetch("/api/device/claim", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code }) });
+  const j = (await r.json().catch(() => ({}))) as { email?: string; password?: string; device?: Device & { kind: DeviceKind; salonName?: string }; error?: string };
+  if (!r.ok || !j.email || !j.password || !j.device) throw new Error(j.error ?? "bad_code");
+  await sb().auth.signOut({ scope: "local" });
+  try { ["nailpos.acting", "nailpos.me", "nailpos.salon"].forEach((k) => localStorage.removeItem(k)); } catch { /* storage blocked */ }
+  const { error } = await sb().auth.signInWithPassword({ email: j.email, password: j.password });
+  if (error) throw new Error(error.message);
+  const d = { id: j.device.id, salonId: j.device.salonId, name: j.device.name, kind: j.device.kind, own: true };
+  localStorage.setItem(DEVICE_KEY, JSON.stringify(d));
+  return { ...d, salonName: j.device.salonName };
 }
 export function forgetDevice() {
   try {
