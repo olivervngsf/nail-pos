@@ -209,6 +209,8 @@
     "btPrinting": "Printing…",
     "btPaper": "Paper",
     "btChange": "Change printer",
+    "btAll": "Show all Bluetooth",
+    "btBuiltIn": "Built-in printer",
     "btNone": "No printer found. Turn the printer on, then try again.",
     "btIos": "Bluetooth printing on iPhone/iPad: open PolishOS in the Bluefy browser.",
     "scanReceipt": "Scan for your digital receipt",
