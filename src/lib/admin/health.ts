@@ -7,7 +7,12 @@ export type SalonFacts = {
   staff: number; tickets_today: number; cents_today: number; tickets_week_ago: number; tickets_7d: number; last_ticket_at: string | null;
   stripe_linked: boolean; charges_enabled: boolean; payouts_enabled: boolean; details_submitted: boolean;
   devices: number; devices_online: number; device_last_seen: string | null; last_activity_at: string | null;
+  // Optional: an overview saved on the device before these existed has none.
+  plan_status?: string; plan_cycle?: "monthly" | "yearly" | null; trial_end?: string | null;
+  texting?: Texting; texting_at?: string | null;
 };
+export type Texting = "not_started" | "waiting" | "approved" | "off";
+export type Plan = "pilot" | "paid" | "late" | "none";
 export type Handled = { salon_id: string; kind: string; at: string; by: string };
 export type Overview = { me: string; now: string; salons: SalonFacts[]; handled: Handled[] };
 
@@ -29,6 +34,35 @@ export function stripeState(s: SalonFacts): StripeState {
   return "live";
 }
 
+/** Our plan for the salon (Stripe Billing on our account): free pilot, paying, payment late, or no plan yet. */
+export function planOf(s: SalonFacts): Plan {
+  const st = s.plan_status ?? "none";
+  if (st === "trialing") return "pilot";
+  if (st === "active") return "paid";
+  if (st === "past_due" || st === "unpaid") return "late";
+  return "none";
+}
+/** Pilot day number (30-day free pilot), from the day the pilot ends. */
+export function pilotDay(s: SalonFacts, nowIso: string): number | null {
+  if (planOf(s) !== "pilot" || !s.trial_end) return null;
+  return Math.min(30, Math.max(1, 30 - Math.ceil((Date.parse(s.trial_end) - Date.parse(nowIso)) / D)));
+}
+export const PLAN_CENTS = { monthly: 4900, yearly: 3900 } as const; // per month; yearly = $468 / 12
+/** What salons pay us per month right now (paid plans only; pilots are free). */
+export function income(o: Overview): { cents: number; paid: number; pilot: number } {
+  let cents = 0, paid = 0, pilot = 0;
+  for (const s of o.salons) {
+    const p = planOf(s);
+    if (p === "pilot") pilot++;
+    if (p === "paid") { paid++; cents += PLAN_CENTS[s.plan_cycle ?? "monthly"]; }
+  }
+  return { cents, paid, pilot };
+}
+export const TEXTING: Record<Texting, [string, Health]> = {
+  not_started: ["Not started", "setup"], waiting: ["Waiting 10DLC", "warn"], approved: ["Approved", "good"], off: ["Off", "setup"],
+};
+const TEXTING_SLOW_DAYS = 7; // carrier approval usually takes about a week
+
 const days = (from: string | null, now: number) => (from ? Math.floor((now - Date.parse(from)) / D) : 0);
 const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
 
@@ -48,6 +82,10 @@ export function alertsFor(s: SalonFacts, nowIso: string): Alert[] {
     const idle = days(s.last_activity_at ?? s.created_at, now);
     if (idle >= 2) out.push({ ...base, kind: "setup_stuck", level: "warn", title: `Setup stuck on step ${s.setup_step + 1} of 10`, why: `No progress for ${plural(idle, "day")}. A quick call usually fixes it.`, since: s.last_activity_at });
   }
+  if (s.texting === "waiting" && days(s.texting_at ?? null, now) >= TEXTING_SLOW_DAYS)
+    out.push({ ...base, kind: "texting_waiting", level: "warn", title: "Texting not approved yet", why: `10DLC day ${days(s.texting_at ?? null, now)}. Reminders go by email until it is approved.`, since: s.texting_at ?? null });
+  if (planOf(s) === "late")
+    out.push({ ...base, kind: "plan_late", level: "warn", title: "Plan payment is late", why: "The salon’s card for the PolishOS plan didn’t go through.", since: null });
   if (!s.owner_joined && s.owner_name) {
     if (!s.invite_open) out.push({ ...base, kind: "invite_expired", level: "warn", title: "Invite expired", why: "The owner never joined. Make a new code and resend.", since: s.invited_at });
     else if (days(s.invited_at, now) >= 3) out.push({ ...base, kind: "owner_not_joined", level: "warn", title: "Owner hasn’t joined yet", why: `Invited ${plural(days(s.invited_at, now), "day")} ago.`, since: s.invited_at });
@@ -93,17 +131,18 @@ export function sampleOverview(nowIso = new Date().toISOString()): Overview {
     state: "CA", created_at: ago(30 * D), setup_step: 9, time_zone: "America/Los_Angeles", owner_name: null, owner_phone: null,
     owner_joined: true, invited_at: ago(30 * D), invite_open: false, staff: 6, tickets_today: 0, cents_today: 0, tickets_week_ago: 0,
     tickets_7d: 0, last_ticket_at: null, stripe_linked: true, charges_enabled: true, payouts_enabled: true, details_submitted: true,
-    devices: 2, devices_online: 2, device_last_seen: ago(60_000), last_activity_at: ago(H), ...p,
+    devices: 2, devices_online: 2, device_last_seen: ago(60_000), last_activity_at: ago(H),
+    plan_status: "trialing", plan_cycle: "monthly", trial_end: ago(-10 * D), texting: "approved", texting_at: ago(20 * D), ...p,
   });
   return {
     me: "Elang", now: nowIso, handled: [{ salon_id: "s-lotus", kind: "devices_offline", at: ago(2 * H), by: "Oliver" }],
     salons: [
-      s({ salon_id: "s-happy", salon_name: "Happy Nails", owner_name: "Minh D.", owner_phone: "+14085550117", staff: 8, tickets_today: 29, cents_today: 155000, tickets_week_ago: 27, tickets_7d: 190, last_ticket_at: ago(H), payouts_enabled: false }),
-      s({ salon_id: "s-kim", salon_name: "Kim’s Nails", owner_name: "Kim L.", owner_phone: "+14085550133", created_at: ago(5 * D), setup_step: 6, staff: 5, stripe_linked: true, details_submitted: false, charges_enabled: false, payouts_enabled: false, devices: 1, devices_online: 1, last_activity_at: ago(3 * D) }),
-      s({ salon_id: "s-vy", salon_name: "Nails by Vy", owner_name: "Vy T.", owner_phone: "+14085550188", created_at: ago(4 * D), invited_at: ago(4 * D), invite_open: true, owner_joined: false, setup_step: 0, staff: 1, stripe_linked: false, charges_enabled: false, payouts_enabled: false, details_submitted: false, devices: 0, devices_online: 0, device_last_seen: null, last_activity_at: null }),
-      s({ salon_id: "s-cosmo", salon_name: "Cosmo Nails", owner_name: "Tuan N.", owner_phone: "+18565550101", staff: 12, tickets_today: 58, cents_today: 341000, tickets_week_ago: 51, tickets_7d: 402, last_ticket_at: ago(10 * 60_000), devices: 4, devices_online: 4 }),
+      s({ salon_id: "s-happy", salon_name: "Happy Nails", owner_name: "Minh D.", owner_phone: "+14085550117", staff: 8, tickets_today: 29, cents_today: 155000, tickets_week_ago: 27, tickets_7d: 190, last_ticket_at: ago(H), payouts_enabled: false, plan_status: "active", trial_end: null }),
+      s({ salon_id: "s-kim", salon_name: "Kim’s Nails", owner_name: "Kim L.", owner_phone: "+14085550133", created_at: ago(5 * D), setup_step: 6, staff: 5, stripe_linked: true, details_submitted: false, charges_enabled: false, payouts_enabled: false, devices: 1, devices_online: 1, last_activity_at: ago(3 * D), trial_end: ago(-27 * D), texting: "not_started" }),
+      s({ salon_id: "s-vy", salon_name: "Nails by Vy", owner_name: "Vy T.", owner_phone: "+14085550188", created_at: ago(4 * D), invited_at: ago(4 * D), invite_open: true, owner_joined: false, setup_step: 0, staff: 1, stripe_linked: false, charges_enabled: false, payouts_enabled: false, details_submitted: false, devices: 0, devices_online: 0, device_last_seen: null, last_activity_at: null, plan_status: "none", plan_cycle: null, trial_end: null, texting: "not_started" }),
+      s({ salon_id: "s-cosmo", salon_name: "Cosmo Nails", owner_name: "Tuan N.", owner_phone: "+18565550101", staff: 12, tickets_today: 58, cents_today: 341000, tickets_week_ago: 51, tickets_7d: 402, last_ticket_at: ago(10 * 60_000), devices: 4, devices_online: 4, plan_status: "active", trial_end: null }),
       s({ salon_id: "s-lotus", salon_name: "Lotus Nails", owner_name: "Hoa T.", owner_phone: "+14085550110", staff: 9, tickets_today: 41, cents_today: 218400, tickets_week_ago: 38, tickets_7d: 280, last_ticket_at: ago(20 * 60_000), devices: 3, devices_online: 0, device_last_seen: ago(2 * D) }),
-      s({ salon_id: "s-bella", salon_name: "Bella Nails & Spa", owner_name: "Lan P.", owner_phone: "+15105550142", staff: 7, tickets_today: 22, cents_today: 126800, tickets_week_ago: 25, tickets_7d: 160, last_ticket_at: ago(30 * 60_000) }),
+      s({ salon_id: "s-bella", salon_name: "Bella Nails & Spa", owner_name: "Lan P.", owner_phone: "+15105550142", staff: 7, tickets_today: 22, cents_today: 126800, tickets_week_ago: 25, tickets_7d: 160, last_ticket_at: ago(30 * 60_000), trial_end: ago(-18 * D), texting: "waiting", texting_at: ago(9 * D) }),
     ],
   };
 }
