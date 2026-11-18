@@ -1372,8 +1372,9 @@
     "priceNote": "Carrier fees are in the 2¢. Clients who said STOP and failed texts are never charged. You see the cost before every send.",
     "warnAt": "Warn me at",
     "autoAdd": "Auto add",
-    "autoAddSub": "Off unless you turn it on: add {add} when low, max {max} a month.",
-    "sendPromo": "Send promo text"
+    "autoAddSub": "Off unless you turn it on: when credit is low, your plan card is charged {add}, max {max} a month.",
+    "sendPromo": "Send promo text",
+    "cardAdd": "Paid with your plan card right away. No card yet, or it needs a check? Stripe's page opens to pay."
   },
   "account": {
     "menu": "My account",

@@ -2,9 +2,12 @@
 // Text credit (Nov 17, Text Credits board https://claude.ai/artifact/6Rak28Hwuu6PJoQDfMXWwX, pick "2 · Two lines").
 // Service texts (confirmations, reminders, receipts, login codes) are part of the plan and never use credit.
 // Promo texts use prepaid credit: 2¢ per text part. Owner + manager see it; only the owner adds credit.
+// Adding = card payment on Stripe (/api/texting/credit): the plan's saved card is charged at once, else Stripe Checkout
+// (back with ?credit_session=… → confirm). After a promo send, auto add tops up from the saved card if the owner turned it on.
 import { useCallback, useEffect, useState } from "react";
 import { SMS_ON, getDevice, rpc } from "@/lib/auth";
 import { getActing } from "@/lib/desk";
+import { api } from "@/lib/api";
 
 export const CENTS_PER_TEXT = 2;
 
@@ -103,7 +106,15 @@ export function useCredit(salonId?: string) {
       try { if (c) localStorage.setItem(cacheKey(s), JSON.stringify(c)); else localStorage.removeItem(cacheKey(s)); } catch { /* */ }
     } catch { /* offline: keep the cached copy */ }
   }, [salonId]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    // Back from Stripe Checkout: credit this payment once (the webhook does the same), then show the new balance.
+    const q = new URLSearchParams(location.search), cs = q.get("credit_session"), s = salonId ?? currentSalon();
+    if (cs && s && SMS_ON) {
+      q.delete("credit_session");
+      history.replaceState(null, "", location.pathname + (q.toString() ? `?${q}` : ""));
+      void api("/api/texting/credit", { salonId: s, action: "confirm", sessionId: cs }).catch(() => null).finally(() => void load());
+    } else void load();
+  }, [load, salonId]);
 
   const add = useCallback(async (cents: number) => {
     if (demo) {
@@ -117,10 +128,12 @@ export function useCredit(salonId?: string) {
       return;
     }
     if (!salon) throw new Error("No salon");
-    const c = await rpc<Credit>("text_credit_add", { p_salon: salon, p_cents: cents, p_client_id: crypto.randomUUID() });
-    setCredit(c);
-    try { localStorage.setItem(cacheKey(salon), JSON.stringify(c)); } catch { /* */ }
-  }, [demo, salon]);
+    // Card payment: saved card → paid now; else Stripe's page (this tab leaves, comes back with credit_session).
+    const r = await api<{ on?: boolean; paid?: boolean; url?: string }>("/api/texting/credit", { salonId: salon, action: "add", cents, back: location.pathname, requestId: crypto.randomUUID() });
+    if (r.on === false) throw new Error("Card payments aren't switched on yet.");
+    if (r.url) { location.href = r.url; await new Promise(() => {}); }
+    await load();
+  }, [demo, salon, load]);
 
   const saveSettings = useCallback(async (p: { warnPct: number; autoAddOn: boolean; autoAddCents: number; autoAddMaxCents: number }) => {
     if (demo) {
@@ -154,6 +167,8 @@ export function useCredit(salonId?: string) {
     }
     if (!salon) throw new Error("No salon");
     const r = await rpc<{ people: number; cents: number; balanceCents: number }>("promo_send", { p_salon: salon, p });
+    // Auto add (only if the owner turned it on; the server checks the warn line, month cap and saved card).
+    await api("/api/texting/credit", { salonId: salon, action: "auto" }).catch(() => null);
     await load();
     return r;
   }, [demo, salon, credit, load]);

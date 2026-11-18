@@ -69,7 +69,7 @@ function Body({ a, sendOpen, setSendOpen }: { a: Access; sendOpen: boolean; setS
                         <div style={{ flex: 1 }} />
                         <Button variant="primary" disabled={busy} onClick={() => void doAdd()} data-testid="tc-add">{t("addBtn", { money: formatCents(pick) })}</Button>
                       </div>
-                      <div className="demo">{t("testAdd")}</div>
+                      {demo ? <div className="demo">{t("testAdd")}</div> : <p className="cap" style={{ margin: 0 }}>{t("cardAdd")}</p>}
                     </>
                   ) : <p className="cap">{t("ownerAdds")}</p>}
                 </section>
