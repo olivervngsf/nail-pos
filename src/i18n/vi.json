@@ -211,6 +211,8 @@
     "btChange": "Đổi máy in",
     "btAll": "Hiện tất cả Bluetooth",
     "btBuiltIn": "Máy in gắn sẵn",
+    "btRawbt": "Dùng ứng dụng RawBT",
+    "btRawbtHint": "Không thấy máy in? Cài ứng dụng RawBT miễn phí từ Play Store, chọn InnerPrinter trong đó, rồi chạm:",
     "btNone": "Không thấy máy in. Bật máy in rồi thử lại.",
     "btIos": "In Bluetooth trên iPhone/iPad: mở PolishOS trong trình duyệt Bluefy.",
     "scanReceipt": "Quét để xem hóa đơn trên điện thoại",
