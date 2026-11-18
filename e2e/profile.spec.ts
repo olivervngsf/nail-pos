@@ -54,3 +54,19 @@ test("settings: add a team member, PIN rules to 10 digits, PIN activity", async 
   await expect(page.getByTestId("pin-log")).toContainText("Wrong PIN");
   expect(errors).toEqual([]);
 });
+
+test("settings: payments shows Stripe connected, card reader can be added and removed", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  page.on("dialog", (d) => void d.accept());
+  await page.goto("/settings/payments");
+  await expect(page.getByTestId("settings-payments")).toContainText("Card payments");
+  await expect(page.getByRole("link", { name: "Open Stripe dashboard" })).toBeVisible();
+
+  await page.goto("/settings/reader");
+  await expect(page.getByTestId("settings-reader")).toContainText("Front desk");
+  await page.getByRole("button", { name: "Remove" }).click();
+  await expect(page.getByTestId("settings-reader")).toContainText("No card reader yet");
+  await expect(page.getByRole("button", { name: "Connect reader" })).toBeDisabled();
+  expect(errors).toEqual([]);
+});

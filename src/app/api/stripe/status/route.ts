@@ -35,17 +35,20 @@ export async function POST(req: Request) {
   let row: { charges_enabled: boolean; payouts_enabled: boolean; details_submitted: boolean; updated_at: string };
   let missing: string[] = [];
   let state = "";
+  let name = "";
   try {
     const acct = await st.v2.core.accounts.retrieve(a.account_id, { include: ["configuration.merchant", "requirements"] });
     const cap = acct.configuration?.merchant?.capabilities?.card_payments;
     state = cap?.status ?? "";
+    name = acct.display_name ?? "";
     const entries = acct.requirements?.entries ?? [];
     missing = [...new Set(entries.filter((e) => e.awaiting_action_from === "user").map((e) => plain(e.description)))].slice(0, 5);
     row = { charges_enabled: state === "active", payouts_enabled: state === "active", details_submitted: entries.every((e) => e.awaiting_action_from !== "user"), updated_at: new Date().toISOString() };
   } catch {
     const acct = await st.accounts.retrieve(a.account_id);
+    name = acct.business_profile?.name ?? acct.settings?.dashboard?.display_name ?? "";
     row = { charges_enabled: !!acct.charges_enabled, payouts_enabled: !!acct.payouts_enabled, details_submitted: !!acct.details_submitted, updated_at: new Date().toISOString() };
   }
   await db.from("stripe_accounts").update(row).eq("salon_id", salonId);
-  return Response.json({ on: true, connected: true, test: testMode(), chargesEnabled: row.charges_enabled, detailsSubmitted: row.details_submitted, payoutsEnabled: row.payouts_enabled, state, missing });
+  return Response.json({ on: true, connected: true, test: testMode(), chargesEnabled: row.charges_enabled, detailsSubmitted: row.details_submitted, payoutsEnabled: row.payouts_enabled, state, missing, name });
 }
