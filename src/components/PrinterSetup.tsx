@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Segmented } from "@/components/kit";
-import { canBluetooth, isIOS, pickPrinter, savedPrinter, savePrinter, type SavedPrinter } from "@/lib/print/bluetooth";
+import { canBluetooth, canBuiltIn, isIOS, pickBuiltIn, pickPrinter, savedPrinter, savePrinter, type SavedPrinter } from "@/lib/print/bluetooth";
 import type { Paper } from "@/lib/print/escpos";
 
 export function usePrinter() {
@@ -12,17 +12,19 @@ export function usePrinter() {
   const [ok, setOk] = useState(false);
   const [ios, setIos] = useState(false);
   const [err, setErr] = useState("");
-  useEffect(() => { setSaved(savedPrinter()); setOk(canBluetooth()); setIos(isIOS()); }, []);
+  const [builtIn, setBuiltIn] = useState(false);
+  useEffect(() => { setSaved(savedPrinter()); setOk(canBluetooth()); setIos(isIOS()); setBuiltIn(canBuiltIn()); }, []);
   const paper: Paper = saved?.paper ?? 58;
   return {
-    ok, ios, saved, paper, err,
+    ok, ios, saved, paper, err, builtIn,
     refresh: () => setSaved(savedPrinter()),
     setPaper: (p: Paper) => { if (!saved) return; const n = { ...saved, paper: p }; savePrinter(n); setSaved(n); },
     // all = list every Bluetooth device nearby, not only the names we know as printers
-    change: async (all = false) => {
+    // inner = the terminal's own printer (handheld with a printer inside)
+    change: async (all = false, inner = false) => {
       setErr("");
-      try { setSaved(await pickPrinter(paper, all)); }
-      catch (e) { const m = (e as Error).message; if (!/cancel/i.test(m)) setErr(m); /* else: closed the list */ }
+      try { setSaved(inner ? await pickBuiltIn(paper) : await pickPrinter(paper, all)); }
+      catch (e) { const m = (e as Error).message; if (!/cancel|no port selected/i.test(m)) setErr(m); /* else: closed the list */ }
     },
   };
 }
@@ -38,6 +40,7 @@ export function PrinterSetup({ p }: { p: Printer }) {
       {p.saved && <Segmented label={t("btPaper")} value={String(p.paper)} onChange={(v) => p.setPaper(Number(v) as Paper)} options={[{ value: "58", label: "58 mm" }, { value: "80", label: "80 mm" }]} />}
       <Button size="sm" variant="ghost" onClick={() => void p.change()}>{p.saved ? t("btChange") : t("printBt")}</Button>
       <Button size="sm" variant="ghost" data-testid="printer-all" onClick={() => void p.change(true)}>{t("btAll")}</Button>
+      {p.builtIn && <Button size="sm" variant="ghost" data-testid="printer-builtin" onClick={() => void p.change(false, true)}>{t("btBuiltIn")}</Button>}
       {p.err && <span className="cap" role="alert" style={{ flexBasis: "100%" }}>{p.err}</span>}
     </div>
   );
