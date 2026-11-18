@@ -21,7 +21,8 @@ export function ScanDialog({ onCode, onClose }: { onCode: (text: string) => void
     void (async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        if (done || !video.current) return;
+        // Closed while the camera was starting: turn it off right away.
+        if (done || !video.current) { stream.getTracks().forEach((x) => x.stop()); return; }
         video.current.srcObject = stream;
         await video.current.play();
         setState("on");

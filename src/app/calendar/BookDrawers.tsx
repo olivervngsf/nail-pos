@@ -88,7 +88,9 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
   const techs = desk.staff.filter((s) => s.role === "tech");
   const who = [...techs].filter((s) => !tq || s.name.toLowerCase().includes(tq.toLowerCase()))
     .sort((a, b) => Number(isFree(busyOf(b.id), start, start + minutes)) - Number(isFree(busyOf(a.id), start, start + minutes)) || Number(b.clockedIn) - Number(a.clockedIn));
-  const ok = (phoneOk(phone) || name.trim()) && svcs.length > 0;
+  // A typed start time that can't be read blocks Book (never save at the old time by mistake).
+  const typedBad = tText !== null && parseTime(tText) === null;
+  const ok = (phoneOk(phone) || name.trim()) && svcs.length > 0 && !typedBad;
 
   const add = (s: { id?: string; name: string; minutes: number; cents: number }) => setSvcs((x) => [...x, { serviceId: s.id, name: s.name, minutes: s.minutes, cents: s.cents }]);
   const addCodes = () => { if (!hits.length) return; hits.forEach(add); setQ(""); };
@@ -101,11 +103,13 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked }: { desk: Desk
     setCx(null);
   };
   const book = () => {
+    const typed: number | null = tText === null ? start : parseTime(tText);
+    if (typed === null) { setTErr(true); return; }
     const days = rep ? repeatDays(day, rep.every, rep.times) : [day];
     const rule = rep ? { id: crypto.randomUUID(), everyWeeks: rep.every, times: rep.times } : undefined;
     const client = { name: name.trim() || found?.name || "", phone: phoneOk(phone) ? e164(phone) : "" };
     for (const d of days) {
-      putAppt({ id: crypto.randomUUID(), salonId: desk.salonId, start: at(d, start), end: at(d, start + minutes), staffId: staffId ?? null,
+      putAppt({ id: crypto.randomUUID(), salonId: desk.salonId, start: at(d, typed), end: at(d, typed + minutes), staffId: staffId ?? null,
         client, services: svcs, status: "booked", source, note, repeat: rule, repeatRuleId: rule?.id, updatedAt: "" });
     }
     onBooked(days.length, client.name || fmtPhone(client.phone));
