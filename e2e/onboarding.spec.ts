@@ -23,6 +23,15 @@ test("owner goes from sign-up to a ready salon, and it survives a reload", async
   await page.fill("#np", "4085550177");
   await page.getByRole("button", { name: "Send invite" }).click();
   await expect(page.getByText("Invite waiting")).toBeVisible();
+  // Edit the invite, then remove it and undo
+  await page.getByRole("button", { name: "Edit Linh Tran" }).click();
+  await page.fill("#nn", "Linh Tran Ngoc");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByText("Linh Tran Ngoc", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Remove Linh Tran Ngoc" }).click();
+  await expect(page.getByText("Invite waiting")).toHaveCount(0);
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(page.getByText("Invite waiting")).toBeVisible();
   await foot.getByRole("button", { name: "Continue" }).click();
 
   await page.getByRole("button", { name: "Connect with Stripe" }).click();
