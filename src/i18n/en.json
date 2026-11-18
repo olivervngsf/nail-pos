@@ -1834,7 +1834,19 @@
       "out": "{name} signed out",
       "saved": "Saved",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "add": "+ Add a device (QR)",
+      "addTitle": "Add a salon device",
+      "showQr": "Show QR code",
+      "newCode": "New code",
+      "close": "Close",
+      "qrHow": "Next: a QR shows here. Scan it with the tablet's camera. It gets its own login, so your account never sits on a shared screen.",
+      "qrAlt": "QR code to set up the device",
+      "scan": "Scan with the {name} camera",
+      "orType": "No camera? On the tablet open {site}/go and type:",
+      "waiting": "Waiting for the tablet… code ends in {t}",
+      "expired": "Code ended. Tap New code.",
+      "qrDemo": "Test copy: nothing is saved. On the tablet, open /go and type any 8 letters."
     },
     "pay": {
       "lead": "Your salon's own Stripe account. Card money goes straight to your bank; we never hold it.",
@@ -2067,5 +2079,19 @@
     "language": "Language",
     "languageSub": "Only this phone. Clients see their own language.",
     "signOut": "Sign out"
+  },
+  "go": {
+    "title": "Set up this device",
+    "lead": "Type the 8-letter code from the owner's phone (Settings → Devices → Add a device).",
+    "code": "Code",
+    "btn": "Set up",
+    "busy": "Setting up…",
+    "short": "The code has 8 letters.",
+    "bad": "That code didn't work. It may have ended (10 minutes) or been used. Ask for a new one.",
+    "notSetUp": "Device set-up isn't switched on for this site yet. Call us.",
+    "failed": "Couldn't set up. Check the internet and try again.",
+    "how": "Works on iPad, Android tablets and computers (Safari or Chrome).",
+    "ready": "{name} is ready",
+    "readyNote": "Signed in to {salon}. Opening now…"
   }
 }

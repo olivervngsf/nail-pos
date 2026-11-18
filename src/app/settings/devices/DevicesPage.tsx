@@ -1,20 +1,84 @@
 "use client";
 // Settings → Devices (board 5.4): every salon device with its job (front desk / time clock / walk-in kiosk), last seen,
 // rename, change job, owner signs one out. "Use this device as…" sets up the one in your hand.
-// (QR set-up from the owner's phone comes next: it needs a device login of its own.)
-import { useCallback, useEffect, useState } from "react";
+// "+ Add a device" = QR set-up: the owner's phone shows a QR, the tablet scans it (or types the code at /go) and gets its
+// own login. Owner signing it out here stops it at once.
+import { useCallback, useEffect, useRef, useState } from "react";
+import QRCode from "qrcode";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button, Chip, Drawer, Field, ListGroup, Toast } from "@/components/kit";
-import { forgetDevice, getDevice, makeSalonDevice, rpc } from "@/lib/auth";
+import { DEVICE_HOME, forgetDevice, getDevice, makeSalonDevice, rpc, type DeviceKind } from "@/lib/auth";
 import SettingsShell, { type Access } from "../SettingsShell";
 
-type Kind = "front_desk" | "clock" | "kiosk";
+type Kind = DeviceKind;
 type Dev = { id: string; name: string; kind: Kind | "owner"; last_seen: string | null; created_at: string; set_up_by: string | null };
-const HOME: Record<Kind, string> = { front_desk: "/desk", clock: "/clock", kiosk: "/kiosk" };
+const HOME = DEVICE_HOME;
 
 export default function DevicesPage() {
   const t = useTranslations("settings");
   return <SettingsShell title={t("nav.devices")}>{(a) => <Devices a={a} />}</SettingsShell>;
+}
+
+function AddDevice({ a, onClose, onDone }: { a: Access; onClose: () => void; onDone: (d: { id: string; name: string; kind: Kind }) => void }) {
+  const t = useTranslations("settings.dev");
+  const [kind, setKind] = useState<Kind>("front_desk");
+  const [name, setName] = useState(t("kind.front_desk"));
+  const [code, setCode] = useState<{ code: string; expires_at: string } | null>(null);
+  const [svg, setSvg] = useState("");
+  const [left, setLeft] = useState(600);
+  const [err, setErr] = useState("");
+  const poll = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  useEffect(() => () => clearInterval(poll.current), []);
+
+  const make = async () => {
+    setErr("");
+    try {
+      const c = a.demo ? { code: "DEMO2345", expires_at: new Date(Date.now() + 600_000).toISOString() }
+        : await rpc<{ code: string; expires_at: string }>("device_code_make", { p_salon: a.salonId, p_kind: kind, p_name: name.trim() });
+      setCode(c);
+      setSvg(await QRCode.toString(`${location.origin}/go?c=${c.code}`, { type: "svg", margin: 1, errorCorrectionLevel: "M" }));
+      clearInterval(poll.current);
+      let n = 0;
+      poll.current = setInterval(() => {
+        n++;
+        const s = Math.max(0, Math.round((new Date(c.expires_at).getTime() - Date.now()) / 1000));
+        setLeft(s);
+        if (s <= 0) { clearInterval(poll.current); return; }
+        if (a.demo || n % 3) return; // check every 3 s
+        void rpc<{ used: boolean; expired: boolean; device: { id: string; name: string; kind: Kind } | null }>("device_code_check", { p_code: c.code })
+          .then((r) => { if (r?.used && r.device) { clearInterval(poll.current); onDone(r.device); } }).catch(() => {});
+      }, 1000);
+    } catch (e) { setErr((e as Error).message); }
+  };
+
+  const mmss = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+  return (
+    <Drawer title={t("addTitle")} onClose={onClose} footer={code
+      ? <><Button onClick={onClose}>{t("close")}</Button><Button block onClick={() => void make()}>{t("newCode")}</Button></>
+      : <><Button onClick={onClose}>{t("cancel")}</Button><Button variant="primary" block data-testid="qr-make" disabled={!name.trim()} onClick={() => void make()}>{t("showQr")}</Button></>}>
+      {!code ? (
+        <>
+          <div><span className="lbl">{t("job")}</span>
+            <div className="set-chips">{(["front_desk", "clock", "kiosk"] as Kind[]).map((k) => <Chip key={k} on={kind === k} onClick={() => { setKind(k); setName(t(`kind.${k}`)); }}>{t(`kind.${k}`)}</Chip>)}</div>
+            <div className="cap" style={{ marginTop: 6 }}>{t(`jobNote.${kind}`)}</div></div>
+          <Field id="qr-name" label={t("name")} value={name} onChange={(e) => setName(e.target.value)} />
+          <div className="cap">{t("qrHow")}</div>
+        </>
+      ) : (
+        <div className="dev-qr" data-testid="qr-box">
+          {left > 0 ? <>
+            <span aria-label={t("qrAlt")} role="img" dangerouslySetInnerHTML={{ __html: svg }} />
+            <b>{t("scan", { name })}</b>
+            <span className="cap">{t("orType", { site: location.host })}</span>
+            <span className="go-code" data-testid="qr-code">{code.code.slice(0, 4)}-{code.code.slice(4)}</span>
+            <span className="cap">{t("waiting", { t: mmss })}</span>
+          </> : <b>{t("expired")}</b>}
+          {a.demo && <div className="demo">{t("qrDemo")}</div>}
+        </div>
+      )}
+      {err && <p className="hint err">{err}</p>}
+    </Drawer>
+  );
 }
 
 function Devices({ a }: { a: Access }) {
@@ -22,6 +86,7 @@ function Devices({ a }: { a: Access }) {
   const f = useFormatter();
   const [list, setList] = useState<Dev[] | null>(null);
   const [edit, setEdit] = useState<Dev | null>(null);
+  const [adding, setAdding] = useState(false);
   const [here, setHere] = useState(() => getDevice());
   const [newName, setNewName] = useState("Front desk");
   const [newKind, setNewKind] = useState<Kind>("front_desk");
@@ -84,9 +149,12 @@ function Devices({ a }: { a: Access }) {
           </div>
         </section>
       )}
+      <Button variant="primary" data-testid="add-device" onClick={() => setAdding(true)}>{t("add")}</Button>
       <div className="cap">{t("works")}</div>
       {err && <p className="hint err">{err}</p>}
 
+      {adding && <AddDevice a={a} onClose={() => setAdding(false)}
+        onDone={(d) => { setAdding(false); say(t("ready", { name: d.name })); void load(); }} />}
       {edit && <DeviceDrawer a={a} d={edit} isHere={thisOne?.id === edit.id} onClose={() => setEdit(null)}
         onDone={(msg, signedOut) => {
           setEdit(null); say(msg);

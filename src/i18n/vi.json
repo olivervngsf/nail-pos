@@ -1834,7 +1834,19 @@
       "out": "Đã đăng xuất {name}",
       "saved": "Đã lưu",
       "cancel": "Huỷ",
-      "save": "Lưu"
+      "save": "Lưu",
+      "add": "+ Thêm thiết bị (QR)",
+      "addTitle": "Thêm thiết bị tiệm",
+      "showQr": "Hiện mã QR",
+      "newCode": "Mã mới",
+      "close": "Đóng",
+      "qrHow": "Tiếp theo: mã QR hiện ở đây. Dùng camera máy tính bảng quét. Máy có đăng nhập riêng, tài khoản của bạn không nằm trên màn hình chung.",
+      "qrAlt": "Mã QR để cài thiết bị",
+      "scan": "Quét bằng camera {name}",
+      "orType": "Không có camera? Trên máy tính bảng mở {site}/go và gõ:",
+      "waiting": "Đang chờ máy tính bảng… mã hết hạn sau {t}",
+      "expired": "Mã đã hết hạn. Bấm Mã mới.",
+      "qrDemo": "Bản thử: không lưu gì. Trên máy tính bảng mở /go và gõ 8 chữ bất kỳ."
     },
     "pay": {
       "lead": "Tài khoản Stripe riêng của tiệm. Tiền thẻ vào thẳng ngân hàng của tiệm; chúng tôi không giữ tiền.",
@@ -2067,5 +2079,19 @@
     "language": "Ngôn ngữ",
     "languageSub": "Chỉ điện thoại này. Khách thấy ngôn ngữ riêng.",
     "signOut": "Đăng xuất"
+  },
+  "go": {
+    "title": "Cài thiết bị này",
+    "lead": "Gõ mã 8 chữ trên điện thoại chủ tiệm (Cài đặt → Thiết bị → Thêm thiết bị).",
+    "code": "Mã",
+    "btn": "Cài đặt",
+    "busy": "Đang cài…",
+    "short": "Mã có 8 chữ.",
+    "bad": "Mã không dùng được. Có thể đã hết hạn (10 phút) hoặc đã dùng. Xin mã mới.",
+    "notSetUp": "Trang này chưa bật cài thiết bị. Gọi cho chúng tôi.",
+    "failed": "Không cài được. Kiểm tra mạng rồi thử lại.",
+    "how": "Dùng được trên iPad, máy tính bảng Android và máy tính (Safari hoặc Chrome).",
+    "ready": "{name} đã sẵn sàng",
+    "readyNote": "Đã vào {salon}. Đang mở…"
   }
 }
