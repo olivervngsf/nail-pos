@@ -68,6 +68,22 @@ test("calendar: book, move with undo, check in, week + month", async ({ page }) 
   await expect(page).toHaveURL(/\/checkout\//);
   await expect(page.getByTestId("line")).toHaveCount(1);
   await expect(page.getByTestId("line")).toContainText("Kim");
+  const ticketUrl = page.url();
+
+  // Scan a ticket slip from the calendar: desk scanner (types fast + Enter, no click) and the search box
+  await page.goto("/calendar");
+  await expect(page.getByTestId("cal-grid")).toBeVisible();
+  const slip = ticketUrl.replace("/checkout/", "/t/ticket/");
+  if (!phone) {
+    await page.keyboard.type(slip, { delay: 5 });
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(ticketUrl);
+    await page.goto("/calendar");
+  }
+  await page.getByTestId("scan-btn").click();
+  await page.getByTestId("scan-typed").fill(slip);
+  await page.getByTestId("scan-open").click();
+  await expect(page).toHaveURL(ticketUrl);
 
   if (!phone) {
     await page.goto("/calendar?view=week");

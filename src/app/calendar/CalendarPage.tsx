@@ -10,6 +10,8 @@ import { useStored } from "@/lib/useStored";
 import { useDesk, type Desk } from "@/lib/desk";
 import { putAppt, pullAppts, useAppts, type Appt } from "@/lib/booking/appts";
 import { pullTickets, useTickets } from "@/lib/checkout/store";
+import { parseTicketScan } from "@/lib/print/print";
+import { ScanDialog } from "./ScanDialog";
 import { isHere, isWaiting, onGrid, turnCounts, turnOrder } from "@/lib/booking/turns";
 import { getTicket } from "@/lib/checkout/store";
 import { totals } from "@/lib/checkout/ticket";
@@ -92,10 +94,35 @@ function Calendar({ desk }: { desk: Desk }) {
     return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
   })();
 
-  // Keyboard: N new · T today · ← → day
+  // Scan a receipt or ticket slip (QR link or ticket #) → open that ticket. Desk scanner, camera, or typed + Enter.
+  const [scanOpen, setScanOpen] = useState(false);
+  const ticketsRef = useRef(tickets); ticketsRef.current = tickets;
+  const handleScan = useCallback(async (text: string) => {
+    const s = parseTicketScan(text);
+    if (!s) { say(t("scanNone")); return false; }
+    const find = () => s.id ? ticketsRef.current.find((x) => x.id === s.id) ?? getTicket(s.id) : ticketsRef.current.find((x) => x.number === s.number);
+    let hit = find();
+    if (!hit && desk.mode === "live") {
+      const name = (id: string) => desk.staff.find((x) => x.id === id)?.name ?? "";
+      await pullTickets(desk.salonId, name, s.id ? "" : at(dayKey(new Date()), 0), s.id).catch(() => null);
+      hit = s.id ? getTicket(s.id) : ticketsRef.current.find((x) => x.number === s.number);
+    }
+    if (hit && hit.salonId === desk.salonId) { setScanOpen(false); router.push(`/checkout/${hit.id}`); return true; }
+    say(t("scanNone"));
+    return false;
+  }, [desk, router, say, t]);
+  const scanBuf = useRef({ buf: "", last: 0 });
+
+  // Keyboard: N new · T today · ← → day. A desk scanner types fast + Enter: caught here, no shortcuts fire.
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.closest("input,textarea,select,[role=dialog]")) return;
+      const sb = scanBuf.current, now = Date.now(), fast = now - sb.last < 60;
+      if (!fast) sb.buf = "";
+      sb.last = now;
+      if (e.key === "Enter") { if (sb.buf.length >= 4) { e.preventDefault(); void handleScan(sb.buf); } sb.buf = ""; return; }
+      if (e.key.length === 1) sb.buf += e.key;
+      if (fast && sb.buf.length > 1) return;
       if (e.key === "n" || e.key === "N") setDraft({ day, start: snap(Math.max(H0, nowMin()), 15), minutes: 45 });
       if (e.key === "t" || e.key === "T") go(view, dayKey(new Date()));
       if (e.key === "ArrowLeft") step(-1);
@@ -142,7 +169,12 @@ function Calendar({ desk }: { desk: Desk }) {
           <span className="seg cal-seg">{(["day", "week", "month"] as View[]).map((v) => (
             <button key={v} type="button" className={view === v ? "on" : ""} aria-pressed={view === v} onClick={() => go(v, day)} data-testid={`view-${v}`}>{t(v)}</button>))}</span>
         </span>}>
-          <label className="cal-search"><input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("search")} aria-label={t("search")} data-testid="cal-search" /><span className="kbd">/</span></label>
+          <label className="cal-search"><input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("search")} aria-label={t("search")} data-testid="cal-search"
+            onKeyDown={(e) => { if (e.key === "Enter" && parseTicketScan(q)) { e.preventDefault(); void handleScan(q).then((ok) => ok && setQ("")); } }} />
+            <button type="button" className="cal-scan" onClick={() => setScanOpen(true)} aria-label={t("scanBtn")} title={t("scanBtn")} data-testid="scan-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10" /></svg>
+              <span className="cal-scanl">{t("scanShort")}</span></button>
+            <span className="kbd">/</span></label>
           <span className="cal-alertwrap">
             <button type="button" className={`cal-alertbtn ${alerts.length ? "on" : ""}`} onClick={() => setAlertsOpen((x) => !x)} aria-expanded={alertsOpen}
               aria-label={`${t("alerts")} ${alerts.length}`} title={t("alerts")} data-testid="alerts">
@@ -176,6 +208,7 @@ function Calendar({ desk }: { desk: Desk }) {
         const nowM = new Date().getHours() * 60 + new Date().getMinutes();
         const order = turnOrder(deskT.staff.filter((x) => x.role === "tech"), list.filter((x) => dayKey(new Date(x.start)) === today), nowM);
         return <SeatDrawer desk={deskT} a={a} order={order} onClose={() => setSeatFor(null)} say={say} />; })()}
+      {scanOpen && <ScanDialog onCode={(x) => void handleScan(x)} onClose={() => setScanOpen(false)} />}
       {toast && <Toast action={toast.undo ? { label: t("undo"), onClick: () => { toast.undo?.(); setToast(null); } } : undefined}>{toast.text}</Toast>}
     </div>
   );

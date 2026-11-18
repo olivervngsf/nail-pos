@@ -286,6 +286,13 @@ button:disabled { cursor: not-allowed; }
 .cal-movebar .cal-mvt { font-size: 13px; margin-right: 6px; }
 .cal-movebar button { height: 40px; min-width: 44px; padding: 0 10px; border: 0; border-radius: 9px; background: rgba(255,255,255,.14); color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
 .cal-movebar button.on { background: #fff; color: var(--ink); }
+.cal-scan { flex: none; display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 8px; border: 0; border-radius: 7px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: inherit; font-size: 12px; font-weight: 600; color: var(--ink); cursor: pointer; }
+.cal-scan:hover { background: #FAFAFC; }
+@media (max-width: 1199px) { .cal-scanl { display: none; } }
+.scan-box { position: relative; border-radius: 14px; overflow: hidden; background: #1B1B20; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; }
+.scan-box video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.scan-frame { position: relative; width: 55%; aspect-ratio: 1; border-radius: 16px; box-shadow: 0 0 0 9999px rgba(0,0,0,.35), inset 0 0 0 3px #fff; }
+.scan-hint { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-size: 12px; color: rgba(255,255,255,.85); }
 .bk-sum { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-soft); }
 .bk-code { display: inline-block; min-width: 26px; text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; font-weight: 700; border-radius: 5px; padding: 1px 5px; margin-right: 6px; flex: none; }
 .bk-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 2px; }
@@ -533,7 +540,7 @@ button:disabled { cursor: not-allowed; }
 .cal-waitpill.on { background: var(--ink); color: #fff; }
 .kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 5px; border: 1px solid #D1D1D6; font-size: 11px; font-weight: 600; color: #5C5C5E; background: #fff; box-sizing: border-box; }
 .cal-kbd { margin-left: 6px; background: transparent; color: #D1D1D6; border-color: #5C5C5E; }
-.cal-search { width: 280px; height: 36px; border-radius: 10px; background: #EFEFF2; display: flex; align-items: center; gap: 8px; padding: 0 10px; box-sizing: border-box; }
+.cal-search { width: 330px; height: 36px; border-radius: 10px; background: #EFEFF2; display: flex; align-items: center; gap: 8px; padding: 0 10px; box-sizing: border-box; }
 .cal-search input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 13px; color: var(--ink); outline: none; }
 .cal-search input::placeholder { color: #5C5C5E; }
 .cal-alertwrap { position: relative; }
@@ -566,7 +573,9 @@ button:disabled { cursor: not-allowed; }
 .cal-utag.out { color: #5C5C5E; }
 .cal-keys { line-height: 24px; }
 @media (max-width: 1199px) { .cal-search { width: 180px; } }
-@media (max-width: 899px) { .cal-waitpill { display: inline-flex; order: -1; } .cal-alabel, .cal-bsub { display: none; } .cal-banner { flex-wrap: nowrap; } .cal-banner .cal-bwarn { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; } .cal-search, .cal-filters, .cal-kbd, .cal-banner .cap { display: none; } .cal-alertbtn { padding: 0 8px; } }
+@media (max-width: 899px) { .cal-waitpill { display: inline-flex; order: -1; } .cal-alabel, .cal-bsub { display: none; } .cal-banner { flex-wrap: nowrap; } .cal-banner .cal-bwarn { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; } .cal-filters, .cal-kbd, .cal-banner .cap { display: none; } .cal-alertbtn { padding: 0 8px; }
+  /* Phone: no search box, but the Scan button stays. */
+  .cal-search { width: auto; padding: 0; background: transparent; } .cal-search input, .cal-search .kbd { display: none; } .cal-scan { height: 34px; padding: 0 10px; } }
 .wi-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: 10px; align-items: stretch; }
 .wi-tile { display: flex; flex-direction: column; gap: 2px; }
 .wi-tile b { font-size: 24px; line-height: 30px; }
