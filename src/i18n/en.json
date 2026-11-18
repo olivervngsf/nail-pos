@@ -765,7 +765,16 @@
     "remove": "Remove {name}",
     "deskSees": "The front desk sees these right away. Price changes and discounts are done at the desk.",
     "notFound": "Ticket not found, or it's not from your salon.",
-    "liveOnly": "Ticket slips work on the live site only."
+    "liveOnly": "Ticket slips work on the live site only.",
+    "paidAt": "Paid ✓ {time}",
+    "refunded": "Refunded. Nothing more to change on this ticket.",
+    "voided": "Voided. Nothing more to change on this ticket.",
+    "locked": "Locked after payment. Price changes and refunds go through the front desk.",
+    "yourTip": "Your tip",
+    "tipCash": "{amount} cash",
+    "tipCard": "{amount} card",
+    "tipFee": "card fee −{amount}",
+    "noTip": "No tip on this visit."
   },
   "book": {
     "bookVisit": "Book a visit",

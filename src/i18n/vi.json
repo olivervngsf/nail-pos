@@ -765,7 +765,16 @@
     "remove": "Xóa {name}",
     "deskSees": "Quầy lễ tân thấy ngay. Đổi giá và giảm giá làm ở quầy.",
     "notFound": "Không tìm thấy phiếu, hoặc phiếu không thuộc tiệm của bạn.",
-    "liveOnly": "Phiếu chỉ dùng được trên trang thật."
+    "liveOnly": "Phiếu chỉ dùng được trên trang thật.",
+    "paidAt": "Đã trả ✓ {time}",
+    "refunded": "Đã hoàn tiền. Phiếu này không đổi được nữa.",
+    "voided": "Đã huỷ. Phiếu này không đổi được nữa.",
+    "locked": "Đã khoá sau khi trả tiền. Đổi giá hay hoàn tiền thì làm ở quầy.",
+    "yourTip": "Tiền tip của bạn",
+    "tipCash": "{amount} tiền mặt",
+    "tipCard": "{amount} thẻ",
+    "tipFee": "phí thẻ −{amount}",
+    "noTip": "Lần này không có tip."
   },
   "book": {
     "bookVisit": "Đặt lịch",
