@@ -60,6 +60,9 @@ button:disabled { cursor: not-allowed; }
 /* 3. app-only pieces (move into the kit when the Design System gets them) */
 .btn.sm { height: 30px; font-size: 13px; padding: 0 10px; border-radius: 8px; }
 @media (pointer: coarse) { .btn.sm { height: 38px; font-size: 14px; } }
+/* Top bar buttons: lower than the bar (52px) so they never touch its edges. */
+.bar .btn.primary { height: 36px; padding: 0 14px; font-size: 14px; border-radius: var(--r-sm); }
+@media (pointer: coarse) { .bar .btn:not(.sm) { height: 40px; padding: 0 14px; font-size: 15px; } }
 .btn.stripe { background: #635bff; color: #fff; }
 .tag.warn { background: var(--orange-soft); color: #b5470a; }
 .note { border-radius: 12px; padding: 10px 14px; font-size: 14px; background: #e8f6ec; color: #1e6b34; font-weight: 500; }
