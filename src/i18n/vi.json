@@ -1845,7 +1845,10 @@
         "open": "Chưa trả",
         "other": "Đã đóng"
       }
-    }
+    },
+    "signInTitle": "Đăng nhập để xem Cài đặt",
+    "signInBody": "Cài đặt dành cho chủ tiệm và quản lý. Hãy đăng nhập bằng số điện thoại trước.",
+    "signIn": "Đăng nhập"
   },
   "promo": {
     "title": "Gửi tin khuyến mãi",

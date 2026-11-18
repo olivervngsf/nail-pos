@@ -16,10 +16,12 @@ export function useMe() {
   const [me, setMe] = useState<Me | null>(null);
   const [device, setDevice] = useState<Device | null>(null);
   const [acting, setActing] = useState<ReturnType<typeof getActing>>(null);
+  // ready = the sign-in check finished (so screens can tell "still loading" from "not signed in").
+  const [ready, setReady] = useState(false);
   useEffect(() => {
     setDevice(getDevice());
     setActing(getActing());
-    if (!SMS_ON) { setMe(DEMO_ME); return; }
+    if (!SMS_ON) { setMe(DEMO_ME); setReady(true); return; }
     setMe(read());
     void (async () => {
       try {
@@ -33,8 +35,9 @@ export function useMe() {
         setMe(v);
         try { localStorage.setItem(KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
       } catch { /* offline: keep the cached copy */ }
+      finally { setReady(true); }
     })();
   }, []);
   const isDevice = !!device && !!me && (device.salonId === me.salonId || !SMS_ON);
-  return { me, device, acting: isDevice ? acting : null, isDevice };
+  return { me, device, acting: isDevice ? acting : null, isDevice, ready };
 }
