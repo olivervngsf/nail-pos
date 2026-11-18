@@ -94,7 +94,9 @@ let port: Port | null = null;
 export async function pickBuiltIn(paper: Paper): Promise<SavedPrinter> {
   const sr = serial();
   if (!sr) throw new Error(`This browser can't reach a built-in printer. Open PolishOS in Google Chrome and update it in the Play Store (now: ${navigator.userAgent.match(/Chrome\/\d+/)?.[0] ?? "not Chrome"}).`);
-  port = await sr.requestPort({ filters: [{ bluetoothServiceClassId: SPP }] });
+  // No filter: the inner printer is a pretend Bluetooth device and may not say which services it has, so a
+  // "serial printers only" filter hides it ("No compatible devices found").
+  port = await sr.requestPort({ allowedBluetoothServiceClassIds: [SPP] });
   const p: SavedPrinter = { id: "serial", name: "Built-in printer", paper, via: "serial" };
   savePrinter(p);
   return p;
