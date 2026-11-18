@@ -28,7 +28,7 @@ export default function BookPage({ slug }: { slug: string }) {
   return <Flow page={page} />;
 }
 
-function Header({ page }: { page: Page }) {
+export function Header({ page }: { page: Page }) {
   const t = useTranslations("book");
   const today = hoursOn(page, dayKey(new Date()));
   const now = new Date().getHours() * 60 + new Date().getMinutes();
@@ -81,7 +81,7 @@ function Flow({ page }: { page: Page }) {
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
-  const [done, setDone] = useState<{ staff: string[]; day: string; start: number } | null>(null);
+  const [done, setDone] = useState<{ staff: string[]; day: string; start: number; token?: string } | null>(null);
 
   const svc = useMemo(() => Object.fromEntries(page.services.map((s) => [s.id, s])), [page]);
   const minsOf = useCallback((g: Guest) => g.serviceIds.reduce((a, id) => a + (svc[id]?.minutes ?? 0), 0), [svc]);
@@ -125,7 +125,7 @@ function Flow({ page }: { page: Page }) {
     setBusy(true);
     try {
       const r = await book(page, { src, day, start: slot, phone: e164(phone), name: name.trim(), textsOk, note: note.trim(), guests });
-      if (r.ok) { setDone({ staff: r.staff, day, start: slot }); setView("done"); }
+      if (r.ok) { setDone({ staff: r.staff, day, start: slot, token: r.token }); setView("done"); }
       else {
         setMsg(t(r.reason === "taken" ? "taken" : r.reason === "too_many" ? "tooMany" : "bad"));
         if (r.reason === "taken") { setSlot(null); setView("time"); }
@@ -152,9 +152,10 @@ function Flow({ page }: { page: Page }) {
 
   if (view === "done" && done) {
     const start = at(done.day, done.start), end = at(done.day, done.start + longest);
+    const manage = done.token ? `${window.location.origin}/b/${done.token}` : "";
     const ics = `data:text/calendar;charset=utf-8,${encodeURIComponent(["BEGIN:VCALENDAR", "VERSION:2.0", "BEGIN:VEVENT",
       `DTSTART:${start.replace(/[-:]/g, "").replace(/\.\d+/, "")}`, `DTEND:${end.replace(/[-:]/g, "").replace(/\.\d+/, "")}`,
-      `SUMMARY:${page.salon.name}`, `LOCATION:${page.salon.address ?? ""}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n"))}`;
+      `SUMMARY:${page.salon.name}`, `LOCATION:${page.salon.address ?? ""}`, ...(manage ? [`DESCRIPTION:${t("mChange")} / ${t("mCancel")}: ${manage}`, `URL:${manage}`] : []), "END:VEVENT", "END:VCALENDAR"].join("\r\n"))}`;
     const first = name.trim().split(" ")[0];
     const longDay = fromDayKey(done.day).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
     return (
@@ -189,7 +190,8 @@ function Flow({ page }: { page: Page }) {
             <Button variant="ghost" onClick={restart}>{t("again")}</Button>
           </div>
           <p className="cap bw-center">
-            {t("cancelRule", { hours: page.salon.settings.cancel_hours })}
+            {done.token ? <a href={`/b/${done.token}`} data-testid="manage-link">{t("mLink")}</a> : t("cancelRule", { hours: page.salon.settings.cancel_hours })}
+            {done.token && <> · {t("mRule", { hours: page.salon.settings.cancel_hours })}</>}
             {page.salon.phone && <> {t("callUs")} <a href={`tel:${page.salon.phone}`}>{fmtPhone(page.salon.phone)}</a></>}
           </p>
         </div>
