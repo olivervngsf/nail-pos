@@ -16,7 +16,7 @@ export type PrintSettings = {
 
 export const PRINT_DEFAULTS: PrintSettings = {
   receipt: { staff: true, tips: true, client: true, qr: true, thanks: "" },
-  staff: { tickets: false, tipSplit: true, checkCash: true, signature: true, printedAt: true },
+  staff: { tickets: true, tipSplit: true, checkCash: true, signature: true, printedAt: true },
   slip: { client: true, staff: true },
 };
 

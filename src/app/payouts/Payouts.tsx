@@ -178,9 +178,13 @@ export default function Payouts() {
           {rows.map((r) => (
             <div key={r.membership_id}>
               <b>{r.name}</b>
-              {prints.staff.tickets && (r.lines ?? []).map((l) => (
-                <div key={l.number} className="rl"><span>{t("ticketNo", { n: l.number })}</span><span>{$(l.services_cents)}</span></div>
-              ))}
+              {prints.staff.tickets && !!r.lines?.length && <>
+                <div className="rl" style={{ fontWeight: 700 }}><span style={{ flex: 1 }}>{t("colTicket")}</span><span style={{ width: "6em", textAlign: "right" }}>{t("colTips")}</span><span style={{ width: "6em", textAlign: "right" }}>{t("colService")}</span></div>
+                {r.lines.map((l) => (
+                  <div key={l.number} className="rl"><span style={{ flex: 1 }}>#{l.number}</span><span style={{ width: "6em", textAlign: "right" }}>{$(l.tip_card_cents + l.tip_cash_cents)}</span><span style={{ width: "6em", textAlign: "right" }}>{$(l.services_cents)}</span></div>
+                ))}
+                <hr />
+              </>}
               <div className="rl"><span>{t("services")} ({r.tickets})</span><span>{$(r.services_cents)}</span></div>
               <div className="rl"><span>{payLabel(r)}</span><span>{$(r.pay_cents)}</span></div>
               <div className="rl"><span>{t("cardTips")}</span><span>{$(r.tips_card_cents)}</span></div>

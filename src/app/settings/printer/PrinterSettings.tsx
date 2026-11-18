@@ -42,7 +42,7 @@ export default function PrinterSettings() {
       return earningsDoc(r, salon, "11/16 - 11/17", {
         slipFor: (name) => tp("slipFor", { name }), services: tp("services"), cardTips: tp("cardTips"), cashTips: tp("cashTips"), tips: tp("tipsAll"),
         feeOnTips: tp("feeOnTips"), total: tp("total"), byCheck: tp("byCheck"), inCash: tp("inCash"), signature: tp("signature"), printed: tp("printed"),
-        ticketNo: (n) => tp("ticketNo", { n }), pay: (x) => tp("commission", { pct: x.commission_pct ?? 0 }),
+        colTicket: tp("colTicket"), colTips: tp("colTips"), colService: tp("colService"), pay: (x) => tp("commission", { pct: x.commission_pct ?? 0 }),
       }, "11/17 7:12 PM", draft.staff);
     }
     if (kind === "slip") {
