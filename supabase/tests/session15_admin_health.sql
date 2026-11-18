@@ -46,7 +46,12 @@ do $$ declare sid uuid := ((select v from t_out where k = 'made')->>'salon_id'):
   if not exists (select 1 from jsonb_array_elements(h->'salons') x where (x->>'salon_id')::uuid = sid and x->>'plan_status' = 'none' and x->>'texting' = 'not_started')
     then raise exception 'FAIL: plan/texting defaults'; end if;
   perform public.admin_set_texting(sid, 'waiting');
-  update public.admin_salon_status set texting_at = now() - interval '9 days' where salon_id = sid;
+end $$;
+-- backdate as the database owner (the app can't touch admin_salon_status), then the same status again must keep the date
+reset role;
+update public.admin_salon_status set texting_at = now() - interval '9 days';
+set local role authenticated;
+do $$ declare sid uuid := ((select v from t_out where k = 'made')->>'salon_id')::uuid; h jsonb; d jsonb; begin
   perform public.admin_set_texting(sid, 'waiting');
   h := public.admin_health();
   if not exists (select 1 from jsonb_array_elements(h->'salons') x where (x->>'salon_id')::uuid = sid and x->>'texting' = 'waiting'
