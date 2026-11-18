@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, LeftMenu, ListGroup, OfflineBanner, SyncPill, Tag, TopBar } from "@/components/kit";
-import AccountMenu from "@/components/AccountMenu";
 import { formatCents } from "@/lib/money";
 import { getActing, useDesk } from "@/lib/desk";
+import { NEW_FOR } from "@/lib/clients";
 import { pullTickets, putTicket, useTickets } from "@/lib/checkout/store";
 import { ticketLabel, totals, type Ticket } from "@/lib/checkout/ticket";
 import { getTicket } from "@/lib/checkout/store";
@@ -29,6 +29,18 @@ export default function CheckoutHome() {
     const iv = setInterval(pull, 30_000);
     return () => clearInterval(iv);
   }, [desk]);
+
+  // "New ticket" from a client's profile: /checkout?new=1 with the client waiting in this tab.
+  useEffect(() => {
+    if (!desk || !new URLSearchParams(location.search).has("new")) return;
+    let client: Ticket["client"];
+    try { client = JSON.parse(sessionStorage.getItem(NEW_FOR) ?? "null") ?? undefined; sessionStorage.removeItem(NEW_FOR); } catch { /* none */ }
+    const acting = getActing();
+    const id = crypto.randomUUID();
+    putTicket({ id, salonId: desk.salonId, status: "open", createdAt: new Date().toISOString(), lines: [], tips: {}, note: "", client,
+      openedBy: acting?.membership_id ?? desk.me.membership_id, deviceId: desk.device?.id });
+    router.replace(`/checkout/${id}`);
+  }, [desk, router]);
 
   // Scan a ticket slip (NetumScan types the QR link + Enter), or type a ticket number.
   const [scan, setScan] = useState("");
@@ -70,7 +82,6 @@ export default function CheckoutHome() {
   const open = all.filter((x) => x.status === "open" && (x.lines.length || x.client?.name || x.number));
   const paid = all.filter((x) => x.status === "paid" && (x.payment?.at ?? x.createdAt) >= today);
   const acting = getActing();
-  const who = acting ? { name: acting.name, role: acting.role } : { name: desk.me.display_name, role: desk.me.role };
 
   const newTicket = () => {
     const id = crypto.randomUUID();
@@ -99,7 +110,6 @@ export default function CheckoutHome() {
       <div className="col">
         <TopBar title={desk.salonName}>
           <SyncPill />
-          <AccountMenu name={who.name} role={who.role} salon={desk.salonName} />
         </TopBar>
         <OfflineBanner />
         <main style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20, maxWidth: 980, width: "100%" }}>

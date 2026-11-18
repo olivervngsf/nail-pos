@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { enqueue, registerHandler } from "@/lib/offline/outbox";
 import { getSupabase } from "@/lib/supabase/client";
 import { rpc } from "@/lib/auth";
-import { seenIds, toPayload, type Ticket } from "./ticket";
+import { mergeOpen, seenIds, toPayload, type Ticket } from "./ticket";
 
 const KEY = "nailpos.tickets.v1";
 const listeners = new Set<() => void>();
@@ -54,23 +54,16 @@ export function putTicket(t: Ticket, opts: { now?: boolean } = {}) {
 }
 
 /** Server copy merged in (another device's ticket); this device's own changes win. */
-function merge(t: Ticket) {
+function merge(t: Ticket, techRemoved: string[]) {
   const c = load();
   const mine = c[t.id];
   if (!mine) c[t.id] = { ...t, synced: true };
-  else if (!mine.number && t.number) c[t.id] = { ...mine, number: t.number };
   else if (t.status !== "open" && mine.status !== t.status) c[t.id] = { ...t, synced: true };
   else if (mine.status === "open" && t.status === "open") {
-    // Services a tech added from the slip QR: lines the server has that this desk never had.
-    const seen = new Set(mine.seenLineIds ?? []);
-    // A "$45+" service a tech added still needs its final price at the desk.
-    const fresh = t.lines.filter((l) => !seen.has(l.id) && !mine.lines.some((m) => m.id === l.id)).map((l) => ({ ...l, priceSet: !l.priceFrom }));
-    if (fresh.length) {
-      c[t.id] = { ...mine, number: mine.number ?? t.number, lines: [...mine.lines, ...fresh], seenLineIds: [...seen, ...fresh.map((l) => l.id)] };
-      // Tell the server this desk has them now (from then on the desk may remove them like any line).
-      void rpc("ack_ticket_lines", { p_ticket: t.id, p_ids: fresh.map((l) => l.id) }).catch(() => null);
-    }
-  }
+    const m = mergeOpen(mine, t, techRemoved);
+    if (m) c[t.id] = m;
+    else if (!mine.number && t.number) c[t.id] = { ...mine, number: t.number };
+  } else if (!mine.number && t.number) c[t.id] = { ...mine, number: t.number };
 }
 
 export function useTicket(id: string) {
@@ -98,8 +91,9 @@ export function useTickets(salonId: string) {
 
 type Row = {
   id: string; number: number; status: "open" | "paid" | "refunded" | "voided"; created_at: string; note: string; opened_by: string | null;
-  client: { phone: string | null; name: string } | null;
-  ticket_lines: { id: string; kind: string; service_id: string | null; staff_id: string | null; name: string; minutes: number | null; amount_cents: number; price_from: boolean; reason: string | null; approval_id: string | null; removed_at: string | null; sort: number; gift_card_id: string | null }[];
+  client: { id: string; phone: string | null; name: string } | null; client_name: string | null;
+  ticket_lines: { id: string; kind: string; service_id: string | null; staff_id: string | null; name: string; minutes: number | null; amount_cents: number; price_from: boolean; reason: string | null; approval_id: string | null; removed_at: string | null; sort: number; gift_card_id: string | null;
+    source: "desk" | "phone"; desk_seen_at: string | null; tech_removed_at: string | null; price_open: boolean }[];
   payments: { id: string; method: "cash" | "card_reader" | "pay_link" | "gift_card"; status: string; gift_card_id: string | null; given_cents: number | null; amount_cents: number; fee_cents: number; card_brand: string | null; card_last4: string | null; at: string; taken_by: string | null }[];
 };
 
@@ -108,7 +102,7 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
   const sb = getSupabase();
   if (!sb || !live) return;
   let q = sb.from("tickets")
-    .select("id,number,status,created_at,note,opened_by,client:clients(phone,name),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort,gift_card_id),payments(id,method,status,gift_card_id,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
+    .select("id,number,status,created_at,note,opened_by,client_name,client:clients(id,phone,name),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort,gift_card_id,source,desk_seen_at,tech_removed_at,price_open),payments(id,method,status,gift_card_id,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
     .eq("salon_id", salonId).neq("status", "voided");
   q = onlyId ? q.eq("id", onlyId) : q.gte("created_at", since);
   const { data, error } = await q.order("created_at", { ascending: false }).limit(200);
@@ -127,9 +121,12 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
     merge({
       id: r.id, salonId, number: r.number, status: r.status === "voided" ? "open" : r.status, createdAt: r.created_at, note: r.note,
       openedBy: r.opened_by ?? undefined,
-      client: r.client?.phone ? { phone: r.client.phone, name: r.client.name } : undefined,
+      client: r.client ? { id: r.client.id, phone: r.client.phone ?? "", name: r.client.name || r.client_name || "" }
+        : r.client_name ? { phone: "", name: r.client_name } : undefined,
       lines: lines.filter((l) => l.kind === "service").map((l) => ({
-        id: l.id, serviceId: l.service_id ?? undefined, name: l.name, minutes: l.minutes ?? 0, cents: l.amount_cents, priceFrom: l.price_from, priceSet: true,
+        id: l.id, serviceId: l.service_id ?? undefined, name: l.name, minutes: l.minutes ?? 0, cents: l.amount_cents, priceFrom: l.price_from,
+        // A "$45+" service a tech added from the slip: the desk sets its final price first (on any desk).
+        priceSet: !(l.price_from && l.price_open),
         staffId: l.staff_id ?? undefined, staffName: l.staff_id ? staffName(l.staff_id) : undefined,
       })),
       discount: disc ? { id: disc.id, kind: "amt", value: -disc.amount_cents, reason: disc.reason ?? "", approvalId: disc.approval_id ?? undefined } : undefined,
@@ -138,7 +135,13 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
       reward: (() => { const rl = lines.find((l) => l.kind === "loyalty_reward"); return rl ? { id: rl.id, cents: -Number(rl.amount_cents), points: getTicket(r.id)?.reward?.points ?? 0 } : undefined; })(),
       payment: pay ? { id: pay.id, method: pay.method as "cash" | "card_reader" | "pay_link", givenCents: pay.given_cents ?? undefined, at: pay.at, takenBy: pay.taken_by ?? undefined,
         amountCents: Number(pay.amount_cents), feeCents: Number(pay.fee_cents), brand: pay.card_brand ?? undefined, last4: pay.card_last4 ?? undefined } : undefined,
-    });
+    }, r.ticket_lines.filter((l) => l.tech_removed_at).map((l) => l.id));
+    // Phone lines this desk now has but hasn't confirmed yet: tell the server, so the desk may remove them like any line.
+    // Runs on every pull, so a failed ack is simply tried again next time.
+    const have = getTicket(r.id);
+    const unacked = r.status === "open" && have?.status === "open"
+      ? lines.filter((l) => l.source === "phone" && !l.desk_seen_at && have.lines.some((x) => x.id === l.id)).map((l) => l.id) : [];
+    if (unacked.length) void rpc("ack_ticket_lines", { p_ticket: r.id, p_ids: unacked }).catch(() => null);
   }
   persist();
 }

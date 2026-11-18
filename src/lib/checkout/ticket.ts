@@ -44,7 +44,8 @@ export type Ticket = {
   number?: number;
   status: "open" | "paid" | "refunded";
   createdAt: string;
-  client?: { phone: string; name: string };
+  /** Who the ticket is for. Phone is the normal key; `id` links a client picked from Clients who has no phone; name is kept on the ticket either way. */
+  client?: { id?: string; phone: string; name: string };
   lines: ServiceLine[];
   discount?: Discount;
   /** Cash tip per staff id, cents. */
@@ -147,7 +148,7 @@ export function toPayload(t: Ticket) {
   }
   return {
     id: t.id, salonId: t.salonId, createdAt: t.createdAt, note: t.note, openedBy: t.openedBy, deviceId: t.deviceId,
-    client: t.client?.phone ? t.client : undefined, lines, payment: t.payment?.method === "cash" ? t.payment : undefined,
+    client: t.client && (t.client.phone || t.client.id || t.client.name.trim()) ? t.client : undefined, lines, payment: t.payment?.method === "cash" ? t.payment : undefined,
     seen: seenIds(t),
   };
 }
@@ -168,4 +169,17 @@ export const ticketLabel = (t: Pick<Ticket, "id" | "number">) => (t.number ? `#$
 export function seenIds(t: Ticket): string[] {
   const now = [...t.lines.map((l) => l.id), ...(t.discount ? [t.discount.id] : []), ...(t.reward ? [t.reward.id] : []), ...Object.keys(t.tips).map((s) => tipLineId(t.id, s))];
   return [...new Set([...(t.seenLineIds ?? []), ...now])];
+}
+
+/** Ticket slip: merge the server's copy of an open ticket into this desk's copy (this desk's own edits win).
+ *  - Lines the server has that this desk never had (a tech added them from the slip QR) are added.
+ *  - Lines a tech removed from their phone (techRemoved) are dropped here too, so a later desk save can't bring them back.
+ *  A "$45+" line from a phone keeps priceSet=false (from the server's price_open) until the desk sets its final price. */
+export function mergeOpen(mine: Ticket, server: Ticket, techRemoved: string[]): Ticket | null {
+  const gone = new Set(techRemoved);
+  const seen = new Set(mine.seenLineIds ?? []);
+  const fresh = server.lines.filter((l) => !gone.has(l.id) && !seen.has(l.id) && !mine.lines.some((m) => m.id === l.id));
+  const kept = mine.lines.filter((l) => !gone.has(l.id));
+  if (!fresh.length && kept.length === mine.lines.length) return null;
+  return { ...mine, number: mine.number ?? server.number, lines: [...kept, ...fresh], seenLineIds: [...new Set([...seen, ...fresh.map((l) => l.id)])] };
 }

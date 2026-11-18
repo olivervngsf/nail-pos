@@ -30,7 +30,10 @@ export type PayoutRow = {
   membership_id: string; name: string; role: string; pay_type: "commission" | "hourly" | "booth_rent" | null; commission_pct: number | null;
   hourly_cents: number | null; check_pct: number; tickets: number; services_cents: number; minutes: number; pay_cents: number;
   tips_card_cents: number; tips_cash_cents: number; tip_fee_cents: number; total_cents: number; check_cents: number; cash_cents: number;
+  /** Each paid ticket this person worked on in the period (services + tips), oldest first. */
+  lines?: PayLine[];
 };
+export type PayLine = { number: number; at: string; services: string; services_cents: number; tip_card_cents: number; tip_cash_cents: number };
 
 /** Numbers from the server arrive as strings for bigint columns; make them numbers. */
 export function nums<T extends object>(o: T): T {
@@ -90,7 +93,11 @@ export function demoPayout(): PayoutRow[] {
   const base = (n: number, name: string, svc: number, tc: number, tk: number, check: number): PayoutRow => {
     const pay = Math.round(svc * 0.6), total = pay + tc + tk, ck = Math.round(total * check / 100);
     return { membership_id: id(n), name, role: "tech", pay_type: "commission", commission_pct: 60, hourly_cents: null, check_pct: check, tickets: Math.round(svc / 4500),
-      services_cents: svc, minutes: 0, pay_cents: pay, tips_card_cents: tc, tips_cash_cents: tk, tip_fee_cents: 0, total_cents: total, check_cents: ck, cash_cents: total - ck };
+      services_cents: svc, minutes: 0, pay_cents: pay, tips_card_cents: tc, tips_cash_cents: tk, tip_fee_cents: 0, total_cents: total, check_cents: ck, cash_cents: total - ck,
+      lines: [
+        { number: 1000 + n * 10 + 1, at: "2026-11-17T17:10:00Z", services: "Gel manicure", services_cents: 4500, tip_card_cents: 900, tip_cash_cents: 0 },
+        { number: 1000 + n * 10 + 2, at: "2026-11-17T19:40:00Z", services: "Deluxe spa pedicure + Gel polish change", services_cents: 7300, tip_card_cents: 0, tip_cash_cents: 1500 },
+      ] };
   };
   return [base(1, "Kim", 186000, 41000, 9000, 60), base(2, "Ngọc", 154000, 33000, 12000, 100), base(3, "Tuyết", 120000, 24000, 8000, 50)];
 }

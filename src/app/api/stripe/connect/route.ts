@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const st = getStripe(), db = asServer();
   if (!st || !db) return fail(503, "Payments aren't switched on yet.");
   const { salonId, back } = (await req.json().catch(() => ({}))) as { salonId?: string; back?: string };
-  const page = back === "/today" ? "/today" : "/setup";
+  const page = back === "/today" || back === "/settings/payments" ? back : "/setup";
   const { data: admin } = await sb.rpc("is_admin", { s: salonId });
   if (!salonId || !admin) {
     const { data: exists } = await db.from("salons").select("id").eq("id", salonId).maybeSingle();

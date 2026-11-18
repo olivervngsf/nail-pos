@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>One day on the salon iPad</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.st{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding:14px;box-sizing:border-box}
+.tm{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--ink-soft)}
+.who2{display:flex;align-items:center;gap:8px;font-size:14px}
+.who2 b{font-size:15px}
+.scr{margin-top:auto;border-radius:10px;background:var(--surface);border:1px solid var(--line);padding:8px 10px;font-size:12px;line-height:17px;color:var(--ink-soft)}
+.scr b{color:var(--ink);font-size:13px}
+.k{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:999px;font-size:11px;font-weight:700;width:max-content}
+.k.code{background:#E7F0FD;color:#1B4F9C}
+.k.pin{background:var(--orange-soft);color:#A3410A}
+.k.no{background:var(--fill);color:var(--ink-soft)}
+.arrow{align-self:center;color:#C7C7CC;font-size:18px;flex:none}
+</style>
+</helmet>
+<div style="width:1280px;height:800px;box-sizing:border-box;padding:32px 36px;background:var(--surface);display:flex;flex-direction:column;gap:18px">
+  <div style="display:flex;align-items:baseline;gap:12px"><div class="h2">Tuesday at Mai Nails</div><span class="cap">The iPad is signed in once (as the salon) and is never signed out. People come and go by PIN.</span></div>
+  <div style="display:flex;gap:10px;height:320px">
+    <div class="card st"><span class="tm">8:45 AM · ONCE</span><div class="who2"><span class="av" style="background:#E9D7CB">M</span><span><b>Mai</b> · owner</span></div><span class="k code">Phone code</span><span style="font-size:14px;line-height:20px">First day only: signs in, taps “Use as the salon iPad”.</span><div class="scr"><b>Who’s working?</b><br>Faces of the whole team</div></div>
+    <span class="arrow" aria-hidden="true">›</span>
+    <div class="card st"><span class="tm">9:00 AM</span><div class="who2"><span class="av">H</span><span><b>Hạnh</b> · front desk</span></div><span class="k pin">Face + PIN</span><span style="font-size:14px;line-height:20px">Opens the desk. Clocked in by the same PIN.</span><div class="scr"><b>Today · as Hạnh</b><br>Checkout, Calendar, Clients</div></div>
+    <span class="arrow" aria-hidden="true">›</span>
+    <div class="card st"><span class="tm">9:30 AM</span><div class="who2"><span class="av">K</span><span><b>Kim</b> · tech</span></div><span class="k pin">Face + PIN</span><span style="font-size:14px;line-height:20px">Walks up, taps her face, PIN → clocked in, joins turn list.</span><div class="scr"><b>✓ Kim clocked in 9:30</b><br>Back to Hạnh’s screen in 3 s</div></div>
+    <span class="arrow" aria-hidden="true">›</span>
+    <div class="card st"><span class="tm">12:10 PM</span><div class="who2"><span class="av">B</span><span><b>Bảo</b> · manager</span></div><span class="k pin">Manager PIN pop-up</span><span style="font-size:14px;line-height:20px">Hạnh gives $5 off. Pop-up asks a manager PIN. Bảo types it. Hạnh stays signed in.</span><div class="scr"><b>Approved by Bảo</b><br>Saved on the ticket + log</div></div>
+  </div>
+  <div style="display:flex;gap:10px;height:320px">
+    <div class="card st"><span class="tm">2:00 PM · IDLE</span><div class="who2"><span class="av" style="background:var(--fill)">·</span><span><b>Nobody</b> · 2 min idle</span></div><span class="k no">Auto</span><span style="font-size:14px;line-height:20px">Desk walks away. After 2 min the iPad goes back to faces. Nothing is lost.</span><div class="scr"><b>Who’s working?</b><br>Open ticket kept as Hạnh’s</div></div>
+    <span class="arrow" aria-hidden="true">›</span>
+    <div class="card st"><span class="tm">3:00 PM · SHIFT CHANGE</span><div class="who2"><span class="av">L</span><span><b>Lan</b> · front desk</span></div><span class="k pin">Face + PIN</span><span style="font-size:14px;line-height:20px">No sign out. Lan taps her face. Hạnh taps “Clock out” on her own face later.</span><div class="scr"><b>Today · as Lan</b><br>Every sale now under Lan</div></div>
+    <span class="arrow" aria-hidden="true">›</span>
+    <div class="card st"><span class="tm">7:05 PM</span><div class="who2"><span class="av" style="background:#E9D7CB">M</span><span><b>Mai</b> · owner</span></div><span class="k pin">Face + PIN</span><span style="font-size:14px;line-height:20px">Close day, count cash, payout sheet. Techs print own earnings by PIN.</span><div class="scr"><b>Close day</b><br>Owner/manager only</div></div>
+    <span class="arrow" aria-hidden="true">›</span>
+    <div class="card st"><span class="tm">ANYTIME · OWN PHONE</span><div class="who2"><span class="av" style="background:#E9D7CB">M</span><span><b>Mai</b> at home</span></div><span class="k code">Code once</span><span style="font-size:14px;line-height:20px">Opens polishosapp.com on her phone. Already signed in. Settings → Team → Add member.</span><div class="scr"><b>Settings (F)</b><br>No PIN on own phone</div></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
