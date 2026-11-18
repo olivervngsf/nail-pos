@@ -4,7 +4,7 @@
 // Data: admin_salons() / admin_create_salon() / admin_new_code() (migration invites_admin); all check is_platform_admin().
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SMS_ON, amPlatformAdmin, e164, isSignedIn, myMemberships, rpc, signOut } from "@/lib/auth";
+import { SMS_ON, amPlatformAdmin, e164, isSignedIn, myMemberships, rpc, showCode, signOut } from "@/lib/auth";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { Button, Field, ListGroup, Row, Tag, Toast, TopBar } from "@/components/kit";
 
@@ -64,7 +64,7 @@ export default function AdminHome() {
 
   const copy = (t: string) => { void navigator.clipboard?.writeText(t).then(() => say("Copied")); };
   const inviteText = (m: { owner: string; salon: string; code: string }) =>
-    `Hi ${m.owner}, your PolishOS salon "${m.salon}" is ready. Sign in at ${location.origin}/login with this phone number. Invite code: ${m.code}`;
+    `Hi ${m.owner}, your PolishOS salon "${m.salon}" is ready. Open ${location.origin}/invite/${m.code} and sign in with this phone or email (or Google). Invite code: ${showCode(m.code)} (good for 7 days).`;
 
   if (state === "loading") return <div className="app" aria-busy="true" />;
   if (state === "no") return (
@@ -110,7 +110,7 @@ export default function AdminHome() {
           {made && (
             <div className="card pad" style={{ gap: 8, display: "flex", flexDirection: "column" }} data-testid="invite-made">
               <b>{made.salon} is ready for {made.owner}</b>
-              <span className="cap">Invite code <b style={{ fontFamily: "monospace", fontSize: 16 }}>{made.code}</b> · sign in at {location.origin}/login with {made.phone}</span>
+              <span className="cap">Invite code <b style={{ fontFamily: "monospace", fontSize: 16 }}>{made.code}</b> · link {location.origin}/invite/{made.code} · or sign in with {made.phone}</span>
               <div><Button size="sm" onClick={() => copy(inviteText(made))}>Copy invite text</Button></div>
             </div>
           )}
