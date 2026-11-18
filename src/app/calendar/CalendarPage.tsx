@@ -16,6 +16,7 @@ import { isHere, isWaiting, onGrid, turnCounts, turnOrder } from "@/lib/booking/
 import { getTicket } from "@/lib/checkout/store";
 import { totals } from "@/lib/checkout/ticket";
 import { SeatDrawer, WalkInDrawer, Waitlist, seatAppt, useTick } from "./WalkIns";
+import { LiveBoard } from "./LiveBoard";
 import { addDays, at, clamp, dayKey, fmtMin, fromDayKey, lanes, minutesOf, overlapping, snap, startOfWeek } from "@/lib/booking/grid";
 import { BookDrawer, DetailsDrawer, statusOf, ticketFor, type BookDraft } from "./BookDrawers";
 
@@ -369,7 +370,6 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   };
 
   const shown = narrow ? [cols[phoneCol] ?? cols[0]].filter(Boolean) : cols;
-  const freeN = order.filter((f) => f.clockedIn && f.busyUntil === null).length;
   const cats = [...new Set(desk.services.map((s) => s.cat))];
 
   // Drag a walk-in from the waitlist onto a column → seated with that tech at that time.
@@ -394,7 +394,8 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
   return (
     <main className="cal-main">
       <aside className="cal-left">
-        {isToday && <Waitlist waiting={waiting} onSeat={onSeat} onWalkIn={onWalkIn} />}
+        {isToday && <LiveBoard waiting={waiting} dayList={dayList} order={order} nextId={next?.id ?? null} onSeat={onSeat} onWalkIn={onWalkIn} onOpen={onOpen}
+          onBook={(sid) => onBook({ day, start: snap(clamp(nowM, H0, H1 - 60), 15), minutes: 45, staffId: sid })} />}
         <div style={{ flex: 1 }} />
         <MiniMonth day={day} list={list} />
       </aside>
@@ -536,25 +537,6 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
         </div>
         <div className="cap cal-foot cal-hint">{t("hint")}</div>
       </section>
-      <aside className="cal-right">
-        <div style={{ display: "flex", alignItems: "center" }}><b style={{ fontSize: 15, flex: 1 }}>{t("upNext")}</b><span className="tag jade">{t("freeNow", { n: freeN })}</span></div>
-        <div className="cap" style={{ marginTop: -4 }}>{t("turnFacts")}</div>
-        {order.map((f) => {
-          const free = f.clockedIn && f.busyUntil === null;
-          const tag = !f.clockedIn ? t("tagOut") : free ? t("tagFree") : t("tagBusy");
-          const sub = !f.clockedIn ? t("notInTurns", { n: f.turns }) : !free ? t("freeAtTurns", { time: fmtMin(f.busyUntil!).replace(/ [AP]M$/, ""), n: f.turns })
-            : f.freeSince ? t("openFor", { min: nowM - f.freeSince, n: f.turns }) : t("freeTurns", { n: f.turns });
-          return (
-            <div key={f.id} className={`cal-ucard ${free ? "free" : ""} ${f.clockedIn ? "" : "out"}`} data-testid={`up-${f.name}`}>
-              <span className="cal-dot" style={{ width: 8, height: 8, background: !f.clockedIn ? "#8E8E93" : free ? "#2F9E44" : "#E03131" }} />
-              <span style={{ flex: 1, minWidth: 0 }}><b>{f.name}</b> <span className={`cal-utag ${!f.clockedIn ? "out" : free ? "free" : "busy"}`}>{tag}</span>
-                <span className="cap" style={{ display: "block", fontSize: 12 }}>{sub}</span></span>
-              {f.clockedIn && <Button size="sm" onClick={() => onBook({ day, start: snap(clamp(f.busyUntil ?? nowM, H0, H1 - 60), 15), minutes: 45, staffId: f.id })}>{t("bookShort")}</Button>}
-            </div>);
-        })}
-        <div style={{ flex: 1 }} />
-        <div className="cap cal-keys">{t("shortcuts")} <span className="kbd">N</span> {t("kNew")} · <span className="kbd">T</span> {t("kToday")} · <span className="kbd">←</span><span className="kbd">→</span> {t("kDay")} · <span className="kbd">/</span> {t("kSearch")}</div>
-      </aside>
       {menu && (() => {
         const items: { label: string; run: () => void; danger?: boolean }[] = [];
         const go2 = (f: () => void) => () => { setMenu(null); f(); };
