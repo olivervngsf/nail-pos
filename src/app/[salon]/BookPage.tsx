@@ -2,6 +2,7 @@
 // Public booking page (polishosapp.com/<salon>). Booking board BookWeb W1–W8: door (me / group), services, nail tech,
 // time (only times where every service fits), details (phone first, welcome back, texts consent, note), done.
 // No account, no app. Where the client came from (?src=google|website|instagram|qr|text) stays on the booking.
+import { bookingIcs } from "@/lib/booking/ics";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -10,7 +11,7 @@ import { formatCents } from "@/lib/money";
 import { e164 } from "@/lib/auth";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { DEMO_SLUG, book, bookDays, hello, hoursOn, loadPage, loadSlots, photoUrl, sourceOf, type BookPage as Page, type Guest } from "@/lib/booking/page";
-import { at, dayKey, fmtMin, fromDayKey } from "@/lib/booking/grid";
+import { dayKey, fmtMin, fromDayKey } from "@/lib/booking/grid";
 
 type View = "door" | "services" | "staff" | "time" | "details" | "done";
 const ORDER: View[] = ["services", "staff", "time", "details"];
@@ -151,11 +152,9 @@ function Flow({ page }: { page: Page }) {
   );
 
   if (view === "done" && done) {
-    const start = at(done.day, done.start), end = at(done.day, done.start + longest);
     const when = `${fromDayKey(done.day).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })} · ${fmtMin(done.start)}`;
-    const ics = `data:text/calendar;charset=utf-8,${encodeURIComponent(["BEGIN:VCALENDAR", "VERSION:2.0", "BEGIN:VEVENT",
-      `DTSTART:${start.replace(/[-:]/g, "").replace(/\.\d+/, "")}`, `DTEND:${end.replace(/[-:]/g, "").replace(/\.\d+/, "")}`,
-      `SUMMARY:${page.salon.name}`, `LOCATION:${page.salon.address ?? ""}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n"))}`;
+    const ics = `data:text/calendar;charset=utf-8,${encodeURIComponent(bookingIcs({ day: done.day, start: done.start, minutes: longest, timeZone: page.salon.timeZone,
+      title: page.salon.name, location: page.salon.address, uid: `${page.salon.slug}-${done.day}-${done.start}-${phone.replace(/\D/g, "")}` }))}`;
     return (
       <div className="bw">
         <Header page={page} />

@@ -14,7 +14,7 @@ export type PageStaff = { id: string; name: string };
 export type PageHours = { weekday: number; open: boolean; opens: string | null; closes: string | null };
 export type PageRules = { on?: boolean; days_ahead: number; latest_before_close: number; group_max: number; cancel_hours: number; min_notice: number };
 export type BookPage = {
-  salon: { name: string; phone: string | null; address: string | null; slug: string; settings: PageRules };
+  salon: { name: string; phone: string | null; address: string | null; slug: string; timeZone?: string | null; settings: PageRules };
   hours: PageHours[]; photos: { path: string; label: string }[]; services: PageService[]; staff: PageStaff[];
 };
 export type Guest = { name?: string; serviceIds: string[]; staffId?: string | null };
