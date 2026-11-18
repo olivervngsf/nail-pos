@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Profile option A</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="pos.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.app{position:relative}
+.btn{height:36px;font-size:14px;padding:0 14px}
+.btn.primary{height:40px;font-size:15px}
+.inp{height:40px;font-size:15px}
+.chip{height:32px;font-size:13px;padding:0 12px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{height:30px;padding:0 14px;border-radius:8px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer}
+.seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.mr{min-height:60px}
+.mr .g b{display:block;font-size:15px}
+.mr .m{text-align:right;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.phadd{width:64px;height:64px;border-radius:50%;border:1.5px dashed #C7C7CC;background:var(--surface);font:inherit;font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer}
+</style>
+</helmet>
+<div class="app">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/></svg>Today</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Checkout</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"/></svg>Clients</a>
+    <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a class="on" href="#" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col">
+    <header class="bar"><div class="title">Profile &amp; settings</div><span class="pill ok"><span class="dot"></span>Saved</span><button class="btn" type="button">Switch person</button><button class="btn primary" type="button" onClick="{{openAdd}}" style="padding:0 16px">+ Add member</button></header>
+    <main style="flex:1;display:flex;gap:16px;padding:20px 24px;min-height:0">
+      <section style="width:380px;display:flex;flex-direction:column;gap:12px">
+        <div class="card in" style="padding:16px 18px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:12px"><span class="av lg" style="background:#E9D7CB">M</span><div><div class="h2">Mai Nguyễn</div><div class="cap num">(408) 555-0110 · mai.owner@gmail.com</div></div></div>
+          <div class="chips"><span class="tag jade">Owner</span><span class="tag">Mai Nails</span><span class="tag">Since Mar 2021</span></div>
+        </div>
+        <div class="card stat-grid in2" style="--n:4;padding:14px 10px"><div><b>7</b><span class="cap">team</span></div><div><b>5</b><span class="cap">in today</span></div><div><b>2</b><span class="cap">invites</span></div><div><b style="color:#E8590C">1</b><span class="cap">license due</span></div></div>
+        <div class="group in2">
+          <div class="row s"><span class="grow">Language</span><span class="seg"><button class="{{enC}}" type="button" onClick="{{en}}">English</button><button class="{{viC}}" type="button" onClick="{{vi}}">Tiếng Việt</button></span></div>
+          <button class="opt" type="button" style="min-height:48px;font-size:15px">Change PIN<span class="cap" style="margin-left:auto">6 digits ›</span></button>
+          <button class="opt" type="button" style="min-height:48px;font-size:15px">Sign-in email<span class="cap" style="margin-left:auto">Added ›</span></button>
+          <button class="opt" type="button" style="min-height:48px;font-size:15px">Notifications<span class="cap" style="margin-left:auto">Text + email ›</span></button>
+          <button class="opt" type="button" style="min-height:48px;font-size:15px">My earnings<span class="cap" style="margin-left:auto">›</span></button>
+        </div>
+        <div class="card in3" style="padding:12px 16px;display:flex;flex-direction:column;gap:4px"><div class="eyebrow">Needs you</div><div style="font-size:14px;line-height:20px"><b style="color:#E8590C">Vy’s license</b> expires Dec 3 · ask for the new card.</div><div style="font-size:14px;line-height:20px">Linh hasn’t opened her invite (sent 2 days ago).</div></div>
+      </section>
+      <section style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div style="display:flex;gap:8px;align-items:center"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button class="{{t.cls}}" type="button" onClick="{{t.pick}}">{{t.label}}</button></sc-for><span style="flex:1"></span><span class="cap">{{tabNote}}</span></div>
+        <sc-if value="{{isTeam}}" hint-placeholder-val="{{true}}">
+          <div class="group fade" style="flex:1;overflow:auto">
+            <sc-for list="{{team}}" as="p" hint-placeholder-count="7">
+              <button class="opt mr" type="button"><span class="av" style="width:36px;height:36px">{{p.i}}</span><span class="g" style="flex:1;min-width:0"><b>{{p.n}}</b><span class="cap">{{p.sub}}</span></span><span class="{{p.tagCls}}">{{p.tag}}</span><span class="m" style="width:120px">{{p.pay}}<span class="cap" style="display:block;font-weight:400">{{p.split}}</span></span><span class="cap">›</span></button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{isSalon}}" hint-placeholder-val="{{false}}">
+          <div class="group fade" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+            <sc-for list="{{links}}" as="l" hint-placeholder-count="10"><button class="opt" type="button" style="border-right:1px solid #E5E5EA"><span style="flex:1"><b style="font-weight:600">{{l.n}}</b><span class="cap" style="display:block;font-size:12px">{{l.s}}</span></span><span class="cap">›</span></button></sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{isLog}}" hint-placeholder-val="{{false}}">
+          <div class="group fade">
+            <sc-for list="{{log}}" as="g" hint-placeholder-count="5"><div class="row s"><span class="cap" style="width:110px">{{g.w}}</span><span class="grow">{{g.t}}</span><span class="cap">{{g.by}}</span></div></sc-for>
+          </div>
+        </sc-if>
+      </section>
+    </main>
+  </div>
+  <sc-if value="{{add}}" hint-placeholder-val="{{false}}">
+    <button class="scrim" type="button" aria-label="Close" onClick="{{closeAdd}}"></button>
+    <aside class="drawer" aria-label="Add member">
+      <div class="drawer-h"><span style="flex:1">Add team member</span><button class="btn ghost" type="button" onClick="{{closeAdd}}" aria-label="Close">✕</button></div>
+      <div class="drawer-b">
+        <div style="display:flex;align-items:center;gap:14px"><button class="phadd" type="button">+ Photo</button><span class="cap">Optional. Helps the desk pick the right person.</span></div>
+        <div class="two"><label><span class="lbl">First name</span><input class="inp" value="Linh"></label><label><span class="lbl">Last name</span><input class="inp" value="Phạm"></label></div>
+        <label><span class="lbl">Mobile · they sign in with this</span><input class="inp num" value="(408) 555-0187"></label>
+        <label><span class="lbl">Email (optional)</span><input class="inp" placeholder="name@email.com"></label>
+        <div><span class="lbl">Role</span><div class="chips"><sc-for list="{{roles}}" as="r" hint-placeholder-count="3"><button class="{{r.cls}}" type="button" onClick="{{r.pick}}">{{r.label}}</button></sc-for></div><div class="cap" style="margin-top:6px">{{roleNote}}</div></div>
+        <div><span class="lbl">Their screens in</span><div class="chips"><button class="chip" type="button">English</button><button class="chip on" type="button">Tiếng Việt</button></div></div>
+        <div class="eyebrow" style="margin-top:6px">Pay</div>
+        <div class="chips"><sc-for list="{{pays}}" as="p" hint-placeholder-count="4"><button class="{{p.cls}}" type="button" onClick="{{p.pick}}">{{p.label}}</button></sc-for></div>
+        <div class="two"><label><span class="lbl">{{rateLbl}}</span><input class="inp num" value="{{rateVal}}"></label><label><span class="lbl">Check / cash</span><input class="inp num" value="70 / 30"></label></div>
+        <div class="cap">Tips: 100% to the tech. Card fee on tips: salon pays (CA rule, locked).</div>
+        <div class="eyebrow" style="margin-top:6px">Skills</div>
+        <div class="chips"><button class="chip on" type="button">Gel</button><button class="chip on" type="button">Dip</button><button class="chip" type="button">Acrylic</button><button class="chip on" type="button">Pedicure</button><button class="chip" type="button">Nail art</button><button class="chip" type="button">Waxing</button></div>
+        <div class="eyebrow" style="margin-top:6px">License</div>
+        <div class="two"><label><span class="lbl">License #</span><input class="inp num" value="M 312 448"></label><label><span class="lbl">Expires</span><input class="inp num" value="03 / 2027"></label></div>
+        <div class="eyebrow" style="margin-top:6px">Works on</div>
+        <div class="chips"><button class="chip" type="button">Mon</button><button class="chip on" type="button">Tue</button><button class="chip on" type="button">Wed</button><button class="chip on" type="button">Thu</button><button class="chip on" type="button">Fri</button><button class="chip on" type="button">Sat</button><button class="chip" type="button">Sun</button></div>
+        <label class="row" style="padding:0;border:0;font-size:15px"><span class="grow">Text an invite now<span class="cap" style="display:block">She sets her own 6-digit PIN on her phone (salon rule).</span></span><button class="sw on" type="button" aria-label="Text invite"></button></label>
+      </div>
+      <div class="drawer-f"><button class="btn" type="button" onClick="{{closeAdd}}">Cancel</button><button class="btn primary" type="button" style="flex:1" onClick="{{closeAdd}}">Add + text invite</button></div>
+    </aside>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"drawerOpen":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { tab: 'team', add: null, lang: 'en', role: 'tech', pay: 'com' }; }
+  renderVals() {
+    const s = this.state;
+    const add = s.add === null ? !!this.props.drawerOpen : s.add;
+    const T = [['team','Team · 7'],['salon','Salon settings'],['log','Activity']];
+    const R = [['manager','Manager','Sees everything but pay settings. Approves discounts + fixes.'],['desk','Front desk','Checkout, calendar, clients. No pay or numbers.'],['tech','Tech','Own tickets, own earnings, own bookings. Nothing else.']];
+    const P = [['com','Commission','Commission %','60%'],['hr','Hourly','Per hour','$16.50'],['both','Hourly + commission','Base / hr + %','$16.50 + 40%'],['booth','Booth rent','Rent per week','$250']];
+    const pay = P.find(p => p[0] === s.pay);
+    return {
+      tabs: T.map(t => ({ label: t[1], cls: 'chip' + (s.tab === t[0] ? ' on' : ''), pick: () => this.setState({ tab: t[0] }) })),
+      isTeam: s.tab === 'team', isSalon: s.tab === 'salon', isLog: s.tab === 'log',
+      tabNote: s.tab === 'team' ? '5 working today · 2 invited' : s.tab === 'salon' ? 'Owner + manager only' : 'Last 30 days',
+      enC: s.lang === 'en' ? 'on' : '', viC: s.lang === 'vi' ? 'on' : '',
+      en: () => this.setState({ lang: 'en' }), vi: () => this.setState({ lang: 'vi' }),
+      add, openAdd: () => this.setState({ add: true }), closeAdd: () => this.setState({ add: false }),
+      roles: R.map(r => ({ label: r[1], cls: 'chip' + (s.role === r[0] ? ' on' : ''), pick: () => this.setState({ role: r[0] }) })),
+      roleNote: R.find(r => r[0] === s.role)[2],
+      pays: P.map(p => ({ label: p[1], cls: 'chip' + (s.pay === p[0] ? ' on' : ''), pick: () => this.setState({ pay: p[0] }) })),
+      rateLbl: pay[2], rateVal: pay[3],
+      team: [
+        { i: 'M', n: 'Mai Nguyễn', sub: 'Owner · (408) 555-0110', tag: 'Owner', tagCls: 'tag jade', pay: '—', split: '' },
+        { i: 'B', n: 'Bảo Trần', sub: 'Manager · in since 9:02', tag: 'Manager', tagCls: 'tag', pay: '$18/hr', split: 'check 100%' },
+        { i: 'H', n: 'Hạnh Lê', sub: 'Front desk · in since 9:15', tag: 'Front desk', tagCls: 'tag', pay: '$17/hr', split: 'check 100%' },
+        { i: 'K', n: 'Kim Võ', sub: 'Tech · Gel, Dip, Nail art', tag: 'Tech', tagCls: 'tag', pay: '60%', split: 'check 70 / cash 30' },
+        { i: 'T', n: 'Tuấn Đỗ', sub: 'Tech · Acrylic, Pedicure', tag: 'Tech', tagCls: 'tag', pay: '$16.50 + 40%', split: 'check 100%' },
+        { i: 'V', n: 'Vy Hoàng', sub: 'Tech · license expires Dec 3', tag: 'License due', tagCls: 'tag', pay: '55%', split: 'check 60 / cash 40' },
+        { i: 'L', n: 'Linh Phạm', sub: 'Tech · invite sent Nov 15', tag: 'Invited', tagCls: 'tag', pay: '60%', split: 'check 70 / cash 30' }
+      ],
+      links: [
+        { n: 'Salon info', s: 'Name, address, hours, logo' }, { n: 'Services & prices', s: '24 services · 3 add-ons' },
+        { n: 'Pay & tips', s: 'Commission, splits, tip rules' }, { n: 'Card payments', s: 'Stripe connected · S710 reader' },
+        { n: 'Booking page', s: 'polishosapp.com/mainails' }, { n: 'Gift cards & loyalty', s: '1 pt per $1 · $10 at 300' },
+        { n: 'Printers & devices', s: 'Front desk iPad · 1 printer' }, { n: 'Texts', s: 'Reminders on · local number' },
+        { n: 'Receipts', s: 'Print + text · review link' }, { n: 'Support access', s: 'Off · last used Nov 2' }
+      ],
+      log: [
+        { w: 'Today 9:15', t: 'Hạnh clocked in at the desk', by: 'PIN' }, { w: 'Nov 15', t: 'Invite texted to Linh Phạm', by: 'Mai' },
+        { w: 'Nov 14', t: 'Kim’s commission 55% → 60%', by: 'Mai' }, { w: 'Nov 12', t: 'Tuấn’s PIN reset', by: 'Bảo' },
+        { w: 'Nov 2', t: 'Support access used 35 min', by: 'Elang' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

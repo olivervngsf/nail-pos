@@ -82,7 +82,7 @@ test("payout sheet: rows stay simple; tap a person to see facts + every ticket",
 test("print my earnings: name + PIN shows only that person's slip", async ({ page }) => {
   await page.goto("/earnings");
   await page.getByTestId("earn-Kim").click();
-  for (const d of "2580") await page.getByRole("button", { name: d, exact: true }).click();
+  for (const d of "258013") await page.getByRole("button", { name: d, exact: true }).click();
   await expect(page.getByTestId("slip")).toBeVisible();
   await expect(page.getByTestId("slip-total")).toHaveText("$1,616.00");
   await page.getByTestId("earn-done").click();

@@ -23,7 +23,7 @@ test("client on a ticket is read-only; editing needs a manager PIN", async ({ pa
   await page.getByTestId("client-edit").click();
   await expect(page.getByText("Owner or manager: type your PIN")).toBeVisible();
   await expect(page.getByTestId("client-save")).toHaveCount(0);
-  for (const k of "1234") await page.getByRole("button", { name: k, exact: true }).click();
+  for (const k of "148203") await page.getByRole("button", { name: k, exact: true }).click();
   await expect(page.getByTestId("client-ok")).toContainText("OK by Mai");
   await page.locator("#cs").fill("Coffin · long");
   await page.getByTestId("client-save").click();

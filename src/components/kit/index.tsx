@@ -2,7 +2,7 @@
 // One React component per Design System piece. They only put kit classes (design/kit/kit.css) on real elements:
 // never add a look here; change the kit, then `npm run kit:sync`.
 import { useEffect, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
-import Link from "next/link";
+import RailAccount from "@/components/RailAccount";
 import { useTranslations } from "next-intl";
 import { subscribe, type SyncState } from "@/lib/offline/outbox";
 
@@ -52,8 +52,8 @@ export function Stepper({ value, onChange, step = 1, min = -Infinity, max = Infi
   );
 }
 
-/** 4-digit PIN pad. Calls onDone with the 4 digits. */
-export function PinKeypad({ length = 4, onDone, error }: { length?: number; onDone: (pin: string) => void; error?: string }) {
+/** PIN pad (6 or 10 digits by salon rule; a person's older PIN keeps its own length). Calls onDone with all digits. */
+export function PinKeypad({ length = 6, onDone, error }: { length?: number; onDone: (pin: string) => void; error?: string }) {
   const [pin, setPin] = useState("");
   const press = (k: string) => {
     if (k === "del") return setPin((p) => p.slice(0, -1));
@@ -185,7 +185,7 @@ const MENU = [
   { name: "Close day", href: "/close-day", icon: <><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z" /><path d="M9 8h6M9 12h6" /></> },
 ] as const;
 export type MenuItem = (typeof MENU)[number]["name"] | "Me";
-/** Desktop left menu (design/kit/rail.py). Same on every desk screen; only the active item changes. */
+/** Desktop left menu (design/kit/rail.py). Same on every desk screen; only the active item changes. Bottom: profile pop-up. */
 export function LeftMenu({ active, salonInitials = "NP", me }: { active: MenuItem; salonInitials?: string; me?: string }) {
   return (
     <nav className="rail" aria-label="Menu">
@@ -197,7 +197,7 @@ export function LeftMenu({ active, salonInitials = "NP", me }: { active: MenuIte
         </a>
       ))}
       <div style={{ flex: 1 }} />
-      {me && <Link href="/me" className={active === "Me" ? "on" : ""} aria-label="My profile"><span className="av">{me}</span></Link>}
+      <RailAccount initial={me} />
     </nav>
   );
 }

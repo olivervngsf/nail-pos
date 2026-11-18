@@ -28,7 +28,7 @@ test("front desk builds a ticket, takes cash with change + tips, ticket stays pa
   // $5 discount, needs a manager PIN
   await page.getByRole("button", { name: "Discount $ / %" }).click();
   await expect(page.getByTestId("apply-discount")).toBeDisabled();
-  for (const d of "1357") await page.locator(".drawer").getByRole("button", { name: d, exact: true }).click();
+  for (const d of "135790") await page.locator(".drawer").getByRole("button", { name: d, exact: true }).click();
   await expect(page.getByTestId("approved")).toBeVisible();
   await page.getByTestId("apply-discount").click();
   await expect(page.getByTestId("discount-line")).toContainText("−$5.00");
