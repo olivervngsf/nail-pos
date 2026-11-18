@@ -20,7 +20,7 @@ Status Nov 18. Code is ready for invite-only salons. These steps need Oliver's c
 
 ## 3. Live database (needs paid Supabase plan, ~$25/mo)
 - Create project `nail-pos-live` (us-west-1), apply every file in `supabase/migrations/` in order, run security advisors.
-- Do NOT run `supabase/seed/*` there (test data only).
+- Do NOT run the test seeds there as-is. Exception (Oliver, Nov 18): Lotus as a demo salon = `test_salon.sql` → `test_salon_activity.sql` → `demo_live.sql` (renames it "Lotus Demo Nails", keeps the test admin phone out of `platform_admins`). Remove before the first real salon: `demo_remove.sql`. In Supabase Auth test phone numbers on live, never add 15550100009.
 - Add yourself + Elang to `platform_admins` after your first sign-in:
   `insert into public.platform_admins (auth_user_id, note) select auth_user_id, 'Oliver' from public.people where phone = '+1YOURPHONE';`
 - Vercel Production env: live `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`. Previews keep the test project.
