@@ -1694,7 +1694,8 @@
       "payments": "Payments",
       "reader": "Card reader",
       "texting": "Texting & credit",
-      "billing": "Billing"
+      "billing": "Billing",
+      "support": "Support"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -2065,7 +2066,33 @@
     },
     "signInTitle": "Sign in to see Settings",
     "signInBody": "Settings are for the owner and managers. Sign in with your phone number first.",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "support": {
+      "title": "Let PolishOS help",
+      "on": "On",
+      "off": "Off",
+      "what": "Turn this on when you call us for help. For 24 hours the PolishOS team (Oliver, Elang) can open your salon's screens to fix things with you. It turns off by itself.",
+      "onFor": "Support is on · {h} h {m} min left (until {until})",
+      "endNow": "End now",
+      "why": "What do you need help with? (optional)",
+      "whyHint": "Card reader won't connect",
+      "turnOn": "Turn on for 24 hours",
+      "ownerOnly": "Only the owner can turn support on.",
+      "rules": "How it works",
+      "rule1": "Off unless you turn it on. Without it we see salon health only (counts and totals), never client names, phones, notes or tech pay.",
+      "rule2": "Ends by itself after 24 hours. You (or we) can end it any time.",
+      "rule3": "Everything we change while it's on is written down here, with the time.",
+      "rule4": "We never take money or change payouts without asking you first.",
+      "log": "Support log",
+      "noLog": "Nothing yet.",
+      "logOn": "Support turned on",
+      "logOff": "Support ended",
+      "logChange": "Support changed: {what}",
+      "past": "{n, plural, one {# past support window} other {# past support windows}}",
+      "onToast": "Support is on for 24 hours",
+      "offToast": "Support ended",
+      "demo": "Test version: changes stay on this device."
+    }
   },
   "promo": {
     "title": "Send promo text",
