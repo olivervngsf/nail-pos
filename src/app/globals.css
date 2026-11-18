@@ -946,9 +946,12 @@ button:disabled { cursor: not-allowed; }
 .ad-dot.good { background: var(--jade); } .ad-dot.warn { background: var(--orange); } .ad-dot.bad { background: var(--red); }
 .ad-link { color: var(--ink); text-decoration: none; }
 .ad-link:hover { background: var(--fill); }
-.ad-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+.ad-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; }
+.ad-mini { border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.ad-texting { display: flex; gap: 6px; flex-wrap: wrap; }
 .ad-tablehead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 16px; }
-.ad-table td, .ad-table th { text-align: left !important; white-space: nowrap; }
+.ad-table td, .ad-table th { text-align: left !important; white-space: nowrap; padding-left: 10px; padding-right: 10px; }
+.ad-table td:first-child, .ad-table th:first-child { padding-left: 16px; }
 .ad-table td { height: 60px; }
 .ad-table tr:target td { background: var(--orange-soft); }
 @media (max-width: 899px) {

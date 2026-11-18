@@ -1,4 +1,4 @@
--- Founder Admin health + salon page (migrations 20261212000001..3): admins see totals, handle alerts, write call notes;
+-- Founder Admin health + salon page (migrations admin_health, admin_salon, admin_notes_private, admin_plan_texting): admins see totals, handle alerts, write call notes;
 -- non-admins (incl. the salon's own owner) can't call the admin functions, and owners never see our call notes. Rolls back.
 begin;
 insert into auth.users (id, phone, aud, role) values
@@ -27,6 +27,9 @@ do $$ declare sid uuid := ((select v from t_out where k = 'made')->>'salon_id'):
   exception when insufficient_privilege then null; end;
   begin perform public.admin_handle(sid, 'setup_stuck'); raise exception 'FAIL: admin_handle for owner';
   exception when insufficient_privilege then null; end;
+  begin perform public.admin_set_texting(sid, 'approved'); raise exception 'FAIL: admin_set_texting for owner';
+  exception when insufficient_privilege then null; end;
+  if exists (select 1 from public.admin_salon_status) then raise exception 'FAIL: owner reads admin_salon_status'; end if;
 end $$;
 
 -- admin: sees the salon, handles an alert (once a day), writes a note that shows in the salon's activity
@@ -39,6 +42,17 @@ do $$ declare sid uuid := ((select v from t_out where k = 'made')->>'salon_id'):
   perform public.admin_handle(sid, 'setup_stuck');
   h := public.admin_health();
   if (select count(*) from jsonb_array_elements(h->'handled') x where (x->>'salon_id')::uuid = sid) <> 1 then raise exception 'FAIL: handled not once'; end if;
+  -- plan + texting (migration 20261217000001): no plan yet, texting set by an admin, date kept when the status stays the same
+  if not exists (select 1 from jsonb_array_elements(h->'salons') x where (x->>'salon_id')::uuid = sid and x->>'plan_status' = 'none' and x->>'texting' = 'not_started')
+    then raise exception 'FAIL: plan/texting defaults'; end if;
+  perform public.admin_set_texting(sid, 'waiting');
+  update public.admin_salon_status set texting_at = now() - interval '9 days' where salon_id = sid;
+  perform public.admin_set_texting(sid, 'waiting');
+  h := public.admin_health();
+  if not exists (select 1 from jsonb_array_elements(h->'salons') x where (x->>'salon_id')::uuid = sid and x->>'texting' = 'waiting'
+    and (x->>'texting_at')::timestamptz < now() - interval '8 days') then raise exception 'FAIL: texting waiting / date reset'; end if;
+  begin perform public.admin_set_texting(sid, 'maybe'); raise exception 'FAIL: bad texting status';
+  exception when invalid_parameter_value then null; end;
   perform public.admin_note(sid, 'Called Hana, all good');
   d := public.admin_salon(sid);
   if not exists (select 1 from jsonb_array_elements(d->'activity') x where x->>'action' = 'admin.note' and x->>'note' = 'Called Hana, all good' and x->>'who' = 'Admin Test')
