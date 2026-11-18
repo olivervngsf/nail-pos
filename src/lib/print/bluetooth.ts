@@ -22,14 +22,43 @@ type Dev = { id: string; name?: string; gatt?: { connected: boolean; connect(): 
 type BT = { requestDevice(o: unknown): Promise<Dev>; getDevices?(): Promise<Dev[]> };
 
 const bt = (): BT | null => (typeof navigator !== "undefined" && "bluetooth" in navigator ? (navigator as unknown as { bluetooth: BT }).bluetooth : null);
-export const canBluetooth = () => !!bt();
+/** This device can print receipts itself: Web Bluetooth, or our Android app with the terminal's own printer. */
+export const canBluetooth = () => !!bt() || inApp();
 export const isIOS = () => typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+// ── Our own Android app (handheld terminal with a printer inside) ───────────────────────────────────────────────
+// The PolishOS app (android/ps10) shows this web app in its own window and offers `window.PolishOSApp` to pages from
+// polishosapp.com. A print = {"id","print": base64 ESC/POS} → the app writes it to the terminal's InnerPrinter and
+// answers {"id","ok":true} or {"id","error":"…"}. Nothing to pick: inside the app this is always the printer.
+type AppBridge = { postMessage(s: string): void; onmessage: ((e: { data: string }) => void) | null };
+const appBridge = (): AppBridge | null => (typeof window !== "undefined" ? (window as unknown as { PolishOSApp?: AppBridge }).PolishOSApp ?? null : null);
+/** Running inside the PolishOS Android app. */
+export const inApp = () => !!appBridge();
+const waiting = new Map<string, (error?: string) => void>();
+function appPrint(bytes: Uint8Array): Promise<void> {
+  const app = appBridge()!;
+  app.onmessage = (e) => {
+    try { const m = JSON.parse(e.data) as { id?: string; error?: string }; const done = m.id ? waiting.get(m.id) : undefined; if (done) { waiting.delete(m.id!); done(m.error); } } catch { /* not ours */ }
+  };
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 1) bin += String.fromCharCode(bytes[i]);
+  const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => { waiting.delete(id); reject(new Error("The printer didn't answer. Try again.")); }, 30000);
+    waiting.set(id, (error) => { clearTimeout(timer); if (error) reject(new Error(error)); else resolve(); });
+    app.postMessage(JSON.stringify({ id, print: btoa(bin) }));
+  });
+}
 
 const KEY = "nailpos.printer";
 // via "serial" = a terminal's built-in printer (old-style Bluetooth serial, e.g. "InnerPrinter"), reached through Web Serial.
-export type SavedPrinter = { id: string; name: string; paper: Paper; via?: "serial" | "rawbt" };
+export type SavedPrinter = { id: string; name: string; paper: Paper; via?: "serial" | "rawbt" | "app" };
 export function savedPrinter(): SavedPrinter | null {
-  try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch { return null; }
+  let p: SavedPrinter | null = null;
+  try { p = JSON.parse(localStorage.getItem(KEY) || "null"); } catch { /* */ }
+  // Inside our app the terminal's printer is the printer; only the paper width is remembered.
+  if (inApp()) return { id: "app", name: "Built-in printer", paper: p?.via === "app" ? p.paper : 58, via: "app" };
+  return p?.via === "app" ? null : p;
 }
 export function savePrinter(p: SavedPrinter | null) {
   try { if (p) localStorage.setItem(KEY, JSON.stringify(p)); else localStorage.removeItem(KEY); } catch { /* */ }
@@ -138,6 +167,7 @@ function rawbtPrint(bytes: Uint8Array) {
 
 /** Send receipt bytes in small pieces (Bluetooth sends ~100 bytes at a time). */
 export async function printBytes(bytes: Uint8Array, paper: Paper): Promise<void> {
+  if (inApp()) return appPrint(bytes);
   const via = savedPrinter()?.via;
   if (via === "rawbt") return rawbtPrint(bytes);
   if (via === "serial") return serialPrint(bytes, paper);
