@@ -1109,3 +1109,12 @@ button:disabled { cursor: not-allowed; }
   .cal-nav .btn:not(:nth-child(2)) { display: none; }
   .cal-title { flex: none; font-size: 16px; }
 }
+/* Calendar top bar (Oliver, Nov 18): body-size Day/Week/Month, compact Book, a little more air between groups. */
+.cal-app .bar { gap: 12px; padding-left: 20px; padding-right: 20px; }
+.cal-top { gap: 14px; }
+.cal-nav { gap: 2px; }
+.cal-top .cal-seg button { height: 28px; padding: 0 12px; font-size: 13px; font-weight: 600; }
+.cal-top .cal-seg { padding: 2px; }
+.cal-app .bar [data-testid="book-new"] { height: 36px; padding: 0 14px; font-size: 13px; gap: 6px; }
+.cal-app .bar [data-testid="book-new"] .cal-kbd { margin-left: 2px; }
+.cal-search { height: 36px; }
