@@ -882,7 +882,13 @@
     "tryIt": "Try it:",
     "coach": "drag down on empty space to book a time range · drag a booking to move it (to another tech too) · drag its bottom edge to make it longer · drag a walk-in from the waitlist onto a tech · right-click anything for more",
     "gotIt": "Got it",
-    "miniHint": "Dot = has bookings · click a day to open it"
+    "miniHint": "Dot = has bookings · click a day to open it",
+    "dpTitle": "Day plan · {day}",
+    "dpCount": "{n, plural, one {# booking} other {# bookings}}",
+    "dpNote": "Live board and waitlist show on today.",
+    "dpToday": "Back to today",
+    "dpAppts": "{n, plural, one {# booking} other {# bookings}}",
+    "dpOpen": "Open all day"
   },
   "receiptPage": {
     "notFound": "Receipt not found.",

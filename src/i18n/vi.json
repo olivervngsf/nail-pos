@@ -882,7 +882,13 @@
     "tryIt": "Thử:",
     "coach": "kéo xuống ở chỗ trống để đặt giờ · kéo lịch hẹn để dời (sang thợ khác cũng được) · kéo cạnh dưới để kéo dài · kéo khách chờ vào cột thợ · bấm chuột phải để xem thêm",
     "gotIt": "Đã hiểu",
-    "miniHint": "Chấm = có lịch hẹn · bấm một ngày để mở"
+    "miniHint": "Chấm = có lịch hẹn · bấm một ngày để mở",
+    "dpTitle": "Lịch ngày · {day}",
+    "dpCount": "{n} lịch hẹn",
+    "dpNote": "Bảng trực tiếp và danh sách chờ chỉ có ở hôm nay.",
+    "dpToday": "Về hôm nay",
+    "dpAppts": "{n} lịch hẹn",
+    "dpOpen": "Trống cả ngày"
   },
   "receiptPage": {
     "notFound": "Không tìm thấy hóa đơn.",
