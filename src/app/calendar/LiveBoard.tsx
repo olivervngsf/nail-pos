@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import type { Appt } from "@/lib/booking/appts";
 import { fmtMin } from "@/lib/booking/grid";
 import { liveBoard, mmss, waitLabel, type BoardRow } from "@/lib/booking/board";
-import { waitedMin, type TurnFact } from "@/lib/booking/turns";
+import { onGrid, waitedMin, type TurnFact } from "@/lib/booking/turns";
 
 const COLOR: Record<BoardRow["state"], string> = { busy: "#2A55B0", break: "#5E5E66", soon: "#C2410C", free: "#1F7A33", out: "#8E8E93" };
 
@@ -73,6 +73,64 @@ export function LiveBoard({ waiting, dayList, order, nextId, onSeat, onWalkIn, o
             <span className="lb-timer" style={{ color: timerColor }}>{r.state === "free" ? t("lbBook") : r.secs !== null ? mmss(r.secs) : ""}</span>
           </button>);
       })}
+    </div>
+  );
+}
+
+/** Left panel on any day that isn't today: the Live board + waitlist only make sense "right now", so show the day's plan
+ *  per tech (bookings, booked time, first → last) and a way back to today. Tap a tech = book them that day. */
+export function DayPlan({ day, dayList, techs, onToday, onBook, onOpen }: {
+  day: string; dayList: Appt[]; techs: { id: string; name: string }[];
+  onToday: () => void; onBook: (staffId: string) => void; onOpen: (id: string) => void;
+}) {
+  const t = useTranslations("calendar");
+  const live = dayList.filter((a) => onGrid(a) && a.status !== "canceled" && a.status !== "no_show" && a.status !== "walked_out" && a.status !== "blocked");
+  const minOf = (iso: string) => { const d = new Date(iso); return d.getHours() * 60 + d.getMinutes(); };
+  const [y, m, dd] = day.split("-").map(Number);
+  const label = new Date(y, m - 1, dd).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  const rows = techs.map((s) => {
+    const mine = live.filter((a) => a.staffId === s.id).sort((a, b) => a.start.localeCompare(b.start));
+    const mins = mine.reduce((x, a) => x + Math.max(0, minOf(a.end) - minOf(a.start)), 0);
+    return { ...s, mine, mins };
+  }).sort((a, b) => b.mine.length - a.mine.length || a.name.localeCompare(b.name));
+  const anyone = live.filter((a) => !a.staffId);
+  const hrs = (n: number) => (n >= 60 ? `${Math.floor(n / 60)}h${n % 60 ? ` ${n % 60}m` : ""}` : `${n}m`);
+  return (
+    <div className="lb" data-testid="day-plan">
+      <div className="lb-h"><span className="eyebrow" style={{ flex: 1 }}>{t("dpTitle", { day: label })}</span><span className="cap">{t("dpCount", { n: live.length })}</span></div>
+      <div className="dp-note">
+        <span style={{ flex: 1 }}>{t("dpNote")}</span>
+        <button type="button" className="btn sm" onClick={onToday} data-testid="dp-today">{t("dpToday")}</button>
+      </div>
+      <div className="eyebrow" style={{ padding: "8px 6px 2px" }}>{t("lbTechs")}</div>
+      {rows.map((r) => (
+        <div key={r.id} className="dp-tech" data-testid={`dp-${r.name}`}>
+          <button type="button" className="lb-row free" onClick={() => onBook(r.id)}>
+            <span className="av" style={{ width: 32, height: 32, fontSize: 13 }}>{r.name[0]}</span>
+            <span className="lb-mid">
+              <span className="lb-n">{r.name}</span>
+              <span className="lb-s">{r.mine.length
+                ? `${t("dpAppts", { n: r.mine.length })} · ${hrs(r.mins)} · ${fmtMin(minOf(r.mine[0].start))}–${fmtMin(minOf(r.mine[r.mine.length - 1].end))}`
+                : t("dpOpen")}</span>
+            </span>
+            <span className="lb-timer" style={{ color: "#1F7A33" }}>{t("lbBook")}</span>
+          </button>
+          {r.mine.map((a) => (
+            <button key={a.id} type="button" className="dp-appt" onClick={() => onOpen(a.id)}>
+              <span className="dp-time">{fmtMin(minOf(a.start))}</span>
+              <span className="dp-who">{a.client?.name || t("walkIn")}</span>
+              <span className="dp-svc">{a.services.map((s) => s.name).join(" + ")}</span>
+            </button>))}
+        </div>))}
+      {anyone.length > 0 && <>
+        <div className="eyebrow" style={{ padding: "8px 6px 2px" }}>{t("anyone")} · {anyone.length}</div>
+        {anyone.map((a) => (
+          <button key={a.id} type="button" className="dp-appt" onClick={() => onOpen(a.id)}>
+            <span className="dp-time">{fmtMin(minOf(a.start))}</span>
+            <span className="dp-who">{a.client?.name || t("walkIn")}</span>
+            <span className="dp-svc">{a.services.map((s) => s.name).join(" + ")}</span>
+          </button>))}
+      </>}
     </div>
   );
 }

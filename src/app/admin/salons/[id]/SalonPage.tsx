@@ -1,6 +1,6 @@
 "use client";
 // Founder Admin · one salon (board A2 + A8): totals (today, 8 days), health rows, open alerts, activity log with filters,
-// call/text owner, call notes (admin_note), support access (off; owner-granted 24 h comes next). Totals only, no private data.
+// call/text owner, call notes (admin_note), support access (off; owner-granted 24h comes next). Totals only, no private data.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { rpc } from "@/lib/auth";
@@ -9,6 +9,8 @@ import { fmtPhone } from "@/lib/onboarding/data";
 import { TEXTING, alertsFor, healthOf, isLive, stripeState, type Health, type SalonFacts, type Texting } from "@/lib/admin/health";
 import { GROUPS, dayIn, describe, lastDays, sampleSalon, whoLabel, type Group, type SalonDetail } from "@/lib/admin/salon";
 import { Button, Chip } from "@/components/kit";
+import DeviceMark from "@/components/DeviceMark";
+import { deviceState } from "@/lib/devices";
 import { AdminShell, useAdmin, type Admin } from "../../shell";
 
 const $0 = (c: number) => formatCents(Math.round(c / 100) * 100).replace(/\.00$/, "");
@@ -18,11 +20,10 @@ const when = (iso: string | null, now: number) => {
   const m = Math.round((now - Date.parse(iso)) / 60000);
   if (m < 2) return "now";
   if (m < 60) return `${m} min ago`;
-  if (m < 1440) return `${Math.round(m / 60)} h ago`;
+  if (m < 1440) return `${Math.round(m / 60)}h ago`;
   return `${Math.round(m / 1440)} days ago`;
 };
 const stamp = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
-const ONLINE_MS = 10 * 60_000;
 
 export default function SalonPage({ id }: { id: string }) {
   const admin = useAdmin();
@@ -88,9 +89,11 @@ function Salon({ admin, s }: { admin: Admin; s: SalonFacts }) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div className="h2">Support access</div><span className="ad-pill">Off</span>
           </div>
-          <p className="cap" style={{ margin: 0 }}>We see health only. Client names + phones, each tech’s pay and notes stay hidden unless the owner allows 24-hour access (logged).</p>
-          <Button disabled title="Comes next">Ask {s.owner_name?.split(" ")[0] ?? "owner"} for 24-h access</Button>
-          <div className="demo">Next build: the owner gets a text + a prompt in their app to allow it.</div>
+          <p className="cap" style={{ margin: 0 }}>We see health only. Client names + phones, each tech’s pay and notes stay hidden unless the owner turns on 24h access (logged).</p>
+          {s.owner_joined && s.owner_phone
+            ? <a className="btn" data-testid="ask-support" href={`sms:${s.owner_phone}?&body=${encodeURIComponent(`Hi ${s.owner_name?.split(" ")[0] ?? ""}, this is PolishOS support. To let us look at your screens for 24h, open Settings → Support and tap Turn on. You can end it any time.`)}`}>Ask {s.owner_name?.split(" ")[0] ?? "owner"} for 24h access</a>
+            : <p className="cap" style={{ margin: 0 }}>The owner has not joined yet.</p>}
+          <p className="cap" style={{ margin: 0 }}>The owner turns it on in Settings → Support. Then the salon shows under <Link href="/admin/support">Support</Link>.</p>
         </div>
 
         <div className="card pad" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -168,10 +171,17 @@ function HealthRows({ s, d, now, admin }: { s: SalonFacts; d: SalonDetail | null
     <div className="group" data-testid="health-rows">
       <div className="row s"><b style={{ fontWeight: 600 }}>Health</b></div>
       {row("Stripe", stripe[0], stripe[1], "h-stripe")}
-      {row("Card reader", d ? (d.readers.length ? d.readers.map((r) => r.label + (r.simulated ? " (test)" : "")).join(", ") : "None paired") : "…", d ? (d.readers.length ? "good" : isLive(s) ? "warn" : "setup") : null)}
+      {row("Card reader", d ? (d.readers.length ? d.readers.map((r) => r.label + (r.simulated && !/\(test\)\s*$/i.test(r.label) ? " (test)" : "")).join(", ") : "None paired") : "…", d ? (d.readers.length ? "good" : isLive(s) ? "warn" : "setup") : null)}
       {(d?.devices ?? []).map((x) => {
-        const on = x.last_seen && now - Date.parse(x.last_seen) < ONLINE_MS;
-        return <div key={x.name + x.kind}>{row(x.kind === "clock" ? "Time clock" : "Salon device", `${x.name} · ${on ? "in use now" : `last used ${when(x.last_seen, now)}`}`, on ? "good" : "warn")}</div>;
+        const st = deviceState(x.last_seen, now);
+        return (
+          <div key={x.name + x.kind} className="row s" data-testid="h-device">
+            <span className="dv-lead"><DeviceMark state={st} size={18} /></span>
+            <span style={{ width: 130, color: "var(--ink-soft)" }}>{x.kind === "clock" ? "Time clock" : x.kind === "kiosk" ? "Kiosk" : "Salon device"}</span>
+            <span className="g">{x.name}</span>
+            <span className={`ad-pill ${st === "on" ? "good" : st === "off" ? "warn" : ""}`}>{st === "on" ? "On now" : st === "off" ? `Off · last on ${when(x.last_seen, now)}` : "Never on"}</span>
+          </div>
+        );
       })}
       {d && !d.devices.length && row("Salon device", "None set up yet", isLive(s) ? "warn" : "setup")}
       {row("Setup", !s.owner_joined ? (s.invite_open ? "Owner invited, not joined yet" : "Invite expired") : isLive(s) ? "All 10 steps done" : `Step ${step} of 10`, !s.owner_joined ? "warn" : isLive(s) ? "good" : "setup")}

@@ -1,5 +1,5 @@
 "use client";
-// Admin · Support (Founder Admin A4): salons whose owner turned support on (Settings → Support, 24 h). Open their screens
+// Admin · Support (Founder Admin A4): salons whose owner turned support on (Settings → Support, 24h). Open their screens
 // (green Support mode strip on every page; every change logged for the owner) or End now. Nothing here without the owner's OK.
 // Data: admin_support_on(), support_end() (migration 20261220000001_support_access).
 import { useCallback, useEffect, useState } from "react";
@@ -37,7 +37,7 @@ export default function AdminSupport() {
     <AdminShell tab="support" admin={admin} title="Support">
       <section style={{ display: "flex", flexDirection: "column", gap: 10 }} data-testid="admin-support">
         <h1 className="h1">Support on now</h1>
-        <p className="cap">Only salons whose owner turned on Settings → Support. It ends by itself after 24 hours. Everything you change inside is logged and the owner sees it.</p>
+        <p className="cap">Only salons whose owner turned on Settings → Support. It ends by itself after 24h. Everything you change inside is logged and the owner sees it.</p>
         <ListGroup>
           {list.map((s) => (
             <Row key={s.salon_id} size="m" title={<b style={{ fontWeight: 600 }}>{s.salon_name}</b>}
@@ -47,7 +47,7 @@ export default function AdminSupport() {
                 <Button size="sm" onClick={() => void end(s)}>End now</Button>
               </span>} />
           ))}
-          {!list.length && <Row title={<span className="cap">No salon has support on. Ask the owner: Settings → Support → Turn on for 24 hours.</span>} />}
+          {!list.length && <Row title={<span className="cap">No salon has support on. Ask the owner: Settings → Support → Turn on for 24h.</span>} />}
         </ListGroup>
       </section>
     </AdminShell>

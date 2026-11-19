@@ -85,7 +85,10 @@ export async function settle(prId: string, seenIntent?: string | null): Promise<
   const charge = pi.latest_charge as Stripe.Charge | null;
   const bt = charge?.balance_transaction as Stripe.BalanceTransaction | null;
   const card = charge?.payment_method_details?.card_present ?? charge?.payment_method_details?.card;
-  const tip = pr.method === "card_reader" ? (pi.amount_details?.tip?.amount ?? Math.max(0, pi.amount_received - pr.amount_cents)) : Math.max(0, pi.amount_received - pr.amount_cents);
+  // Tip: picked on the Wi-Fi reader's own screen (Stripe reports it), else picked on our screen and already in the
+  // amount (pay link, or the handheld's small reader = card_reader with no reader_id): the part above the ticket.
+  const over = Math.max(0, pi.amount_received - pr.amount_cents);
+  const tip = pr.method === "card_reader" && pr.reader_id ? (pi.amount_details?.tip?.amount ?? over) : over;
 
   // Tip split across the techs on this ticket by service price (owner default).
   const { data: lines } = await db.from("ticket_lines").select("staff_id,amount_cents").eq("ticket_id", pr.ticket_id).eq("kind", "service").is("removed_at", null);

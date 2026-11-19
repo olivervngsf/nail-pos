@@ -2,6 +2,9 @@
 // Print to a Bluetooth thermal printer straight from the browser (Web Bluetooth).
 // Works in Chrome on Android (tablets, phones) and in the Bluefy browser on iPhone/iPad. Desktop uses normal printing.
 import type { Paper } from "./escpos";
+import { appCall, inApp } from "@/lib/app/bridge";
+
+export { inApp };
 
 // ESC/POS printer channels (service → write pipe), same list + pacing that worked with the NETUM in the
 // earlier Nail Tech Log app: 100-byte pieces, 25 ms apart, then 250 ms to let the printer finish.
@@ -27,27 +30,12 @@ export const canBluetooth = () => !!bt() || inApp();
 export const isIOS = () => typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 // ── Our own Android app (handheld terminal with a printer inside) ───────────────────────────────────────────────
-// The PolishOS app (android/ps10) shows this web app in its own window and offers `window.PolishOSApp` to pages from
-// polishosapp.com. A print = {"id","print": base64 ESC/POS} → the app writes it to the terminal's InnerPrinter and
-// answers {"id","ok":true} or {"id","error":"…"}. Nothing to pick: inside the app this is always the printer.
-type AppBridge = { postMessage(s: string): void; onmessage: ((e: { data: string }) => void) | null };
-const appBridge = (): AppBridge | null => (typeof window !== "undefined" ? (window as unknown as { PolishOSApp?: AppBridge }).PolishOSApp ?? null : null);
-/** Running inside the PolishOS Android app. */
-export const inApp = () => !!appBridge();
-const waiting = new Map<string, (error?: string) => void>();
+// Inside the PolishOS app (android/ps10, bridge in src/lib/app/bridge.ts) a print = {"print": base64 ESC/POS}: the app
+// writes it to the terminal's InnerPrinter. Nothing to pick: inside the app this is always the printer.
 function appPrint(bytes: Uint8Array): Promise<void> {
-  const app = appBridge()!;
-  app.onmessage = (e) => {
-    try { const m = JSON.parse(e.data) as { id?: string; error?: string }; const done = m.id ? waiting.get(m.id) : undefined; if (done) { waiting.delete(m.id!); done(m.error); } } catch { /* not ours */ }
-  };
   let bin = "";
   for (let i = 0; i < bytes.length; i += 1) bin += String.fromCharCode(bytes[i]);
-  const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  return new Promise<void>((resolve, reject) => {
-    const timer = setTimeout(() => { waiting.delete(id); reject(new Error("The printer didn't answer. Try again.")); }, 30000);
-    waiting.set(id, (error) => { clearTimeout(timer); if (error) reject(new Error(error)); else resolve(); });
-    app.postMessage(JSON.stringify({ id, print: btoa(bin) }));
-  });
+  return appCall({ print: btoa(bin) }).then(() => undefined);
 }
 
 const KEY = "nailpos.printer";
