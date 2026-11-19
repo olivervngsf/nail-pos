@@ -33,6 +33,11 @@ Bluetooth serial device. A web page in Chrome can't open it; an Android app can.
   Output: `app/build/outputs/apk/release/app-release.apk`.
 
 ## Install on a terminal
+Quick way: on the terminal, open Chrome → `polishosapp.com/polishos-ps10.apk` → Download → open → Install
+(the file in `public/`, built with the same signing key as the installed app, so it updates in place;
+replace that file when a new version is built).
+
+Or by hand:
 1. Get `app-release.apk` onto the terminal (USB cable, or Google Drive).
 2. Tap the file → allow "install unknown apps" for the app that opened it → Install.
 3. Open PolishOS, sign in, print a test from Settings → Printer.
