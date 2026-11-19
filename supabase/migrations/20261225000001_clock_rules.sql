@@ -183,6 +183,7 @@ create trigger clock_events_via before insert on public.clock_events for each ro
 
 -- The old "clock from my phone" with no checks is closed: phones go through the server route now.
 revoke execute on function public.clock_self(uuid, text) from public, anon, authenticated;
+grant execute on function public.clock_self(uuid, text) to service_role;
 
 revoke execute on function public._ip_prefix(text), public._clock_code(uuid, bigint), public._clock_wifi_add(uuid, uuid, text, text),
   public._clock_wifi_here(uuid, text), public._clock_phone(uuid, uuid, text, text, text), public._clock_events_via() from public, anon, authenticated;

@@ -7,7 +7,7 @@ insert into auth.users (id, phone, aud, role) values
   ('00000000-0000-0000-0000-00000000bb01', '14085557001', 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000bb02', '14085557002', 'authenticated', 'authenticated');
 create temp table t_out (k text primary key, v jsonb);
-grant all on t_out to authenticated, anon;
+grant all on t_out to authenticated, anon, service_role;
 insert into public.platform_admins (auth_user_id) select id from auth.users on conflict do nothing;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000bb01","role":"authenticated"}', true);
@@ -59,6 +59,8 @@ do $$ begin insert into public.invites (code, salon_id, membership_id) values ('
 
 -- 4. clock in twice (phone + stale desk) = one event; out with nothing open = none
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000bb01","role":"authenticated"}', true);
+-- clock_self is server-only since clock_rules (phones go through /api/clock/phone); same person, run as the server.
+set local role service_role;
 select public.clock_self('00000000-0000-0000-0000-0000000060a1', 'out');
 select public.clock_self('00000000-0000-0000-0000-0000000060a1', 'in');
 select public.clock_self('00000000-0000-0000-0000-0000000060a1', 'in');
