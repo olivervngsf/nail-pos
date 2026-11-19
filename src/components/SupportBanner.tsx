@@ -34,7 +34,7 @@ export default function SupportBanner() {
   return (
     <div className="banner ok support-banner" role="status" data-testid="support-banner">
       <b>Support mode · {o.name}</b>
-      <span className="grow">{h} h {m} min left · everything you change is logged and the owner sees it</span>
+      <span className="grow">{h}h {m} min left · everything you change is logged and the owner sees it</span>
       <button type="button" className="btn sm" onClick={() => { closeSupport(); location.href = "/admin"; }}>Back to admin</button>
       <button type="button" className="btn sm" onClick={() => void end()}>End now</button>
     </div>

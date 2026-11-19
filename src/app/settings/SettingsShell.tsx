@@ -15,6 +15,7 @@ const NAV = [
   { href: "/me", key: "profile", group: "me" },
   { href: "/settings/team", key: "team", group: "salon" },
   { href: "/settings/pin", key: "pinRules", group: "salon" },
+  { href: "/settings/clock-in", key: "clockIn", group: "salon" },
   { href: "/settings/pin-activity", key: "pinActivity", group: "salon" },
   { href: "/settings/devices", key: "devices", group: "salon" },
   { href: "/settings/payments", key: "payments", group: "salon" },

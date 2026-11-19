@@ -77,7 +77,7 @@ export const fmtTime = (t: string) => {
 };
 export const fmtHours = (h: Hours) => {
   const d = toMin(h.close) - toMin(h.open);
-  return `${Number((d / 60).toFixed(1))} h`;
+  return `${Number((d / 60).toFixed(1))}h`;
 };
 export const fmtMoney = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 

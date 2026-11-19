@@ -21,9 +21,9 @@ const facts: Facts = {
     { came: at(16, 12, 10), seatedAt: null, walkedOut: true },
   ],
   shifts: [
-    { staff: "k", from: at(16, 9), to: at(16, 17) },       // 8 h
-    { staff: "t", from: at(16, 10), to: at(16, 14) },      // 4 h
-    { staff: "t", from: at(17, 9), to: at(17, 13) },       // 4 h (Tue)
+    { staff: "k", from: at(16, 9), to: at(16, 17) },       // 8h
+    { staff: "t", from: at(16, 10), to: at(16, 14) },      // 4h
+    { staff: "t", from: at(17, 9), to: at(17, 13) },       // 4h (Tue)
   ],
   noShows: [{ at: at(16, 16), cents: 5500 }],
   visits: [
@@ -56,7 +56,7 @@ describe("kpis from fixed rows", () => {
     expect(k.tickets).toBe(2);
     expect(k.avgTicket).toBe(6750);
     expect(k.hours).toBe(12);               // Kim 8 + Tuyet 4
-    expect(k.perHour).toBe(1125);           // $135 / 12 h
+    expect(k.perHour).toBe(1125);           // $135 / 12h
     expect(k.waitAvg).toBe(16);             // (12 + 20) / 2
     expect(k.walkOuts).toBe(1);
   });

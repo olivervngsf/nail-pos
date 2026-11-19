@@ -37,16 +37,8 @@ export function creditLevel(c: Pick<Credit, "balanceCents" | "lastAddCents" | "w
 }
 export const textsLeft = (c: Pick<Credit, "balanceCents">) => Math.max(0, Math.floor(c.balanceCents / CENTS_PER_TEXT));
 
-/** Text parts for one message: plain letters (A–Z, 0–9, normal symbols) = 160 (153 each when split);
- *  anything else (Vietnamese accents, emoji) = 70 (67 each). Same rule as `_text_parts` in the database. */
-const PLAIN = /^[\x20-\x7E\n\r]*$/;
-export function textParts(msg: string): { parts: number; plain: boolean; letters: number } {
-  const plain = PLAIN.test(msg);
-  const letters = [...msg].length;
-  if (!letters) return { parts: 0, plain, letters };
-  const [one, many] = plain ? [160, 153] : [70, 67];
-  return { parts: letters <= one ? 1 : Math.ceil(letters / many), plain, letters };
-}
+export { textParts } from "./parts";
+import { textParts } from "./parts";
 /** Cost before a send: people × parts × 2¢. */
 export function sendCost(people: number, msg: string) {
   const { parts } = textParts(msg);

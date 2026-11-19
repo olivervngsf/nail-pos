@@ -52,7 +52,7 @@ export const DEMO_TEAM: Member[] = [
   m({ id: "d-bao", name: "Bao Tran", phone: "+14085550120", role: "manager", payType: "hourly", hourlyCents: 1800, commissionPct: null, clockedIn: true }),
   m({ id: "d-hanh", name: "Hanh Le", phone: "+14085550130", role: "front_desk", payType: "hourly", hourlyCents: 1700, commissionPct: null, clockedIn: true }),
   m({ id: "d-kim", name: "Kim Vo", phone: "+14085550140", payType: "commission", commissionPct: 60, checkPct: 70, skills: ["Gel", "Dip", "Nail art"], clockedIn: true, licenseNo: "M 284117", licenseExpires: "2027-08-01" }),
-  m({ id: "d-tuan", name: "Tuan Do", phone: "+14085550150", payType: "commission", commissionPct: 55, skills: ["Acrylic", "Pedicure"] }),
+  m({ id: "d-tuan", name: "Tuan Do", phone: "+14085550150", payType: "commission", commissionPct: 55, skills: ["Acrylic", "Pedicure"], hasPin: false }),
   m({ id: "d-vy", name: "Vy Hoang", phone: "+14085550160", payType: "commission", commissionPct: 55, checkPct: 60, skills: ["Gel", "Pedicure"],
     licenseNo: "M 301552", licenseExpires: isoIn(19) }),
   m({ id: "d-linh", name: "Linh Pham", phone: "+14085550170", joined: false, hasPin: false, invite: "7B3D56" }),

@@ -99,6 +99,18 @@
     "reader": "Card reader",
     "readerSub": "Client picks tip, then taps or inserts card.",
     "readerFee": "Fee 2.7% + 5¢ · paid by salon",
+    "appReader": "Small card reader",
+    "appReaderSub": "Pick a tip here, then tap, insert or swipe on the reader.",
+    "appCharge": "Charge {amount}",
+    "appStarting": "Getting the reader ready…",
+    "appTap": "Tap, insert or swipe the card on the reader.",
+    "appChecking": "Checking with the bank…",
+    "appNotPaid": "The card didn't go through.",
+    "appSlow": "Still checking. Look at the ticket in a moment before trying again.",
+    "appTestPractice": "Test mode: using Stripe's practice reader (no real reader, no real money). It pays by itself.",
+    "appTestReal": "Test mode: using the real reader. Use Stripe's test card, not a real card.",
+    "appUseReal": "I have the real reader",
+    "appUsePractice": "Use the practice reader",
     "cash": "Cash",
     "cashSub": "Enter cash given, we show the change.",
     "cashFee": "No fee · works offline",
@@ -696,7 +708,7 @@
     "newBooking": "New booking",
     "bookIt": "Book",
     "bookTimes": "Book {n} visits",
-    "textNote": "Text reminder 1 day + 2 h before, only if the client said yes to texts.",
+    "textNote": "Text reminder 1 day + 2h before, only if the client said yes to texts.",
     "date": "Date",
     "time": "Time",
     "min": "{n} min",
@@ -1169,7 +1181,7 @@
     "calNoteLabel": "Note for clients",
     "calSaveHint": "New bookings use this right away.",
     "calNotes": "Notes",
-    "calAutoNote": "Hi Tom, see you Tue, Nov 17 · 11:00 AM.\nGel manicure · Kim · Est. $45 (pay at the salon)\nChange or cancel up to {hours} h before · Call {phone}",
+    "calAutoNote": "Hi Tom, see you Tue, Nov 17 · 11:00 AM.\nGel manicure · Kim · Est. $45 (pay at the salon)\nChange or cancel up to {hours}h before · Call {phone}",
     "calNoteEmpty": "Your note shows here",
     "calFrom": "Name, address and phone come from your salon setup. Cancel time comes from <rules>Rules</rules>.",
     "seg0": "None",
@@ -1317,7 +1329,7 @@
     "inCash": "In cash",
     "allStaff": "All staff",
     "commission": "{pct}% commission",
-    "hourly": "Hourly · {hours} h",
+    "hourly": "Hourly · {hours}h",
     "booth": "Booth renter (keeps own)",
     "tickets": "{count, plural, one {# ticket} other {# tickets}}",
     "note": "Commission is on the full service price. Tips are 100% the staff's. Refunded tickets don't count. Check % is saved per person for next time. The CSV opens in Excel and imports into Gusto or QuickBooks.",
@@ -1724,7 +1736,8 @@
       "reader": "Card reader",
       "texting": "Texting & credit",
       "billing": "Billing",
-      "support": "Support"
+      "support": "Support",
+      "clockIn": "Clock-in"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -1752,7 +1765,8 @@
         "all": "All",
         "tech": "Techs",
         "desk": "Desk + managers",
-        "invited": "Invited"
+        "invited": "Invited",
+        "nopin": "No PIN"
       },
       "st": {
         "invited": "Invited",
@@ -1763,7 +1777,9 @@
         "out": "Out"
       },
       "saved": "Saved",
-      "addedInvite": "{name} added. Invite link ready: send it to their phone."
+      "addedInvite": "{name} added. Invite link ready: send it to their phone.",
+      "inviteTexted": "Invite texted to {name}.",
+      "inviteNotTexted": "Invite not texted: {why} Copy the link instead (open their name)."
     },
     "m": {
       "name": "Name",
@@ -1813,7 +1829,20 @@
       "cancel": "Cancel",
       "save": "Save",
       "addInvite": "Add + make invite",
-      "phoneTaken": "That phone is already on the team."
+      "phoneTaken": "That phone is already on the team.",
+      "textInvite": "Text the invite",
+      "texting": "Texting…",
+      "textDemo": "Test version: no text sent.",
+      "textAgain": "Already texted this invite. Make a new link to text again.",
+      "noPinBox": "Joined, no PIN yet",
+      "noPinHow": "Send them a link: they sign in with their phone and make their own PIN.",
+      "textPin": "Text the PIN link",
+      "copyPin": "Copy link",
+      "pinCopied": "PIN link copied. Paste it in a text or Zalo.",
+      "clearPinSend": "Forgot PIN: clear + send link",
+      "pinClearedSent": "PIN cleared. {why}",
+      "pinTexted": "PIN link texted to {name}.",
+      "pinNotTexted": "Link not texted: {why} Use Copy link."
     },
     "pin": {
       "saved": "PIN rules saved",
@@ -1956,7 +1985,14 @@
       "orType": "No camera? On the tablet open {site}/go and type:",
       "waiting": "Waiting for the tablet… code ends in {t}",
       "expired": "Code ended. Tap New code.",
-      "qrDemo": "Test copy: nothing is saved. On the tablet, open /go and type any 8 letters."
+      "qrDemo": "Test copy: nothing is saved. On the tablet, open /go and type any 8 letters.",
+      "title": "Salon devices",
+      "on": "On now",
+      "off": "Off",
+      "neverOn": "Never on",
+      "lastOn": "Last on {when}",
+      "count": "{on} of {all} on",
+      "onMeans": "On = the app is open and showing on that device. Screen off or browser closed shows as Off."
     },
     "pay": {
       "lead": "Your salon's own Stripe account. Card money goes straight to your bank; we never hold it.",
@@ -2100,16 +2136,16 @@
       "title": "Let PolishOS help",
       "on": "On",
       "off": "Off",
-      "what": "Turn this on when you call us for help. For 24 hours the PolishOS team (Oliver, Elang) can open your salon's screens to fix things with you. It turns off by itself.",
-      "onFor": "Support is on · {h} h {m} min left (until {until})",
+      "what": "Turn this on when you call us for help. For 24h the PolishOS team (Oliver, Elang) can open your salon's screens to fix things with you. It turns off by itself.",
+      "onFor": "Support is on · {h}h {m} min left (until {until})",
       "endNow": "End now",
       "why": "What do you need help with? (optional)",
       "whyHint": "Card reader won't connect",
-      "turnOn": "Turn on for 24 hours",
+      "turnOn": "Turn on for 24h",
       "ownerOnly": "Only the owner can turn support on.",
       "rules": "How it works",
       "rule1": "Off unless you turn it on. Without it we see salon health only (counts and totals), never client names, phones, notes or tech pay.",
-      "rule2": "Ends by itself after 24 hours. You (or we) can end it any time.",
+      "rule2": "Ends by itself after 24h. You (or we) can end it any time.",
       "rule3": "Everything we change while it's on is written down here, with the time.",
       "rule4": "We never take money or change payouts without asking you first.",
       "log": "Support log",
@@ -2118,7 +2154,7 @@
       "logOff": "Support ended",
       "logChange": "Support changed: {what}",
       "past": "{n, plural, one {# past support window} other {# past support windows}}",
-      "onToast": "Support is on for 24 hours",
+      "onToast": "Support is on for 24h",
       "offToast": "Support ended",
       "demo": "Test version: changes stay on this device."
     }
@@ -2230,5 +2266,22 @@
     "how": "Works on iPad, Android tablets and computers (Safari or Chrome).",
     "ready": "{name} is ready",
     "readyNote": "Signed in to {salon}. Opening now…"
+  },
+  "pinLink": {
+    "title": "Make your PIN",
+    "signIn": "Sign in with your phone first",
+    "signInLead": "Use the mobile number the salon has for you. We text you a code.",
+    "notHere": "This phone isn't on that salon's team. Use the number the owner added.",
+    "pin1": "Make your PIN ({n} digits)",
+    "pin1Cap": "You use it to clock in and check out. Not easy ones like 123456 or 111111.",
+    "pin2": "Type it again",
+    "weak": "Too easy to guess. Try another.",
+    "nomatch": "Didn't match. Start again.",
+    "hasPin": "You already have a PIN at {salon}. Make a new one?",
+    "newPin": "Make a new PIN",
+    "done": "PIN saved",
+    "doneCap": "Use it at {salon} to clock in and check out.",
+    "home": "Open my Home",
+    "demo": "Test version: the PIN isn't saved until logins go live."
   }
 }

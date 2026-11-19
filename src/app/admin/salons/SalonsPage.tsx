@@ -1,30 +1,52 @@
 "use client";
-// Founder Admin · Salons tab (variation A): business at a glance (incl. our income) + one table of every salon
-// (plan, setup, today, Stripe, texting, devices, health) + open alerts on the side.
-// Add salon by invite (admin_create_salon) in a drawer; owners not joined yet get Copy invite / New code (admin_new_code).
-import { useCallback, useEffect, useMemo, useState } from "react";
+// Founder Admin · Salons tab = design E "Salon care" (board Founder Admin Variations): is every salon OK, when did we last
+// talk to them, what do they need from us, did they pay us. No sales up front (a word: busy / normal / quiet).
+// 3 dots on each row: log a check-in, call, text, open, edit details, texting status, ask for support access, archive.
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { e164, rpc, showCode } from "@/lib/auth";
-import { formatCents } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
-import { PLAN_CENTS, TEXTING, alertsFor, healthOf, income, isLive, openAlerts, pilotDay, planOf, stripeState, totals, vsWeekAgo, type Alert, type Health, type SalonFacts, type StripeState } from "@/lib/admin/health";
-import { Button, Chip, Drawer, Field, ProgressBar } from "@/components/kit";
-import { AdminShell, useAdmin } from "../shell";
+import {
+  MOOD, PILOT_ENDS_SOON_DAYS, PLAN_CENTS, TEXTING, USE, alertsFor, checkinDue, daysSinceCheckin, healthOf, income, isLive, needDueIn, openAlerts,
+  pilotDay, pilotDaysLeft, planOf, usageOf, type Alert, type Health, type Mood, type SalonFacts, type Texting,
+} from "@/lib/admin/health";
+import { Button, Chip, Drawer, Field } from "@/components/kit";
+import DeviceMark from "@/components/DeviceMark";
+import { AdminShell, useAdmin, type Admin } from "../shell";
 
-const $0 = (c: number) => formatCents(Math.round(c / 100) * 100).replace(/\.00$/, "");
 type Invite = { salon_id: string; code: string | null; owner_name: string | null };
-type Filter = "all" | "action" | "pilot" | "setup" | "live";
+type Filter = "all" | "action" | "checkin" | "late";
+type Open = { kind: "checkin" | "edit" | "texting" | "archive"; s: SalonFacts } | null;
 const HEALTH: Record<Health, string> = { good: "Good", warn: "Needs action", bad: "Problem", setup: "Setting up" };
-const planLabel = (s: SalonFacts, now: string) => {
+const dayMonth = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+const daysAgo = (n: number) => (n <= 0 ? "Today" : n === 1 ? "Yesterday" : `${n} days ago`);
+
+/** Our plan: pill + one line under it (next bill, days late, free until). */
+function planCell(s: SalonFacts, now: string): [string, Health, string] {
   const p = planOf(s);
-  if (p === "pilot") return `Pilot day ${pilotDay(s, now) ?? 1}`;
-  if (p === "paid") return `Paid $${PLAN_CENTS[s.plan_cycle ?? "monthly"] / 100}`;
-  return p === "late" ? "Payment late" : "No plan yet";
-};
-const STRIPE: Record<StripeState, [string, Health]> = {
-  none: ["Not linked", "setup"], needs_info: ["Needs info", "warn"], charges_off: ["Cards off", "bad"], payouts_paused: ["Payouts paused", "bad"], live: ["Live", "good"],
-};
+  const price = `$${PLAN_CENTS[s.plan_cycle ?? "monthly"] / 100}`;
+  if (p === "pilot") return [`Pilot day ${pilotDay(s, now) ?? 1}`, "setup", s.trial_end ? `Free until ${dayMonth(s.trial_end)}` : "Free"];
+  if (p === "paid") return ["Paid", "good", s.plan_period_end ? `${price} · next ${dayMonth(s.plan_period_end)}` : price];
+  if (p === "late") {
+    const late = s.plan_period_end ? Math.max(1, Math.floor((Date.parse(now) - Date.parse(s.plan_period_end)) / 86400000)) : 0;
+    return ["Payment late", "bad", late ? `${price} · ${late} day${late === 1 ? "" : "s"} late` : price];
+  }
+  return ["No plan yet", "setup", "Starts at setup"];
+}
+/** Needs from us: the open next step + when, or a nudge we worked out (pilot ending, check-in due). */
+function needCell(s: SalonFacts, now: string): { text: string; due: string; hot: boolean } {
+  const left = pilotDaysLeft(s, now);
+  if (s.need) {
+    const d = needDueIn(s, now);
+    const who = s.need_who ? ` · ${s.need_who}` : "";
+    if (d === null) return { text: s.need, due: s.need_who ?? "", hot: false };
+    return { text: s.need, due: (d < 0 ? `Overdue ${-d} day${d === -1 ? "" : "s"}` : d === 0 ? "Due today" : d === 1 ? "Due tomorrow" : `Due in ${d} days`) + who, hot: d <= 0 };
+  }
+  if (left !== null && left <= PILOT_ENDS_SOON_DAYS) return { text: `Pilot ends in ${left} day${left === 1 ? "" : "s"}: ask to stay`, due: checkinDue(s, now) ? "Check-in due" : "", hot: true };
+  if (checkinDue(s, now)) return { text: "Time to say hello", due: "Check-in due", hot: true };
+  return { text: "Nothing open", due: "", hot: false };
+}
 
 export default function SalonsPage() {
   const admin = useAdmin();
@@ -33,6 +55,8 @@ export default function SalonsPage() {
   const [adding, setAdding] = useState(q.get("add") === "1");
   const [filter, setFilter] = useState<Filter>("all");
   const [invites, setInvites] = useState<Invite[]>([]);
+  const [menu, setMenu] = useState<string | null>(null);
+  const [open, setOpen] = useState<Open>(null);
 
   const loadInvites = useCallback(async () => {
     if (admin.gate !== "live") return;
@@ -41,9 +65,12 @@ export default function SalonsPage() {
   useEffect(() => { void loadInvites(); }, [loadInvites]);
 
   const o = admin.data;
-  const rows = useMemo(() => (o ? o.salons.map((s) => ({ s, health: healthOf(s, alertsFor(s, o.now)) })) : []), [o]);
+  const rows = useMemo(() => (o ? o.salons.map((s) => {
+    const alerts = alertsFor(s, o.now);
+    return { s, alerts, health: healthOf(s, alerts) };
+  }) : []), [o]);
   const fits = (f: Filter, s: SalonFacts, health: Health) =>
-    f === "all" || (f === "action" ? health === "warn" || health === "bad" : f === "pilot" ? planOf(s) === "pilot" : f === "live" ? isLive(s) : !isLive(s));
+    f === "all" || (f === "action" ? health === "warn" || health === "bad" : f === "checkin" ? checkinDue(s, o!.now) : planOf(s) === "late");
   const shown = rows.filter(({ s, health }) => fits(filter, s, health));
   const count = (f: Filter) => rows.filter(({ s, health }) => fits(f, s, health)).length;
   const alerts = o ? openAlerts(o) : [];
@@ -51,57 +78,68 @@ export default function SalonsPage() {
   const copy = (t: string) => { void navigator.clipboard?.writeText(t).then(() => admin.say("Copied")); };
   const inviteText = (owner: string, salon: string, code: string) =>
     `Hi ${owner}, your PolishOS salon "${salon}" is ready. Open ${location.origin}/invite/${code} and sign in with this phone or email (or Google). Invite code: ${showCode(code)} (good for 7 days).`;
-  const newCode = async (s: SalonFacts) => {
-    try { await rpc<string>("admin_new_code", { p_salon: s.salon_id }); admin.say(`New code for ${s.salon_name}`); void loadInvites(); void admin.reload(); }
-    catch (e) { admin.say((e as Error).message); }
+  const run = async (fn: string, args: Record<string, unknown>, done: string) => {
+    if (admin.gate !== "live") { admin.say("Test version: sign in as an admin to save this."); return false; }
+    try { await rpc(fn, args); admin.say(done); await admin.reload(); return true; }
+    catch (e) { admin.say((e as Error).message); return false; }
   };
+  const newCode = async (s: SalonFacts) => { if (await run("admin_new_code", { p_salon: s.salon_id }, `New code for ${s.salon_name}`)) void loadInvites(); };
   const closeAdd = () => { setAdding(false); if (q.get("add")) router.replace("/admin/salons"); };
 
   return (
     <AdminShell tab="salons" admin={admin} title="Salons" actions={<Button variant="primary" onClick={() => setAdding(true)} data-testid="add-salon-open">+ Add salon by invite</Button>}>
       {o && <>
-        <Tiles o={o} />
+        <Tiles rows={rows} now={o.now} o={o} />
         <div className="ad-split">
-        <section className="group ad-wide-col" style={{ padding: 0, gap: 0 }} data-testid="salon-list">
+        <section className="group ad-wide-col ad-care-col" style={{ padding: 0, gap: 0 }} data-testid="salon-list">
           <div className="ad-tablehead">
             <h2 className="h2" style={{ margin: "0 auto 0 0" }}>All salons</h2>
-            {(["all", "action", "pilot", "setup", "live"] as Filter[]).map((f) => (
+            {(["all", "action", "checkin", "late"] as Filter[]).map((f) => (
               <Chip key={f} on={filter === f} aria-pressed={filter === f} onClick={() => setFilter(f)} data-testid={`f-${f}`}>
-                {{ all: "All", action: "Needs action", pilot: "Pilot", setup: "Setting up", live: "Live" }[f]} {f === "all" ? rows.length : count(f)}
+                {{ all: "All", action: "Needs us", checkin: "Check-in due", late: "Payment late" }[f]} {f === "all" ? rows.length : count(f)}
               </Chip>
             ))}
           </div>
           <div style={{ overflowX: "auto" }}>
-            <table className="dtable ad-table">
-              <thead><tr>{["Salon", "Setup", "Today", "Stripe", "Texting", "In use", "Health", ""].map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
+            <table className="dtable ad-table ad-care">
+              <thead><tr>{["Salon", "Health", "Last check-in", "Needs from us", "Our plan"].map((h) => <th key={h} scope="col">{h}</th>)}<th scope="col" aria-label="Actions" /></tr></thead>
               <tbody>
-                {shown.map(({ s, health }) => {
-                  const st = STRIPE[stripeState(s)];
-                  const tx = TEXTING[s.texting ?? "not_started"];
+                {shown.map(({ s, health, alerts: al }) => {
                   const inv = invites.find((i) => i.salon_id === s.salon_id);
-                  const step = Math.min(s.setup_step + 1, 10);
+                  const [plan, planTone, planSub] = planCell(s, o.now);
+                  const need = needCell(s, o.now);
+                  const why = al[0]?.title ?? (!s.owner_joined ? "Owner not joined" : isLive(s) ? "All working" : `Setup step ${Math.min(s.setup_step + 1, 10)} of 10`);
+                  const mood = s.checkin_mood ? MOOD[s.checkin_mood] : null;
                   return (
-                    <tr key={s.salon_id} id={`s-${s.salon_id}`}>
-                      <td><Link href={`/admin/salons/${s.salon_id}`} className="ad-name" data-testid="salon-link">{s.salon_name} ›</Link><div className="cap">{s.owner_name ?? "No owner"} · {s.staff} staff · {planLabel(s, o.now)}</div></td>
-                      <td style={{ minWidth: 84 }}>{s.owner_joined
-                        ? <><ProgressBar value={isLive(s) ? 1 : step / 10} thickness="thin" ink label={`Setup ${step} of 10`} /><div className="cap">{isLive(s) ? "Done" : `Step ${step} of 10`}</div></>
-                        : <span className="cap">Owner not joined</span>}</td>
-                      <td className="num"><b style={{ fontWeight: 600 }}>{$0(s.cents_today)}</b><div className="cap">{s.tickets_today} tickets</div></td>
-                      <td><span className={`ad-pill ${st[1]}`}>{st[0]}</span></td>
-                      <td><span className={`ad-pill ${tx[1]}`} data-testid="texting">{tx[0]}</span></td>
-                      <td className="num">{s.devices ? `${s.devices_online} of ${s.devices}` : <span className="cap">None</span>}</td>
-                      <td><span className={`ad-pill ${health}`}>{HEALTH[health]}</span></td>
-                      <td>{!s.owner_joined && s.owner_name && <span style={{ display: "inline-flex", gap: 6 }}>
-                        {inv?.code && <Button size="sm" onClick={() => copy(inviteText(s.owner_name!, s.salon_name, inv.code!))}>Copy invite · {inv.code}</Button>}
-                        {admin.gate === "live" && <Button size="sm" variant="ghost" onClick={() => void newCode(s)}>New code</Button>}
-                      </span>}</td>
+                    <tr key={s.salon_id} id={`s-${s.salon_id}`} data-testid="salon-row">
+                      <td><Link href={`/admin/salons/${s.salon_id}`} className="ad-name" data-testid="salon-link">{s.salon_name} ›</Link>
+                        <div className="cap">{s.owner_name ?? "No owner"} · {s.staff} staff</div><div className="cap" data-testid="use">{USE[usageOf(s)]}</div>
+                        <div className="dv-dots" data-testid="devices" role="img" aria-label={s.devices ? `${s.devices_online} of ${s.devices} devices on` : "No salon devices"}>
+                          {Array.from({ length: Math.min(s.devices, 6) }, (_, i) => <DeviceMark key={i} state={i < s.devices_online ? "on" : "off"} size={14} />)}
+                          <span className="cap">{s.devices ? `${s.devices_online} of ${s.devices} on` : "No devices"}</span>
+                        </div></td>
+                      <td><span className={`ad-pill ${health}`} data-testid="health">{HEALTH[health]}</span><div className="cap">{why}</div></td>
+                      <td className="ad-wrap" data-testid="checkin">
+                        <div className="ad-line"><span className={`ad-pill ${mood ? mood[1] : "setup"}`}>{mood ? mood[0] : "No check-in"}</span>
+                          <span className="cap">{s.checkin_at ? `${daysAgo(daysSinceCheckin(s, o.now))} · ${s.checkin_by ?? "Admin"}` : "Never"}</span></div>
+                        {s.checkin_note && <div className="ad-note">{s.checkin_note}</div>}
+                      </td>
+                      <td className="ad-wrap" data-testid="need"><div style={{ fontWeight: 500 }}>{need.text}</div>
+                        {need.due && (need.hot ? <span className="ad-pill warn">{need.due}</span> : <div className="cap">{need.due}</div>)}</td>
+                      <td><span className={`ad-pill ${planTone}`} data-testid="plan">{plan}</span><div className="cap">{planSub}</div></td>
+                      <td className="ad-dotcell">
+                        <RowMenu s={s} open={menu === s.salon_id} onToggle={(v) => setMenu(v ? s.salon_id : null)} invite={inv?.code ?? null} live={admin.gate === "live"}
+                          onPick={(kind) => setOpen({ kind, s })} onCopyInvite={(code) => copy(inviteText(s.owner_name ?? "", s.salon_name, code))} onNewCode={() => void newCode(s)}
+                          onNeedDone={() => void run("admin_need_done", { p_salon: s.salon_id }, "Marked done")} />
+                      </td>
                     </tr>
                   );
                 })}
-                {!shown.length && <tr><td colSpan={8} className="cap">No salons here.</td></tr>}
+                {!shown.length && <tr><td colSpan={6} className="cap">No salons here.</td></tr>}
               </tbody>
             </table>
           </div>
+          <p className="cap" style={{ margin: 0, padding: "12px 16px" }}>No sales shown here. Busy, normal or quiet = this week against the salon’s own usual week. Sales totals stay on the salon page.</p>
         </section>
         <aside className="card pad ad-side" style={{ gap: 12 }} aria-label="Alerts" data-testid="alerts">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -112,9 +150,189 @@ export default function SalonsPage() {
           {!alerts.length && <p className="cap" style={{ margin: 0 }}>Nothing needs you right now.</p>}
         </aside>
         </div>
+        {(o.archived?.length ?? 0) > 0 && (
+          <section className="group" data-testid="archived">
+            <div className="row s"><b style={{ fontWeight: 600 }}>Archived salons</b><span className="cap">Closed to their staff. Nothing is deleted.</span></div>
+            {o.archived!.map((a) => (
+              <div key={a.salon_id} className="row s"><span className="g">{a.salon_name}</span><span className="cap">Archived {dayMonth(a.archived_at)}</span>
+                <Button size="sm" onClick={() => void run("admin_salon_archive", { p_salon: a.salon_id, p_on: false }, `${a.salon_name} is back`)}>Restore</Button></div>
+            ))}
+          </section>
+        )}
       </>}
       {adding && <AddSalon live={admin.gate === "live"} onClose={closeAdd} onMade={() => { void admin.reload(); void loadInvites(); }} copy={copy} inviteText={inviteText} />}
+      {open?.kind === "checkin" && <CheckIn s={open.s} admin={admin} onClose={() => setOpen(null)} />}
+      {open?.kind === "edit" && <EditSalon s={open.s} admin={admin} run={run} onClose={() => setOpen(null)} />}
+      {open?.kind === "texting" && <SetTexting s={open.s} run={run} onClose={() => setOpen(null)} />}
+      {open?.kind === "archive" && <ArchiveSalon s={open.s} run={run} onClose={() => setOpen(null)} />}
     </AdminShell>
+  );
+}
+
+type Run = (fn: string, args: Record<string, unknown>, done: string) => Promise<boolean>;
+
+/** 3 dots on a row: the shortcuts for one salon. Closes on Escape, on a click outside, and after a pick. */
+function RowMenu({ s, open, onToggle, invite, live, onPick, onCopyInvite, onNewCode, onNeedDone }: {
+  s: SalonFacts; open: boolean; onToggle: (v: boolean) => void; invite: string | null; live: boolean;
+  onPick: (k: "checkin" | "edit" | "texting" | "archive") => void; onCopyInvite: (code: string) => void; onNewCode: () => void; onNeedDone: () => void;
+}) {
+  const box = useRef<HTMLDivElement>(null);
+  // The table scrolls sideways in its own box, which would cut the menu off: pin the menu to the screen under the button.
+  const [at, setAt] = useState<{ top?: number; bottom?: number; right: number } | null>(null);
+  useEffect(() => {
+    if (!open) return setAt(null);
+    const r = box.current!.getBoundingClientRect();
+    const right = Math.max(8, window.innerWidth - r.right);
+    setAt(window.innerHeight - r.bottom < 420 && r.top > window.innerHeight - r.bottom ? { bottom: window.innerHeight - r.top + 4, right } : { top: r.bottom + 4, right });
+    const since = Date.now(); // a tap can scroll the button into view first: don't count that scroll
+    const shut = () => { if (Date.now() - since > 400) onToggle(false); };
+    window.addEventListener("scroll", shut, true); window.addEventListener("resize", shut);
+    return () => { window.removeEventListener("scroll", shut, true); window.removeEventListener("resize", shut); };
+  }, [open, onToggle]);
+  useEffect(() => {
+    if (!open) return;
+    const out = (e: MouseEvent) => { if (!box.current?.contains(e.target as Node)) onToggle(false); };
+    const key = (e: KeyboardEvent) => { if (e.key === "Escape") onToggle(false); };
+    document.addEventListener("mousedown", out); document.addEventListener("keydown", key);
+    return () => { document.removeEventListener("mousedown", out); document.removeEventListener("keydown", key); };
+  }, [open, onToggle]);
+  const pick = (fn: () => void) => () => { onToggle(false); fn(); };
+  const first = s.owner_name?.split(" ")[0] ?? "the owner";
+  const ask = `Hi ${first}, this is PolishOS support. To let us look at your screens for 24h, open Settings → Support and tap Turn on. You can end it any time.`;
+  return (
+    <div ref={box}>
+      <button type="button" className={`ad-dots${open ? " open" : ""}`} aria-label={`Actions for ${s.salon_name}`} aria-haspopup="menu" aria-expanded={open}
+        onClick={() => onToggle(!open)} data-testid="row-menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="19" cy="12" r="1.8" /></svg>
+      </button>
+      {open && at && (
+        <div className="ad-menu" role="menu" aria-label={`Actions for ${s.salon_name}`} style={at}>
+          <button type="button" role="menuitem" onClick={pick(() => onPick("checkin"))} data-testid="m-checkin">Log a check-in</button>
+          {s.need && <button type="button" role="menuitem" onClick={pick(onNeedDone)}>Mark “{s.need.length > 24 ? `${s.need.slice(0, 24)}…` : s.need}” done</button>}
+          {s.owner_phone && <a role="menuitem" href={`tel:${s.owner_phone}`} onClick={() => onToggle(false)}>Call {first}</a>}
+          {s.owner_phone && <a role="menuitem" href={`sms:${s.owner_phone}`} onClick={() => onToggle(false)}>Text {first}</a>}
+          <hr />
+          <Link role="menuitem" href={`/admin/salons/${s.salon_id}`}>Open salon page</Link>
+          <button type="button" role="menuitem" onClick={pick(() => onPick("edit"))} data-testid="m-edit">Edit salon details</button>
+          <button type="button" role="menuitem" onClick={pick(() => onPick("texting"))}>Set texting status</button>
+          {s.owner_joined && s.owner_phone && <a role="menuitem" href={`sms:${s.owner_phone}?&body=${encodeURIComponent(ask)}`} onClick={() => onToggle(false)}>Ask for support access</a>}
+          {!s.owner_joined && invite && <button type="button" role="menuitem" onClick={pick(() => onCopyInvite(invite))}>Copy invite · {invite}</button>}
+          {!s.owner_joined && s.owner_name && live && <button type="button" role="menuitem" onClick={pick(onNewCode)}>New invite code</button>}
+          <hr />
+          <button type="button" role="menuitem" className="danger" onClick={pick(() => onPick("archive"))} data-testid="m-archive">Archive salon…</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CheckIn({ s, admin, onClose }: { s: SalonFacts; admin: Admin; onClose: () => void }) {
+  const o = admin.data!;
+  const [mood, setMood] = useState<Mood | null>(null);
+  const [note, setNote] = useState("");
+  const [need, setNeed] = useState("");
+  const [due, setDue] = useState("");
+  const [who, setWho] = useState(o.me.split(" ")[0] ?? "");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const save = async () => {
+    if (!mood) return setErr("Pick how it was.");
+    setErr("");
+    if (admin.gate === "demo") { admin.checkin(s.salon_id, { mood, note: note.trim(), need: need.trim(), due: due || null, who: who.trim() }); return onClose(); }
+    setBusy(true);
+    try {
+      await rpc("admin_checkin", { p_salon: s.salon_id, p_mood: mood, p_note: note.trim(), p_need: need.trim(), p_due: due || null, p_who: who.trim() });
+      admin.say("Check-in saved"); await admin.reload(); onClose();
+    } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
+  };
+  return (
+    <Drawer title={`Check-in · ${s.salon_name}`} onClose={onClose}
+      footer={<Button variant="primary" block disabled={busy} onClick={() => void save()} data-testid="checkin-save">{busy ? "Saving…" : "Save check-in"}</Button>}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }} data-testid="checkin-form">
+        <p className="cap" style={{ margin: 0 }}>{s.owner_name ?? "Owner"} · {s.checkin_at ? `last check-in ${daysAgo(daysSinceCheckin(s, o.now)).toLowerCase()}` : "no check-in yet"}</p>
+        <div>
+          <span className="lbl">How was it?</span>
+          <div className="ad-texting" role="group" aria-label="How was it?">
+            {(Object.keys(MOOD) as Mood[]).map((m) => <Chip key={m} on={mood === m} aria-pressed={mood === m} onClick={() => setMood(m)}>{MOOD[m][0]}</Chip>)}
+          </div>
+        </div>
+        <div><label className="lbl" htmlFor="c-note">What did we see or hear?</label>
+          <textarea className="inp" id="c-note" rows={3} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} style={{ height: "auto", padding: "10px 12px" }} /></div>
+        <Field id="c-need" label="What do they need from us? (optional)" maxLength={300} value={need} onChange={(e) => setNeed(e.target.value)} />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <Field id="c-due" label="Follow up by" type="date" value={due} onChange={(e) => setDue(e.target.value)} />
+          <Field id="c-who" label="Who" maxLength={60} value={who} onChange={(e) => setWho(e.target.value)} />
+        </div>
+        {err && <div className="hint err" role="alert">{err}</div>}
+        <p className="cap" style={{ margin: 0 }}>Only Oliver and Elang see check-ins. The salon never does. A new need replaces the open one.</p>
+      </div>
+    </Drawer>
+  );
+}
+
+function EditSalon({ s, admin, run, onClose }: { s: SalonFacts; admin: Admin; run: Run; onClose: () => void }) {
+  const [f, setF] = useState({ name: s.salon_name, state: s.state, owner: s.owner_name ?? "", phone: s.owner_phone ? fmtPhone(s.owner_phone.replace(/^\+1/, "")) : "", email: "" });
+  const [err, setErr] = useState("");
+  const save = async () => {
+    setErr("");
+    if (!f.name.trim()) return setErr("Salon name is needed.");
+    if (!s.owner_joined && f.phone && !phoneOk(f.phone)) return setErr("Owner phone: 10 digits, like (408) 555-0110.");
+    const ok = await run("admin_salon_edit", {
+      p_salon: s.salon_id, p_name: f.name.trim(), p_state: f.state,
+      p_owner: s.owner_joined ? null : f.owner.trim() || null, p_phone: s.owner_joined || !f.phone ? null : e164(f.phone), p_email: s.owner_joined || !f.email.trim() ? null : f.email.trim(),
+    }, "Saved");
+    if (ok || admin.gate !== "live") onClose();
+  };
+  return (
+    <Drawer title="Edit salon details" onClose={onClose} footer={<Button variant="primary" block onClick={() => void save()} data-testid="edit-save">Save</Button>}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }} data-testid="edit-form">
+        <Field id="e-name" label="Salon name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
+        <div><label className="lbl" htmlFor="e-state">State</label>
+          <select className="inp" id="e-state" value={f.state} onChange={(e) => setF({ ...f, state: e.target.value })}>{[...new Set([s.state, ...STATES])].map((x) => <option key={x}>{x}</option>)}</select></div>
+        {s.owner_joined
+          ? <p className="cap" style={{ margin: 0 }}>{s.owner_name ?? "The owner"} has joined, so the owner’s name, phone and email are theirs to change (in their own profile).</p>
+          : <>
+            <Field id="e-owner" label="Owner name" value={f.owner} onChange={(e) => setF({ ...f, owner: e.target.value })} />
+            <Field id="e-phone" label="Owner mobile" inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} />
+            <Field id="e-email" label="Owner email (leave empty to keep)" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+          </>}
+        {err && <div className="hint err" role="alert">{err}</div>}
+        <p className="cap" style={{ margin: 0 }}>A new name can change the booking link (polishosapp.com/…) if the owner has not picked their own. The change shows in the salon’s activity log.</p>
+      </div>
+    </Drawer>
+  );
+}
+
+function SetTexting({ s, run, onClose }: { s: SalonFacts; run: Run; onClose: () => void }) {
+  const now = s.texting ?? "not_started";
+  return (
+    <Drawer title={`Texting · ${s.salon_name}`} onClose={onClose}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <p className="cap" style={{ margin: 0 }}>Where the salon’s own texting number (10DLC) stands. We register it by hand, so we set it here.</p>
+        <div className="ad-texting" role="group" aria-label="Texting status">
+          {(Object.keys(TEXTING) as Texting[]).map((t) => (
+            <Chip key={t} on={t === now} aria-pressed={t === now} onClick={async () => { if (t !== now) await run("admin_set_texting", { p_salon: s.salon_id, p_status: t }, "Texting status saved"); onClose(); }}>{TEXTING[t][0]}</Chip>
+          ))}
+        </div>
+      </div>
+    </Drawer>
+  );
+}
+
+function ArchiveSalon({ s, run, onClose }: { s: SalonFacts; run: Run; onClose: () => void }) {
+  const [typed, setTyped] = useState("");
+  const ok = typed.trim().toLowerCase() === s.salon_name.trim().toLowerCase();
+  const paying = planOf(s) === "paid" || planOf(s) === "late";
+  return (
+    <Drawer title="Archive salon" onClose={onClose}
+      footer={<Button variant="primary" block disabled={!ok} onClick={async () => { await run("admin_salon_archive", { p_salon: s.salon_id, p_on: true }, `${s.salon_name} archived`); onClose(); }} data-testid="archive-go">Archive {s.salon_name}</Button>}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }} data-testid="archive-form">
+        <p style={{ margin: 0 }}><b>{s.salon_name}</b> closes for its {s.staff} staff right away: no sign-in, no booking page.</p>
+        <p className="cap" style={{ margin: 0 }}>Nothing is deleted. The salon’s data stays theirs, and Restore (bottom of this page) brings it back.</p>
+        {paying && <div className="hint err" role="alert">This salon has a paid plan. Archiving does not stop the plan: cancel it in Stripe first.</div>}
+        <Field id="x-name" label={`Type the salon name to confirm: ${s.salon_name}`} value={typed} onChange={(e) => setTyped(e.target.value)} />
+      </div>
+    </Drawer>
   );
 }
 
@@ -122,7 +340,7 @@ const ago = (iso: string | null, now: number) => {
   if (!iso) return "";
   const m = Math.round((now - Date.parse(iso)) / 60000);
   if (m < 60) return `${Math.max(m, 1)} min ago`;
-  if (m < 1440) return `${Math.round(m / 60)} h ago`;
+  if (m < 1440) return `${Math.round(m / 60)}h ago`;
   return `${Math.round(m / 1440)} days ago`;
 };
 function AlertMini({ a, now, onHandle }: { a: Alert; now: number; onHandle: (salon: string, kind: string) => Promise<void> }) {
@@ -142,22 +360,23 @@ function AlertMini({ a, now, onHandle }: { a: Alert; now: number; onHandle: (sal
   );
 }
 
-function Tiles({ o }: { o: NonNullable<ReturnType<typeof useAdmin>["data"]> }) {
-  const t = totals(o);
-  const atRisk = openAlerts(o).filter((a) => a.level === "bad");
-  const weekday = new Date(o.now).toLocaleDateString("en-US", { weekday: "short" });
+function Tiles({ rows, now, o }: { rows: { s: SalonFacts; health: Health }[]; now: string; o: NonNullable<Admin["data"]> }) {
+  const n = (h: Health) => rows.filter((r) => r.health === h).length;
+  const due = rows.filter((r) => checkinDue(r.s, now));
   const inc = income(o);
+  const late = rows.filter((r) => planOf(r.s) === "late").length;
+  const ending = rows.filter((r) => { const d = pilotDaysLeft(r.s, now); return d !== null && d <= PILOT_ENDS_SOON_DAYS; });
+  const parts = [n("bad") && `${n("bad")} problem`, n("warn") && `${n("warn")} need action`, n("setup") && `${n("setup")} setting up`].filter(Boolean).join(" · ");
   const tiles = [
-    { label: "Active salons", value: String(t.salons), sub: `${inc.pilot} pilot · ${inc.paid} paid · ${t.settingUp} setting up` },
-    { label: "Our income", value: `$${Math.round(inc.cents / 100)}/mo`, sub: inc.paid ? `${inc.paid} paid plan${inc.paid === 1 ? "" : "s"} · pilots free` : "No paid plans yet · pilots free" },
-    { label: "Card + cash today", value: $0(t.centsToday), sub: "Salons’ money, not ours" },
-    { label: "Tickets today", value: String(t.ticketsToday), sub: vsWeekAgo(t.ticketsToday, t.ticketsWeekAgo, weekday) ?? "No tickets last week" },
-    { label: "At risk", value: String(new Set(atRisk.map((a) => a.salon_id)).size), sub: atRisk.map((a) => a.salon).filter((v, i, a) => a.indexOf(v) === i).join(", ") || "None" },
+    { key: "ok", label: "Salons OK", value: `${n("good")} of ${rows.length}`, sub: parts || "Every salon is fine" },
+    { key: "checkin", label: "Check-ins due", value: String(due.length), sub: due.length ? due.map((r) => r.s.salon_name).join(", ") : "Talked to everyone in 14 days" },
+    { key: "paid", label: "Paid us this month", value: `${inc.paid} of ${inc.paid + late}`, sub: `$${Math.round(inc.cents / 100)}/mo${late ? ` · ${late} payment late` : ""} · ${inc.pilot} pilot${inc.pilot === 1 ? "" : "s"} free` },
+    { key: "pilot", label: "Pilots ending soon", value: String(ending.length), sub: ending.length ? ending.map((r) => `${r.s.salon_name} · ${pilotDaysLeft(r.s, now)} days left`).join(", ") : "None in the next 10 days" },
   ];
   return (
-    <section className="ad-tiles" aria-label="Business at a glance">
+    <section className="ad-tiles" aria-label="Care at a glance">
       {tiles.map((k) => (
-        <div key={k.label} className="card pad" data-testid={`tile-${k.label.toLowerCase().replace(/[^a-z]+/g, "-")}`}>
+        <div key={k.key} className="card pad" data-testid={`tile-${k.key}`}>
           <div className="eyebrow">{k.label}</div>
           <div className="num" style={{ fontSize: 28, lineHeight: "34px", fontWeight: 700, letterSpacing: "-0.03em", marginTop: 4 }}>{k.value}</div>
           <div className="cap">{k.sub}</div>
