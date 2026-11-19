@@ -13,6 +13,9 @@ import { DEMO_SLUG, book, bookDays, hello, hoursOn, loadPage, loadSlots, photoUr
 import { dayKey, fmtMin, fromDayKey } from "@/lib/booking/grid";
 import { bookingIcs } from "@/lib/booking/ics";
 
+// Booking texts (confirm + reminders) only go out once the salon's texting is set up. Until then the booked
+// screen must not say a text was sent. Turn on with NEXT_PUBLIC_BOOKING_TEXTS=on when texts really send.
+const TEXTS_SEND = process.env.NEXT_PUBLIC_BOOKING_TEXTS === "on";
 type View = "door" | "services" | "staff" | "time" | "details" | "done";
 const ORDER: View[] = ["services", "staff", "time", "details"];
 const PH = ["#C9A79A", "#B07C8E", "#8C9C88", "#D7B88F", "#6E7A8C"];
@@ -207,7 +210,7 @@ function Flow({ page }: { page: Page }) {
         <div className="bw-done in" data-testid="booked">
           <div className="bw-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
           <h2 className="h1 bw-center">{t("booked", { name: first.charAt(0).toUpperCase() + first.slice(1) })}</h2>
-          <p className="cap bw-center">{textsOk ? t("bookedTexted", { phone: fmtPhone(phone) }) : t("atDesk")}</p>
+          <p className="cap bw-center">{textsOk ? t(TEXTS_SEND ? "bookedTexted" : "bookedTextsSoon", { phone: fmtPhone(phone) }) : t("atDesk")}</p>
 
           <div className="bw-ticket">
             <div className="bw-when">

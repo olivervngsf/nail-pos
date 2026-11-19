@@ -998,6 +998,7 @@
     "cancelRule": "Đổi hoặc hủy trước {hours} giờ. Không cần thẻ.",
     "booked": "Đã đặt xong, {name}",
     "bookedTexted": "Đã nhắn xác nhận tới {phone}",
+    "bookedTextsSoon": "Đã lưu. Tin nhắn nhắc lịch tới {phone} chưa bật, bạn hãy thêm vào lịch bên dưới.",
     "atDesk": "Xong rồi. Đến nơi chỉ cần nói tên ở quầy.",
     "callUs": "Cần hỏi? Gọi",
     "mLink": "Đổi hoặc hủy lịch này",

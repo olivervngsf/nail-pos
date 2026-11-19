@@ -998,6 +998,7 @@
     "cancelRule": "Change or cancel up to {hours} hours before. No card needed.",
     "booked": "You're booked, {name}",
     "bookedTexted": "Confirmation texted to {phone}",
+    "bookedTextsSoon": "Saved. Text reminders to {phone} aren't on yet, so add it to your calendar below.",
     "atDesk": "All set. Just give your name at the front desk.",
     "callUs": "Questions? Call",
     "mLink": "Change or cancel this booking",
