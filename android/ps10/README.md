@@ -33,9 +33,10 @@ Bluetooth serial device. A web page in Chrome can't open it; an Android app can.
   Output: `app/build/outputs/apk/release/app-release.apk`.
 
 ## Install on a terminal
-Quick way: on the terminal, open Chrome → `polishosapp.com/polishos-ps10.apk` → Download → open → Install
-(the file in `public/`, built with the same signing key as the installed app, so it updates in place;
-replace that file when a new version is built).
+Quick way: on the terminal, open Chrome → `polishosapp.com/polishos-ps10-v1.1.apk` → Download → open → Install
+(the file in `public/`, built with the same signing key as the installed app, so it updates in place).
+The file name ends with the app version (Oliver, Nov 19): a new build = a new file `polishos-ps10-v<version>.apk`
+(same number as `versionName` in `app/build.gradle`); remove the old file.
 
 Or by hand:
 1. Get `app-release.apk` onto the terminal (USB cable, or Google Drive).
