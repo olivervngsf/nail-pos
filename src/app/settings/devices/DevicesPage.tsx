@@ -6,8 +6,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { useFormatter, useTranslations } from "next-intl";
-import { Button, Chip, Drawer, Field, ListGroup, Toast } from "@/components/kit";
+import { Button, Chip, Drawer, Field, Toast } from "@/components/kit";
 import { DEVICE_HOME, forgetDevice, getDevice, makeSalonDevice, rpc, type DeviceKind } from "@/lib/auth";
+import DeviceMark from "@/components/DeviceMark";
+import { deviceState, devicesOn } from "@/lib/devices";
 import SettingsShell, { type Access } from "../SettingsShell";
 
 type Kind = DeviceKind;
@@ -108,7 +110,9 @@ function Devices({ a }: { a: Access }) {
   }, [a.demo, a.salonId]);
   useEffect(() => { void load(); }, [load]);
 
-  const seen = (iso: string | null) => (!iso ? t("never") : Date.now() - new Date(iso).getTime() < 600_000 ? t("now") : f.relativeTime(new Date(iso), new Date()));
+  // On / off is worked out from the last "I'm on" signal; re-checked every minute so a tile turns off by itself.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const h = setInterval(() => { setNow(Date.now()); void load(); }, 60_000); return () => clearInterval(h); }, [load]);
   const thisOne = here && here.salonId === a.salonId ? here : null;
 
   const setUpHere = async () => {
@@ -126,17 +130,27 @@ function Devices({ a }: { a: Access }) {
   if (!list) return <div aria-busy="true" />;
   return (
     <>
-      <ListGroup>
-        {list.map((d) => (
-          <button key={d.id} type="button" className="opt set-row" data-testid={`device-${d.name}`} onClick={() => setEdit(d)}>
-            <span className="av" aria-hidden>{d.kind === "clock" ? "C" : d.kind === "kiosk" ? "K" : "D"}</span>
-            <span className="g" style={{ flex: 1, minWidth: 0 }}><b>{d.name}{thisOne?.id === d.id ? ` · ${t("thisOne")}` : ""}</b>
-              <span className="cap">{t(`kind.${d.kind}`)}{d.kind in HOME ? ` · ${HOME[d.kind as Kind]}` : ""}{d.set_up_by ? ` · ${t("by", { name: d.set_up_by })}` : ""}</span></span>
-            <span className="cap set-pay">{seen(d.last_seen)}</span>
-          </button>
-        ))}
-        {!list.length && <div className="row"><span className="cap">{t("none")}</span></div>}
-      </ListGroup>
+      <section className="card pad dv-card" data-testid="device-list">
+        <div className="dv-head">
+          <b>{t("title")}</b>
+          {list.length > 0 && <span className={`ad-pill ${devicesOn(list.map((d) => d.last_seen), now) === list.length ? "good" : "warn"}`} data-testid="devices-on">{t("count", { on: devicesOn(list.map((d) => d.last_seen), now), all: list.length })}</span>}
+        </div>
+        <div className="dv-grid">
+          {list.map((d) => {
+            const st = deviceState(d.last_seen, now);
+            return (
+              <button key={d.id} type="button" className={`dv-tile is-${st}`} data-testid={`device-${d.name}`} data-state={st} onClick={() => setEdit(d)}>
+                <span className="dv-state"><DeviceMark state={st} size={22} /><span className={`ad-pill ${st === "on" ? "good" : st === "off" ? "warn" : ""}`}>{t(st === "on" ? "on" : st === "off" ? "off" : "neverOn")}</span></span>
+                <b>{d.name}{thisOne?.id === d.id ? ` · ${t("thisOne")}` : ""}</b>
+                <span className="cap">{t(`kind.${d.kind}`)}{d.set_up_by ? ` · ${t("by", { name: d.set_up_by })}` : ""}</span>
+                {st === "off" && d.last_seen && <span className="cap">{t("lastOn", { when: f.relativeTime(new Date(d.last_seen), new Date(now)) })}</span>}
+              </button>
+            );
+          })}
+        </div>
+        {!list.length && <span className="cap">{t("none")}</span>}
+        {list.length > 0 && <span className="cap">{t("onMeans")}</span>}
+      </section>
 
       {!thisOne && (
         <section className="card pad" style={{ gap: 10 }}>

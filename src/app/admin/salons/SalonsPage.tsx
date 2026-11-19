@@ -12,6 +12,7 @@ import {
   pilotDay, pilotDaysLeft, planOf, usageOf, type Alert, type Health, type Mood, type SalonFacts, type Texting,
 } from "@/lib/admin/health";
 import { Button, Chip, Drawer, Field } from "@/components/kit";
+import DeviceMark from "@/components/DeviceMark";
 import { AdminShell, useAdmin, type Admin } from "../shell";
 
 type Invite = { salon_id: string; code: string | null; owner_name: string | null };
@@ -112,7 +113,11 @@ export default function SalonsPage() {
                   return (
                     <tr key={s.salon_id} id={`s-${s.salon_id}`} data-testid="salon-row">
                       <td><Link href={`/admin/salons/${s.salon_id}`} className="ad-name" data-testid="salon-link">{s.salon_name} ›</Link>
-                        <div className="cap">{s.owner_name ?? "No owner"} · {s.staff} staff</div><div className="cap" data-testid="use">{USE[usageOf(s)]}</div></td>
+                        <div className="cap">{s.owner_name ?? "No owner"} · {s.staff} staff</div><div className="cap" data-testid="use">{USE[usageOf(s)]}</div>
+                        <div className="dv-dots" data-testid="devices" role="img" aria-label={s.devices ? `${s.devices_online} of ${s.devices} devices on` : "No salon devices"}>
+                          {Array.from({ length: Math.min(s.devices, 6) }, (_, i) => <DeviceMark key={i} state={i < s.devices_online ? "on" : "off"} size={14} />)}
+                          <span className="cap">{s.devices ? `${s.devices_online} of ${s.devices} on` : "No devices"}</span>
+                        </div></td>
                       <td><span className={`ad-pill ${health}`} data-testid="health">{HEALTH[health]}</span><div className="cap">{why}</div></td>
                       <td className="ad-wrap" data-testid="checkin">
                         <div className="ad-line"><span className={`ad-pill ${mood ? mood[1] : "setup"}`}>{mood ? mood[0] : "No check-in"}</span>

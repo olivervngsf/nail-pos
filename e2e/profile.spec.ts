@@ -75,6 +75,11 @@ test("devices: owner shows a QR, tablet types the code at /go and opens the fron
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/settings/devices");
+  // on / off at a glance: 2 of 3 on, the kiosk is off with "last on"
+  await expect(page.getByTestId("devices-on")).toHaveText("2 of 3 on");
+  await expect(page.getByTestId("device-Front desk iPad")).toHaveAttribute("data-state", "on");
+  await expect(page.getByTestId("device-Door kiosk")).toHaveAttribute("data-state", "off");
+  await expect(page.getByTestId("device-Door kiosk")).toContainText("Last on");
   await page.getByTestId("add-device").click();
   await page.getByTestId("qr-make").click();
   await expect(page.getByTestId("qr-box").locator("svg")).toBeVisible();

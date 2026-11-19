@@ -1956,7 +1956,14 @@
       "orType": "No camera? On the tablet open {site}/go and type:",
       "waiting": "Waiting for the tablet… code ends in {t}",
       "expired": "Code ended. Tap New code.",
-      "qrDemo": "Test copy: nothing is saved. On the tablet, open /go and type any 8 letters."
+      "qrDemo": "Test copy: nothing is saved. On the tablet, open /go and type any 8 letters.",
+      "title": "Salon devices",
+      "on": "On now",
+      "off": "Off",
+      "neverOn": "Never on",
+      "lastOn": "Last on {when}",
+      "count": "{on} of {all} on",
+      "onMeans": "On = the app is open and showing on that device. Screen off or browser closed shows as Off."
     },
     "pay": {
       "lead": "Your salon's own Stripe account. Card money goes straight to your bank; we never hold it.",

@@ -29,6 +29,11 @@ test("admin: inbox, handled, salons table, filters, add salon drawer", async ({ 
   await expect(kim.getByTestId("checkin")).toContainText("9 days ago · Elang");
   await expect(kim.getByTestId("need")).toContainText("Overdue 2 days");
   await expect(rows.filter({ hasText: "Cosmo Nails" }).getByTestId("use")).toHaveText("Busy week");
+  // devices on / off: one check mark per device that is on, an empty ring for each one that is off
+  await expect(rows.filter({ hasText: "Cosmo Nails" }).getByTestId("devices")).toContainText("4 of 4 on");
+  await expect(rows.filter({ hasText: "Cosmo Nails" }).getByTestId("devices").locator(".dv-mark.is-on")).toHaveCount(4);
+  await expect(rows.filter({ hasText: "Lotus Nails" }).getByTestId("devices").locator(".dv-mark.is-off")).toHaveCount(3);
+  await expect(rows.filter({ hasText: "Nails by Vy" }).getByTestId("devices")).toContainText("No devices");
   await expect(rows.filter({ hasText: "Happy Nails" }).getByTestId("plan")).toHaveText("Payment late");
   await page.getByTestId("f-checkin").click();
   await expect(rows).toHaveCount(1);
