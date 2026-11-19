@@ -984,7 +984,11 @@ button:disabled { cursor: not-allowed; }
 .ad-care td, .ad-care th { padding-left: 8px; padding-right: 8px; }
 .ad-line { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .ad-note { font-size: 13px; line-height: 18px; margin-top: 4px; }
-.ad-dotcell { width: 52px; padding: 6px 8px !important; }
+/* The care table needs ~800px: on a smaller window the Alerts panel drops under it instead of squeezing it. */
+.ad-care-col { flex-basis: 860px; }
+/* If it still has to scroll sideways (phones), the 3 dots stay in view on the right. */
+.ad-dotcell { width: 52px; padding: 6px 8px !important; position: sticky; right: 0; background: #fff; }
+.ad-care th:last-child { position: sticky; right: 0; background: #fff; }
 .ad-dots { width: 40px; height: 40px; border-radius: 10px; border: 0; background: transparent; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .ad-dots:hover, .ad-dots.open { background: var(--fill); }
 .ad-menu { position: fixed; z-index: 30; width: 240px; max-height: calc(100dvh - 16px); overflow-y: auto; background: #fff; border-radius: 14px; box-shadow: 0 0 0 1px var(--line), 0 12px 32px rgba(28,28,30,.16); padding: 6px; display: flex; flex-direction: column; }
