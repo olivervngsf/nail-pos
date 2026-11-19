@@ -13,6 +13,13 @@ export function inviteBody(p: { salon: string; owner?: string | null; link: stri
   return `PolishOS: ${by}${salon} added you to the team. Join and set your PIN: ${p.link} Reply STOP to stop.`;
 }
 
+/** The "make your PIN" text for someone who joined but has no PIN (cleared or never made). Same rules as inviteBody. */
+export function pinLinkBody(p: { salon: string; link: string; lang?: string | null }): string {
+  const salon = p.salon.trim() || "your salon";
+  if (p.lang === "vi") return `PolishOS: tiem ${noAccents(salon)} nho ban tao ma PIN moi. Bam link, dang nhap bang so dien thoai: ${p.link} Tra loi STOP de ngung.`;
+  return `PolishOS: ${salon} asks you to make your PIN. Tap the link and sign in with your phone: ${p.link} Reply STOP to stop.`;
+}
+
 export function noAccents(s: string): string {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
 }
