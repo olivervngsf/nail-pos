@@ -88,9 +88,11 @@ function Salon({ admin, s }: { admin: Admin; s: SalonFacts }) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div className="h2">Support access</div><span className="ad-pill">Off</span>
           </div>
-          <p className="cap" style={{ margin: 0 }}>We see health only. Client names + phones, each tech’s pay and notes stay hidden unless the owner allows 24-hour access (logged).</p>
-          <Button disabled title="Comes next">Ask {s.owner_name?.split(" ")[0] ?? "owner"} for 24-h access</Button>
-          <div className="demo">Next build: the owner gets a text + a prompt in their app to allow it.</div>
+          <p className="cap" style={{ margin: 0 }}>We see health only. Client names + phones, each tech’s pay and notes stay hidden unless the owner turns on 24h access (logged).</p>
+          {s.owner_joined && s.owner_phone
+            ? <a className="btn" data-testid="ask-support" href={`sms:${s.owner_phone}?&body=${encodeURIComponent(`Hi ${s.owner_name?.split(" ")[0] ?? ""}, this is PolishOS support. To let us look at your screens for 24h, open Settings → Support and tap Turn on. You can end it any time.`)}`}>Ask {s.owner_name?.split(" ")[0] ?? "owner"} for 24h access</a>
+            : <p className="cap" style={{ margin: 0 }}>The owner has not joined yet.</p>}
+          <p className="cap" style={{ margin: 0 }}>The owner turns it on in Settings → Support. Then the salon shows under <Link href="/admin/support">Support</Link>.</p>
         </div>
 
         <div className="card pad" style={{ display: "flex", flexDirection: "column", gap: 10 }}>

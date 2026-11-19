@@ -12,7 +12,7 @@ test("owner turns support on for 24h, sees it logged, ends it", async ({ page })
 
   await page.getByLabel("What do you need help with? (optional)").fill("Card reader");
   await page.getByTestId("support-on-btn").click();
-  await expect(page.getByTestId("support-on")).toContainText(/Support is on · 2[34] h \d+ min left/);
+  await expect(page.getByTestId("support-on")).toContainText(/Support is on · 2[34]h \d+ min left/);
   await expect(page.getByTestId("support-on")).toContainText("Card reader");
   await expect(page.getByTestId("support-log")).toContainText("Support turned on");
 

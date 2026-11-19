@@ -193,7 +193,7 @@ function RowMenu({ s, open, onToggle, invite, live, onPick, onCopyInvite, onNewC
   }, [open, onToggle]);
   const pick = (fn: () => void) => () => { onToggle(false); fn(); };
   const first = s.owner_name?.split(" ")[0] ?? "the owner";
-  const ask = `Hi ${first}, this is PolishOS support. To let us look at your screens for 24 hours, open Settings → Support and tap Turn on. You can end it any time.`;
+  const ask = `Hi ${first}, this is PolishOS support. To let us look at your screens for 24h, open Settings → Support and tap Turn on. You can end it any time.`;
   return (
     <div ref={box}>
       <button type="button" className={`ad-dots${open ? " open" : ""}`} aria-label={`Actions for ${s.salon_name}`} aria-haspopup="menu" aria-expanded={open}
