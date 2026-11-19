@@ -7,6 +7,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 : "${LIVE_DB_URL:?LIVE_DB_URL is not set}"
+# Must be a full address, e.g. postgresql://postgres.<ref>:<password>@aws-0-us-west-1.pooler.supabase.com:5432/postgres
+# (anything else makes psql look for a database on this machine). Never prints the value.
+case "$LIVE_DB_URL" in
+  postgres://*|postgresql://*) ;;
+  *) echo "FAILED: LIVE_DB_URL is not a database address. It must start with postgresql:// (no quotes or spaces). Copy Supabase → Connect → Session pooler → URI and put the password in."; exit 1 ;;
+esac
+case "$LIVE_DB_URL" in *YOUR-PASSWORD*|*'[YOUR'*) echo "FAILED: LIVE_DB_URL still has [YOUR-PASSWORD] in it. Replace it with the database password."; exit 1 ;; esac
 DRY=${1:-}
 q() { psql "$LIVE_DB_URL" -X -q -t -A -v ON_ERROR_STOP=1 "$@"; }
 

@@ -5,7 +5,9 @@ import Link from "next/link";
 import { formatCents } from "@/lib/money";
 import { fmtPhone } from "@/lib/onboarding/data";
 import { alertsFor, healthOf, openAlerts, totals, vsWeekAgo, type Alert, type Overview } from "@/lib/admin/health";
+import { useState } from "react";
 import { Button } from "@/components/kit";
+import { api } from "@/lib/api";
 import { AdminShell, useAdmin } from "./shell";
 
 const $0 = (c: number) => formatCents(Math.round(c / 100) * 100).replace(/\.00$/, "");
@@ -57,6 +59,7 @@ function Inbox({ o, onHandle }: { o: Overview; onHandle: (salon: string, kind: s
         {bad.length > 0 && <><div className="eyebrow">Now</div>{bad.map((a) => <AlertCard key={a.salon_id + a.kind} a={a} big now={+now} onHandle={onHandle} />)}</>}
         {warn.length > 0 && <><div className="eyebrow">Today</div>{warn.map((a) => <AlertCard key={a.salon_id + a.kind} a={a} now={+now} onHandle={onHandle} />)}</>}
         {!alerts.length && <div className="card pad" style={{ textAlign: "center", padding: 32 }}><div className="h2">All good</div><p className="cap">Every salon is healthy right now.</p></div>}
+        <TestText />
 
         {o.handled.length > 0 && <>
           <div className="eyebrow">Done today</div>
@@ -113,5 +116,30 @@ function AlertCard({ a, big, now, onHandle }: { a: Alert; big?: boolean; now: nu
         <Button style={{ marginLeft: "auto" }} onClick={() => void onHandle(a.salon_id, a.kind)} data-testid="handled">Handled</Button>
       </div>
     </article>
+  );
+}
+
+/** Send one real test text through the sender (trial Twilio: only to numbers verified in Twilio). */
+function TestText() {
+  const [to, setTo] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const send = async () => {
+    setBusy(true); setMsg("");
+    try {
+      const r = await api<{ status: string; error?: string }>("/api/sms/test", { to });
+      setMsg(r.status === "sent" ? "Sent. Check the phone." : `Not sent (${r.status})${r.error ? `: ${r.error}` : ""}`);
+    } catch (e) { setMsg((e as Error).message); }
+    setBusy(false);
+  };
+  return (
+    <div className="card pad" style={{ gap: 10 }} data-testid="test-text">
+      <b>Send a test text</b>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <input className="inp" style={{ flex: "1 1 200px" }} inputMode="tel" placeholder="(510) 555-0100" aria-label="Mobile number" value={to} onChange={(e) => setTo(e.target.value)} />
+        <Button variant="primary" disabled={busy || !to.trim()} onClick={() => void send()}>{busy ? "Sending…" : "Send test"}</Button>
+      </div>
+      {msg && <div className="cap" role="status">{msg}</div>}
+    </div>
   );
 }
