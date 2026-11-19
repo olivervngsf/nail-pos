@@ -90,7 +90,7 @@ export default function SalonsPage() {
       {o && <>
         <Tiles rows={rows} now={o.now} o={o} />
         <div className="ad-split">
-        <section className="group ad-wide-col" style={{ padding: 0, gap: 0 }} data-testid="salon-list">
+        <section className="group ad-wide-col ad-care-col" style={{ padding: 0, gap: 0 }} data-testid="salon-list">
           <div className="ad-tablehead">
             <h2 className="h2" style={{ margin: "0 auto 0 0" }}>All salons</h2>
             {(["all", "action", "checkin", "late"] as Filter[]).map((f) => (
