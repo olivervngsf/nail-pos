@@ -8,6 +8,7 @@ import { e164, rpc, type Role } from "@/lib/auth";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { DAYS, DEMO_TEAM, SKILLS, blankMember, licenseDaysLeft, memberStatus, payLabel, savePayload, type Member, type PayType } from "@/lib/team";
 import SettingsShell, { type Access } from "../SettingsShell";
+import { textInvite, textLine, type SendReply } from "@/lib/texting/client";
 
 type Filter = "all" | "tech" | "desk" | "invited";
 const initials = (n: string) => n.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
@@ -83,7 +84,13 @@ function Team({ a, edit, setEdit }: { a: Access; edit: Member | null; setEdit: (
           setEdit(null);
           if (a.demo) setTeam((cur) => { const list = cur ?? []; return x.id && list.some((y) => y.id === x.id) ? list.map((y) => (y.id === x.id ? x : y)) : [...list, { ...x, id: `d-${Date.now()}`, invite: invite ?? "DEMO42" }]; });
           else void load();
-          say(invite ? t("team.addedInvite", { name: x.name }) : t("team.saved"));
+          if (invite && !a.demo) {
+            // Text the invite right away (PolishOS number); Copy link in the drawer stays as the backup.
+            say(t("team.addedInvite", { name: x.name }));
+            textInvite(invite)
+              .then((r) => say(r.status === "sent" || r.status === "delivered" ? t("team.inviteTexted", { name: x.name }) : t("team.inviteNotTexted", { why: textLine(r) })))
+              .catch((e) => say(t("team.inviteNotTexted", { why: (e as Error).message })));
+          } else say(invite ? t("team.addedInvite", { name: x.name }) : t("team.saved"));
         }}
         onChanged={(msg) => { setEdit(null); say(msg); if (!a.demo) void load(); }} />}
       {toast && <Toast>{toast}</Toast>}
@@ -117,6 +124,18 @@ function MemberDrawer({ a, m, onClose, onSaved, onChanged }: { a: Access; m: Mem
     if (a.demo) return onChanged(msg);
     try { await rpc(fn, { p_membership: m.id }); onChanged(msg); } catch (e) { setErr((e as Error).message); }
   };
+  const [textMsg, setTextMsg] = useState("");
+  const sendText = async () => {
+    setTextMsg(t("m.texting"));
+    try {
+      // A fresh code each time an old one ended; the same code is never texted twice.
+      const code = a.demo ? "DEMO42" : m.invite ?? await rpc<string>("team_invite", { p_membership: m.id });
+      if (a.demo) { setTextMsg(t("m.textDemo")); return; }
+      let r = await textInvite(code).catch((e: Error) => ({ status: "error", error: e.message }) as SendReply);
+      if (r.status === "error" && /ended/.test(r.error ?? "")) r = await textInvite(await rpc<string>("team_invite", { p_membership: m.id }));
+      setTextMsg(r.status === "error" ? r.error ?? "" : r.duplicate ? t("m.textAgain") : textLine(r));
+    } catch (e) { setTextMsg((e as Error).message); }
+  };
   const newInvite = async () => {
     try {
       const code = a.demo ? "DEMO42" : await rpc<string>("team_invite", { p_membership: m.id });
@@ -130,7 +149,10 @@ function MemberDrawer({ a, m, onClose, onSaved, onChanged }: { a: Access; m: Mem
       footer={<><Button onClick={onClose}>{t("m.cancel")}</Button><Button variant="primary" block data-testid="member-save" disabled={!canSave || busy} onClick={() => void save()}>{isNew ? t("m.addInvite") : t("m.save")}</Button></>}>
       {!isNew && !m.joined && (
         <div className="note" data-testid="invite-box">{t("m.waiting")}{m.invite ? <> · <code>{link(m.invite)}</code></> : null}
-          <div style={{ marginTop: 8 }}><Button size="sm" onClick={() => void newInvite()}>{t("m.copyInvite")}</Button></div></div>
+          <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <Button size="sm" variant="primary" data-testid="text-invite" onClick={() => void sendText()}>{t("m.textInvite")}</Button>
+            <Button size="sm" onClick={() => void newInvite()}>{t("m.copyInvite")}</Button></div>
+          {textMsg && <div className="cap" role="status" style={{ marginTop: 6 }}>{textMsg}</div>}</div>
       )}
       <div className="set-two">
         <Field id="m-name" label={t("m.name")} value={x.name} onChange={(e) => set({ name: e.target.value })} />
