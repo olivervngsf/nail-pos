@@ -1781,7 +1781,9 @@
         "out": "Out"
       },
       "saved": "Saved",
-      "addedInvite": "{name} added. Invite link ready: send it to their phone."
+      "addedInvite": "{name} added. Invite link ready: send it to their phone.",
+      "inviteTexted": "Invite texted to {name}.",
+      "inviteNotTexted": "Invite not texted: {why} Copy the link instead (open their name)."
     },
     "m": {
       "name": "Name",
@@ -1831,7 +1833,11 @@
       "cancel": "Cancel",
       "save": "Save",
       "addInvite": "Add + make invite",
-      "phoneTaken": "That phone is already on the team."
+      "phoneTaken": "That phone is already on the team.",
+      "textInvite": "Text the invite",
+      "texting": "Texting…",
+      "textDemo": "Test version: no text sent.",
+      "textAgain": "Already texted this invite. Make a new link to text again."
     },
     "pin": {
       "saved": "PIN rules saved",

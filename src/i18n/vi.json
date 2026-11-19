@@ -1781,7 +1781,9 @@
         "out": "Nghỉ"
       },
       "saved": "Đã lưu",
-      "addedInvite": "Đã thêm {name}. Link mời sẵn sàng: gửi tới điện thoại của họ."
+      "addedInvite": "Đã thêm {name}. Link mời sẵn sàng: gửi tới điện thoại của họ.",
+      "inviteTexted": "Đã nhắn link mời tới {name}.",
+      "inviteNotTexted": "Chưa nhắn được link mời: {why} Hãy sao chép link (bấm vào tên họ)."
     },
     "m": {
       "name": "Tên",
@@ -1831,7 +1833,11 @@
       "cancel": "Huỷ",
       "save": "Lưu",
       "addInvite": "Thêm + tạo lời mời",
-      "phoneTaken": "Số này đã có trong tiệm."
+      "phoneTaken": "Số này đã có trong tiệm.",
+      "textInvite": "Nhắn link mời",
+      "texting": "Đang nhắn…",
+      "textDemo": "Bản thử: không gửi tin nhắn.",
+      "textAgain": "Đã nhắn link mời này rồi. Tạo link mới để nhắn lại."
     },
     "pin": {
       "saved": "Đã lưu luật PIN",

@@ -2,7 +2,7 @@
 -- The client gives a cell phone, an email, or both (one is required). Each message to send is one row in `reminders`
 -- with its channel and where it goes (the contact typed for THIS booking, not whatever is on file).
 -- The server route /api/book/notify (secret key) claims the queued 'confirm' rows, sends them (email: Resend,
--- text: Twilio, only when the salon's texting is approved) and records sent / skipped / failed.
+-- text: the shared sendText, which only sends from the salon's own registered number) and records sent / skipped / failed.
 -- Day-before and 2-hour rows are queued the same way for the scheduled sender (next step).
 
 alter table public.reminders
@@ -148,7 +148,7 @@ begin
   select coalesce(jsonb_agg(jsonb_build_object('id', id, 'channel', channel, 'to', to_addr)), '[]') into sends from c;
   return jsonb_build_object(
     'sends', sends,
-    'salon', jsonb_build_object('name', s.name, 'phone', s.phone, 'address', s.address, 'slug', s.slug,
+    'salon', jsonb_build_object('id', s.id, 'name', s.name, 'phone', s.phone, 'address', s.address, 'slug', s.slug,
       'cancelHours', coalesce((s.booking_settings->>'cancel_hours')::int, 2),
       'texting', coalesce((select texting from public.admin_salon_status where salon_id = s.id), 'not_started')),
     'name', split_part(first.client_name, ' ', 1),

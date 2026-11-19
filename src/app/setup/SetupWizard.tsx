@@ -496,7 +496,7 @@ function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
     </div>
     <div><button className="btn" type="button" onClick={startAdd}>+ Add staff</button></div>
     {SMS_ON
-      ? <div className="cap">Tap Copy invite link and text it to them yourself (automatic invite texts are coming).</div>
+      ? <div className="cap">We text each person their invite from the PolishOS number once texting is approved by the carriers. Until then, tap Copy invite link and send it yourself.</div>
       : <div className="demo">Test version: texts aren&apos;t sent yet. Copy the invite link and send it yourself, or open it to see what staff get on their phone.</div>}
     {open && <>
       <button className="scrim" aria-label="Close" onClick={close} />

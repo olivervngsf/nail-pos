@@ -4,6 +4,7 @@ import { enqueue, registerHandler } from "@/lib/offline/outbox";
 import { SMS_ON, e164, rpc } from "@/lib/auth";
 import type { PayType } from "@/lib/onboarding/data";
 import type { SetupState } from "./state";
+import { textInvite } from "@/lib/texting/client";
 
 const uuid = () => crypto.randomUUID();
 // One new salon id per page load: several quick calls must not each make a different salon.
@@ -48,7 +49,22 @@ export function toPayload(s: SetupState) {
 
 registerHandler("setup.save", async (item) => {
   await rpc("save_setup", { p: item.payload });
+  void textNewInvites(item.payload as { staff?: { inviteCode?: string }[] });
 });
+
+/** After a save reached the server, text each new staff invite once (PolishOS number). Copy link stays the backup. */
+const TEXTED = "nailpos.invitesTexted";
+async function textNewInvites(p: { staff?: { inviteCode?: string }[] }) {
+  let done: string[] = [];
+  try { done = JSON.parse(localStorage.getItem(TEXTED) ?? "[]"); } catch { /* none yet */ }
+  for (const code of (p.staff ?? []).map((x) => x.inviteCode).filter((c): c is string => !!c && !done.includes(c))) {
+    try {
+      await textInvite(code);
+      done.push(code); // sent, skipped or blocked: logged on the server; never ask twice from here
+    } catch { /* not saved yet / no rights: the next save tries again */ }
+  }
+  try { localStorage.setItem(TEXTED, JSON.stringify(done.slice(-200))); } catch { /* private mode */ }
+}
 
 /** Queue a save of the whole wizard (only with real sign-in; the test copy stays on this device). */
 export function queueSave(s: SetupState) {
