@@ -31,7 +31,9 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            // Drop unused code only (see proguard-rules.pro): the install file goes from ~11 MB to a few MB.
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             signingConfig ksFile ? signingConfigs.fixed : signingConfigs.debug
         }
     }
