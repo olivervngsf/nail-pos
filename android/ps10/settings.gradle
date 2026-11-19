@@ -1,7 +1,13 @@
 pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories { google(); mavenCentral() }
+    repositories {
+        google()
+        // GitHub's build machines are sometimes turned away by Maven Central ("429 Too Many Requests"):
+        // there, ask Google's copy of Maven Central first.
+        if (System.getenv("CI")) maven { url "https://maven-central.storage-download.googleapis.com/maven2/" }
+        mavenCentral()
+    }
 }
 rootProject.name = "polishos-terminal"
 include(":app")
