@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SMS_ON, isSignedIn, myMemberships, rpc, signOut } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase/client";
-import { openAlerts, sampleOverview, type Overview } from "@/lib/admin/health";
+import { openAlerts, sampleOverview, type Mood, type Overview } from "@/lib/admin/health";
 import { Button, OfflineBanner, Toast, TopBar } from "@/components/kit";
 
 const CACHE = "nailpos.admin";
@@ -15,6 +15,8 @@ type Gate = "loading" | "no" | "live" | "demo";
 export type Admin = {
   gate: Gate; data: Overview | null; err: string; hasSalon: boolean; savedAt: string | null;
   reload: () => Promise<void>; handle: (salonId: string, kind: string) => Promise<void>; say: (t: string) => void; toast: string;
+  /** Test version only: a check-in kept on the screen (real ones go through admin_checkin). */
+  checkin: (salonId: string, c: { mood: Mood; note: string; need: string; due: string | null; who: string }) => void;
 };
 
 export function useAdmin(): Admin {
@@ -68,7 +70,15 @@ export function useAdmin(): Admin {
     catch (e) { say((e as Error).message); }
   }, [gate, reload, say]);
 
-  return { gate, data, err, hasSalon, savedAt, reload, handle, say, toast };
+  const checkin = useCallback<Admin["checkin"]>((salonId, c) => {
+    setData((d) => d && { ...d, salons: d.salons.map((x) => (x.salon_id !== salonId ? x : {
+      ...x, checkin_at: new Date().toISOString(), checkin_by: d.me, checkin_mood: c.mood, checkin_note: c.note,
+      ...(c.need ? { need: c.need, need_due: c.due, need_who: c.who } : {}),
+    })) });
+    say("Check-in saved");
+  }, [say]);
+
+  return { gate, data, err, hasSalon, savedAt, reload, handle, say, toast, checkin };
 }
 
 const ICONS = {
