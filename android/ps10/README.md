@@ -1,5 +1,7 @@
 # PolishOS app for handheld terminals (PS10 / H10)
 
+Status: works on a real PS10 (Nov 18, 2026): receipt with QR printed from a paid ticket.
+
 What it is: the PolishOS web app (polishosapp.com) in its own full-screen window, plus direct printing on
 the terminal's built-in printer. No RawBT, no printer to pick.
 
