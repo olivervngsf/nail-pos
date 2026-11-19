@@ -168,7 +168,7 @@ function HealthRows({ s, d, now, admin }: { s: SalonFacts; d: SalonDetail | null
     <div className="group" data-testid="health-rows">
       <div className="row s"><b style={{ fontWeight: 600 }}>Health</b></div>
       {row("Stripe", stripe[0], stripe[1], "h-stripe")}
-      {row("Card reader", d ? (d.readers.length ? d.readers.map((r) => r.label + (r.simulated ? " (test)" : "")).join(", ") : "None paired") : "…", d ? (d.readers.length ? "good" : isLive(s) ? "warn" : "setup") : null)}
+      {row("Card reader", d ? (d.readers.length ? d.readers.map((r) => r.label + (r.simulated && !/\(test\)\s*$/i.test(r.label) ? " (test)" : "")).join(", ") : "None paired") : "…", d ? (d.readers.length ? "good" : isLive(s) ? "warn" : "setup") : null)}
       {(d?.devices ?? []).map((x) => {
         const on = x.last_seen && now - Date.parse(x.last_seen) < ONLINE_MS;
         return <div key={x.name + x.kind}>{row(x.kind === "clock" ? "Time clock" : "Salon device", `${x.name} · ${on ? "in use now" : `last used ${when(x.last_seen, now)}`}`, on ? "good" : "warn")}</div>;
