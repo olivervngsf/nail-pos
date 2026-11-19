@@ -5,9 +5,10 @@ import Link from "next/link";
 import { formatCents } from "@/lib/money";
 import { fmtPhone } from "@/lib/onboarding/data";
 import { alertsFor, healthOf, openAlerts, totals, vsWeekAgo, type Alert, type Overview } from "@/lib/admin/health";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/kit";
 import { api } from "@/lib/api";
+import { followText, textLine, type SendReply } from "@/lib/texting/client";
 import { AdminShell, useAdmin } from "./shell";
 
 const $0 = (c: number) => formatCents(Math.round(c / 100) * 100).replace(/\.00$/, "");
@@ -124,11 +125,15 @@ function TestText() {
   const [to, setTo] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const stopRef = useRef<() => void>(() => {});
+  useEffect(() => () => stopRef.current(), []);
   const send = async () => {
-    setBusy(true); setMsg("");
+    setBusy(true); setMsg(""); stopRef.current();
     try {
-      const r = await api<{ status: string; error?: string }>("/api/sms/test", { to });
-      setMsg(r.status === "sent" ? "Sent. Check the phone." : `Not sent (${r.status})${r.error ? `: ${r.error}` : ""}`);
+      // "Sent" only means Twilio took it; follow it until the carrier says delivered or not (and why).
+      const r = await api<SendReply>("/api/sms/test", { to });
+      setMsg(textLine(r));
+      if (r.id && r.status === "sent") stopRef.current = followText(r.id, (s) => setMsg(textLine(s)));
     } catch (e) { setMsg((e as Error).message); }
     setBusy(false);
   };

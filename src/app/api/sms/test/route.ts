@@ -2,6 +2,7 @@
 // Trial Twilio accounts can only text numbers verified in the Twilio console.
 import { asServer, asUser, fail, originOf } from "@/lib/server/pay";
 import { sendText, smsConfigured } from "@/lib/server/sms";
+import { explainTextError } from "@/lib/texting/invite";
 
 export const runtime = "nodejs";
 
@@ -16,5 +17,5 @@ export async function POST(req: Request) {
   const { to } = (await req.json().catch(() => ({}))) as { to?: string };
   if (!to) return fail(400, "Type a mobile number.");
   const r = await sendText(db, { clientKey: `test:${crypto.randomUUID()}`, kind: "other", to, body: "PolishOS test text: texting works. Reply STOP to stop." }, originOf(req));
-  return Response.json(r);
+  return Response.json({ ...r, why: explainTextError(r.error) });
 }
