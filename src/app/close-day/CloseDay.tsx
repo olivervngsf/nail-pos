@@ -146,7 +146,7 @@ export default function CloseDay() {
                   {sum.open.length === 0 ? <div className="note">{t("noOpen")}</div> : (
                     <ListGroup style={{ boxShadow: "none", border: "1px solid var(--line)" }}>
                       {sum.open.map((o) => (
-                        <div className="row" key={o.id} style={{ minHeight: 58, flexWrap: "wrap", rowGap: 8 }}>
+                        <div className="row cd-open-row" key={o.id} style={{ minHeight: 58, flexWrap: "wrap", rowGap: 8 }}>
                           <Avatar name={o.client || "#"} />
                           <span className="grow"><b>{o.client || t("walkIn")} · #{o.number}</b><span className="cap" style={{ display: "block" }}>{[o.services, o.staff].filter(Boolean).join(" · ")}</span></span>
                           <b className="num" style={{ marginRight: 8 }}>{$(o.total_cents)}</b>
