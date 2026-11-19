@@ -25,7 +25,7 @@ Share this page with anyone who sets up Stripe for PolishOS (sandbox or live).
 | Vercel variable | `STRIPE_WEBHOOK_SECRET` | `STRIPE_BILLING_WEBHOOK_SECRET` |
 | Events | `payment_intent.succeeded`, `payment_intent.payment_failed`, `checkout.session.completed`, `charge.refunded`, `charge.updated`, `account.updated` | `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`, `checkout.session.completed`, `payment_intent.succeeded`, `customer.updated`, `payment_method.attached` |
 | Code | `src/app/api/stripe/webhook/route.ts` | `src/app/api/billing/webhook/route.ts` |
-| Status (Nov 19) | Sandbox destination "PolishOS card payments" created, Active; secret → Vercel pending | Not set up yet (Billing page also refreshes from Stripe each time it opens) |
+| Status (Nov 19) | **Working (sandbox).** Destination "PolishOS card payments", secret in Vercel Production. Tested: ticket #1014 on `lotus-5` paid by the webhook alone (no desk screen open) | Not set up yet (Billing page also refreshes from Stripe each time it opens) |
 
 ## Steps (≈10 min each)
 
