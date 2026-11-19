@@ -108,7 +108,7 @@ function Devices({ a }: { a: Access }) {
   }, [a.demo, a.salonId]);
   useEffect(() => { void load(); }, [load]);
 
-  const seen = (iso: string | null) => (!iso ? t("never") : Date.now() - new Date(iso).getTime() < 120_000 ? t("now") : f.relativeTime(new Date(iso), new Date()));
+  const seen = (iso: string | null) => (!iso ? t("never") : Date.now() - new Date(iso).getTime() < 600_000 ? t("now") : f.relativeTime(new Date(iso), new Date()));
   const thisOne = here && here.salonId === a.salonId ? here : null;
 
   const setUpHere = async () => {
