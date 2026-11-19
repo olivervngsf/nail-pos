@@ -30,6 +30,12 @@ do $$ declare sid uuid := ((select v from t_out where k = 'made')->>'salon_id'):
   begin perform public.admin_set_texting(sid, 'approved'); raise exception 'FAIL: admin_set_texting for owner';
   exception when insufficient_privilege then null; end;
   if exists (select 1 from public.admin_salon_status) then raise exception 'FAIL: owner reads admin_salon_status'; end if;
+  begin perform public.admin_checkin(sid, 'ok', 'x'); raise exception 'FAIL: admin_checkin for owner';
+  exception when insufficient_privilege then null; end;
+  begin perform public.admin_salon_edit(sid, 'Hacked Nails', 'CA'); raise exception 'FAIL: admin_salon_edit for owner';
+  exception when insufficient_privilege then null; end;
+  begin perform public.admin_salon_archive(sid, true); raise exception 'FAIL: admin_salon_archive for owner';
+  exception when insufficient_privilege then null; end;
 end $$;
 
 -- admin: sees the salon, handles an alert (once a day), writes a note that shows in the salon's activity
@@ -58,6 +64,29 @@ do $$ declare sid uuid := ((select v from t_out where k = 'made')->>'salon_id'):
     and (x->>'texting_at')::timestamptz < now() - interval '8 days') then raise exception 'FAIL: texting waiting / date reset'; end if;
   begin perform public.admin_set_texting(sid, 'maybe'); raise exception 'FAIL: bad texting status';
   exception when invalid_parameter_value then null; end;
+  -- salon care (migration 20261224000001_admin_care): check-in + one open need, edit, archive + restore
+  perform public.admin_checkin(sid, 'help', 'Printer will not pair', 'Help pair the printer', current_date + 2, 'Elang');
+  perform public.admin_checkin(sid, 'ok', 'Printer paired', 'Send the gift card guide', current_date + 5, 'Oliver');
+  h := public.admin_health();
+  if not exists (select 1 from jsonb_array_elements(h->'salons') x where (x->>'salon_id')::uuid = sid and x->>'checkin_mood' = 'ok'
+    and x->>'checkin_note' = 'Printer paired' and x->>'checkin_by' = 'Admin Test' and x->>'need' = 'Send the gift card guide' and x->>'need_who' = 'Oliver')
+    then raise exception 'FAIL: last check-in / open need: %', (select x from jsonb_array_elements(h->'salons') x where (x->>'salon_id')::uuid = sid); end if;
+  perform public.admin_need_done(sid);
+  h := public.admin_health();
+  if exists (select 1 from jsonb_array_elements(h->'salons') x where (x->>'salon_id')::uuid = sid and x->>'need' is not null) then raise exception 'FAIL: need not done'; end if;
+  begin perform public.admin_checkin(sid, 'great'); raise exception 'FAIL: bad mood';
+  exception when invalid_parameter_value then null; end;
+  -- owner has joined: salon name changes, the owner's own name does not
+  perform public.admin_salon_edit(sid, 'Health Nails & Spa', 'TX', 'Someone Else', '+14085550999');
+  h := public.admin_health();
+  if not exists (select 1 from jsonb_array_elements(h->'salons') x where (x->>'salon_id')::uuid = sid and x->>'salon_name' = 'Health Nails & Spa'
+    and x->>'state' = 'TX' and x->>'owner_name' = 'Hana Owner' and x->>'owner_phone' = '+14085550912') then raise exception 'FAIL: salon edit'; end if;
+  perform public.admin_salon_archive(sid, true);
+  h := public.admin_health();
+  if exists (select 1 from jsonb_array_elements(h->'salons') x where (x->>'salon_id')::uuid = sid)
+    or not exists (select 1 from jsonb_array_elements(h->'archived') x where (x->>'salon_id')::uuid = sid) then raise exception 'FAIL: archive'; end if;
+  perform public.admin_salon_archive(sid, false);
+  if not exists (select 1 from jsonb_array_elements(public.admin_health()->'salons') x where (x->>'salon_id')::uuid = sid) then raise exception 'FAIL: restore'; end if;
   perform public.admin_note(sid, 'Called Hana, all good');
   d := public.admin_salon(sid);
   if not exists (select 1 from jsonb_array_elements(d->'activity') x where x->>'action' = 'admin.note' and x->>'note' = 'Called Hana, all good' and x->>'who' = 'Admin Test')
@@ -71,6 +100,8 @@ do $$ declare sid uuid := ((select v from t_out where k = 'made')->>'salon_id'):
   if not exists (select 1 from public.audit_log where salon_id = sid and action = 'admin.alert_handled') then raise exception 'FAIL: owner cannot see handled'; end if;
   if exists (select 1 from public.audit_log where salon_id = sid and detail::text like '%Called Hana%') then raise exception 'FAIL: note leaked to audit_log'; end if;
   if exists (select 1 from public.admin_notes) then raise exception 'FAIL: owner reads admin_notes'; end if;
+  if exists (select 1 from public.admin_checkins) then raise exception 'FAIL: owner reads admin_checkins'; end if;
+  if exists (select 1 from public.audit_log where salon_id = sid and detail::text like '%Printer%') then raise exception 'FAIL: check-in leaked to audit_log'; end if;
 end $$;
 
 select 'PASS: admin health + salon page' as result;
