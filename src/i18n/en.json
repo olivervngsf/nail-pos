@@ -1724,7 +1724,8 @@
       "reader": "Card reader",
       "texting": "Texting & credit",
       "billing": "Billing",
-      "support": "Support"
+      "support": "Support",
+      "clockIn": "Clock-in"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
