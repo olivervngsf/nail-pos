@@ -876,7 +876,8 @@ const Ready: StepView = ({ s, go }) => {
         {s.menu.filter((m) => m.on).length} services, payments, reader and printer are set. {waiting ? `${waiting} staff still to join (their invite is waiting).` : "Add staff any time in Settings."}
       </div>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-        <button className="btn" type="button" onClick={() => go(2)}>Staff</button>
+        {/* Setup is finished here: staff changes now live in Settings → Team (the wizard no longer saves them). */}
+        {SMS_ON ? <Link className="btn" href="/settings/team">Staff</Link> : <button className="btn" type="button" onClick={() => go(2)}>Staff</button>}
         <Link className="btn primary" href={SMS_ON ? "/today" : "/"} onClick={() => queueSave(s)}>Open Today</Link>
       </div>
     </div>

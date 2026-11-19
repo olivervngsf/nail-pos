@@ -1,4 +1,4 @@
--- Device "I'm on" signal (migration 20261226000001_device_ping): someone inside the salon can ping its device and
+-- Device "I'm on" signal (migration 20261228000001_device_ping): someone inside the salon can ping its device and
 -- last_seen moves; an outsider can't; an archived device can't. Rolls back.
 begin;
 insert into auth.users (id, phone, aud, role) values
