@@ -1,6 +1,6 @@
 "use client";
 // Founder Admin · one salon (board A2 + A8): totals (today, 8 days), health rows, open alerts, activity log with filters,
-// call/text owner, call notes (admin_note), support access (off; owner-granted 24 h comes next). Totals only, no private data.
+// call/text owner, call notes (admin_note), support access (off; owner-granted 24h comes next). Totals only, no private data.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { rpc } from "@/lib/auth";
@@ -18,7 +18,7 @@ const when = (iso: string | null, now: number) => {
   const m = Math.round((now - Date.parse(iso)) / 60000);
   if (m < 2) return "now";
   if (m < 60) return `${m} min ago`;
-  if (m < 1440) return `${Math.round(m / 60)} h ago`;
+  if (m < 1440) return `${Math.round(m / 60)}h ago`;
   return `${Math.round(m / 1440)} days ago`;
 };
 const stamp = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });

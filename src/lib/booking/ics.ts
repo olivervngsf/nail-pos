@@ -50,7 +50,7 @@ export function bookingIcs(b: IcsBooking, now = new Date()): string {
     ...b.lines,
     `Est. total: ${b.total} (pay at the salon)`,
     "",
-    `Change or cancel (up to ${b.cancelHours} h before):`,
+    `Change or cancel (up to ${b.cancelHours}h before):`,
     b.manageUrl,
     b.salon.phone ? `Call: ${b.salon.phone}` : "",
     b.ownerNote?.trim() ? `\n${b.ownerNote.trim()}` : "",

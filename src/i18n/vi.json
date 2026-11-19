@@ -1169,7 +1169,7 @@
     "calNoteLabel": "Ghi chú cho khách",
     "calSaveHint": "Lịch đặt mới dùng ngay.",
     "calNotes": "Ghi chú",
-    "calAutoNote": "Hi Tom, see you Tue, Nov 17 · 11:00 AM.\nGel manicure · Kim · Est. $45 (pay at the salon)\nChange or cancel up to {hours} h before · Call {phone}",
+    "calAutoNote": "Hi Tom, see you Tue, Nov 17 · 11:00 AM.\nGel manicure · Kim · Est. $45 (pay at the salon)\nChange or cancel up to {hours}h before · Call {phone}",
     "calNoteEmpty": "Ghi chú của bạn hiện ở đây",
     "calFrom": "Tên, địa chỉ, số điện thoại lấy từ phần cài đặt tiệm. Giờ hủy lấy từ <rules>Quy định</rules>.",
     "seg0": "Không",

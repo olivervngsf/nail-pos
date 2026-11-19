@@ -134,7 +134,7 @@ export function AdminShell({ tab, admin, title, actions, children }: { tab: Tab;
           {admin.savedAt && <div className="demo">Offline: showing what this device saved at {new Date(admin.savedAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}.</div>}
           {admin.err && <div className="hint err" role="alert">{admin.err}</div>}
           {children}
-          <p className="cap">Health only: totals per salon. No client names, phones or staff pay. Support access needs the owner’s OK (24 h, logged).</p>
+          <p className="cap">Health only: totals per salon. No client names, phones or staff pay. Support access needs the owner’s OK (24h, logged).</p>
         </main>
       </div>
       {admin.toast && <Toast>{admin.toast}</Toast>}

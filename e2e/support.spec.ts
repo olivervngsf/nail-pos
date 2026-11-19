@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 // Settings → Support (test copy): the owner turns support on for 24 hours (with a reason), sees time left and the log,
 // then ends it. Off by default.
-test("owner turns support on for 24 h, sees it logged, ends it", async ({ page }) => {
+test("owner turns support on for 24h, sees it logged, ends it", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/settings/support");

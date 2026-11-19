@@ -335,7 +335,7 @@ const ago = (iso: string | null, now: number) => {
   if (!iso) return "";
   const m = Math.round((now - Date.parse(iso)) / 60000);
   if (m < 60) return `${Math.max(m, 1)} min ago`;
-  if (m < 1440) return `${Math.round(m / 60)} h ago`;
+  if (m < 1440) return `${Math.round(m / 60)}h ago`;
   return `${Math.round(m / 1440)} days ago`;
 };
 function AlertMini({ a, now, onHandle }: { a: Alert; now: number; onHandle: (salon: string, kind: string) => Promise<void> }) {

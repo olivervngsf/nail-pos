@@ -1,5 +1,5 @@
 "use client";
-// Admin · Support (Founder Admin A4): salons whose owner turned support on (Settings → Support, 24 h). Open their screens
+// Admin · Support (Founder Admin A4): salons whose owner turned support on (Settings → Support, 24h). Open their screens
 // (green Support mode strip on every page; every change logged for the owner) or End now. Nothing here without the owner's OK.
 // Data: admin_support_on(), support_end() (migration 20261220000001_support_access).
 import { useCallback, useEffect, useState } from "react";
