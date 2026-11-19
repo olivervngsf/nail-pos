@@ -26,7 +26,7 @@ Status Nov 18. Code is ready for invite-only salons. These steps need Oliver's c
 - Vercel Production env: live `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`. Previews keep the test project.
 
 ## 4. Payments
-- Stripe: finish platform profile + Connect for live mode; Vercel Production `STRIPE_SECRET_KEY` (live), new live webhook → `STRIPE_WEBHOOK_SECRET`.
+- Stripe: finish platform profile + Connect for live mode; Vercel Production `STRIPE_SECRET_KEY` (live), webhooks: open Admin → System on polishosapp.com → Set up webhooks (makes the payments + billing webhooks with the live key and keeps their secrets; no env vars to copy).
 
 ## 4b. Texting (Twilio) — plan: https://claude.ai/artifact/CCKEccsu486fXUywR76kdz
 - Now (Nov 19): one Twilio account for testing + sign-in codes, upgraded to pay-as-you-go ($20 prepaid, auto-recharge), registered as an **individual** (Oliver) with tax info. No subscriptions (not needed at our size; look again past ~$150/month Twilio spend).
