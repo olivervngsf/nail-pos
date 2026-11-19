@@ -7,7 +7,7 @@
 // TWILIO_MESSAGING_SERVICE_SID = the PolishOS Messaging Service (MG…) (or TWILIO_FROM = a plain number while testing);
 // salon numbers live in text_numbers.
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { textParts } from "@/lib/texting/credit";
+import { textParts } from "@/lib/texting/parts";
 import { e164, NEEDS_YES, PLATFORM_KINDS, type TextKind } from "@/lib/texting/sms";
 
 export type SendInput = { clientKey: string; kind: TextKind; to: string; body: string; salonId?: string | null };
