@@ -496,7 +496,7 @@ function StaffBody({ s, set, say }: Pick<StepProps, "s" | "set" | "say">) {
     </div>
     <div><button className="btn" type="button" onClick={startAdd}>+ Add staff</button></div>
     {SMS_ON
-      ? <div className="cap">Tap Copy invite link and text it to them yourself (automatic invite texts are coming).</div>
+      ? <div className="cap">We text each person their invite from the PolishOS number once texting is approved by the carriers. Until then, tap Copy invite link and send it yourself.</div>
       : <div className="demo">Test version: texts aren&apos;t sent yet. Copy the invite link and send it yourself, or open it to see what staff get on their phone.</div>}
     {open && <>
       <button className="scrim" aria-label="Close" onClick={close} />
@@ -876,7 +876,8 @@ const Ready: StepView = ({ s, go }) => {
         {s.menu.filter((m) => m.on).length} services, payments, reader and printer are set. {waiting ? `${waiting} staff still to join (their invite is waiting).` : "Add staff any time in Settings."}
       </div>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-        <button className="btn" type="button" onClick={() => go(2)}>Staff</button>
+        {/* Setup is finished here: staff changes now live in Settings → Team (the wizard no longer saves them). */}
+        {SMS_ON ? <Link className="btn" href="/settings/team">Staff</Link> : <button className="btn" type="button" onClick={() => go(2)}>Staff</button>}
         <Link className="btn primary" href={SMS_ON ? "/today" : "/"} onClick={() => queueSave(s)}>Open Today</Link>
       </div>
     </div>

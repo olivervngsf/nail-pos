@@ -10,7 +10,8 @@ export const e164 = (phone: string) => "+1" + phone.replace(/\D/g, "").replace(/
 
 export type Role = "owner" | "manager" | "front_desk" | "tech";
 export type Membership = {
-  membership_id: string; // empty (null from the server) = this login is a salon device set up by QR, not a person
+  /** null = a salon device set up by QR (not a person), or a support window (support_until set; migration support_access). */
+  membership_id: string;
   salon_id: string;
   salon_name: string;
   role: Role;
@@ -18,6 +19,8 @@ export type Membership = {
   setup_step: number;
   has_pin: boolean;
   language: "en" | "vi";
+  /** Set = this is a support window (shown as "PolishOS support"), not a real membership; ends at this time. */
+  support_until?: string | null;
 };
 
 export const ROLE_LABEL: Record<Role, string> = { owner: "Owner", manager: "Manager", front_desk: "Front desk", tech: "Tech" };
@@ -278,7 +281,8 @@ export async function myMemberships(): Promise<Membership[]> {
 
 /** Where to go after sign-in: owner with unfinished setup → /setup, desk roles → /today, tech → /t.
  *  No salon yet: platform admin (us) → /admin; anyone else → /invite (type your invite code; salons are made by PolishOS). Test copy: /setup. */
-export function homeFor(ms: Membership[], admin = false): string {
+export function homeFor(all: Membership[], admin = false): string {
+  const ms = all.filter((m) => !m.support_until);   // support windows are opened from /admin, never a home
   if (!ms.length) return admin ? "/admin" : SMS_ON ? "/invite" : "/setup";
   const m = ms[0];
   if (!m.membership_id) return DEVICE_HOME[getDevice()?.kind ?? "front_desk"];

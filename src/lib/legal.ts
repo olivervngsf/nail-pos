@@ -1,6 +1,9 @@
 // Terms, privacy and text-message terms in plain words. One place, shown at /legal/<doc>.
 // DRAFT (Nov 18): have a lawyer read these before the first paying salon. CONTACT must be a real inbox.
-export const LEGAL_UPDATED = "November 18, 2026";
+export const LEGAL_UPDATED = "November 19, 2026";
+// Name registered with US carriers for our texts (A2P 10DLC sole proprietor brand, Nov 19). Carriers check the
+// privacy + terms pages name it. Switch to the EO Collective brand once that is registered.
+export const TEXT_BRAND = "Viet Nguyen, doing business as PolishOS";
 export const CONTACT = "support@polishosapp.com";
 export const COMPANY = "EO Collective";
 
@@ -8,7 +11,7 @@ export type LegalDoc = { title: string; intro: string; parts: { h: string; p: st
 
 export const LEGAL: Record<"terms" | "privacy" | "texts", LegalDoc> = {
   terms: {
-    title: "Terms of use",
+    title: "Terms of Service",
     intro: `PolishOS is made by ${COMPANY}. These terms are the deal between us and a salon that uses PolishOS. By using PolishOS you agree to them.`,
     parts: [
       { h: "What PolishOS does", p: [
@@ -48,6 +51,14 @@ export const LEGAL: Record<"terms" | "privacy" | "texts", LegalDoc> = {
       { h: "Leaving", p: [
         "If you stop using PolishOS, ask us and we send your data. After that we delete it, except what the law makes us keep.",
       ] },
+      { h: "SMS Terms", p: [
+        `PolishOS text messages are sent by ${TEXT_BRAND}.`,
+        "Staff: when a salon owner adds you to their team with your permission, we text you a one-time invite link to join and set your PIN, and account notices (salon ready, sign-in help). Clients who said yes get booking confirmations, reminders and receipts from their salon.",
+        "Message frequency varies. Message and data rates may apply.",
+        "Reply STOP to stop texts at any time; we confirm by text and send no more. Reply START to get them again. Reply HELP for help, or write to " + CONTACT + ".",
+        "Carriers are not liable for delayed or undelivered messages.",
+        "We do not sell or share your SMS opt-in data or personal information with third parties for marketing purposes. See the Privacy Policy.",
+      ] },
       { h: "Changes", p: [
         "If we change these terms we tell the owner by email or text before the change starts.",
         `Questions: ${CONTACT}.`,
@@ -55,8 +66,8 @@ export const LEGAL: Record<"terms" | "privacy" | "texts", LegalDoc> = {
     ],
   },
   privacy: {
-    title: "Privacy",
-    intro: `This page says what PolishOS (made by ${COMPANY}) keeps, why, and who can see it.`,
+    title: "Privacy Policy",
+    intro: `This page says what PolishOS (made by ${COMPANY}) keeps, why, and who can see it. Text messages are sent by ${TEXT_BRAND}.`,
     parts: [
       { h: "Who is in charge of the data", p: [
         "Each salon owns its data and decides how it is used. PolishOS keeps it safe for the salon.",
@@ -78,6 +89,7 @@ export const LEGAL: Record<"terms" | "privacy" | "texts", LegalDoc> = {
         "Our team sees salon health, not private details, unless the owner turns on support access for 24 hours.",
         "Companies that help us run the service, only as needed: Supabase (database), Vercel (hosting), Stripe (payments), Twilio (texts and login codes), an email sender, and Anthropic (reads a menu when a salon asks to import one).",
         "We never sell personal data and never share it for ads.",
+        "We do not sell or share your SMS opt-in data or personal information with third parties for marketing purposes.",
       ] },
       { h: "How long", p: [
         "As long as the salon uses PolishOS. When a salon leaves, we give back its data and delete it, except records the law makes us keep.",
@@ -94,10 +106,11 @@ export const LEGAL: Record<"terms" | "privacy" | "texts", LegalDoc> = {
   },
   texts: {
     title: "Text messages",
-    intro: "Salons that use PolishOS can send text messages to their clients and staff. This page says what to expect.",
+    intro: `Salons that use PolishOS can send text messages to their clients and staff. Texts are sent by ${TEXT_BRAND}. This page says what to expect.`,
     parts: [
       { h: "What you get", p: [
         "If you said yes to texts when booking or at the salon: booking confirmations, reminders (about 1 day and 2 hours before), receipts, and now and then an offer from your salon.",
+        "Salon staff: when your salon owner adds your mobile number to the team (with your OK), you get one invite text with a link to join and set your PIN, plus account notices.",
         "Sign-in codes are sent only when you ask to sign in.",
       ] },
       { h: "Saying yes is your choice", p: [
@@ -111,7 +124,7 @@ export const LEGAL: Record<"terms" | "privacy" | "texts", LegalDoc> = {
         `You can also ask the salon, or write to ${CONTACT}.`,
       ] },
       { h: "Your number", p: [
-        "Your phone number is used only by your salon, for the texts above. It is never sold or shared for ads. See the Privacy page.",
+        "Your phone number is used only by your salon, for the texts above. It is never sold or shared for ads. We do not sell or share your SMS opt-in data or personal information with third parties for marketing purposes. See the Privacy Policy.",
       ] },
     ],
   },

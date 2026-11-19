@@ -14,6 +14,8 @@ import { useDesk, getActing, touchActing, type Desk, type DeskService } from "@/
 import { logReceipt, pullTickets, putTicket, saveNow, useTicket } from "@/lib/checkout/store";
 import { api } from "@/lib/api";
 import { GiftSellDrawer, GiftUseDrawer } from "./GiftDrawers";
+import { AppReaderPay } from "./AppReader";
+import { canAppReader } from "@/lib/app/reader";
 import { demoSettle, giftUndo } from "@/lib/checkout/gift";
 import { receiptBytes, type ReceiptDoc } from "@/lib/print/escpos";
 import { canBluetooth, printBytes } from "@/lib/print/bluetooth";
@@ -29,7 +31,7 @@ const uuid = () => crypto.randomUUID();
 const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 const $ = formatCents;
 
-type Step = "ticket" | "pay" | "cash" | "reader" | "link";
+type Step = "ticket" | "pay" | "cash" | "reader" | "link" | "app";
 
 export default function TicketScreen({ id }: { id: string }) {
   const t = useTranslations("checkout");
@@ -65,6 +67,7 @@ export default function TicketScreen({ id }: { id: string }) {
         {ticket.status !== "open" ? <Done desk={desk} ticket={ticket} say={say} />
           : step === "pay" ? <Pay desk={desk} ticket={ticket} onPick={setStep} say={say} />
           : step === "reader" || step === "link" ? <CardWait key={step} desk={desk} ticket={ticket} method={step} onBack={() => setStep("pay")} />
+          : step === "app" ? <AppReaderPay desk={desk} ticket={ticket} onBack={() => setStep("pay")} />
           : step === "cash" ? <Cash desk={desk} ticket={ticket} save={save} />
           : <Build desk={desk} ticket={ticket} save={save} onCharge={() => setStep("pay")} />}
       </div>
@@ -439,6 +442,9 @@ function Pay({ desk, ticket, onPick, say }: { desk: Desk; ticket: Ticket; onPick
     : <div className="tile" aria-disabled="true" data-testid={id} style={{ opacity: 0.55 }}>
         <div className="h2">{title}</div><div style={{ fontSize: 15 }}>{sub}</div><div className="cap num">{fee}</div>{note && <div className="demo">{note}</div>}</div>;
   const cardOk = !why && desk.pay.readers.length > 0;
+  // Inside our Android app (handheld terminal): the small reader next to it. No pairing in setup needed.
+  const [appReader, setAppReader] = useState(false);
+  useEffect(() => setAppReader(canAppReader()), []);
   return (
     <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, padding: "24px 16px" }}>
       <div style={{ textAlign: "center" }}>
@@ -453,7 +459,8 @@ function Pay({ desk, ticket, onPick, say }: { desk: Desk; ticket: Ticket; onPick
         ))}
       </div>}
       <div className="grid2" style={{ width: "100%", maxWidth: 880, gap: 16 }}>
-        {tile("pay-reader", t("reader"), t("readerSub"), t("readerFee"), cardOk, () => onPick("reader"), why || t("needReader"))}
+        {appReader && tile("pay-app", t("appReader"), t("appReaderSub"), t("readerFee"), !why, () => onPick("app"), why)}
+        {(!appReader || cardOk) && tile("pay-reader", t("reader"), t("readerSub"), t("readerFee"), cardOk, () => onPick("reader"), why || t("needReader"))}
         {tile("pay-cash", t("cash"), t("cashSub"), t("cashFee"), true, () => onPick("cash"))}
         {tile("pay-link", t("qr"), t("qrSub"), t("qrFee"), !why, () => onPick("link"), why)}
         {tile("pay-gift", t("giftPay"), t("giftPaySub"), t("giftPayFee"), true, () => setGift(true))}

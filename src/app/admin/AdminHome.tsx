@@ -1,11 +1,14 @@
 "use client";
 // Founder Admin · Home = alerts inbox (variation B): what needs us today, worst first; Handled hides it for the day (logged).
-// Side: today's totals across salons + every salon with a health dot. Salons tab (variation A) = /admin/salons.
+// Side: today's totals across salons + every salon with a health dot and a word (busy / normal / quiet), never its sales. Salons tab (variation A) = /admin/salons.
 import Link from "next/link";
 import { formatCents } from "@/lib/money";
 import { fmtPhone } from "@/lib/onboarding/data";
-import { alertsFor, healthOf, openAlerts, totals, vsWeekAgo, type Alert, type Overview } from "@/lib/admin/health";
+import { USE, alertsFor, healthOf, openAlerts, totals, usageOf, vsWeekAgo, type Alert, type Overview } from "@/lib/admin/health";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/kit";
+import { api } from "@/lib/api";
+import { followText, textLine, type SendReply } from "@/lib/texting/client";
 import { AdminShell, useAdmin } from "./shell";
 
 const $0 = (c: number) => formatCents(Math.round(c / 100) * 100).replace(/\.00$/, "");
@@ -14,7 +17,7 @@ const ago = (iso: string | null, now: number) => {
   if (!iso) return "";
   const m = Math.round((now - Date.parse(iso)) / 60000);
   if (m < 60) return `${Math.max(m, 1)} min ago`;
-  if (m < 1440) return `${Math.round(m / 60)} h ago`;
+  if (m < 1440) return `${Math.round(m / 60)}h ago`;
   return `${Math.round(m / 1440)} days ago`;
 };
 const time = (iso: string) => new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
@@ -57,6 +60,7 @@ function Inbox({ o, onHandle }: { o: Overview; onHandle: (salon: string, kind: s
         {bad.length > 0 && <><div className="eyebrow">Now</div>{bad.map((a) => <AlertCard key={a.salon_id + a.kind} a={a} big now={+now} onHandle={onHandle} />)}</>}
         {warn.length > 0 && <><div className="eyebrow">Today</div>{warn.map((a) => <AlertCard key={a.salon_id + a.kind} a={a} now={+now} onHandle={onHandle} />)}</>}
         {!alerts.length && <div className="card pad" style={{ textAlign: "center", padding: 32 }}><div className="h2">All good</div><p className="cap">Every salon is healthy right now.</p></div>}
+        <TestText />
 
         {o.handled.length > 0 && <>
           <div className="eyebrow">Done today</div>
@@ -87,7 +91,7 @@ function Inbox({ o, onHandle }: { o: Overview; onHandle: (salon: string, kind: s
               <Link key={s.salon_id} href={`/admin/salons/${s.salon_id}`} className="row s ad-link">
                 <span className={`ad-dot ${h}`} aria-hidden />
                 <span className="g">{s.salon_name}</span>
-                <span className="num cap">{s.owner_joined && s.setup_step >= 9 ? $0(s.cents_today) : "Setting up"}</span>
+                <span className="cap" data-testid="home-use">{USE[usageOf(s)]}</span>
               </Link>
             );
           })}
@@ -113,5 +117,34 @@ function AlertCard({ a, big, now, onHandle }: { a: Alert; big?: boolean; now: nu
         <Button style={{ marginLeft: "auto" }} onClick={() => void onHandle(a.salon_id, a.kind)} data-testid="handled">Handled</Button>
       </div>
     </article>
+  );
+}
+
+/** Send one real test text through the sender (trial Twilio: only to numbers verified in Twilio). */
+function TestText() {
+  const [to, setTo] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const stopRef = useRef<() => void>(() => {});
+  useEffect(() => () => stopRef.current(), []);
+  const send = async () => {
+    setBusy(true); setMsg(""); stopRef.current();
+    try {
+      // "Sent" only means Twilio took it; follow it until the carrier says delivered or not (and why).
+      const r = await api<SendReply>("/api/sms/test", { to });
+      setMsg(textLine(r));
+      if (r.id && r.status === "sent") stopRef.current = followText(r.id, (s) => setMsg(textLine(s)));
+    } catch (e) { setMsg((e as Error).message); }
+    setBusy(false);
+  };
+  return (
+    <div className="card pad" style={{ gap: 10 }} data-testid="test-text">
+      <b>Send a test text</b>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <input className="inp" style={{ flex: "1 1 200px" }} inputMode="tel" placeholder="(510) 555-0100" aria-label="Mobile number" value={to} onChange={(e) => setTo(e.target.value)} />
+        <Button variant="primary" disabled={busy || !to.trim()} onClick={() => void send()}>{busy ? "Sending…" : "Send test"}</Button>
+      </div>
+      {msg && <div className="cap" role="status">{msg}</div>}
+    </div>
   );
 }

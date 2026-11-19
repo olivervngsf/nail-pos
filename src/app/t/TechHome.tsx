@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { rpc } from "@/lib/auth";
+import { useLang } from "@/components/AppProviders";
+import { phoneClock, refusal } from "@/lib/clockrule";
 import { Avatar, Button, Card, Toast } from "@/components/kit";
 import { formatCents } from "@/lib/money";
 import { isoDay } from "@/lib/closeday";
@@ -20,6 +22,8 @@ export default function TechHome() {
   const [clock, setClock] = useState<Staff | null>(null);
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState("");
+  const [why, setWhy] = useState("");
+  const { lang } = useLang();
   const say = (s: string) => { setToast(s); setTimeout(() => setToast(""), 3000); };
 
   const loadClock = useCallback(async () => {
@@ -44,8 +48,13 @@ export default function TechHome() {
     setBusy(true);
     try {
       const out = !!clock?.clocked_in;
-      if (me.live) { await rpc("clock_self", { p_salon: me.salonId, p_kind: out ? "out" : "in" }); await loadClock(); }
-      else setClock({ membership_id: me.id, clocked_in: !out, last_clock: new Date().toISOString() });
+      setWhy("");
+      if (me.live) {
+        // Server checks the salon's clock-in rule (salon Wi-Fi / QR at the salon); refused = shown here + logged.
+        const r = await phoneClock(me.salonId, out ? "out" : "in");
+        if (!r.ok) { setWhy(refusal(r, lang === "vi")); setBusy(false); return; }
+        await loadClock();
+      } else setClock({ membership_id: me.id, clocked_in: !out, last_clock: new Date().toISOString() });
       say(out ? t("clockedOut") : t("clockedIn"));
     } catch (e) { say((e as Error).message); }
     setBusy(false);
@@ -68,6 +77,8 @@ export default function TechHome() {
             {clock?.clocked_in ? t("clockOut") : t("clockIn")}
           </Button>
         </div>
+
+        {why && <div className="note" data-testid="clock-why">{why}</div>}
 
         <Card pad>
           <div className="cap">{t("todaySoFar")}</div>

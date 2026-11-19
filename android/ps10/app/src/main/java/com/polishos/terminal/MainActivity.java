@@ -33,19 +33,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * PolishOS on a handheld terminal: the web app in a full-screen window, plus one extra the browser can't
- * give it: printing on the terminal's own printer. The web app talks to it through `window.PolishOSApp`
- * (only offered to pages from polishosapp.com).
+ * PolishOS on a handheld terminal: the web app in a full-screen window, plus two extras the browser can't
+ * give it: printing on the terminal's own printer, and taking cards on a Stripe Reader M2 next to it.
+ * The web app talks to it through `window.PolishOSApp` (only offered to pages from polishosapp.com).
  */
 public class MainActivity extends Activity {
     private static final String HOME = "https://polishosapp.com/";
     /** Only these pages get the printer. */
     private static final Set<String> TRUSTED = new HashSet<>(Arrays.asList("https://polishosapp.com", "https://www.polishosapp.com"));
-    private static final int ASK_BLUETOOTH = 1, ASK_CAMERA = 2, PICK_FILE = 3;
+    private static final int ASK_BLUETOOTH = 1, ASK_CAMERA = 2, PICK_FILE = 3, ASK_READER = 4;
 
     private WebView web;
     private final ExecutorService printing = Executors.newSingleThreadExecutor();
     private Runnable afterBluetooth;            // a print waiting for the Nearby devices answer
+    private Runnable afterReader;               // a card payment waiting for Nearby devices + Location
+    private JavaScriptReplyProxy page;          // the web app, for things we tell it without being asked
+    private CardReader reader;
     private PermissionRequest cameraRequest;    // the page waiting for the camera answer
     private ValueCallback<Uri[]> filePick;      // the page waiting for a photo/file
 
@@ -60,8 +63,12 @@ public class MainActivity extends Activity {
         s.setDomStorageEnabled(true);   // sign-in + the offline outbox live here
         s.setDatabaseEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false);
-        s.setUserAgentString(s.getUserAgentString() + " PolishOSApp/1.0");
+        s.setUserAgentString(s.getUserAgentString() + " PolishOSApp/1.1");
         CookieManager.getInstance().setAcceptThirdPartyCookies(web, true); // card pages
+
+        reader = new CardReader(this, event -> runOnUiThread(() -> {
+            try { if (page != null) page.postMessage(event.toString()); } catch (RuntimeException ignored) { /* page went away */ }
+        }));
 
         web.setWebViewClient(new Pages());
         web.setWebChromeClient(new Chrome());
@@ -74,23 +81,56 @@ public class MainActivity extends Activity {
         if (saved != null) web.restoreState(saved); else web.loadUrl(HOME);
     }
 
-    // ── Messages from the web app: {"id":"…","print":"<base64 ESC/POS>"} → {"id":"…","ok":true} or {"id":"…","error":"…"}
+    // ── Messages from the web app (JSON, each with an "id"); every one gets {"id","ok":true,…} or {"id","error":"…"}.
+    //   {"print": "<base64 ESC/POS>"}                                    print on the built-in printer
+    //   {"reader": "status" | "connect" | "disconnect" | "cancel", …}     the card reader ("connect" takes locationId, simulated)
+    //   {"pay": "<client secret>", "locationId": "…", "simulated": false} take the card for one payment
+    //   {"tokenFor": <ask>, "secret": "…"}                                the answer to our "token" event (no reply)
     private void onMessage(String text, JavaScriptReplyProxy reply) {
-        final String id;
-        final byte[] bytes;
-        try {
-            JSONObject msg = new JSONObject(text == null ? "{}" : text);
-            id = msg.optString("id");
-            if (!msg.has("print")) { answer(reply, id, null); return; } // "are you there?"
-            bytes = Base64.decode(msg.getString("print"), Base64.DEFAULT);
-        } catch (JSONException | IllegalArgumentException e) {
+        page = reply;
+        final JSONObject msg;
+        try { msg = new JSONObject(text == null ? "{}" : text); } catch (JSONException e) { return; }
+        final String id = msg.optString("id");
+        final CardReader.Done done = (error, extra) -> answer(reply, id, error, extra);
+
+        if (msg.has("print")) { print(msg.optString("print"), reply, id); return; }
+        if (msg.has("tokenFor")) { reader.token(msg.optInt("tokenFor"), text(msg, "secret"), text(msg, "error")); return; }
+        final String location = text(msg, "locationId");
+        final boolean simulated = msg.optBoolean("simulated", false);
+        if (msg.has("pay")) {
+            final String secret = text(msg, "pay");
+            if (secret == null || location == null) { done.done("Can't start the card payment.", null); return; }
+            withReaderRights(() -> reader.pay(secret, location, simulated, done), done);
             return;
         }
-        Runnable job = () -> printing.execute(() -> answer(reply, id, InnerPrinter.print(getApplicationContext(), bytes)));
-        if (Build.VERSION.SDK_INT >= 31 && checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+        String op = text(msg, "reader");
+        if (op == null) { answer(reply, id, null, null); return; } // "are you there?"
+        switch (op) {
+            case "connect":
+                if (location == null) { done.done("Can't find the salon's reader location.", null); return; }
+                withReaderRights(() -> reader.connect(location, simulated, done), done);
+                break;
+            case "disconnect": reader.disconnect(done); break;
+            case "cancel": reader.cancel(done); break;
+            default: reader.status(done);
+        }
+    }
+
+    /** A text field, or null when it is missing or empty. */
+    private static String text(JSONObject o, String key) {
+        if (o.isNull(key)) return null;
+        String v = o.optString(key, "");
+        return v.isEmpty() ? null : v;
+    }
+
+    private void print(String base64, JavaScriptReplyProxy reply, String id) {
+        final byte[] bytes;
+        try { bytes = Base64.decode(base64, Base64.DEFAULT); } catch (IllegalArgumentException e) { return; }
+        Runnable job = () -> printing.execute(() -> answer(reply, id, InnerPrinter.print(getApplicationContext(), bytes), null));
+        if (Build.VERSION.SDK_INT >= 31 && !has(Manifest.permission.BLUETOOTH_CONNECT)) {
             afterBluetooth = () -> {
-                if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) job.run();
-                else answer(reply, id, "Allow Nearby devices for PolishOS, then print again.");
+                if (has(Manifest.permission.BLUETOOTH_CONNECT)) job.run();
+                else answer(reply, id, "Allow Nearby devices for PolishOS, then print again.", null);
             };
             requestPermissions(new String[] { Manifest.permission.BLUETOOTH_CONNECT }, ASK_BLUETOOTH);
         } else {
@@ -98,9 +138,31 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void answer(JavaScriptReplyProxy reply, String id, String error) {
+    private boolean has(String permission) {
+        return checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /** The reader is found over Bluetooth, and Android + Stripe want Location for that: ask once, then go on. */
+    private void withReaderRights(Runnable go, CardReader.Done done) {
+        final boolean nearby = Build.VERSION.SDK_INT < 31 || (has(Manifest.permission.BLUETOOTH_SCAN) && has(Manifest.permission.BLUETOOTH_CONNECT));
+        final boolean where = has(Manifest.permission.ACCESS_FINE_LOCATION) || has(Manifest.permission.ACCESS_COARSE_LOCATION);
+        if (nearby && where) { go.run(); return; }
+        afterReader = () -> {
+            boolean nearbyNow = Build.VERSION.SDK_INT < 31 || (has(Manifest.permission.BLUETOOTH_SCAN) && has(Manifest.permission.BLUETOOTH_CONNECT));
+            boolean whereNow = has(Manifest.permission.ACCESS_FINE_LOCATION) || has(Manifest.permission.ACCESS_COARSE_LOCATION);
+            if (nearbyNow && whereNow) go.run();
+            else done.done("Allow Nearby devices and Location for PolishOS (needed to find the card reader), then try again.", null);
+        };
+        String[] ask = Build.VERSION.SDK_INT >= 31
+            ? new String[] { Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION }
+            : new String[] { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION };
+        requestPermissions(ask, ASK_READER);
+    }
+
+    private void answer(JavaScriptReplyProxy reply, String id, String error, JSONObject extra) {
         try {
-            JSONObject out = new JSONObject().put("id", id);
+            JSONObject out = extra == null ? new JSONObject() : new JSONObject(extra.toString());
+            out.put("id", id);
             if (error == null) out.put("ok", true); else out.put("error", error);
             final String text = out.toString();
             runOnUiThread(() -> { try { reply.postMessage(text); } catch (RuntimeException ignored) { /* page went away */ } });
@@ -169,6 +231,10 @@ public class MainActivity extends Activity {
         if (code == ASK_BLUETOOTH && afterBluetooth != null) {
             Runnable next = afterBluetooth;
             afterBluetooth = null;
+            next.run();
+        } else if (code == ASK_READER && afterReader != null) {
+            Runnable next = afterReader;
+            afterReader = null;
             next.run();
         } else if (code == ASK_CAMERA && cameraRequest != null) {
             if (yes) cameraRequest.grant(new String[] { PermissionRequest.RESOURCE_VIDEO_CAPTURE }); else cameraRequest.deny();

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SMS_ON, isSignedIn, myMemberships, rpc, signOut } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase/client";
-import { openAlerts, sampleOverview, type Overview } from "@/lib/admin/health";
+import { openAlerts, sampleOverview, type Mood, type Overview } from "@/lib/admin/health";
 import { Button, OfflineBanner, Toast, TopBar } from "@/components/kit";
 
 const CACHE = "nailpos.admin";
@@ -15,6 +15,8 @@ type Gate = "loading" | "no" | "live" | "demo";
 export type Admin = {
   gate: Gate; data: Overview | null; err: string; hasSalon: boolean; savedAt: string | null;
   reload: () => Promise<void>; handle: (salonId: string, kind: string) => Promise<void>; say: (t: string) => void; toast: string;
+  /** Test version only: a check-in kept on the screen (real ones go through admin_checkin). */
+  checkin: (salonId: string, c: { mood: Mood; note: string; need: string; due: string | null; who: string }) => void;
 };
 
 export function useAdmin(): Admin {
@@ -53,7 +55,7 @@ export function useAdmin(): Admin {
         return;
       }
       if (!admin) { setGate("no"); try { localStorage.removeItem(CACHE); } catch { /* ignore */ } return; }
-      setHasSalon((await myMemberships().catch(() => [])).length > 0);
+      setHasSalon((await myMemberships().catch(() => [])).some((m) => !m.support_until));   // support windows open from Support
       setGate("live");
       await reload();
     })();
@@ -68,14 +70,26 @@ export function useAdmin(): Admin {
     catch (e) { say((e as Error).message); }
   }, [gate, reload, say]);
 
-  return { gate, data, err, hasSalon, savedAt, reload, handle, say, toast };
+  const checkin = useCallback<Admin["checkin"]>((salonId, c) => {
+    setData((d) => d && { ...d, salons: d.salons.map((x) => (x.salon_id !== salonId ? x : {
+      ...x, checkin_at: new Date().toISOString(), checkin_by: d.me, checkin_mood: c.mood, checkin_note: c.note,
+      ...(c.need ? { need: c.need, need_due: c.due, need_who: c.who } : {}),
+    })) });
+    say("Check-in saved");
+  }, [say]);
+
+  return { gate, data, err, hasSalon, savedAt, reload, handle, say, toast, checkin };
 }
 
 const ICONS = {
   home: <><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z" /><path d="M10 21a2 2 0 0 0 4 0" /></>,
   salons: <><rect x="4" y="4" width="7" height="7" rx="1.5" /><rect x="13" y="4" width="7" height="7" rx="1.5" /><rect x="4" y="13" width="7" height="7" rx="1.5" /><rect x="13" y="13" width="7" height="7" rx="1.5" /></>,
+  system: <><rect x="4" y="5" width="16" height="11" rx="2" /><path d="M9 20h6M12 16v4M7.5 11l2-2 2 2.5 2.5-3.5 2.5 3" /></>,
+  support: <><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3.5" /><path d="M6.3 6.3l3.2 3.2M14.5 14.5l3.2 3.2M17.7 6.3l-3.2 3.2M9.5 14.5l-3.2 3.2" /></>,
 };
-const TABS = [{ key: "home", label: "Home", href: "/admin" }, { key: "salons", label: "Salons", href: "/admin/salons" }] as const;
+const TABS = [{ key: "home", label: "Home", href: "/admin" }, { key: "salons", label: "Salons", href: "/admin/salons" },
+  { key: "support", label: "Support", href: "/admin/support" },
+  { key: "system", label: "System", href: "/admin/system" }] as const;
 export type Tab = (typeof TABS)[number]["key"];
 
 export function AdminShell({ tab, admin, title, actions, children }: { tab: Tab; admin: Admin; title: string; actions?: ReactNode; children: ReactNode }) {
@@ -120,7 +134,7 @@ export function AdminShell({ tab, admin, title, actions, children }: { tab: Tab;
           {admin.savedAt && <div className="demo">Offline: showing what this device saved at {new Date(admin.savedAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}.</div>}
           {admin.err && <div className="hint err" role="alert">{admin.err}</div>}
           {children}
-          <p className="cap">Health only: totals per salon. No client names, phones or staff pay. Support access needs the owner’s OK (24 h, logged).</p>
+          <p className="cap">Health only: totals per salon. No client names, phones or staff pay. Support access needs the owner’s OK (24h, logged).</p>
         </main>
       </div>
       {admin.toast && <Toast>{admin.toast}</Toast>}

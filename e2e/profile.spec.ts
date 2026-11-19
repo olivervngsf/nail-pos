@@ -75,6 +75,11 @@ test("devices: owner shows a QR, tablet types the code at /go and opens the fron
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/settings/devices");
+  // on / off at a glance: 2 of 3 on, the kiosk is off with "last on"
+  await expect(page.getByTestId("devices-on")).toHaveText("2 of 3 on");
+  await expect(page.getByTestId("device-Front desk iPad")).toHaveAttribute("data-state", "on");
+  await expect(page.getByTestId("device-Door kiosk")).toHaveAttribute("data-state", "off");
+  await expect(page.getByTestId("device-Door kiosk")).toContainText("Last on");
   await page.getByTestId("add-device").click();
   await page.getByTestId("qr-make").click();
   await expect(page.getByTestId("qr-box").locator("svg")).toBeVisible();
@@ -87,4 +92,12 @@ test("devices: owner shows a QR, tablet types the code at /go and opens the fron
   await expect(page.getByTestId("go-done")).toContainText("is ready");
   await expect(page).toHaveURL(/\/(desk|today)/, { timeout: 8000 });
   expect(errors).toEqual([]);
+});
+
+test("my profile shows 2-step sign-in (off) and the health check answers", async ({ page, request }) => {
+  await page.goto("/me");
+  await expect(page.getByTestId("two-step-state")).toHaveText("Off");
+  const r = await request.get("/api/health");
+  expect(r.status()).toBe(200);
+  expect((await r.json()).app).toBe("ok");
 });

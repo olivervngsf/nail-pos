@@ -99,6 +99,18 @@
     "reader": "Máy quẹt thẻ",
     "readerSub": "Khách chọn tip, rồi chạm hoặc cắm thẻ.",
     "readerFee": "Phí 2.7% + 5¢ · tiệm trả",
+    "appReader": "Máy quẹt thẻ nhỏ",
+    "appReaderSub": "Chọn tiền tip ở đây, rồi chạm, cắm hoặc quẹt thẻ trên máy.",
+    "appCharge": "Tính {amount}",
+    "appStarting": "Đang chuẩn bị máy quẹt thẻ…",
+    "appTap": "Chạm, cắm hoặc quẹt thẻ trên máy.",
+    "appChecking": "Đang kiểm tra với ngân hàng…",
+    "appNotPaid": "Thẻ không thanh toán được.",
+    "appSlow": "Vẫn đang kiểm tra. Xem lại phiếu sau giây lát trước khi thử lại.",
+    "appTestPractice": "Chế độ thử: dùng máy tập của Stripe (không cần máy thật, không phải tiền thật). Tự thanh toán.",
+    "appTestReal": "Chế độ thử: dùng máy thật. Dùng thẻ thử của Stripe, không dùng thẻ thật.",
+    "appUseReal": "Tôi có máy thật",
+    "appUsePractice": "Dùng máy tập",
     "cash": "Tiền mặt",
     "cashSub": "Nhập tiền khách đưa, máy tính tiền thối.",
     "cashFee": "Không phí · chạy được khi mất mạng",
@@ -882,7 +894,13 @@
     "tryIt": "Thử:",
     "coach": "kéo xuống ở chỗ trống để đặt giờ · kéo lịch hẹn để dời (sang thợ khác cũng được) · kéo cạnh dưới để kéo dài · kéo khách chờ vào cột thợ · bấm chuột phải để xem thêm",
     "gotIt": "Đã hiểu",
-    "miniHint": "Chấm = có lịch hẹn · bấm một ngày để mở"
+    "miniHint": "Chấm = có lịch hẹn · bấm một ngày để mở",
+    "dpTitle": "Lịch ngày · {day}",
+    "dpCount": "{n} lịch hẹn",
+    "dpNote": "Bảng trực tiếp và danh sách chờ chỉ có ở hôm nay.",
+    "dpToday": "Về hôm nay",
+    "dpAppts": "{n} lịch hẹn",
+    "dpOpen": "Trống cả ngày"
   },
   "receiptPage": {
     "notFound": "Không tìm thấy hóa đơn.",
@@ -1163,7 +1181,7 @@
     "calNoteLabel": "Ghi chú cho khách",
     "calSaveHint": "Lịch đặt mới dùng ngay.",
     "calNotes": "Ghi chú",
-    "calAutoNote": "Hi Tom, see you Tue, Nov 17 · 11:00 AM.\nGel manicure · Kim · Est. $45 (pay at the salon)\nChange or cancel up to {hours} h before · Call {phone}",
+    "calAutoNote": "Hi Tom, see you Tue, Nov 17 · 11:00 AM.\nGel manicure · Kim · Est. $45 (pay at the salon)\nChange or cancel up to {hours}h before · Call {phone}",
     "calNoteEmpty": "Ghi chú của bạn hiện ở đây",
     "calFrom": "Tên, địa chỉ, số điện thoại lấy từ phần cài đặt tiệm. Giờ hủy lấy từ <rules>Quy định</rules>.",
     "seg0": "Không",
@@ -1717,7 +1735,9 @@
       "payments": "Thanh toán",
       "reader": "Máy quẹt thẻ",
       "texting": "Tin nhắn & tín dụng",
-      "billing": "Thanh toán gói"
+      "billing": "Thanh toán gói",
+      "support": "Hỗ trợ",
+      "clockIn": "Chấm công"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -1745,7 +1765,8 @@
         "all": "Tất cả",
         "tech": "Thợ",
         "desk": "Quầy + quản lý",
-        "invited": "Đã mời"
+        "invited": "Đã mời",
+        "nopin": "Chưa có PIN"
       },
       "st": {
         "invited": "Đã mời",
@@ -1756,7 +1777,9 @@
         "out": "Nghỉ"
       },
       "saved": "Đã lưu",
-      "addedInvite": "Đã thêm {name}. Link mời sẵn sàng: gửi tới điện thoại của họ."
+      "addedInvite": "Đã thêm {name}. Link mời sẵn sàng: gửi tới điện thoại của họ.",
+      "inviteTexted": "Đã nhắn link mời tới {name}.",
+      "inviteNotTexted": "Chưa nhắn được link mời: {why} Hãy sao chép link (bấm vào tên họ)."
     },
     "m": {
       "name": "Tên",
@@ -1806,7 +1829,20 @@
       "cancel": "Huỷ",
       "save": "Lưu",
       "addInvite": "Thêm + tạo lời mời",
-      "phoneTaken": "Số này đã có trong tiệm."
+      "phoneTaken": "Số này đã có trong tiệm.",
+      "textInvite": "Nhắn link mời",
+      "texting": "Đang nhắn…",
+      "textDemo": "Bản thử: không gửi tin nhắn.",
+      "textAgain": "Đã nhắn link mời này rồi. Tạo link mới để nhắn lại.",
+      "noPinBox": "Đã vào, chưa có PIN",
+      "noPinHow": "Gửi link: họ đăng nhập bằng số điện thoại và tự tạo PIN.",
+      "textPin": "Nhắn link tạo PIN",
+      "copyPin": "Sao chép link",
+      "pinCopied": "Đã sao chép link PIN. Dán vào tin nhắn hoặc Zalo.",
+      "clearPinSend": "Quên PIN: xoá + gửi link",
+      "pinClearedSent": "Đã xoá PIN. {why}",
+      "pinTexted": "Đã nhắn link PIN cho {name}.",
+      "pinNotTexted": "Chưa nhắn được: {why} Dùng Sao chép link."
     },
     "pin": {
       "saved": "Đã lưu luật PIN",
@@ -1949,7 +1985,14 @@
       "orType": "Không có camera? Trên máy tính bảng mở {site}/go và gõ:",
       "waiting": "Đang chờ máy tính bảng… mã hết hạn sau {t}",
       "expired": "Mã đã hết hạn. Bấm Mã mới.",
-      "qrDemo": "Bản thử: không lưu gì. Trên máy tính bảng mở /go và gõ 8 chữ bất kỳ."
+      "qrDemo": "Bản thử: không lưu gì. Trên máy tính bảng mở /go và gõ 8 chữ bất kỳ.",
+      "title": "Thiết bị của tiệm",
+      "on": "Đang bật",
+      "off": "Đã tắt",
+      "neverOn": "Chưa bật lần nào",
+      "lastOn": "Bật lần cuối {when}",
+      "count": "{on}/{all} đang bật",
+      "onMeans": "Đang bật = ứng dụng đang mở và hiện trên thiết bị đó. Tắt màn hình hoặc đóng trình duyệt sẽ hiện là Đã tắt."
     },
     "pay": {
       "lead": "Tài khoản Stripe riêng của tiệm. Tiền thẻ vào thẳng ngân hàng của tiệm; chúng tôi không giữ tiền.",
@@ -2088,7 +2131,33 @@
     },
     "signInTitle": "Đăng nhập để xem Cài đặt",
     "signInBody": "Cài đặt dành cho chủ tiệm và quản lý. Hãy đăng nhập bằng số điện thoại trước.",
-    "signIn": "Đăng nhập"
+    "signIn": "Đăng nhập",
+    "support": {
+      "title": "Cho PolishOS hỗ trợ",
+      "on": "Bật",
+      "off": "Tắt",
+      "what": "Bật khi anh/chị gọi nhờ hỗ trợ. Trong 24 giờ, đội PolishOS (Oliver, Elang) có thể mở màn hình của tiệm để sửa cùng anh/chị. Tự tắt sau đó.",
+      "onFor": "Đang hỗ trợ · còn {h} giờ {m} phút (đến {until})",
+      "endNow": "Kết thúc ngay",
+      "why": "Cần hỗ trợ việc gì? (không bắt buộc)",
+      "whyHint": "Máy thẻ không kết nối",
+      "turnOn": "Bật trong 24 giờ",
+      "ownerOnly": "Chỉ chủ tiệm mới bật được hỗ trợ.",
+      "rules": "Cách hoạt động",
+      "rule1": "Tắt trừ khi anh/chị bật. Khi tắt, đội chỉ thấy tình trạng tiệm (số lượng và tổng), không bao giờ thấy tên, số điện thoại, ghi chú của khách hay lương thợ.",
+      "rule2": "Tự tắt sau 24 giờ. Anh/chị (hoặc đội) có thể kết thúc bất cứ lúc nào.",
+      "rule3": "Mọi thay đổi trong lúc hỗ trợ đều được ghi lại ở đây, kèm giờ.",
+      "rule4": "Đội không bao giờ lấy tiền hay đổi lương thợ mà không hỏi anh/chị trước.",
+      "log": "Nhật ký hỗ trợ",
+      "noLog": "Chưa có gì.",
+      "logOn": "Đã bật hỗ trợ",
+      "logOff": "Đã kết thúc hỗ trợ",
+      "logChange": "Hỗ trợ đã đổi: {what}",
+      "past": "{n, plural, other {# lần hỗ trợ trước}}",
+      "onToast": "Đã bật hỗ trợ trong 24 giờ",
+      "offToast": "Đã kết thúc hỗ trợ",
+      "demo": "Bản thử: thay đổi chỉ lưu trên máy này."
+    }
   },
   "promo": {
     "title": "Gửi tin khuyến mãi",
@@ -2197,5 +2266,22 @@
     "how": "Dùng được trên iPad, máy tính bảng Android và máy tính (Safari hoặc Chrome).",
     "ready": "{name} đã sẵn sàng",
     "readyNote": "Đã vào {salon}. Đang mở…"
+  },
+  "pinLink": {
+    "title": "Tạo mã PIN",
+    "signIn": "Đăng nhập bằng số điện thoại trước",
+    "signInLead": "Dùng số điện thoại tiệm đã lưu cho bạn. Chúng tôi nhắn mã cho bạn.",
+    "notHere": "Số này không có trong nhóm của tiệm. Dùng số mà chủ tiệm đã nhập.",
+    "pin1": "Tạo mã PIN ({n} số)",
+    "pin1Cap": "Dùng để chấm công và tính tiền. Không dùng số dễ như 123456 hay 111111.",
+    "pin2": "Nhập lại",
+    "weak": "Dễ đoán quá. Thử số khác.",
+    "nomatch": "Không khớp. Làm lại.",
+    "hasPin": "Bạn đã có PIN ở {salon}. Tạo PIN mới?",
+    "newPin": "Tạo PIN mới",
+    "done": "Đã lưu PIN",
+    "doneCap": "Dùng ở {salon} để chấm công và tính tiền.",
+    "home": "Mở trang chính",
+    "demo": "Bản thử: PIN chưa được lưu cho đến khi đăng nhập thật bật lên."
   }
 }
