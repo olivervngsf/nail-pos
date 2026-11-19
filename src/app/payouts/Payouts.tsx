@@ -9,7 +9,7 @@ import { Button, LeftMenu, OfflineBanner, Segmented, SyncPill, Toast, TopBar } f
 import { rpc } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { useDesk } from "@/lib/desk";
-import { addDays, demoPayout, isoDay, nums, payoutCsv, weekStart, type PayoutRow } from "@/lib/closeday";
+import { addDays, demoPayout, demoTipMonth, isoDay, lastMonth, nums, payoutCsv, tipSignState, weekStart, type PayoutRow, type TipMonthRow } from "@/lib/closeday";
 import { worked } from "@/lib/print/earnings";
 import { useEarningsPrint } from "@/app/earnings/Earnings";
 import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
@@ -52,6 +52,15 @@ export default function Payouts() {
     catch (e) { setLoadErr(navigator.onLine ? (e as Error).message : t("needNet")); }
   }, [desk, from, to, t]);
   useEffect(() => { void load(); }, [load]);
+  // Monthly cash-tip report: who signed their month (by PIN on the salon device).
+  const [tipMonth, setTipMonth] = useState(lastMonth(today));
+  const [tipRows, setTipRows] = useState<TipMonthRow[] | null>(null);
+  useEffect(() => {
+    if (!desk) return;
+    if (desk.mode === "demo") { setTipRows(demoTipMonth()); return; }
+    setTipRows(null);
+    rpc<TipMonthRow[]>("tip_report", { p_salon: desk.salonId, p_month: tipMonth }).then((r) => setTipRows(r.map(nums))).catch(() => setTipRows([]));
+  }, [desk, tipMonth]);
 
   if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
   if (!desk) return <div className="app" aria-busy="true" />;
@@ -166,6 +175,29 @@ export default function Payouts() {
               </table>
             </section>
             <div className="cap">{t("note")}</div>
+            <section className="card" style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 10 }} data-testid="tip-report">
+              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                <div className="h2" style={{ flex: 1 }}>{t("tipReport")}</div>
+                <input className="inp" type="month" aria-label={t("month")} value={tipMonth.slice(0, 7)} max={today.slice(0, 7)}
+                  onChange={(e) => e.target.value && setTipMonth(`${e.target.value}-01`)} style={{ height: 36, width: "auto" }} />
+              </div>
+              <table className="cd-table">
+                <thead><tr><th>{t("person")}</th><th>{t("cardTips")}</th><th>{t("cashTips")}</th><th>{t("signedCol")}</th></tr></thead>
+                <tbody>
+                  {tipRows === null ? <tr><td colSpan={4} className="cap">{t("loading")}</td></tr> : tipRows.length === 0 ? <tr><td colSpan={4} className="cap">{t("empty")}</td></tr> : tipRows.map((r) => {
+                    const st = tipSignState(r);
+                    return (
+                      <tr key={r.membership_id} data-testid={`tip-${r.name}`}>
+                        <td><b>{r.name}</b></td><td>{$(r.card_cents)}</td><td>{$(r.cash_cents)}</td>
+                        <td style={{ color: st === "signed" ? "#1e6b34" : "#b5470a" }}>{st === "signed" ? `✓ ${t("signedOn", { when: when(r.signed_at!) })}`
+                          : st === "changed" ? t("changedSince", { cash: $(r.signed_cash_cents ?? 0) }) : t("notSigned")}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <div className="cap">{t("tipReportCap")}</div>
+            </section>
           </main>
         )}
       </div>

@@ -126,3 +126,23 @@ test("gift card: sold with a service, then pays part of the next ticket", async 
   await expect(page.getByTestId("gift-refused")).toContainText("No money left");
   expect(errors).toEqual([]);
 });
+
+test("split payment: $20 cash now, the rest in cash; paid screen shows both parts", async ({ page }) => {
+  await page.goto("/checkout");
+  await page.getByTestId("new-ticket").click();
+  await page.getByTestId("add-service").click();
+  await page.getByLabel("Search services").fill("gel color man");
+  await page.getByRole("button", { name: /Gel color manicure/ }).click();
+  await page.getByTestId("pick-Kim").click();
+  await page.getByTestId("charge").click();
+  await page.getByTestId("pay-cash").click();
+  for (const k of "20") await page.getByRole("button", { name: k, exact: true }).click();
+  await page.getByTestId("cash-part").click();
+  await expect(page.getByTestId("cash-parts")).toContainText("$20.00");
+  await page.getByTestId("pay-cash").click();
+  await expect(page.getByTestId("cash-total")).toHaveText("$25.00");
+  for (const k of "25") await page.getByRole("button", { name: k, exact: true }).click();
+  await page.getByTestId("cash-received").click();
+  await expect(page.getByTestId("cash-part-done")).toContainText("$20.00");
+  await expect(page.getByTestId("salon-keeps")).toHaveText("$45.00");
+});
