@@ -868,6 +868,7 @@ button:disabled { cursor: not-allowed; }
 .set-row .g b { display: block; font-size: 15px; }
 .set-pay { width: 120px; text-align: right; flex: none; }
 .set-warn { background: var(--orange-soft); color: #A3410A; }
+.note.set-warn-note { background: var(--orange-soft); color: #A3410A; }
 .set-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .set-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .set-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
