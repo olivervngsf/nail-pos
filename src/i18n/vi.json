@@ -1736,7 +1736,8 @@
       "reader": "Máy quẹt thẻ",
       "texting": "Tin nhắn & tín dụng",
       "billing": "Thanh toán gói",
-      "support": "Hỗ trợ"
+      "support": "Hỗ trợ",
+      "clockIn": "Chấm công"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",

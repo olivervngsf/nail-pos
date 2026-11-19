@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button, Segmented, Toast } from "@/components/kit";
 import FacesLock, { type Unlocked } from "@/components/FacesLock";
+import ClockQr from "@/components/ClockQr";
+import { useLang } from "@/components/AppProviders";
 import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 import { EarningsSlip, useEarningsPrint } from "@/app/earnings/Earnings";
 import { pinMessage, rpc, SMS_ON, type PinResult } from "@/lib/auth";
@@ -20,6 +22,7 @@ export default function ClockPage() {
   const t = useTranslations("clock");
   const f = useFormatter();
   const { desk, err, refresh } = useDesk();
+  const { lang } = useLang();
   const printSlips = useEarningsPrint(desk?.salonId, desk?.mode === "demo");
   const [rules, setRules] = useState<PinRules>(cachedRules(null));
   const [who, setWho] = useState<Unlocked | null>(null);
@@ -73,6 +76,7 @@ export default function ClockPage() {
           onUnlock={(u) => {
             setWho(u); setInNow(!!desk.staff.find((s) => s.id === u.id)?.clockedIn); setPeriod("today"); setRow(null); setMsg(""); poke(); void load(u, "today");
           }} />
+        <ClockQr salonId={desk.salonId} demo={desk.mode === "demo"} vi={lang === "vi"} />
         {desk.mode === "demo" && <div className="demo clock-demo">{t("demo")}</div>}
         {toast && <Toast>{toast}</Toast>}
       </>
