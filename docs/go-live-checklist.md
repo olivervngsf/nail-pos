@@ -33,6 +33,7 @@ Status Nov 18. Code is ready for invite-only salons. These steps need Oliver's c
 - **Before charging the first salon money: switch the Twilio account to business (EO Collective + EIN, business address) and move the tax info to the business.** The A2P 10DLC brand needs the business anyway.
 - Then register: brand + campaign (or toll-free verification) → Messaging Service `MG…` → Vercel `TWILIO_MESSAGING_SERVICE_SID`. Until then texts come back Undelivered.
 - Status Nov 19: number +1 (775) 535-8984; sole proprietor brand "Viet Nguyen" submitted, in review. Next: campaign form (~1–3 weeks review) → Messaging Service. Each step is a carrier review (hours to weeks), and a mistake means reject, fix, pay and wait again: that's why texting takes weeks while the code is already done. Plan § "Why texting takes weeks".
+- Team FAQ (pricing, salon setup, messages, laws) for Laura + Elang: texting plan § "Texting FAQ for Laura + Elang". Before the first paying salon: lawyer reads `/legal/texts` + consent wording; record when + where each client said yes.
 - Twilio reset the auth token on Nov 19: the new one goes in Vercel `TWILIO_AUTH_TOKEN` (Production + Preview) and Supabase Auth → Phone → Twilio settings.
 
 ## 5. First salon
