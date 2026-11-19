@@ -979,6 +979,20 @@ button:disabled { cursor: not-allowed; }
 .ad-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; }
 .ad-mini { border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
 .ad-texting { display: flex; gap: 6px; flex-wrap: wrap; }
+.ad-care td { vertical-align: top; padding-top: 12px; padding-bottom: 12px; height: auto; }
+.ad-care .ad-wrap { white-space: normal; min-width: 150px; max-width: 220px; }
+.ad-care td, .ad-care th { padding-left: 8px; padding-right: 8px; }
+.ad-line { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ad-note { font-size: 13px; line-height: 18px; margin-top: 4px; }
+.ad-dotcell { width: 52px; padding: 6px 8px !important; }
+.ad-dots { width: 40px; height: 40px; border-radius: 10px; border: 0; background: transparent; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.ad-dots:hover, .ad-dots.open { background: var(--fill); }
+.ad-menu { position: fixed; z-index: 30; width: 240px; max-height: calc(100dvh - 16px); overflow-y: auto; background: #fff; border-radius: 14px; box-shadow: 0 0 0 1px var(--line), 0 12px 32px rgba(28,28,30,.16); padding: 6px; display: flex; flex-direction: column; }
+.ad-menu > button, .ad-menu > a { min-height: 38px; padding: 8px 12px; border-radius: 8px; border: 0; background: transparent; font: 500 14px/20px inherit; font-family: inherit; color: var(--ink); text-align: left; text-decoration: none; cursor: pointer; white-space: normal; box-sizing: border-box; }
+.ad-menu > button:hover, .ad-menu > a:hover { background: var(--fill); }
+.ad-menu > .danger { color: #B42318; }
+.ad-menu > hr { border: 0; height: 1px; background: var(--line); margin: 6px 4px; width: auto; }
+@media (pointer: coarse) { .ad-dots { width: 44px; height: 44px; } .ad-menu > button, .ad-menu > a { min-height: 44px; } }
 .ad-tablehead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 16px; }
 .ad-table td, .ad-table th { text-align: left !important; white-space: nowrap; padding-left: 10px; padding-right: 10px; }
 .ad-table td:first-child, .ad-table th:first-child { padding-left: 16px; }
