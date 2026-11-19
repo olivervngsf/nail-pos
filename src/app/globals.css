@@ -60,6 +60,9 @@ button:disabled { cursor: not-allowed; }
 /* 3. app-only pieces (move into the kit when the Design System gets them) */
 .btn.sm { height: 30px; font-size: 13px; padding: 0 10px; border-radius: 8px; }
 @media (pointer: coarse) { .btn.sm { height: 38px; font-size: 14px; } }
+/* Top bar buttons: lower than the bar (52px) so they never touch its edges. */
+.bar .btn.primary { height: 36px; padding: 0 14px; font-size: 14px; border-radius: var(--r-sm); }
+@media (pointer: coarse) { .bar .btn:not(.sm) { height: 40px; padding: 0 14px; font-size: 15px; } }
 .btn.stripe { background: #635bff; color: #fff; }
 .tag.warn { background: var(--orange-soft); color: #b5470a; }
 .note { border-radius: 12px; padding: 10px 14px; font-size: 14px; background: #e8f6ec; color: #1e6b34; font-weight: 500; }
@@ -976,6 +979,20 @@ button:disabled { cursor: not-allowed; }
 .ad-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; }
 .ad-mini { border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
 .ad-texting { display: flex; gap: 6px; flex-wrap: wrap; }
+.ad-care td { vertical-align: top; padding-top: 12px; padding-bottom: 12px; height: auto; }
+.ad-care .ad-wrap { white-space: normal; min-width: 150px; max-width: 220px; }
+.ad-care td, .ad-care th { padding-left: 8px; padding-right: 8px; }
+.ad-line { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ad-note { font-size: 13px; line-height: 18px; margin-top: 4px; }
+.ad-dotcell { width: 52px; padding: 6px 8px !important; }
+.ad-dots { width: 40px; height: 40px; border-radius: 10px; border: 0; background: transparent; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.ad-dots:hover, .ad-dots.open { background: var(--fill); }
+.ad-menu { position: fixed; z-index: 30; width: 240px; max-height: calc(100dvh - 16px); overflow-y: auto; background: #fff; border-radius: 14px; box-shadow: 0 0 0 1px var(--line), 0 12px 32px rgba(28,28,30,.16); padding: 6px; display: flex; flex-direction: column; }
+.ad-menu > button, .ad-menu > a { min-height: 38px; padding: 8px 12px; border-radius: 8px; border: 0; background: transparent; font: 500 14px/20px inherit; font-family: inherit; color: var(--ink); text-align: left; text-decoration: none; cursor: pointer; white-space: normal; box-sizing: border-box; }
+.ad-menu > button:hover, .ad-menu > a:hover { background: var(--fill); }
+.ad-menu > .danger { color: #B42318; }
+.ad-menu > hr { border: 0; height: 1px; background: var(--line); margin: 6px 4px; width: auto; }
+@media (pointer: coarse) { .ad-dots { width: 44px; height: 44px; } .ad-menu > button, .ad-menu > a { min-height: 44px; } }
 .ad-tablehead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 16px; }
 .ad-table td, .ad-table th { text-align: left !important; white-space: nowrap; padding-left: 10px; padding-right: 10px; }
 .ad-table td:first-child, .ad-table th:first-child { padding-left: 16px; }
@@ -1121,3 +1138,13 @@ button:disabled { cursor: not-allowed; }
 .cal-app .bar [data-testid="book-new"] { height: 36px; padding: 0 14px; font-size: 13px; gap: 6px; }
 .cal-app .bar [data-testid="book-new"] .cal-kbd { margin-left: 2px; }
 .cal-search { height: 36px; }
+
+/* Calendar · Day plan (left panel on days other than today) */
+.dp-note { display: flex; align-items: center; gap: 8px; margin: 4px 6px 6px; padding: 8px 10px; border-radius: 10px; background: #F5F5F7; font-size: 12px; color: #5E5E66; animation: fadeUp .25s ease both; }
+.dp-tech { animation: fadeUp .25s ease both; }
+.dp-appt { display: grid; grid-template-columns: 58px 1fr; column-gap: 8px; width: 100%; text-align: left; padding: 4px 8px 4px 48px; border: 0; background: none; border-radius: 8px; cursor: pointer; font: inherit; }
+.dp-appt:hover { background: #F5F5F7; }
+.dp-time { font-size: 12px; font-weight: 600; color: #1D1D1F; font-variant-numeric: tabular-nums; }
+.dp-who { font-size: 12.5px; font-weight: 600; color: #1D1D1F; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dp-svc { grid-column: 2; font-size: 11.5px; color: #8E8E93; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .dp-note, .dp-tech { animation: none; } }
