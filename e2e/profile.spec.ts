@@ -5,8 +5,7 @@ const typePin = async (page: Page, pin: string) => {
   for (const d of pin) await page.locator(".faces-pin .key", { hasText: new RegExp(`^${d}$`) }).click();
 };
 
-test("bottom-left profile pop-up opens My profile", async ({ page }, info) => {
-  test.skip(info.project.name === "phone", "the left menu is a desk screen (desktop)");
+test("profile pop-up (left menu on desktop, bottom menu on phones) opens My profile", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/checkout");
