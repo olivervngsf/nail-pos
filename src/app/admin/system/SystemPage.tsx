@@ -68,7 +68,7 @@ export default function SystemPage() {
         <>
           <section className="ad-tiles" aria-label="System at a glance">
             {[
-              { label: "Stripe messages · 24 h", value: String(f.stripe.day), sub: f.stripe.last ? `${f.stripe.week} in 7 days · last ${when(f.stripe.last)}` : "None yet (webhook set?)" },
+              { label: "Stripe messages · 24h", value: String(f.stripe.day), sub: f.stripe.last ? `${f.stripe.week} in 7 days · last ${when(f.stripe.last)}` : "None yet (webhook set?)" },
               { label: "Payments matched · 7 days", value: f.stripe.payWeek ? `${f.stripe.payMatched}/${f.stripe.payWeek}` : "—", sub: f.stripe.payWeek > f.stripe.payMatched ? `${f.stripe.payWeek - f.stripe.payMatched} without a ticket: check` : "Every card payment has its ticket" },
               { label: "2-step login · admins", value: `${twoStep}/${f.admins.length}`, sub: f.admins.map((a) => `${a.name} ${a.twoStep ? "✓" : "✗"}`).join(" · ") || "No admins" },
               { label: `Our costs · ${monthName}`, value: $(spend), sub: `vs ${$(inc)} income${spend > inc ? ` · ${$(spend - inc)} short` : ""}` },

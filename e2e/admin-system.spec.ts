@@ -5,7 +5,7 @@ test("admin System tab: checks + costs", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/admin/system");
-  await expect(page.getByTestId("tile-stripe-messages-24-h")).toContainText("41");
+  await expect(page.getByTestId("tile-stripe-messages-24h")).toContainText("41");
   await expect(page.getByTestId("tile-2-step-login-admins")).toContainText("2/2");
   const list = page.getByTestId("system-checks");
   await expect(list).toContainText("Texting 10DLC");

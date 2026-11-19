@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import en from "@/i18n/en.json";
 import vi from "@/i18n/vi.json";
 import { registerHandler, startSync } from "@/lib/offline/outbox";
+import DeviceBeat from "@/components/DeviceBeat";
 import SupportBanner from "@/components/SupportBanner";
 import TwoStepGate from "@/components/TwoStepGate";
 
@@ -49,6 +50,7 @@ export default function AppProviders({ children }: { children: React.ReactNode }
     <LangCtx.Provider value={{ lang, setLang }}>
       <NextIntlClientProvider locale={lang} messages={MESSAGES[lang]} timeZone="America/Los_Angeles">
         <SupportBanner />
+        <DeviceBeat />
         {children}
         <TwoStepGate />
       </NextIntlClientProvider>

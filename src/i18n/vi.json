@@ -1169,7 +1169,7 @@
     "calNoteLabel": "Ghi chú cho khách",
     "calSaveHint": "Lịch đặt mới dùng ngay.",
     "calNotes": "Ghi chú",
-    "calAutoNote": "Hi Tom, see you Tue, Nov 17 · 11:00 AM.\nGel manicure · Kim · Est. $45 (pay at the salon)\nChange or cancel up to {hours} h before · Call {phone}",
+    "calAutoNote": "Hi Tom, see you Tue, Nov 17 · 11:00 AM.\nGel manicure · Kim · Est. $45 (pay at the salon)\nChange or cancel up to {hours}h before · Call {phone}",
     "calNoteEmpty": "Ghi chú của bạn hiện ở đây",
     "calFrom": "Tên, địa chỉ, số điện thoại lấy từ phần cài đặt tiệm. Giờ hủy lấy từ <rules>Quy định</rules>.",
     "seg0": "Không",
@@ -1956,7 +1956,14 @@
       "orType": "Không có camera? Trên máy tính bảng mở {site}/go và gõ:",
       "waiting": "Đang chờ máy tính bảng… mã hết hạn sau {t}",
       "expired": "Mã đã hết hạn. Bấm Mã mới.",
-      "qrDemo": "Bản thử: không lưu gì. Trên máy tính bảng mở /go và gõ 8 chữ bất kỳ."
+      "qrDemo": "Bản thử: không lưu gì. Trên máy tính bảng mở /go và gõ 8 chữ bất kỳ.",
+      "title": "Thiết bị của tiệm",
+      "on": "Đang bật",
+      "off": "Đã tắt",
+      "neverOn": "Chưa bật lần nào",
+      "lastOn": "Bật lần cuối {when}",
+      "count": "{on}/{all} đang bật",
+      "onMeans": "Đang bật = ứng dụng đang mở và hiện trên thiết bị đó. Tắt màn hình hoặc đóng trình duyệt sẽ hiện là Đã tắt."
     },
     "pay": {
       "lead": "Tài khoản Stripe riêng của tiệm. Tiền thẻ vào thẳng ngân hàng của tiệm; chúng tôi không giữ tiền.",
