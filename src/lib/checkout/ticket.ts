@@ -35,6 +35,8 @@ export type GiftSale = { id: string; cardId: string; last4: string; kind: "digit
 /** Gift card used to pay part (or all) of this ticket. Money already off the card (server). */
 export type LoyaltyReward = { id: string; cents: number; points: number };
 export type GiftPay = { id: string; cardId: string; last4: string; cents: number; balanceAfter?: number };
+/** Cash taken for part of an open ticket (split payment); the rest is paid by card, QR, gift card or more cash. No tip. */
+export type CashPart = { id: string; cents: number; givenCents: number; at: string };
 export type Ticket = {
   id: string;
   salonId: string;
@@ -54,6 +56,7 @@ export type Ticket = {
   payment?: Payment;
   gifts?: GiftSale[];
   giftPays?: GiftPay[];
+  cashParts?: CashPart[];
   /** Loyalty reward the client asked to use (off the salon's share; techs paid on full price). */
   reward?: LoyaltyReward;
   openedBy?: string;
@@ -71,9 +74,9 @@ export function discountCents(subtotal: number, d?: Discount): number {
 
 /**
  * subtotal (services) − discount = due (services after discount). Gift card sales are added on top (no discount, no tip).
- * toPay = what the client still pays before any tip (after gift cards used). left = cash/card still owed incl. cash tips.
+ * toPay = what the client still pays before any tip (after gift cards used and cash parts taken). left = still owed incl. cash tips.
  */
-export function totals(t: Pick<Ticket, "lines" | "discount" | "tips"> & { gifts?: GiftSale[]; giftPays?: GiftPay[]; reward?: LoyaltyReward }) {
+export function totals(t: Pick<Ticket, "lines" | "discount" | "tips"> & { gifts?: GiftSale[]; giftPays?: GiftPay[]; cashParts?: CashPart[]; reward?: LoyaltyReward }) {
   const subtotal = t.lines.reduce((a, l) => a + l.cents, 0);
   const discount = discountCents(subtotal, t.discount);
   const reward = Math.min(t.reward?.cents ?? 0, subtotal - discount);
@@ -81,8 +84,9 @@ export function totals(t: Pick<Ticket, "lines" | "discount" | "tips"> & { gifts?
   const tip = Object.values(t.tips).reduce((a, c) => a + Math.max(0, c), 0);
   const gift = (t.gifts ?? []).reduce((a, g) => a + g.cents, 0);
   const giftPaid = (t.giftPays ?? []).reduce((a, g) => a + g.cents, 0);
+  const cashPaid = (t.cashParts ?? []).reduce((a, c) => a + c.cents, 0);
   const total = due + gift + tip;
-  return { subtotal, discount, reward, due, tip, gift, giftPaid, total, toPay: due + gift - giftPaid, left: total - giftPaid };
+  return { subtotal, discount, reward, due, tip, gift, giftPaid, cashPaid, total, toPay: due + gift - giftPaid - cashPaid, left: total - giftPaid - cashPaid };
 }
 
 /** Cash: positive = change to give back, negative = still due. */
@@ -180,6 +184,10 @@ export function mergeOpen(mine: Ticket, server: Ticket, techRemoved: string[]): 
   const seen = new Set(mine.seenLineIds ?? []);
   const fresh = server.lines.filter((l) => !gone.has(l.id) && !seen.has(l.id) && !mine.lines.some((m) => m.id === l.id));
   const kept = mine.lines.filter((l) => !gone.has(l.id));
-  if (!fresh.length && kept.length === mine.lines.length) return null;
-  return { ...mine, number: mine.number ?? server.number, lines: [...kept, ...fresh], seenLineIds: [...new Set([...seen, ...fresh.map((l) => l.id)])] };
+  // Cash parts taken on another desk: add them (a part this desk took stays, even before the server has it).
+  const parts = [...(mine.cashParts ?? []), ...(server.cashParts ?? []).filter((c) => !(mine.cashParts ?? []).some((m) => m.id === c.id))];
+  const newParts = parts.length !== (mine.cashParts ?? []).length;
+  if (!fresh.length && kept.length === mine.lines.length && !newParts) return null;
+  return { ...mine, number: mine.number ?? server.number, lines: [...kept, ...fresh], seenLineIds: [...new Set([...seen, ...fresh.map((l) => l.id)])],
+    ...(newParts ? { cashParts: parts } : {}) };
 }

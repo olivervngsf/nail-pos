@@ -205,7 +205,7 @@
     "giftPay": "Thẻ quà tặng",
     "giftPaySub": "Quét, gõ mã, hoặc tìm theo số điện thoại. Dùng một phần hoặc hết.",
     "giftPayFee": "Không phí",
-    "splitNote": "Dùng thẻ quà tặng trước, phần còn lại trả tiền mặt hoặc thẻ. Chia tiền mặt + thẻ sẽ có sau.",
+    "splitNote": "Chia: thẻ quà hoặc một phần tiền mặt trước, rồi thẻ, QR hoặc tiền mặt cho phần còn lại.",
     "giftCardPaid": "Trả bằng thẻ quà tặng",
     "paidGift": "{amount} thẻ quà tặng",
     "giftActive": "Thẻ quà tặng •••• {last4} đã kích hoạt · {amount}",
@@ -251,7 +251,13 @@
     "editClient": "Sửa thông tin",
     "addClient": "Thêm vào phiếu",
     "newClientName": "Tên khách mới",
-    "noPhoneNudge": "Khách vãng lai, không có số: phiếu vẫn giữ tên. Hãy xin số điện thoại để tiệm nhắn nhắc hẹn (ít bỏ hẹn)."
+    "noPhoneNudge": "Khách vãng lai, không có số: phiếu vẫn giữ tên. Hãy xin số điện thoại để tiệm nhắn nhắc hẹn (ít bỏ hẹn).",
+    "takePart": "Thu {amount} bây giờ · phần còn lại trả cách khác",
+    "partRest": "Còn {amount} trả bằng thẻ, QR, thẻ quà hoặc tiền mặt.",
+    "partNoTips": "Tip tính ở lần trả cuối: xóa tip tiền mặt để chia.",
+    "cashPartPaid": "Đã trả tiền mặt",
+    "cashPartLine": "Tiền mặt (một phần)",
+    "cashPartBack": "Trả lại khách {amount}"
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -1373,7 +1379,19 @@
     "tipCard": "Tip (thẻ)",
     "tipCash": "Tip (tiền mặt)",
     "colTips": "Tip",
-    "colService": "Dịch vụ"
+    "colService": "Dịch vụ",
+    "tipsMonth": "Báo cáo tiền tip",
+    "tipReport": "Báo cáo tip tiền mặt",
+    "tipReportFor": "{name} · tip tháng {month}",
+    "signTips": "Đúng, tôi nhận {cash} tip tiền mặt",
+    "signedOn": "Đã ký {when}",
+    "notSigned": "Chưa ký",
+    "changedSince": "Đã đổi sau khi ký ({cash})",
+    "tipSignNote": "Tip tiền mặt bạn báo sẽ vào hồ sơ lương. Xem số tiền, rồi ký bằng mã PIN.",
+    "tipsSigned": "Đã ký. Cảm ơn.",
+    "tipReportCap": "Mỗi người tự ký tháng của mình trên máy của tiệm: Thu nhập của tôi → Báo cáo tiền tip.",
+    "month": "Tháng",
+    "signedCol": "Đã ký"
   },
   "numbers": {
     "title": "Số liệu",

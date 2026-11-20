@@ -25,14 +25,14 @@ Share this page with anyone who sets up Stripe for PolishOS (sandbox or live).
 | Vercel variable | `STRIPE_WEBHOOK_SECRET` | `STRIPE_BILLING_WEBHOOK_SECRET` |
 | Events | `payment_intent.succeeded`, `payment_intent.payment_failed`, `checkout.session.completed`, `charge.refunded`, `charge.updated`, `account.updated` | `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`, `checkout.session.completed`, `payment_intent.succeeded`, `customer.updated`, `payment_method.attached` |
 | Code | `src/app/api/stripe/webhook/route.ts` | `src/app/api/billing/webhook/route.ts` |
-| Status (Nov 19) | **Working (sandbox).** Destination "PolishOS card payments", secret in Vercel Production. Tested: ticket #1014 on `lotus-5` paid by the webhook alone (no desk screen open) | Not set up yet (Billing page also refreshes from Stripe each time it opens) |
+| Status (Nov 19) | **Working (sandbox).** Destination "PolishOS card payments", secret in Vercel Production. Tested: ticket #1014 on `lotus-5` paid by the webhook alone (no desk screen open) | **On (sandbox).** Made with Admin → System → Set up webhooks, Nov 20; secret kept by the app. Live mode: same button after the live key |
 
 ## The billing webhook, in plain words
 - **Card payments webhook** = money a salon's clients pay **the salon** (services, tips), on each salon's own Stripe account. Working.
-- **Billing webhook** = money a salon pays **PolishOS** (the $49/month plan, text credit top-ups), on **our** platform Stripe account. Not set up yet.
+- **Billing webhook** = money a salon pays **PolishOS** (the $49/month plan, text credit top-ups), on **our** platform Stripe account. On in the sandbox since Nov 20 (one tap in Admin → System).
 - What it does: a plan renews, a card fails or the owner cancels → the app knows right away ("Payment late" on the salon, Founder Admin alert); an owner buys text credit and closes the page mid-payment → the credit still gets added.
 - Without it: the Billing page checks Stripe each time someone opens it and catches up then. Gaps: no "payment late" alert until someone opens Billing; a text credit purchase can be missed if the page closes mid-payment.
-- When: not urgent while every salon is on the free pilot. **Set it up before the first paying salon** (one tap below, or by hand with "Your account", `/api/billing/webhook`, `STRIPE_BILLING_WEBHOOK_SECRET`).
+- Live mode: set it up before the first paying salon (same one tap after switching to the live key, or by hand with "Your account", `/api/billing/webhook`, `STRIPE_BILLING_WEBHOOK_SECRET`).
 
 ## Fastest way: one tap (Nov 20)
 1. Open **polishosapp.com/admin/system** (Oliver or Elang; not a preview link).
@@ -79,4 +79,4 @@ Share this page with anyone who sets up Stripe for PolishOS (sandbox or live).
 - Same URLs; Vercel Production gets the live `STRIPE_SECRET_KEY` + live `STRIPE_WEBHOOK_SECRET` (+ `STRIPE_BILLING_WEBHOOK_SECRET`). Preview deployments keep the sandbox ones.
 - Accounts v2 note: `account.updated` for salon accounts may only arrive at a "Your account" destination. It only refreshes a salon's "Stripe ready" flags, which Settings → Payments also refreshes when opened, so payments don't depend on it.
 
-Also see: `docs/go-live-checklist.md` § 4 Payments.
+Also see: `docs/go-live-plan.md` § 5 Payments live.

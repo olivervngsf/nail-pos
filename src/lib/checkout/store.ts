@@ -111,7 +111,12 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
     const lines = r.ticket_lines.filter((l) => !l.removed_at).sort((a, b) => a.sort - b.sort);
     const disc = lines.find((l) => l.kind === "discount");
     // 'extra' = card money that came in for a stopped try (flagged to refund), not this ticket's payment.
-    const pay = r.payments.filter((p) => p.method !== "gift_card" && p.status !== "canceled" && p.status !== "extra").sort((a, b) => b.at.localeCompare(a.at))[0];
+    // Open ticket: cash already taken = parts of a split payment, not the final payment.
+    const pay = r.status === "open" ? undefined
+      : r.payments.filter((p) => p.method !== "gift_card" && p.status !== "canceled" && p.status !== "extra").sort((a, b) => b.at.localeCompare(a.at))[0];
+    // Paid/refunded ticket: every other cash payment was a part of a split.
+    const cashParts = r.payments.filter((p) => p.method === "cash" && p.id !== pay?.id && (p.status === "paid" || (r.status !== "open" && p.status === "refunded")))
+      .map((p) => ({ id: p.id, cents: Number(p.amount_cents), givenCents: Number(p.given_cents ?? p.amount_cents), at: p.at }));
     const gifts = lines.filter((l) => l.kind === "gift_sale" && l.gift_card_id).map((l) => {
       const mine = getTicket(r.id)?.gifts?.find((g) => g.id === l.id);
       return mine ?? { id: l.id, cardId: l.gift_card_id!, last4: l.name.slice(-4), kind: "plastic" as const, cents: Number(l.amount_cents) };
@@ -131,7 +136,7 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
       })),
       discount: disc ? { id: disc.id, kind: "amt", value: -disc.amount_cents, reason: disc.reason ?? "", approvalId: disc.approval_id ?? undefined } : undefined,
       tips: Object.fromEntries(lines.filter((l) => l.kind === "tip" && l.staff_id).map((l) => [l.staff_id!, l.amount_cents])),
-      gifts, giftPays,
+      gifts, giftPays, cashParts,
       reward: (() => { const rl = lines.find((l) => l.kind === "loyalty_reward"); return rl ? { id: rl.id, cents: -Number(rl.amount_cents), points: getTicket(r.id)?.reward?.points ?? 0 } : undefined; })(),
       payment: pay ? { id: pay.id, method: pay.method as "cash" | "card_reader" | "pay_link", givenCents: pay.given_cents ?? undefined, at: pay.at, takenBy: pay.taken_by ?? undefined,
         amountCents: Number(pay.amount_cents), feeCents: Number(pay.fee_cents), brand: pay.card_brand ?? undefined, last4: pay.card_last4 ?? undefined } : undefined,
@@ -151,6 +156,29 @@ registerHandler("ticket.save", async (item) => {
   const t = getTicket(r.id);
   if (t) { load()[r.id] = { ...t, number: r.number, synced: true }; persist(); }
 });
+
+registerHandler("ticket.cashPart", async (item) => {
+  const p = item.payload as { paymentId: string; salonId: string; ticketId: string; cents: number; givenCents: number; takenBy?: string; at: string };
+  const r = await rpc<{ ok: boolean; reason?: string }>("cash_part", { p });
+  // Ticket got paid another way before this part reached the server: drop the part on this device.
+  if (r && r.ok === false) { const t = getTicket(p.ticketId); if (t) { load()[t.id] = { ...t, cashParts: (t.cashParts ?? []).filter((c) => c.id !== p.paymentId) }; persist(); } }
+});
+registerHandler("ticket.cashPartUndo", async (item) => {
+  await rpc("cash_part_undo", { p_payment: (item.payload as { paymentId: string }).paymentId });
+});
+
+/** Split payment: take part of an open ticket in cash now (saved on this device, sent in order after the ticket). */
+export function takeCashPart(t: Ticket, cents: number, givenCents: number, takenBy?: string) {
+  const part = { id: crypto.randomUUID(), cents, givenCents, at: new Date().toISOString() };
+  putTicket({ ...t, cashParts: [...(t.cashParts ?? []), part] }, { now: true });
+  if (live) void enqueue("ticket.cashPart", { paymentId: part.id, salonId: t.salonId, ticketId: t.id, cents, givenCents, takenBy, at: part.at });
+  return part;
+}
+/** Take a cash part back (give the cash back to the client). */
+export function undoCashPart(t: Ticket, partId: string) {
+  putLocal({ ...t, cashParts: (t.cashParts ?? []).filter((c) => c.id !== partId) });
+  if (live) void enqueue("ticket.cashPartUndo", { paymentId: partId });
+}
 
 registerHandler("ticket.receipt", async (item) => {
   const p = item.payload as { id: string; salonId: string; ticketId: string; channel: string; to?: string };
