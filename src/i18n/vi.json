@@ -229,6 +229,7 @@
     "btIos": "In Bluetooth trên iPhone/iPad: mở PolishOS trong trình duyệt Bluefy.",
     "scanReceipt": "Quét để xem hóa đơn trên điện thoại",
     "printSlip": "In phiếu",
+    "moreBtn": "Thêm",
     "slipTicket": "PHIẾU",
     "slipForTech": "Đưa phiếu này cho thợ làm móng.",
     "slipBack": "Mang phiếu lại quầy để thanh toán.",
@@ -2321,5 +2322,18 @@
     "signInLast4": "Dùng số điện thoại đuôi {last4}. Chúng tôi nhắn mã cho bạn.",
     "linkUsed": "Link này đã dùng rồi. PIN của bạn đã có. Cần đổi thì xin chủ tiệm link mới.",
     "linkEnded": "Link này đã hết hạn. Xin chủ tiệm link mới."
+  },
+  "moreMenu": {
+    "title": "Thêm",
+    "money": "Tiền",
+    "salon": "Tiệm",
+    "closeDay": "Đóng ngày",
+    "payouts": "Bảng trả lương",
+    "numbers": "Số liệu",
+    "giftCards": "Thẻ quà tặng",
+    "loyalty": "Tích điểm",
+    "textCredit": "Tiền nhắn tin",
+    "timeClock": "Chấm công",
+    "earnings": "In thu nhập của tôi"
   }
 }

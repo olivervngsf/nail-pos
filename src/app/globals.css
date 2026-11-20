@@ -1234,3 +1234,70 @@ button:disabled { cursor: not-allowed; }
 .clock-qr svg { width: 120px; height: 120px; flex: none; }
 .clock-qr .g { display: flex; flex-direction: column; gap: 4px; }
 @media (max-width: 600px) { .clock-qr { position: static; margin: 12px 16px; max-width: none; } }
+
+/* ===== Checkout on a phone / handheld (Nov 20, board "Phone Friendly Audit + Plan" row 1) ===== */
+.tag { white-space: nowrap; }
+.ck-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.ck-paybar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.ck-due { flex: 1; min-width: 160px; }
+.ck-go { display: flex; flex-direction: column; gap: 6px; align-items: stretch; min-width: 220px; }
+.ck-more, .tk-no2 { display: none; }
+@media (max-width: 599px) {
+  /* Checkout home: scan on top, one clean row per ticket, round New ticket button */
+  .tk-no { display: none; }
+  .tk-no2 { display: inline; }
+  .tk-title, .tk-sub { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ck-home { padding: 16px 16px 96px !important; gap: 14px !important; }
+  .ck-homebar h1 { flex: 1 0 100% !important; }
+  .ck-home .opt .grow { min-width: 0; }
+  .ck-scan { flex: 1; }
+  .ck-scan input { width: 100% !important; height: 48px !important; }
+  .ck-new { position: fixed; right: 16px; bottom: calc(72px + env(safe-area-inset-bottom)); z-index: 31; height: 56px !important; padding: 0 22px !important; border-radius: 28px !important; box-shadow: 0 8px 24px -6px rgba(22,22,26,.4); }
+  /* Ticket + pay steps: no menu, the main button owns the bottom of the screen */
+  .app.tk-app:not(.ad-app) .rail { display: none; }
+  .app.tk-app:not(.ad-app):has(.rail) { padding-bottom: 0; }
+  .tk-app .ck-main { padding: 12px 16px calc(132px + env(safe-area-inset-bottom)); gap: 12px; }
+  .ck-lname { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ck-acts, .ck-sum .sep { display: none; }
+  .ck-sum { padding: 14px 16px !important; }
+  .ck-paybar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 8px; padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--paper); border-top: 1px solid var(--line); box-shadow: 0 -8px 24px -12px rgba(22,22,26,.14); }
+  .ck-due { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; min-width: 0; }
+  .ck-due .money { font-size: 24px; line-height: 28px; }
+  .ck-go { flex-direction: row; flex-wrap: wrap; min-width: 0; gap: 8px; }
+  .ck-go .ck-more { display: inline-flex; height: 52px; }
+  .ck-go .btn.primary { flex: 1; height: 52px; font-size: 17px; }
+  .ck-go .cap { flex-basis: 100%; order: -1; }
+  .tk-app .tile { padding: 14px 16px; }
+  /* Cash: total, what the client gave, change, keypad; tips after; Cash received pinned */
+  .ck-cash > section { display: contents; }
+  .ck-cash .sep { display: none; }
+  .ck-cash .ck-keys > * { order: 1; }
+  .ck-cash .ck-tips { order: 2; }
+  .ck-cash .ck-offnote { order: 3; }
+  .ck-cash .key { height: 52px; }
+  .ck-pin { position: fixed; left: 16px; right: 16px; bottom: calc(12px + env(safe-area-inset-bottom)); width: auto !important; z-index: 30; height: 56px !important; }
+  .ck-main:has(.ck-pin)::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: calc(80px + env(safe-area-inset-bottom)); background: var(--paper); border-top: 1px solid var(--line); z-index: 29; }
+}
+
+/* ===== Phone menu = Today · Calendar · Checkout · Clients · More (Nov 20, board row 2) ===== */
+.rail > a.rail-more { display: none; }
+.mm { padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 560px; box-sizing: border-box; }
+.mm a.opt { text-decoration: none; }
+.mm .opt .grow { flex: 1; min-width: 0; }
+.mm .mm-me { min-height: 72px; }
+.mm-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
+.mm .mm-out { color: var(--orange); }
+@media (max-width: 599px) {
+  .app:not(.ad-app) .rail > a.rail-wide, .app:not(.ad-app) .rail .rail-acct { display: none; }
+  .app:not(.ad-app) .rail > a.rail-more { display: flex; }
+  .mm { padding: 16px; }
+  /* drawers: footer buttons use the full width; a long value never runs over its label */
+  .drawer-f > div { flex: 1; min-width: 0; }
+  .drawer .row > .grow.cap { flex: 0 0 auto; }
+  .drawer .row > .grow.cap + b { flex: 1; min-width: 0; text-align: right; }
+  /* calendar top bar: the date fits */
+  .cal-title .cal-clock { display: none; }
+  .cal-title { font-size: 14px; }
+  .cal-app .bar { padding: 0 10px; gap: 6px; }
+  .cal-app .bar .btn { padding: 0 10px; }
+}

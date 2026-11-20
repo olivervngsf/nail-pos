@@ -229,6 +229,7 @@
     "btIos": "Bluetooth printing on iPhone/iPad: open PolishOS in the Bluefy browser.",
     "scanReceipt": "Scan for your digital receipt",
     "printSlip": "Print slip",
+    "moreBtn": "More",
     "slipTicket": "TICKET",
     "slipForTech": "Give this slip to your nail tech.",
     "slipBack": "Bring it back to the front desk to pay.",
@@ -2321,5 +2322,18 @@
     "signInLast4": "Use your phone ending in {last4}. We text you a code.",
     "linkUsed": "This link was already used. Your PIN is set. Ask the owner for a new link if you need to change it.",
     "linkEnded": "This link has ended. Ask the owner for a new one."
+  },
+  "moreMenu": {
+    "title": "More",
+    "money": "Money",
+    "salon": "Salon",
+    "closeDay": "Close day",
+    "payouts": "Payout sheet",
+    "numbers": "Numbers",
+    "giftCards": "Gift cards",
+    "loyalty": "Loyalty",
+    "textCredit": "Text credit",
+    "timeClock": "Time clock",
+    "earnings": "Print my earnings"
   }
 }
