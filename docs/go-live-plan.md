@@ -21,17 +21,21 @@ When a step is done: tick it here, write the date, and tick the same check in **
 
 | Area | Test setup (today) | Live (real salons) |
 |---|---|---|
-| App | polishosapp.com runs main, on the TEST database + Stripe sandbox | Same app, switched to live keys in step 3 |
-| Database | `nail-pos-test`: every change tried here first | `nail-pos-live` made Nov 18, **empty**; gets changes only from main (`db-live.yml`), not switched on yet |
+| App | Preview links (every PR) run on the TEST database + Stripe sandbox | **polishosapp.com runs on the LIVE database since Nov 20** (Stripe still sandbox) |
+| Database | `nail-pos-test`: every change tried here first | `nail-pos-live`: gets every change from main (`db-live.yml`, on). Holds the demo salon "Lotus Demo Nails" + demo phones (see `docs/test-accounts.md`); remove before the first real salon |
 | Card payments | Sandbox works; webhook On (made by hand Nov 19) | Stripe live mode not set up |
 | Plans + text credit | Sandbox: webhook On (Admin → System button, Nov 20); text credit test payment started Nov 20 (Stripe page reached, paying with test card 4242 still to finish) | Same button again after the live key, then one real $5 credit + refund (step 5) |
-| Sign-in codes by text | Twilio Verify works | Copy settings to the live project |
+| Sign-in codes by text | Twilio Verify works | Done Nov 20: live phone sign-in on (Twilio Verify) + test numbers 555-010-0001…0009 = 123456 |
 | Salon texts (invites, reminders) | Code ready; carriers block them until the campaign is approved | Campaign review ~1–3 weeks |
-| Email sign-in | Resend sender works | Copy SMTP + templates to the live project |
+| Email sign-in | Resend sender works | Copy SMTP + templates to the live project (not checked yet) |
 | Admins' 2-step login | 0 of 2 on | Must be 2 of 2 |
 | Running smooth checks | All "Not set" | All ticked |
 
 ---
+
+**Vercel keys (Nov 20):** Production = live (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`). Preview = test. To do: `SUPABASE_SECRET_KEY` is still the live key on Preview too → set Preview to the test key (else preview links' payments, invites, receipts fail). Any `NEXT_PUBLIC_` change needs a Redeploy.
+
+**Founders on live (Nov 20):** Oliver = platform admin (his phone + email, note "Oliver (founder)"). Elang: sign in once, then add the same way. Demo admin 555-010-0009 (note "Demo admin…") goes before the first real salon.
 
 ## 1. Lock our own accounts (Oliver + Elang · ~1 h · do first)
 - [ ] 2-step login + password manager on every account we own: GitHub, Vercel, Supabase, Stripe, Twilio, GoDaddy, Google, Resend, Anthropic.

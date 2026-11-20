@@ -1,4 +1,11 @@
-# Test accounts (test project only)
+# Test accounts
+
+**Two databases, same phones (Nov 20):**
+- **polishosapp.com = LIVE database**: salon **Lotus Demo Nails** (demo data, `demo_live.sql`). Phones below sign in with code 123456 (live Supabase → Auth → Phone → Test Phone Numbers). 555-010-0009 = **demo admin** (Founder Admin). Remove all of it before the first real salon (`docs/go-live-plan.md`).
+- **Preview links (PRs) = TEST database**: salon **Lotus Test Nails** (below).
+- Founders sign in with their own real phone (real text code) or email + password.
+
+## Test project
 
 PIN 123456 for everyone in the salon (test only; set Nov 18). To give someone a new PIN: `docs/pin-help.md`. The admin (…0009) has no salon, so no PIN.
 
