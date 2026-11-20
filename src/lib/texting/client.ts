@@ -35,3 +35,6 @@ export function textLine(s: { status: string; why?: string | null; error?: strin
     default: return s.status;
   }
 }
+
+/** Text the "make your PIN" link to a member who joined but has no PIN (owner/manager). */
+export const textPinLink = (membership: string) => api<SendReply>("/api/pin/text", { membership });

@@ -9,6 +9,9 @@ test("admin: inbox, handled, salons table, filters, add salon drawer", async ({ 
   await expect(page.getByTestId("alert")).toHaveCount(5);
   await expect(page.getByTestId("alert").first()).toContainText("Stripe paused payouts");
   await expect(page.getByTestId("today-total")).toContainText("$8,412");
+  // no sales per salon on Home: a word instead
+  await expect(page.getByTestId("home-use").filter({ hasText: "Busy week" })).toHaveCount(1);
+  await expect(page.getByRole("complementary", { name: "All salons today" })).not.toContainText("$3,410");
   await expect(page.getByTestId("done-today")).toContainText("Oliver");
 
   await page.getByTestId("alert").nth(1).getByTestId("handled").click();

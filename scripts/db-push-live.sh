@@ -15,6 +15,8 @@ case "$LIVE_DB_URL" in
 esac
 case "$LIVE_DB_URL" in *YOUR-PASSWORD*|*'[YOUR'*) echo "FAILED: LIVE_DB_URL still has [YOUR-PASSWORD] in it. Replace it with the database password."; exit 1 ;; esac
 DRY=${1:-}
+# Two files with one version = the second never runs here. Stop before touching live.
+scripts/check-migrations.sh
 q() { psql "$LIVE_DB_URL" -X -q -t -A -v ON_ERROR_STOP=1 "$@"; }
 
 q -c "create schema if not exists supabase_migrations;

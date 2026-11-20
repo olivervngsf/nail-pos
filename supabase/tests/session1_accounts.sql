@@ -5,7 +5,7 @@ insert into auth.users (id, phone, aud, role) values
   ('00000000-0000-0000-0000-00000000aa01', '14085550101', 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000aa02', '14085550102', 'authenticated', 'authenticated');
 create temp table t_out (k text primary key, v jsonb);
-grant all on t_out to authenticated, anon;
+grant all on t_out to authenticated, anon, service_role;
 
 insert into public.platform_admins (auth_user_id) select id from auth.users on conflict do nothing;  -- salons are invite-only: test owners set up salons as platform admins
 set local role authenticated;
@@ -35,7 +35,10 @@ insert into t_out values ('tech_ms', (select to_jsonb(m) from public.my_membersh
 do $$ begin perform public.set_my_pin('00000000-0000-0000-0000-0000000005a1', '123456'); raise exception 'FAIL: weak pin accepted';
 exception when others then if sqlerrm not like '%weak pin%' then raise; end if; end $$;
 select public.set_my_pin('00000000-0000-0000-0000-0000000005a1', '258013');
+-- clock_self is server-only since clock_rules (phones go through /api/clock/phone); same person, run as the server.
+set local role service_role;
 insert into t_out values ('self_clock', to_jsonb(public.clock_self('00000000-0000-0000-0000-0000000005a1', 'in')));
+set local role authenticated;
 
 -- back on the salon device (owner session): wrong PIN 5 times locks
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000aa01","role":"authenticated"}', true);

@@ -48,6 +48,24 @@ const T = {
 
 type DbInvite = { salon_name: string; display_name: string; role: Role; owner_name: string | null; phone_last4: string; status: "open" | "used" | "expired" };
 
+// Outside StaffJoin on purpose: a component made inside render is a new type every
+// keystroke, so React rebuilds the page and the phone input loses focus (keyboard closes).
+function Shell({ t, step, go, title, back, children, tabs }: {
+  t: (typeof T)[keyof typeof T]; step: JoinState["step"]; go: (s: JoinState["step"]) => void;
+  title: string; back?: JoinState["step"]; children: React.ReactNode; tabs?: boolean;
+}) {
+  return (
+    <div className="phone">
+      <div className="pbar">
+        {back ? <button className="btn ghost sm" type="button" onClick={() => go(back)}>{t.back}</button> : <span style={{ width: 70 }} />}
+        <span>{title}</span><span style={{ width: 70 }} />
+      </div>
+      <div className="pbody in" key={step}>{children}</div>
+      {tabs && <nav className="ptabs">{t.tabs.map((x, i) => <button key={x} type="button" className={i === 0 ? "on" : ""}>{x}</button>)}</nav>}
+    </div>
+  );
+}
+
 export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
   const router = useRouter();
   const [db, setDb] = useState<DbInvite | null | undefined>(SMS_ON ? undefined : null);
@@ -74,17 +92,6 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
   const go = (step: JoinState["step"]) => { setS((p) => ({ ...p, step })); window.scrollTo(0, 0); };
 
   if (!ready) return <div className="phone" aria-busy="true" />;
-
-  const Shell = ({ title, back, children, tabs }: { title: string; back?: JoinState["step"]; children: React.ReactNode; tabs?: boolean }) => (
-    <div className="phone">
-      <div className="pbar">
-        {back ? <button className="btn ghost sm" type="button" onClick={() => go(back)}>{t.back}</button> : <span style={{ width: 70 }} />}
-        <span>{title}</span><span style={{ width: 70 }} />
-      </div>
-      <div className="pbody in" key={s.step}>{children}</div>
-      {tabs && <nav className="ptabs">{t.tabs.map((x, i) => <button key={x} type="button" className={i === 0 ? "on" : ""}>{x}</button>)}</nav>}
-    </div>
-  );
 
   const press = (k: string) => {
     if (k === "del") { setPin((p) => p.slice(0, -1)); return; }
@@ -113,8 +120,8 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
   };
 
   if (SMS_ON && db === undefined) return <div className="phone" aria-busy="true" />;
-  if (SMS_ON && db === null && s.step === "invite") return <Shell title="PolishOS"><h1 className="h2">This invite link doesn&apos;t work</h1><div className="cap lead">Ask the salon owner to send it again.</div></Shell>;
-  if (SMS_ON && db && db.status !== "open" && s.step === "invite") return <Shell title="PolishOS">
+  if (SMS_ON && db === null && s.step === "invite") return <Shell t={t} step={s.step} go={go} title="PolishOS"><h1 className="h2">This invite link doesn&apos;t work</h1><div className="cap lead">Ask the salon owner to send it again.</div></Shell>;
+  if (SMS_ON && db && db.status !== "open" && s.step === "invite") return <Shell t={t} step={s.step} go={go} title="PolishOS">
     <h1 className="h2">{db.status === "expired" ? "This invite has ended" : "You already joined"}</h1>
     <div className="cap lead">{db.status === "expired" ? "Ask the owner to send a new one." : "Sign in with your phone number."}</div>
     {db.status === "used" && <button className="btn primary block" type="button" onClick={() => router.push("/login")}>Sign in</button>}
@@ -122,7 +129,7 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
 
   switch (s.step) {
     case "verify":
-      return <Shell title="PolishOS" back="invite">
+      return <Shell t={t} step={s.step} go={go} title="PolishOS" back="invite">
         <PhoneCodeLogin phone={phone} setPhone={setPhone} title={s.lang === "Tiếng Việt" ? "Xác nhận số điện thoại" : "Confirm your phone"}
           lead={`${s.lang === "Tiếng Việt" ? "Số mà chủ tiệm đã nhập, kết thúc bằng" : "The number the owner added, ending in"} ${db?.phone_last4 ?? ""}.`}
           onDone={async () => {
@@ -135,7 +142,7 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
         {err && <div className="hint err" role="alert">{err}</div>}
       </Shell>;
     case "invite":
-      return <Shell title="PolishOS">
+      return <Shell t={t} step={s.step} go={go} title="PolishOS">
         <div className="bubble">{invite.salon}: Hi {first}! {invite.owner} added you to PolishOS.</div>
         <h1 className="h2">{t.join(invite.salon)}</h1>
         <div className="group">
@@ -146,12 +153,12 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
         <button className="btn ghost block" type="button" onClick={() => go("notme")}>{t.notMe}</button>
       </Shell>;
     case "notme":
-      return <Shell title="PolishOS">
+      return <Shell t={t} step={s.step} go={go} title="PolishOS">
         <h1 className="h2">{t.thanks}</h1>
         <div className="cap lead" style={{ lineHeight: "22px" }}>{t.closed(invite.owner)}</div>
       </Shell>;
     case "lang":
-      return <Shell title="PolishOS" back="invite">
+      return <Shell t={t} step={s.step} go={go} title="PolishOS" back="invite">
         <h1 className="h2">{t.lang} · Ngôn ngữ</h1>
         <div className="cap">{t.langCap}</div>
         <div className="group">
@@ -165,7 +172,7 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
       </Shell>;
     case "pin":
     case "pin2":
-      return <Shell title={t.yourPin} back="lang">
+      return <Shell t={t} step={s.step} go={go} title={t.yourPin} back="lang">
         <h1 className="h2" style={{ textAlign: "center" }}>{s.step === "pin" ? t.pin1 : t.pin2}</h1>
         <div className="cap" style={{ textAlign: "center" }}>{s.step === "pin" ? t.pin1Cap : t.pin2Cap}</div>
         <div className="dots" style={{ margin: "8px 0 4px" }} aria-label={`${pin.length} of ${len} digits`}>{Array.from({ length: len }, (_, i) => i).map((i) => <i key={i} className={i < pin.length ? "on" : ""} />)}</div>
@@ -178,7 +185,7 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
         </div>
       </Shell>;
     case "photo":
-      return <Shell title={t.photoT} back="pin">
+      return <Shell t={t} step={s.step} go={go} title={t.photoT} back="pin">
         <h1 className="h2" style={{ textAlign: "center" }}>{t.photo}</h1>
         <div style={{ width: 120, height: 120, borderRadius: "50%", background: "#E9D7CB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44, fontWeight: 600, color: "#8C6A5A", alignSelf: "center" }}>{first[0]}</div>
         <div className="cap" style={{ textAlign: "center" }}>{t.photoCap}</div>
@@ -187,7 +194,7 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
         <button className="btn ghost block" type="button" onClick={() => go("done")}>{t.skip}</button>
       </Shell>;
     case "done":
-      return <Shell title="PolishOS">
+      return <Shell t={t} step={s.step} go={go} title="PolishOS">
         <div className="okmark" style={{ alignSelf: "center" }}>✓</div>
         <h1 className="h2" style={{ textAlign: "center" }}>{t.set(first)}</h1>
         <div className="cap lead" style={{ textAlign: "center" }}>{invite.salon} · {invite.role} · {s.lang}</div>
@@ -196,7 +203,7 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
         <button className="btn primary block" type="button" onClick={() => (SMS_ON ? router.push("/t") : go("home"))}>{t.home}</button>
       </Shell>;
     case "home":
-      return <Shell title={t.tabs[0]} tabs>
+      return <Shell t={t} step={s.step} go={go} title={t.tabs[0]} tabs>
         <h1 className="h2">{t.hi(first)}</h1>
         {s.clocked ? (
           <div className="card pad" style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
