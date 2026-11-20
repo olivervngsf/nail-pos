@@ -1,7 +1,7 @@
 // Client receipt code (Oliver, Nov 19): the QR on the client's paper receipt opens /r/<code>, never the ticket id.
 // code = first 16 hex of SHA-256("receipt:" + ticket id). One way: the code never reveals the ticket id (which also
 // opens the staff slip page), and the desk can print it offline because it needs nothing from the server.
-// The database computes the same value (tickets.receipt_code, migration 20261229000001_receipt_code).
+// The database computes the same value (tickets.receipt_code, migration 20261229000003_receipt_code).
 
 const K = new Uint32Array([
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01,
