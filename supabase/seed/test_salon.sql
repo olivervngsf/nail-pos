@@ -17,8 +17,9 @@ do $$
 declare sid uuid := '7e570000-0000-4000-8000-000000000001';
 begin
   insert into public.salons (id, name, phone, address, state, setup_step, time_zone)
-  values (sid, 'Lotus Test Nails', '+14085550100', '1550 S Bascom Ave, Campbell', 'CA', 9, 'America/Los_Angeles')
-  on conflict (id) do update set name = excluded.name, setup_step = 9, time_zone = excluded.time_zone;
+  values (sid, 'Lotus Test Nails', '+14085550100', '1550 S Bascom Ave, Campbell, CA 95008', 'CA', 9, 'America/Los_Angeles')
+  -- Full address (street, city, state ZIP): Stripe needs it to register a card reader location.
+  on conflict (id) do update set name = excluded.name, address = excluded.address, setup_step = 9, time_zone = excluded.time_zone;
 
   insert into public.memberships (id, salon_id, display_name, phone, role, pay_type, commission_pct, hourly_cents, check_pct, license_no, license_state, license_expires, language, pin_hash) values
     ('7e570000-0000-4000-8000-0000000000a1', sid, 'Lan Nguyen', '+15550100001', 'owner',      null,         null, null, 100, null,     null, null, 'en', extensions.crypt('123456', extensions.gen_salt('bf'))),

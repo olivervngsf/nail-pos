@@ -144,7 +144,7 @@ export async function ensureLocation(salonId: string): Promise<{ accountId: stri
   const config = await st.terminal.configurations.create({ tipping: { usd: { percentages: [15, 20, 25] } } }, opts);
   // The salon's real address (setup step 1). Stripe needs street + city + ZIP for a reader location.
   const address = parseAddress(s?.address, s?.state ?? "CA");
-  if (!addressOk(address)) throw new Error("Add the salon's full address in step 1 (street, city, state ZIP) so the reader can be registered.");
+  if (!addressOk(address)) throw new Error("The salon's address needs street, city, state and ZIP (like: 1550 S Bascom Ave, Campbell, CA 95008) before a card reader can be used. The owner adds it in salon setup, step 1.");
   const loc = await st.terminal.locations.create({ display_name: s?.name ?? "Salon", configuration_overrides: config.id, address }, opts);
   await db.from("stripe_accounts").update({ location_id: loc.id, updated_at: new Date().toISOString() }).eq("salon_id", salonId);
   return { accountId: a.account_id, locationId: loc.id };
