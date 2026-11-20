@@ -1,0 +1,13 @@
+{
+  "id": "P011",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "I'm in the middle of a 3-year processor deal and my techs, who are mostly older, barely tolerate the system we have. I'd take the free fee check, but I'm not signing up for a trial that puts two systems on my desk on a Saturday.",
+  "objection": "My staff are older, they will not learn a new system. Running a second reader and a second screen during the trial doubles the work, and I don't know whether moving card swipes off my processor triggers the exit fee.",
+  "would_change_my_mind": "Seeing it running at a salon like mine, with older techs, that I can call or visit. A written answer that the trial won't trigger my processor's exit fee would also help.",
+  "price_too_cheap": 15,
+  "price_cheap": 30,
+  "price_expensive": 60,
+  "price_too_expensive": 100
+}

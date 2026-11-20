@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "I already run Square on an iPad and it works. Paying $49 a month plus $299 for a reader, to move my cards and my records to a new company I have never heard of, is a big risk for a small salon like mine.",
+  "objection": "Card fees are where the real money is. You say it is Stripe's 2.7% + 5 cents with no markup, but is that really cheaper than what I pay now with Square? Show me on my own statement. And who are you, will you still be around next year?",
+  "would_change_my_mind": "A side-by-side of my last 3 months of card fees on Square versus your rate, plus names of 2 or 3 Vietnamese salons near me already using it and happy.",
+  "price_too_cheap": 15,
+  "price_cheap": 29,
+  "price_expensive": 59,
+  "price_too_expensive": 89
+}

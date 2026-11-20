@@ -1,0 +1,13 @@
+{
+  "id": "P007",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "I run a big shop and my POS mostly works. A new company could close and take my data, and I don't want to retrain 15 techs and the front desk on something unproven.",
+  "objection": "Who are you? If you shut down in two years, what happens to my client list, my tickets and my payroll history? Switching is a risk to a shop this size.",
+  "would_change_my_mind": "Two or three big salons I know, with 11 or more techs, running it for over a year, plus a written promise that I can export all my data any time.",
+  "price_too_cheap": 20,
+  "price_cheap": 49,
+  "price_expensive": 150,
+  "price_too_expensive": 300
+}

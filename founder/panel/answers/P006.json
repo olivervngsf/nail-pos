@@ -1,0 +1,13 @@
+{
+  "id": "P006",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "trust",
+  "reason": "I would take the 60-day trial because I keep my old POS and terminal, so nothing risky happens on a Saturday. The free fee check and a Vietnamese person standing at my desk is what makes me try it, and I can call another owner first.",
+  "objection": "What happens when the internet goes down on a busy Saturday? If tickets stop or I lose money, my techs will blame me, not you.",
+  "would_change_my_mind": "I call a salon owner who has run it through a bad internet day and they tell me tickets and tips kept saving and nothing was lost.",
+  "price_too_cheap": 15,
+  "price_cheap": 30,
+  "price_expensive": 70,
+  "price_too_expensive": 110
+}

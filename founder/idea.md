@@ -1,0 +1,7 @@
+# PolishOS (by EO Collective)
+
+- What it is: a point-of-sale + salon app for Vietnamese-run nail salons: checkout (cash, Stripe card reader, pay link), fair tech payout sheet with tips and card fees on every ticket, turn list for walk-ins, booking calendar, client profiles, gift cards, loyalty, owner numbers, English/Vietnamese.
+- Who it is for: owners of Vietnamese-run walk-in nail salons in the US, 1–20 techs (start in California, where ~80% of salons are Vietnamese-run), and the senior, low-tech staff who use it every day.
+- What it sells, at what price: one flat plan, $49/month per salon (or $468/year = $39/month), all staff and devices included, free 30-day pilot. Card fees passed through at Stripe cost, no markup (2.7% + 5¢ on a reader). Salon buys a Stripe S710 reader (~$299) once. Promo texts from prepaid credit (2¢/text). No contract, no setup fee, no per-tech fee.
+- Where and how: web app at polishosapp.com (runs on the salon's own iPad/computer/phones, works offline). Found through personal networks, Vietnamese Facebook groups, Zalo, nail supply stores, owner referrals. Elang sells and does setup day (1 hour); Oliver builds.
+- Budget and constraints: two-person team (Oliver = build + design, Elang = sales + client care), Laura helps ops. Founders unpaid. Tools ~$215–375/mo in pilot (incl. Claude). Product is mostly built (V1 code done, test setup live); live database, live Stripe and texting registration still to switch on. 0 paying salons today; 2–3 pilot salons not yet signed.
