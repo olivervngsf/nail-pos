@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "trust",
+  "reason": "It costs me nothing to try for 60 days next to Square, and the free fee check with my own statements will tell me if my card fees are really lower. If the numbers don't beat Square I walk away, no contract.",
+  "objection": "Card fees are where the real money is. Is yours really cheaper than Square, or is the $39-49 just on top of the same fees?",
+  "would_change_my_mind": "If the fee check on my statements shows I'd pay more per year than with Square, or if I had to retrain my techs before it paid off.",
+  "price_too_cheap": 15,
+  "price_cheap": 29,
+  "price_expensive": 59,
+  "price_too_expensive": 89
+}

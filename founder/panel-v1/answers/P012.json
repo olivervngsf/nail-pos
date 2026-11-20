@@ -1,0 +1,13 @@
+{
+  "id": "P012",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "I signed a 3-year processing deal with a free terminal and there is an exit fee, so I am not switching in the middle of it. A new app from people I do not know yet is a lot of trouble for a salon that is running fine.",
+  "objection": "Card fees are where the real money is. Is yours really cheaper than what I pay now, and what do I pay to get out of my contract?",
+  "would_change_my_mind": "A salon owner I know in the Facebook group tells me they switched and saved real money, and someone shows me my own statement against your 2.7% + 5 cents, including the exit fee, so I can see I come out ahead.",
+  "price_too_cheap": 15,
+  "price_cheap": 30,
+  "price_expensive": 70,
+  "price_too_expensive": 120
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P011",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "I'm locked in a 3-year processing deal with an exit fee, and the Stripe rate would only help me if I could leave. My staff are older and I'm not putting a new system in front of them for a maybe.",
+  "objection": "My staff are older, they will not learn a new system. And I'd pay an exit fee to my processor just to try it, plus $299 for a reader on top.",
+  "would_change_my_mind": "They cover my processor exit fee, or my contract runs out. Then I'd want to see a salon like mine already using it, with the techs doing fine on it.",
+  "price_too_cheap": 15,
+  "price_cheap": 29,
+  "price_expensive": 79,
+  "price_too_expensive": 129
+}

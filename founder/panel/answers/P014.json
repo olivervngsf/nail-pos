@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "I'm locked in a 3-year processor deal with a free terminal and an exit fee, and I have 5-10 techs to keep running on Saturdays. I'm not adding a second system and a lent reader on top of that just to save a few dollars.",
+  "objection": "It does not do Reserve with Google or marketing like my agency package, and I'd be running two systems side by side while still paying my current processor. The exit fee is the real problem, and a free fee check doesn't make it go away.",
+  "would_change_my_mind": "Reserve with Google and marketing included, plus a salon owner like me who has already switched and tells me what happened to their exit fee.",
+  "price_too_cheap": 15,
+  "price_cheap": 29,
+  "price_expensive": 79,
+  "price_too_expensive": 149
+}

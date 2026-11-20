@@ -1,0 +1,13 @@
+{
+  "id": "P012",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "I'm locked into a 3-year card deal with an exit fee, and my techs know my current system. The 60-day trial next to it is tempting, but I've heard 'cheaper fees' promises before and I want to see my own numbers first.",
+  "objection": "Card fees are where the real money is. Is yours really cheaper than what I have now, once I count the exit fee on my contract? I won't move until I see that on paper.",
+  "would_change_my_mind": "A salon owner I know, in my Facebook group, tells me they run it and their card fees went down. And the fee check on my own 3 months of statements shows me clearly better, with the exit fee counted.",
+  "price_too_cheap": 15,
+  "price_cheap": 30,
+  "price_expensive": 65,
+  "price_too_expensive": 110
+}

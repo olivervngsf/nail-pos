@@ -1,0 +1,13 @@
+{
+  "id": "P018",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "I have 11-20 techs and two locations, a lot of money going through my system every day. I only try something after a friend's salon has used it and told me in the Zalo group. A new app nobody I know uses is not going to touch my payroll and my card money.",
+  "objection": "I already bought my hardware and I'm set up. Switching costs me: new reader, retraining 15 techs, and if it breaks on a Saturday I lose money. Nobody I know runs it yet.",
+  "would_change_my_mind": "Two or three salon owners I know personally, running it for a few months, telling me it paid techs right and never lost a ticket. Then I would test it in one location first.",
+  "price_too_cheap": 15,
+  "price_cheap": 35,
+  "price_expensive": 90,
+  "price_too_expensive": 160
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P007",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "I run 11-20 techs and maybe two locations on a POS that mostly works. A brand-new company asking to sit at my desk on a Saturday is a lot of risk for me. If they close, my client list and tech pay records go with them.",
+  "objection": "Who are you? A new company could close and take my data. I have too many techs and too much money going through the desk to be someone's guinea pig.",
+  "would_change_my_mind": "Another salon my size, running it for a year or more, who I can call myself, plus a written promise that my data comes back if they shut down.",
+  "price_too_cheap": 15,
+  "price_cheap": 40,
+  "price_expensive": 120,
+  "price_too_expensive": 250
+}

@@ -1,0 +1,222 @@
+[
+ {
+  "id": "P001",
+  "name": "Kira",
+  "age": 46,
+  "segment": "Small salon owner (1-4 techs, often works the table too)",
+  "income": 60000,
+  "behaviour": "Square user",
+  "behaviour_how": "Uses Square on an iPad for cards, does tech pay and turns by hand.",
+  "objection": "What happens when the internet goes down on a busy Saturday",
+  "habit": "a card processing rep stops by every few months with a new offer"
+ },
+ {
+  "id": "P002",
+  "name": "Zara",
+  "age": 36,
+  "segment": "Big salon owner (11-20 techs, maybe 2 locations)",
+  "income": 201000,
+  "behaviour": "Happy enough with current POS",
+  "behaviour_how": "Uses ABC, Zota, Mango or Fastboy; it mostly works and switching feels risky.",
+  "objection": "My staff are older, they will not learn a new system",
+  "habit": "Saturday is your busiest day and you never touch settings then"
+ },
+ {
+  "id": "P003",
+  "name": "Ben",
+  "age": 33,
+  "segment": "Small salon owner (1-4 techs, often works the table too)",
+  "income": 53000,
+  "behaviour": "Happy enough with current POS",
+  "behaviour_how": "Uses ABC, Zota, Mango or Fastboy; it mostly works and switching feels risky.",
+  "objection": "Card fees are where the real money is, is yours really cheaper",
+  "habit": "your sister-in-law runs a salon two cities away and you compare notes"
+ },
+ {
+  "id": "P004",
+  "name": "Zoe",
+  "age": 39,
+  "segment": "Small salon owner (1-4 techs, often works the table too)",
+  "income": 56000,
+  "behaviour": "Paper and calculator",
+  "behaviour_how": "Writes tickets and turns on paper, pays techs from a notebook, card terminal from the bank.",
+  "objection": "Who are you? A new company could close and take my data",
+  "habit": "Saturday is your busiest day and you never touch settings then"
+ },
+ {
+  "id": "P005",
+  "name": "Malik",
+  "age": 38,
+  "segment": "Mid salon owner (5-10 techs)",
+  "income": 128000,
+  "behaviour": "Tired of tech pay fights",
+  "behaviour_how": "Has lost techs over tips and turns; wants proof everyone can see.",
+  "objection": "It does not do Reserve with Google or marketing like my agency package",
+  "habit": "you read a Vietnamese nail owners Facebook group most nights"
+ },
+ {
+  "id": "P006",
+  "name": "Isla",
+  "age": 53,
+  "segment": "Mid salon owner (5-10 techs)",
+  "income": 98000,
+  "behaviour": "Happy enough with current POS",
+  "behaviour_how": "Uses ABC, Zota, Mango or Fastboy; it mostly works and switching feels risky.",
+  "objection": "What happens when the internet goes down on a busy Saturday",
+  "habit": "you read a Vietnamese nail owners Facebook group most nights"
+ },
+ {
+  "id": "P007",
+  "name": "Tariq",
+  "age": 51,
+  "segment": "Big salon owner (11-20 techs, maybe 2 locations)",
+  "income": 186000,
+  "behaviour": "Happy enough with current POS",
+  "behaviour_how": "Uses ABC, Zota, Mango or Fastboy; it mostly works and switching feels risky.",
+  "objection": "Who are you? A new company could close and take my data",
+  "habit": "a card processing rep stops by every few months with a new offer"
+ },
+ {
+  "id": "P008",
+  "name": "Sienna",
+  "age": 59,
+  "segment": "Mid salon owner (5-10 techs)",
+  "income": 83000,
+  "behaviour": "Square user",
+  "behaviour_how": "Uses Square on an iPad for cards, does tech pay and turns by hand.",
+  "objection": "What happens when the internet goes down on a busy Saturday",
+  "habit": "a card processing rep stops by every few months with a new offer"
+ },
+ {
+  "id": "P009",
+  "name": "Hugo",
+  "age": 46,
+  "segment": "Mid salon owner (5-10 techs)",
+  "income": 67000,
+  "behaviour": "Tired of tech pay fights",
+  "behaviour_how": "Has lost techs over tips and turns; wants proof everyone can see.",
+  "objection": "My staff are older, they will not learn a new system",
+  "habit": "you pay techs every two weeks, part check, part cash"
+ },
+ {
+  "id": "P010",
+  "name": "Sofia",
+  "age": 49,
+  "segment": "Small salon owner (1-4 techs, often works the table too)",
+  "income": 61000,
+  "behaviour": "Fee-sensitive deal hunter",
+  "behaviour_how": "Watches every dollar, asks other owners what they pay, runs a cash discount.",
+  "objection": "What happens when the internet goes down on a busy Saturday",
+  "habit": "you read a Vietnamese nail owners Facebook group most nights"
+ },
+ {
+  "id": "P011",
+  "name": "Chloe",
+  "age": 51,
+  "segment": "Mid salon owner (5-10 techs)",
+  "income": 107000,
+  "behaviour": "Locked in a processor contract",
+  "behaviour_how": "Signed a 3-year card processing deal with a free terminal; an exit fee waits.",
+  "objection": "My staff are older, they will not learn a new system",
+  "habit": "a card processing rep stops by every few months with a new offer"
+ },
+ {
+  "id": "P012",
+  "name": "Beatriz",
+  "age": 62,
+  "segment": "Mid salon owner (5-10 techs)",
+  "income": 77000,
+  "behaviour": "Locked in a processor contract",
+  "behaviour_how": "Signed a 3-year card processing deal with a free terminal; an exit fee waits.",
+  "objection": "Card fees are where the real money is, is yours really cheaper",
+  "habit": "you read a Vietnamese nail owners Facebook group most nights"
+ },
+ {
+  "id": "P013",
+  "name": "Idris",
+  "age": 62,
+  "segment": "Mid salon owner (5-10 techs)",
+  "income": 75000,
+  "behaviour": "Trusts word of mouth only",
+  "behaviour_how": "Only tries what a friend or relative's salon already uses; asks in a Vietnamese Facebook or Zalo group first.",
+  "objection": "Card fees are where the real money is, is yours really cheaper",
+  "habit": "your sister-in-law runs a salon two cities away and you compare notes"
+ },
+ {
+  "id": "P014",
+  "name": "Aisha",
+  "age": 34,
+  "segment": "Mid salon owner (5-10 techs)",
+  "income": 104000,
+  "behaviour": "Locked in a processor contract",
+  "behaviour_how": "Signed a 3-year card processing deal with a free terminal; an exit fee waits.",
+  "objection": "It does not do Reserve with Google or marketing like my agency package",
+  "habit": "a card processing rep stops by every few months with a new offer"
+ },
+ {
+  "id": "P015",
+  "name": "Anya",
+  "age": 43,
+  "segment": "Small salon owner (1-4 techs, often works the table too)",
+  "income": 49000,
+  "behaviour": "Paper and calculator",
+  "behaviour_how": "Writes tickets and turns on paper, pays techs from a notebook, card terminal from the bank.",
+  "objection": "It does not do Reserve with Google or marketing like my agency package",
+  "habit": "you read a Vietnamese nail owners Facebook group most nights"
+ },
+ {
+  "id": "P016",
+  "name": "Sana",
+  "age": 44,
+  "segment": "Small salon owner (1-4 techs, often works the table too)",
+  "income": 53000,
+  "behaviour": "Fee-sensitive deal hunter",
+  "behaviour_how": "Watches every dollar, asks other owners what they pay, runs a cash discount.",
+  "objection": "I need someone to come set it up and answer the phone in Vietnamese",
+  "habit": "you pay techs every two weeks, part check, part cash"
+ },
+ {
+  "id": "P017",
+  "name": "Amara",
+  "age": 39,
+  "segment": "Small salon owner (1-4 techs, often works the table too)",
+  "income": 61000,
+  "behaviour": "Square user",
+  "behaviour_how": "Uses Square on an iPad for cards, does tech pay and turns by hand.",
+  "objection": "Card fees are where the real money is, is yours really cheaper",
+  "habit": "a card processing rep stops by every few months with a new offer"
+ },
+ {
+  "id": "P018",
+  "name": "Noor",
+  "age": 39,
+  "segment": "Big salon owner (11-20 techs, maybe 2 locations)",
+  "income": 117000,
+  "behaviour": "Trusts word of mouth only",
+  "behaviour_how": "Only tries what a friend or relative's salon already uses; asks in a Vietnamese Facebook or Zalo group first.",
+  "objection": "I just bought my hardware or signed a contract, switching costs me",
+  "habit": "you pay techs every two weeks, part check, part cash"
+ },
+ {
+  "id": "P019",
+  "name": "Rhys",
+  "age": 39,
+  "segment": "Big salon owner (11-20 techs, maybe 2 locations)",
+  "income": 165000,
+  "behaviour": "Happy enough with current POS",
+  "behaviour_how": "Uses ABC, Zota, Mango or Fastboy; it mostly works and switching feels risky.",
+  "objection": "Card fees are where the real money is, is yours really cheaper",
+  "habit": "a card processing rep stops by every few months with a new offer"
+ },
+ {
+  "id": "P020",
+  "name": "Freya",
+  "age": 44,
+  "segment": "Mid salon owner (5-10 techs)",
+  "income": 90000,
+  "behaviour": "Paper and calculator",
+  "behaviour_how": "Writes tickets and turns on paper, pays techs from a notebook, card terminal from the bank.",
+  "objection": "My current POS is only $40, why pay $49",
+  "habit": "you read a Vietnamese nail owners Facebook group most nights"
+ }
+]
