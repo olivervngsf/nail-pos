@@ -185,18 +185,24 @@ const MENU = [
   { name: "Clients", href: "/clients", icon: <><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7" /></> },
   { name: "Close day", href: "/close-day", icon: <><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z" /><path d="M9 8h6M9 12h6" /></> },
 ] as const;
-export type MenuItem = (typeof MENU)[number]["name"] | "Me";
+export type MenuItem = (typeof MENU)[number]["name"] | "Me" | "More";
+const MORE_HREF = "/me/more"; // a plain link like the other menu items (full page load keeps each screen light)
 /** Desktop left menu (design/kit/rail.py). Same on every desk screen; only the active item changes. Bottom: profile pop-up. */
 export function LeftMenu({ active, salonInitials = "NP", me }: { active: MenuItem; salonInitials?: string; me?: string }) {
   return (
     <nav className="rail" aria-label="Menu">
       <div className="logo">{salonInitials}</div>
       {MENU.map((m) => (
-        <a key={m.name} href={m.href} className={m.name === active ? "on" : ""} aria-current={m.name === active ? "page" : undefined}>
+        <a key={m.name} href={m.href} className={cx(m.name === active && "on", m.name === "Close day" && "rail-wide")} aria-current={m.name === active ? "page" : undefined}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{m.icon}</svg>
           {m.name}
         </a>
       ))}
+      {/* phones: Close day + the profile live under More (a list page), so the bar holds 5 big targets */}
+      <a href={MORE_HREF} className={cx("rail-more", active === "More" && "on")} aria-current={active === "More" ? "page" : undefined} data-testid="menu-more">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01" /></svg>
+        More
+      </a>
       <div style={{ flex: 1 }} />
       <CreditRing />
       <RailAccount initial={me} />
