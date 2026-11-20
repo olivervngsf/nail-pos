@@ -1,7 +1,7 @@
 "use client";
 // Quick-book card (D2: phone first, top services, who is free, time, repeat, reminder texts) and the booking details
 // panel (D4 peek / D12 details: confirm, check in → checkout, no-show, cancel, client profile).
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button, Chip, Drawer } from "@/components/kit";
@@ -48,6 +48,11 @@ export function statusOf(a: Appt): Appt["status"] {
 
 type Found = { client_id: string; name: string; notes: string; visits: number; last_services: string | null };
 
+// Section header that stays pinned at the top of the drawer while its section is on screen.
+function Pin({ label, value, children }: { label: string; value?: string; children?: ReactNode }) {
+  return <div className="bk-pin"><div className="bk-pin-h"><span className="eyebrow">{label}</span>{value && <span className="bk-pin-v">{value}</span>}</div>{children}</div>;
+}
+
 export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged }: { desk: Desk; draft: BookDraft; all: Appt[]; onClose: () => void; onBooked: (n: number, name: string) => void; onMenuChanged?: () => void }) {
   const t = useTranslations("calendar");
   const [source, setSource] = useState<ApptSource>("phone");
@@ -67,6 +72,7 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
   const [note, setNote] = useState("");
   const [cx, setCx] = useState(false);
   const minutes = svcs.reduce((a, s) => a + s.minutes, 0) || draft.minutes;
+  const totalCents = svcs.reduce((a, s) => a + s.cents, 0);
 
   useEffect(() => {
     if (!phoneOk(phone) || desk.mode !== "live") { setFound(null); return; }
@@ -122,7 +128,7 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
 
   return (
     <Drawer title={t("newBooking")} onClose={onClose} footer={<div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <div className="bk-sum"><span>{svcs.length ? t("b2_sum", { n: svcs.length, min: minutes }) : t("b2_noSvc")}</span><b className="num">{formatCents(svcs.reduce((a, s) => a + s.cents, 0))}</b></div>
+      <div className="bk-sum"><span>{svcs.length ? t("b2_sum", { n: svcs.length, min: minutes }) : t("b2_noSvc")}</span><b className="num">{formatCents(totalCents)}</b></div>
       <Button variant="primary" block disabled={!ok} onClick={book} data-testid="book-save">{rep ? t("bookTimes", { n: rep.times }) : t("bookIt")}</Button>
       <span className="cap">{t("textNote")}</span>
     </div>}>
@@ -133,10 +139,13 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
       {found && <div className="cap fade" style={{ background: "#F5F5F7", borderRadius: 8, padding: "6px 8px" }}>
         {t("usually", { name: found.name, n: found.visits })}{found.last_services ? `: ${found.last_services}` : ""}{found.notes ? ` · ${found.notes}` : ""}</div>}
 
-      <div className="eyebrow">{t("service")}</div>
-      {svcs.length > 0 && <div className="group">{svcs.map((s, i) => { const c = coded.find((x) => x.id === s.serviceId); const col = catColor(c?.cat ?? "Custom"); return (
-        <div className="row" key={i}><span className="bk-code" style={{ background: col[0], color: col[1] }}>{c?.code ?? "—"}</span><span className="grow">{s.name}</span><span className="cap">{t("min", { n: s.minutes })}</span><b className="num">{formatCents(s.cents)}</b>
-          <Button size="sm" variant="ghost" aria-label={`${t("remove")} ${s.name}`} onClick={() => setSvcs(svcs.filter((_, j) => j !== i))}>✕</Button></div>); })}</div>}
+      {/* Each section pins its header + what was picked while you scroll through it; the next section's header takes over. */}
+      <section className="bk-sec" data-testid="sec-service">
+      <Pin label={t("service")} value={svcs.length ? `${t("b2_sum", { n: svcs.length, min: minutes })} · ${formatCents(totalCents)}` : t("b2_noSvc")}>
+        {svcs.length > 0 && <div className="bk-picked">{svcs.map((s, i) => { const c = coded.find((x) => x.id === s.serviceId); const col = catColor(c?.cat ?? "Custom"); return (
+          <span className="bk-pick" key={i} style={{ background: col[0] }}><span className="bk-code" style={{ background: "#fff", color: col[1] }}>{c?.code ?? "—"}</span><span className="bk-pick-n">{s.name}</span><b className="num">{formatCents(s.cents).replace(/\.00$/, "")}</b>
+            <button type="button" className="bk-pick-x" aria-label={`${t("remove")} ${s.name}`} onClick={() => setSvcs(svcs.filter((_, j) => j !== i))}>✕</button></span>); })}</div>}
+      </Pin>
       <input className="inp" placeholder={t("b2_codesPh")} aria-label={t("allServices")} value={q} onChange={(e) => setQ(e.target.value)} data-testid="book-q"
         onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCodes(); } }} style={{ height: 40 }} />
       {hits.length > 0 && <Button variant="primary" onClick={addCodes} data-testid="book-codes">↵ {t("b2_addCodes", { list: hits.map((s) => `${s.code} ${s.name}`).join(" + ") })}</Button>}
@@ -154,8 +163,10 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
         </div>); })}</div>
       {!cx ? <button type="button" className="bk-cxbtn" onClick={() => setCx(true)} data-testid="cx-open">{t("b2_custom")}</button>
         : <CustomService desk={desk} cats={cats} cat0={cat} onAdd={add} onClose={() => setCx(false)} onMenuChanged={onMenuChanged} />}
+      </section>
 
-      <div className="eyebrow">{t("b2_when")}</div>
+      <section className="bk-sec" data-testid="sec-when">
+      <Pin label={t("b2_when")} value={`${day === dayIn(0) ? t("today") : day === dayIn(1) ? t("b2_tomorrow") : dayLbl(day)} · ${fmtMin(start)} → ${fmtMin(start + minutes)}`} />
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
         {[0, 1].map((n) => <Chip key={n} on={day === dayIn(n)} onClick={() => setDay(dayIn(n))}>{n === 0 ? t("today") : t("b2_tomorrow")}</Chip>)}
         {[14, 21, 28, 42].map((n) => <Chip key={n} on={day === dayIn(n)} onClick={() => setDay(dayIn(n))}>{t("b2_inWk", { n: n / 7, date: dayLbl(dayIn(n)) })}</Chip>)}
@@ -173,8 +184,12 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
         <Chip onClick={() => { setStart(Math.max(8 * 60, start - 15)); setTText(null); }}>−15</Chip>
         <Chip onClick={() => { setStart(Math.min(21 * 60, start + 15)); setTText(null); }}>+15</Chip>
       </div>
+      </section>
 
-      <div className="eyebrow">{t("who")}{need.length > 0 && <span className="cap" style={{ textTransform: "none", letterSpacing: 0, marginLeft: 8 }} data-testid="skill-need">{t("sk_need", { list: need.join(" · ") })}</span>}</div>
+      <section className="bk-sec" data-testid="sec-who">
+      <Pin label={t("who")} value={staffId ? desk.staff.find((x) => x.id === staffId)?.name ?? t("anyone") : t("anyone")}>
+        {need.length > 0 && <span className="cap" data-testid="skill-need">{t("sk_need", { list: need.join(" · ") })}</span>}
+      </Pin>
       {techs.length > 5 && <input className="inp" placeholder={t("b2_findTech")} aria-label={t("b2_findTech")} value={tq} onChange={(e) => setTq(e.target.value)} style={{ height: 36 }} />}
       <div className="bk-techs">
         <button type="button" className={`bk-tech ${!staffId ? "on" : ""}`} onClick={() => setStaffId(undefined)}><span className="av" style={{ width: 30, height: 30 }}>★</span><span style={{ flex: 1, minWidth: 0 }}><b>{t("anyone")}</b></span></button>
@@ -186,7 +201,10 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
           </button>); })}
       </div>
       {staffId && !isFree(busyOf(staffId), start, start + minutes) && <div className="cap" style={{ color: "#B5470A" }}>⚠ {t("overlapWarn")}</div>}
-      <div className="eyebrow">{t("repeat")}</div>
+      </section>
+
+      <section className="bk-sec" data-testid="sec-repeat">
+      <Pin label={t("repeat")} value={rep ? `${t("everyWk", { n: rep.every })} · ${rep.times}×` : t("noRepeat")} />
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
         <Chip on={!rep} onClick={() => setRep(null)}>{t("noRepeat")}</Chip>
         {[2, 3, 4, 6].map((w) => <Chip key={w} on={rep?.every === w} onClick={() => setRep({ every: w, times: rep?.times ?? 6 })}>{t("everyWk", { n: w })}</Chip>)}
@@ -194,6 +212,7 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
       {rep && <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}><span className="cap">{t("times")}</span>
         {[4, 6, 12].map((n) => <Chip key={n} on={rep.times === n} onClick={() => setRep({ ...rep, times: n })}>{n}×</Chip>)}</div>}
       <textarea className="inp bk-note" placeholder={t("notePh")} aria-label={t("note")} value={note} onChange={(e) => setNote(e.target.value)} />
+      </section>
     </Drawer>
   );
 }
