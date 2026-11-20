@@ -98,7 +98,7 @@ export default function CheckoutHome() {
           <SyncPill />
         </TopBar>
         <OfflineBanner />
-        <main className="co-home" data-layout={layout}>
+        <main className="co-home ck-home" data-layout={layout}>
           <HomeView layout={layout} open={open} paid={paid} scan={scan} setScan={setScan} onScan={() => void openScanned(scan)} scanMsg={scanMsg} demo={desk.mode === "demo"}
             onNew={newTicket} go={(x, pay) => router.push(`/checkout/${x.id}${pay ? "?pay=1" : ""}`)} />
         </main>

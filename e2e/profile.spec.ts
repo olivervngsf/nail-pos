@@ -9,8 +9,14 @@ test("profile pop-up (left menu on desktop, bottom menu on phones) opens My prof
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/checkout");
-  await page.getByTestId("account-menu").click();
-  await expect(page.getByTestId("account-pop")).toBeVisible();
+  if ((page.viewportSize()?.width ?? 999) < 600) { // phones: the profile sits under More
+    await page.getByTestId("menu-more").click();
+    await expect(page.getByTestId("more-menu")).toBeVisible();
+    await expect(page.getByTestId("more-close")).toBeVisible();
+  } else {
+    await page.getByTestId("account-menu").click();
+    await expect(page.getByTestId("account-pop")).toBeVisible();
+  }
   await page.getByTestId("go-me").click();
   await expect(page).toHaveURL(/\/me$/);
   await expect(page.getByTestId("my-pin")).toContainText("6-digit PIN");

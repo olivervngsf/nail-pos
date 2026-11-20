@@ -48,7 +48,7 @@ export default function HomeView(p: Props) {
   const paidAt = (x: Ticket) => f.dateTime(new Date(x.payment?.at ?? x.createdAt), { timeStyle: "short" });
 
   const scanBox = (
-    <form className="co-scan" onSubmit={(e) => { e.preventDefault(); p.onScan(); }}>
+    <form className="co-scan ck-scan" onSubmit={(e) => { e.preventDefault(); p.onScan(); }}>
       <ScanIcon size={cards ? 20 : 18} />
       <input className="inp" data-testid="scan-box" aria-label={t("scanPh")} placeholder={t("scanPh")} value={p.scan} onChange={(e) => p.setScan(e.target.value)} />
     </form>
@@ -60,11 +60,11 @@ export default function HomeView(p: Props) {
   const sub = (x: Ticket) => `${t("ticket", { n: ticketLabel(x) })} · ${services(x)}${!x.number ? ` · ${t("notSynced")}` : ""}`;
 
   return <>
-    <div className="co-head">
+    <div className="co-head ck-homebar">
       <h1 className="h1">{t("title")}</h1>
       {cards && <span className="cap num co-count">{t("openCount", { n: open.length })} · {formatCents(facts.toCollect)}</span>}
       {scanBox}
-      {!cards && <Button variant="primary" data-testid="new-ticket" onClick={p.onNew}>{t("newTicket")}</Button>}
+      {!cards && <Button variant="primary" className="ck-new" data-testid="new-ticket" onClick={p.onNew}>{t("newTicket")}</Button>}
     </div>
     {p.scanMsg && <div className="hint err" role="alert">{p.scanMsg}</div>}
     {p.demo && <div className="demo">{t("demo")}</div>}
