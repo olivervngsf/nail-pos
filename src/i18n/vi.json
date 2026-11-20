@@ -1840,7 +1840,7 @@
       "copyInvite": "Link mời mới (sao chép)",
       "inviteCopied": "Đã sao chép link mời",
       "clearPin": "Quên PIN: xoá đi",
-      "pinCleared": "{name} tạo PIN mới trên điện thoại (Hồ sơ của tôi).",
+      "pinCleared": "Đã xoá PIN. Bấm Tạo PIN mới ngay, hoặc gửi link PIN.",
       "remove": "Cho nghỉ",
       "removeAsk": "Cho {name} nghỉ? Lịch sử vẫn giữ.",
       "removed": "Đã cho {name} nghỉ",
@@ -1853,14 +1853,21 @@
       "textDemo": "Bản thử: không gửi tin nhắn.",
       "textAgain": "Đã nhắn link mời này rồi. Tạo link mới để nhắn lại.",
       "noPinBox": "Đã vào, chưa có PIN",
-      "noPinHow": "Gửi link: họ đăng nhập bằng số điện thoại và tự tạo PIN.",
       "textPin": "Nhắn link tạo PIN",
       "copyPin": "Sao chép link",
-      "pinCopied": "Đã sao chép link PIN. Dán vào tin nhắn hoặc Zalo.",
-      "clearPinSend": "Quên PIN: xoá + gửi link",
-      "pinClearedSent": "Đã xoá PIN. {why}",
+      "pinCopied": "Đã sao chép link PIN (dùng một lần, 7 ngày). Dán vào tin nhắn hoặc Zalo.",
       "pinTexted": "Đã nhắn link PIN cho {name}.",
-      "pinNotTexted": "Chưa nhắn được: {why} Dùng Sao chép link."
+      "pinNotTexted": "Chưa nhắn được: {why} Dùng Sao chép link.",
+      "pinBox": "PIN",
+      "pinHow": "Có mặt ở tiệm: họ nhập PIN mới trên màn hình này. Không có mặt: gửi link riêng dùng một lần.",
+      "pinNow": "Tạo PIN mới ngay",
+      "pinNowOne": "{name}: nhập PIN mới ({n} số)",
+      "pinNowTwo": "Nhập lại",
+      "pinNowHand": "Đưa màn hình cho họ. Chỉ họ được thấy.",
+      "pinSetNow": "Đã lưu PIN mới cho {name}.",
+      "pinWeak": "Dễ đoán quá. Thử số khác.",
+      "pinNoMatch": "Không khớp. Làm lại.",
+      "pinCopyHand": "Sao chép link bên dưới rồi dán vào tin nhắn hoặc Zalo."
     },
     "pin": {
       "saved": "Đã lưu luật PIN",
@@ -2269,7 +2276,8 @@
     "language": "Ngôn ngữ",
     "languageSub": "Chỉ điện thoại này. Khách thấy ngôn ngữ riêng.",
     "signOut": "Đăng xuất",
-    "brk": "Nghỉ"
+    "brk": "Nghỉ",
+    "myPin": "Đổi mã PIN"
   },
   "go": {
     "title": "Cài thiết bị này",
@@ -2289,7 +2297,7 @@
     "title": "Tạo mã PIN",
     "signIn": "Đăng nhập bằng số điện thoại trước",
     "signInLead": "Dùng số điện thoại tiệm đã lưu cho bạn. Chúng tôi nhắn mã cho bạn.",
-    "notHere": "Số này không có trong nhóm của tiệm. Dùng số mà chủ tiệm đã nhập.",
+    "notHere": "Tài khoản này không có trong nhóm của tiệm. Đăng nhập bằng số mà chủ tiệm đã nhập cho bạn.",
     "pin1": "Tạo mã PIN ({n} số)",
     "pin1Cap": "Dùng để chấm công và tính tiền. Không dùng số dễ như 123456 hay 111111.",
     "pin2": "Nhập lại",
@@ -2300,6 +2308,14 @@
     "done": "Đã lưu PIN",
     "doneCap": "Dùng ở {salon} để chấm công và tính tiền.",
     "home": "Mở trang chính",
-    "demo": "Bản thử: PIN chưa được lưu cho đến khi đăng nhập thật bật lên."
+    "demo": "Bản thử: PIN chưa được lưu cho đến khi đăng nhập thật bật lên.",
+    "signedAs": "Đang đăng nhập: {name} · số đuôi {last4}.",
+    "signedAsPhone": "Trình duyệt này đang đăng nhập bằng số đuôi {last4}.",
+    "notYou": "Không phải bạn?",
+    "usePhone": "Đăng nhập bằng số của tôi",
+    "forWho": "Cho {name} · {salon}",
+    "signInLast4": "Dùng số điện thoại đuôi {last4}. Chúng tôi nhắn mã cho bạn.",
+    "linkUsed": "Link này đã dùng rồi. PIN của bạn đã có. Cần đổi thì xin chủ tiệm link mới.",
+    "linkEnded": "Link này đã hết hạn. Xin chủ tiệm link mới."
   }
 }
