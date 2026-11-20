@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useLang } from "@/components/AppProviders";
-import { rpc, signOut, SMS_ON } from "@/lib/auth";
+import { amPlatformAdmin, rpc, signOut, SMS_ON } from "@/lib/auth";
 import { setActing } from "@/lib/desk";
 import { isAdminRole, useMe } from "@/lib/me";
 
@@ -25,6 +25,9 @@ export default function RailAccount({ initial }: { initial?: string }) {
   const { lang, setLang } = useLang();
   const { me, device, acting, isDevice } = useMe();
   const [open, setOpen] = useState(false);
+  // Founders (platform admins) who also work in a salon: a way back to Founder Admin. Never on a salon device.
+  const [founder, setFounder] = useState(false);
+  useEffect(() => { if (SMS_ON && !isDevice) void amPlatformAdmin().then(setFounder); }, [isDevice]);
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
@@ -62,6 +65,9 @@ export default function RailAccount({ initial }: { initial?: string }) {
             <button type="button" role="menuitem" className="opt" data-testid="go-me" onClick={() => go("/me")}>{t("profile")}</button>
             {role && isAdminRole(role) && (
               <button type="button" role="menuitem" className="opt" data-testid="go-settings" onClick={() => go("/settings")}>{t("settings")}<span className="cap">{isDevice ? t("needsPin") : t("settingsHint")}</span></button>
+            )}
+            {founder && !isDevice && (
+              <button type="button" role="menuitem" className="opt" data-testid="go-admin" onClick={() => go("/admin")}>{t("founderAdmin")}<span className="cap">{t("founderAdminHint")}</span></button>
             )}
             {isDevice && <button type="button" role="menuitem" className="opt" onClick={() => go("/earnings")}>{t("earnings")}<span className="cap">{t("print")}</span></button>}
             {!isDevice && me && me.salons.length > 1 && me.salons.map((s) => (

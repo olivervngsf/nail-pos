@@ -1720,6 +1720,8 @@
     "profile": "My profile",
     "settings": "Settings",
     "settingsHint": "Team, PIN rules, devices",
+    "founderAdmin": "Founder Admin",
+    "founderAdminHint": "All salons, health, support",
     "needsPin": "owner / manager PIN",
     "earnings": "My earnings",
     "print": "print slip",
