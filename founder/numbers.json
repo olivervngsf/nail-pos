@@ -34,8 +34,8 @@
   ],
   "fixed_monthly": [
     {
-      "label": "Supabase Pro (live) ",
-      "cost": 25
+      "label": "Supabase Pro ($25 org) + 2nd project compute (test + live)",
+      "cost": 35
     },
     {
       "label": "Vercel Pro",
@@ -62,12 +62,16 @@
       "cost": 150
     },
     {
-      "label": "Business insurance (liability + cyber)",
-      "cost": 75
+      "label": "Insurance: general liability ~$33 + tech E&O/cyber ~$126 (Insureon averages; get quotes)",
+      "cost": 160
     },
     {
       "label": "Twilio PolishOS number + campaign",
       "cost": 12
+    },
+    {
+      "label": "California LLC annual tax $800/yr (spread)",
+      "cost": 67
     }
   ],
   "startup": [
@@ -80,7 +84,7 @@
       "cost": 1000
     },
     {
-      "label": "LLC / EIN / business Twilio switch",
+      "label": "LLC filing $70 + Statement of Info $20 + EIN (free) + Twilio business switch",
       "cost": 300
     },
     {

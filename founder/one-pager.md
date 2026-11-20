@@ -15,9 +15,9 @@
 | Startup money earned back | not in year 1 |
 | Buyer panel | 8 buy · 12 pass |
 
-**Verdict: Not yet** (year 1 operating loss). Flips to profit (+$483) with Claude at $20/mo after the build + 4–5 setups a month + $49 for all.
+**Verdict: Not yet** (year 1 operating loss). Reaches break-even (-$1) with Claude at $20/mo after the build + 4–5 setups a month + $59 price.
 
 **Evidence:** simulated panel 5% → 40% with the Founding Salon offer (not real customers). Gap vs rivals: tech pay everyone can check + no hardware lock-in (~$890 vs ~$2,400 year 1). No real test yet.
 
-**Money is for:** live servers, lawyer, LLC, 3 loaner readers, travel to setup days (~$8,300 over year 1).
+**Money is for:** live servers, lawyer, LLC, 3 loaner readers, travel to setup days (~$9,900 over year 1).
 **The ask (this month):** 10 owners for a free fee check; 3 Founding Salons live by Jan 12 2027.

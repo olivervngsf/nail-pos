@@ -1,16 +1,18 @@
-# CFO note (plain words)
+# CFO note (plain words) — updated with /founder-ops real costs, Nov 20
 
-- **The margin:** each paying salon leaves **$28.24/month** after its own costs (63%). At 50 salons: 41% profit margin.
-- **Break-even: 18 paying salons.** Plan reaches 18 in month 10 and 24 by month 12.
-- **Year 1: -$2,649** on operations, -$7,949 after the $5,300 startup spend. **Cash needed before it pays for itself: ~$8,300.** Founders are unpaid in these numbers.
-- **The line to watch: the ramp** (how fast salons pay). Elang can set up ~3 a month; that, not price, sets year 1.
-- **Three ways to improve it (tool-run, one change at a time):**
-  1. Claude plan $150 → $20/mo after the pilot build: year 1 **-$2,649 → -$1,089**, break-even 18 → **13** salons.
-  2. Faster setups (4–5 a month, 28 salons by month 12; needs a 2nd person doing setups): year 1 → **-$1,661**.
-  3. $49 for everyone (no $39 founding price): year 1 → -$2,205, break-even 15.
-  - 1 + 2 together: **-$101**. 1 + 2 + 3: **+$483 (first profitable year 1)**.
-  - Risk side: 20% fewer salons → -$3,276.
-- **Board money conditions:** "test a higher price" → not done (needs real owners); "plan for year 3" → open. Card margin (0.2% on card sales, no fee on tips) is the parked lever in the research report; revisit at ~50 salons.
+- **The margin:** each paying salon leaves **$28.24/month** after its own costs (63%). At 50 salons: profit margin from the tool below.
+- **Fixed costs went up to $644/mo** (was $482): CA LLC tax $800/yr ($67/mo), insurance ~$160 (not $75), Supabase $35 (2 projects).
+- **Break-even: 23 paying salons** (was 18). Plan has 24 by month 12, so you only reach it at the very end of year 1.
+- **Year 1: -$4,593** on operations. **Cash needed before it pays for itself: ~$9,900.** Founders unpaid.
+- **The line to watch: the ramp** (Elang ~3 setups/month). 20% fewer salons → -$5,220.
+- **Ways to improve it (tool-run):**
+  1. Claude $150 → $20/mo after the build: **-$3,033**, break-even 19.
+  2. Faster setups (4–5/month, 28 by month 12; needs a 2nd setup person): **-$3,605**.
+  3. Price $59: **-$3,039**, break-even 16. ($49 for all, no founding discount: -$4,149.)
+  - 1 + 2 + $49 for all: -$1,461. 1 + 2 + **$59**: **-$1 (break-even)**.
+  - 1 + 2 + $49 + insurance kept to general liability + cyber (~$60, skip tech E&O until revenue): -$261.
+- **Board money conditions:** "test a higher price" → now matters more: $59 is the cleanest single lever. Test $49 vs $59 with real owners (pricing.md). "Plan for year 3" → open (card margin 0.2% parked).
+- Revenue is before tax; SaaS is generally not taxed in California, but hardware resale may be — ask.
 - Not financial, tax or legal advice: an accountant should check the LLC, payroll and tax before money moves.
 
 # Unit economics: PolishOS (1 unit = 1 paying salon for 1 month; 'per day' fields = paying salons, days_per_month = 1). Price $45 = blended year 1: first 10 Founding Salons at $39, rest at $49.
@@ -33,44 +35,44 @@ Every number below comes from the input file. Nothing is looked up or guessed.
 
 ## The margin that matters
 
-Fixed costs: $482 a month (Supabase Pro (live)  $25, Vercel Pro $20, Google Workspace + domains $22, Resend email $20, Claude (build) $150, Apple + Google dev (spread) $8, Accountant $150, Business insurance (liability + cyber) $75, Twilio PolishOS number + campaign $12).
+Fixed costs: $644 a month (Supabase Pro ($25 org) + 2nd project compute (test + live) $35, Vercel Pro $20, Google Workspace + domains $22, Resend email $20, Claude (build) $150, Apple + Google dev (spread) $8, Accountant $150, Insurance: general liability ~$33 + tech E&O/cyber ~$126 (Insureon averages; get quotes) $160, Twilio PolishOS number + campaign $12, California LLC annual tax $800/yr (spread) $67).
 
-- **Break-even: 18 salon-months a day.** Below that you lose money every month.
-- **Profit margin at your plan** (50 a day): **41%** of every sale, after every cost.
+- **Break-even: 23 salon-months a day.** Below that you lose money every month.
+- **Profit margin at your plan** (50 a day): **34%** of every sale, after every cost.
 - Capacity: 60 a day.
 
 ## Year 1, month by month
 
 | month | salon-months a day | revenue | profit | cumulative (after $5,300 startup) |
 | ---: | ---: | ---: | ---: | ---: |
-| 1 | 0 | $0 | -$482 | -$5,782 |
-| 2 | 0 | $0 | -$482 | -$6,264 |
-| 3 | 0 | $0 | -$482 | -$6,746 |
-| 4 | 2 | $90 | -$426 | -$7,172 |
-| 5 | 4 | $180 | -$369 | -$7,541 |
-| 6 | 6 | $270 | -$313 | -$7,853 |
-| 7 | 9 | $405 | -$228 | -$8,081 |
-| 8 | 12 | $540 | -$143 | -$8,224 |
-| 9 | 15 | $675 | -$58 | -$8,282 |
-| 10 | 18 | $810 | $26 | -$8,256 |
-| 11 | 21 | $945 | $111 | -$8,145 |
-| 12 | 24 | $1,080 | $196 | -$7,949 |
+| 1 | 0 | $0 | -$644 | -$5,944 |
+| 2 | 0 | $0 | -$644 | -$6,588 |
+| 3 | 0 | $0 | -$644 | -$7,232 |
+| 4 | 2 | $90 | -$588 | -$7,820 |
+| 5 | 4 | $180 | -$531 | -$8,351 |
+| 6 | 6 | $270 | -$475 | -$8,825 |
+| 7 | 9 | $405 | -$390 | -$9,215 |
+| 8 | 12 | $540 | -$305 | -$9,520 |
+| 9 | 15 | $675 | -$220 | -$9,740 |
+| 10 | 18 | $810 | -$136 | -$9,876 |
+| 11 | 21 | $945 | -$51 | -$9,927 |
+| 12 | 24 | $1,080 | $34 | -$9,893 |
 
-- **Year 1 operating profit: -$2,649** on $4,995 of revenue.
-- After the $5,300 startup spend: -$7,949.
+- **Year 1 operating profit: -$4,593** on $4,995 of revenue.
+- After the $5,300 startup spend: -$9,893.
 - Startup money earned back: not within year 1.
-- Cash you need before it pays for itself: **$8,282**.
+- Cash you need before it pays for itself: **$9,927**.
 
 ## What if
 
 | scenario | margin at plan | break-even a day | year 1 profit |
 | --- | ---: | ---: | ---: |
-| Base plan | 41% | 18 | -$2,649 |
-| Price -10% | 35% | 21 | -$3,149 |
-| Volume -20% | 36% | 18 | -$3,276 |
-| Unit costs +15% | 36% | 19 | -$2,928 |
+| Base plan | 34% | 23 | -$4,593 |
+| Price -10% | 27% | 28 | -$5,093 |
+| Volume -20% | 27% | 23 | -$5,220 |
+| Unit costs +15% | 29% | 26 | -$4,872 |
 
 ## Red flags
 
-- Year 1 loses money on operations (-$2,649).
+- Year 1 loses money on operations (-$4,593).
 - The startup spend is not earned back within year 1.

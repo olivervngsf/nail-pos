@@ -3,18 +3,18 @@
 **Verdict: Not yet**
 
 - ✓ Each salon-month earns $28.24 before fixed costs (63% contribution).
-- ✗ Year 1 operating LOSS: $2,649.
-- ✓ Break-even is 18 salon-months a day against a capacity of 60.
+- ✗ Year 1 operating LOSS: $4,593.
+- ✓ Break-even is 23 salon-months a day against a capacity of 60.
 - ✓ 8 of 20 simulated buyers buy (40%, the bar is 25%).
 
 | key number | |
 | --- | ---: |
 | Price | $45.00 a salon-month |
-| Profit margin at plan | 41% per salon-month |
-| Break-even | 18 salon-months a day |
-| Year 1 operating profit | $-2,649 |
+| Profit margin at plan | 34% per salon-month |
+| Break-even | 23 salon-months a day |
+| Year 1 operating profit | $-4,593 |
 | Startup spend | $5,300 |
-| Cash needed before it pays for itself | $8,282 |
+| Cash needed before it pays for itself | $9,927 |
 | Startup money earned back | not in year 1 |
 | Buyer panel | 8 buy · 12 pass |
 
@@ -30,14 +30,14 @@
 
 **PolishOS** is a checkout + tech-pay app for Vietnamese-run nail salons (1–20 techs, California first). Its one thing: **techs can see their own pay, and owners see every fee**.
 
-**Verdict: Not yet.** The unit works (each salon leaves $28.24/mo, 63%), break-even is 18 paying salons, and 40% of simulated buyers say yes to the new offer. But **year 1 loses $2,649** on operations because salons arrive slowly (~3 setups a month). Fix: Claude plan to $20 after the build + faster setups (4–5 a month) → about break-even (-$101); add $49 for everyone → first profit (+$483).
+**Verdict: Not yet.** The unit works (each salon leaves $28.24/mo, 63%), break-even is 23 paying salons, and 40% of simulated buyers say yes to the new offer. But **year 1 loses $4,593** on operations (real costs added: CA LLC tax $800/yr, insurance ~$160/mo) because salons arrive slowly (~3 setups a month). Fix: Claude plan to $20 after the build + 4–5 setups a month + price $59 → break-even (-$1).
 
 **Board + panel agree:** proof beats price. 3 of 3 board members said "fund if" you get real pilot salons; 9 of 19 panel no's were "I don't trust a new company", only 1 was price. The Founding Salon offer (60-day run-alongside, loaner reader, we switch you, free fee check, guarantee) moved buyers from **5% → 40%**.
 **They disagree on:** Product lens likes the craft; Monopoly lens fears no moat and thin money (no card margin).
 
 **Biggest risk:** no salon has run a real Saturday on it. Plan: old POS stays on, Elang at the desk, fix list before salon #4.
 
-**To start:** ~$8,300 cash over year 1 (founders unpaid). First test costs $0: 10 free fee checks in 3 weeks; success = 3 owners start a trial.
+**To start:** ~$9,900 cash over year 1 (founders unpaid). First test costs $0: 10 free fee checks in 3 weeks; success = 3 owners start a trial.
 
 **This week:** Elang writes 30 owner names and books the first 5 fee checks. Oliver turns on 2-step login + spending alerts (go-live §1).
 
@@ -294,17 +294,19 @@ After
 
 ## The numbers
 
-- **The margin:** each paying salon leaves **$28.24/month** after its own costs (63%). At 50 salons: 41% profit margin.
-- **Break-even: 18 paying salons.** Plan reaches 18 in month 10 and 24 by month 12.
-- **Year 1: -$2,649** on operations, -$7,949 after the $5,300 startup spend. **Cash needed before it pays for itself: ~$8,300.** Founders are unpaid in these numbers.
-- **The line to watch: the ramp** (how fast salons pay). Elang can set up ~3 a month; that, not price, sets year 1.
-- **Three ways to improve it (tool-run, one change at a time):**
-  1. Claude plan $150 → $20/mo after the pilot build: year 1 **-$2,649 → -$1,089**, break-even 18 → **13** salons.
-  2. Faster setups (4–5 a month, 28 salons by month 12; needs a 2nd person doing setups): year 1 → **-$1,661**.
-  3. $49 for everyone (no $39 founding price): year 1 → -$2,205, break-even 15.
-  - 1 + 2 together: **-$101**. 1 + 2 + 3: **+$483 (first profitable year 1)**.
-  - Risk side: 20% fewer salons → -$3,276.
-- **Board money conditions:** "test a higher price" → not done (needs real owners); "plan for year 3" → open. Card margin (0.2% on card sales, no fee on tips) is the parked lever in the research report; revisit at ~50 salons.
+- **The margin:** each paying salon leaves **$28.24/month** after its own costs (63%). At 50 salons: profit margin from the tool below.
+- **Fixed costs went up to $644/mo** (was $482): CA LLC tax $800/yr ($67/mo), insurance ~$160 (not $75), Supabase $35 (2 projects).
+- **Break-even: 23 paying salons** (was 18). Plan has 24 by month 12, so you only reach it at the very end of year 1.
+- **Year 1: -$4,593** on operations. **Cash needed before it pays for itself: ~$9,900.** Founders unpaid.
+- **The line to watch: the ramp** (Elang ~3 setups/month). 20% fewer salons → -$5,220.
+- **Ways to improve it (tool-run):**
+  1. Claude $150 → $20/mo after the build: **-$3,033**, break-even 19.
+  2. Faster setups (4–5/month, 28 by month 12; needs a 2nd setup person): **-$3,605**.
+  3. Price $59: **-$3,039**, break-even 16. ($49 for all, no founding discount: -$4,149.)
+  - 1 + 2 + $49 for all: -$1,461. 1 + 2 + **$59**: **-$1 (break-even)**.
+  - 1 + 2 + $49 + insurance kept to general liability + cyber (~$60, skip tech E&O until revenue): -$261.
+- **Board money conditions:** "test a higher price" → now matters more: $59 is the cleanest single lever. Test $49 vs $59 with real owners (pricing.md). "Plan for year 3" → open (card margin 0.2% parked).
+- Revenue is before tax; SaaS is generally not taxed in California, but hardware resale may be — ask.
 - Not financial, tax or legal advice: an accountant should check the LLC, payroll and tax before money moves.
 
 ## Unit economics: PolishOS (1 unit = 1 paying salon for 1 month; 'per day' fields = paying salons, days_per_month = 1). Price $45 = blended year 1: first 10 Founding Salons at $39, rest at $49.
@@ -327,46 +329,46 @@ Every number below comes from the input file. Nothing is looked up or guessed.
 
 ### The margin that matters
 
-Fixed costs: $482 a month (Supabase Pro (live)  $25, Vercel Pro $20, Google Workspace + domains $22, Resend email $20, Claude (build) $150, Apple + Google dev (spread) $8, Accountant $150, Business insurance (liability + cyber) $75, Twilio PolishOS number + campaign $12).
+Fixed costs: $644 a month (Supabase Pro ($25 org) + 2nd project compute (test + live) $35, Vercel Pro $20, Google Workspace + domains $22, Resend email $20, Claude (build) $150, Apple + Google dev (spread) $8, Accountant $150, Insurance: general liability ~$33 + tech E&O/cyber ~$126 (Insureon averages; get quotes) $160, Twilio PolishOS number + campaign $12, California LLC annual tax $800/yr (spread) $67).
 
-- **Break-even: 18 salon-months a day.** Below that you lose money every month.
-- **Profit margin at your plan** (50 a day): **41%** of every sale, after every cost.
+- **Break-even: 23 salon-months a day.** Below that you lose money every month.
+- **Profit margin at your plan** (50 a day): **34%** of every sale, after every cost.
 - Capacity: 60 a day.
 
 ### Year 1, month by month
 
 | month | salon-months a day | revenue | profit | cumulative (after $5,300 startup) |
 | ---: | ---: | ---: | ---: | ---: |
-| 1 | 0 | $0 | -$482 | -$5,782 |
-| 2 | 0 | $0 | -$482 | -$6,264 |
-| 3 | 0 | $0 | -$482 | -$6,746 |
-| 4 | 2 | $90 | -$426 | -$7,172 |
-| 5 | 4 | $180 | -$369 | -$7,541 |
-| 6 | 6 | $270 | -$313 | -$7,853 |
-| 7 | 9 | $405 | -$228 | -$8,081 |
-| 8 | 12 | $540 | -$143 | -$8,224 |
-| 9 | 15 | $675 | -$58 | -$8,282 |
-| 10 | 18 | $810 | $26 | -$8,256 |
-| 11 | 21 | $945 | $111 | -$8,145 |
-| 12 | 24 | $1,080 | $196 | -$7,949 |
+| 1 | 0 | $0 | -$644 | -$5,944 |
+| 2 | 0 | $0 | -$644 | -$6,588 |
+| 3 | 0 | $0 | -$644 | -$7,232 |
+| 4 | 2 | $90 | -$588 | -$7,820 |
+| 5 | 4 | $180 | -$531 | -$8,351 |
+| 6 | 6 | $270 | -$475 | -$8,825 |
+| 7 | 9 | $405 | -$390 | -$9,215 |
+| 8 | 12 | $540 | -$305 | -$9,520 |
+| 9 | 15 | $675 | -$220 | -$9,740 |
+| 10 | 18 | $810 | -$136 | -$9,876 |
+| 11 | 21 | $945 | -$51 | -$9,927 |
+| 12 | 24 | $1,080 | $34 | -$9,893 |
 
-- **Year 1 operating profit: -$2,649** on $4,995 of revenue.
-- After the $5,300 startup spend: -$7,949.
+- **Year 1 operating profit: -$4,593** on $4,995 of revenue.
+- After the $5,300 startup spend: -$9,893.
 - Startup money earned back: not within year 1.
-- Cash you need before it pays for itself: **$8,282**.
+- Cash you need before it pays for itself: **$9,927**.
 
 ### What if
 
 | scenario | margin at plan | break-even a day | year 1 profit |
 | --- | ---: | ---: | ---: |
-| Base plan | 41% | 18 | -$2,649 |
-| Price -10% | 35% | 21 | -$3,149 |
-| Volume -20% | 36% | 18 | -$3,276 |
-| Unit costs +15% | 36% | 19 | -$2,928 |
+| Base plan | 34% | 23 | -$4,593 |
+| Price -10% | 27% | 28 | -$5,093 |
+| Volume -20% | 27% | 23 | -$5,220 |
+| Unit costs +15% | 29% | 26 | -$4,872 |
 
 ### Red flags
 
-- Year 1 loses money on operations (-$2,649).
+- Year 1 loses money on operations (-$4,593).
 - The startup spend is not earned back within year 1.
 
 ## Marketing
@@ -461,62 +463,87 @@ Name is already chosen and bought (polishosapp.com, EO Collective). So this is a
 
 ## Operations
 
-### 1. Daily / weekly cycle
-- Daily (customer sees ✱): check `/admin` alerts (devices off, Stripe, late plan) ✱; answer Zalo/phone ✱; uptime + backup emails (GitHub Actions).
-- Weekly: 1 check-in call per salon (logged in Admin → Salons) ✱; review Sentry errors; ship fixes on one fixed day (not Fri/Sat).
-- Per new salon: fee check → invite → setup day (1h) → first Saturday on site ✱ → day 7 / 30 / 60 review ✱.
+### 1. Daily / weekly cycle (✱ = a salon sees it)
+**Every day**
+1. 8:30 Oliver: check `/admin` alerts (devices off, Stripe, late plan), GitHub emails (uptime every 10 min, nightly backup).
+2. 9:00–19:00 Elang: answer Zalo/phone in Vietnamese ✱ (same day, always).
+3. Evening: Oliver fixes anything from the day's list.
 
-### 2. Suppliers
-| Need | Supplier | Price (public, check) | Lead time |
-|---|---|---|---|
-| Card reader S710 | Stripe (live readers only from Stripe) | ~$299 | ~1 week |
-| Receipt printer + drawer | Amazon list `docs/hardware-shopping-list.md` | $330–520 | 2 days |
-| Texts / login codes | Twilio | see Running Costs | 10DLC 1–3 weeks per salon |
-| Hosting, DB | Vercel Pro, Supabase Pro | $20, $25/mo | now |
-| Email | Resend | $0–20 | now |
-No price changes vs `numbers.json`.
+**Every week**
+4. Mon: 1 check-in call per salon, logged in Admin → Salons ✱.
+5. Tue: ship fixes (never Fri/Sat, salons' busiest days).
+6. Wed: fee checks for new owners ✱.
+7. Thu: setup day for the next salon ✱.
+8. Sat: Elang on site at the newest salon ✱; Oliver on phone.
 
-### 3. People (who does what)
-| Role | Who | Hours |
+**Per new salon:** fee check → invite → setup day (1h) → first Saturday on site ✱ → day 7 / 30 / 60 review ✱ → paid.
+
+### 2. Suppliers (every cost in `numbers.json` + equipment)
+| Need | Option 1 | Option 2 | Price (public) | Lead time / terms |
+|---|---|---|---|---|
+| Card reader S710 | Stripe Dashboard → Terminal → order | — (live readers only from Stripe) | ~$299 ([listing](https://hardware.mytime.com/products/stripe-reader-s710-us)); dock $49, hub $39, case $19 | ~1 week; card on file |
+| Receipt printer + drawer | Amazon list `docs/hardware-shopping-list.md` | Star/Epson dealers | $330–520 | 2 days |
+| Texts + login codes | Twilio (account set up) | Telnyx (cheaper, untested) | ~$10/salon/mo; Verify ~6¢ | 10DLC 1–3 weeks |
+| Database | Supabase Pro | — | $25 org + ~$10 2nd project ([pricing](https://supabase.com/pricing)) | monthly card |
+| Hosting | Vercel Pro | — | $20/seat ([pricing](https://vercel.com/pricing)) | monthly card |
+| Email | Resend | Postmark | $0–20 | now |
+| Insurance | Hiscox | NEXT / Insureon broker | GL ~$33/mo, tech E&O+cyber ~$126/mo ([Insureon](https://insureon.com/technology-business-insurance/saas-companies/cost)) | **quote needed** |
+| Accountant | local CPA (small-business) | Pilot / Bench-type online | ~$150/mo est. | **quote needed** |
+| Lawyer (terms, texting, CA pay) | startup lawyer flat fee | — | $500–2,000 est. | **quote needed** |
+
+**Changed `numbers.json`:** Supabase $25 → $35; insurance $75 → $160; **added CA LLC tax $67/mo ($800/yr)**. CFO re-run → break-even 23 salons, year 1 -$4,593.
+
+### 3. People + weekly rota
+| Role | Who | Paid? |
 |---|---|---|
-| Build, fix, live switch-on | Oliver | as now |
-| Sales, fee checks, setup days, first Saturdays, Zalo support | Elang | ~3 setups/month max (this caps growth) |
-| Ops: check-ins, ordering readers, paperwork | Laura | few h/week |
-| Backup support on Saturdays | Oliver (phone) | Sat 9–6 first 3 months |
-Unpaid founders now. When paid, payroll taxes on top: ask the accountant.
+| Build, fixes, admin checks | Oliver | unpaid founder |
+| Sales, fee checks, setup days, first Saturdays, Vietnamese support | Elang | unpaid now (Running Costs doc idea: base + first 2 months of each salon's fee) |
+| Ops: check-in calls, reader orders, paperwork, backup fee checks | Laura | unpaid |
 
-### 4. Routines (SOPs)
-**A. Fee check (30 min)** 1) Get 3 months of card statements 2) Total fees + monthly POS + lease + exit fee 3) Fill the fee sheet: yearly now vs PolishOS (Stripe 2.7%+5¢ on their card volume + $49×12) 4) Show honestly — if we're not cheaper, say so 5) Offer the trial.
-**B. Setup day (1h)** follow `docs/go-live-plan.md` §10: invite → 10 steps → Make PINs → reader + printer → $1 test → old POS stays on.
-**C. First Saturday** arrive before open; stand at desk; note every stuck moment in a list for Oliver; Wi-Fi pull test only with owner OK.
-**D. Complaint** answer same day, Vietnamese; log in Admin; fix date; call back.
-**E. Close of trial (day 60)** show their own numbers (Numbers page + payout sheet); ask: stay / need changes / leave (export their data either way).
-**F. Weekly:** order readers if fewer than 2 loaners left.
+| | Slow first month (1–2 salons) | Planned (~3 new/month, up to 25 live) |
+|---|---|---|
+| Elang | ~10 h/wk: 10 owner calls, 2 fee checks, 1 Sat on site | ~25 h/wk: 3 fee checks, 1 setup, 1 Sat, Zalo daily (~20 min/salon/week) |
+| Oliver | build + Sat on phone | + 2 h/wk support, Tue release |
+| Laura | 2 h/wk | ~6 h/wk check-ins (25 salons × 15 min) |
+- **Bottleneck = Elang's Saturdays** (one salon per Saturday). To go faster: train Laura to run setup days (the "faster setups" lever in the CFO).
+- If you pay a helper later: CA minimum wage + payroll tax + workers' comp → ask the accountant.
 
-### 5. Tools (our own)
-Stripe (payments + billing), Supabase, Vercel, GitHub Actions (uptime, backup), Sentry, Twilio, Resend, Google Workspace, Zalo, a simple bookkeeping tool (Wave free / QuickBooks ~$35) — pick with accountant.
+### 4. Routines (SOPs, one page each)
+**A. Fee check (30 min)** 1) Ask for 3 months of card statements. 2) Add up: card fees, POS monthly, lease, exit fee + contract end date. 3) Fill the fee sheet: yearly cost now vs PolishOS (Stripe 2.7% + 5¢ on their card volume + $49 × 12). 4) Show it honestly — if we are not cheaper, say so. 5) Offer the 60-day trial.
+**B. Setup day (1h)** follow `docs/go-live-plan.md` §10: invite → 10 steps → staff PINs → reader + printer → $1 test + refund → old POS stays on.
+**C. First Saturday** arrive before open; stand at desk; write every stuck moment; Wi-Fi pull test only with owner OK; close day together; techs check pay by PIN.
+**D. Complaint** answer same day in Vietnamese → log in Admin → give a fix date → call back when fixed.
+**E. Trial end (day 60)** show their numbers (Numbers + payout sheet) → stay / changes / leave (export data either way).
+**F. Weekly reorder** Fri: if fewer than 2 loaner readers free → order 1 (1-week lead time).
+**G. Money wrong (tip/pay)** stop, call Oliver, fix same day, write to owner what happened. Never "wait and see".
 
-### 6. Licences, permits, insurance (check each — not legal advice)
-- LLC/registration + EIN for EO Collective (needed to switch Twilio to business) — https://www.irs.gov/ein
-- California seller's permit not usually needed for SaaS; confirm with CDTFA https://www.cdtfa.ca.gov
-- Business licence in your city.
-- Insurance: general liability + cyber (you hold card + client data).
-- Stripe Connect platform terms; Terms/Privacy lawyer review (go-live plan §7); texting consent (TCPA) + 10DLC.
-- If reselling readers: sales tax on hardware — ask the accountant.
+### 5. Tools (our own stack)
+Stripe (salon payments + our billing), Supabase, Vercel, GitHub Actions (uptime + backup), Sentry (free), Twilio, Resend, Google Workspace, Zalo, bookkeeping: Wave (free) or QuickBooks Simple Start (~$35/mo) — pick with the accountant.
+
+### 6. Licences, permits, insurance (check each — not legal advice; rules change by place)
+- [ ] CA LLC: Articles $70 + Statement of Information $20 ([CA SOS bizfile](https://bizfileonline.sos.ca.gov)); **$800/yr LLC tax, due by the 15th day of the 4th month, no first-year exemption for 2026** ([FTB](https://www.ftb.ca.gov/file/business/types/limited-liability-company))
+- [ ] EIN (free): [irs.gov/ein](https://www.irs.gov/ein) — needed for Twilio business + bank
+- [ ] Business bank account
+- [ ] City business licence (where EO Collective is based)
+- [ ] Sales tax: SaaS generally not taxed in CA; reselling readers may be — [CDTFA](https://www.cdtfa.ca.gov) + accountant
+- [ ] Insurance: general liability + cyber (min), tech E&O when revenue starts
+- [ ] Stripe Connect platform agreement; Terms/Privacy/texting reviewed by lawyer (go-live §7)
+- [ ] Texting: business 10DLC brand + campaign; TCPA consent records (Build Tracker 4c)
+- [ ] Trademark search "PolishOS" (USPTO, classes 9 + 42)
 
 ### 7. Risk register
-| Risk | Likely | Bad | Plan |
-|---|---|---|---|
-| Bad first Saturday (reader/printer/Wi-Fi) | Med | High | old POS stays on; Elang on site; fix list before next salon |
-| Elang sick / no time | Med | High | cap at 3/month; Laura trained on fee check |
-| Texting approval slow | High | Med | invites by link/QR; email backup |
-| Data loss | Low | Very high | nightly backup + restore test (go-live §2) |
-| Stripe account issue for a salon | Low | High | pay link backup; full address + ZIP at setup |
-| Rival copies payout sheet | Med | Med | speed + references + tech pull |
-| Owner can't leave processor contract | High | Med | note end date; call 60 days before |
-| Bug in tip math | Low | Very high | tested money code; every change logged; same-day fix |
-| Oliver burnout (solo build) | Med | High | freeze features for pilots (board: one thing) |
-| A salon wants Reserve with Google | Med | Low | V1.1 list; don't promise |
+| # | Risk | Likely | Bad | Plan |
+|---|---|---|---|---|
+| 1 | Bad first Saturday (reader/printer/Wi-Fi) | Med | High | old POS stays on; Elang on site; fix list before next salon |
+| 2 | Elang sick / out of time | Med | High | cap 3 setups/month; train Laura on fee check + setup |
+| 3 | Wrong tip / pay number | Low | Very high | SOP G; tested money code; every change logged |
+| 4 | Data loss | Low | Very high | nightly backup + restore test (go-live §2) |
+| 5 | Texting approval slow | High | Med | invites by link/QR; email backup |
+| 6 | Stripe blocks a salon (missing ZIP, KYC) | Med | High | full address + ZIP at setup; pay link backup |
+| 7 | Owner locked in processor contract | High | Med | note end date; call 60 days before |
+| 8 | Slow month: no new salons | Med | Med | 20% fewer = -$5,220 year 1; keep cash ≥ $10k |
+| 9 | Rival copies the payout sheet | Med | Med | speed + reference salons + tech pull |
+| 10 | Oliver burnout (solo build + support) | Med | High | feature freeze for pilots; Tue-only releases |
 
 ## Launch plan
 
