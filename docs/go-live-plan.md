@@ -41,7 +41,11 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - [ ] 2-step login + password manager on every account we own: GitHub, Vercel, Supabase, Stripe, Twilio, GoDaddy, Google, Resend, Anthropic.
 - [ ] 2-step login in PolishOS for Oliver and Elang: `/me` → Sign in → 2-step login. Admin → System tile must say **2/2**.
 - [ ] Spending alerts: Vercel (Settings → Billing → Spend management, e.g. $50), Supabase (spend cap on), Stripe (email on every payout/dispute), Twilio (usage triggers $20 / $50), Anthropic console (monthly limit). Tick "Spending alerts" in Admin → System.
-- [ ] Make the inbox **support@polishosapp.com** (it is printed on the legal pages).
+- [x] Nov 20 DONE: test email to support@ landed in Oliver's Gmail. Inbox **support@polishosapp.com** (it is printed on the legal pages). Tool: **ImprovMX** (improvmx.com, free email forwarding; Oliver signed up Nov 20) forwards support@ to Oliver's Gmail:
+  1. ImprovMX: domain `polishosapp.com`, alias `support` → Oliver's Gmail.
+  2. GoDaddy → polishosapp.com → DNS: delete any old MX rows; add MX `@` `mx1.improvmx.com` (10), MX `@` `mx2.improvmx.com` (20), TXT `@` `v=spf1 include:spf.improvmx.com ~all` (or add `include:spf.improvmx.com` to an existing SPF row). Never touch Resend's `mail` / `send` rows. Keep ONE `_dmarc` row (`v=DMARC1; p=none;`); two rows = both ignored, so GoDaddy's default `p=quarantine` row was deleted.
+  3. ImprovMX "Check again" turns green → email support@ from another account → it lands in Gmail.
+  - Resend = SENDING app email only (no-reply@mail.polishosapp.com); ImprovMX = RECEIVING. Replying AS support@ needs ImprovMX paid (~$9/mo) or Google Workspace (~$7/person); move to Workspace when Elang/Laura answer salons.
 
 ## 2. Turn on the live database (Oliver · ~30 min · needs paid Supabase plan ~$25/mo)
 - [ ] Supabase `nail-pos-live` → paid plan → Database → Backups: daily backups on.
@@ -86,8 +90,8 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - [ ] **Before charging the first salon money:** switch Twilio to a business account (EO Collective + EIN + business address) and move the tax info. Sole proprietor = testing/pilot only (1 number, <3,000 texts/day).
 - [ ] Salon promo texts never go on the PolishOS number: each salon needs its own number + brand + Marketing campaign (on its setup day).
 - [x] Nov 19: campaign form submitted (sole proprietor, invites + notices, verbal opt-in script, links `/legal/terms` + `/legal/privacy`); legal pages renamed "Terms of Service" / "Privacy Policy" with an SMS Terms section. Carrier review ~1–3 weeks.
-- [ ] Twilio → Messaging → Services → PolishOS → Integration → Incoming messages = `https://polishosapp.com/api/sms/inbound` (STOP/HELP reach us).
-- [ ] support@polishosapp.com is a real inbox (reviewers + the HELP reply point to it).
+- [x] Nov 20 DONE (set by API): Messaging Service renamed "PolishOS" (MGfb1e10…), incoming = `https://polishosapp.com/api/sms/inbound`, delivery status = `https://polishosapp.com/api/sms/status`, number's own webhook off (STOP/HELP reach us).
+- [x] Nov 20: support@polishosapp.com is a real inbox (ImprovMX → Gmail; reviewers + the HELP reply point to it).
 - [ ] **Claude: proof of consent** (Build Tracker row 4c, ~1 session): save WHEN + WHERE each client said yes to texts (booking page, desk, kiosk, START reply) and when they said STOP; today only yes/no. **Deadline: before the first real client text** (confirm, reminder, receipt, promo) = before any salon's own number is approved. Not needed for staff invites. Safe to ship any time.
 - [ ] Claude: "invite ends in 1 day" reminder text (campaign sample #3).
 - [ ] Claude: wire confirm / reminder / receipt texts (texting plan steps 3–6) once the campaign is approved.
