@@ -306,10 +306,25 @@ export async function amPlatformAdmin(): Promise<boolean> {
   try { return Boolean(await rpc<boolean>("is_platform_admin")); } catch { return false; }
 }
 
+/** Shown when this device's sign-in ran out and could not be renewed (the app also opens Sign in). */
+export const SIGNED_OUT_MSG = "You're signed out on this device. Opening Sign in…";
+const noRights = (e: { code?: string; message?: string }) => e.code === "42501" || /permission denied for function/i.test(e.message ?? "");
+
 export async function rpc<T = unknown>(fn: string, args?: Record<string, unknown>): Promise<T> {
-  const { data, error } = await sb().rpc(fn, args);
-  if (error) throw new Error(error.message);
-  return data as T;
+  const first = await sb().rpc(fn, args);
+  if (!first.error) return first.data as T;
+  if (!noRights(first.error)) throw new Error(first.error.message);
+  // "permission denied for function …" = the call went out without a sign-in (this device's session ran out).
+  // Renew it once and try again; with nothing to renew, send the person to Sign in and back here after.
+  const { data } = await sb().auth.refreshSession().catch(() => ({ data: { session: null } }));
+  if (!data.session) {
+    if (typeof location !== "undefined" && !location.pathname.startsWith("/login"))
+      location.assign(`/login?next=${encodeURIComponent(location.pathname + location.search)}`);
+    throw new Error(SIGNED_OUT_MSG);
+  }
+  const again = await sb().rpc(fn, args);
+  if (again.error) throw new Error(again.error.message);
+  return again.data as T;
 }
 
 /* ---------- salon device (owner signs this device in once) ---------- */
