@@ -1,0 +1,13 @@
+{
+  "id": "P013",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "I only try what my sister-in-law or someone in my Zalo group already runs, and nobody I know uses this. The offer sounds fair, but I'm not putting my techs' pay and my card money on something nobody I trust has vouched for.",
+  "objection": "Card fees are where the real money is. Is yours really cheaper, and who in my group is actually using it?",
+  "would_change_my_mind": "My sister-in-law, or an owner I know from the Zalo group, tells me she runs it and her card fees went down. Then I would do the free fee check with my statements.",
+  "price_too_cheap": 15,
+  "price_cheap": 30,
+  "price_expensive": 60,
+  "price_too_expensive": 100
+}

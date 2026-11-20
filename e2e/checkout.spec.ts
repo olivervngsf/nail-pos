@@ -26,7 +26,9 @@ test("front desk builds a ticket, takes cash with change + tips, ticket stays pa
   await expect(page.getByTestId("due")).toHaveText("$60.00");
 
   // $5 discount, needs a manager PIN
-  await page.getByRole("button", { name: "Discount $ / %" }).click();
+  // phones: discount, gift card, note and slip sit behind one More button next to Charge
+  if ((page.viewportSize()?.width ?? 999) < 600) { await page.getByTestId("ticket-more").click(); await page.getByTestId("more-discount").click(); }
+  else await page.getByRole("button", { name: "Discount $ / %" }).click();
   await expect(page.getByTestId("apply-discount")).toBeDisabled();
   for (const d of "135790") await page.locator(".drawer").getByRole("button", { name: d, exact: true }).click();
   await expect(page.getByTestId("approved")).toBeVisible();
@@ -79,7 +81,8 @@ test("gift card: sold with a service, then pays part of the next ticket", async 
   };
   // Ticket A: $45 + plastic gift card $25 → $70 cash
   await gel();
-  await page.getByTestId("add-gift").click();
+  if ((page.viewportSize()?.width ?? 999) < 600) { await page.getByTestId("ticket-more").click(); await page.getByTestId("more-gift").click(); }
+  else await page.getByTestId("add-gift").click();
   await page.getByTestId("gift-kind-plastic").click();
   await page.getByRole("button", { name: "$25", exact: true }).click();
   await page.getByTestId("gift-code").fill("6012 3456 7890 0147");
@@ -125,4 +128,24 @@ test("gift card: sold with a service, then pays part of the next ticket", async 
   await page.getByTestId("gift-look").click();
   await expect(page.getByTestId("gift-refused")).toContainText("No money left");
   expect(errors).toEqual([]);
+});
+
+test("split payment: $20 cash now, the rest in cash; paid screen shows both parts", async ({ page }) => {
+  await page.goto("/checkout");
+  await page.getByTestId("new-ticket").click();
+  await page.getByTestId("add-service").click();
+  await page.getByLabel("Search services").fill("gel color man");
+  await page.getByRole("button", { name: /Gel color manicure/ }).click();
+  await page.getByTestId("pick-Kim").click();
+  await page.getByTestId("charge").click();
+  await page.getByTestId("pay-cash").click();
+  for (const k of "20") await page.getByRole("button", { name: k, exact: true }).click();
+  await page.getByTestId("cash-part").click();
+  await expect(page.getByTestId("cash-parts")).toContainText("$20.00");
+  await page.getByTestId("pay-cash").click();
+  await expect(page.getByTestId("cash-total")).toHaveText("$25.00");
+  for (const k of "25") await page.getByRole("button", { name: k, exact: true }).click();
+  await page.getByTestId("cash-received").click();
+  await expect(page.getByTestId("cash-part-done")).toContainText("$20.00");
+  await expect(page.getByTestId("salon-keeps")).toHaveText("$45.00");
 });

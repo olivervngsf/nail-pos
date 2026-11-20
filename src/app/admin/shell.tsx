@@ -1,7 +1,7 @@
 "use client";
 // Founder Admin shell (Oliver, Elang): gate (platform admins only), data (admin_health, cached on the device), left menu.
 // Design: Founder Admin Variations board https://claude.ai/artifact/WpMg52SxZ9Hzz577hUtSeg (B = Home, A = Salons).
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SMS_ON, isSignedIn, myMemberships, rpc, signOut } from "@/lib/auth";
@@ -118,6 +118,8 @@ export function AdminShell({ tab, admin, title, actions, children }: { tab: Tab;
             {t.key === "home" && open > 0 && <span className="ad-badge" aria-label={`${open} open alerts`}>{open}</span>}
           </Link>
         ))}
+        <div style={{ flex: 1 }} />
+        <AdminAccount admin={admin} onOut={() => void out()} />
       </nav>
       <div className="col">
         <TopBar title={<span className="ad-title">
@@ -125,8 +127,7 @@ export function AdminShell({ tab, admin, title, actions, children }: { tab: Tab;
           <span className="ad-wide">{title}</span>
         </span>}>
           {actions}
-          {admin.hasSalon && <Button onClick={() => router.push("/today")}>Open Today</Button>}
-          {admin.gate === "live" && <Button variant="ghost" data-testid="sign-out" onClick={() => void out()}>Sign out</Button>}
+          <span className="ad-acct-top"><AdminAccount admin={admin} onOut={() => void out()} below /></span>
         </TopBar>
         <OfflineBanner />
         <main className="ad-main">
@@ -138,6 +139,43 @@ export function AdminShell({ tab, admin, title, actions, children }: { tab: Tab;
         </main>
       </div>
       {admin.toast && <Toast>{admin.toast}</Toast>}
+    </div>
+  );
+}
+
+/** Bottom-left profile (same place as every other role, Oliver Nov 20): who you are, your profile, Today (if you also
+ *  work in a salon), Sign out. On phones the menu sits in the top bar (the admin has tabs instead of a left menu). */
+function AdminAccount({ admin, onOut, below }: { admin: Admin; onOut: () => void; below?: boolean }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: PointerEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false); };
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("pointerdown", close); window.addEventListener("keydown", esc);
+    return () => { window.removeEventListener("pointerdown", close); window.removeEventListener("keydown", esc); };
+  }, [open]);
+  const name = admin.data?.me || "Admin";
+  const ini = name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "A";
+  return (
+    <div className="rail-acct" ref={box}>
+      <button type="button" className="rail-acct-btn" aria-haspopup="menu" aria-expanded={open} aria-label="Your account" data-testid="admin-account" onClick={() => setOpen((o) => !o)}>
+        <span className="av" aria-hidden>{ini}</span>
+      </button>
+      {open && (
+        <div className={`rail-pop card${below ? " is-below" : ""}`} role="menu" aria-label="Your account">
+          <div className="rail-pop-h"><span className="av lg" aria-hidden>{ini}</span>
+            <span style={{ minWidth: 0 }}><b style={{ display: "block" }}>{name}</b><span className="cap">PolishOS admin</span></span></div>
+          <div className="rail-pop-list">
+            <button type="button" role="menuitem" className="opt" onClick={() => { setOpen(false); router.push("/me"); }}>Profile<span className="cap">Name, 2-step login, password</span></button>
+            {admin.hasSalon && <button type="button" role="menuitem" className="opt" onClick={() => { setOpen(false); router.push("/today"); }}>Open Today<span className="cap">Your salon</span></button>}
+          </div>
+          {admin.gate === "live"
+            ? <button type="button" role="menuitem" className="btn block" data-testid="sign-out" onClick={onOut}>Sign out</button>
+            : <p className="cap" style={{ margin: 0 }}>Test version: no sign-in.</p>}
+        </div>
+      )}
     </div>
   );
 }

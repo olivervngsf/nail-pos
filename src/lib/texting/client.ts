@@ -35,3 +35,6 @@ export function textLine(s: { status: string; why?: string | null; error?: strin
     default: return s.status;
   }
 }
+
+/** Text a personal "make your PIN" link (code from pin_link_make) to that person (owner/manager). */
+export const textPinLink = (code: string) => api<SendReply>("/api/pin/text", { code });

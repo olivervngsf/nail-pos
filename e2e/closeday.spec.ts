@@ -88,3 +88,17 @@ test("print my earnings: name + PIN shows only that person's slip", async ({ pag
   await page.getByTestId("earn-done").click();
   await expect(page.getByTestId("earn-Kim")).toBeVisible();
 });
+
+test("tips report: PIN shows last month's tips, signing marks it signed; owner sees who signed", async ({ page }) => {
+  await page.goto("/earnings");
+  await page.getByRole("radio", { name: "Tips report" }).or(page.getByRole("button", { name: "Tips report" })).first().click();
+  await page.getByTestId("earn-Ngọc").click();
+  for (const d of "258013") await page.getByRole("button", { name: d, exact: true }).click();
+  await expect(page.getByTestId("tip-cash")).toHaveText("$480.00");
+  await page.getByTestId("tip-sign").click();
+  await expect(page.getByTestId("tip-signed")).toBeVisible();
+  await page.goto("/payouts");
+  await expect(page.getByTestId("tip-Kim")).toContainText("Signed");
+  await expect(page.getByTestId("tip-Ngọc")).toContainText("Not signed");
+  await expect(page.getByTestId("tip-Tuyết")).toContainText("Changed since signed");
+});

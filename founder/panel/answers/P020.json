@@ -1,0 +1,13 @@
+{
+  "id": "P020",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "My POS is $40 and the paper and notebook work fine. Why pay $49 for something new, even with a 60-day trial? The bank terminal is already paid for and my techs know it.",
+  "objection": "I pay $40 now, so $49 is more, and the savings are only a promise. Learning a new system on a busy Saturday scares me, and I have no idea if the other salons really like it.",
+  "would_change_my_mind": "Another Vietnamese owner I know and trust from the Facebook group tells me it saved them real money. Or the price is at or under $40 with no card fee surprises.",
+  "price_too_cheap": 15,
+  "price_cheap": 30,
+  "price_expensive": 45,
+  "price_too_expensive": 60
+}

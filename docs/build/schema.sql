@@ -112,6 +112,7 @@ create table payout_lines (id uuid primary key default gen_random_uuid(), salon_
 -- M0 migrates those to this draft: add `people` (auth_user_id) and memberships.person_id; keep invites + salon_hours.
 -- Tables the draft above is missing (from PRD + System Design + Gift Cards/Loyalty doc):
 --   memberships: + license_no, license_state, license_expires (alerts 60/30 days), pin_fails, pin_locked_until (5 wrong = 5 min, System Design)
+--   pin_links (Nov 20): one-time personal "make your PIN" link per member (7 days, one use, newest only); pin_link_make/get/set. Two ways to give a new PIN: docs/pin-help.md
 --   invites (code, membership_id, expires_at 7 days, used_at)          -- live
 --   time_off (membership_id, from, to)                                  -- M7
 --   tips (ticket_id, staff_id, amount_cents, kind cash|card, fee_cents, added_at) -- tip per tech; added up to 24 h after charge

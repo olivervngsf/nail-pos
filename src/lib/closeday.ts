@@ -101,3 +101,24 @@ export function demoPayout(): PayoutRow[] {
   };
   return [base(1, "Kim", 186000, 41000, 9000, 60), base(2, "Ngọc", 154000, 33000, 12000, 100), base(3, "Tuyết", 120000, 24000, 8000, 50)];
 }
+
+/* ---------- monthly cash-tip report ---------- */
+export type TipMonthRow = { membership_id: string; name: string; card_cents: number; cash_cents: number;
+  signed_at: string | null; signed_card_cents: number | null; signed_cash_cents: number | null };
+/** First day of the month before `day` (YYYY-MM-01): the month that just ended. */
+export function lastMonth(day = isoDay()) {
+  const [y, m] = day.split("-").map(Number);
+  return isoDay(new Date(y, m - 2, 1));
+}
+/** Signed, not signed, or signed but the amounts moved since (late ticket, refund) = sign again. */
+export function tipSignState(r: TipMonthRow): "signed" | "unsigned" | "changed" {
+  if (!r.signed_at) return "unsigned";
+  return r.signed_cash_cents === r.cash_cents && r.signed_card_cents === r.card_cents ? "signed" : "changed";
+}
+export function demoTipMonth(): TipMonthRow[] {
+  return [
+    { membership_id: id(1), name: "Kim", card_cents: 164000, cash_cents: 36000, signed_at: "2026-11-02T18:10:00Z", signed_card_cents: 164000, signed_cash_cents: 36000 },
+    { membership_id: id(2), name: "Ngọc", card_cents: 132000, cash_cents: 48000, signed_at: null, signed_card_cents: null, signed_cash_cents: null },
+    { membership_id: id(3), name: "Tuyết", card_cents: 96000, cash_cents: 32000, signed_at: "2026-11-03T17:00:00Z", signed_card_cents: 96000, signed_cash_cents: 30000 },
+  ];
+}

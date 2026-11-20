@@ -1,0 +1,95 @@
+{
+ "n": 20,
+ "seed": 500646,
+ "customer": {
+  "business": "PolishOS: POS + tech payout app for Vietnamese-run nail salons",
+  "target": "Vietnamese-American owners of walk-in nail salons in California with 1 to 20 techs, who already use a POS, a card terminal or paper",
+  "where": "California (Orange County, San Jose, Sacramento, LA area)",
+  "age": [
+   32,
+   64
+  ],
+  "segments": [
+   {
+    "name": "Small salon owner (1-4 techs, often works the table too)",
+    "share": 0.35,
+    "income": [
+     38000,
+     70000
+    ]
+   },
+   {
+    "name": "Mid salon owner (5-10 techs)",
+    "share": 0.45,
+    "income": [
+     65000,
+     130000
+    ]
+   },
+   {
+    "name": "Big salon owner (11-20 techs, maybe 2 locations)",
+    "share": 0.2,
+    "income": [
+     110000,
+     220000
+    ]
+   }
+  ],
+  "behaviours": [
+   {
+    "name": "Happy enough with current POS",
+    "share": 0.22,
+    "how": "Uses ABC, Zota, Mango or Fastboy; it mostly works and switching feels risky."
+   },
+   {
+    "name": "Paper and calculator",
+    "share": 0.16,
+    "how": "Writes tickets and turns on paper, pays techs from a notebook, card terminal from the bank."
+   },
+   {
+    "name": "Square user",
+    "share": 0.14,
+    "how": "Uses Square on an iPad for cards, does tech pay and turns by hand."
+   },
+   {
+    "name": "Locked in a processor contract",
+    "share": 0.14,
+    "how": "Signed a 3-year card processing deal with a free terminal; an exit fee waits."
+   },
+   {
+    "name": "Fee-sensitive deal hunter",
+    "share": 0.12,
+    "how": "Watches every dollar, asks other owners what they pay, runs a cash discount."
+   },
+   {
+    "name": "Trusts word of mouth only",
+    "share": 0.12,
+    "how": "Only tries what a friend or relative's salon already uses; asks in a Vietnamese Facebook or Zalo group first."
+   },
+   {
+    "name": "Tired of tech pay fights",
+    "share": 0.1,
+    "how": "Has lost techs over tips and turns; wants proof everyone can see."
+   }
+  ],
+  "objections": [
+   "My staff are older, they will not learn a new system",
+   "I just bought my hardware or signed a contract, switching costs me",
+   "Who are you? A new company could close and take my data",
+   "What happens when the internet goes down on a busy Saturday",
+   "My current POS is only $40, why pay $49",
+   "Card fees are where the real money is, is yours really cheaper",
+   "I need someone to come set it up and answer the phone in Vietnamese",
+   "It does not do Reserve with Google or marketing like my agency package"
+  ],
+  "habits": [
+   "Saturday is your busiest day and you never touch settings then",
+   "your sister-in-law runs a salon two cities away and you compare notes",
+   "you pay techs every two weeks, part check, part cash",
+   "you read a Vietnamese nail owners Facebook group most nights",
+   "a card processing rep stops by every few months with a new offer",
+   "your techs have argued about who got which walk-in this month"
+  ]
+ },
+ "pitch": "PolishOS \"Founding Salon\": a checkout and tech-pay app made by Vietnamese salon people. Screens in Vietnamese and English. Every ticket shows the tip and card fee; two-tech tips split right; check/cash payout sheet; techs check their own pay by PIN.\nTry it next to your current POS for 60 days. Keep your old system and card terminal until your techs are ready. We lend you the Stripe card reader during the trial; keep it only if you stay.\nWe move your client list, menu and staff for you and set it up in person. Elang (from a salon family) stands at your desk on your first busy Saturday. Vietnamese help by phone or Zalo.\nFree fee check: bring 3 months of card statements and we show your real yearly cost now vs with us, exit fee included. If you stay and your plan + card fees are not lower than before after 90 days, your plan is free until they are.\nAsk to call or visit a salon already running it. Your data is yours: export everything any time, in writing. No contract.\n$49 a month per salon, all staff included. First 10 founding salons: $39 a month for 12 months (ends Mar 31 2027)."
+}

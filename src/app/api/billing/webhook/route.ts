@@ -3,6 +3,7 @@
 // Separate from the Connect webhook (/api/stripe/webhook): different Stripe endpoint + secret STRIPE_BILLING_WEBHOOK_SECRET.
 // Each event saved once, then the salon's copy is refreshed from Stripe (so order of events never matters).
 import type Stripe from "stripe";
+import { verifyEvent } from "@/lib/server/webhooks";
 import { asServer, getStripe, testMode } from "@/lib/server/pay";
 import { salonOfCustomer, sync } from "@/lib/server/billing";
 import { creditFromIntent } from "@/lib/server/textcredit";
@@ -10,14 +11,11 @@ import { creditFromIntent } from "@/lib/server/textcredit";
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  const st = getStripe(), db = asServer(), secret = process.env.STRIPE_BILLING_WEBHOOK_SECRET;
-  if (!st || !db || !secret) return new Response("not configured", { status: 503 });
-  let ev: Stripe.Event;
-  try {
-    ev = st.webhooks.constructEvent(await req.text(), req.headers.get("stripe-signature") ?? "", secret);
-  } catch {
-    return new Response("bad signature", { status: 400 });
-  }
+  const st = getStripe(), db = asServer();
+  if (!st || !db) return new Response("not configured", { status: 503 });
+  // Signed with the Vercel env secret or the one Admin → System saved when it made this webhook.
+  const ev = await verifyEvent(st, db, "billing", await req.text(), req.headers.get("stripe-signature") ?? "");
+  if (!ev) return new Response("bad signature", { status: 400 });
   const obj = ev.data.object as { customer?: string | { id: string } | null; metadata?: Record<string, string> | null };
   const customer = typeof obj.customer === "string" ? obj.customer : obj.customer?.id;
   const salonId = obj.metadata?.salon_id ?? (await salonOfCustomer(db, customer));

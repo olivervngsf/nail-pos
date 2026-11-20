@@ -1,0 +1,13 @@
+{
+  "id": "P004",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "I run on paper and a calculator and it works. A new company I never heard of could close and I'd be stuck with my clients and my techs' pay data in somebody's system. The free trial and the reader loan are nice, but I'm not going to hand over my client list and set up on a stranger's word.",
+  "objection": "Who are you? A new company could close and take my data. I don't want to move my client list and pay records to somebody who might not be here next year.",
+  "would_change_my_mind": "Visiting or calling a salon owner I know who has used it for months, plus the data export in writing before I give them anything. Even then, not before I can start on a slow weekday and not on a Saturday.",
+  "price_too_cheap": 15,
+  "price_cheap": 25,
+  "price_expensive": 55,
+  "price_too_expensive": 85
+}
