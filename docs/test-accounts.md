@@ -1,6 +1,6 @@
 # Test accounts (test project only)
 
-PIN 123456 for everyone in the salon (test only; set Nov 18). The admin (…0009) has no salon, so no PIN.
+PIN 123456 for everyone in the salon (test only; set Nov 18). To give someone a new PIN: `docs/pin-help.md`. The admin (…0009) has no salon, so no PIN.
 
 Salon: **Lotus Test Nails** (`supabase/seed/test_salon.sql` + `test_salon_activity.sql`). Sign in at /login with the phone, code from Supabase Auth > Phone > Test Phone Numbers (no real text, $0).
 
