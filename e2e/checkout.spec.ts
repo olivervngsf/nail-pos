@@ -26,7 +26,9 @@ test("front desk builds a ticket, takes cash with change + tips, ticket stays pa
   await expect(page.getByTestId("due")).toHaveText("$60.00");
 
   // $5 discount, needs a manager PIN
-  await page.getByRole("button", { name: "Discount $ / %" }).click();
+  // phones: discount, gift card, note and slip sit behind one More button next to Charge
+  if ((page.viewportSize()?.width ?? 999) < 600) { await page.getByTestId("ticket-more").click(); await page.getByTestId("more-discount").click(); }
+  else await page.getByRole("button", { name: "Discount $ / %" }).click();
   await expect(page.getByTestId("apply-discount")).toBeDisabled();
   for (const d of "135790") await page.locator(".drawer").getByRole("button", { name: d, exact: true }).click();
   await expect(page.getByTestId("approved")).toBeVisible();
@@ -79,7 +81,8 @@ test("gift card: sold with a service, then pays part of the next ticket", async 
   };
   // Ticket A: $45 + plastic gift card $25 → $70 cash
   await gel();
-  await page.getByTestId("add-gift").click();
+  if ((page.viewportSize()?.width ?? 999) < 600) { await page.getByTestId("ticket-more").click(); await page.getByTestId("more-gift").click(); }
+  else await page.getByTestId("add-gift").click();
   await page.getByTestId("gift-kind-plastic").click();
   await page.getByRole("button", { name: "$25", exact: true }).click();
   await page.getByTestId("gift-code").fill("6012 3456 7890 0147");

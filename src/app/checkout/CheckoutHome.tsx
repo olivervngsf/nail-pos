@@ -95,8 +95,8 @@ export default function CheckoutHome() {
       <button key={x.id} type="button" className="opt" data-testid="ticket-row" onClick={() => router.push(`/checkout/${x.id}`)}>
         <Avatar name={x.client?.name || "?"} />
         <span className="grow">
-          <b style={{ fontWeight: 600 }}>{t("ticket", { n: ticketLabel(x) })} · {x.client?.name || t("walkIn")}</b>
-          <span className="cap" style={{ display: "block" }}>{x.lines.map((l) => l.name).join(", ") || "—"}{names ? ` · ${names}` : ""}{!x.number ? ` · ${t("notSynced")}` : ""}</span>
+          <b className="tk-title" style={{ fontWeight: 600 }}><span className="tk-no">{t("ticket", { n: ticketLabel(x) })} · </span>{x.client?.name || t("walkIn")}</b>
+          <span className="cap tk-sub" style={{ display: "block" }}><span className="tk-no2">{t("ticket", { n: ticketLabel(x) })} · </span>{x.lines.map((l) => l.name).join(", ") || "—"}{names ? ` · ${names}` : ""}{!x.number ? ` · ${t("notSynced")}` : ""}</span>
         </span>
         <span className="num" style={{ fontWeight: 600 }}>{formatCents(x.status === "paid" ? s.total : s.due)}</span>
         {x.status === "paid" && <span className="cap">{f.dateTime(new Date(x.payment?.at ?? x.createdAt), { timeStyle: "short" })}</span>}
@@ -112,14 +112,14 @@ export default function CheckoutHome() {
           <SyncPill />
         </TopBar>
         <OfflineBanner />
-        <main style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20, maxWidth: 980, width: "100%" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <main className="ck-home" style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20, maxWidth: 980, width: "100%" }}>
+          <div className="ck-homebar" style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
             <h1 className="h1" style={{ flex: 1 }}>{t("title")}</h1>
-            <form onSubmit={(e) => { e.preventDefault(); void openScanned(scan); }} style={{ display: "flex", gap: 6 }}>
+            <form className="ck-scan" onSubmit={(e) => { e.preventDefault(); void openScanned(scan); }} style={{ display: "flex", gap: 6 }}>
               <input className="inp" data-testid="scan-box" aria-label={t("scanPh")} placeholder={t("scanPh")} value={scan} onChange={(e) => setScan(e.target.value)}
                 style={{ width: 230, height: 40, fontSize: 15 }} />
             </form>
-            <Button variant="primary" data-testid="new-ticket" onClick={newTicket}>{t("newTicket")}</Button>
+            <Button variant="primary" className="ck-new" data-testid="new-ticket" onClick={newTicket}>{t("newTicket")}</Button>
           </div>
           {scanMsg && <div className="hint err" role="alert">{scanMsg}</div>}
           {desk.mode === "demo" && <div className="demo">{t("demo")}</div>}
