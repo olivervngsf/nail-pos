@@ -16,8 +16,12 @@ test("booking link: change time, then cancel", async ({ page }) => {
   await page.getByTestId("slot").first().click();
   const was = (await page.getByTestId("slot").first().textContent())!;
   await page.getByTestId("next").click();
-  await page.locator("#bw-phone").fill("4085550177");
+  // Phone or email: one is enough. A half-typed email blocks; email alone books.
   await page.locator("#bw-name").fill("Mia Chen");
+  await expect(page.getByTestId("next")).toBeDisabled();
+  await page.locator("#bw-email").fill("mia@");
+  await expect(page.getByTestId("next")).toBeDisabled();
+  await page.locator("#bw-email").fill("mia@example.com");
   await page.getByTestId("next").click();
   await page.getByTestId("manage-link").click();
 

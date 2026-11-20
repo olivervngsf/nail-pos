@@ -111,8 +111,8 @@ export async function hello(slug: string, phone: string): Promise<string | null>
   return r?.first ?? null;
 }
 
-export async function book(page: BookPage, p: { src: ApptSource; day: string; start: number; phone: string; name: string; textsOk: boolean; note: string; guests: Guest[] }): Promise<BookResult> {
-  if (!isDemo(page.salon.slug)) return rpc<BookResult>("book_create", { p: { ...p, slug: page.salon.slug } });
+export async function book(page: BookPage, p: { src: ApptSource; day: string; start: number; phone: string; email?: string; name: string; textsOk: boolean; note: string; guests: Guest[] }): Promise<BookResult> {
+  if (!isDemo(page.salon.slug)) return rpc<BookResult>("book_create", { p: { ...p, phone: p.phone || null, email: p.email || null, slug: page.salon.slug } });
   const svc = (g: Guest) => page.services.filter((s) => g.serviceIds.includes(s.id));
   const mins = (g: Guest) => svc(g).reduce((a, s) => a + s.minutes, 0);
   const staff = assign(p.guests.map((g) => demoFree(page, p.day, g.staffId ?? null, mins(g))[p.start] ?? []));
@@ -183,4 +183,20 @@ export async function cancelBooking(token: string): Promise<ManageResult> {
   if (!live.length) return { ok: false, reason: "gone" };
   for (const a of live) putAppt({ ...a, status: "canceled" });
   return { ok: true };
+}
+
+/** What happened to the confirmation, per way: sent, off (not switched on yet), failed, or null (not asked for). */
+export type Sent = { email: "sent" | "off" | "failed" | null; sms: "sent" | "off" | "failed" | null };
+export const emailOk = (v: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.trim()) && v.trim().length <= 254;
+
+/** Ask the server to send the booking's confirmation (email and/or text). Never throws: the booking is already saved. */
+export async function sendConfirmation(token: string | undefined): Promise<Sent> {
+  const none: Sent = { email: null, sms: null };
+  if (!token || token.startsWith(DEMO_TOKEN)) return none;
+  try {
+    const r = await fetch("/api/book/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token }) });
+    if (!r.ok) return { email: "failed", sms: "failed" };
+    const j = (await r.json()) as Partial<Sent>;
+    return { email: j.email ?? null, sms: j.sms ?? null };
+  } catch { return { email: "failed", sms: "failed" }; }
 }

@@ -27,3 +27,9 @@ The confirm button uses `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}
 Menu → Add sign-in email → Save → email with one button. The tap opens `/auth/confirm` on any device, confirms, and
 never leaves another person signed in there. The menu checks every 4 s and flips to "Email added" by itself.
 A DB trigger (`on_auth_email_changed`) copies the confirmed email to `people.email`.
+
+## Booking confirmation emails
+Sent by our server (`/api/book/notify`), not by Supabase. Needs one thing in Vercel → Settings → Environment Variables:
+`RESEND_API_KEY` = a Resend API key with Sending access (Resend → API Keys → Create; same account as above), for
+Production and Preview, marked Sensitive. Then redeploy. Sender shows as "<Salon name> via PolishOS".
+Without the key the booking still saves and the booked screen says the email couldn't be sent.

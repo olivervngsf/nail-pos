@@ -93,3 +93,39 @@ export function sampleSalon(id: string, nowIso = new Date().toISOString()): Salo
     ],
   };
 }
+
+/* ---------- salon page tabs (admin_signals, migration admin_signals) ---------- */
+export type Signals = {
+  stripe: { at: string; type: string; ticket: number | null }[];
+  stripe_week: { pay: number; matched: number };
+  vitals: { day: string; loads: number; avg_ms: number | null; slow: number; errors: number; last_error: string | null }[];
+  texts: { kind: string; sent: number; failed: number }[];
+  texts_daily: { day: string; n: number; promo: number }[];
+};
+export const STRIPE_EVENT: Record<string, string> = {
+  "payment_intent.succeeded": "Card payment", "payment_intent.payment_failed": "Card declined", "payment_intent.canceled": "Payment canceled",
+  "charge.refunded": "Refund", "charge.updated": "Payment updated", "charge.dispute.created": "Dispute opened", "account.updated": "Account changed",
+  "payout.paid": "Payout to bank", "payout.failed": "Payout failed",
+};
+export const stripeEvent = (t: string) => STRIPE_EVENT[t] ?? t.replace(/[._]/g, " ");
+export const TEXT_KIND: Record<string, string> = { confirm: "Booking confirms", reminder: "Reminders", receipt: "Receipts", promo: "Promos", invite: "Staff invites", salon_ready: "Salon ready", other: "Other" };
+
+export function sampleSignals(id: string, nowIso = new Date().toISOString()): Signals {
+  const now = Date.parse(nowIso);
+  const ago = (h: number) => new Date(now - h * 3600_000).toISOString();
+  const day = (d: number) => new Date(now - d * 86400_000).toISOString().slice(0, 10);
+  const live = id !== "s-kim" && id !== "s-vy";
+  const slow = id === "s-bella";
+  return {
+    stripe: live ? [
+      { at: ago(slow ? 3.3 : 0.1), type: "payment_intent.succeeded", ticket: 1284 },
+      { at: ago(slow ? 3.4 : 0.6), type: "charge.updated", ticket: 1283 },
+      { at: ago(slow ? 4 : 1.2), type: "payment_intent.succeeded", ticket: 1283 },
+      { at: ago(20), type: "payout.paid", ticket: null },
+    ] : [],
+    stripe_week: live ? { pay: 96, matched: 96 } : { pay: 0, matched: 0 },
+    vitals: live ? Array.from({ length: 7 }, (_, i) => ({ day: day(i), loads: 60 + i * 3, avg_ms: slow && i < 2 ? 3800 : 1100 + i * 20, slow: slow && i < 2 ? 12 : 0, errors: slow && i === 0 ? 4 : 0, last_error: slow && i === 0 ? "Load failed (network)" : null })) : [],
+    texts: id === "s-cosmo" ? [{ kind: "reminder", sent: 640, failed: 4 }, { kind: "confirm", sent: 220, failed: 2 }, { kind: "promo", sent: 424, failed: 3 }] : live ? [{ kind: "reminder", sent: 120, failed: 1 }, { kind: "confirm", sent: 66, failed: 0 }] : [],
+    texts_daily: live ? Array.from({ length: 30 }, (_, i) => ({ day: day(29 - i), n: 20 + ((i * 7) % 13), promo: id === "s-cosmo" && i % 7 === 4 ? 106 : 0 })) : [],
+  };
+}

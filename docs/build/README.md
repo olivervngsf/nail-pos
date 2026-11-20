@@ -56,6 +56,7 @@ docs/                specs (this folder)
 7. EN + VI strings for every label.
 8. Tests: unit for money/logic, Playwright for the main path + one error state, RLS test for new tables.
 9. Main Screens board stays in sync with what was built (CLAUDE.md rule).
+10. Responsive + phone friendly on every screen (Oliver, Nov 20): each screen works at phone (390), iPad and desktop widths, no sideways page scroll, taps 44px+ on touch, inputs 16px+; wide tables turn into one card per row on phones (pattern: Founder Admin health table `.hl-row`). Add new screens to `e2e/phone.spec.ts`.
 
 ## Status
 
