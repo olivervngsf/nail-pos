@@ -27,7 +27,15 @@ Share this page with anyone who sets up Stripe for PolishOS (sandbox or live).
 | Code | `src/app/api/stripe/webhook/route.ts` | `src/app/api/billing/webhook/route.ts` |
 | Status (Nov 19) | **Working (sandbox).** Destination "PolishOS card payments", secret in Vercel Production. Tested: ticket #1014 on `lotus-5` paid by the webhook alone (no desk screen open) | Not set up yet (Billing page also refreshes from Stripe each time it opens) |
 
-## Steps (≈10 min each)
+## Fastest way: one tap (Nov 20)
+1. Open **polishosapp.com/admin/system** (Oliver or Elang; not a preview link).
+2. The **Stripe webhooks** card shows both: On / Not made / Missing events / Secret unknown, and test vs live mode.
+3. Tap **Set up webhooks**. The app uses its own Stripe key to make any missing webhook with all its events and keeps the signing secret itself (server-only table `platform_secrets`), so nothing goes into Vercel and no redeploy.
+4. A webhook made by hand whose secret is already in Vercel (like "PolishOS card payments") is kept; the button only adds any missing events.
+5. Both rows should say **On**. Then do step D below to check.
+6. Going live: switch Vercel to the live key, redeploy, tap the same button again.
+
+## Steps by hand (≈10 min each)
 
 ### A. Stripe: make the destination
 1. Stripe dashboard → pick the right account at top left (sandbox = **lotus-test sandbox**; live = our live account).

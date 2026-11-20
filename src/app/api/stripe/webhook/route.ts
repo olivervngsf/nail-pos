@@ -1,19 +1,17 @@
 // Stripe tells us what happened on salon accounts (Connect webhook). Every event is saved once (by event id),
 // then: payment succeeded → ticket paid; account updated → ready flags. Safe to receive twice.
 import type Stripe from "stripe";
+import { verifyEvent } from "@/lib/server/webhooks";
 import { asServer, getStripe, settle } from "@/lib/server/pay";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  const st = getStripe(), db = asServer(), secret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!st || !db || !secret) return new Response("not configured", { status: 503 });
-  let ev: Stripe.Event;
-  try {
-    ev = st.webhooks.constructEvent(await req.text(), req.headers.get("stripe-signature") ?? "", secret);
-  } catch {
-    return new Response("bad signature", { status: 400 });
-  }
+  const st = getStripe(), db = asServer();
+  if (!st || !db) return new Response("not configured", { status: 503 });
+  // Signed with the Vercel env secret or the one Admin → System saved when it made this webhook.
+  const ev = await verifyEvent(st, db, "payments", await req.text(), req.headers.get("stripe-signature") ?? "");
+  if (!ev) return new Response("bad signature", { status: 400 });
   const obj = ev.data.object as { metadata?: Record<string, string> };
   const meta = obj.metadata ?? {};
   const { error: dup } = await db.from("stripe_events").insert({ id: ev.id, salon_id: meta.salon_id ?? null, ticket_id: meta.ticket_id ?? null, type: ev.type, payload: ev });

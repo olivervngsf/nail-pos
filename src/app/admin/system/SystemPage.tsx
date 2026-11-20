@@ -5,6 +5,7 @@
 // Our monthly costs typed in by hand. Data: admin_system / admin_check_set / admin_cost_set (migration admin_system).
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { rpc } from "@/lib/auth";
+import { api } from "@/lib/api";
 import { income } from "@/lib/admin/health";
 import { STATUS_LABEL, checks, sampleSystem, sortChecks, summary, totalCents, type Check, type CheckStatus, type Cost, type SystemFacts } from "@/lib/admin/system";
 import { Button, Chip, Drawer, Field } from "@/components/kit";
@@ -80,6 +81,8 @@ export default function SystemPage() {
               </div>
             ))}
           </section>
+
+          <StripeHooks live={admin.gate === "live"} say={admin.say} />
 
           <div className="ad-split">
             <section className="ad-wide-col" aria-label="Running smooth checks">
@@ -159,5 +162,45 @@ function CostsDrawer({ f, onClose, onSave }: { f: SystemFacts; onClose: () => vo
       </div>
       <Button variant="primary" onClick={() => void add()} data-testid="cost-add">Add / change</Button>
     </Drawer>
+  );
+}
+
+type Hook = { kind: "payments" | "billing"; url: string; on: boolean; events: number; missing: string[]; secret: "env" | "saved" | "none" };
+const HOOK_NAME = { payments: "Card payments (salon accounts)", billing: "Plans + text credit (our account)" };
+
+/** Our two Stripe webhooks: are they there, listening for every event, and do we hold their secret? One tap fixes both. */
+function StripeHooks({ live, say }: { live: boolean; say: (m: string) => void }) {
+  const [r, setR] = useState<{ test: boolean; realSite: boolean; hooks: Hook[] } | null>(null);
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const call = useCallback(async (action: "status" | "setup") => {
+    setErr("");
+    try { setR(await api("/api/admin/stripe-webhooks", { action })); if (action === "setup") say("Stripe webhooks set up"); }
+    catch (e) { setErr((e as Error).message); }
+  }, [say]);
+  useEffect(() => { if (live) void call("status"); }, [live, call]);
+  if (!live) return null;
+  const ok = (h: Hook) => h.on && !h.missing.length && h.secret !== "none";
+  const allOk = !!r && r.hooks.every(ok);
+  return (
+    <section className="group" aria-label="Stripe webhooks" data-testid="stripe-hooks">
+      <div className="row s" style={{ fontWeight: 600 }}>
+        Stripe webhooks{r && <span className="cap" style={{ fontWeight: 400 }}>&nbsp;· {r.test ? "test mode" : "live mode"}</span>}
+        <span style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+          {r && <span className={`ad-pill ${allOk ? "good" : "warn"}`}>{allOk ? "All set" : "Needs setup"}</span>}
+          {r && !allOk && <Button size="sm" variant="primary" disabled={busy || !r.realSite} data-testid="hooks-setup"
+            onClick={async () => { setBusy(true); await call("setup"); setBusy(false); }}>{busy ? "Setting up…" : "Set up webhooks"}</Button>}
+        </span>
+      </div>
+      {!r && !err && <div className="row s"><span className="cap">Checking Stripe…</span></div>}
+      {r?.hooks.map((h) => (
+        <div key={h.kind} className="row s" data-testid={`hook-${h.kind}`}>
+          <span className="g">{HOOK_NAME[h.kind]}<span className="cap">{h.url}{h.events ? ` · ${h.events} events` : ""}{h.missing.length && h.events ? ` · ${h.missing.length} missing` : ""}</span></span>
+          <span className={`ad-pill ${ok(h) ? "good" : "warn"}`}>{!h.events ? "Not made" : !h.on ? "Turned off" : h.secret === "none" ? "Secret unknown" : h.missing.length ? "Missing events" : "On"}</span>
+        </div>
+      ))}
+      {r && !r.realSite && !allOk && <div className="row s"><span className="cap">Open this page on polishosapp.com to set them up (preview links come and go).</span></div>}
+      {err && <div className="row s"><span className="hint err">{err}</span></div>}
+    </section>
   );
 }
