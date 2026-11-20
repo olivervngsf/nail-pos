@@ -4,6 +4,9 @@ Sender: `PolishOS <no-reply@mail.polishosapp.com>` via Resend (domain `mail.poli
 Supabase → Authentication → Emails → SMTP: host `smtp.resend.com`, port 465, user `resend`, password = Resend API key (Sending access).
 Rate limit: 30/h now, 100/h before the first pilot salon. Resend free plan = 100 emails/day.
 
+## Receiving email (support@polishosapp.com)
+Resend only SENDS (from `no-reply@mail.polishosapp.com`). Mail TO `support@polishosapp.com` is received by **ImprovMX** (improvmx.com, free forwarding, Oliver's account, Nov 20) and forwarded to Oliver's Gmail. DNS at GoDaddy on `polishosapp.com`: MX `mx1.improvmx.com` (10) + `mx2.improvmx.com` (20), SPF TXT `v=spf1 include:spf.improvmx.com ~all`. Resend's records live on `mail.` / `send.` and are not touched. Steps: `docs/go-live-plan.md` § 1.
+
 ## Templates (Supabase → Authentication → Emails)
 Paste each file's HTML into the template; subject is on line 1 of each file.
 

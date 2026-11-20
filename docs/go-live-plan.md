@@ -37,7 +37,11 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - [ ] 2-step login + password manager on every account we own: GitHub, Vercel, Supabase, Stripe, Twilio, GoDaddy, Google, Resend, Anthropic.
 - [ ] 2-step login in PolishOS for Oliver and Elang: `/me` → Sign in → 2-step login. Admin → System tile must say **2/2**.
 - [ ] Spending alerts: Vercel (Settings → Billing → Spend management, e.g. $50), Supabase (spend cap on), Stripe (email on every payout/dispute), Twilio (usage triggers $20 / $50), Anthropic console (monthly limit). Tick "Spending alerts" in Admin → System.
-- [ ] Make the inbox **support@polishosapp.com** (it is printed on the legal pages).
+- [ ] Make the inbox **support@polishosapp.com** (it is printed on the legal pages). Tool: **ImprovMX** (improvmx.com, free email forwarding; Oliver signed up Nov 20) forwards support@ to Oliver's Gmail:
+  1. ImprovMX: domain `polishosapp.com`, alias `support` → Oliver's Gmail.
+  2. GoDaddy → polishosapp.com → DNS: delete any old MX rows; add MX `@` `mx1.improvmx.com` (10), MX `@` `mx2.improvmx.com` (20), TXT `@` `v=spf1 include:spf.improvmx.com ~all` (or add `include:spf.improvmx.com` to an existing SPF row). Never touch Resend's `mail` / `send` rows.
+  3. ImprovMX "Check again" turns green → email support@ from another account → it lands in Gmail.
+  - Resend = SENDING app email only (no-reply@mail.polishosapp.com); ImprovMX = RECEIVING. Replying AS support@ needs ImprovMX paid (~$9/mo) or Google Workspace (~$7/person); move to Workspace when Elang/Laura answer salons.
 
 ## 2. Turn on the live database (Oliver · ~30 min · needs paid Supabase plan ~$25/mo)
 - [ ] Supabase `nail-pos-live` → paid plan → Database → Backups: daily backups on.
