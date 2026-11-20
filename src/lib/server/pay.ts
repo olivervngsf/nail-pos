@@ -3,7 +3,7 @@
 import "server-only";
 import Stripe from "stripe";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { splitCents } from "@/lib/money";
+import { asSplit, firstName, techTotals, tipShares, type PayLine } from "@/lib/checkout/paypage";
 import { addressOk, parseAddress } from "@/lib/stripe/address";
 
 export const fail = (status: number, error: string) => Response.json({ error }, { status });
@@ -38,7 +38,18 @@ export function originOf(req: Request) {
   return `${h.get("x-forwarded-proto") ?? "https"}://${h.get("x-forwarded-host") ?? h.get("host")}`;
 }
 
-type PayRequest = { id: string; salon_id: string; ticket_id: string; method: "card_reader" | "pay_link"; amount_cents: number; payment_intent: string | null; checkout_session: string | null; reader_id: string | null; status: string; error: string | null };
+type PayRequest = { id: string; salon_id: string; ticket_id: string; method: "card_reader" | "pay_link"; amount_cents: number; payment_intent: string | null; checkout_session: string | null; reader_id: string | null; status: string; error: string | null; tip_split?: string | null };
+
+/** The services on a ticket (name, tech first name, price) in ticket order, and each tech's service total.
+ *  Used by the client pay page (what it shows) and by settle() (who gets the tip), so both always agree. */
+export async function ticketWork(db: SupabaseClient, ticketId: string): Promise<{ lines: PayLine[]; techs: { key: string; name: string; cents: number }[] }> {
+  const { data, error } = await db.from("ticket_lines").select("name,staff_id,amount_cents,sort,staff:memberships(display_name)")
+    .eq("ticket_id", ticketId).eq("kind", "service").is("removed_at", null).order("sort").order("id");
+  if (error) throw new Error(error.message); // never guess who gets a tip
+  type L = { name: string; staff_id: string | null; amount_cents: number; staff: { display_name: string } | null };
+  const rows = ((data ?? []) as unknown as L[]).map((l) => ({ key: l.staff_id, name: firstName(l.staff?.display_name), label: l.name, cents: Number(l.amount_cents) }));
+  return { lines: rows.map((r) => ({ name: r.label, tech: r.name || null, cents: r.cents })), techs: techTotals(rows) };
+}
 
 /** Look at Stripe for this pay request; when paid, record it (safe to call many times). Returns the pay request status.
  *  A try that was cancelled or failed is still checked: if the card went through anyway, settle_card records it as
@@ -90,12 +101,11 @@ export async function settle(prId: string, seenIntent?: string | null): Promise<
   const over = Math.max(0, pi.amount_received - pr.amount_cents);
   const tip = pr.method === "card_reader" && pr.reader_id ? (pi.amount_details?.tip?.amount ?? over) : over;
 
-  // Tip split across the techs on this ticket by service price (owner default).
-  const { data: lines } = await db.from("ticket_lines").select("staff_id,amount_cents").eq("ticket_id", pr.ticket_id).eq("kind", "service").is("removed_at", null);
-  const byStaff = new Map<string, number>();
-  for (const l of lines ?? []) if (l.staff_id) byStaff.set(l.staff_id, (byStaff.get(l.staff_id) ?? 0) + Number(l.amount_cents));
-  const staff = [...byStaff.keys()];
-  const parts = tip > 0 && staff.length ? splitCents(tip, staff.map((s) => byStaff.get(s) || 1)) : [];
+  // One tip shared across the techs on this ticket: by service price (default), or evenly when the client picked
+  // that on the Quick pay page. Same rule the pay page showed them (tipShares).
+  const { techs } = await ticketWork(db, pr.ticket_id);
+  const staff = techs.map((t) => t.key);
+  const parts = tipShares(tip, techs.map((t) => t.cents), asSplit(pr.tip_split));
   // No tech on the ticket (e.g. only a gift card sold) but the client tipped on the reader: keep the tip on the ticket
   // with no name, so the ticket total still equals the money taken.
   const tips: { staffId: string | null; cents: number }[] = staff.length ? staff.map((s, i) => ({ staffId: s, cents: parts[i] ?? 0 })) : tip > 0 ? [{ staffId: null, cents: tip }] : [];
