@@ -2271,7 +2271,7 @@
     "title": "Tạo mã PIN",
     "signIn": "Đăng nhập bằng số điện thoại trước",
     "signInLead": "Dùng số điện thoại tiệm đã lưu cho bạn. Chúng tôi nhắn mã cho bạn.",
-    "notHere": "Số này không có trong nhóm của tiệm. Dùng số mà chủ tiệm đã nhập.",
+    "notHere": "Tài khoản này không có trong nhóm của tiệm. Đăng nhập bằng số mà chủ tiệm đã nhập cho bạn.",
     "pin1": "Tạo mã PIN ({n} số)",
     "pin1Cap": "Dùng để chấm công và tính tiền. Không dùng số dễ như 123456 hay 111111.",
     "pin2": "Nhập lại",
@@ -2282,6 +2282,10 @@
     "done": "Đã lưu PIN",
     "doneCap": "Dùng ở {salon} để chấm công và tính tiền.",
     "home": "Mở trang chính",
-    "demo": "Bản thử: PIN chưa được lưu cho đến khi đăng nhập thật bật lên."
+    "demo": "Bản thử: PIN chưa được lưu cho đến khi đăng nhập thật bật lên.",
+    "signedAs": "Đang đăng nhập: {name} · số đuôi {last4}.",
+    "signedAsPhone": "Trình duyệt này đang đăng nhập bằng số đuôi {last4}.",
+    "notYou": "Không phải bạn?",
+    "usePhone": "Đăng nhập bằng số của tôi"
   }
 }

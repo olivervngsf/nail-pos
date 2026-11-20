@@ -8,7 +8,8 @@ import { useTranslations } from "next-intl";
 import { Button, PinKeypad, Segmented } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
 import PhoneCodeLogin from "@/components/PhoneCodeLogin";
-import { SMS_ON, claimMine, homeFor, isSignedIn, myMemberships, rpc, type Membership } from "@/lib/auth";
+import { SMS_ON, claimMine, homeFor, isSignedIn, myMemberships, rpc, signOut, type Membership } from "@/lib/auth";
+import { getSupabase } from "@/lib/supabase/client";
 import { cachedRules, pinProblem, saveRules, type PinRules } from "@/lib/pin";
 
 type Step = "load" | "signin" | "notHere" | "hasPin" | "one" | "two" | "done";
@@ -25,9 +26,12 @@ export default function PinLinkPage() {
   const [rules, setRules] = useState<PinRules>(cachedRules(salon));
   const [first, setFirst] = useState("");
   const [err, setErr] = useState("");
+  const [last4, setLast4] = useState("");
 
   const findMe = async () => {
     await claimMine();
+    const u = (await getSupabase()?.auth.getUser())?.data.user;
+    setLast4((u?.phone ?? "").replace(/\D/g, "").slice(-4));
     const ms = await myMemberships();
     setAll(ms);
     const mine = ms.find((x) => x.salon_id === salon && x.membership_id) ?? (salon ? null : ms.find((x) => x.membership_id) ?? null);
@@ -57,6 +61,15 @@ export default function PinLinkPage() {
     } catch (e) { setErr((e as Error).message.includes("weak") ? t("weak") : (e as Error).message); setFirst(""); setStep("one"); }
   };
 
+  // The phone may already be signed in as someone else (the owner testing the link, a shared phone): always say who,
+  // and let them switch to their own phone number.
+  const switchPhone = async () => { await signOut(); setM(null); setErr(""); setPhone(""); setStep("signin"); };
+  const who = SMS_ON && last4 ? (
+    <div className="cap" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+      {t("signedAs", { name: m?.display_name ?? "", last4 })}
+      <Button size="sm" variant="ghost" data-testid="switch-phone" onClick={() => void switchPhone()}>{t("notYou")}</Button>
+    </div>
+  ) : null;
   const salonName = m?.salon_name || (lang === "vi" ? "tiệm" : "the salon");
   return (
     <div className="phone">
@@ -72,9 +85,12 @@ export default function PinLinkPage() {
         {step === "notHere" && <>
           <h1 className="h2">{t("title")}</h1>
           <div className="hint err" role="alert">{t("notHere")}</div>
+          {last4 && <div className="cap">{t("signedAsPhone", { last4 })}</div>}
+          <Button variant="primary" block onClick={() => void switchPhone()}>{t("usePhone")}</Button>
         </>}
         {step === "hasPin" && <>
           <h1 className="h2">{t("title")}</h1>
+          {who}
           <div className="cap lead">{t("hasPin", { salon: salonName })}</div>
           <Button variant="primary" block onClick={() => setStep("one")}>{t("newPin")}</Button>
           <Button block onClick={() => router.push(homeFor(all))}>{t("home")}</Button>
@@ -82,6 +98,7 @@ export default function PinLinkPage() {
         {(step === "one" || step === "two") && <>
           <h1 className="h2" style={{ textAlign: "center" }}>{step === "one" ? t("pin1", { n: rules.length }) : t("pin2")}</h1>
           {step === "one" && <div className="cap" style={{ textAlign: "center" }}>{t("pin1Cap")}</div>}
+          {step === "one" && who}
           <PinKeypad key={step} length={rules.length} error={err} onDone={(p) => void pinDone(p)} />
           {!SMS_ON && <div className="demo">{t("demo")}</div>}
         </>}

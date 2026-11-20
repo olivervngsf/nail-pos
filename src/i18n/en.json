@@ -2271,7 +2271,7 @@
     "title": "Make your PIN",
     "signIn": "Sign in with your phone first",
     "signInLead": "Use the mobile number the salon has for you. We text you a code.",
-    "notHere": "This phone isn't on that salon's team. Use the number the owner added.",
+    "notHere": "This sign-in isn't on that salon's team. Sign in with the phone number the owner added for you.",
     "pin1": "Make your PIN ({n} digits)",
     "pin1Cap": "You use it to clock in and check out. Not easy ones like 123456 or 111111.",
     "pin2": "Type it again",
@@ -2282,6 +2282,10 @@
     "done": "PIN saved",
     "doneCap": "Use it at {salon} to clock in and check out.",
     "home": "Open my Home",
-    "demo": "Test version: the PIN isn't saved until logins go live."
+    "demo": "Test version: the PIN isn't saved until logins go live.",
+    "signedAs": "Signed in as {name} · phone ending {last4}.",
+    "signedAsPhone": "This browser is signed in with the phone ending {last4}.",
+    "notYou": "Not you?",
+    "usePhone": "Sign in with my phone"
   }
 }
