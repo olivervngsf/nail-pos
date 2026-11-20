@@ -17,6 +17,7 @@ import { getTicket } from "@/lib/checkout/store";
 import { totals } from "@/lib/checkout/ticket";
 import { SeatDrawer, WalkInDrawer, Waitlist, seatAppt, useTick } from "./WalkIns";
 import { DayPlan, LiveBoard } from "./LiveBoard";
+import { OmniSearch } from "./OmniSearch";
 import { liveBoard } from "@/lib/booking/board";
 import { addDays, at, clamp, dayKey, fmtMin, fromDayKey, lanes, minutesOf, overlapping, snap, startOfWeek } from "@/lib/booking/grid";
 import { BookDrawer, DetailsDrawer, statusOf, ticketFor, type BookDraft } from "./BookDrawers";
@@ -172,12 +173,11 @@ function Calendar({ desk, refresh }: { desk: Desk; refresh: () => Promise<void> 
           <span className="seg cal-seg">{(["day", "week", "month"] as View[]).map((v) => (
             <button key={v} type="button" className={view === v ? "on" : ""} aria-pressed={view === v} onClick={() => go(v, day)} data-testid={`view-${v}`}>{t(v)}</button>))}</span>
         </span>}>
-          <label className="cal-search"><input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("search")} aria-label={t("search")} data-testid="cal-search"
-            onKeyDown={(e) => { if (e.key === "Enter" && parseTicketScan(q)) { e.preventDefault(); void handleScan(q).then((ok) => ok && setQ("")); } }} />
+          <OmniSearch desk={desk} list={list} tickets={tickets} q={q} setQ={setQ} inputRef={searchRef} onStaff={() => go("day", day)}
+            onEnterScan={(x) => { if (!parseTicketScan(x)) return false; void handleScan(x).then((ok) => ok && setQ("")); return true; }}>
             <button type="button" className="cal-scan" onClick={() => setScanOpen(true)} aria-label={t("scanBtn")} title={t("scanBtn")} data-testid="scan-btn">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10" /></svg>
-              <span className="cal-scanl">{t("scanShort")}</span></button>
-            <span className="kbd">/</span></label>
+              <span className="cal-scanl">{t("scanShort")}</span></button></OmniSearch>
           <span className="cal-alertwrap">
             <button type="button" className={`cal-alertbtn ${alerts.length ? "on" : ""}`} onClick={() => setAlertsOpen((x) => !x)} aria-expanded={alertsOpen}
               aria-label={`${t("alerts")} ${alerts.length}`} title={t("alerts")} data-testid="alerts">

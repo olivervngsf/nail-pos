@@ -140,3 +140,26 @@ test("calendar: book, move with undo, check in, week + month", async ({ page }) 
   }
   expect(errors).toEqual([]);
 });
+
+test("calendar: search finds clients by phone / #number / name, Tab switches, Enter opens", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  test.skip(test.info().project.name === "phone", "the search box is a desk (wide screen) control; phones use Scan");
+  await page.goto("/calendar");
+  await expect(page.getByTestId("cal-block").first()).toBeVisible();
+  const box = page.getByTestId("cal-search");
+  await box.fill("0142");
+  await expect(page.getByTestId("sr-chip")).toHaveText("Phone");
+  await expect(page.getByTestId("sr-row").first()).toContainText("Lan Tran");
+  await expect(page.getByTestId("sr-row").first()).toContainText("•••-0142");
+  await box.fill("Lan");
+  await expect(page.locator('[data-testid="sr-row"][data-kind="client"]')).toHaveCount(2);
+  await box.press("Tab");                                       // All → Clients
+  await expect(page.getByTestId("sr-tab-clients")).toHaveAttribute("aria-selected", "true");
+  await box.fill("#48213");
+  await expect(page.getByTestId("sr-chip")).toHaveText("Client #");
+  await expect(page.getByTestId("sr-row")).toHaveCount(1);
+  await box.press("Enter");
+  await expect(page).toHaveURL(/\/clients\/c1/);
+  expect(errors).toEqual([]);
+});
