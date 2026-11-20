@@ -1,0 +1,116 @@
+{
+  "business": "PolishOS (1 unit = 1 paying salon for 1 month; 'per day' fields = paying salons, days_per_month = 1). Price $45 = blended year 1: first 10 Founding Salons at $39, rest at $49.",
+  "unit": "salon-month",
+  "price": 45.0,
+  "variable": [
+    {
+      "label": "Service texts (local number, ~600 texts, 10DLC share)",
+      "cost": 10.0
+    },
+    {
+      "label": "Stripe Connect active account",
+      "cost": 2.0
+    },
+    {
+      "label": "Login codes (Twilio Verify, ~20/mo)",
+      "cost": 1.2
+    },
+    {
+      "label": "Stripe card fee on the $49 plan (2.9% + 30c)",
+      "cost": 1.72
+    },
+    {
+      "label": "Stripe Billing (0.7%)",
+      "cost": 0.34
+    },
+    {
+      "label": "Support time (est. 1h/mo at $0 founder; contractor later)",
+      "cost": 0.0
+    },
+    {
+      "label": "Guarantee reserve (3 of 10 claim 3 free months, spread)",
+      "cost": 1.5
+    }
+  ],
+  "fixed_monthly": [
+    {
+      "label": "Supabase Pro (live) ",
+      "cost": 25
+    },
+    {
+      "label": "Vercel Pro",
+      "cost": 20
+    },
+    {
+      "label": "Google Workspace + domains",
+      "cost": 22
+    },
+    {
+      "label": "Resend email",
+      "cost": 20
+    },
+    {
+      "label": "Claude (build)",
+      "cost": 150
+    },
+    {
+      "label": "Apple + Google dev (spread)",
+      "cost": 8
+    },
+    {
+      "label": "Accountant",
+      "cost": 150
+    },
+    {
+      "label": "Business insurance (liability + cyber)",
+      "cost": 75
+    },
+    {
+      "label": "Twilio PolishOS number + campaign",
+      "cost": 12
+    }
+  ],
+  "startup": [
+    {
+      "label": "Lawyer: terms, privacy, texting consent, CA pay rules",
+      "cost": 1500
+    },
+    {
+      "label": "Test hardware (S710, printer, drawer, phones) - mostly bought",
+      "cost": 1000
+    },
+    {
+      "label": "LLC / EIN / business Twilio switch",
+      "cost": 300
+    },
+    {
+      "label": "Launch: flyers, supply-store QR, Facebook/Zalo video, travel to salons",
+      "cost": 1000
+    },
+    {
+      "label": "Loaner S710 readers for trials (3 x $299)",
+      "cost": 900
+    },
+    {
+      "label": "Elang travel for setup days + first Saturdays (10 salons x ~$60)",
+      "cost": 600
+    }
+  ],
+  "days_per_month": 1,
+  "capacity_per_day": 60,
+  "plan_per_day": 50,
+  "ramp_per_day": [
+    0,
+    0,
+    0,
+    2,
+    4,
+    6,
+    9,
+    12,
+    15,
+    18,
+    21,
+    24
+  ]
+}

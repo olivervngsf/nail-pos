@@ -1,0 +1,13 @@
+{
+  "id": "P003",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "My POS mostly works and switching means retraining my techs and risking a bad week at the counter. I also hear 'cheaper' from every new POS and the card fee is where the money is, so I'd want proof before touching anything.",
+  "objection": "Card fees are where the real money is. Stripe's 2.7% + 5c sounds like what I already pay, so is it really cheaper? And I'd have to buy a $299 reader and move my whole salon over to a new company nobody I know uses.",
+  "would_change_my_mind": "My sister-in-law or another owner I know using it for a few months and showing me their real card statement with lower fees, plus them moving my client list over for free.",
+  "price_too_cheap": 15,
+  "price_cheap": 29,
+  "price_expensive": 59,
+  "price_too_expensive": 89
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P019",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "I run 11-20 techs and maybe two locations on a POS that mostly works. Moving my tickets, clients, gift cards and payouts is a big risk for a new product, and $49 a month is not what I care about.",
+  "objection": "Card fees are where the real money is, and 2.7% + 5 cents is Stripe's standard rate, so it is not obviously cheaper than what my processor gives me at my volume. A brand-new product with no track record is a risk when it is my whole checkout and my techs' pay. I also don't know if it handles two locations.",
+  "would_change_my_mind": "A real card rate below what I pay now, shown against my own statement, plus another big salon my size that has run on it for six months and a way to run both locations.",
+  "price_too_cheap": 15,
+  "price_cheap": 49,
+  "price_expensive": 129,
+  "price_too_expensive": 249
+}

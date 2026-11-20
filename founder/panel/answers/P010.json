@@ -1,0 +1,13 @@
+{
+  "id": "P010",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "I'd take the free fee check and the 60-day trial because I keep my old system and terminal, so I lose nothing, and if my fees aren't lower after 90 days the plan is free. $39 is fine if it really beats what I pay now.",
+  "objection": "What happens when the internet goes down on a busy Saturday? Nothing here says it keeps working offline, and I'm not putting my Saturday on something that stops taking payments.",
+  "would_change_my_mind": "Show me in writing, or let me call a salon already running it, that tickets and payments keep working when the internet drops and sync later.",
+  "price_too_cheap": 15,
+  "price_cheap": 30,
+  "price_expensive": 55,
+  "price_too_expensive": 85
+}

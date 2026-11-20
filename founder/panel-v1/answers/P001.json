@@ -1,0 +1,13 @@
+{
+  "id": "P001",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "I already run Square on an iPad and it works. Switching means retraining my techs, moving my clients, and buying a $299 reader, and I do not have time to do that on a maybe.",
+  "objection": "What happens when the internet goes down on a busy Saturday? They say it keeps working, but I have heard that before from reps. I want to see it with my own eyes before I trust a new system with my cash and my card sales.",
+  "would_change_my_mind": "Another salon owner I know, Vietnamese like me, who has used it for months and tells me it never lost a ticket when the internet went down. Or a free trial where they set it up next to Square so I can try it for a few Saturdays without risk.",
+  "price_too_cheap": 15,
+  "price_cheap": 29,
+  "price_expensive": 59,
+  "price_too_expensive": 89
+}

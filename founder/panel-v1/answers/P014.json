@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "I'm locked into a 3-year processing deal with an exit fee, and my salon already runs on it. Switching to a new app from a company I've never heard of isn't worth the hassle or the penalty in a normal week.",
+  "objection": "It doesn't do Reserve with Google or marketing like my agency package, and I'd have to pay an exit fee to leave my processor and then buy a $299 reader on top.",
+  "would_change_my_mind": "Reserve with Google booking and marketing texts actually working, plus someone covering my exit fee or my contract ending.",
+  "price_too_cheap": 15,
+  "price_cheap": 29,
+  "price_expensive": 79,
+  "price_too_expensive": 129
+}
