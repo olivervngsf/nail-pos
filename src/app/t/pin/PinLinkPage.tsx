@@ -1,7 +1,9 @@
 "use client";
-// "Make your PIN" link (/t/pin?s=<salon>): the owner/manager sends it from Settings → Team to someone who joined but has
-// no PIN (cleared, or quit the join halfway). They sign in with their OWN phone (a forwarded link is useless), then make
-// the PIN twice → set_my_pin. PIN length = the salon's rule.
+// Make your PIN. Two ways in:
+// - Personal link /t/pin?c=<code> (Settings → Team → Copy / Text the PIN link): knows WHO it's for (pin_link_get: name,
+//   salon, phone ending). They sign in with that phone (code by text), then PIN twice → pin_link_set (one use, 7 days).
+// - Own PIN /t/pin?s=<salon> (tech app → Me → My PIN): the signed-in person changes their own PIN → set_my_pin.
+// PIN length = the salon's rule.
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -12,12 +14,16 @@ import { SMS_ON, claimMine, homeFor, isSignedIn, myMemberships, rpc, signOut, ty
 import { getSupabase } from "@/lib/supabase/client";
 import { cachedRules, pinProblem, saveRules, type PinRules } from "@/lib/pin";
 
-type Step = "load" | "signin" | "notHere" | "hasPin" | "one" | "two" | "done";
+type Step = "load" | "signin" | "notHere" | "ended" | "hasPin" | "one" | "two" | "done";
+type LinkInfo = { salon_id: string; salon_name: string; membership_id: string; display_name: string; phone_last4: string; language: "en" | "vi"; status: "open" | "used" | "expired" };
 
 export default function PinLinkPage() {
   const t = useTranslations("pinLink");
   const router = useRouter();
-  const salon = useSearchParams().get("s") ?? "";
+  const q = useSearchParams();
+  const code = (q.get("c") ?? "").toUpperCase();
+  const [link, setLink] = useState<LinkInfo | null>(null);
+  const salon = link?.salon_id ?? q.get("s") ?? "";
   const { lang, setLang } = useLang();
   const [step, setStep] = useState<Step>("load");
   const [phone, setPhone] = useState("");
@@ -28,23 +34,35 @@ export default function PinLinkPage() {
   const [err, setErr] = useState("");
   const [last4, setLast4] = useState("");
 
-  const findMe = async () => {
+  const findMe = async (info: LinkInfo | null = link) => {
     await claimMine();
     const u = (await getSupabase()?.auth.getUser())?.data.user;
     setLast4((u?.phone ?? "").replace(/\D/g, "").slice(-4));
     const ms = await myMemberships();
     setAll(ms);
-    const mine = ms.find((x) => x.salon_id === salon && x.membership_id) ?? (salon ? null : ms.find((x) => x.membership_id) ?? null);
+    const mine = info ? ms.find((x) => x.membership_id === info.membership_id) ?? null
+      : ms.find((x) => x.salon_id === salon && x.membership_id) ?? (salon ? null : ms.find((x) => x.membership_id) ?? null);
     if (!mine) return setStep("notHere");
     setM(mine);
     if (mine.language && mine.language !== lang) setLang(mine.language);
     void rpc<PinRules>("pin_rules", { p_salon: mine.salon_id }).then((r) => { setRules(r); saveRules(mine.salon_id, r); }).catch(() => {});
-    setStep(mine.has_pin ? "hasPin" : "one");
+    setStep(mine.has_pin && !info ? "hasPin" : "one");
   };
 
   useEffect(() => {
     if (!SMS_ON) { setStep("one"); return; }
-    void isSignedIn().then((yes) => (yes ? findMe().catch((e) => { setErr((e as Error).message); setStep("signin"); }) : setStep("signin")));
+    void (async () => {
+      let info: LinkInfo | null = null;
+      if (code) {
+        info = (await rpc<LinkInfo[]>("pin_link_get", { p_code: code }).catch(() => []))[0] ?? null;
+        if (!info || info.status !== "open") { setLink(info); setStep("ended"); return; }
+        setLink(info);
+        if (info.language !== lang) setLang(info.language);
+      }
+      const yes = await isSignedIn();
+      if (yes) await findMe(info).catch((e) => { setErr((e as Error).message); setStep("signin"); });
+      else setStep("signin");
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -56,7 +74,8 @@ export default function PinLinkPage() {
     }
     if (pin !== first) { setErr(t("nomatch")); setFirst(""); setStep("one"); return; }
     try {
-      if (SMS_ON && m) await rpc("set_my_pin", { p_salon: m.salon_id, p_pin: pin });
+      if (SMS_ON && link) await rpc("pin_link_set", { p_code: code, p_pin: pin });
+      else if (SMS_ON && m) await rpc("set_my_pin", { p_salon: m.salon_id, p_pin: pin });
       setStep("done");
     } catch (e) { setErr((e as Error).message.includes("weak") ? t("weak") : (e as Error).message); setFirst(""); setStep("one"); }
   };
@@ -70,7 +89,7 @@ export default function PinLinkPage() {
       <Button size="sm" variant="ghost" data-testid="switch-phone" onClick={() => void switchPhone()}>{t("notYou")}</Button>
     </div>
   ) : null;
-  const salonName = m?.salon_name || (lang === "vi" ? "tiệm" : "the salon");
+  const salonName = m?.salon_name || link?.salon_name || (lang === "vi" ? "tiệm" : "the salon");
   return (
     <div className="phone">
       <div className="pbar"><span>PolishOS</span></div>
@@ -78,9 +97,15 @@ export default function PinLinkPage() {
         <Segmented label="Language" value={lang} onChange={setLang} options={[{ value: "en", label: "English" }, { value: "vi", label: "Tiếng Việt" }]} />
         {step === "load" && <div aria-busy="true" />}
         {step === "signin" && <>
-          <PhoneCodeLogin phone={phone} setPhone={setPhone} title={t("signIn")} lead={t("signInLead")}
+          {link && <div className="bubble">{t("forWho", { name: link.display_name, salon: link.salon_name })}</div>}
+          <PhoneCodeLogin phone={phone} setPhone={setPhone} title={t("signIn")}
+            lead={link?.phone_last4 ? t("signInLast4", { last4: link.phone_last4 }) : t("signInLead")}
             onDone={() => findMe().catch((e) => setErr((e as Error).message))} />
           {err && <div className="hint err" role="alert">{err}</div>}
+        </>}
+        {step === "ended" && <>
+          <h1 className="h2">{t("title")}</h1>
+          <div className="hint err" role="alert">{link?.status === "used" ? t("linkUsed") : t("linkEnded")}</div>
         </>}
         {step === "notHere" && <>
           <h1 className="h2">{t("title")}</h1>

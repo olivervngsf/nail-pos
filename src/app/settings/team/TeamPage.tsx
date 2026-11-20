@@ -3,7 +3,8 @@
 // Owner sets pay; managers edit the rest. A new member gets an invite link (they set their own PIN on their phone).
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Chip, Drawer, Field, ListGroup, Toast } from "@/components/kit";
+import { Button, Chip, Drawer, Field, ListGroup, PinKeypad, Toast } from "@/components/kit";
+import { cachedRules, pinProblem } from "@/lib/pin";
 import { e164, rpc, type Role } from "@/lib/auth";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { DAYS, DEMO_TEAM, SKILLS, blankMember, licenseDaysLeft, memberStatus, payLabel, savePayload, type Member, type PayType } from "@/lib/team";
@@ -112,20 +113,49 @@ function MemberDrawer({ a, m, onClose, onSaved, onChanged }: { a: Access; m: Mem
   const toggle = <T,>(list: T[], v: T) => (list.includes(v) ? list.filter((y) => y !== v) : [...list, v]);
   const canSave = x.name.trim() && phoneOk(x.phone);
   const link = (code: string) => `${location.origin}/join/${code}`;
-  const pinLink = () => `${location.origin}/t/pin?s=${a.salonId}`;
   const noPin = !isNew && m.joined && !m.hasPin;
-  // "Make your PIN" link for someone who joined but has no PIN: they sign in with their own phone on it.
+  // PIN help for someone who joined (owner's own row: owner only). Two ways:
+  // 1) at the desk: "Make a new PIN now" → they type it on this screen twice → admin_set_pin (the owner never sees it);
+  // 2) not here: personal one-time link /t/pin?c=<code> (pin_link_make), copied or texted; they sign in with their phone.
+  const canPin = !isNew && m.joined && (!isOwnerRow || a.owner);
+  const [pinLinkUrl, setPinLinkUrl] = useState("");
+  const makePinLink = async () => {
+    const code = a.demo ? "DEMO42" : await rpc<string>("pin_link_make", { p_membership: m.id });
+    const url = `${location.origin}/t/pin?c=${code}`;
+    setPinLinkUrl(url);
+    return { code, url };
+  };
   const pinText = async () => {
     if (a.demo) return t("m.textDemo");
-    const r = await textPinLink(m.id).catch((e: Error) => ({ status: "error", error: e.message }) as SendReply);
-    return r.status === "sent" || r.status === "queued" || r.status === "delivered" ? t("m.pinTexted", { name: m.name })
-      : t("m.pinNotTexted", { why: r.status === "error" ? r.error ?? "" : r.duplicate ? t("m.textAgain") : textLine(r) });
+    try {
+      const { code } = await makePinLink();
+      const r = await textPinLink(code).catch((e: Error) => ({ status: "error", error: e.message }) as SendReply);
+      return r.status === "sent" || r.status === "queued" || r.status === "delivered" ? t("m.pinTexted", { name: m.name })
+        : t("m.pinNotTexted", { why: r.status === "error" ? r.error ?? "" : r.duplicate ? t("m.textAgain") : textLine(r) });
+    } catch (e) { return (e as Error).message; }
   };
-  const copyPin = async () => { await navigator.clipboard?.writeText(pinLink()).catch(() => {}); setTextMsg(t("m.pinCopied")); };
-  const clearAndSend = async () => {
-    if (a.demo) return onChanged(t("m.pinCleared", { name: m.name }));
-    try { await rpc("team_clear_pin", { p_membership: m.id }); onChanged(t("m.pinClearedSent", { why: await pinText() })); }
-    catch (e) { setErr((e as Error).message); }
+  const copyPin = async () => {
+    try {
+      const { url } = await makePinLink();
+      const ok = await navigator.clipboard?.writeText(url).then(() => true, () => false);
+      setTextMsg(ok ? t("m.pinCopied") : t("m.pinCopyHand"));
+    } catch (e) { setTextMsg((e as Error).message); }
+  };
+  const ruleLen = cachedRules(a.salonId).length;
+  const [deskPin, setDeskPin] = useState<"" | "one" | "two">("");
+  const [deskFirst, setDeskFirst] = useState("");
+  const [deskErr, setDeskErr] = useState("");
+  const deskDone = async (pin: string) => {
+    setDeskErr("");
+    if (deskPin === "one") {
+      if (pinProblem(pin, ruleLen)) return setDeskErr(t("m.pinWeak"));
+      setDeskFirst(pin); setDeskPin("two"); return;
+    }
+    if (pin !== deskFirst) { setDeskErr(t("m.pinNoMatch")); setDeskFirst(""); setDeskPin("one"); return; }
+    try {
+      if (!a.demo) await rpc("admin_set_pin", { p_membership: m.id, p_pin: pin });
+      onChanged(t("m.pinSetNow", { name: m.name }));
+    } catch (e) { setDeskErr((e as Error).message.includes("weak") ? t("m.pinWeak") : (e as Error).message); setDeskFirst(""); setDeskPin("one"); }
   };
 
   const save = async () => {
@@ -171,13 +201,25 @@ function MemberDrawer({ a, m, onClose, onSaved, onChanged }: { a: Access; m: Mem
             <Button size="sm" onClick={() => void newInvite()}>{t("m.copyInvite")}</Button></div>
           {textMsg && <div className="cap" role="status" style={{ marginTop: 6 }}>{textMsg}</div>}</div>
       )}
-      {noPin && (
-        <div className="note set-warn-note" data-testid="pin-box">{t("m.noPinBox")}
-          <div className="cap" style={{ marginTop: 4 }}>{t("m.noPinHow")}</div>
-          <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <Button size="sm" variant="primary" data-testid="text-pin" onClick={() => { setTextMsg(t("m.texting")); void pinText().then(setTextMsg); }}>{t("m.textPin")}</Button>
-            <Button size="sm" data-testid="copy-pin" onClick={() => void copyPin()}>{t("m.copyPin")}</Button></div>
-          {textMsg && <div className="cap" role="status" style={{ marginTop: 6 }}>{textMsg}</div>}</div>
+      {canPin && (
+        <div className={noPin ? "note set-warn-note" : "note set-pin-note"} data-testid="pin-box">{noPin ? t("m.noPinBox") : t("m.pinBox")}
+          {!deskPin ? <>
+            <div className="cap" style={{ marginTop: 4 }}>{t("m.pinHow")}</div>
+            <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <Button size="sm" variant="primary" data-testid="pin-now" onClick={() => { setDeskErr(""); setDeskPin("one"); }}>{t("m.pinNow")}</Button>
+              <Button size="sm" data-testid="text-pin" onClick={() => { setTextMsg(t("m.texting")); void pinText().then(setTextMsg); }}>{t("m.textPin")}</Button>
+              <Button size="sm" data-testid="copy-pin" onClick={() => void copyPin()}>{t("m.copyPin")}</Button></div>
+            {pinLinkUrl && <div className="cap" style={{ marginTop: 6 }}><code style={{ userSelect: "all", wordBreak: "break-all" }}>{pinLinkUrl}</code></div>}
+            {textMsg && <div className="cap" role="status" style={{ marginTop: 6 }}>{textMsg}</div>}
+          </> : (
+            <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8, color: "var(--ink)" }}>
+              <b style={{ textAlign: "center" }}>{deskPin === "one" ? t("m.pinNowOne", { name: m.name, n: ruleLen }) : t("m.pinNowTwo")}</b>
+              <div className="cap" style={{ textAlign: "center" }}>{t("m.pinNowHand")}</div>
+              <PinKeypad key={deskPin} length={ruleLen} error={deskErr} onDone={(p) => void deskDone(p)} />
+              <Button size="sm" variant="ghost" onClick={() => { setDeskPin(""); setDeskFirst(""); }}>{t("m.cancel")}</Button>
+            </div>
+          )}
+        </div>
       )}
       <div className="set-two">
         <Field id="m-name" label={t("m.name")} value={x.name} onChange={(e) => set({ name: e.target.value })} />
@@ -232,7 +274,7 @@ function MemberDrawer({ a, m, onClose, onSaved, onChanged }: { a: Access; m: Mem
 
       {!isNew && (
         <div className="set-actions">
-          {m.hasPin && (!isOwnerRow || a.owner) && <Button data-testid="clear-pin" onClick={() => void (isOwnerRow ? act("team_clear_pin", t("m.pinCleared", { name: m.name })) : clearAndSend())}>{isOwnerRow ? t("m.clearPin") : t("m.clearPinSend")}</Button>}
+          {m.hasPin && (!isOwnerRow || a.owner) && <Button data-testid="clear-pin" onClick={() => void act("team_clear_pin", t("m.pinCleared", { name: m.name }))}>{t("m.clearPin")}</Button>}
           {!isOwnerRow && <Button data-testid="member-remove" onClick={() => { if (confirm(t("m.removeAsk", { name: m.name }))) void act("team_archive", t("m.removed", { name: m.name })); }} style={{ color: "var(--orange)" }}>{t("m.remove")}</Button>}
         </div>
       )}
