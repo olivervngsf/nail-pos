@@ -8,6 +8,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - Stripe webhooks: `docs/stripe-webhooks.md`
 - Email sender + templates: `docs/email-setup.md`
 - Clock-in rules for owners: `docs/clock-in-rules.md`
+- PIN help for owners (two ways to give a new PIN): `docs/pin-help.md`
 - Test logins (test project only): `docs/test-accounts.md`
 - Texting plan + FAQ (claude.ai): https://claude.ai/artifact/CCKEccsu486fXUywR76kdz
 - Hardware to buy: `docs/hardware-shopping-list.md`
@@ -94,7 +95,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 
 ## 10. First pilot salon (Elang leads · Oliver on call)
 - [ ] Before: remove the live demo salon (`demo_remove.sql`) if it was added. Admin → System all green.
-- [ ] polishosapp.com/admin → Salons → Add salon by invite → text/email the invite → owner signs in → setup (10 steps, ~1 h): info, menu, staff + PINs, Connect payments, reader, printer, devices, clock-in rule, clients, $1 test.
+- [ ] polishosapp.com/admin → Salons → Add salon by invite → text/email the invite → owner signs in → setup (10 steps, ~1 h): info, menu, staff + PINs, Connect payments, reader, printer, devices, clock-in rule, clients, $1 test. Show the owner the PIN box (Settings → Team → person): "Make a new PIN now" when they're here, PIN link when they're away (`docs/pin-help.md`).
 - [ ] Day 1: Elang on call. Week 1: check-in logged in Admin → Salons. Week 4: pilot review (keep / pay / changes).
 
 ## Later (after the pilot)

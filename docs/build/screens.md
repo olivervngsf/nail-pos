@@ -11,7 +11,8 @@ Each route matches a board artboard. Build the clean screen; the annotated frame
 | `/me` | everyone | Profile, PIN + Settings https://claude.ai/artifact/MPFxacr8DDViQs9NtJBvhf · 4.1–4.2 (+ bottom-left pop-up on every desk screen) | — | built Nov 17 |
 | `/desk` (= `/today`) | salon device | Profile, PIN + Settings https://claude.ai/artifact/MPFxacr8DDViQs9NtJBvhf · 2.1–2.3 (faces screen, lock, manager PIN) | — | built Nov 17 |
 | `/clock` | any staff, by PIN on a time clock tablet | Profile, PIN + Settings https://claude.ai/artifact/MPFxacr8DDViQs9NtJBvhf · 3.1 | — | built Nov 17 |
-| `/settings/team` · `/settings/pin` · `/settings/pin-activity` · `/settings/devices` | owner, manager (on a salon device: their PIN) | Profile, PIN + Settings https://claude.ai/artifact/MPFxacr8DDViQs9NtJBvhf · 5.1–5.4 | — | built Nov 17 (QR device set-up next) |
+| `/settings/team` · `/settings/pin` · `/settings/pin-activity` · `/settings/devices` | owner, manager (on a salon device: their PIN) | Profile, PIN + Settings https://claude.ai/artifact/MPFxacr8DDViQs9NtJBvhf · 5.1–5.4 | — | built Nov 17; Team drawer PIN box (Nov 20): Make a new PIN now / PIN link, see `docs/pin-help.md` |
+| `/t/pin?c=<code>` · `/t/pin?s=<salon>` | the person the link is for (own phone) · any staff changing their own PIN | PIN help, `docs/pin-help.md` | — | built Nov 20 |
 | `/checkout/[ticket]` | front desk | Checkout · Main, Pay, Reader, Cash, Done | Tk1–Tk7, Rd1–Rd4, Cs1–Cs2, An1–An6 | M3–M5 |
 | `/gift-cards` · `/gift-cards/codes` | owner | Loyalty + Gift Cards · GiftSetup, GiftList | G1–G2, G10–G12, G18–G19 | M5 |
 | checkout gift drawer | front desk | GiftSell, GiftUse | G3–G5, G7–G9, G17 | M5 |
