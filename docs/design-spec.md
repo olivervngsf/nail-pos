@@ -165,6 +165,8 @@ The grey "TAPS" sticky under each board lists what every button does, including 
 - Saved / Offline pill always visible top right; cash works offline and syncs later.
 - Money math shown as an equation where staff see pay.
 - Imported clients get no marketing texts until they opt in; STOP always works.
+- Responsive + phone friendly on every screen (Oliver, Nov 20): each screen works at phone (390), iPad and desktop widths, no sideways page scroll, taps 44px+ on touch, inputs 16px+; wide tables turn into one card per row on phones (pattern: Founder Admin health table `.hl-row`). Add new screens to `e2e/phone.spec.ts`.
+- Status icons never use colour alone (Oliver, Nov 20): good = blue ✓, watch = yellow !, needs us = red ✕, not set up = dashed grey ring (`StatusIcon`, `DeviceMark`).
 
 ## 8. Not designed yet / known gaps (decide before building)
 - **OPEN — confirm with Elang:** staff login = 4-digit PIN (what's drawn) or the staff's phone number. Touches Staff step 4, S1 staff phone, S2 clock-in, Switch person, Print my earnings, Reset PIN, Profile. Don't build PIN screens until decided.
