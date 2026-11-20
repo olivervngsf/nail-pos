@@ -1,10 +1,10 @@
 "use client";
 // Founder Admin · Home = alerts inbox (variation B): what needs us today, worst first; Handled hides it for the day (logged).
-// Side: today's totals across salons + every salon with a health dot. Salons tab (variation A) = /admin/salons.
+// Side: today's totals across salons + every salon with a health dot and a word (busy / normal / quiet), never its sales. Salons tab (variation A) = /admin/salons.
 import Link from "next/link";
 import { formatCents } from "@/lib/money";
 import { fmtPhone } from "@/lib/onboarding/data";
-import { alertsFor, healthOf, openAlerts, totals, vsWeekAgo, type Alert, type Overview } from "@/lib/admin/health";
+import { USE, alertsFor, healthOf, openAlerts, totals, usageOf, vsWeekAgo, type Alert, type Overview } from "@/lib/admin/health";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/kit";
 import { api } from "@/lib/api";
@@ -91,7 +91,7 @@ function Inbox({ o, onHandle }: { o: Overview; onHandle: (salon: string, kind: s
               <Link key={s.salon_id} href={`/admin/salons/${s.salon_id}`} className="row s ad-link">
                 <span className={`ad-dot ${h}`} aria-hidden />
                 <span className="g">{s.salon_name}</span>
-                <span className="num cap">{s.owner_joined && s.setup_step >= 9 ? $0(s.cents_today) : "Setting up"}</span>
+                <span className="cap" data-testid="home-use">{USE[usageOf(s)]}</span>
               </Link>
             );
           })}
