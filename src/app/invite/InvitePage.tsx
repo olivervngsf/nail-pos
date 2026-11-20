@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ROLE_LABEL, SMS_ON, cleanCode, getInvite, homeFor, isSignedIn, myMemberships, redeemInvite, showCode, type InviteInfo } from "@/lib/auth";
+import { ROLE_LABEL, SMS_ON, cleanCode, getInvite, homeFor, isSignedIn, myMemberships, redeemInvite, showCode, signOut, type InviteInfo } from "@/lib/auth";
 
 export default function InvitePage({ code: start }: { code?: string }) {
   const router = useRouter();
@@ -66,7 +66,11 @@ export default function InvitePage({ code: start }: { code?: string }) {
           <button className="btn primary block" type="button" disabled={busy} onClick={() => check()} data-testid="invite-check">{busy ? "Checking…" : "Continue"}</button>
         </>}
         {err && <div className="hint err" role="alert" style={{ margin: 0 }}>{err}</div>}
-        <div className="cap">Already in a salon? <Link href="/login">Sign in</Link></div>
+        {signedIn
+          // Signed in with a number that has no salon: /login would send them straight back here, so sign out first.
+          ? <button className="btn ghost" type="button" data-testid="invite-signout"
+              onClick={async () => { await signOut(); router.replace("/login"); }}>Sign in with another number</button>
+          : <div className="cap">Already in a salon? <Link href="/login">Sign in</Link></div>}
       </div>
     </main>
   );
