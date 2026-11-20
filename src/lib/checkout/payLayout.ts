@@ -10,7 +10,8 @@ const key = (salonId: string) => `nailpos.payLayout.${salonId}`;
 const cached = (salonId: string): PayLayout => { try { return asLayout(localStorage.getItem(key(salonId))); } catch { return "receipt"; } };
 const cache = (salonId: string, v: PayLayout) => { try { localStorage.setItem(key(salonId), v); } catch { /* private mode */ } };
 
-export function usePayLayout(salonId?: string | null, demo = false) {
+export function usePayLayout(salon?: string | null, demo = false) {
+  const salonId = demo ? "demo" : salon; // test copy: one device key (Settings and Checkout name the sample salon differently)
   const [layout, setLayout] = useState<PayLayout>("receipt");
   useEffect(() => {
     if (!salonId) return;

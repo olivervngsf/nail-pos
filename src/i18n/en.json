@@ -257,7 +257,25 @@
     "partNoTips": "Tips go on the last payment: clear the cash tips to split.",
     "cashPartPaid": "Paid in cash so far",
     "cashPartLine": "Cash (part)",
-    "cashPartBack": "Give {amount} back to the client"
+    "cashPartBack": "Give {amount} back to the client",
+    "toCollect": "To collect",
+    "openCount": "{n, plural, one {# open ticket} other {# open tickets}}",
+    "paidCount": "{n, plural, one {# ticket} other {# tickets}}",
+    "cardCash": "card {card} · cash {cash}",
+    "tipsToday": "Tips today",
+    "tipsSub": "All of it goes to the techs",
+    "longestFirst": "Longest open first",
+    "openMin": "Open {m} min",
+    "openHr": "Open {h}h {m} min",
+    "chargeShort": "Charge",
+    "openShort": "Open",
+    "receiptShort": "Receipt",
+    "tagPaidCard": "Paid · card",
+    "tagPaidCash": "Paid · cash",
+    "tagPaid": "Paid",
+    "tipOf": "tip {amount}",
+    "allTechs": "All {n}",
+    "techFilter": "Show one tech's tickets"
   },
   "pay": {
     "title": "Pay {salon}",
@@ -2073,7 +2091,14 @@
       "layout_quick_sub": "Everything in one card. Two techs: the client picks by service or evenly.",
       "inUse": "In use",
       "preview": "Preview",
-      "layoutSaved": "Saved. Clients see this layout from now on."
+      "layoutSaved": "Saved. Clients see this layout from now on.",
+      "homeTitle": "Checkout screen",
+      "homeLead": "How open tickets look at the front desk. One pick for the whole salon.",
+      "home_list": "List",
+      "home_list_sub": "Clean rows with a Charge button. Best with a mouse and many tickets.",
+      "home_cards": "Cards",
+      "home_cards_sub": "One big card per ticket. Best on the salon iPad.",
+      "homeSaved": "Saved. The Checkout screen now uses this layout."
     },
     "reader": {
       "loading": "Checking readers…",

@@ -257,7 +257,25 @@
     "partNoTips": "Tip tính ở lần trả cuối: xóa tip tiền mặt để chia.",
     "cashPartPaid": "Đã trả tiền mặt",
     "cashPartLine": "Tiền mặt (một phần)",
-    "cashPartBack": "Trả lại khách {amount}"
+    "cashPartBack": "Trả lại khách {amount}",
+    "toCollect": "Cần thu",
+    "openCount": "{n, plural, other {# phiếu đang mở}}",
+    "paidCount": "{n, plural, other {# phiếu}}",
+    "cardCash": "thẻ {card} · tiền mặt {cash}",
+    "tipsToday": "Tip hôm nay",
+    "tipsSub": "Toàn bộ thuộc về thợ",
+    "longestFirst": "Mở lâu nhất ở trên",
+    "openMin": "Mở {m} phút",
+    "openHr": "Mở {h}h {m} phút",
+    "chargeShort": "Thu tiền",
+    "openShort": "Mở",
+    "receiptShort": "Hóa đơn",
+    "tagPaidCard": "Đã trả · thẻ",
+    "tagPaidCash": "Đã trả · tiền mặt",
+    "tagPaid": "Đã trả",
+    "tipOf": "tip {amount}",
+    "allTechs": "Tất cả {n}",
+    "techFilter": "Xem phiếu của một thợ"
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -2073,7 +2091,14 @@
       "layout_quick_sub": "Mọi thứ trong một khung. Hai thợ: khách chọn chia theo dịch vụ hoặc chia đều.",
       "inUse": "Đang dùng",
       "preview": "Xem thử",
-      "layoutSaved": "Đã lưu. Từ giờ khách thấy kiểu này."
+      "layoutSaved": "Đã lưu. Từ giờ khách thấy kiểu này.",
+      "homeTitle": "Màn hình Thu tiền",
+      "homeLead": "Phiếu đang mở hiện ra sao ở quầy. Một lựa chọn cho cả tiệm.",
+      "home_list": "Danh sách",
+      "home_list_sub": "Từng dòng gọn, có nút Thu tiền. Hợp với chuột và nhiều phiếu.",
+      "home_cards": "Thẻ lớn",
+      "home_cards_sub": "Mỗi phiếu một thẻ lớn. Hợp với iPad của tiệm.",
+      "homeSaved": "Đã lưu. Màn hình Thu tiền dùng kiểu này."
     },
     "reader": {
       "loading": "Đang kiểm tra máy…",
