@@ -1,5 +1,5 @@
 "use client";
-// Tech app · Me: who I am at which salon, language (English / Tiếng Việt, this phone), clients link, sign out.
+// Tech app · Me: who I am at which salon, language (English / Tiếng Việt, this phone), change my PIN (/t/pin), clients link, sign out.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -23,6 +23,7 @@ export default function TechMePage() {
         <ListGroup>
           <Row title={t("language")} sub={t("languageSub")} right={<Segmented label={t("language")} value={lang} onChange={setLang} options={[{ value: "en", label: "English" }, { value: "vi", label: "Tiếng Việt" }]} />} />
         </ListGroup>
+        <Link className="btn" data-testid="my-pin" href={`/t/pin?s=${me.salonId}`}>{t("myPin")}</Link>
         <Link className="btn" href="/clients">{t("clientsTile")}</Link>
         <Button variant="ghost" data-testid="sign-out" onClick={async () => { if (me.live) await signOut(); router.replace("/login"); }}>{t("signOut")}</Button>
       </>}

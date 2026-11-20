@@ -1841,7 +1841,7 @@
       "copyInvite": "New invite link (copy)",
       "inviteCopied": "Invite link copied",
       "clearPin": "Forgot PIN: clear it",
-      "pinCleared": "{name} makes a new PIN on their phone (My profile).",
+      "pinCleared": "PIN cleared. Use Make a new PIN now, or send their PIN link.",
       "remove": "Remove from team",
       "removeAsk": "Remove {name} from the team? Their history stays.",
       "removed": "{name} removed",
@@ -1854,14 +1854,21 @@
       "textDemo": "Test version: no text sent.",
       "textAgain": "Already texted this invite. Make a new link to text again.",
       "noPinBox": "Joined, no PIN yet",
-      "noPinHow": "Send them a link: they sign in with their phone and make their own PIN.",
       "textPin": "Text the PIN link",
       "copyPin": "Copy link",
-      "pinCopied": "PIN link copied. Paste it in a text or Zalo.",
-      "clearPinSend": "Forgot PIN: clear + send link",
-      "pinClearedSent": "PIN cleared. {why}",
+      "pinCopied": "Their PIN link is copied (works once, 7 days). Paste it in a text or Zalo.",
       "pinTexted": "PIN link texted to {name}.",
-      "pinNotTexted": "Link not texted: {why} Use Copy link."
+      "pinNotTexted": "Link not texted: {why} Use Copy link.",
+      "pinBox": "PIN",
+      "pinHow": "Here at the salon: they type a new PIN on this screen. Not here: send their own one-time link.",
+      "pinNow": "Make a new PIN now",
+      "pinNowOne": "{name}: type a new PIN ({n} digits)",
+      "pinNowTwo": "Type it again",
+      "pinNowHand": "Hand the screen over. Only they should see it.",
+      "pinSetNow": "New PIN saved for {name}.",
+      "pinWeak": "Too easy to guess. Try another.",
+      "pinNoMatch": "Didn't match. Start again.",
+      "pinCopyHand": "Copy the link below and paste it in a text or Zalo."
     },
     "pin": {
       "saved": "PIN rules saved",
@@ -2270,7 +2277,8 @@
     "language": "Language",
     "languageSub": "Only this phone. Clients see their own language.",
     "signOut": "Sign out",
-    "brk": "Break"
+    "brk": "Break",
+    "myPin": "Change my PIN"
   },
   "go": {
     "title": "Set up this device",
@@ -2290,7 +2298,7 @@
     "title": "Make your PIN",
     "signIn": "Sign in with your phone first",
     "signInLead": "Use the mobile number the salon has for you. We text you a code.",
-    "notHere": "This phone isn't on that salon's team. Use the number the owner added.",
+    "notHere": "This sign-in isn't on that salon's team. Sign in with the phone number the owner added for you.",
     "pin1": "Make your PIN ({n} digits)",
     "pin1Cap": "You use it to clock in and check out. Not easy ones like 123456 or 111111.",
     "pin2": "Type it again",
@@ -2301,7 +2309,15 @@
     "done": "PIN saved",
     "doneCap": "Use it at {salon} to clock in and check out.",
     "home": "Open my Home",
-    "demo": "Test version: the PIN isn't saved until logins go live."
+    "demo": "Test version: the PIN isn't saved until logins go live.",
+    "signedAs": "Signed in as {name} · phone ending {last4}.",
+    "signedAsPhone": "This browser is signed in with the phone ending {last4}.",
+    "notYou": "Not you?",
+    "usePhone": "Sign in with my phone",
+    "forWho": "For {name} · {salon}",
+    "signInLast4": "Use your phone ending in {last4}. We text you a code.",
+    "linkUsed": "This link was already used. Your PIN is set. Ask the owner for a new link if you need to change it.",
+    "linkEnded": "This link has ended. Ask the owner for a new one."
   },
   "moreMenu": {
     "title": "More",
