@@ -18,6 +18,7 @@ import { AppReaderPay } from "./AppReader";
 import { canAppReader } from "@/lib/app/reader";
 import { demoSettle, giftUndo } from "@/lib/checkout/gift";
 import { receiptBytes, type ReceiptDoc } from "@/lib/print/escpos";
+import { receiptCode } from "@/lib/receipt-code";
 import { canBluetooth, printBytes } from "@/lib/print/bluetooth";
 import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 import { usePrintSettings, type PrintSettings } from "@/lib/print/settings";
@@ -793,7 +794,7 @@ function receiptDoc(desk: Desk, ticket: Ticket, t: ReturnType<typeof useTranslat
 
 /** Link to the client's digital receipt (only once the ticket is saved on the server). */
 function digitalReceiptUrl(desk: Desk, ticket: Ticket): string | undefined {
-  return desk.mode === "live" && ticket.number && typeof location !== "undefined" ? `${location.origin}/r/${ticket.id}` : undefined;
+  return desk.mode === "live" && ticket.number && typeof location !== "undefined" ? `${location.origin}/r/${receiptCode(ticket.id)}` : undefined;
 }
 
 /** "Print by Bluetooth" (Android Chrome, or Bluefy on iPhone/iPad): pair once, then one tap prints. */
