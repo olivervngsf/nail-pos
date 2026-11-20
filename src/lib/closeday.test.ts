@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, countCents, demoPayout, nums, payoutCsv, weekStart } from "./closeday";
+import { addDays, countCents, demoPayout, demoTipMonth, lastMonth, nums, payoutCsv, tipSignState, weekStart } from "./closeday";
 
 describe("close day helpers", () => {
   it("counts the drawer in cents (bills + coins, no negatives)", () => {
@@ -26,5 +26,15 @@ describe("close day helpers", () => {
   });
   it("check + cash always add up to the total", () => {
     for (const r of demoPayout()) expect(r.check_cents + r.cash_cents).toBe(r.total_cents);
+  });
+});
+
+describe("monthly tip report", () => {
+  it("last month wraps the year", () => {
+    expect(lastMonth("2026-11-19")).toBe("2026-10-01");
+    expect(lastMonth("2027-01-05")).toBe("2026-12-01");
+  });
+  it("signed / not signed / changed since signed", () => {
+    expect(demoTipMonth().map(tipSignState)).toEqual(["signed", "unsigned", "changed"]);
   });
 });

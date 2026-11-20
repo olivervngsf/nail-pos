@@ -24,7 +24,10 @@ export async function POST(req: Request) {
   const { data: approver } = await db.rpc("use_refund_ok", { p_approval: approvalId ?? null, p_ticket: t.id });
   if (!approver) return fail(403, "A refund needs an owner or manager OK.");
   const ok = { membership_id: approver as string };
-  const { data: pay } = await db.from("payments").select("method,stripe_payment_intent").eq("ticket_id", t.id).eq("status", "paid").neq("method", "gift_card").order("at", { ascending: false }).limit(1).maybeSingle();
+  // Split tickets (part cash + card): the card part goes back through Stripe; every cash part is recorded for the desk to hand back.
+  const { data: pays } = await db.from("payments").select("method,stripe_payment_intent,amount_cents").eq("ticket_id", t.id).eq("status", "paid").neq("method", "gift_card").order("at", { ascending: false });
+  const pay = (pays ?? []).find((p) => p.stripe_payment_intent) ?? (pays ?? [])[0];
+  const cashBack = (pays ?? []).filter((p) => p.method === "cash").reduce((a, p) => a + Number(p.amount_cents), 0);
   let refundId: string | null = null;
   if (pay?.stripe_payment_intent) {
     const st = getStripe();
@@ -36,5 +39,5 @@ export async function POST(req: Request) {
   }
   const { data, error } = await db.rpc("settle_refund", { p_ticket: t.id, p_stripe_refund: refundId, p_reason: reason ?? "", p_by: ok.membership_id });
   if (error) return fail(400, error.message);
-  return Response.json({ ...data, method: pay?.method });
+  return Response.json({ ...data, method: pay?.method, cashBackCents: cashBack });
 }
