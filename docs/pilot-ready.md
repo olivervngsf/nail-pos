@@ -30,6 +30,9 @@ Built in code (Nov 18). ✅ = done in code; ☐ = needs a click from Oliver or E
 ## Money + costs
 - ☐ Spending alerts: Vercel (Settings → Billing → Spend management, e.g. $50), Supabase (Usage → spend cap on), Stripe (our platform account: email on every payout/dispute), Twilio (Usage triggers at $20 / $50), Anthropic console (monthly limit).
 
+- ✅ Stripe card-payments webhook (salons' card money → tickets marked paid on their own): working in the sandbox, Nov 19.
+- ☐ Stripe billing webhook (money salons pay us: plan + text credit): not needed during free pilots; before the first paying salon tap Admin → System → **Set up webhooks**. Plain-words explainer + steps: `docs/stripe-webhooks.md`.
+
 ## Legal
 - ✅ Terms, Privacy, texting consent pages: `/legal/terms`, `/legal/privacy`, `/legal/texts` (draft). Have a lawyer read them before the first salon.
 
