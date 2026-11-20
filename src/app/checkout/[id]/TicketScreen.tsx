@@ -34,12 +34,19 @@ const $ = formatCents;
 
 type Step = "ticket" | "pay" | "cash" | "reader" | "link" | "app";
 
-export default function TicketScreen({ id }: { id: string }) {
+export default function TicketScreen({ id, pay }: { id: string; pay?: boolean }) {
   const t = useTranslations("checkout");
   const router = useRouter();
   const { desk, err } = useDesk();
   const [ticket, ready] = useTicket(id);
   const [step, setStep] = useState<Step>("ticket");
+  // "Charge" on the Checkout list opens the ticket straight on How to pay (?pay=1), once, and only if nothing is missing.
+  const wantPay = useRef(!!pay);
+  useEffect(() => {
+    if (!wantPay.current || !ticket) return;
+    wantPay.current = false;
+    if (ticket.status === "open" && blockers(ticket).length === 0 && totals(ticket).toPay > 0) setStep("pay");
+  }, [ticket]);
   const [toast, setToast] = useState("");
   const say = useCallback((s: string) => { setToast(s); setTimeout(() => setToast(""), 3500); }, []);
   // Test copy: cards sold on a paid ticket get their money (the server does this for real salons).

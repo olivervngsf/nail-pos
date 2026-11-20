@@ -1235,6 +1235,65 @@ button:disabled { cursor: not-allowed; }
 .clock-qr .g { display: flex; flex-direction: column; gap: 4px; }
 @media (max-width: 600px) { .clock-qr { position: static; margin: 12px 16px; max-width: none; } }
 
+/* Client pay page (/pay/[id]): finger-size language + tip-share switches, and the layout picker in Settings → Payments */
+.payseg .seg button { height: 40px; padding: 0 14px; font-size: 14px; }
+.paylay { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .paylay { grid-template-columns: minmax(0, 1fr); } }
+.paylay-sketch { height: 132px; border-radius: 12px; background: var(--surface); padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; }
+.paylay-sketch i { display: block; border-radius: 5px; background: #DADAE2; }
+.paylay-sketch .c { background: var(--paper); border-radius: 8px; padding: 6px; display: flex; flex-direction: column; gap: 5px; box-shadow: var(--shadow-sm); }
+.paylay-sketch .r { display: flex; gap: 4px; }
+.paylay-sketch .r i { flex: 1; height: 14px; }
+.paylay-sketch .r i.k { background: var(--ink); }
+
+/* Checkout home (/checkout): List + Cards layouts (HomeViews.tsx) */
+.co-home { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 1240px; box-sizing: border-box; }
+.co-home .grow { flex: 1; min-width: 0; }
+.co-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.co-head .h1 { margin: 0; flex: 1; }
+.co-home[data-layout="cards"] .co-head .h1 { flex: none; }
+.co-count { flex: 1; }
+.co-scan { position: relative; width: 320px; max-width: 100%; }
+.co-scan .inp { padding-left: 38px; }
+.co-scan-ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-soft); pointer-events: none; }
+.co-home[data-layout="cards"] .co-scan .inp { height: 48px; font-size: 16px; padding-left: 44px; }
+.co-home[data-layout="cards"] .co-scan-ico { left: 14px; }
+.co-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.co-stats .card.pad { gap: 2px; }
+.co-big { font-size: 24px; line-height: 30px; letter-spacing: -0.03em; }
+.co-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.co-chips .chip { height: 40px; padding: 0 16px; font-size: 14px; }
+.co-sec { display: flex; flex-direction: column; gap: 8px; }
+.co-sec-h { display: flex; align-items: center; gap: 8px; }
+.co-row { cursor: pointer; transition: background .2s; }
+.co-row:hover { background: #FAFAFB; }
+.co-row .g .cap { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.co-tech { width: 110px; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.co-open { width: 150px; }
+.co-amt { width: 84px; text-align: right; }
+.co-act { width: 92px; padding: 0; flex: none; }
+.co-row .btn.primary.co-act { height: 36px; font-size: 14px; }
+.co-paid { flex: none; }
+.co-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.co-card { gap: 12px; padding: 16px; cursor: pointer; }
+.co-card-top { display: flex; align-items: center; gap: 10px; }
+.co-card-top .av { width: 40px; height: 40px; font-size: 14px; }
+.co-card-top b, .co-card-top .cap { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.co-card-svc { font-size: 14px; line-height: 20px; flex: 1; }
+.co-card-foot { display: flex; align-items: center; gap: 12px; }
+.co-card-foot .co-big { flex: 1; font-size: 26px; line-height: 32px; }
+.co-card .co-act, .co-card .btn.primary.co-act { width: auto; height: 48px; font-size: 16px; padding: 0 22px; border-radius: 12px; }
+.co-new { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 150px; border: 1.5px dashed #C4C4CC; border-radius: 16px; background: transparent; color: var(--ink); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
+.co-new:hover { background: var(--paper); }
+@media (max-width: 900px) { .co-open { display: none; } }
+@media (max-width: 700px) {
+  .co-home { padding: 16px; }
+  .co-stats { grid-template-columns: minmax(0, 1fr); }
+  .co-scan { width: 100%; order: 3; }
+  .co-tech, .co-paid { display: none; }
+  .co-act { width: 76px; }
+}
+
 /* ===== Checkout on a phone / handheld (Nov 20, board "Phone Friendly Audit + Plan" row 1) ===== */
 .tag { white-space: nowrap; }
 .ck-acts { display: flex; gap: 8px; flex-wrap: wrap; }
