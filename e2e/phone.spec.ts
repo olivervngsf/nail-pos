@@ -57,3 +57,17 @@ test("phone checkout: Charge stays on screen, More holds the extras, cash button
   await inView("new-ticket");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 });
+
+// Founder Admin on a phone: health table = one card per salon, salon page tabs scroll sideways inside their bar only.
+test("phone: admin health table + salon tabs fit the screen", async ({ page }, info) => {
+  test.skip(info.project.name !== "phone", "phone only");
+  for (const url of ["/admin/salons", "/admin/salons/s-bella?tab=overview", "/admin/salons/s-bella?tab=speed", "/admin/salons/s-bella?tab=texting"]) {
+    await page.goto(url);
+    await expect(page.locator(".ad-main"), url).toBeVisible();
+    const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(wide, `${url} sideways scroll`).toBeLessThanOrEqual(0);
+  }
+  await page.goto("/admin/salons");
+  const cell = page.getByTestId("salon-row").first().getByTestId("c-stripe");
+  expect((await cell.boundingBox())!.height, "check cells big enough to tap").toBeGreaterThanOrEqual(44);
+});
