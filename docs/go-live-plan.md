@@ -47,7 +47,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - [ ] Optional repo secret `BACKUP_PASSPHRASE` (long random words, in the password manager) → nightly encrypted copy kept 14 days.
 - [ ] Next morning: Actions → **Backup** ran green (nightly copy + restore test). Do one restore by hand, write the date here: ____. Tick "Backups" + "Restore test".
 - [ ] Live Supabase → Authentication → Multi-factor: TOTP on (default; check). Password security: **Leaked password protection** on.
-- [ ] Never run the test seeds on live. Only exception: the Lotus demo (`test_salon.sql` → `test_salon_activity.sql` → `demo_live.sql`), removed with `demo_remove.sql` before the first real salon. Never add the test admin phone 555-010-0009 on live.
+- [ ] Never run the test seeds on live. Only exception: the Lotus demo (`test_salon.sql` → `test_salon_activity.sql` → `demo_live.sql`), removed with `demo_remove.sql` before the first real salon. Nov 20 (Oliver: demo data on live is OK, always marked DEMO): live is the only database for polishosapp.com now. Test phones 555-010-0001…0009 sign in with 123456 (Supabase live → Auth → Phone → Test Phone Numbers), and 555-010-0009 is a platform admin on live (`platform_admins.note` starts "Demo admin"). Before the first real salon: run `demo_remove.sql`, `delete from platform_admins where note like 'Demo admin%'`, and remove the test phone numbers in Supabase Auth.
 
 ## 3. Switch the site to live (Oliver · ~20 min · after step 2)
 - [ ] Vercel → nail-pos → Environment Variables → **Production only** (Preview keeps the test project + sandbox):
