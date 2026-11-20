@@ -30,8 +30,8 @@ class Component extends DCLogic {
     const P = [
       [96, 86, 'Search by phone or name. 4 digits of a phone finds the one client.'],
       [96, 140, 'Quick counts: All · Lost regulars · Birthdays. Tap = filter.'],
-      [96, 270, 'Rows: name + last 4 phone digits. Same names get a "Same name" tag. Dot: orange = due/lost, green = here today.'],
-      [528, 128, 'Phone shows ••0142. Lock "Show" = owner/manager only, logged. Others never see the full number.'],
+      [96, 270, 'Rows: name + #client number (#48213) + last 4 phone digits. Same names get a "Same name" tag. Dot: orange = due/lost, green = here today.'],
+      [528, 128, '#48213 = client number: random 5 digits, one per client in this salon, never reused (5 digits so it is never mixed up with the phone\'s last 4). Search "#48213" finds them. Phone shows ••0142. Lock "Show" = owner/manager only, logged. Others never see the full number.'],
       [1052, 116, 'Edit appears on hover (always shown on iPad/phone). Owner/manager only → Edit client drawer. New ticket = main action.'],
       [444, 277, 'Next steps: 3 cards, same rows, button at the bottom, full width. Never cut key info with "…".'],
       [444, 386, 'Care note (allergy/medical): any staff adds; whole salon sees; on every ticket + tech phone. Shows who + when.'],

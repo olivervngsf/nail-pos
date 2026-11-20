@@ -27,6 +27,7 @@ Status Nov 18. Code is ready for invite-only salons. These steps need Oliver's c
 
 ## 4. Payments
 - Stripe: finish platform profile + Connect for live mode; Vercel Production `STRIPE_SECRET_KEY` (live), new live webhook → `STRIPE_WEBHOOK_SECRET`.
+- Webhooks (what they are, the 2 we need, click-by-click steps, how to check): `docs/stripe-webhooks.md`. Sandbox card-payments webhook working Nov 19 (secret in Vercel Production). Still to do: billing webhook (Admin → System → Set up webhooks makes it); live mode = same button after switching to the live key.
 
 ## 4b. Texting (Twilio) — plan: https://claude.ai/artifact/CCKEccsu486fXUywR76kdz
 - Now (Nov 19): one Twilio account for testing + sign-in codes, upgraded to pay-as-you-go ($20 prepaid, auto-recharge), registered as an **individual** (Oliver) with tax info. No subscriptions (not needed at our size; look again past ~$150/month Twilio spend).

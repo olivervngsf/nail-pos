@@ -17,18 +17,19 @@ do $$
 declare sid uuid := '7e570000-0000-4000-8000-000000000001';
 begin
   insert into public.salons (id, name, phone, address, state, setup_step, time_zone)
-  values (sid, 'Lotus Test Nails', '+14085550100', '1550 S Bascom Ave, Campbell', 'CA', 9, 'America/Los_Angeles')
-  on conflict (id) do update set name = excluded.name, setup_step = 9, time_zone = excluded.time_zone;
+  values (sid, 'Lotus Test Nails', '+14085550100', '1550 S Bascom Ave, Campbell, CA 95008', 'CA', 9, 'America/Los_Angeles')
+  -- Full address (street, city, state ZIP): Stripe needs it to register a card reader location.
+  on conflict (id) do update set name = excluded.name, address = excluded.address, setup_step = 9, time_zone = excluded.time_zone;
 
   insert into public.memberships (id, salon_id, display_name, phone, role, pay_type, commission_pct, hourly_cents, check_pct, license_no, license_state, license_expires, language, pin_hash) values
-    ('7e570000-0000-4000-8000-0000000000a1', sid, 'Lan Nguyen', '+15550100001', 'owner',      null,         null, null, 100, null,     null, null, 'en', null),
-    ('7e570000-0000-4000-8000-0000000000a2', sid, 'Mai Tran',   '+15550100002', 'manager',    'hourly',     null, 1800, 100, null,     null, null, 'en', extensions.crypt('369000', extensions.gen_salt('bf'))),
-    ('7e570000-0000-4000-8000-0000000000a3', sid, 'Hanh',       '+15550100003', 'front_desk', 'hourly',     null, 1600, 100, null,     null, null, 'vi', extensions.crypt('258000', extensions.gen_salt('bf'))),
-    ('7e570000-0000-4000-8000-0000000000a4', sid, 'Linh',       '+15550100004', 'tech',       'commission', 60,   null, 70,  'M314159', 'CA', current_date + 400, 'vi', extensions.crypt('135700', extensions.gen_salt('bf'))),
-    ('7e570000-0000-4000-8000-0000000000a5', sid, 'Kim',        '+15550100005', 'tech',       'commission', 60,   null, 100, 'M271828', 'CA', current_date + 300, 'vi', extensions.crypt('246800', extensions.gen_salt('bf'))),
-    ('7e570000-0000-4000-8000-0000000000a6', sid, 'Tuan',       '+15550100006', 'tech',       'commission', 55,   null, 100, 'M161803', 'CA', current_date + 500, 'vi', extensions.crypt('147000', extensions.gen_salt('bf'))),
-    ('7e570000-0000-4000-8000-0000000000a7', sid, 'Vy',         '+15550100007', 'tech',       'commission', 60,   null, 100, 'M141421', 'CA', current_date + 20,  'en', extensions.crypt('357900', extensions.gen_salt('bf'))),
-    ('7e570000-0000-4000-8000-0000000000a8', sid, 'Thao',       '+15550100008', 'tech',       'booth_rent', null, null, 100, 'M173205', 'CA', current_date + 600, 'vi', extensions.crypt('468000', extensions.gen_salt('bf')))
+    ('7e570000-0000-4000-8000-0000000000a1', sid, 'Lan Nguyen', '+15550100001', 'owner',      null,         null, null, 100, null,     null, null, 'en', extensions.crypt('123456', extensions.gen_salt('bf'))),
+    ('7e570000-0000-4000-8000-0000000000a2', sid, 'Mai Tran',   '+15550100002', 'manager',    'hourly',     null, 1800, 100, null,     null, null, 'en', extensions.crypt('123456', extensions.gen_salt('bf'))),
+    ('7e570000-0000-4000-8000-0000000000a3', sid, 'Hanh',       '+15550100003', 'front_desk', 'hourly',     null, 1600, 100, null,     null, null, 'vi', extensions.crypt('123456', extensions.gen_salt('bf'))),
+    ('7e570000-0000-4000-8000-0000000000a4', sid, 'Linh',       '+15550100004', 'tech',       'commission', 60,   null, 70,  'M314159', 'CA', current_date + 400, 'vi', extensions.crypt('123456', extensions.gen_salt('bf'))),
+    ('7e570000-0000-4000-8000-0000000000a5', sid, 'Kim',        '+15550100005', 'tech',       'commission', 60,   null, 100, 'M271828', 'CA', current_date + 300, 'vi', extensions.crypt('123456', extensions.gen_salt('bf'))),
+    ('7e570000-0000-4000-8000-0000000000a6', sid, 'Tuan',       '+15550100006', 'tech',       'commission', 55,   null, 100, 'M161803', 'CA', current_date + 500, 'vi', extensions.crypt('123456', extensions.gen_salt('bf'))),
+    ('7e570000-0000-4000-8000-0000000000a7', sid, 'Vy',         '+15550100007', 'tech',       'commission', 60,   null, 100, 'M141421', 'CA', current_date + 20,  'en', extensions.crypt('123456', extensions.gen_salt('bf'))),
+    ('7e570000-0000-4000-8000-0000000000a8', sid, 'Thao',       '+15550100008', 'tech',       'booth_rent', null, null, 100, 'M173205', 'CA', current_date + 600, 'vi', extensions.crypt('123456', extensions.gen_salt('bf')))
   on conflict (id) do update set display_name = excluded.display_name, phone = excluded.phone, role = excluded.role, pay_type = excluded.pay_type,
     commission_pct = excluded.commission_pct, hourly_cents = excluded.hourly_cents, check_pct = excluded.check_pct, license_no = excluded.license_no,
     license_state = excluded.license_state, license_expires = excluded.license_expires, language = excluded.language, pin_hash = excluded.pin_hash,

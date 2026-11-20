@@ -1754,7 +1754,8 @@
       "reader": "Máy quẹt thẻ",
       "texting": "Tin nhắn & tín dụng",
       "billing": "Thanh toán gói",
-      "support": "Hỗ trợ"
+      "support": "Hỗ trợ",
+      "clockIn": "Chấm công"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -1782,7 +1783,8 @@
         "all": "Tất cả",
         "tech": "Thợ",
         "desk": "Quầy + quản lý",
-        "invited": "Đã mời"
+        "invited": "Đã mời",
+        "nopin": "Chưa có PIN"
       },
       "st": {
         "invited": "Đã mời",
@@ -1849,7 +1851,16 @@
       "textInvite": "Nhắn link mời",
       "texting": "Đang nhắn…",
       "textDemo": "Bản thử: không gửi tin nhắn.",
-      "textAgain": "Đã nhắn link mời này rồi. Tạo link mới để nhắn lại."
+      "textAgain": "Đã nhắn link mời này rồi. Tạo link mới để nhắn lại.",
+      "noPinBox": "Đã vào, chưa có PIN",
+      "noPinHow": "Gửi link: họ đăng nhập bằng số điện thoại và tự tạo PIN.",
+      "textPin": "Nhắn link tạo PIN",
+      "copyPin": "Sao chép link",
+      "pinCopied": "Đã sao chép link PIN. Dán vào tin nhắn hoặc Zalo.",
+      "clearPinSend": "Quên PIN: xoá + gửi link",
+      "pinClearedSent": "Đã xoá PIN. {why}",
+      "pinTexted": "Đã nhắn link PIN cho {name}.",
+      "pinNotTexted": "Chưa nhắn được: {why} Dùng Sao chép link."
     },
     "pin": {
       "saved": "Đã lưu luật PIN",
@@ -2273,5 +2284,22 @@
     "how": "Dùng được trên iPad, máy tính bảng Android và máy tính (Safari hoặc Chrome).",
     "ready": "{name} đã sẵn sàng",
     "readyNote": "Đã vào {salon}. Đang mở…"
+  },
+  "pinLink": {
+    "title": "Tạo mã PIN",
+    "signIn": "Đăng nhập bằng số điện thoại trước",
+    "signInLead": "Dùng số điện thoại tiệm đã lưu cho bạn. Chúng tôi nhắn mã cho bạn.",
+    "notHere": "Số này không có trong nhóm của tiệm. Dùng số mà chủ tiệm đã nhập.",
+    "pin1": "Tạo mã PIN ({n} số)",
+    "pin1Cap": "Dùng để chấm công và tính tiền. Không dùng số dễ như 123456 hay 111111.",
+    "pin2": "Nhập lại",
+    "weak": "Dễ đoán quá. Thử số khác.",
+    "nomatch": "Không khớp. Làm lại.",
+    "hasPin": "Bạn đã có PIN ở {salon}. Tạo PIN mới?",
+    "newPin": "Tạo PIN mới",
+    "done": "Đã lưu PIN",
+    "doneCap": "Dùng ở {salon} để chấm công và tính tiền.",
+    "home": "Mở trang chính",
+    "demo": "Bản thử: PIN chưa được lưu cho đến khi đăng nhập thật bật lên."
   }
 }

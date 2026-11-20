@@ -1,5 +1,6 @@
 -- Tech slip page after the visit: while open it shows no tip; once paid it shows when it was paid and only THIS tech's
--- own tip (Kim's $5, not Tuyet's $3); a paid ticket takes no more services from a phone. Rolls back.
+-- own tip (Kim's $5, not Tuyet's $3); a paid ticket takes no more services from a phone; the client receipt code
+-- matches the app's. Rolls back.
 begin;
 insert into auth.users (id, phone, aud, role) values
   ('00000000-0000-0000-0000-00000000fb01', '14085553001', 'authenticated', 'authenticated'),   -- owner at the desk
@@ -36,6 +37,8 @@ insert into t_out values ('paid', public.tech_ticket('00000000-0000-0000-0000-00
 do $$ begin perform public.tech_add_service('00000000-0000-0000-0000-0000000070c1', gen_random_uuid(), gen_random_uuid());
   raise exception 'FAIL: added to a paid ticket'; exception when others then if sqlerrm not like '%already paid%' then raise; end if; end $$;
 reset role;
+-- client receipt code: one-way from the ticket id, same value the app prints (src/lib/receipt-code.ts)
+insert into t_out values ('receipt_code', to_jsonb((select receipt_code from public.tickets where id = '00000000-0000-0000-0000-0000000070c1')));
 
 do $$
 declare o jsonb := (select jsonb_object_agg(k, v) from t_out);
@@ -45,6 +48,7 @@ begin
   if (o->'paid'->'my_tip'->>'cash_cents')::int <> 500 or (o->'paid'->'my_tip'->>'card_cents')::int <> 0 or (o->'paid'->'my_tip'->>'fee_cents')::int <> 0
     then raise exception 'FAIL my tip (only Kim''s $5): %', o->'paid'->'my_tip'; end if;
   if jsonb_array_length(o->'paid'->'lines') <> 2 then raise exception 'FAIL lines: %', o->'paid'->'lines'; end if;
+  if o->>'receipt_code' <> '9b1026d300093f71' then raise exception 'FAIL receipt code: %', o->>'receipt_code'; end if;
   raise notice 'PASS session14_tech_slip_paid';
 end $$;
 rollback;

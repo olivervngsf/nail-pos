@@ -147,7 +147,7 @@ export default function Payouts() {
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}><PrinterSetup p={printer} /><Link className="btn ghost sm" href="/settings/printer" data-testid="printer-settings-link">{t("printSettings")}</Link></div>
             {loadErr && <p className="hint err">{loadErr} <Button size="sm" onClick={() => void load()}>{t("retry")}</Button></p>}
             <section className="card" style={{ padding: "8px 18px", overflowX: "auto" }}>
-              <table className="cd-table" data-testid="po-table">
+              <table className="cd-table po-table" data-testid="po-table">
                 <thead><tr><th>{t("person")}</th><th>{t("services")}</th><th>{t("pay")}</th><th>{t("cardTips")}</th><th>{t("cashTips")}</th><th>{t("feeOnTips")}</th>
                   <th>{t("total")}</th><th>{t("checkPct")}</th><th>{t("byCheck")}</th><th>{t("inCash")}</th><th /></tr></thead>
                 <tbody>

@@ -19,7 +19,7 @@ export default function DigitalReceipt({ id }: { id: string }) {
   const [r, setR] = useState<R | null>(null);
   const [err, setErr] = useState("");
   useEffect(() => {
-    void fetch(`/api/receipt?id=${encodeURIComponent(id)}`).then(async (x) => {
+    void fetch(`/api/receipt?code=${encodeURIComponent(id)}`).then(async (x) => {
       const d = await x.json().catch(() => ({}));
       if (x.ok) setR(d as R); else setErr(d.error ?? t("notFound"));
     });

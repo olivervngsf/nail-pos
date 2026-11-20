@@ -1754,7 +1754,8 @@
       "reader": "Card reader",
       "texting": "Texting & credit",
       "billing": "Billing",
-      "support": "Support"
+      "support": "Support",
+      "clockIn": "Clock-in"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -1782,7 +1783,8 @@
         "all": "All",
         "tech": "Techs",
         "desk": "Desk + managers",
-        "invited": "Invited"
+        "invited": "Invited",
+        "nopin": "No PIN"
       },
       "st": {
         "invited": "Invited",
@@ -1849,7 +1851,16 @@
       "textInvite": "Text the invite",
       "texting": "Texting…",
       "textDemo": "Test version: no text sent.",
-      "textAgain": "Already texted this invite. Make a new link to text again."
+      "textAgain": "Already texted this invite. Make a new link to text again.",
+      "noPinBox": "Joined, no PIN yet",
+      "noPinHow": "Send them a link: they sign in with their phone and make their own PIN.",
+      "textPin": "Text the PIN link",
+      "copyPin": "Copy link",
+      "pinCopied": "PIN link copied. Paste it in a text or Zalo.",
+      "clearPinSend": "Forgot PIN: clear + send link",
+      "pinClearedSent": "PIN cleared. {why}",
+      "pinTexted": "PIN link texted to {name}.",
+      "pinNotTexted": "Link not texted: {why} Use Copy link."
     },
     "pin": {
       "saved": "PIN rules saved",
@@ -2273,5 +2284,22 @@
     "how": "Works on iPad, Android tablets and computers (Safari or Chrome).",
     "ready": "{name} is ready",
     "readyNote": "Signed in to {salon}. Opening now…"
+  },
+  "pinLink": {
+    "title": "Make your PIN",
+    "signIn": "Sign in with your phone first",
+    "signInLead": "Use the mobile number the salon has for you. We text you a code.",
+    "notHere": "This phone isn't on that salon's team. Use the number the owner added.",
+    "pin1": "Make your PIN ({n} digits)",
+    "pin1Cap": "You use it to clock in and check out. Not easy ones like 123456 or 111111.",
+    "pin2": "Type it again",
+    "weak": "Too easy to guess. Try another.",
+    "nomatch": "Didn't match. Start again.",
+    "hasPin": "You already have a PIN at {salon}. Make a new one?",
+    "newPin": "Make a new PIN",
+    "done": "PIN saved",
+    "doneCap": "Use it at {salon} to clock in and check out.",
+    "home": "Open my Home",
+    "demo": "Test version: the PIN isn't saved until logins go live."
   }
 }

@@ -12,6 +12,7 @@ import { NEW_FOR, addNote, getProfile, isDesk, last4, useWho, type Profile, type
 import { dayKey } from "@/lib/booking/grid";
 import { $, EditDrawer, PhotoButton, canEditClient, initials, useDate } from "../ClientParts";
 import { ClientProfile } from "../ClientProfile";
+import { receiptCode } from "@/lib/receipt-code";
 
 function useWide() {
   const [wide, setWide] = useState(true);
@@ -183,7 +184,7 @@ function History({ who, p, reload, say }: { who: NonNullable<ReturnType<typeof u
             </div>
           </div>
           {isDesk(who.role) && <div className="drawer-f">
-            <Link className="btn" style={{ flex: 1 }} href={`/r/${v.ticket_id}`}>{t("resend")}</Link>
+            <Link className="btn" style={{ flex: 1 }} href={`/r/${receiptCode(v.ticket_id)}`}>{t("resend")}</Link>
             <Link className="btn" style={{ flex: 1 }} href={`/calendar?view=day&d=${dayKey(new Date())}`}>{t("bookSame")}</Link>
           </div>}
         </>}
