@@ -1,0 +1,38 @@
+{
+  "business": "PolishOS: POS + tech payout app for Vietnamese-run nail salons",
+  "target": "Vietnamese-American owners of walk-in nail salons in California with 1 to 20 techs, who already use a POS, a card terminal or paper",
+  "where": "California (Orange County, San Jose, Sacramento, LA area)",
+  "age": [32, 64],
+  "segments": [
+    {"name": "Small salon owner (1-4 techs, often works the table too)", "share": 0.35, "income": [38000, 70000]},
+    {"name": "Mid salon owner (5-10 techs)", "share": 0.45, "income": [65000, 130000]},
+    {"name": "Big salon owner (11-20 techs, maybe 2 locations)", "share": 0.20, "income": [110000, 220000]}
+  ],
+  "behaviours": [
+    {"name": "Happy enough with current POS", "share": 0.22, "how": "Uses ABC, Zota, Mango or Fastboy; it mostly works and switching feels risky."},
+    {"name": "Paper and calculator", "share": 0.16, "how": "Writes tickets and turns on paper, pays techs from a notebook, card terminal from the bank."},
+    {"name": "Square user", "share": 0.14, "how": "Uses Square on an iPad for cards, does tech pay and turns by hand."},
+    {"name": "Locked in a processor contract", "share": 0.14, "how": "Signed a 3-year card processing deal with a free terminal; an exit fee waits."},
+    {"name": "Fee-sensitive deal hunter", "share": 0.12, "how": "Watches every dollar, asks other owners what they pay, runs a cash discount."},
+    {"name": "Trusts word of mouth only", "share": 0.12, "how": "Only tries what a friend or relative's salon already uses; asks in a Vietnamese Facebook or Zalo group first."},
+    {"name": "Tired of tech pay fights", "share": 0.10, "how": "Has lost techs over tips and turns; wants proof everyone can see."}
+  ],
+  "objections": [
+    "My staff are older, they will not learn a new system",
+    "I just bought my hardware or signed a contract, switching costs me",
+    "Who are you? A new company could close and take my data",
+    "What happens when the internet goes down on a busy Saturday",
+    "My current POS is only $40, why pay $49",
+    "Card fees are where the real money is, is yours really cheaper",
+    "I need someone to come set it up and answer the phone in Vietnamese",
+    "It does not do Reserve with Google or marketing like my agency package"
+  ],
+  "habits": [
+    "Saturday is your busiest day and you never touch settings then",
+    "your sister-in-law runs a salon two cities away and you compare notes",
+    "you pay techs every two weeks, part check, part cash",
+    "you read a Vietnamese nail owners Facebook group most nights",
+    "a card processing rep stops by every few months with a new offer",
+    "your techs have argued about who got which walk-in this month"
+  ]
+}

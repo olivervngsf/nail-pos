@@ -1,0 +1,13 @@
+{
+  "id": "P003",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "trust",
+  "reason": "The trial runs next to my old POS, so nothing is at risk, and the free fee check plus the 90-day guarantee is the only thing that answers my card-fee question. I would sign up for the trial and bring my statements, but I would not switch until I see my own numbers.",
+  "objection": "Card fees are where the real money is. Is yours really cheaper than what I pay now? Show me on my own statements, not a brochure.",
+  "would_change_my_mind": "",
+  "price_too_cheap": 15,
+  "price_cheap": 29,
+  "price_expensive": 59,
+  "price_too_expensive": 89
+}

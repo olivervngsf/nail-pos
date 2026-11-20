@@ -1,0 +1,13 @@
+{
+  "id": "P013",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "I don't try anything new until my sister-in-law or someone in my Zalo group already uses it. I have 5-10 techs and a system that works, so I'm not going to be the first guinea pig on something I saw once.",
+  "objection": "Card fees are where the real money is. You say Stripe's rate with no markup, but is it really cheaper than what I pay now? And who else in our community is running this in their salon?",
+  "would_change_my_mind": "My sister-in-law or another salon owner I know tells me they use it and their card fees went down.",
+  "price_too_cheap": 15,
+  "price_cheap": 30,
+  "price_expensive": 70,
+  "price_too_expensive": 120
+}

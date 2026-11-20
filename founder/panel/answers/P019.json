@@ -1,0 +1,13 @@
+{
+  "id": "P019",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "I have 11-20 techs and a POS that mostly works. Moving my client list, staff and card processing to a new system is a real risk on a busy Saturday, and the $39 a month isn't what I'm weighing. The trial next to my old system is fair, but running two systems with a full team is a hassle.",
+  "objection": "Card fees are where the real money is. At my volume a small difference in rate is worth far more than the $49 a month, and I've heard 'cheaper' from every processing rep who walks in. I want to see my own statements run first, and a founding-salon app with no track record could break checkout with 15 techs waiting.",
+  "would_change_my_mind": "A free fee check on my own 3 months of statements showing a clearly lower yearly cost in writing, plus a call with another big salon (10+ techs, not a 3-chair shop) that has run it for months without checkout going down.",
+  "price_too_cheap": 15,
+  "price_cheap": 39,
+  "price_expensive": 99,
+  "price_too_expensive": 199
+}

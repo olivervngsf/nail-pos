@@ -1,0 +1,13 @@
+{
+  "id": "P006",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "My POS mostly works and switching a 5-10 tech salon feels risky. A new company I never heard of, with money and my techs' pay going through it, is a lot to bet on. I'd want to see another owner I know using it first.",
+  "objection": "What happens when the internet goes down on a busy Saturday? They say it keeps working, but I've heard that before. I'd also have to retrain my staff and move my client list, and I don't want to find out it breaks in the middle of a rush.",
+  "would_change_my_mind": "Seeing a salon owner I know in my Facebook group using it for a few months, a no-internet Saturday demo at my own salon, and a promise they move my client list for free so I can run it next to my old POS for a month.",
+  "price_too_cheap": 15,
+  "price_cheap": 30,
+  "price_expensive": 79,
+  "price_too_expensive": 129
+}

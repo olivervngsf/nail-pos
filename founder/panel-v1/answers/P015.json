@@ -1,0 +1,13 @@
+{
+  "id": "P015",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "I run on paper and a calculator and the bank terminal works, so I don't feel a big problem. $299 for a reader plus $49 a month is real money for a small salon, and my agency package already does Google and marketing.",
+  "objection": "It does not do Reserve with Google or marketing like my agency package, and I have to buy a $299 reader and change how my techs get paid.",
+  "would_change_my_mind": "Reserve with Google booking plus a friend salon owner in my Facebook group telling me it works and the Vietnamese setup person really comes, with a reader I can try before paying the full $299.",
+  "price_too_cheap": 15,
+  "price_cheap": 25,
+  "price_expensive": 49,
+  "price_too_expensive": 80
+}

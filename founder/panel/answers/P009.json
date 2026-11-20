@@ -1,0 +1,13 @@
+{
+  "id": "P009",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "trust",
+  "reason": "I'd sign up for the trial because I keep my old system and there's no contract, so I only risk my time. Showing tips and splits on the screen would end the fights with my techs, and Elang being at my desk on a Saturday and the Vietnamese help matter to me.",
+  "objection": "My staff are older and they will not learn a new system. If they won't use it on a busy Saturday, I'm running two systems and wasting my time.",
+  "would_change_my_mind": "",
+  "price_too_cheap": 15,
+  "price_cheap": 30,
+  "price_expensive": 70,
+  "price_too_expensive": 120
+}
