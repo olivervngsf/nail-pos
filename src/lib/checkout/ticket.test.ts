@@ -14,6 +14,10 @@ describe("checkout money", () => {
     const t = { ...base(), discount: { id: "d", kind: "amt" as const, value: 500, reason: "Regular client" }, tips: { k: 700, n: 1100 } };
     expect(totals(t)).toMatchObject({ subtotal: 9000, discount: 500, due: 8500, tip: 1800, total: 10300, toPay: 8500, left: 10300 });
   });
+  it("cash part of a split comes off what's left", () => {
+    const t = { ...base(), tips: { k: 500 }, cashParts: [{ id: "c1", cents: 2000, givenCents: 2000, at: "x" }] };
+    expect(totals(t)).toMatchObject({ due: 9000, total: 9500, cashPaid: 2000, toPay: 7000, left: 7500 });
+  });
   it("percent discount rounds to the cent and never goes below $0", () => {
     expect(discountCents(9000, { id: "d", kind: "pct", value: 15, reason: "x" })).toBe(1350);
     expect(discountCents(3333, { id: "d", kind: "pct", value: 10, reason: "x" })).toBe(333);

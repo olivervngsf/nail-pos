@@ -205,7 +205,7 @@
     "giftPay": "Gift card",
     "giftPaySub": "Scan, type the code, or find by phone. Use part or all.",
     "giftPayFee": "No fee",
-    "splitNote": "Gift card first, then cash or card for the rest. Part cash + part card comes later.",
+    "splitNote": "Split: gift card or part in cash first, then card, QR or cash for the rest.",
     "giftCardPaid": "Paid by gift card",
     "paidGift": "{amount} gift card",
     "giftActive": "Gift card •••• {last4} is now active · {amount}",
@@ -252,7 +252,13 @@
     "editClient": "Edit details",
     "addClient": "Add to ticket",
     "newClientName": "New client's name",
-    "noPhoneNudge": "Walk-in, no phone: the ticket keeps the name. Ask for a phone so the salon can text reminders (fewer no-shows)."
+    "noPhoneNudge": "Walk-in, no phone: the ticket keeps the name. Ask for a phone so the salon can text reminders (fewer no-shows).",
+    "takePart": "Take {amount} now · pay the rest another way",
+    "partRest": "{amount} left to pay by card, QR, gift card or more cash.",
+    "partNoTips": "Tips go on the last payment: clear the cash tips to split.",
+    "cashPartPaid": "Paid in cash so far",
+    "cashPartLine": "Cash (part)",
+    "cashPartBack": "Give {amount} back to the client"
   },
   "pay": {
     "title": "Pay {salon}",
@@ -1374,7 +1380,19 @@
     "tipCard": "Tip (card)",
     "tipCash": "Tip (cash)",
     "colTips": "Tips",
-    "colService": "Service"
+    "colService": "Service",
+    "tipsMonth": "Tips report",
+    "tipReport": "Cash tip report",
+    "tipReportFor": "{name} · tips in {month}",
+    "signTips": "Yes, I got {cash} in cash tips",
+    "signedOn": "Signed {when}",
+    "notSigned": "Not signed",
+    "changedSince": "Changed since signed ({cash})",
+    "tipSignNote": "Cash tips you report go on your pay records. Check the amount, then sign with your PIN.",
+    "tipsSigned": "Signed. Thank you.",
+    "tipReportCap": "Each person signs their own month on the salon device: My earnings → Tips report.",
+    "month": "Month",
+    "signedCol": "Signed"
   },
   "numbers": {
     "title": "Numbers",

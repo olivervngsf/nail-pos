@@ -72,4 +72,4 @@ Share this page with anyone who sets up Stripe for PolishOS (sandbox or live).
 - Same URLs; Vercel Production gets the live `STRIPE_SECRET_KEY` + live `STRIPE_WEBHOOK_SECRET` (+ `STRIPE_BILLING_WEBHOOK_SECRET`). Preview deployments keep the sandbox ones.
 - Accounts v2 note: `account.updated` for salon accounts may only arrive at a "Your account" destination. It only refreshes a salon's "Stripe ready" flags, which Settings → Payments also refreshes when opened, so payments don't depend on it.
 
-Also see: `docs/go-live-checklist.md` § 4 Payments.
+Also see: `docs/go-live-plan.md` § 5 Payments live.
