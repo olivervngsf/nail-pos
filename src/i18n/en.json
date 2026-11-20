@@ -2284,5 +2284,18 @@
     "doneCap": "Use it at {salon} to clock in and check out.",
     "home": "Open my Home",
     "demo": "Test version: the PIN isn't saved until logins go live."
+  },
+  "moreMenu": {
+    "title": "More",
+    "money": "Money",
+    "salon": "Salon",
+    "closeDay": "Close day",
+    "payouts": "Payout sheet",
+    "numbers": "Numbers",
+    "giftCards": "Gift cards",
+    "loyalty": "Loyalty",
+    "textCredit": "Text credit",
+    "timeClock": "Time clock",
+    "earnings": "Print my earnings"
   }
 }

@@ -2284,5 +2284,18 @@
     "doneCap": "Dùng ở {salon} để chấm công và tính tiền.",
     "home": "Mở trang chính",
     "demo": "Bản thử: PIN chưa được lưu cho đến khi đăng nhập thật bật lên."
+  },
+  "moreMenu": {
+    "title": "Thêm",
+    "money": "Tiền",
+    "salon": "Tiệm",
+    "closeDay": "Đóng ngày",
+    "payouts": "Bảng trả lương",
+    "numbers": "Số liệu",
+    "giftCards": "Thẻ quà tặng",
+    "loyalty": "Tích điểm",
+    "textCredit": "Tiền nhắn tin",
+    "timeClock": "Chấm công",
+    "earnings": "In thu nhập của tôi"
   }
 }
