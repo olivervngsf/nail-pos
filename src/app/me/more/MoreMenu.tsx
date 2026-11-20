@@ -1,13 +1,14 @@
 "use client";
 // More (phones): everything that is not one of the four main tabs. Board "Phone Friendly Audit + Plan" D7.
 // Same choices as the bottom-left profile pop-up on a computer, plus the money and salon screens, as one list.
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Avatar, LeftMenu, ListGroup, Segmented, SyncPill, TopBar } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
 import { lockDevice } from "@/components/RailAccount";
-import { signOut } from "@/lib/auth";
+import { SMS_ON, amPlatformAdmin, signOut } from "@/lib/auth";
 import { isAdminRole, useMe } from "@/lib/me";
 
 const initials = (n: string) => n.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "NP";
@@ -21,6 +22,8 @@ export default function MoreMenu() {
   const name = acting?.name ?? me?.name ?? "";
   const role = acting?.role ?? me?.role;
   const admin = !!role && isAdminRole(role);
+  const [founder, setFounder] = useState(false); // platform admin: link back to Founder Admin (never on a salon device)
+  useEffect(() => { if (SMS_ON && !isDevice) void amPlatformAdmin().then(setFounder); }, [isDevice]);
   const item = (href: string, label: string, id: string, note?: string) => (
     <a className="opt" href={href} data-testid={id}><span className="grow">{label}</span>{note && <span className="cap">{note}</span>}<span className="cap" aria-hidden>›</span></a>
   );
@@ -56,6 +59,7 @@ export default function MoreMenu() {
               {isDevice && item("/clock", t("timeClock"), "more-clock")}
             </ListGroup>
           </>}
+          {founder && !isDevice && <ListGroup>{item("/admin", ta("founderAdmin"), "more-admin", ta("founderAdminHint"))}</ListGroup>}
           <div className="mm-row">
             <span className="cap">{ta("language")}</span>
             <Segmented label={ta("language")} value={lang} onChange={setLang} options={[{ value: "en", label: "English" }, { value: "vi", label: "Tiếng Việt" }]} />

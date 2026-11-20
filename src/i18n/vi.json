@@ -1720,6 +1720,8 @@
     "profile": "Hồ sơ của tôi",
     "settings": "Cài đặt",
     "settingsHint": "Nhân viên, luật PIN, thiết bị",
+    "founderAdmin": "Quản trị PolishOS",
+    "founderAdminHint": "Tất cả tiệm, tình trạng, hỗ trợ",
     "needsPin": "PIN chủ / quản lý",
     "earnings": "Thu nhập của tôi",
     "print": "in phiếu",
