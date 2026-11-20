@@ -2,7 +2,7 @@
 
 **PolishOS** is a checkout + tech-pay app for Vietnamese-run nail salons (1–20 techs, California first). Its one thing: **techs can see their own pay, and owners see every fee**.
 
-**Verdict: Not yet.** The unit works (each salon leaves $28.24/mo, 63%), break-even is 18 paying salons, and 40% of simulated buyers say yes to the new offer. But **year 1 loses $2,649** on operations because salons arrive slowly (~3 setups a month). Fix: cut the Claude plan to $20 after the build and charge $49 to all → about break-even (-$97). The real fix is faster, cheaper setups.
+**Verdict: Not yet.** The unit works (each salon leaves $28.24/mo, 63%), break-even is 18 paying salons, and 40% of simulated buyers say yes to the new offer. But **year 1 loses $2,649** on operations because salons arrive slowly (~3 setups a month). Fix: Claude plan to $20 after the build + faster setups (4–5 a month) → about break-even (-$101); add $49 for everyone → first profit (+$483).
 
 **Board + panel agree:** proof beats price. 3 of 3 board members said "fund if" you get real pilot salons; 9 of 19 panel no's were "I don't trust a new company", only 1 was price. The Founding Salon offer (60-day run-alongside, loaner reader, we switch you, free fee check, guarantee) moved buyers from **5% → 40%**.
 **They disagree on:** Product lens likes the craft; Monopoly lens fears no moat and thin money (no card margin).

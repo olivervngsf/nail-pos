@@ -4,11 +4,12 @@
 - **Break-even: 18 paying salons.** Plan reaches 18 in month 10 and 24 by month 12.
 - **Year 1: -$2,649** on operations, -$7,949 after the $5,300 startup spend. **Cash needed before it pays for itself: ~$8,300.** Founders are unpaid in these numbers.
 - **The line to watch: the ramp** (how fast salons pay). Elang can set up ~3 a month; that, not price, sets year 1.
-- **Three ways to improve it (tool-run what-ifs):**
-  1. Drop Claude from $150 to $20/mo once the pilot build is done (+ one salon a month sooner): year 1 → **-$609**.
-  2. Plus charge $49 to everyone (no $39 founding price): year 1 → **-$97** (about break-even).
-  3. Price $59 instead of $49 (base ramp): break-even 12 salons, year 1 -$1,095.
-  - More salons alone (volume ×1.5): -$1,082.
+- **Three ways to improve it (tool-run, one change at a time):**
+  1. Claude plan $150 → $20/mo after the pilot build: year 1 **-$2,649 → -$1,089**, break-even 18 → **13** salons.
+  2. Faster setups (4–5 a month, 28 salons by month 12; needs a 2nd person doing setups): year 1 → **-$1,661**.
+  3. $49 for everyone (no $39 founding price): year 1 → -$2,205, break-even 15.
+  - 1 + 2 together: **-$101**. 1 + 2 + 3: **+$483 (first profitable year 1)**.
+  - Risk side: 20% fewer salons → -$3,276.
 - **Board money conditions:** "test a higher price" → not done (needs real owners); "plan for year 3" → open. Card margin (0.2% on card sales, no fee on tips) is the parked lever in the research report; revisit at ~50 salons.
 - Not financial, tax or legal advice: an accountant should check the LLC, payroll and tax before money moves.
 

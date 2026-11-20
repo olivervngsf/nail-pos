@@ -30,7 +30,7 @@
 
 **PolishOS** is a checkout + tech-pay app for Vietnamese-run nail salons (1–20 techs, California first). Its one thing: **techs can see their own pay, and owners see every fee**.
 
-**Verdict: Not yet.** The unit works (each salon leaves $28.24/mo, 63%), break-even is 18 paying salons, and 40% of simulated buyers say yes to the new offer. But **year 1 loses $2,649** on operations because salons arrive slowly (~3 setups a month). Fix: cut the Claude plan to $20 after the build and charge $49 to all → about break-even (-$97). The real fix is faster, cheaper setups.
+**Verdict: Not yet.** The unit works (each salon leaves $28.24/mo, 63%), break-even is 18 paying salons, and 40% of simulated buyers say yes to the new offer. But **year 1 loses $2,649** on operations because salons arrive slowly (~3 setups a month). Fix: Claude plan to $20 after the build + faster setups (4–5 a month) → about break-even (-$101); add $49 for everyone → first profit (+$483).
 
 **Board + panel agree:** proof beats price. 3 of 3 board members said "fund if" you get real pilot salons; 9 of 19 panel no's were "I don't trust a new company", only 1 was price. The Founding Salon offer (60-day run-alongside, loaner reader, we switch you, free fee check, guarantee) moved buyers from **5% → 40%**.
 **They disagree on:** Product lens likes the craft; Monopoly lens fears no moat and thin money (no card margin).
@@ -298,11 +298,12 @@ After
 - **Break-even: 18 paying salons.** Plan reaches 18 in month 10 and 24 by month 12.
 - **Year 1: -$2,649** on operations, -$7,949 after the $5,300 startup spend. **Cash needed before it pays for itself: ~$8,300.** Founders are unpaid in these numbers.
 - **The line to watch: the ramp** (how fast salons pay). Elang can set up ~3 a month; that, not price, sets year 1.
-- **Three ways to improve it (tool-run what-ifs):**
-  1. Drop Claude from $150 to $20/mo once the pilot build is done (+ one salon a month sooner): year 1 → **-$609**.
-  2. Plus charge $49 to everyone (no $39 founding price): year 1 → **-$97** (about break-even).
-  3. Price $59 instead of $49 (base ramp): break-even 12 salons, year 1 -$1,095.
-  - More salons alone (volume ×1.5): -$1,082.
+- **Three ways to improve it (tool-run, one change at a time):**
+  1. Claude plan $150 → $20/mo after the pilot build: year 1 **-$2,649 → -$1,089**, break-even 18 → **13** salons.
+  2. Faster setups (4–5 a month, 28 salons by month 12; needs a 2nd person doing setups): year 1 → **-$1,661**.
+  3. $49 for everyone (no $39 founding price): year 1 → -$2,205, break-even 15.
+  - 1 + 2 together: **-$101**. 1 + 2 + 3: **+$483 (first profitable year 1)**.
+  - Risk side: 20% fewer salons → -$3,276.
 - **Board money conditions:** "test a higher price" → not done (needs real owners); "plan for year 3" → open. Card margin (0.2% on card sales, no fee on tips) is the parked lever in the research report; revisit at ~50 salons.
 - Not financial, tax or legal advice: an accountant should check the LLC, payroll and tax before money moves.
 
