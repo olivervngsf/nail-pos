@@ -15,5 +15,11 @@ for v in $dups; do
   ls supabase/migrations/${v}_*.sql | sed 's/^/  /'
   bad=1
 done
-[ "$bad" = 0 ] && echo "migrations: $(ls supabase/migrations/*.sql | wc -l) files, every version unique"
+# Same name twice = the live push (which skips names it already ran) would run only the first.
+for n in $(ls supabase/migrations/*.sql | xargs -n1 basename | sed 's/\.sql$//' | cut -d_ -f2- | sort | uniq -d); do
+  echo "migration name $n is used more than once (give the new file its own name):"
+  ls supabase/migrations/*_"$n".sql | sed 's/^/  /'
+  bad=1
+done
+[ "$bad" = 0 ] && echo "migrations: $(ls supabase/migrations/*.sql | wc -l) files, every version + name unique"
 exit "$bad"

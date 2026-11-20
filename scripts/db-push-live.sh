@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Bring the LIVE database up to date with supabase/migrations on main.
 # - Runs only files the live database hasn't run yet (tracked in supabase_migrations.schema_migrations, Supabase's own list).
+# - A file counts as done when its NAME (the part after the number) is in that list, so renumbering a file that
+#   already ran never runs it twice. A file whose name is new but whose NUMBER live already used for another
+#   file stops the push (it would otherwise be skipped silently, as split_cash was on Nov 20): give it a new number.
 # - Each file runs in one transaction: if it fails, nothing from it is kept and we stop (later files don't run).
 # - Never touches data from seeds/tests: only the migration files.
 # Usage: LIVE_DB_URL=postgres://... scripts/db-push-live.sh [--dry-run]
@@ -22,11 +25,15 @@ q() { psql "$LIVE_DB_URL" -X -q -t -A -v ON_ERROR_STOP=1 "$@"; }
 q -c "create schema if not exists supabase_migrations;
       create table if not exists supabase_migrations.schema_migrations (version text primary key, statements text[], name text);"
 done_list=$(q -c "select version from supabase_migrations.schema_migrations")
+done_names=$(q -c "select name from supabase_migrations.schema_migrations where name is not null")
 
 ran=0
 for f in supabase/migrations/*.sql; do
   base=$(basename "$f" .sql); version=${base%%_*}; name=${base#*_}
-  if grep -qx "$version" <<<"$done_list"; then continue; fi
+  if grep -qxF "$name" <<<"$done_names"; then continue; fi
+  if grep -qx "$version" <<<"$done_list"; then
+    echo "FAILED: $base never ran on live, but live already used number $version for another file. Give it a new number later than every file (nothing was run)."; exit 1
+  fi
   if [ "$DRY" = "--dry-run" ]; then echo "would run: $base"; ran=$((ran+1)); continue; fi
   echo "running: $base"
   # One transaction: the file + its row in the list.
