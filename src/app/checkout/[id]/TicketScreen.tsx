@@ -11,7 +11,7 @@ import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { useDesk, getActing, touchActing, type Desk, type DeskService } from "@/lib/desk";
-import { logReceipt, pullTickets, putTicket, saveNow, useTicket } from "@/lib/checkout/store";
+import { logReceipt, pullTickets, putTicket, saveNow, takeCashPart, undoCashPart, useTicket } from "@/lib/checkout/store";
 import { api } from "@/lib/api";
 import { GiftSellDrawer, GiftUseDrawer } from "./GiftDrawers";
 import { AppReaderPay } from "./AppReader";
@@ -69,7 +69,7 @@ export default function TicketScreen({ id }: { id: string }) {
           : step === "pay" ? <Pay desk={desk} ticket={ticket} onPick={setStep} say={say} />
           : step === "reader" || step === "link" ? <CardWait key={step} desk={desk} ticket={ticket} method={step} onBack={() => setStep("pay")} />
           : step === "app" ? <AppReaderPay desk={desk} ticket={ticket} onBack={() => setStep("pay")} />
-          : step === "cash" ? <Cash desk={desk} ticket={ticket} save={save} />
+          : step === "cash" ? <Cash desk={desk} ticket={ticket} save={save} onPart={() => setStep("pay")} />
           : <Build desk={desk} ticket={ticket} save={save} onCharge={() => setStep("pay")} />}
       </div>
       {toast && <Toast>{toast}</Toast>}
@@ -459,6 +459,12 @@ function Pay({ desk, ticket, onPick, say }: { desk: Desk; ticket: Ticket; onPick
             <Button variant="ghost" size="sm" onClick={() => void giftUndo(desk, ticket, g.id).catch((e) => say((e as Error).message))}>{t("undo")}</Button></div>
         ))}
       </div>}
+      {(ticket.cashParts ?? []).length > 0 && <div className="group" style={{ width: "100%", maxWidth: 520 }} data-testid="cash-parts">
+        {ticket.cashParts!.map((c) => (
+          <div className="row" key={c.id}><span className="grow">{t("cashPartLine")}</span><b className="num">−{$(c.cents)}</b>
+            <Button variant="ghost" size="sm" onClick={() => { undoCashPart(ticket, c.id); say(t("cashPartBack", { amount: $(c.cents) })); }}>{t("undo")}</Button></div>
+        ))}
+      </div>}
       <div className="grid2" style={{ width: "100%", maxWidth: 880, gap: 16 }}>
         {appReader && tile("pay-app", t("appReader"), t("appReaderSub"), t("readerFee"), !why, () => onPick("app"), why)}
         {(!appReader || cardOk) && tile("pay-reader", t("reader"), t("readerSub"), t("readerFee"), cardOk, () => onPick("reader"), why || t("needReader"))}
@@ -566,7 +572,7 @@ function CardWait({ desk, ticket, method, onBack }: { desk: Desk; ticket: Ticket
 }
 
 /* ---------- 3. Cash (Cs1 change, Cs2 short) ---------- */
-function Cash({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save: SaveFn }) {
+function Cash({ desk, ticket, save, onPart }: { desk: Desk; ticket: Ticket; save: SaveFn; onPart: () => void }) {
   const t = useTranslations("checkout");
   const sum = totals(ticket);
   const staff = staffOn(ticket.lines);
@@ -589,6 +595,7 @@ function Cash({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save: SaveFn
       <section className="card ck-left" style={{ padding: "24px 28px", gap: 18 }}>
         <div className="line"><span style={{ fontSize: 17 }}>{t("due")}</span><span className="num" style={{ fontSize: 20, fontWeight: 600 }}>{$(sum.due + sum.gift)}</span></div>
         {sum.giftPaid > 0 && <div className="line"><span>{t("giftCardPaid")}</span><span>−{$(sum.giftPaid)}</span></div>}
+        {sum.cashPaid > 0 && <div className="line"><span>{t("cashPartPaid")}</span><span>−{$(sum.cashPaid)}</span></div>}
         {sum.tip > 0 && <div className="line"><span>{t("tips")}</span><span>{$(sum.tip)}</span></div>}
         <div className="line"><span style={{ fontSize: 17, fontWeight: 600 }}>{t("total")}</span><span className="money" style={{ fontSize: 28 }} data-testid="cash-total">{$(sum.left)}</span></div>
         <div>
@@ -627,6 +634,15 @@ function Cash({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save: SaveFn
           ))}
         </div>
         <div style={{ flex: 1 }} />
+        {/* Split payment: less than what's owed → take it as a part; the rest is paid another way. Tips go on the last payment. */}
+        {typed && short && given > 0 && <>
+          <Button block data-testid="cash-part" disabled={sum.tip > 0} onClick={() => {
+            const a = getActing();
+            takeCashPart(ticket, given, given, a?.membership_id ?? desk.me.membership_id);
+            onPart();
+          }}>{t("takePart", { amount: $(given) })}</Button>
+          <div className="cap">{sum.tip > 0 ? t("partNoTips") : t("partRest", { amount: $(sum.left - given) })}</div>
+        </>}
         <Button variant="primary" block data-testid="cash-received" disabled={short} onClick={received}>{t("cashReceived")}</Button>
       </section>
     </main>
@@ -685,6 +701,7 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
         <div style={{ marginTop: "auto", padding: "16px 18px", borderRadius: 16, background: "var(--surface)", display: "flex", flexDirection: "column", gap: 8 }}>
           <div className="eyebrow">{t("money")}</div>
           {(ticket.giftPays ?? []).map((g) => <div key={g.id} className="line"><span>{t("giftUsed", { last4: g.last4 })}</span><span>{$(g.cents)}</span></div>)}
+          {(ticket.cashParts ?? []).map((c) => <div key={c.id} className="line" data-testid="cash-part-done"><span>{t("cashPartLine")}</span><span>{$(c.cents)}</span></div>)}
           {giftOnly ? null : isCard ? <>
             <div className="line"><span>{t("cardCharged")}</span><span>{$(charged)}</span></div>
             <div className="line"><span>{t("cardFee")} ({pay.method === "card_reader" ? "2.7% + 5¢" : "2.9% + 30¢"})</span><span data-testid="card-fee">−{$(fee)}</span></div>
@@ -695,8 +712,8 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
           {sum.gift > 0 && <div className="line"><span>{t("giftOwed")}</span><span>−{$(sum.gift)}</span></div>}
           <div className="line"><span>{t("tipsToStaff")}</span><span>−{$(sum.tip)}</span></div>
           <div className="sep" />
-          <div className="line" style={{ fontWeight: 600, fontSize: 16 }}><span>{t("salonKeeps")}</span><span data-testid="salon-keeps">{$(charged - fee - sum.tip - sum.gift + sum.giftPaid)}</span></div>
-          {ticket.status === "refunded" && <div className="line" data-testid="refunded" style={{ color: "#b5470a", fontWeight: 600 }}><span>{t("refunded", { amount: $(charged) })}</span><span>−{$(charged)}</span></div>}
+          <div className="line" style={{ fontWeight: 600, fontSize: 16 }}><span>{t("salonKeeps")}</span><span data-testid="salon-keeps">{$(charged + sum.cashPaid - fee - sum.tip - sum.gift + sum.giftPaid)}</span></div>
+          {ticket.status === "refunded" && <div className="line" data-testid="refunded" style={{ color: "#b5470a", fontWeight: 600 }}><span>{t("refunded", { amount: $(charged + sum.cashPaid) })}</span><span>−{$(charged + sum.cashPaid)}</span></div>}
         </div>
       </section>
       <section className="ck-keys" style={{ gap: 10 }}>
@@ -720,7 +737,7 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
         <Button variant="primary" block data-testid="new-ticket" onClick={newTicket}>{t("newTicket")}</Button>
       </section>
       <PrintReceipt desk={desk} ticket={ticket} />
-      {refunding && <RefundDrawer desk={desk} ticket={ticket} amount={charged} card={isCard} onClose={() => setRefunding(false)} say={say} />}
+      {refunding && <RefundDrawer desk={desk} ticket={ticket} amount={charged + sum.cashPaid} card={isCard} onClose={() => setRefunding(false)} say={say} />}
     </main>
   );
 }

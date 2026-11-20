@@ -2,14 +2,14 @@
 // Print my earnings by PIN (PRD V1 #4, Main Screens · Profile "My earnings"): on the salon device a tech taps their name,
 // types their PIN and sees only their own earnings for today or this week, then prints the slip. Nothing stays on screen after.
 import { pinLenFor } from "@/lib/pin";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, LeftMenu, ListGroup, PinKeypad, Segmented, SyncPill, TopBar } from "@/components/kit";
 import { pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { useDesk } from "@/lib/desk";
-import { demoPayout, isoDay, nums, weekStart, type PayoutRow } from "@/lib/closeday";
+import { demoPayout, demoTipMonth, isoDay, lastMonth, nums, tipSignState, weekStart, type PayoutRow, type TipMonthRow } from "@/lib/closeday";
 import { earningsDoc, printEarnings, type EarnText } from "@/lib/print/earnings";
 import { usePrintSettings } from "@/lib/print/settings";
 import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
@@ -56,22 +56,44 @@ export default function Earnings() {
   const t = useTranslations("payouts");
   const { desk, err } = useDesk();
   const [who, setWho] = useState<{ id: string; name: string } | null>(null);
-  const [period, setPeriod] = useState<"today" | "week">("today");
+  const [period, setPeriod] = useState<"today" | "week" | "tips">("today");
+  const [tips, setTips] = useState<TipMonthRow | null>(null);
+  const pinRef = useRef("");
+  const [busy, setBusy] = useState(false);
   const [pinErr, setPinErr] = useState("");
   const [row, setRow] = useState<PayoutRow | null>(null);
   const printSlips = useEarningsPrint(desk?.salonId, desk?.mode === "demo");
   const printer = usePrinter();
+  const f = useFormatter();
 
   if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
   if (!desk) return <div className="app" aria-busy="true" />;
   const demo = desk.mode === "demo";
   const today = isoDay(), from = period === "today" ? today : weekStart(today);
   const periodLabel = from === today ? today : `${from} → ${today}`;
-  const reset = () => { setWho(null); setRow(null); setPinErr(""); };
+  const month = lastMonth(today);
+  const monthLabel = f.dateTime(new Date(`${month}T12:00:00`), { month: "long", year: "numeric" });
+  const reset = () => { setWho(null); setRow(null); setTips(null); setPinErr(""); pinRef.current = ""; };
+  // Tips report: same PIN signs (kept in memory only until Done / Not me).
+  const tipReport = async (pin: string, sign: boolean) => {
+    if (!who) return;
+    if (demo) { const d = demoTipMonth().find((x) => x.name === who.name) ?? { ...demoTipMonth()[1], name: who.name };
+      setTips(sign ? { ...d, signed_at: new Date().toISOString(), signed_cash_cents: d.cash_cents, signed_card_cents: d.card_cents } : d); return; }
+    if (!desk.device) return setPinErr(t("needDevice"));
+    setBusy(true);
+    try {
+      const r = await rpc<PinResult & { report?: TipMonthRow }>("pin_tip_report", { p_device: desk.device.id, p_membership: who.id, p_pin: pin, p_month: month, p_sign: sign });
+      if (!r.ok) { setBusy(false); return setPinErr(pinMessage(r)); }
+      pinRef.current = pin;
+      if (r.report) setTips(nums(r.report));
+    } catch (e) { setPinErr((e as Error).message); }
+    setBusy(false);
+  };
 
   const submit = async (pin: string) => {
     if (!who) return;
     setPinErr("");
+    if (period === "tips") return tipReport(pin, false);
     if (demo) { const r = demoPayout().find((x) => x.name === who.name) ?? demoPayout()[0]; setRow({ ...r, name: who.name }); return; }
     if (!desk.device) return setPinErr(t("needDevice"));
     try {
@@ -89,10 +111,23 @@ export default function Earnings() {
         <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/today">‹ {t("back")}</Link>{t("myEarnings")}</span>}><SyncPill /></TopBar>
         {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
         <main style={{ padding: 24, maxWidth: 520, width: "100%", alignSelf: "center", display: "flex", flexDirection: "column", gap: 14 }}>
-          <Segmented label={t("range")} value={period} onChange={(v) => { setPeriod(v); setRow(null); }} options={[{ value: "today", label: t("today") }, { value: "week", label: t("thisWeek") }]} />
+          <Segmented label={t("range")} value={period} onChange={(v) => { setPeriod(v); setRow(null); setTips(null); }} options={[{ value: "today", label: t("today") }, { value: "week", label: t("thisWeek") }, { value: "tips", label: t("tipsMonth") }]} />
           {!who ? <>
             <div className="h2">{t("tapName")}</div>
             <ListGroup>{desk.staff.map((s) => <button key={s.id} type="button" className="opt" data-testid={`earn-${s.name}`} onClick={() => setWho({ id: s.id, name: s.name })}><Avatar name={s.name} />{s.name}</button>)}</ListGroup>
+          </> : tips ? <>
+            <div className="h2">{t("tipReportFor", { name: who.name, month: monthLabel })}</div>
+            <div className="group" style={{ padding: "6px 16px" }} data-testid="tip-month">
+              <div className="line" style={{ padding: "8px 0" }}><span>{t("cardTips")}</span><span>{$(tips.card_cents)}</span></div>
+              <div className="line" style={{ padding: "10px 0", fontWeight: 700, fontSize: 18 }}><span>{t("cashTips")}</span><span data-testid="tip-cash">{$(tips.cash_cents)}</span></div>
+            </div>
+            {tipSignState(tips) === "signed" ? <div className="note" data-testid="tip-signed">✓ {t("signedOn", { when: f.dateTime(new Date(tips.signed_at!), { dateStyle: "medium", timeStyle: "short" }) })}</div> : <>
+              {tipSignState(tips) === "changed" && <div className="note" style={{ background: "#fdf1e6", color: "#b5470a" }}>{t("changedSince", { cash: $(tips.signed_cash_cents ?? 0) })}</div>}
+              <div className="cap">{t("tipSignNote")}</div>
+              <Button variant="primary" block data-testid="tip-sign" disabled={busy} onClick={() => void tipReport(pinRef.current, true)}>{t("signTips", { cash: $(tips.cash_cents) })}</Button>
+            </>}
+            {pinErr && <p className="hint err">{pinErr}</p>}
+            <Button block data-testid="earn-done" onClick={reset}>{t("done")}</Button>
           </> : !row ? <>
             <div className="h2">{t("pinFor", { name: who.name })}</div>
             <PinKeypad length={pinLenFor(who.id)} error={pinErr} onDone={(p) => void submit(p)} />
