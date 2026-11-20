@@ -1,5 +1,6 @@
 -- Checkout home layout: every salon starts on 'list'; the owner can switch to 'cards' (logged); a tech can read it
 -- but not change it; a made-up layout is refused. Rolls back.
+begin;
 insert into auth.users (id, phone, aud, role) values
   ('00000000-0000-0000-0000-00000000fd01', '14085550821', 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000fd02', '14085550822', 'authenticated', 'authenticated');
@@ -32,7 +33,6 @@ select pg_temp.try_save('tech_save', 'list');
 reset role;
 
 do $$
-
 begin
   if (select v from t_out where k = 'start') <> 'list' then raise exception 'FAIL a new salon should start on list: %', (select v from t_out where k = 'start'); end if;
   if (select v from t_out where k = 'bad') not like 'ERR%bad layout%' then raise exception 'FAIL a made-up layout was accepted: %', (select v from t_out where k = 'bad'); end if;
