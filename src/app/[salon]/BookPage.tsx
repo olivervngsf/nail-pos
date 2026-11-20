@@ -9,7 +9,7 @@ import { Button, Chip } from "@/components/kit";
 import { formatCents } from "@/lib/money";
 import { e164 } from "@/lib/auth";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
-import { DEMO_SLUG, book, bookDays, hello, hoursOn, loadPage, loadSlots, photoUrl, sourceOf, type BookPage as Page, type Guest } from "@/lib/booking/page";
+import { DEMO_SLUG, book, bookDays, emailOk, sendConfirmation, hello, hoursOn, loadPage, loadSlots, photoUrl, sourceOf, type BookPage as Page, type Guest, type Sent } from "@/lib/booking/page";
 import { dayKey, fmtMin, fromDayKey } from "@/lib/booking/grid";
 import { bookingIcs } from "@/lib/booking/ics";
 
@@ -112,6 +112,8 @@ function Flow({ page }: { page: Page }) {
   const [slot, setSlot] = useState<number | null>(null);
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [sent, setSent] = useState<Sent | null>(null);
   const [back, setBack] = useState<string | null>(null);
   const [textsOk, setTextsOk] = useState(false);
   const [note, setNote] = useState("");
@@ -152,16 +154,22 @@ function Flow({ page }: { page: Page }) {
     return () => { off = true; };
   }, [phone, page]);
 
+  // Phone, email, or both: one is enough. A half-typed one blocks, so nothing wrong is saved.
+  const hasPhone = phone.trim() !== "", hasEmail = email.trim() !== "";
+  const contactOk = (hasPhone || hasEmail) && (!hasPhone || phoneOk(phone)) && (!hasEmail || emailOk(email));
   const idx = ORDER.indexOf(view);
-  const canNext = view === "services" ? guests.every((x) => x.serviceIds.length > 0) : view === "time" ? slot !== null : view === "details" ? phoneOk(phone) && name.trim() !== "" : true;
+  const canNext = view === "services" ? guests.every((x) => x.serviceIds.length > 0) : view === "time" ? slot !== null : view === "details" ? contactOk && name.trim() !== "" : true;
   const next = async () => {
     setMsg("");
     if (view !== "details") { setView(ORDER[idx + 1]); return; }
     if (slot === null) return;
     setBusy(true);
     try {
-      const r = await book(page, { src, day, start: slot, phone: e164(phone), name: name.trim(), textsOk, note: note.trim(), guests });
-      if (r.ok) { setDone({ staff: r.staff, day, start: slot, token: r.token }); setView("done"); }
+      const r = await book(page, { src, day, start: slot, phone: hasPhone ? e164(phone) : "", email: email.trim().toLowerCase(), name: name.trim(), textsOk: textsOk && hasPhone, note: note.trim(), guests });
+      if (r.ok) {
+        setDone({ staff: r.staff, day, start: slot, token: r.token }); setSent(null); setView("done");
+        void sendConfirmation(r.token).then(setSent);
+      }
       else {
         setMsg(t(r.reason === "taken" ? "taken" : r.reason === "too_many" ? "tooMany" : "bad"));
         if (r.reason === "taken") { setSlot(null); setView("time"); }
@@ -207,7 +215,14 @@ function Flow({ page }: { page: Page }) {
         <div className="bw-done in" data-testid="booked">
           <div className="bw-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
           <h2 className="h1 bw-center">{t("booked", { name: first.charAt(0).toUpperCase() + first.slice(1) })}</h2>
-          <p className="cap bw-center">{textsOk ? t("bookedTexted", { phone: fmtPhone(phone) }) : t("atDesk")}</p>
+          <p className="cap bw-center" data-testid="sent-line">
+            {page.salon.slug === DEMO_SLUG || (!hasEmail && !(textsOk && hasPhone)) ? t("atDesk") : sent === null ? t("bookedSending") : <>
+              {sent.email === "sent" && <>{t("bookedEmailed", { email: email.trim().toLowerCase() })} </>}
+              {sent.sms === "sent" && <>{t("bookedTexted", { phone: fmtPhone(phone) })} </>}
+              {hasEmail && sent.email !== "sent" && <>{t("bookedEmailOff", { email: email.trim().toLowerCase() })} </>}
+              {textsOk && hasPhone && sent.sms !== "sent" && <>{t("bookedTextsSoon", { phone: fmtPhone(phone) })}</>}
+            </>}
+          </p>
 
           <div className="bw-ticket">
             <div className="bw-when">
@@ -329,9 +344,12 @@ function Flow({ page }: { page: Page }) {
                 <label className="cap" htmlFor="bw-phone">{t("phone")}</label>
                 <input id="bw-phone" className="inp num" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(fmtPhone(e.target.value))} placeholder="(408) 555-0142" />
                 {back && <div className="bw-hello">{t("welcome", { name: back })}</div>}
+                <label className="cap" htmlFor="bw-email">{t("email")}</label>
+                <input id="bw-email" className="inp" type="email" inputMode="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" />
+                <span className="cap">{t("contactHint")}</span>
                 <label className="cap" htmlFor="bw-name">{t("name")}</label>
                 <input id="bw-name" className="inp" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
-                <label className="bw-check-row"><input type="checkbox" checked={textsOk} onChange={(e) => setTextsOk(e.target.checked)} /> {t("texts")}</label>
+                <label className="bw-check-row"><input type="checkbox" checked={textsOk && hasPhone} disabled={!hasPhone} onChange={(e) => setTextsOk(e.target.checked)} /> {t("texts")}</label>
                 <span className="cap" data-testid="texts-terms">{t("textsRates")} <a href="/legal/texts" target="_blank" rel="noreferrer">{t("textsTerms")}</a> · <a href="/legal/privacy" target="_blank" rel="noreferrer">{t("textsPrivacy")}</a></span>
               </div>
               <div className="bw-stack">
