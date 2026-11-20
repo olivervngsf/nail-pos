@@ -86,7 +86,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - [ ] **Before charging the first salon money:** switch Twilio to a business account (EO Collective + EIN + business address) and move the tax info. Sole proprietor = testing/pilot only (1 number, <3,000 texts/day).
 - [ ] Salon promo texts never go on the PolishOS number: each salon needs its own number + brand + Marketing campaign (on its setup day).
 - [x] Nov 19: campaign form submitted (sole proprietor, invites + notices, verbal opt-in script, links `/legal/terms` + `/legal/privacy`); legal pages renamed "Terms of Service" / "Privacy Policy" with an SMS Terms section. Carrier review ~1–3 weeks.
-- [ ] Twilio → Messaging → Services → PolishOS → Integration → Incoming messages = `https://polishosapp.com/api/sms/inbound` (STOP/HELP reach us).
+- [x] Nov 20 DONE (set by API): Messaging Service renamed "PolishOS" (MGfb1e10…), incoming = `https://polishosapp.com/api/sms/inbound`, delivery status = `https://polishosapp.com/api/sms/status`, number's own webhook off (STOP/HELP reach us).
 - [x] Nov 20: support@polishosapp.com is a real inbox (ImprovMX → Gmail; reviewers + the HELP reply point to it).
 - [ ] **Claude: proof of consent** (Build Tracker row 4c, ~1 session): save WHEN + WHERE each client said yes to texts (booking page, desk, kiosk, START reply) and when they said STOP; today only yes/no. **Deadline: before the first real client text** (confirm, reminder, receipt, promo) = before any salon's own number is approved. Not needed for staff invites. Safe to ship any time.
 - [ ] Claude: "invite ends in 1 day" reminder text (campaign sample #3).
