@@ -25,7 +25,7 @@ Share this page with anyone who sets up Stripe for PolishOS (sandbox or live).
 | Vercel variable | `STRIPE_WEBHOOK_SECRET` | `STRIPE_BILLING_WEBHOOK_SECRET` |
 | Events | `payment_intent.succeeded`, `payment_intent.payment_failed`, `checkout.session.completed`, `charge.refunded`, `charge.updated`, `account.updated` | `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`, `checkout.session.completed`, `payment_intent.succeeded`, `customer.updated`, `payment_method.attached` |
 | Code | `src/app/api/stripe/webhook/route.ts` | `src/app/api/billing/webhook/route.ts` |
-| Status (Nov 19) | **Working (sandbox).** Destination "PolishOS card payments", secret in Vercel Production. Tested: ticket #1014 on `lotus-5` paid by the webhook alone (no desk screen open) | **On (sandbox).** Made with Admin → System → Set up webhooks, Nov 20; secret kept by the app. Live mode: same button after the live key |
+| Status (Nov 19) | **Working (sandbox).** Destination "PolishOS card payments", secret in Vercel Production. Tested: ticket #1014 on `lotus-5` paid by the webhook alone (no desk screen open) | **On (sandbox).** Made with Admin → System → Set up webhooks, Nov 20; secret kept by the app. Live mode: same button after the live key, then the $5 text credit test (`docs/go-live-plan.md` step 5) |
 
 ## The billing webhook, in plain words
 - **Card payments webhook** = money a salon's clients pay **the salon** (services, tips), on each salon's own Stripe account. Working.
@@ -40,7 +40,7 @@ Share this page with anyone who sets up Stripe for PolishOS (sandbox or live).
 3. Tap **Set up webhooks**. The app uses its own Stripe key to make any missing webhook with all its events and keeps the signing secret itself (server-only table `platform_secrets`), so nothing goes into Vercel and no redeploy.
 4. A webhook made by hand whose secret is already in Vercel (like "PolishOS card payments") is kept; the button only adds any missing events.
 5. Both rows should say **On**. Then do step D below to check.
-6. Going live: switch Vercel to the live key, redeploy, tap the same button again.
+6. Going live: switch Vercel to the live key, redeploy, tap the same button again (makes BOTH live webhooks, incl. plans + text credit). Then the $5 text credit test in `docs/go-live-plan.md` step 5.
 
 ## Steps by hand (≈10 min each)
 

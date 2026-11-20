@@ -23,7 +23,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 | App | polishosapp.com runs main, on the TEST database + Stripe sandbox | Same app, switched to live keys in step 3 |
 | Database | `nail-pos-test`: every change tried here first | `nail-pos-live` made Nov 18, **empty**; gets changes only from main (`db-live.yml`), not switched on yet |
 | Card payments | Sandbox works; webhook On (made by hand Nov 19) | Stripe live mode not set up |
-| Plans + text credit | Sandbox works; webhook On (Admin → System button, Nov 20) | Same button again after the live key |
+| Plans + text credit | Sandbox: webhook On (Admin → System button, Nov 20); text credit test payment started Nov 20 (Stripe page reached, paying with test card 4242 still to finish) | Same button again after the live key, then one real $5 credit + refund (step 5) |
 | Sign-in codes by text | Twilio Verify works | Copy settings to the live project |
 | Salon texts (invites, reminders) | Code ready; carriers block them until the campaign is approved | Campaign review ~1–3 weeks |
 | Email sign-in | Resend sender works | Copy SMTP + templates to the live project |
@@ -68,6 +68,12 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - [ ] **Prices final first** (see step 7): the app makes the plan prices in Stripe the first time an owner opens Billing ($49/mo, $468/yr today). Changing a price after that = Claude adds a new price version.
 - [ ] Order a Stripe S710 reader (~$299) per pilot salon (live readers come from Stripe, not Amazon). Hardware list: `docs/hardware-shopping-list.md`.
 - [ ] $1 test on the setup day with a real card, then refund it.
+- [ ] **Money salons pay us** (plan + text credit, our own Stripe account), after the live key + Set up webhooks:
+  - Admin → System → Stripe webhooks card says **live mode** and both rows **On** (sandbox webhooks don't carry over).
+  - On a real salon's owner login: Settings → Texting → Add credit **$5** → pay with a real card on Stripe's page → back in the app the credit shows **$5.00**, and the receipt row shows the card.
+  - Stripe (live) → Developers → Webhooks → "PolishOS: salon plans + text credit" → Event deliveries: new events, response **200**, **Failed 0**.
+  - Add $5 again: this time no Stripe page (the saved card is charged at once).
+  - Refund both in the Stripe dashboard. Write the date here: ____.
 
 ## 6. Texting (Oliver · forms now, carriers take ~1–3 weeks)
 - [x] Nov 19: Twilio pay-as-you-go; number +1 (775) 535-8984; sole proprietor brand "Viet Nguyen" **approved**.
