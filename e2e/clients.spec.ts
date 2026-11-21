@@ -81,3 +81,35 @@ test("clients: find by phone, lost regulars, history with a note", async ({ page
   }
   expect(errors).toEqual([]);
 });
+
+// Version C test route (/clients-ver-c): table, sort, drawer with the quick look; /clients-ver-d = version D.
+test("clients version C: table + profile drawer", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  const phone = test.info().project.name === "phone";
+  await page.goto("/clients-ver-c");
+  await expect(page.getByTestId("client-row")).toHaveCount(6);
+  if (phone) {
+    await page.getByTestId("client-row").first().click();
+    await expect(page).toHaveURL(/\/clients\/c\d/);
+  } else {
+    await page.getByTestId("filter-lost").click();
+    await expect(page.getByTestId("client-row")).toHaveCount(2);
+    await page.getByTestId("filter-all").click();
+    await page.getByRole("button", { name: "Name" }).click();
+    await expect(page.getByTestId("client-row").first()).toContainText("Jen Park");
+    await page.getByTestId("client-search").fill("555-0142");
+    await expect(page.getByTestId("client-row")).toHaveCount(1);
+    await page.getByTestId("client-row").click();
+    const d = page.getByTestId("client-drawer");
+    await expect(d).toContainText("#48213");
+    await expect(d).toContainText("••0142");
+    await expect(d.getByTestId("client-care")).toContainText("acetone");
+    await expect(d).toContainText("Almond · short");
+    await page.keyboard.press("Escape");
+    await expect(d).toHaveCount(0);
+  }
+  await page.goto("/clients-ver-d");
+  await expect(page.getByTestId("client-row").first()).toBeVisible();
+  expect(errors).toEqual([]);
+});
