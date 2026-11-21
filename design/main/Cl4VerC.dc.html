@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec: clients version C</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="kit.css">
+<link rel="stylesheet" href="annot.css">
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0}.af-title{font-weight:600}.af-notes{font-family:"Inter",-apple-system,sans-serif}.pin{font-weight:600}</style></helmet>
+<div class="af">
+  <div class="af-screen">
+    <dc-import name="ClientsC" hint-size="1280px,800px"></dc-import>
+    <sc-if value="{{show}}" hint-placeholder-val="{{true}}"><sc-for list="{{pins}}" as="p" hint-placeholder-count="12"><span class="pin" style="{{p.pos}}">{{p.n}}</span></sc-for></sc-if>
+  </div>
+  <aside class="af-notes"><button class="af-toggle" type="button" onClick="{{toggleNotes}}">{{toggleLabel}}</button><sc-if value="{{show}}" hint-placeholder-val="{{true}}"><div class="af-body">
+    <div class="eyebrow">Annotations · C4</div>
+    <div class="af-title">Clients version C: table + profile drawer (user testing)</div>
+    <sc-for list="{{pins}}" as="p" hint-placeholder-count="12"><div class="af-row"><span class="pin static">{{p.n}}</span><div class="af-txt" style="font-size:13px;line-height:18px">{{p.t}}</div></div></sc-for>
+    <div class="af-next">Test route /clients-ver-c, next to version D at /clients-ver-d (= /clients today). After user testing the winner becomes /clients and both test pages go away. Same data + rules as D. Phone or tech: tap a row opens the client page instead of the drawer.</div>
+  </div></sc-if></aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"notes":{"editor":"boolean","default":true},"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { show: !(p && p.notes === false) }; }
+  renderVals() {
+    const P = [
+      [76, 76, 'Search by phone, name or client # ("#48213"). 4 digits of a phone finds the one client.'],
+      [384, 78, 'Chips: All · Regulars · Lost · New, with counts. Tap = filter.'],
+      [76, 170, 'Row: name + tag (Regular / Lost / New, "Same name" when two match) + #client number + ••last 4. Never the full phone.'],
+      [520, 128, 'Columns: Usual staff · Visits · Spent · Last visit · Due back (orange = days late). Sort: Last visit / Spent / Name (right, under the drawer).'],
+      [814, 16, 'Tap a row → profile drawer. The table stays usable; tap another row to switch. Edit = owner/manager only. ✕ or Esc closes.'],
+      [814, 76, '#48213 + ••0142 · client since · texts ✓ · birthday. Full phone only in Edit (owner/manager).'],
+      [814, 122, '4 numbers: visits, spent, comes every, avg tip.'],
+      [814, 184, 'Care note (allergy/medical) in red: whole salon sees it, on every ticket.'],
+      [814, 290, 'Usual staff, shape · length, colors, gift card balance.'],
+      [814, 424, 'Last 4 nail photos (only when there are some).'],
+      [814, 530, 'Last 3 visits: date, services · tech, total. Full history → C2.'],
+      [814, 754, 'Text (once the salon\'s texting is approved) · Book (calendar on the due-back day) · New ticket.']
+    ];
+    return { show: this.state.show, toggleLabel: this.state.show ? 'Hide notes' : 'Show notes', toggleNotes: () => this.setState({ show: !this.state.show }), pins: P.map((p, i) => ({ n: i + 1, pos: 'left:' + p[0] + 'px;top:' + p[1] + 'px', t: p[2] })) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Clients C · table + drawer</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="kit.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+/* weights: 400 text · 500 values/labels · 600 only for what matters (name, key numbers, section titles, care). Never 700. */
+b,strong{font-weight:500}
+.h1,.h2,.stat .v,.stat-grid b{font-weight:600}
+.btn,.tag,.seg span,.lbl,.chip{font-weight:500}
+.btn.primary{font-weight:600}
+.crow.sel b,.trow.sel b{font-weight:600}
+.card.pad b[style*="flex:1"],b[style*="#B02525"],b.num[style*="font-size:20px"]{font-weight:600}
+.trow{cursor:pointer}
+.trow:hover td{background:#FAFAFB}
+.trow.sel td{background:#F0F0F4}
+.lost{background:#FDEEE6;color:#B5470A}
+.ph{height:64px;border-radius:10px}
+</style>
+</helmet>
+<div class="app" style="position:relative">
+  <nav class="rail" aria-label="Menu">
+    <div class="logo">MN</div>
+    <a href="Main.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"></path></svg>Today</a>
+    <a href="Cal.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Calendar</a>
+    <a href="Checkout.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle></svg>Checkout</a>
+    <a class="on" href="ClientsC.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7"></path></svg>Clients</a>
+    <a href="CloseDay.dc.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"></path><path d="M9 8h6M9 12h6"></path></svg>Close day</a>
+    <div style="flex:1"></div>
+    <a href="Me.dc.html" aria-label="My profile"><span class="av" style="width:32px;height:32px">M</span></a>
+  </nav>
+  <div class="col" style="position:relative">
+    <header class="bar">
+      <div class="title">Clients <span class="cap">· 412</span></div>
+      <span class="tag" style="border:1px dashed #C7C7CF;background:#fff">Test version C · /clients-ver-c</span><span class="pill ok"><span class="dot"></span>Saved</span>
+      <button class="btn" type="button">+ New client</button>
+    </header>
+    <div style="display:flex;align-items:center;gap:10px;padding:14px 24px">
+      <label for="qc" style="position:absolute;left:-9999px">Search clients</label>
+      <input id="qc" class="inp" placeholder="Search phone, name or client #" style="width:300px">
+      <sc-for list="{{filters}}" as="f" hint-placeholder-count="5"><button class="{{f.cls}}" type="button" onClick="{{f.pick}}">{{f.label}}</button></sc-for>
+      <div style="flex:1"></div>
+      <span class="cap">Sort</span><div class="seg"><span class="on">Last visit</span><span>Spent</span><span>Name</span></div>
+    </div>
+    <div style="padding:0 24px 20px;flex:1;min-height:0">
+      <div class="group" style="height:100%;overflow:hidden">
+        <table class="dtable">
+          <thead><tr><th>Client</th><th style="text-align:left">Usual</th><th>Visits</th><th>Spent</th><th>Last visit</th><th>Due back</th></tr></thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+              <tr class="{{r.cls}}" onClick="{{r.open}}">
+                <td style="height:52px"><span style="display:flex;align-items:center;gap:10px"><span class="av" style="width:30px;height:30px;font-size:12px">{{r.i}}</span><span><b>{{r.n}}</b> <span class="{{r.tagCls}}" style="height:18px;font-size:11px;padding:0 6px">{{r.tag}}</span><span class="cap num" style="display:block;font-size:12px">#{{r.no}} · ••{{r.l4}}</span></span></span></td>
+                <td style="text-align:left">{{r.u}}</td><td>{{r.v}}</td><td>{{r.s}}</td><td>{{r.last}}</td><td><span style="{{r.dueStyle}}">{{r.due}}</span></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <sc-if value="{{open}}" hint-placeholder-val="{{true}}">
+      <aside class="drawer" aria-label="Client profile" style="width:460px">
+        <div class="drawer-h"><span class="av">{{p.i}}</span><span style="flex:1">{{p.n}}</span><sc-if value="{{isOwner}}" hint-placeholder-val="{{true}}"><button class="btn ghost" type="button" style="height:32px;font-size:13px">Edit</button></sc-if><button class="btn ghost" type="button" aria-label="Close" onClick="{{close}}" style="width:36px;padding:0">✕</button></div>
+        <div class="drawer-b">
+          <div class="cap num"><span style="color:#16161A;font-weight:500">#{{p.no}}</span> · ••{{p.l4}} · client since 2024 · texts ✓ · birthday Nov 20</div>
+          <div class="stat-grid" style="--n:4"><div><b>12</b><span class="cap">visits</span></div><div><b>$816</b><span class="cap">spent</span></div><div><b>4 wk</b><span class="cap">every</span></div><div><b>$14</b><span class="cap">avg tip</span></div></div>
+          <div style="padding:10px 12px;border-radius:12px;background:#FCEAEA;font-size:14px"><b style="color:#B02525">Care:</b> Sensitive skin — no strong acetone.</div>
+          <div class="group">
+            <div class="row xs"><span class="g cap">Usual staff</span><b>Kim</b></div>
+            <div class="row xs"><span class="g cap">Shape · length</span><b>Almond · short</b></div>
+            <div class="row xs"><span class="g cap">Colors</span><b>OPI Bubble Bath</b></div>
+            <div class="row xs"><span class="g cap">Gift card ••4821</span><b class="num">$30.00</b></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px"><div class="ph" style="background:#B07C8E"></div><div class="ph" style="background:#C9A79A"></div><div class="ph" style="background:#8C9C88"></div><div class="ph" style="background:#B8976A"></div></div>
+          <div class="group">
+            <div class="row xs"><span class="cap num" style="width:52px">Oct 19</span><span class="g">Gel manicure · Kim</span><b class="num">$35</b></div>
+            <div class="row xs"><span class="cap num" style="width:52px">Sep 21</span><span class="g">Gel mani + pedi · Kim</span><b class="num">$98</b></div>
+            <div class="row xs"><span class="cap num" style="width:52px">Aug 24</span><span class="g">Gel manicure · Kim</span><b class="num">$35</b></div>
+          </div>
+          <a class="btn ghost" href="ClientFull.dc.html" style="align-self:flex-start">Full history →</a>
+        </div>
+        <div class="drawer-f"><button class="btn" type="button" style="flex:1">Text</button><button class="btn" type="button" style="flex:1">Book</button><button class="btn primary" type="button" style="flex:1.4">New ticket</button></div>
+      </aside>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"role":{"editor":"enum","options":["owner","tech"],"default":"owner"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { f: 'all', sel: 0, open: true }; }
+  renderVals() {
+    const S = this.state;
+    const C = [
+      ['LT','Lan Tran','(408) 555-0142','Regular','r','Kim','12','$816','Oct 19','in 2 days'],
+      ['MP','Mai Pham','(408) 555-0170','Regular','r','Kim','9','$540','Today','Dec 15'],
+      ['AK','Anna Kim','(408) 555-0190','New','n','—','1','$48','Today','—'],
+      ['TC','Test Client','(555) 010-9999','New','n','Ooo','1','$86','Nov 16','—'],
+      ['SL','Sara Lopez','(408) 555-0155','Regular','r','Linh','7','$462','Oct 30','in 1 wk'],
+      ['JP','Jen Park','(408) 555-0131','Lost','l','Ngọc','18','$990','Sep 28','28 days late'],
+      ['TL','Thu Le','(408) 555-0166','Lost','l','Kim','6','$240','Sep 21','29 days late'],
+      ['RD','Rosa Diaz','(408) 555-0121','Lost','l','Linh','11','$385','Sep 30','34 days late'],
+      ['N','Nam','(312) 312-3123','New','n','—','0','$0','—','—']
+    ];
+    const NO = [48213, 85120, 26374, 31947, 70562, 59081, 64407, 17735, 40859];
+    const F = [['all','All 412'],['r','Regulars 96'],['l','Lost 3'],['n','New 18']];
+    const list = C.filter((c) => S.f === 'all' || c[4] === S.f);
+    const p = C[S.sel] || C[0];
+    return {
+      filters: F.map((f) => ({ label: f[1], cls: 'chip' + (S.f === f[0] ? ' on' : ''), pick: () => this.setState({ f: f[0] }) })),
+      rows: list.map((c) => { const i = C.indexOf(c); return { i: c[0], n: c[1], no: NO[i], l4: c[2].slice(-4), tag: c[3], tagCls: c[4] === 'r' ? 'tag jade' : c[4] === 'l' ? 'tag lost' : 'tag', u: c[5], v: c[6], s: c[7], last: c[8], due: c[9], dueStyle: c[4] === 'l' ? 'color:#B5470A;font-weight:500' : '', cls: 'trow' + (S.open && S.sel === i ? ' sel' : ''), open: () => this.setState({ sel: i, open: true }) }; }),
+      open: S.open, close: () => this.setState({ open: false }),
+      p: { i: p[0], n: p[1], no: NO[S.sel] || NO[0], l4: p[2].slice(-4) },
+      isOwner: (this.props.role ?? 'owner') !== 'tech'
+    };
+  }
+}
+</script>
+</body>
+</html>
