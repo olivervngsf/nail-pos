@@ -10,6 +10,8 @@ export type ClientFilter = "all" | "regular" | "lost" | "new" | "bday" | "gift";
 export type ClientRow = {
   id: string; number?: number; name: string; phone: string | null; tag: "regular" | "lost" | "new" | null; visits: number; last_visit: string | null;
   usual_service: string | null; usual_staff: string | null; gap_days: number | null; care: boolean; gift_cents: number;
+  /** Paid tickets total, cents (version C table). */
+  spent?: number;
 };
 export type ClientList = { counts: Record<ClientFilter, number>; rows: ClientRow[] };
 export type Visit = {
@@ -111,7 +113,7 @@ export async function listClients(who: Who, filter: ClientFilter, q: string): Pr
   const counts = Object.fromEntries(Object.entries(ok).map(([k, f]) => [k, all.filter(f).length])) as Record<ClientFilter, number>;
   const rows = all.filter((p) => ok[filter](p) && match(p)).map((p) => ({
     id: p.id, number: p.number, name: p.name, phone: p.phone, tag: p.tag, visits: p.stats.visits, last_visit: p.stats.last_visit, usual_service: p.usual_service,
-    usual_staff: p.usual_staff, gap_days: p.stats.gap_days, care: !!p.care, gift_cents: p.gift_cards.reduce((a, g) => a + g.balance_cents, 0),
+    usual_staff: p.usual_staff, gap_days: p.stats.gap_days, care: !!p.care, gift_cents: p.gift_cards.reduce((a, g) => a + g.balance_cents, 0), spent: p.stats.spent,
   }));
   return { counts, rows };
 }
