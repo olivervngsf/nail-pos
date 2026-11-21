@@ -61,6 +61,17 @@ export function useAdmin(): Admin {
     })();
   }, [router, reload]);
 
+  // Stay up to date: a salon linking Stripe (or a device going off) shows without a page reload.
+  // Fresh facts every minute while the tab is showing, and at once when the admin comes back to the tab.
+  useEffect(() => {
+    if (gate !== "live") return;
+    const fresh = () => { if (document.visibilityState === "visible") void reload(); };
+    const t = setInterval(fresh, 60_000);
+    document.addEventListener("visibilitychange", fresh);
+    window.addEventListener("focus", fresh);
+    return () => { clearInterval(t); document.removeEventListener("visibilitychange", fresh); window.removeEventListener("focus", fresh); };
+  }, [gate, reload]);
+
   const handle = useCallback(async (salonId: string, kind: string) => {
     if (gate === "demo") {
       setData((d) => d && { ...d, handled: [...d.handled, { salon_id: salonId, kind, at: new Date().toISOString(), by: d.me }] });
