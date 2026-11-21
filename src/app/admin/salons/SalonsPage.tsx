@@ -39,6 +39,9 @@ function needCell(s: SalonFacts, now: string): { text: string; due: string; hot:
   return { text: "Nothing open", due: "", hot: false };
 }
 
+/** "1 person" / "6 people": everyone on the salon team (owner, managers, desk, techs). */
+const people = (n: number | null | undefined) => (n === 1 ? "1 person" : `${n ?? 0} people`);
+
 export default function SalonsPage() {
   const admin = useAdmin();
   const router = useRouter();
@@ -92,7 +95,8 @@ export default function SalonsPage() {
         </section>
         <section className="group hl-table" style={{ padding: 0, gap: 0 }} data-testid="salon-list">
           <div className="ad-tablehead">
-            <h2 className="h2" style={{ margin: "0 auto 0 0" }}>{filter === "all" ? "All salons · worst first" : filter in COLUMN_LABEL ? `${COLUMN_LABEL[filter as Column]} · needs a look` : TONE_LABEL[filter as Tone]}</h2>
+            <h2 className="h2" style={{ margin: "0 auto 0 0" }}>{filter === "all" ? "All salons · worst first" : filter in COLUMN_LABEL ? `${COLUMN_LABEL[filter as Column]} · needs a look` : TONE_LABEL[filter as Tone]}
+              <span className="cap" style={{ fontWeight: 400, marginLeft: 8 }} data-testid="people-total">{people(shown.reduce((n, r) => n + (r.s.staff ?? 0), 0))} in {shown.length === 1 ? "1 salon" : `${shown.length} salons`}</span></h2>
             {(["all", "bad", "watch", "good"] as Filter[]).map((f) => (
               <Chip key={f} on={filter === f} aria-pressed={filter === f} onClick={() => pick(f)} data-testid={`f-${f}`}>
                 {{ all: "All", bad: "Needs us", watch: "Watch", good: "Good" }[f as "all"]} {f === "all" ? rows.length : count(f)}
@@ -109,7 +113,7 @@ export default function SalonsPage() {
               <div key={s.salon_id} className="hl-row" id={`s-${s.salon_id}`} data-testid="salon-row" data-tone={r.tone}>
                 <Link href={href()} className="hl-who" data-testid="salon-link">
                   <StatusIcon tone={r.tone} size={20} label={TONE_LABEL[r.tone]} />
-                  <span className="hl-who-t"><b>{s.salon_name}</b><span className="cap" data-testid="why">{r.why}</span></span>
+                  <span className="hl-who-t"><b>{s.salon_name}</b><span className="cap"><span data-testid="people">{people(s.staff)}</span> · <span data-testid="why">{r.why}</span></span></span>
                 </Link>
                 {COLUMNS.map((c) => (
                   <Link key={c} href={href(TAB_OF[c])} className={`hl-cell${r.cells[c].tone === "none" ? " is-dim" : ""}`} title={r.cells[c].tip} data-testid={`c-${c}`}>
