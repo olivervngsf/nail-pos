@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, PinKeypad } from "@/components/kit";
-import { pinMessage, rpc, SMS_ON, type PinResult, type Role } from "@/lib/auth";
+import { forgetDevice, pinMessage, rpc, SMS_ON, type PinResult, type Role } from "@/lib/auth";
 import { keypadLength, pinProblem, type PinRules } from "@/lib/pin";
 
 export type Face = { id: string; name: string; role: Role; clockedIn: boolean; hasPin: boolean; pinLen?: number | null; locked?: boolean };
@@ -26,6 +26,9 @@ export default function FacesLock({ salonName, faces, rules, deviceId, lastId, t
   const [newPin, setNewPin] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  // The server says this device is not a salon device any more (removed, or set up on another database): offer a way out.
+  const [gone, setGone] = useState(false);
+  const setUpAgain = () => { forgetDevice(); try { localStorage.removeItem("nailpos.acting"); } catch { /* storage blocked */ } location.href = "/today"; };
   const close = () => { setWho(null); setStep("pin"); setErr(""); setOldPin(""); setNewPin(""); };
 
   const typed = async (pin: string) => {
@@ -33,10 +36,11 @@ export default function FacesLock({ salonName, faces, rules, deviceId, lastId, t
     setErr("");
     if (step === "pin") {
       if (!SMS_ON) { onUnlock({ id: who.id, name: who.name, role: who.role, pin }); close(); return; }
-      if (!deviceId) return setErr(pinMessage({ ok: false, reason: "device" }));
+      if (!deviceId) { setGone(true); return setErr(t("gone")); }
       setBusy(true);
       try {
         const r = check ? await check(who.id, pin) : await rpc<PinResult & { needs_new?: boolean }>("pin_unlock", { p_device: deviceId, p_membership: who.id, p_pin: pin });
+        if (!r.ok && r.reason === "device") { setGone(true); return setErr(t("gone")); }
         if (!r.ok) return setErr(pinMessage(r));
         if (r.needs_new) { setOldPin(pin); setStep("new1"); return; }
         onUnlock({ id: who.id, name: who.name, role: who.role, pin }); close();
@@ -90,6 +94,7 @@ export default function FacesLock({ salonName, faces, rules, deviceId, lastId, t
             </div>
             {step !== "pin" && <div className="cap" style={{ textAlign: "center" }}>{t("newWhy", { n: rules.length })}</div>}
             <PinKeypad key={`${who.id}-${step}`} length={len} error={err} onDone={(p) => void typed(p)} />
+            {gone && <Button variant="primary" block data-testid="device-again" onClick={setUpAgain}>{t("setUpAgain")}</Button>}
             <Button variant="ghost" onClick={close}>{t("notMe")}</Button>
           </div>
         </>
