@@ -1,6 +1,7 @@
 # Price points: everything PolishOS costs (for Oliver, Elang, Laura)
 
 Updated Nov 23, 2026. Plain numbers in one place. "Real" = we pay it or it's on a bill; "est." = public price or a guess, check before relying on it.
+Shareable page (same content): https://claude.ai/artifact/MqrEjYoRYhdmaCTCZK1osU (source `docs/costs.html`; keep both in step).
 Deeper math: `founder/cfo.md` (inputs in `founder/numbers.json`). Price reasoning: `founder/pricing.md`. Go-live steps: `docs/go-live-plan.md`.
 
 ## 1. What a salon pays US

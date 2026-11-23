@@ -1,0 +1,176 @@
+<title>PolishOS Price Points</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one calm column like the PolishOS app — summary tiles, then one card per question */
+:root{
+  --ink:#1C1C1E;--ink-soft:#5C5C5E;--line:#E5E5EA;--paper:#FFFFFF;--surface:#F5F5F7;--fill:#EFEFF2;
+  --jade:#2F9E44;--jade-soft:#EAF5EC;--orange-text:#B5470A;--orange-soft:#FDEEE6;
+  --blue:#1C6FD1;--blue-soft:#E8F1FC;--grey-soft:#EFEFF2;
+  --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#F2F2F5;--ink-soft:#A7A7AD;--line:#2E2E33;--paper:#1C1C1F;--surface:#121214;--fill:#26262A;
+  --jade:#5CC274;--jade-soft:#1C3322;--orange-text:#F2A06A;--orange-soft:#3A2416;
+  --blue:#7DB3F0;--blue-soft:#18273A;--grey-soft:#2A2A2E;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ink:#F2F2F5;--ink-soft:#A7A7AD;--line:#2E2E33;--paper:#1C1C1F;--surface:#121214;--fill:#26262A;
+  --jade:#5CC274;--jade-soft:#1C3322;--orange-text:#F2A06A;--orange-soft:#3A2416;
+  --blue:#7DB3F0;--blue-soft:#18273A;--grey-soft:#2A2A2E;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--surface);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 56px}
+.wrap{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+a{color:var(--blue)}
+.top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;font-size:13px;color:var(--ink-soft)}
+h1{font-size:28px;font-weight:700;margin:4px 0 6px;letter-spacing:-.01em;text-wrap:balance}
+.lede{margin:0;color:var(--ink-soft);max-width:65ch}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.tile b{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.tile span{font-size:13px;color:var(--ink-soft)}
+.tile small{font-size:12px;color:var(--ink-soft)}
+section{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+h2{font-size:17px;font-weight:600;margin:0}
+.sub{margin:0;font-size:13px;color:var(--ink-soft)}
+.scroll{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;font-weight:600;color:var(--ink-soft);letter-spacing:.03em;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600}
+td .note{display:block;font-size:12.5px;color:var(--ink-soft)}
+tr.total td{font-weight:700;border-top:2px solid var(--line)}
+.pill{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.real{background:var(--jade-soft);color:var(--jade)}
+.est{background:var(--grey-soft);color:var(--ink-soft)}
+.quote{background:var(--orange-soft);color:var(--orange-text)}
+.prop{background:var(--blue-soft);color:var(--blue)}
+.key{display:flex;flex-wrap:wrap;gap:8px;font-size:12.5px;color:var(--ink-soft);align-items:center}
+ul.list{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.big{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.foot{font-size:12.5px;color:var(--ink-soft)}
+@media (max-width:720px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}h1{font-size:24px}section{padding:16px}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <span>Back to: <a href="https://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU">Nail POS Hub</a></span>
+    <span>Updated Nov 23, 2026 · for Oliver, Elang, Laura</span>
+  </div>
+
+  <header>
+    <h1>PolishOS price points</h1>
+    <p class="lede">Every price in one place: what a salon pays us, what it pays Stripe and for hardware, what we pay to run PolishOS, and when we break even.</p>
+  </header>
+
+  <div class="tiles">
+    <div class="tile"><span>Salon pays us</span><b>$49/mo</b><small>or $468/yr ($39/mo)</small></div>
+    <div class="tile"><span>Salon's year 1, all in</span><b>≈ $887</b><small>vs ~$2,400 at ABC</small></div>
+    <div class="tile"><span>Our fixed costs</span><b>~$644/mo</b><small>plan, once live</small></div>
+    <div class="tile"><span>Break-even</span><b>23 salons</b><small>paying</small></div>
+  </div>
+
+  <div class="key"><span>Status:</span>
+    <span class="pill real">Real</span> on a bill or decided
+    <span class="pill prop">Proposal</span> not final
+    <span class="pill est">Estimate</span> public price or guess
+    <span class="pill quote">Quote needed</span>
+  </div>
+
+  <section>
+    <h2>1. What a salon pays us</h2>
+    <div class="scroll"><table>
+      <tr><th>Item</th><th>Price</th><th>Status</th></tr>
+      <tr><td>Salon plan<span class="note">All staff, everything included</span></td><td class="n">$49/mo · $468/yr</td><td><span class="pill prop">Proposal</span></td></tr>
+      <tr><td>Free pilot</td><td class="n">first 30 days $0</td><td><span class="pill real">Real</span></td></tr>
+      <tr><td>Founding Salon offer<span class="note">First 10 salons, locked 12 months, then $49. Ends Mar 31 2027</span></td><td class="n">$39/mo</td><td><span class="pill prop">Proposal</span></td></tr>
+      <tr><td>Salon Plus<span class="note">Bigger salons, 2 locations; test with owners first</span></td><td class="n">$99–149/mo</td><td><span class="pill prop">Idea</span></td></tr>
+      <tr><td>Service texts<span class="note">Confirm, reminders, receipts, login codes</span></td><td class="n">included</td><td><span class="pill real">Real</span></td></tr>
+      <tr><td>Promo texts<span class="note">Prepaid credit. Vietnamese accents = shorter parts, so ~2×</span></td><td class="n">2¢ per part</td><td><span class="pill real">Real</span></td></tr>
+      <tr><td>Card fees</td><td class="n">no markup</td><td><span class="pill real">Real</span></td></tr>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>2. What a salon pays others</h2>
+    <p class="sub">Money goes straight from the salon to Stripe or the seller. We earn none of it.</p>
+    <div class="scroll"><table>
+      <tr><th>Item</th><th>Price</th><th>Status</th></tr>
+      <tr><td>Card on the Stripe reader</td><td class="n">2.7% + 5¢</td><td><span class="pill real">Real</span></td></tr>
+      <tr><td>Pay link / QR (backup)<span class="note">~20% more than the reader</span></td><td class="n">2.9% + 30¢</td><td><span class="pill real">Real</span></td></tr>
+      <tr><td>Stripe S710 card reader<span class="note">1 per salon, from the Stripe dashboard</span></td><td class="n">~$299 once</td><td><span class="pill est">Estimate</span></td></tr>
+      <tr><td>Stripe M2 small reader<span class="note">Only with our handheld / phone app</span></td><td class="n">~$59 once</td><td><span class="pill est">Estimate</span></td></tr>
+      <tr><td>Receipt printer + cash drawer</td><td class="n">$330–520 once</td><td><span class="pill est">Estimate</span></td></tr>
+      <tr class="total"><td>Typical year 1 ($49 × 12 + S710)</td><td class="n">≈ $887</td><td></td></tr>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>3. What we pay every month</h2>
+    <p class="sub">Planned costs once real salons are on. Today we really pay only Workspace, Twilio and Claude.</p>
+    <div class="scroll"><table>
+      <tr><th>Tool</th><th>Price</th><th>Status</th></tr>
+      <tr><td>Google Workspace<span class="note">Work email oliver@polishosapp.com, support@ as a free alias. Free until Dec 7. Elang + Laura = +$8.40 each</span></td><td class="n">$8.40/person</td><td><span class="pill real">Real</span></td></tr>
+      <tr><td>ImprovMX<span class="note">Forwarded support@ to Gmail; cancel once Workspace mail is on</span></td><td class="n">$0</td><td><span class="pill real">Real</span></td></tr>
+      <tr><td>Resend<span class="note">App emails: sign-in codes, booking confirms</span></td><td class="n">$0 → $20</td><td><span class="pill real">Free now</span></td></tr>
+      <tr><td>Supabase<span class="note">Database, test + live</span></td><td class="n">~$35</td><td><span class="pill est">Estimate</span></td></tr>
+      <tr><td>Vercel<span class="note">Hosting polishosapp.com</span></td><td class="n">$20</td><td><span class="pill est">Estimate</span></td></tr>
+      <tr><td>Twilio<span class="note">PolishOS number $1.15 + campaign; login code ~6¢ each. $20 prepaid</span></td><td class="n">~$12</td><td><span class="pill real">Real</span></td></tr>
+      <tr><td>Claude<span class="note">Building the app; drops to ~$20 after the build</span></td><td class="n">$150</td><td><span class="pill est">Estimate</span></td></tr>
+      <tr><td>Domains (GoDaddy)<span class="note">polishosapp.com + eo-collective.com, paid to Nov 2029</span></td><td class="n">prepaid</td><td><span class="pill real">Real</span></td></tr>
+      <tr><td>Apple + Google developer<span class="note">Phone app stores, later</span></td><td class="n">~$8</td><td><span class="pill est">Estimate</span></td></tr>
+      <tr><td>Accountant</td><td class="n">~$150</td><td><span class="pill quote">Quote needed</span></td></tr>
+      <tr><td>Insurance<span class="note">General liability + cyber/tech E&amp;O; ~$60 if only GL + cyber</span></td><td class="n">~$160</td><td><span class="pill quote">Quote needed</span></td></tr>
+      <tr><td>California LLC tax<span class="note">$800/yr, once EO Collective is formed</span></td><td class="n">~$67</td><td><span class="pill est">Not formed</span></td></tr>
+      <tr class="total"><td>Total fixed (plan)</td><td class="n">~$644/mo</td><td></td></tr>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>4. What each paying salon costs us</h2>
+    <div class="scroll"><table>
+      <tr><th>Item</th><th>Per month</th></tr>
+      <tr><td>Service texts (~600, local number)</td><td class="n">$10.00</td></tr>
+      <tr><td>Stripe Connect account</td><td class="n">$2.00</td></tr>
+      <tr><td>Login codes (~20)</td><td class="n">$1.20</td></tr>
+      <tr><td>Stripe fee on what we collect + Billing 0.7%</td><td class="n">$2.06</td></tr>
+      <tr><td>Guarantee reserve</td><td class="n">$1.50</td></tr>
+      <tr class="total"><td>Left per salon (at $45 blended price)</td><td class="n">$28.24 · 63%</td></tr>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>5. One-time costs before launch</h2>
+    <div class="scroll"><table>
+      <tr><th>Item</th><th>Cost</th></tr>
+      <tr><td>Lawyer: terms, privacy, texting consent</td><td class="n">~$1,500</td></tr>
+      <tr><td>LLC filing + Statement of Info + EIN + Twilio business switch</td><td class="n">~$300</td></tr>
+      <tr><td>Test hardware (mostly bought)</td><td class="n">~$1,000</td></tr>
+      <tr><td>Loaner S710 readers (3)</td><td class="n">~$900</td></tr>
+      <tr><td>Launch (flyers, video, travel) + Elang setup travel</td><td class="n">~$1,600</td></tr>
+      <tr class="total"><td>Total</td><td class="n">~$5,300</td></tr>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>6. Bottom line</h2>
+    <ul class="list">
+      <li>Break-even at <b>23 paying salons</b>.</li>
+      <li>Year 1: <b>-$4,593</b> on operations. Cash needed before it pays for itself: <b>~$9,900</b> (founders unpaid).</li>
+      <li>Biggest levers: Claude cost down after the build, faster setups (4–5 a month), test $49 vs $59.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>7. Still to decide</h2>
+    <ul class="list">
+      <li>Final price + Founding offer (Oliver + Elang).</li>
+      <li>Workspace seats for Elang + Laura, when they answer salons.</li>
+      <li>Insurance + accountant quotes.</li>
+      <li>Form the LLC, then move Workspace, Twilio and Stripe to EO Collective.</li>
+    </ul>
+  </section>
+
+  <p class="foot">Not tax, legal or financial advice; the accountant checks before money moves. Source in the repo: docs/costs.md · math: founder/cfo.md.</p>
+</div>
