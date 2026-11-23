@@ -24,6 +24,7 @@
 | Database | Supabase Pro | — | $25 org + ~$10 2nd project ([pricing](https://supabase.com/pricing)) | monthly card |
 | Hosting | Vercel Pro | — | $20/seat ([pricing](https://vercel.com/pricing)) | monthly card |
 | Email | Resend | Postmark | $0–20 | now |
+| Work email | Google Workspace Business Starter (signed up Nov 23) | ImprovMX forwarding (free, receive only) | $8.40/user/mo monthly | free until Dec 7 |
 | Insurance | Hiscox | NEXT / Insureon broker | GL ~$33/mo, tech E&O+cyber ~$126/mo ([Insureon](https://insureon.com/technology-business-insurance/saas-companies/cost)) | **quote needed** |
 | Accountant | local CPA (small-business) | Pilot / Bench-type online | ~$150/mo est. | **quote needed** |
 | Lawyer (terms, texting, CA pay) | startup lawyer flat fee | — | $500–2,000 est. | **quote needed** |

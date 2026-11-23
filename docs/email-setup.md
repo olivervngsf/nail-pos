@@ -5,6 +5,8 @@ Supabase → Authentication → Emails → SMTP: host `smtp.resend.com`, port 46
 Rate limit: 30/h now, 100/h before the first pilot salon. Resend free plan = 100 emails/day.
 
 ## Receiving email (support@polishosapp.com)
+**Moving to Google Workspace (Nov 23):** `oliver@polishosapp.com` is a real inbox ($8.40/user/mo) and `support@` becomes a free alias on it; MX rows switch from ImprovMX to `smtp.google.com`, SPF to `include:_spf.google.com`. Steps + status: `docs/go-live-plan.md` § 1. Until the MX swap, the ImprovMX setup below is what runs.
+
 Resend only SENDS (from `no-reply@mail.polishosapp.com`). Mail TO `support@polishosapp.com` is received by **ImprovMX** (improvmx.com, free forwarding, Oliver's account, Nov 20) and forwarded to Oliver's Gmail. DNS at GoDaddy on `polishosapp.com`: MX `mx1.improvmx.com` (10) + `mx2.improvmx.com` (20), SPF TXT `v=spf1 include:spf.improvmx.com ~all`. Resend's records live on `mail.` / `send.` and are not touched. Steps: `docs/go-live-plan.md` § 1. Working since Nov 20 (test email arrived). One `_dmarc` row only: `v=DMARC1; p=none;`.
 
 ## Templates (Supabase → Authentication → Emails)
