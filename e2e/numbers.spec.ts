@@ -4,6 +4,8 @@ import { expect, test } from "@playwright/test";
 test("owner numbers: periods, KPIs, fact line, staff table, export", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  // Sample data only has tickets up to "now": early on a Monday (CI runs in UTC) this week is still empty. Pin a Wednesday afternoon.
+  await page.clock.setFixedTime(new Date(2026, 10, 18, 15, 0, 0));
   await page.goto("/numbers");
   await expect(page.getByTestId("kpi-sales")).toContainText("$");
   await expect(page.getByTestId("nm-fact")).not.toBeEmpty();
