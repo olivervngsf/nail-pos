@@ -12,6 +12,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - Test logins (test project only): `docs/test-accounts.md`
 - Texting plan + FAQ (claude.ai): https://claude.ai/artifact/CCKEccsu486fXUywR76kdz
 - Hardware to buy: `docs/hardware-shopping-list.md`
+- Every price point (salons pay, we pay, per salon): `docs/costs.md`
 
 (The old `docs/go-live-checklist.md` and `docs/pilot-ready.md` are folded in here.)
 
@@ -46,6 +47,15 @@ When a step is done: tick it here, write the date, and tick the same check in **
   2. GoDaddy → polishosapp.com → DNS: delete any old MX rows; add MX `@` `mx1.improvmx.com` (10), MX `@` `mx2.improvmx.com` (20), TXT `@` `v=spf1 include:spf.improvmx.com ~all` (or add `include:spf.improvmx.com` to an existing SPF row). Never touch Resend's `mail` / `send` rows. Keep ONE `_dmarc` row (`v=DMARC1; p=none;`); two rows = both ignored, so GoDaddy's default `p=quarantine` row was deleted.
   3. ImprovMX "Check again" turns green → email support@ from another account → it lands in Gmail.
   - Resend = SENDING app email only (no-reply@mail.polishosapp.com); ImprovMX = RECEIVING. Replying AS support@ needs ImprovMX paid (~$9/mo) or Google Workspace (~$7/person); move to Workspace when Elang/Laura answer salons.
+- [ ] Nov 23 STARTED: **Google Workspace** = real work email (Stripe sales asked for one). Business Starter, monthly, **$8.40/user/mo**, free until Dec 7, billed to Viet Nguyen (change to EO Collective once the LLC exists: Admin console → Billing → payments profile). All prices: `docs/costs.md`.
+  1. [x] workspace.google.com → business name "EO Collective" → 2–9 people → US → "I have a domain" → `polishosapp.com`.
+  2. [x] User `oliver@polishosapp.com` (= the Workspace admin; password in 1Password) → Business Starter → checkout ($10 card check, refunded).
+  3. [ ] Verify the domain (Google signs in to GoDaddy, or paste its TXT row at GoDaddy).
+  4. [ ] Activate Gmail = swap mail at GoDaddy → polishosapp.com → DNS: delete MX `mx1.improvmx.com` + `mx2.improvmx.com`; add MX `@` `smtp.google.com` (1); SPF TXT `@` → `v=spf1 include:_spf.google.com ~all` (one SPF row only). Never touch Resend's `mail` / `send` rows; keep the one `_dmarc` row.
+  5. [ ] Admin console → Users → oliver → Add alternate email `support` (free alias, no 2nd seat) → email support@ + oliver@ from another account → both land in the Workspace inbox; reply works.
+  6. [ ] 2-step verification on oliver@ (admin account). Optional: Gmail "Check mail from other accounts" not needed.
+  7. [ ] Cancel ImprovMX (no longer used). Use oliver@ for Stripe sales + business sign-ups.
+  - Later: Elang + Laura = +$8.40/mo each (Admin console → Users → Add). Add eo-collective.com as a secondary domain (free) when the company site starts.
 
 ## 2. Turn on the live database (Oliver · ~30 min · needs paid Supabase plan ~$25/mo)
 - [ ] Supabase `nail-pos-live` → paid plan → Database → Backups: daily backups on.
