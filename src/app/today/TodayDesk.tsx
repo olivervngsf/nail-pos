@@ -50,7 +50,15 @@ export default function TodayDesk() {
         const list = (await myMemberships()).filter((m) => m.role !== "tech");
         if (!list.length) return router.replace("/t");
         setMs(list);
-        const d = getDevice();
+        let d = getDevice();
+        // A device set up with an owner/manager login that the salon no longer has (removed, or made on another database):
+        // forget it so the screen doesn't lock to faces whose PINs can never work. Only owner/manager can see the list.
+        if (d && !d.own && list.some((m) => m.salon_id === d!.salonId && (m.role === "owner" || m.role === "manager"))) {
+          try {
+            const devs = await rpc<{ id: string }[]>("devices_list", { p_salon: d.salonId });
+            if (!devs.some((x) => x.id === d!.id)) { forgetDevice(); d = null; }
+          } catch { /* offline: keep it */ }
+        }
         setDevice(d);
         const saved = (() => { try { return localStorage.getItem("nailpos.salon"); } catch { return null; } })();
         setSalonId(d?.salonId ?? list.find((m) => m.salon_id === saved)?.salon_id ?? list[0].salon_id);

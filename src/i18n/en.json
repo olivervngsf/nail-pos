@@ -1778,6 +1778,8 @@
     "demo": "Test version: changes stay on this device."
   },
   "faces": {
+    "gone": "This device was removed from the salon. Set it up again to use PINs here.",
+    "setUpAgain": "Set up this device again",
     "title": "Who’s working?",
     "sub": "{salon} · tap your face",
     "in": "In",

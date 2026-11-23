@@ -1778,6 +1778,8 @@
     "demo": "Bản thử: thay đổi chỉ lưu trên máy này."
   },
   "faces": {
+    "gone": "Máy này đã bị gỡ khỏi tiệm. Cài lại để dùng mã PIN ở đây.",
+    "setUpAgain": "Cài lại máy này",
     "title": "Ai đang làm?",
     "sub": "{salon} · bấm vào tên của bạn",
     "in": "Vào",
