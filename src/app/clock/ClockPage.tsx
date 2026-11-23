@@ -16,6 +16,8 @@ import { formatCents } from "@/lib/money";
 import { cachedRules, saveRules, type PinRules } from "@/lib/pin";
 
 const IDLE = 30_000;
+/** Test copy: a sample time-clock tablet so the device strip + gear menu show. */
+const DEMO_DEVICE = { id: "5c0e0000-0000-4000-8000-00000000c10c", salonId: "demo", name: "Back room tablet", kind: "clock" as const, own: true };
 type Period = "today" | "week" | "two";
 
 export default function ClockPage() {
@@ -71,7 +73,7 @@ export default function ClockPage() {
   if (!who) {
     return (
       <>
-        <FacesLock salonName={desk.salonName} title={t("title")} rules={rules} deviceId={desk.device?.id}
+        <FacesLock salonName={desk.salonName} title={t("title")} rules={rules} deviceId={desk.device?.id} device={desk.mode === "live" ? desk.device : DEMO_DEVICE}
           faces={desk.staff.map((s) => ({ id: s.id, name: s.name, role: s.role, clockedIn: s.clockedIn, hasPin: desk.mode === "demo" || !!s.pinLen, pinLen: s.pinLen }))}
           onUnlock={(u) => {
             setWho(u); setInNow(!!desk.staff.find((s) => s.id === u.id)?.clockedIn); setPeriod("today"); setRow(null); setMsg(""); poke(); void load(u, "today");

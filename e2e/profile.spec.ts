@@ -40,6 +40,28 @@ test("time clock: face → PIN → clock in + pay sheet → back to faces", asyn
   expect(errors).toEqual([]);
 });
 
+test("time clock: device strip shows who + ID, gear asks owner PIN, menu shows the same facts", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/clock");
+  const strip = page.getByTestId("device-strip");
+  await expect(strip).toContainText("Back room tablet");
+  await expect(strip).toContainText(/#[2-9A-HJ-NP-Z]{4}/);
+  await expect(strip).toContainText("Active");
+  await expect(strip).toContainText("Its own device login (QR)");
+  await page.getByTestId("device-gear").click();
+  await page.getByTestId("boss-Owner (test)").click();
+  await typePin(page, "258013");
+  const menu = page.getByTestId("device-menu");
+  await expect(menu).toContainText("Device ID");
+  await expect(menu).toContainText("never changes");
+  await expect(page.getByTestId("device-signout")).toBeVisible();
+  await menu.getByRole("button", { name: "Close" }).click();
+  await expect(menu).toBeHidden();
+  await expect(page.getByTestId("faces")).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test("settings: add a team member, PIN rules to 10 digits, PIN activity", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));

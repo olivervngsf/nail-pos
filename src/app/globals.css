@@ -1533,3 +1533,29 @@ button:disabled { cursor: not-allowed; }
   .cc-search { width: 100%; }
 }
 .cc-table td:last-child { white-space: nowrap; }
+
+/* Salon device info on the faces screen (board https://claude.ai/artifact/FMfHSYjGBmviTiqfX8TYXK): strip, gear menu, removed. */
+.dev-code { font-family: ui-monospace, Menlo, monospace; font-weight: 500; color: var(--ink-soft); font-size: .92em; }
+.dev-strip { margin-top: auto; width: 100%; max-width: 860px; display: flex; align-items: center; gap: 12px; background: var(--paper); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); padding: 12px 12px 12px 16px; box-sizing: border-box; }
+.dev-strip-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.dev-strip-t b { font-weight: 600; font-size: 14px; }
+.dev-strip-t .cap { overflow-wrap: anywhere; }
+.dev-gear { width: 44px; height: 44px; flex: none; border: 0; border-radius: var(--r-md); background: var(--fill); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.dev-gear:hover { background: var(--line); }
+.dev-pick { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.dev-menu { gap: 12px; max-height: calc(100dvh - 32px); overflow: auto; }
+.dev-menu-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.dev-facts { margin: 0; background: var(--surface); border-radius: var(--r-md); padding: 4px 14px; }
+.dev-facts > div { display: flex; justify-content: space-between; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.dev-facts > div:last-child { border-bottom: 0; }
+.dev-facts dt { color: var(--ink-soft); }
+.dev-facts dd { margin: 0; font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+.dev-st { display: flex; align-items: center; gap: 6px; }
+.dev-removed { width: 100%; max-width: 480px; padding: 28px 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; margin: auto 0; }
+.dv-this { display: flex; flex-direction: column; gap: 10px; box-shadow: 0 0 0 2px var(--st-good); }
+/* Time clock: QR card + test note sit above the device strip, never on it. */
+.clock-qr { z-index: 36; } /* above the faces screen (35), which used to hide it */
+body:has(.dev-strip) .clock-qr { bottom: 108px; }
+body:has(.clock-demo) .faces { padding-bottom: 76px; }
+body:has(.clock-demo):has(.dev-strip) .clock-qr { bottom: 168px; }
+body:has(.faces .scrim) .clock-qr { display: none; }

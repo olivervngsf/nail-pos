@@ -1802,7 +1802,40 @@
     "clock": "Chấm công",
     "lock": "Khoá",
     "clockedIn": "{name} đã chấm công vào · {time}",
-    "clockedOut": "{name} đã chấm công ra · {time}"
+    "clockedOut": "{name} đã chấm công ra · {time}",
+    "dev": {
+      "as": "Đăng nhập bằng {name} ({role})",
+      "asDevice": "Tài khoản riêng của máy (QR)",
+      "state": {
+        "active": "Đang dùng",
+        "removed": "Đã gỡ",
+        "unknown": "Chưa kiểm tra được"
+      },
+      "gear": "Cài đặt máy",
+      "title": "Máy này",
+      "openedBy": "Mở bởi {name}",
+      "nick": "Tên gọi",
+      "id": "Mã máy",
+      "idNote": "không bao giờ đổi",
+      "job": "Việc",
+      "who": "Đăng nhập bằng",
+      "setUp": "Cài lúc",
+      "status": "Trạng thái",
+      "settings": "Cài đặt máy (tên gọi, việc)",
+      "ownDevice": "Máy này có tài khoản riêng. Đổi trên điện thoại của chủ: Cài đặt → Thiết bị.",
+      "stop": "Thôi dùng làm máy của tiệm (vẫn đăng nhập bằng {name})",
+      "signOut": "Đăng xuất máy này",
+      "close": "Đóng",
+      "removedTitle": "Máy này đã bị gỡ khỏi tiệm",
+      "removedWhy": "Mã PIN không dùng được ở đây cho tới khi cài lại.",
+      "again": "Cài lại máy này",
+      "signOutInstead": "Đăng xuất",
+      "askOwner": "Không phải chủ? Nhờ chủ mở Cài đặt → Thiết bị.",
+      "bossOnly": "Chỉ chủ hoặc quản lý mới mở được.",
+      "pick": "Chủ hoặc quản lý: bấm tên, rồi nhập PIN.",
+      "noBoss": "Chưa có chủ hoặc quản lý nào có PIN.",
+      "pinFor": "{name}, nhập PIN để mở cài đặt máy"
+    }
   },
   "clock": {
     "title": "Chấm công",
@@ -2080,7 +2113,7 @@
       "useHereBtn": "Cài thiết bị này",
       "ready": "{name} đã sẵn sàng",
       "works": "Chạy giống nhau trên iPad, máy tính bảng Android và máy tính (Safari hoặc Chrome). Giữ một màn hình bằng Guided Access (iPad) hoặc Ghim màn hình (Android).",
-      "name": "Tên",
+      "name": "Tên gọi",
       "job": "Việc",
       "jobNote": {
         "front_desk": "Tính tiền, lịch, khách · tên + PIN.",
@@ -2113,7 +2146,13 @@
       "neverOn": "Chưa bật lần nào",
       "lastOn": "Bật lần cuối {when}",
       "count": "{on}/{all} đang bật",
-      "onMeans": "Đang bật = ứng dụng đang mở và hiện trên thiết bị đó. Tắt màn hình hoặc đóng trình duyệt sẽ hiện là Đã tắt."
+      "onMeans": "Đang bật = ứng dụng đang mở và hiện trên thiết bị đó. Tắt màn hình hoặc đóng trình duyệt sẽ hiện là Đã tắt.",
+      "id": "Mã máy",
+      "idNote": "#{code} · không bao giờ đổi",
+      "thisDevice": "Máy này",
+      "onIt": "Bạn đang dùng",
+      "thisWho": "Đăng nhập bằng {who}. Nhân viên thấy tên và trạng thái này ở cuối màn hình chọn mặt.",
+      "sync": "Thay đổi ở đây hiện trên màn hình chọn mặt của máy đó trong vòng 1 phút."
     },
     "pay": {
       "lead": "Tài khoản Stripe riêng của tiệm. Tiền thẻ vào thẳng ngân hàng của tiệm; chúng tôi không giữ tiền.",

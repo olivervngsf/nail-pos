@@ -1802,7 +1802,40 @@
     "clock": "Time clock",
     "lock": "Lock",
     "clockedIn": "{name} clocked in · {time}",
-    "clockedOut": "{name} clocked out · {time}"
+    "clockedOut": "{name} clocked out · {time}",
+    "dev": {
+      "as": "Signed in as {name} ({role})",
+      "asDevice": "Its own device login (QR)",
+      "state": {
+        "active": "Active",
+        "removed": "Removed",
+        "unknown": "Can't check right now"
+      },
+      "gear": "Device settings",
+      "title": "This device",
+      "openedBy": "Opened by {name}",
+      "nick": "Nickname",
+      "id": "Device ID",
+      "idNote": "never changes",
+      "job": "Job",
+      "who": "Signed in as",
+      "setUp": "Set up",
+      "status": "Status",
+      "settings": "Device settings (nickname, job)",
+      "ownDevice": "This tablet has its own login. Change it on the owner's phone: Settings → Devices.",
+      "stop": "Stop using as salon device (stays signed in as {name})",
+      "signOut": "Sign out this device",
+      "close": "Close",
+      "removedTitle": "This device was removed from the salon",
+      "removedWhy": "PINs can't work here until it's set up again.",
+      "again": "Set up this device again",
+      "signOutInstead": "Sign out instead",
+      "askOwner": "Not the owner? Ask the owner to open Settings → Devices.",
+      "bossOnly": "Only an owner or manager can open this.",
+      "pick": "Owner or manager: tap your name, then your PIN.",
+      "noBoss": "No owner or manager has a PIN yet.",
+      "pinFor": "{name}, your PIN for device settings"
+    }
   },
   "clock": {
     "title": "Time clock",
@@ -2080,7 +2113,7 @@
       "useHereBtn": "Set up this device",
       "ready": "{name} is ready",
       "works": "Works the same on iPad, Android tablets and computers (Safari or Chrome). Keep it on one screen with Guided Access (iPad) or Screen pinning (Android).",
-      "name": "Name",
+      "name": "Nickname",
       "job": "Job",
       "jobNote": {
         "front_desk": "Checkout, calendar, clients · face + PIN.",
@@ -2113,7 +2146,13 @@
       "neverOn": "Never on",
       "lastOn": "Last on {when}",
       "count": "{on} of {all} on",
-      "onMeans": "On = the app is open and showing on that device. Screen off or browser closed shows as Off."
+      "onMeans": "On = the app is open and showing on that device. Screen off or browser closed shows as Off.",
+      "id": "Device ID",
+      "idNote": "#{code} · never changes",
+      "thisDevice": "This device",
+      "onIt": "You're on it",
+      "thisWho": "Signed in as {who}. Staff see this name and status at the bottom of the faces screen.",
+      "sync": "Changes here show on that device's faces screen within 1 minute."
     },
     "pay": {
       "lead": "Your salon's own Stripe account. Card money goes straight to your bank; we never hold it.",
