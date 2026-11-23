@@ -71,7 +71,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - [ ] Google sign-in (optional, ~15 min): Google Cloud project "PolishOS" → OAuth consent (External, polishosapp.com) → Web client (origin `https://polishosapp.com`, redirect = the live Supabase callback URL) → live Supabase → Providers → Google on + **Manual linking** on → Vercel Production `NEXT_PUBLIC_GOOGLE_LOGIN=on` → redeploy.
 
 ## 5. Payments live (Oliver · ~1 h + Stripe review)
-- [ ] Stripe → live mode: finish the platform profile + Connect for live (business details, bank).
+- [ ] Stripe → live mode: finish the platform profile + Connect for live (business details, bank; use EO Collective LLC + EIN + business bank from step 7).
 - [ ] Vercel Production `STRIPE_SECRET_KEY` = live key → redeploy.
 - [ ] polishosapp.com/admin/system → Stripe webhooks card shows **live mode** → tap **Set up webhooks** → both rows **On**. (Live and sandbox are separate; the button makes both live webhooks and keeps their secrets. Details: `docs/stripe-webhooks.md`.)
 - [ ] **Prices final first** (see step 7): the app makes the plan prices in Stripe the first time an owner opens Billing ($49/mo, $468/yr today). Changing a price after that = Claude adds a new price version.
@@ -87,7 +87,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 ## 6. Texting (Oliver · forms now, carriers take ~1–3 weeks)
 - [x] Nov 19: Twilio pay-as-you-go; number +1 (775) 535-8984; sole proprietor brand "Viet Nguyen" **approved**.
 - [ ] Campaign approved (submitted Nov 19) → Messaging Service already has the number → Messaging Service `MG…` → Vercel `TWILIO_MESSAGING_SERVICE_SID` (Production + Preview) → redeploy → Admin → Home → "Send a test text" says Delivered.
-- [ ] **Before charging the first salon money:** switch Twilio to a business account (EO Collective + EIN + business address) and move the tax info. Sole proprietor = testing/pilot only (1 number, <3,000 texts/day).
+- [ ] **Before charging the first salon money:** switch Twilio to a business account (EO Collective + EIN + business address) and move the tax info (needs the company first: step 7 "Register EO Collective"). Sole proprietor = testing/pilot only (1 number, <3,000 texts/day).
 - [ ] Salon promo texts never go on the PolishOS number: each salon needs its own number + brand + Marketing campaign (on its setup day).
 - [x] Nov 19: campaign form submitted (sole proprietor, invites + notices, verbal opt-in script, links `/legal/terms` + `/legal/privacy`); legal pages renamed "Terms of Service" / "Privacy Policy" with an SMS Terms section. Carrier review ~1–3 weeks.
 - [x] Nov 20 DONE (set by API): Messaging Service renamed "PolishOS" (MGfb1e10…), incoming = `https://polishosapp.com/api/sms/inbound`, delivery status = `https://polishosapp.com/api/sms/status`, number's own webhook off (STOP/HELP reach us).
@@ -100,6 +100,20 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - [ ] **Final price** (Elang + Oliver): proposal = Salon $49/mo (or $39/mo yearly) after a free 30-day pilot; Salon Plus later. Tell Claude before any owner opens Billing on live.
 - [ ] Lawyer reads `/legal/terms`, `/legal/privacy`, `/legal/texts` (text in `src/lib/legal.ts`) and the texting consent wording.
 - [ ] Pilot salons (Elang): pick 2–3; ask how they pay techs today and whether they have booth renters.
+
+### Register EO Collective as a company (Oliver + Elang · ~1–2 weeks · ~$900 to start)
+California LLC (the CFO numbers already count the $800/yr). Not legal or tax advice: book a 1-hour CPA call (~$150–300) for the owner split + taxes. Skip Delaware unless we raise VC money (we'd still pay CA's $800 and file in CA too; Stripe Atlas does Delaware for ~$500 if that day comes).
+- [ ] **Name check** (5 min): bizfileonline.sos.ca.gov → search "EO Collective"; the name ends in "LLC".
+- [ ] **Who owns it** (Oliver + Elang): Oliver only, or Oliver + Elang (e.g. 50/50)? Two owners = multi-member LLC = a partnership tax return each year (CPA).
+- [ ] **Articles of Organization** (Form LLC-1, online, $70) at bizfileonline.sos.ca.gov. Registered agent = us at a CA address (free) or a paid service (~$50–150/yr) to keep a home address off the record. Usually approved in days. Date: ____.
+- [ ] **EIN** (free, ~10 min): irs.gov → "Apply for an EIN online", after the LLC is approved. Keep the letter in the password manager / shared drive.
+- [ ] **Statement of Information** (Form LLC-12, $20) within 90 days of forming, then every 2 years.
+- [ ] **Operating agreement**: who owns what, who decides, what happens if someone leaves. A must with 2 founders.
+- [ ] **Business bank account** with the LLC papers + EIN; company money never mixed with personal.
+- [ ] **DBA "PolishOS"** (Fictitious Business Name, county clerk, ~$50–100): we sell as PolishOS, not EO Collective.
+- [ ] **City business license** where we work from.
+- [ ] **$800 CA franchise tax every year** (Form 3522): first payment due by the 15th day of the 4th month after forming (the first-year free pass ended in 2024).
+- [ ] **Move our accounts to the company** (after EIN + bank): Twilio business profile (step 6), Stripe platform account business details + bank (step 5, before live mode), Resend / Vercel / GoDaddy / Supabase / Anthropic billing → company card; business insurance (~$160/mo, `founder/`).
 
 ## 8. Know when something breaks (Oliver · ~20 min)
 - [ ] Sentry: sentry.io → Next.js project "polishos" → DSN → Vercel Production `NEXT_PUBLIC_SENTRY_DSN` → redeploy; email alerts for new issues. Tick "Sentry alerts".
