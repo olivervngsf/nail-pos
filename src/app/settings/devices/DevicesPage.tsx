@@ -10,6 +10,8 @@ import { Button, Chip, Drawer, Field, Toast } from "@/components/kit";
 import { DEVICE_HOME, forgetDevice, getDevice, makeSalonDevice, rpc, type DeviceKind } from "@/lib/auth";
 import DeviceMark from "@/components/DeviceMark";
 import { deviceState, devicesOn } from "@/lib/devices";
+import { deviceCode } from "@/lib/deviceInfo";
+import StatusIcon from "@/components/StatusIcon";
 import SettingsShell, { type Access } from "../SettingsShell";
 
 type Kind = DeviceKind;
@@ -130,6 +132,20 @@ function Devices({ a }: { a: Access }) {
   if (!list) return <div aria-busy="true" />;
   return (
     <>
+      {thisOne && (() => {
+        const row = list.find((d) => d.id === thisOne.id);
+        return (
+          <section className="card pad dv-this" data-testid="this-device">
+            <div className="dv-head">
+              <StatusIcon tone={row ? "good" : "bad"} size={20} />
+              <b style={{ flex: 1 }}>{t("thisDevice")} · {row?.name ?? thisOne.name} <span className="dev-code">#{deviceCode(thisOne.id)}</span></b>
+              <span className="ad-pill good">{t("onIt")}</span>
+            </div>
+            <span className="cap">{t("thisWho", { who: row?.set_up_by ?? "—" })}</span>
+            {row && <div><Button size="sm" onClick={() => setEdit(row)}>{t("name")} · {t("job")}</Button></div>}
+          </section>
+        );
+      })()}
       <section className="card pad dv-card" data-testid="device-list">
         <div className="dv-head">
           <b>{t("title")}</b>
@@ -141,7 +157,7 @@ function Devices({ a }: { a: Access }) {
             return (
               <button key={d.id} type="button" className={`dv-tile is-${st}`} data-testid={`device-${d.name}`} data-state={st} onClick={() => setEdit(d)}>
                 <span className="dv-state"><DeviceMark state={st} size={22} /><span className={`ad-pill ${st === "on" ? "good" : st === "off" ? "warn" : ""}`}>{t(st === "on" ? "on" : st === "off" ? "off" : "neverOn")}</span></span>
-                <b>{d.name}{thisOne?.id === d.id ? ` · ${t("thisOne")}` : ""}</b>
+                <b>{d.name} <span className="dev-code">#{deviceCode(d.id)}</span>{thisOne?.id === d.id ? ` · ${t("thisOne")}` : ""}</b>
                 <span className="cap">{t(`kind.${d.kind}`)}{d.set_up_by ? ` · ${t("by", { name: d.set_up_by })}` : ""}</span>
                 {st === "off" && d.last_seen && <span className="cap">{t("lastOn", { when: f.relativeTime(new Date(d.last_seen), new Date(now)) })}</span>}
               </button>
@@ -149,7 +165,7 @@ function Devices({ a }: { a: Access }) {
           })}
         </div>
         {!list.length && <span className="cap">{t("none")}</span>}
-        {list.length > 0 && <span className="cap">{t("onMeans")}</span>}
+        {list.length > 0 && <span className="cap">{t("onMeans")} {t("sync")}</span>}
       </section>
 
       {!thisOne && (
@@ -196,6 +212,7 @@ function DeviceDrawer({ a, d, isHere, onClose, onDone }: { a: Access; d: Dev; is
   return (
     <Drawer title={d.name} onClose={onClose} footer={<><Button onClick={onClose}>{t("cancel")}</Button><Button variant="primary" block onClick={() => void save()} disabled={!name.trim()}>{t("save")}</Button></>}>
       <Field id="dev-name" label={t("name")} value={name} onChange={(e) => setName(e.target.value)} />
+      <div className="cap" data-testid="device-id">{t("id")}: <b className="dev-code">{t("idNote", { code: deviceCode(d.id) })}</b></div>
       <div><span className="lbl">{t("job")}</span>
         <div className="set-chips">{(["front_desk", "clock", "kiosk"] as Kind[]).map((k) => <Chip key={k} on={kind === k} onClick={() => setKind(k)}>{t(`kind.${k}`)}</Chip>)}</div>
         <div className="cap" style={{ marginTop: 6 }}>{t(`jobNote.${kind}`)}</div></div>
