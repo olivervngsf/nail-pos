@@ -78,6 +78,6 @@ Add a row every time we buy something for the project. Totals include tax + ship
 | Date | What | From | Paid | Status | Notes |
 |---|---|---|---|---|---|
 | Nov 24, 2026 | Stripe S710 card reader ×1 + 1 add-on (shown next to it on the order) | Stripe dashboard → Terminal → Shop (lotus-test) | **$354.17** | Pending (shipping to Oakland, CA) | For building + testing. Register in **Sandbox** when it arrives (needs a Stripe Location first); move to Live for the first real salon |
-| Nov 18, 2026 | PS10 handheld terminal (H10, Android, 58 mm printer) | Amazon | (add price) | Got it | Our Android app runs on it |
+| Nov 18, 2026 | PS10 handheld terminal (H10, Android 14, 58 mm printer, NFC) | Amazon | (add price) | Got it, in use | Bought to test taking cards by tap on its NFC. Lesson: it can't. Stripe Tap to Pay needs a Google-certified device and the PS10 says "Device is not certified". Still useful: our Android app + its printer work on it. Cards on it = Stripe M2 reader next to it. That's why we bought the Stripe S710 for the front desk |
 | **Total so far** | | | **$354.17** + PS10 | | |
 
