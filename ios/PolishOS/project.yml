@@ -25,3 +25,4 @@ targets:
         CODE_SIGN_ENTITLEMENTS: PolishOS/PolishOS.entitlements
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: PolishOS/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
