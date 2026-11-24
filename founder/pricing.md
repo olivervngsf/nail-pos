@@ -1,5 +1,7 @@
 # Pricing: PolishOS
 
+All prices in one place: `docs/costs.md` (page https://claude.ai/artifact/MqrEjYoRYhdmaCTCZK1osU); 4-tier plan + $100k goal = its § 1b (Nov 24). Running Costs doc: https://claude.ai/artifact/UioTSft9RRanZRPN9j7qom
+
 ## 1. The price: keep **$49/month per salon**
 - Panel range (simulated): **$20 – $81**. $49 = the IPP (as many call it a bargain as expensive). Median: bargain $30, expensive $70, too expensive $120. `pricing-curve.md`.
 - Competitors: nail POS software $39–100, median ~$50 (`competitors.md`). ABC $40 "limited-time" but year 1 ≈ $2,400 with hardware.
