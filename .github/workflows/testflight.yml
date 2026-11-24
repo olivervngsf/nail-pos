@@ -30,7 +30,23 @@ jobs:
         run: |
           test -n "$ASC_KEY_P8" || { echo "Add the ASC_KEY_P8 secret first (see ios/PolishOS/README.md)"; exit 1; }
           mkdir -p "$RUNNER_TEMP/keys"
-          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8"
+          # The .p8 text is often pasted with its line breaks lost (one long line) or without the BEGIN/END lines.
+          # Rebuild a clean key file from whatever was pasted, then check it really is a private key.
+          python3 - "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" <<'PY'
+          import base64, os, re, sys
+          raw = os.environ["ASC_KEY_P8"]
+          body = re.sub(r"-----(BEGIN|END)[A-Z ]*-----", "", raw)
+          body = re.sub(r"[^A-Za-z0-9+/=]", "", body)
+          try:
+              der = base64.b64decode(body, validate=True)
+          except Exception:
+              der = b""
+          if len(der) < 100:
+              sys.exit("ASC_KEY_P8 is not the .p8 key file. Open AuthKey_XXXX.p8 in TextEdit, copy ALL of it, and paste it again into the GitHub secret.")
+          lines = [body[i:i + 64] for i in range(0, len(body), 64)]
+          open(sys.argv[1], "w").write("-----BEGIN PRIVATE KEY-----\n" + "\n".join(lines) + "\n-----END PRIVATE KEY-----\n")
+          print("Key file OK (%d bytes)." % len(der))
+          PY
       - name: Archive (signed)
         working-directory: ios/PolishOS
         env:
