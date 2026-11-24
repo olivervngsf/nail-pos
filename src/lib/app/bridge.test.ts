@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { appCall, appTell, appVersion, inApp, onAppEvent } from "./bridge";
+import { appCall, appHasPrinter, appTell, appVersion, inApp, inIosApp, onAppEvent } from "./bridge";
 
 /** A pretend Android app: remembers what the page sent and lets the test answer. */
 function fakeApp(agent = "Mozilla/5.0 (Linux; Android 14) Chrome/130 PolishOSApp/1.1") {
@@ -28,6 +28,16 @@ describe("app bridge", () => {
     expect(appVersion()).toBe(1.1);
     fakeApp("Mozilla/5.0 (Linux; Android 14) Chrome/130");
     expect(appVersion()).toBe(1);
+  });
+
+  it("knows the iPhone app (no built-in printer there)", () => {
+    fakeApp("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) Mobile/15E148 Safari/604.1 PolishOSApp/1.2 PolishOS-iOS");
+    expect(appVersion()).toBe(1.2);
+    expect(inIosApp()).toBe(true);
+    expect(appHasPrinter()).toBe(false);
+    fakeApp();
+    expect(inIosApp()).toBe(false);
+    expect(appHasPrinter()).toBe(true);
   });
 
   it("matches an answer to its question", async () => {

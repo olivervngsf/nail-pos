@@ -8,12 +8,29 @@ import { addDays, at, dayKey } from "@/lib/booking/grid";
 import { demoPayout, isoDay, nums, weekStart, type PayoutRow } from "@/lib/closeday";
 import type { TechMe } from "./tech";
 
+/** The time now, ticking every `everyMs` (screens that show "in 12 min" / timers). */
+export function useNow(everyMs = 30000) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => { const i = setInterval(() => setNow(Date.now()), everyMs); return () => clearInterval(i); }, [everyMs]);
+  return now;
+}
+
+/** Pull again every minute and whenever the phone comes back to this screen (the desk may have moved a client). */
+const REFRESH_MS = 60000;
+
 /** My bookings from `fromDay` for `days` days (YYYY-MM-DD), newest server copy merged in. */
 export function useMyAppts(me: TechMe | null, fromDay: string, days: number) {
   const from = useMemo(() => at(fromDay, 0), [fromDay]);
   const to = useMemo(() => at(dayKey(addDays(new Date(`${fromDay}T12:00:00`), days)), 0), [fromDay, days]);
   const all = useAppts(me?.salonId ?? "", from, to);
-  useEffect(() => { if (me?.live) void pullMyAppts(me.salonId, from, to, me.id).catch(() => { /* offline: device copy */ }); }, [me, from, to]);
+  useEffect(() => {
+    if (!me?.live) return;
+    const pull = () => { if (document.visibilityState !== "hidden") void pullMyAppts(me.salonId, from, to, me.id).catch(() => { /* offline: device copy */ }); };
+    pull();
+    const i = setInterval(pull, REFRESH_MS);
+    document.addEventListener("visibilitychange", pull);
+    return () => { clearInterval(i); document.removeEventListener("visibilitychange", pull); };
+  }, [me, from, to]);
   return useMemo(() => all.filter((a) => a.staffId === me?.id && !["canceled", "no_show", "walked_out"].includes(a.status)), [all, me]);
 }
 

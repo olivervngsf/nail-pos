@@ -2,7 +2,7 @@
 // Print to a Bluetooth thermal printer straight from the browser (Web Bluetooth).
 // Works in Chrome on Android (tablets, phones) and in the Bluefy browser on iPhone/iPad. Desktop uses normal printing.
 import type { Paper } from "./escpos";
-import { appCall, inApp } from "@/lib/app/bridge";
+import { appCall, appHasPrinter, inApp } from "@/lib/app/bridge";
 
 export { inApp };
 
@@ -26,7 +26,7 @@ type BT = { requestDevice(o: unknown): Promise<Dev>; getDevices?(): Promise<Dev[
 
 const bt = (): BT | null => (typeof navigator !== "undefined" && "bluetooth" in navigator ? (navigator as unknown as { bluetooth: BT }).bluetooth : null);
 /** This device can print receipts itself: Web Bluetooth, or our Android app with the terminal's own printer. */
-export const canBluetooth = () => !!bt() || inApp();
+export const canBluetooth = () => !!bt() || appHasPrinter();
 export const isIOS = () => typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 // ── Our own Android app (handheld terminal with a printer inside) ───────────────────────────────────────────────
@@ -45,7 +45,7 @@ export function savedPrinter(): SavedPrinter | null {
   let p: SavedPrinter | null = null;
   try { p = JSON.parse(localStorage.getItem(KEY) || "null"); } catch { /* */ }
   // Inside our app the terminal's printer is the printer; only the paper width is remembered.
-  if (inApp()) return { id: "app", name: "Built-in printer", paper: p?.via === "app" ? p.paper : 58, via: "app" };
+  if (appHasPrinter()) return { id: "app", name: "Built-in printer", paper: p?.via === "app" ? p.paper : 58, via: "app" };
   return p?.via === "app" ? null : p;
 }
 export function savePrinter(p: SavedPrinter | null) {
@@ -155,7 +155,7 @@ function rawbtPrint(bytes: Uint8Array) {
 
 /** Send receipt bytes in small pieces (Bluetooth sends ~100 bytes at a time). */
 export async function printBytes(bytes: Uint8Array, paper: Paper): Promise<void> {
-  if (inApp()) return appPrint(bytes);
+  if (appHasPrinter()) return appPrint(bytes);
   const via = savedPrinter()?.via;
   if (via === "rawbt") return rawbtPrint(bytes);
   if (via === "serial") return serialPrint(bytes, paper);

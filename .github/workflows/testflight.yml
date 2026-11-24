@@ -1,0 +1,67 @@
+# Signs the iPhone app and uploads it to TestFlight. Run by hand: Actions → "iPhone app → TestFlight" → Run workflow.
+# Needs repo secrets (never in the code): APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (the .p8 file's text).
+# Signing is automatic in Apple's cloud (the App Store Connect key must have the Admin role).
+name: iPhone app → TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      tap_to_pay:
+        description: "Include Tap to Pay (only after Apple granted it to the account)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make the Xcode project
+        working-directory: ios/PolishOS
+        run: brew install xcodegen && xcodegen generate
+      - name: App Store Connect key
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          test -n "$ASC_KEY_P8" || { echo "Add the ASC_KEY_P8 secret first (see ios/PolishOS/README.md)"; exit 1; }
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8"
+      - name: Archive (signed)
+        working-directory: ios/PolishOS
+        env:
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ENTITLEMENTS: ${{ inputs.tap_to_pay && 'PolishOS/PolishOS.entitlements' || 'PolishOS/PolishOS-NoTap.entitlements' }}
+        run: |
+          set -o pipefail
+          xcodebuild -project PolishOS.xcodeproj -scheme PolishOS -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/PolishOS.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic \
+            CODE_SIGN_ENTITLEMENTS="$ENTITLEMENTS" \
+            CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            archive | tail -60
+      - name: Upload to TestFlight
+        working-directory: ios/PolishOS
+        env:
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -o pipefail
+          /usr/libexec/PlistBuddy -c "Add :teamID string $TEAM" ExportOptions.plist
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/PolishOS.xcarchive" \
+            -exportOptionsPlist ExportOptions.plist -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" | tail -40
+      - if: always()
+        run: rm -rf "$RUNNER_TEMP/keys"

@@ -974,6 +974,15 @@ button:disabled { cursor: not-allowed; }
 .t-bar{height:6px;border-radius:3px;background:var(--fill);overflow:hidden}
 .t-bar>span{display:block;height:100%;background:var(--ink)}
 .t-bar.jade>span{background:var(--jade)}
+.t-bar.orange>span{background:var(--orange)}
+/* Tech app · My day (board T2): not confirmed = orange stripe on the left, free gap = dashed, now = red line. */
+.t-row.unconf{box-shadow:inset 4px 0 0 var(--orange);background:repeating-linear-gradient(135deg,transparent 0 8px,rgba(232,89,12,.06) 8px 16px)}
+.t-row.t-gap{text-decoration:none;color:inherit;background:transparent;outline:1.5px dashed var(--line);outline-offset:-6px;border-radius:12px;min-height:52px}
+.t-now{display:flex;align-items:center;gap:6px;padding:4px 10px;border-bottom:1px solid var(--line)}
+.t-now>span{padding:1px 6px;border-radius:6px;background:var(--red);color:#fff;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+.t-now>i{flex:1;height:2px;background:var(--red);border-radius:1px}
+.t-row.today{background:var(--fill)}
+.t-row.past{color:var(--ink-soft)}
 .t-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .t-tiles .tile{padding:14px;gap:4px;font-size:14px;min-height:76px;box-sizing:border-box}
 .bill-addon { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
