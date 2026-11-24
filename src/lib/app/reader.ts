@@ -1,6 +1,7 @@
 "use client";
 // The small card reader next to a handheld terminal (Stripe Reader M2), reached through our Android app.
-// Or, app 1.2+, Tap to Pay: the client taps the card / phone wallet on the back of the phone itself (no reader).
+// Or, app 1.2+, Tap to Pay: the client taps the card / phone wallet on the phone itself (no reader).
+// Same messages in the Android app (android/ps10) and the iPhone app (ios/PolishOS).
 // The server makes the payment (amount from its own copy of the ticket + the tip picked on screen); the app's reader
 // kit takes the card. Card details go reader → Stripe; this code only sees "worked" or a plain-words reason.
 import { api } from "@/lib/api";

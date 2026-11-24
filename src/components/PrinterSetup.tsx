@@ -4,7 +4,8 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Segmented } from "@/components/kit";
-import { canBluetooth, canBuiltIn, inApp, isIOS, pickBuiltIn, pickPrinter, pickRawbt, savedPrinter, savePrinter, type SavedPrinter } from "@/lib/print/bluetooth";
+import { appHasPrinter } from "@/lib/app/bridge";
+import { canBluetooth, canBuiltIn, isIOS, pickBuiltIn, pickPrinter, pickRawbt, savedPrinter, savePrinter, type SavedPrinter } from "@/lib/print/bluetooth";
 import type { Paper } from "@/lib/print/escpos";
 
 export function usePrinter() {
@@ -15,7 +16,7 @@ export function usePrinter() {
   const [builtIn, setBuiltIn] = useState(false);
   const [rawHint, setRawHint] = useState(false); // built-in pick found nothing → offer the RawBT app
   const [app, setApp] = useState(false); // inside our Android app: the terminal's printer, nothing to pick
-  useEffect(() => { setSaved(savedPrinter()); setOk(canBluetooth() || canBuiltIn()); setIos(isIOS()); setBuiltIn(canBuiltIn()); setApp(inApp()); }, []);
+  useEffect(() => { setSaved(savedPrinter()); setOk(canBluetooth() || canBuiltIn()); setIos(isIOS()); setBuiltIn(canBuiltIn()); setApp(appHasPrinter()); }, []);
   const paper: Paper = saved?.paper ?? 58;
   return {
     ok, ios, saved, paper, err, builtIn, rawHint, app,

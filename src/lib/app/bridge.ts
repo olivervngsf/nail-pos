@@ -6,8 +6,14 @@
 type Bridge = { postMessage(s: string): void; onmessage: ((e: { data: string }) => void) | null };
 const bridge = (): Bridge | null => (typeof window !== "undefined" ? (window as unknown as { PolishOSApp?: Bridge }).PolishOSApp ?? null : null);
 
-/** Running inside the PolishOS Android app. */
+/** Running inside a PolishOS app (Android terminal/phone app or the iPhone app). */
 export const inApp = () => !!bridge();
+
+/** Inside the iPhone/iPad app (ios/PolishOS); its browser name ends with "PolishOS-iOS". */
+export const inIosApp = () => inApp() && typeof navigator !== "undefined" && /PolishOS-iOS/.test(navigator.userAgent);
+
+/** Inside the Android app, which prints on the terminal's built-in printer (the iPhone app has no printer yet). */
+export const appHasPrinter = () => inApp() && !inIosApp();
 
 /** The app's version from its browser name ("… PolishOSApp/1.1"), e.g. 1.1. 0 outside the app. */
 export function appVersion(): number {
