@@ -55,6 +55,7 @@ TestFlight builds use `PolishOS-NoTap.entitlements` (app works; pay link / M2 on
    no money moves in the sandbox). First time the owner accepts Apple's Tap to Pay terms (iCloud + passcode needed).
 
 ## Apple's Tap to Pay review (before TestFlight / App Store with tap)
+Plan + tracking: `docs/tap-to-pay-iphone-plan.md` (requirements R1–R12, what's built, steps).
 Apple's email (Nov 24) needs, once the app meets their requirements PDF + checklist (box links in the email):
 1. Video "New User Flow" · 2. Video "Existing User Flow" · 3. Video "Checkout Flow" · 4. Filled checklist →
 upload to Apple's File Uploader + reply to the email. Known must-haves (to build): Tap to Pay offered to the owner
