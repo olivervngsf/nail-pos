@@ -14,8 +14,8 @@ android {
         applicationId "com.polishos.terminal"
         minSdk 26
         targetSdk 34
-        versionCode 2
-        versionName "1.1"
+        versionCode 3
+        versionName "1.2"
     }
 
     signingConfigs {
@@ -49,5 +49,7 @@ dependencies {
     implementation "androidx.webkit:webkit:1.11.0"
     // Card readers (Stripe Reader M2 over Bluetooth / USB).
     implementation "com.stripe:stripeterminal:5.8.2"
+    // Tap to Pay: the phone's own NFC takes the card (needs a Google-certified phone, Android 11+, not the PS10).
+    implementation "com.stripe:stripeterminal-taptopay:5.8.2"
 }
 

@@ -15,7 +15,7 @@ import { logReceipt, pullTickets, putTicket, saveNow, takeCashPart, undoCashPart
 import { api } from "@/lib/api";
 import { GiftSellDrawer, GiftUseDrawer } from "./GiftDrawers";
 import { AppReaderPay } from "./AppReader";
-import { canAppReader } from "@/lib/app/reader";
+import { canAppReader, canTapToPay, type TapCheck } from "@/lib/app/reader";
 import { demoSettle, giftUndo } from "@/lib/checkout/gift";
 import { receiptBytes, type ReceiptDoc } from "@/lib/print/escpos";
 import { receiptCode } from "@/lib/receipt-code";
@@ -32,7 +32,7 @@ const uuid = () => crypto.randomUUID();
 const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 const $ = formatCents;
 
-type Step = "ticket" | "pay" | "cash" | "reader" | "link" | "app";
+type Step = "ticket" | "pay" | "cash" | "reader" | "link" | "app" | "tap";
 
 export default function TicketScreen({ id, pay }: { id: string; pay?: boolean }) {
   const t = useTranslations("checkout");
@@ -76,6 +76,7 @@ export default function TicketScreen({ id, pay }: { id: string; pay?: boolean })
           : step === "pay" ? <Pay desk={desk} ticket={ticket} onPick={setStep} say={say} />
           : step === "reader" || step === "link" ? <CardWait key={step} desk={desk} ticket={ticket} method={step} onBack={() => setStep("pay")} />
           : step === "app" ? <AppReaderPay desk={desk} ticket={ticket} onBack={() => setStep("pay")} />
+          : step === "tap" ? <AppReaderPay key="tap" tap desk={desk} ticket={ticket} onBack={() => setStep("pay")} />
           : step === "cash" ? <Cash desk={desk} ticket={ticket} save={save} onPart={() => setStep("pay")} />
           : <Build desk={desk} ticket={ticket} save={save} onCharge={() => setStep("pay")} />}
       </div>
@@ -466,6 +467,9 @@ function Pay({ desk, ticket, onPick, say }: { desk: Desk; ticket: Ticket; onPick
   // Inside our Android app (handheld terminal): the small reader next to it. No pairing in setup needed.
   const [appReader, setAppReader] = useState(false);
   useEffect(() => setAppReader(canAppReader()), []);
+  // Our app on a certified Android phone (app 1.2+): the phone itself takes the card (Tap to Pay). PS10 = no.
+  const [tap, setTap] = useState<TapCheck | null>(null);
+  useEffect(() => { void canTapToPay().then(setTap); }, []);
   return (
     <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, padding: "24px 16px" }}>
       <div style={{ textAlign: "center" }}>
@@ -486,6 +490,7 @@ function Pay({ desk, ticket, onPick, say }: { desk: Desk; ticket: Ticket; onPick
         ))}
       </div>}
       <div className="grid2" style={{ width: "100%", maxWidth: 880, gap: 16 }}>
+        {tap?.supported && tile("pay-tap", t("tapTitle"), t("tapSub"), t("readerFee"), !why && !tap.nfcOff, () => onPick("tap"), why || (tap.nfcOff ? t("tapNfcOff") : undefined))}
         {appReader && tile("pay-app", t("appReader"), t("appReaderSub"), t("readerFee"), !why, () => onPick("app"), why)}
         {(!appReader || cardOk) && tile("pay-reader", t("reader"), t("readerSub"), t("readerFee"), cardOk, () => onPick("reader"), why || t("needReader"))}
         {tile("pay-cash", t("cash"), t("cashSub"), t("cashFee"), true, () => onPick("cash"))}
