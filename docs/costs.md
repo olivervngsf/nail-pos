@@ -1,6 +1,6 @@
 # Price points: everything PolishOS costs (for Oliver, Elang, Laura)
 
-Updated Nov 23, 2026. Plain numbers in one place. "Real" = we pay it or it's on a bill; "est." = public price or a guess, check before relying on it.
+Updated Nov 24, 2026. Plain numbers in one place. "Real" = we pay it or it's on a bill; "est." = public price or a guess, check before relying on it.
 Shareable page (same content): https://claude.ai/artifact/MqrEjYoRYhdmaCTCZK1osU (source `docs/costs.html`; keep both in step).
 Deeper math: `founder/cfo.md` (inputs in `founder/numbers.json`). Price reasoning: `founder/pricing.md`. Go-live steps: `docs/go-live-plan.md`.
 
@@ -20,7 +20,7 @@ Deeper math: `founder/cfo.md` (inputs in `founder/numbers.json`). Price reasonin
 |---|---|---|
 | Card on the Stripe reader | 2.7% + 5¢ | Stripe, straight from the salon's own account |
 | Pay link / QR (backup) | 2.9% + 30¢ | ~20% more than the reader |
-| Card reader Stripe S710 | ~$299 once | Bought from the Stripe dashboard; 1 per salon |
+| Card reader Stripe S710 | $299 once (+ tax/shipping) | Bought from the Stripe dashboard; 1 per salon. Our test order Nov 24: $354.17 all in (§ 8) |
 | Stripe M2 small reader | ~$59 once | Only with our handheld / phone app |
 | Receipt printer + cash drawer | $330–520 once | `docs/hardware-shopping-list.md` |
 | Year 1 total, typical | ≈ **$887** ($49 × 12 + S710) + printer | vs ~$2,400 for ABC Salon System's cheapest setup |
@@ -57,7 +57,7 @@ Deeper math: `founder/cfo.md` (inputs in `founder/numbers.json`). Price reasonin
 |---|---|
 | Lawyer: terms, privacy, texting consent | ~$1,500 |
 | LLC filing $70 + Statement of Info $20 + EIN (free) | ~$300 with Twilio business switch |
-| Test hardware (mostly bought) | ~$1,000 |
+| Test hardware (mostly bought; S710 test kit $354.17 real, § 8) | ~$1,000 |
 | Loaner S710 readers (3) | ~$900 |
 | Launch (flyers, video, travel) + Elang setup travel | ~$1,600 |
 | **Total** | **~$5,300** |
@@ -72,3 +72,12 @@ Deeper math: `founder/cfo.md` (inputs in `founder/numbers.json`). Price reasonin
 - Workspace seats for Elang + Laura (when they answer salons).
 - Insurance + accountant quotes; form the LLC → move Workspace, Twilio, Stripe to EO Collective.
 - Not tax, legal or financial advice: the accountant checks before money moves.
+
+## 8. What we bought (real receipts, one row per order)
+Add a row every time we buy something for the project. Totals include tax + shipping.
+| Date | What | From | Paid | Status | Notes |
+|---|---|---|---|---|---|
+| Nov 24, 2026 | Stripe S710 card reader ×1 + 1 add-on (shown next to it on the order) | Stripe dashboard → Terminal → Shop (lotus-test) | **$354.17** | Pending (shipping to Oakland, CA) | For building + testing. Register in **Sandbox** when it arrives (needs a Stripe Location first); move to Live for the first real salon |
+| Nov 18, 2026 | PS10 handheld terminal (H10, Android, 58 mm printer) | Amazon | (add price) | Got it | Our Android app runs on it |
+| **Total so far** | | | **$354.17** + PS10 | | |
+
