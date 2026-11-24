@@ -1,4 +1,9 @@
-# Signs the iPhone app and uploads it to TestFlight. Run by hand: Actions → "iPhone app → TestFlight" → Run workflow.
+# Signs the iPhone app. Run by hand: Actions → "iPhone app → TestFlight" → Run workflow, pick where it goes:
+#  - "TestFlight": uploads to TestFlight (no Tap to Pay: Apple's Nov 24 grant is DEVELOPMENT only = registered test
+#    iPhones only; TestFlight/App Store need the publishing grant after Apple's review).
+#  - "Test iPhone (Tap to Pay)": development-signed .ipa WITH Tap to Pay for the iPhones registered in
+#    developer.apple.com → Devices. Download the artifact, put both files in public/ios/, open
+#    polishosapp.com/ios/index.html on that iPhone → Install.
 # Needs repo secrets (never in the code): APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (the .p8 file's text).
 # Signing is automatic in Apple's cloud (the App Store Connect key must have the Admin role).
 name: iPhone app → TestFlight
@@ -6,10 +11,13 @@ name: iPhone app → TestFlight
 on:
   workflow_dispatch:
     inputs:
-      tap_to_pay:
-        description: "Include Tap to Pay (only after Apple granted it to the account)"
-        type: boolean
-        default: false
+      target:
+        description: "Where the build goes"
+        type: choice
+        options:
+          - "Test iPhone (Tap to Pay)"
+          - "TestFlight"
+        default: "Test iPhone (Tap to Pay)"
 
 permissions:
   contents: read
@@ -59,7 +67,7 @@ jobs:
           TEAM: ${{ secrets.APPLE_TEAM_ID }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          ENTITLEMENTS: ${{ inputs.tap_to_pay && 'PolishOS/PolishOS.entitlements' || 'PolishOS/PolishOS-NoTap.entitlements' }}
+          ENTITLEMENTS: ${{ inputs.target == 'TestFlight' && 'PolishOS/PolishOS-NoTap.entitlements' || 'PolishOS/PolishOS.entitlements' }}
         run: |
           set -o pipefail
           xcodebuild -project PolishOS.xcodeproj -scheme PolishOS -configuration Release \
@@ -72,6 +80,7 @@ jobs:
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             archive | tail -60
       - name: Upload to TestFlight
+        if: inputs.target == 'TestFlight'
         working-directory: ios/PolishOS
         env:
           TEAM: ${{ secrets.APPLE_TEAM_ID }}
@@ -85,5 +94,48 @@ jobs:
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" \
             -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" | tail -40
+      - name: Make the test iPhone install file (.ipa + manifest)
+        if: inputs.target != 'TestFlight'
+        working-directory: ios/PolishOS
+        env:
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -o pipefail
+          /usr/libexec/PlistBuddy -c "Add :teamID string $TEAM" ExportOptions-dev.plist
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/PolishOS.xcarchive" \
+            -exportOptionsPlist ExportOptions-dev.plist -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" | tail -40
+          mkdir -p "$RUNNER_TEMP/ios"
+          mv "$RUNNER_TEMP"/export/*.ipa "$RUNNER_TEMP/ios/PolishOS.ipa"
+          APP_PLIST="$RUNNER_TEMP/PolishOS.xcarchive/Products/Applications/PolishOS.app/Info.plist"
+          VER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP_PLIST")
+          # Over-the-air install: Safari on the iPhone reads this file from polishosapp.com/ios/.
+          cat > "$RUNNER_TEMP/ios/manifest.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict><key>items</key><array><dict>
+            <key>assets</key><array><dict>
+              <key>kind</key><string>software-package</string>
+              <key>url</key><string>https://polishosapp.com/ios/PolishOS.ipa</string>
+            </dict></array>
+            <key>metadata</key><dict>
+              <key>bundle-identifier</key><string>com.polishos.app</string>
+              <key>bundle-version</key><string>$VER</string>
+              <key>kind</key><string>software</string>
+              <key>title</key><string>PolishOS</string>
+            </dict>
+          </dict></array></dict></plist>
+          EOF
+          echo "Built PolishOS $VER (build ${{ github.run_number }}) with Tap to Pay for the registered test iPhones."
+      - name: Keep the install files
+        if: inputs.target != 'TestFlight'
+        uses: actions/upload-artifact@v4
+        with:
+          name: polishos-ios-test-${{ github.run_number }}
+          path: ${{ runner.temp }}/ios
       - if: always()
         run: rm -rf "$RUNNER_TEMP/keys"
