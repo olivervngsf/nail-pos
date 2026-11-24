@@ -20,11 +20,25 @@ Same idea and same messages as the Android app (`android/ps10`). Every screen st
 - Apple's required Tap to Pay "how to tap" screens for staff (ProximityReaderDiscovery, iOS 18) and the
   Tap to Pay launch checklist: needed before the App Store, not for TestFlight testing.
 
-## What Oliver needs to do
-1. Apple Developer account ($99/yr), ideally in the company name (EO Collective; needs a D-U-N-S number).
-2. Ask Apple for the Tap to Pay on iPhone entitlement (developer.apple.com → Tap to Pay on iPhone → Request).
-   Without it a signed build fails (`PolishOS.entitlements`).
-3. Then: signing key + App Store Connect API key as GitHub secrets → CI uploads to TestFlight (next step).
+## Account (Nov 24): Oliver's PERSONAL Apple Developer account (paid). Testing now; move to EO Collective
+(company account, needs D-U-N-S) before the first paying salon: Apple converts the account or we transfer the app.
+
+## Steps to get it on an iPhone (TestFlight)
+1. developer.apple.com → Account → Membership details: copy the **Team ID** (10 letters/numbers).
+2. Ask for Tap to Pay: developer.apple.com/contact/request/tap-to-pay-on-iphone (testing access first).
+3. Identifiers → + → App IDs → App → Bundle ID `com.polishos.app` (explicit), description "PolishOS". Once Apple
+   grants Tap to Pay, tick "Tap to Pay on iPhone" on this ID.
+4. appstoreconnect.apple.com → Apps → + → New App: iOS, name "PolishOS" (or "PolishOS Salon" if taken), bundle ID
+   `com.polishos.app`, SKU `polishos`.
+5. App Store Connect → Users and Access → Integrations → App Store Connect API → Team Keys → + : name "GitHub",
+   role **Admin** → download the .p8 (only once) and note the **Key ID** + **Issuer ID**.
+6. GitHub → repo Settings → Secrets and variables → Actions → New secret (×4): `APPLE_TEAM_ID`, `ASC_KEY_ID`,
+   `ASC_ISSUER_ID`, `ASC_KEY_P8` (open the .p8 in a text editor, paste ALL of it). Never paste these in chat.
+7. GitHub → Actions → "iPhone app → TestFlight" → Run workflow (tick Tap to Pay only after step 2 is approved).
+   The workflow only shows up once this is on main.
+8. iPhone: install the TestFlight app → you get the build (App Store Connect → TestFlight → add yourself as tester).
+
+Until Tap to Pay is granted, builds use `PolishOS-NoTap.entitlements` (app works; pay link / M2 only, no tap).
 
 ## Build
 - CI: Actions → "iPhone app (iOS)" (macOS, simulator build, unsigned): proves it compiles.
