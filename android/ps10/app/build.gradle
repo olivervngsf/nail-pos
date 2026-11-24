@@ -8,7 +8,7 @@ def ksFile = System.getenv("PS10_KEYSTORE")
 
 android {
     namespace "com.polishos.terminal"
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.polishos.terminal"
