@@ -50,6 +50,11 @@ Quick way: on the terminal, open Chrome → `polishosapp.com/polishos-ps10-v1.1.
 (the file in `public/`, built with the same signing key as the installed app, so it updates in place).
 The file name ends with the app version (Oliver, Nov 19): a new build = a new file `polishos-ps10-v<version>.apk`
 (same number as `versionName` in `app/build.gradle`); remove the old file.
+Putting a new version there (Nov 24): GitHub → Actions → "Terminal app (Android)" → Run workflow → tick **Publish**.
+The run builds the app, puts the file in `public/` on a branch `apk/v<version>-<run>` and opens a pull request
+(swaps the old file, updates this README); merge it and the link is live. Same file for Tap to Pay phones.
+Until the fixed signing key below is set up, each build has its own key: uninstall the old app before installing
+a new one (the sign-in on that device is lost; salon data is safe on the server).
 
 Or by hand:
 1. Get `app-release.apk` onto the terminal (USB cable, or Google Drive).
@@ -61,6 +66,8 @@ Without a fixed key each build is signed with a throwaway key: a new version won
 one (uninstall first; the sign-in on that terminal is lost, salon data is safe on the server).
 For real use, make one key, keep it OUT of the repo, and pass it to the build:
 `PS10_KEYSTORE`, `PS10_KEYSTORE_PASSWORD`, `PS10_KEY_ALIAS`, `PS10_KEY_PASSWORD`.
+In GitHub (Nov 24): repo secrets `PS10_KEYSTORE_B64` (the .jks file in base64) + `PS10_KEYSTORE_PASSWORD`,
+`PS10_KEY_ALIAS`, `PS10_KEY_PASSWORD`; the Android workflow uses them when they are there.
 
 ## Not in the app
 - Bluetooth printers like the NETUM (use Chrome for those).

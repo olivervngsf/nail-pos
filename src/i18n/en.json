@@ -644,7 +644,15 @@
     "dueColToday": "today",
     "today": "Today",
     "chipN": "{label} {n}",
-    "close": "Close"
+    "close": "Close",
+    "consentYes": "texts ✓ {date}, {where}",
+    "consentStop": "said no to texts {date}, {where}",
+    "consentNoRecord": "texts ✓ but no record of when: ask again",
+    "consentPage": "booking page",
+    "consentDesk": "at the desk ({by})",
+    "consentText": "by text reply",
+    "consentOther": "other",
+    "consentRows": "{n, plural, one {# answer on record} other {# answers on record}}"
   },
   "calendar": {
     "prev": "Previous",

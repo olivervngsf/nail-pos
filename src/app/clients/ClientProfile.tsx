@@ -2,12 +2,12 @@
 // Client profile, version D (design "Clients · 4 variations", Nov 17): header (masked phone, Show for owner/manager,
 // Edit on hover), 3 next-step cards, care note (whole salon) + private note (owner/manager), last visits, nail photos.
 // Desk: right side of /clients. Phone: /clients/[id] (D3) with a fixed bottom bar.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button, Drawer } from "@/components/kit";
-import { NEW_FOR, birthdayIn, dueBack, isDesk, last4, phoneViewed, setCare, setPrivate, type Profile, type Who } from "@/lib/clients";
+import { NEW_FOR, birthdayIn, clientConsent, dueBack, isDesk, last4, phoneViewed, setCare, setPrivate, type Consent, type Profile, type Who } from "@/lib/clients";
 import { dayKey } from "@/lib/booking/grid";
 import { $, PhotoButton, TagChip, canEditClient, initials, phone, useDate } from "./ClientParts";
 
@@ -72,7 +72,7 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
             {p.can_edit && p.phone && <button type="button" className="cl2-lock" onClick={() => void toggleShow()} title={t("lockShow")} data-testid="phone-show">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 018 0v4" /></svg>
               {showPh ? t("hide") : t("show")}</button>}
-            <span><span className="cl2-sep">· </span>{t("since", { date: String(new Date(p.since).getFullYear()) })}{p.texts_ok ? ` · ${t("textsYes")}` : ""}</span>
+            <span><span className="cl2-sep">· </span>{t("since", { date: String(new Date(p.since).getFullYear()) })}<ConsentNote who={who} p={p} /></span>
           </div>
         </div>
         <div className="cl2-kpis">
@@ -169,4 +169,19 @@ function NoteDrawer({ kind, who, p, onClose, onSaved }: { kind: "care" | "privat
       {err && <div className="hint err">{err}</div>}
     </Drawer>
   );
+}
+
+/** Texts: the latest recorded answer (proof of consent) for the desk: "texts ✓ Nov 24, booking page", "said STOP",
+ *  or a yes on file with no record ("ask again": texts won't send until it is recorded). Words they saw on hover. */
+function ConsentNote({ who, p }: { who: Who; p: Profile }) {
+  const t = useTranslations("clients");
+  const date = useDate();
+  const [list, setList] = useState<Consent[] | null>(null);
+  useEffect(() => { let on = true; void clientConsent(who, p.id).then((l) => { if (on) setList(l); }); return () => { on = false; }; }, [who, p.id, p.texts_ok]);
+  if (!list) return p.texts_ok ? <> · {t("textsYes")}</> : null;
+  const last = list[0];
+  if (!last) return p.texts_ok ? <> · <span style={{ color: "#B5470A" }} data-testid="consent-note">{t("consentNoRecord")}</span></> : null;
+  const where = last.source.startsWith("booking_page") ? t("consentPage") : last.source === "desk" ? t("consentDesk", { by: last.by ?? "" }) : last.source === "text_reply" ? t("consentText") : t("consentOther");
+  const tip = [last.words ? `"${last.words}"` : "", t("consentRows", { n: list.length })].filter(Boolean).join(" · ");
+  return <> · <span data-testid="consent-note" title={tip}>{last.said === "yes" ? t("consentYes", { date: date(last.at), where }) : t("consentStop", { date: date(last.at), where })}</span></>;
 }

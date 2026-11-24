@@ -644,7 +644,15 @@
     "dueColToday": "hôm nay",
     "today": "Hôm nay",
     "chipN": "{label} {n}",
-    "close": "Đóng"
+    "close": "Đóng",
+    "consentYes": "đồng ý nhận tin {date}, {where}",
+    "consentStop": "từ chối nhận tin {date}, {where}",
+    "consentNoRecord": "đồng ý nhận tin nhưng không có ghi nhận: hỏi lại",
+    "consentPage": "trang đặt lịch",
+    "consentDesk": "tại quầy ({by})",
+    "consentText": "trả lời tin nhắn",
+    "consentOther": "khác",
+    "consentRows": "{n, plural, other {# lần trả lời được ghi}}"
   },
   "calendar": {
     "prev": "Trước",

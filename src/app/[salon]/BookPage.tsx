@@ -165,7 +165,7 @@ function Flow({ page }: { page: Page }) {
     if (slot === null) return;
     setBusy(true);
     try {
-      const r = await book(page, { src, day, start: slot, phone: hasPhone ? e164(phone) : "", email: email.trim().toLowerCase(), name: name.trim(), textsOk: textsOk && hasPhone, note: note.trim(), guests });
+      const r = await book(page, { src, day, start: slot, phone: hasPhone ? e164(phone) : "", email: email.trim().toLowerCase(), name: name.trim(), textsOk: textsOk && hasPhone, consentText: `${t("texts")} ${t("textsRates")} (${page.salon.name})`, note: note.trim(), guests });
       if (r.ok) {
         setDone({ staff: r.staff, day, start: slot, token: r.token }); setSent(null); setView("done");
         void sendConfirmation(r.token).then(setSent);

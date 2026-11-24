@@ -94,7 +94,7 @@ export function EditDrawer({ who, p, onClose, onSaved }: { who: Who; p: Profile 
     try {
       const phone = f.phone ? e164(f.phone) : "";
       const approvalId = await ok.approvalId();
-      const id = await saveClient(who, p?.id ?? null, { ...f, phone, birthday: f.birthday ? `2000-${f.birthday}` : "", language: f.language as "en" | "vi", approvalId });
+      const id = await saveClient(who, p?.id ?? null, { ...f, phone, birthday: f.birthday ? `2000-${f.birthday}` : "", language: f.language as "en" | "vi", approvalId, consentText: t("textsOk") });
       onSaved(id, { name: f.name.trim(), phone });
     } catch (e) { setErr(navigator.onLine ? okErr((e as Error).message) : t("needNet")); setBusy(false); }
   };
