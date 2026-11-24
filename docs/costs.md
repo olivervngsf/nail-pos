@@ -2,6 +2,7 @@
 
 Updated Nov 24, 2026. Plain numbers in one place. "Real" = we pay it or it's on a bill; "est." = public price or a guess, check before relying on it.
 Shareable page (same content): https://claude.ai/artifact/MqrEjYoRYhdmaCTCZK1osU (source `docs/costs.html`; keep both in step).
+All price pages (each links back here): Running Costs doc https://claude.ai/artifact/UioTSft9RRanZRPN9j7qom · Pricing board https://claude.ai/artifact/UYUEeU5J5sWsTfAaWHE9EE · Hub https://claude.ai/artifact/9HZ5deX1wVYaLzG895UciU · `founder/pricing.md` · `docs/hardware-shopping-list.md`.
 Deeper math: `founder/cfo.md` (inputs in `founder/numbers.json`). Price reasoning: `founder/pricing.md`. Go-live steps: `docs/go-live-plan.md`.
 
 ## 1. What a salon pays US
@@ -14,6 +15,21 @@ Deeper math: `founder/cfo.md` (inputs in `founder/numbers.json`). Price reasonin
 | Service texts (confirm, reminders, receipts, login codes) | included, never stop | Decided |
 | Promo texts | prepaid credit, **2¢ per text part** (160 letters; Vietnamese accents = 70, so ~2×) | Built (test mode until texting approved) |
 | Card fees | **no markup**: salon pays Stripe directly | Decided |
+
+## 1b. Plans: 4 tiers + the $100k/year goal (proposal, Nov 24; decide with Elang)
+| Plan | Price | Who | What they get | Why it exists |
+|---|---|---|---|---|
+| **Base Coat** (Free) | $0 forever | Tiny salons, 1–3 staff, trying us | Booking page, calendar, client list, cash tickets, email confirms. No card reader, no texts, 1 device | Door opener; costs us ~$0 (email free, texts off) |
+| **Founding** (Early) | $39/mo locked 12 months | First 20 salons, ends Mar 31 2027 | Everything in Gel + Elang sets up in person | Wins trust; becomes Gel after 12 months |
+| **Gel** (Premium) | **$49/mo** or $468/yr | Most salons, 1–15 techs | Everything: card reader checkout, payout sheet, turns, texts, loyalty, gift cards, VN/EN | The main plan; research says $49 is the sweet spot |
+| **Acrylic** (Next) | **$129/mo** | 15+ techs or 2+ locations | Gel + all locations on one screen, 1,000 promo texts/mo, priority Vietnamese phone line, help moving off the old POS | Few big salons, big share of revenue |
+
+**The $100k math** ($8,350/mo): 110 Gel × $49 = $5,390 · 20 Acrylic × $129 = $2,580 · 10 Founding × $39 = $390 → **$8,360/mo = $100.3k/yr from 140 paying salons** (+ ~100 free salons as the funnel).
+- After costs: fixed ~$7.7k/yr + ~$17/salon/mo (~$28k/yr) → **~$64k/yr left** before paying founders.
+- Hard part = getting salons, not price: Elang sets up ~3/month in person (~36/yr). Need **10–12 new paying salons/month** → self-setup (wizard + QR devices) + Elang on video day 1 + free salons upgrade when they want to take cards.
+- Realistic path: **Year 1 ~40 paying (~$24k/yr) · Year 2 ~140 (~$100k/yr)**.
+- Rules: no card-fee markup; Free never gets the card reader (cards = the reason to upgrade); hardware at cost.
+- Decide with Elang: Gel $49 vs $59 (at $59 → ~118 salons for $100k) · Acrylic $129 vs $149 · $199 one-time setup fee for Acrylic only?
 
 ## 2. What a salon pays OTHERS (not us)
 | Item | Price | Notes |
