@@ -16,8 +16,8 @@ the PDFs once they're in the repo (`docs/apple/`).
 | R1 | Offer it only on iPhones that can (XS+, iOS supported) | `tapCheck` hides the tile on others | Done | — |
 | R2 | Take a card with Tap to Pay on iPhone | `CardReader.swift` tap flow, tip on screen, server settles | Built, not tried on a real iPhone | Test on Oliver's iPhone (step 4) |
 | R3 | Button says **Tap to Pay on iPhone** + Apple's symbol | iPhone app 1.3: tile "Tap to Pay on iPhone" + Apple's SF Symbol `wave.3.right.circle` (the app draws it, hands the picture to the page); "top of this iPhone" wording | Built (Nov 25), not on a phone yet | Try on Oliver's iPhone |
-| R4 | Owner/admin accepts Apple's terms BEFORE checkout; staff can't | Terms pop up at first payment, anyone | To build | Accept in Settings by owner/manager; staff see "Ask your owner" |
-| R5 | A place to turn it on + see its state | None | To build | Settings → Payments → Tap to Pay on iPhone |
+| R4 | Owner/admin accepts Apple's terms BEFORE checkout; staff can't | Settings → Tap to Pay on iPhone (owner/manager only): Turn on = Apple's terms shown once and accepted there; checkout payments never show the terms (`terms:false`); until it's on, the checkout tile is greyed: "Ask the owner or a manager…" | Built (Nov 25), not on a phone yet | Try on Oliver's iPhone |
+| R5 | A place to turn it on + see its state | `/settings/tap-to-pay`: Off / Getting ready / On · ready, Turn on, Turn off on this iPhone; outside the iPhone app: steps to get there. Per iPhone (saved on the phone) | Built (Nov 25), not on a phone yet | — |
 | R6 | New users are offered it during onboarding | None | To build | Setup step "Take cards on your iPhone" |
 | R7 | Existing users are told it's there | None | To build | One-time sheet/banner on iPhone, leads to R5 |
 | R8 | Merchant education ("how to tap") | None | To build | Apple's screens (`ProximityReaderDiscovery`, iOS 18+) after turn-on, in Settings, "?" at checkout |
@@ -26,7 +26,7 @@ the PDFs once they're in the repo (`docs/apple/`).
 | R11 | 3 videos + checklist sent to Apple | None | To do | Steps 9–11 |
 | R12 | Marketing: only Apple's toolkit, full name, Apple OKs press | None | Rule | Follow when we market it |
 
-Score (Nov 25): 1 done · 4 built, not tried on a phone (R2, R3, R9, R10) · 6 to build · 1 rule.
+Score (Nov 25): 1 done · 6 built, not tried on a phone (R2, R3, R4, R5, R9, R10) · 4 to build (R6, R7, R8, R11) · 1 rule.
 
 ## Steps (who · how long)
 
@@ -40,7 +40,7 @@ Score (Nov 25): 1 done · 4 built, not tried on a phone (R2, R3, R9, R10) · 6 t
    a real card (sandbox = no money moves). Note what breaks.
 5. **Claude · done Nov 25** (R3, R9, R10) — Checkout: iPhone tile = "Tap to Pay on iPhone" + Apple's symbol; reader warm-up on
    app open / back to screen; clear error words (EN + VI).
-6. **Claude · 1 session** (R4, R5) — Turn on + terms: Settings → Payments → Tap to Pay on iPhone (owner/manager); accept
+6. **Claude · done Nov 25** (R4, R5) — Turn on + terms: Settings → Payments → Tap to Pay on iPhone (owner/manager); accept
    Apple's terms there (not at checkout); staff see "Ask your owner"; saved per salon + per iPhone.
 7. **Claude · 1 session** (R6, R7) — Tell owners: setup step "Take cards on your iPhone" (new salons) + one-time sheet for
    existing salons on an iPhone; both lead to step 6.

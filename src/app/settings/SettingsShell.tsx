@@ -11,25 +11,28 @@ import { isAdminRole, useMe } from "@/lib/me";
 
 export type Access = { salonId: string; salonName: string; role: Role; owner: boolean; demo: boolean };
 
+// Grouped by job (Oliver, Nov 25: clearer grouping). Order inside a group = how often it's opened.
+const GROUPS = ["me", "salon", "team", "pay", "clients", "money"] as const;
 const NAV = [
   { href: "/me", key: "profile", group: "me", who: "all" },
   { href: "/settings/salon", key: "salon", group: "salon", who: "admin" },
   { href: "/settings/menu", key: "menu", group: "salon", who: "admin" },
-  { href: "/settings/team", key: "team", group: "salon", who: "admin" },
-  { href: "/settings/pin", key: "pinRules", group: "salon", who: "admin" },
-  { href: "/settings/clock-in", key: "clockIn", group: "salon", who: "admin" },
-  { href: "/settings/pin-activity", key: "pinActivity", group: "salon", who: "admin" },
   { href: "/settings/devices", key: "devices", group: "salon", who: "admin" },
-  { href: "/settings/payments", key: "payments", group: "salon", who: "admin" },
-  { href: "/settings/reader", key: "reader", group: "salon", who: "admin" },
-  { href: "/settings/texting", key: "texting", group: "salon", who: "admin" },
   { href: "/settings/billing", key: "billing", group: "salon", who: "admin" },
   { href: "/settings/support", key: "support", group: "salon", who: "admin" },
-  { href: "/settings/printer", key: "printer", group: "more", who: "admin" },
-  { href: "/settings/booking-page", key: "bookingPage", group: "more", who: "admin" },
-  { href: "/loyalty", key: "loyalty", group: "more", who: "admin" },
-  { href: "/gift-cards", key: "giftCards", group: "more", who: "admin" },
-  { href: "/payouts", key: "payouts", group: "more", who: "admin" },
+  { href: "/settings/team", key: "team", group: "team", who: "admin" },
+  { href: "/settings/clock-in", key: "clockIn", group: "team", who: "admin" },
+  { href: "/settings/pin", key: "pinRules", group: "team", who: "admin" },
+  { href: "/settings/pin-activity", key: "pinActivity", group: "team", who: "admin" },
+  { href: "/settings/payments", key: "payments", group: "pay", who: "admin" },
+  { href: "/settings/reader", key: "reader", group: "pay", who: "admin" },
+  { href: "/settings/tap-to-pay", key: "tapToPay", group: "pay", who: "admin" },
+  { href: "/settings/printer", key: "printer", group: "pay", who: "admin" },
+  { href: "/settings/booking-page", key: "bookingPage", group: "clients", who: "admin" },
+  { href: "/settings/texting", key: "texting", group: "clients", who: "admin" },
+  { href: "/loyalty", key: "loyalty", group: "clients", who: "admin" },
+  { href: "/gift-cards", key: "giftCards", group: "clients", who: "admin" },
+  { href: "/payouts", key: "payouts", group: "money", who: "admin" },
 ] as const;
 
 type Who = "all" | "admin" | "owner";
@@ -42,17 +45,17 @@ export function SettingsNav({ role }: { role: Role }) {
   const path = usePathname();
   return (
     <nav className="set-nav" aria-label={t("title")}>
-      <div className="set-nav-title">{t("title")}</div>
-      {(["me", "salon", "more"] as const).map((g) => (
+      <div className="set-nav-title">{t("title")}<span className="set-nav-who">{t("who")}</span></div>
+      {GROUPS.map((g) => (
         <div key={g} className="set-nav-group">
           <div className="set-nav-h">{t(`group.${g}`)}</div>
           {NAV.filter((n) => n.group === g).map((n) => {
             const ok = canOpen(n.who, role);
             return (
               <Link key={n.href} href={n.href} className={`${path === n.href ? "on" : ""}${ok ? "" : " locked"}`} aria-current={path === n.href ? "page" : undefined}
-                title={ok ? undefined : t(`who.${n.who}`)} data-testid={`nav-${n.key}`}>
+                title={ok ? undefined : t(`access.${n.who}`)} data-testid={`nav-${n.key}`}>
                 <span style={{ flex: 1, minWidth: 0 }}>{t(`nav.${n.key}`)}</span>
-                {!ok && <span className="set-lock"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>{t(`who.${n.who}`)}</span>}
+                {!ok && <span className="set-lock"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>{t(`access.${n.who}`)}</span>}
               </Link>
             );
           })}

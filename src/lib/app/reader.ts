@@ -61,7 +61,8 @@ export async function takeCard(pay: AppPay, say: (text: string) => void, tap = f
   const stopText = onAppEvent("reader", (e) => { if (typeof e.text === "string" && e.text) say(e.text); });
   try {
     // Up to 10 minutes: a new reader may update itself first.
-    await appCall({ pay: pay.secret, locationId: pay.locationId, simulated: pay.test && !wantsRealReader(tap), tap }, 10 * 60 * 1000);
+    // iPhone: Apple's terms are never shown at checkout (an owner/manager accepts them in Settings first).
+    await appCall({ pay: pay.secret, locationId: pay.locationId, simulated: pay.test && !wantsRealReader(tap), tap, ...(tap && inIosApp() ? { terms: false } : {}) }, 10 * 60 * 1000);
     if (tap) markTapUsed();
   } finally {
     stopText();
@@ -82,9 +83,44 @@ const setWarm = (w: TapWarm) => { warm = w; warmFans.forEach((fn) => fn(w)); };
 export const tapWarmNow = () => warm;
 export const onTapWarm = (fn: (w: TapWarm) => void) => { warmFans.add(fn); return () => { warmFans.delete(fn); }; };
 
+// "Turned on on this iPhone": an owner/manager turned it on in Settings (Apple's terms accepted), or a tap worked here.
 const USED = "nailpos.tapused";
 function markTapUsed() { try { localStorage.setItem(USED, "1"); } catch { /* */ } setWarm({ state: "ready" }); }
 const tapUsed = () => { try { return localStorage.getItem(USED) === "1"; } catch { return false; } };
+/** Tap to Pay is turned on on this phone (Settings → Tap to Pay on iPhone). */
+export const tapOnHere = () => tapUsed();
+
+/**
+ * Settings → Tap to Pay on iPhone → Turn on (owner/manager only): connects Tap to Pay on this iPhone WITH Apple's terms
+ * allowed, so Apple shows them once and the owner/manager accepts. Then this iPhone gets ready on its own (warm-up).
+ */
+export async function turnOnTap(salonId: string, say: (text: string) => void): Promise<void> {
+  const r = await api<{ locationId: string; test: boolean }>("/api/stripe/tap-ready", { salonId });
+  answerTokens();
+  tokenFor = { salonId };
+  warmSalon = salonId;
+  setWarm({ state: "warming" });
+  const stopText = onAppEvent("reader", (e) => { if (typeof e.text === "string" && e.text) { say(e.text); setWarm({ state: "warming", text: e.text }); } });
+  try {
+    await appCall({ reader: "connect", tap: true, warm: false, locationId: r.locationId, simulated: r.test && !wantsRealReader(true) }, 5 * 60 * 1000);
+    markTapUsed();
+  } catch (e) {
+    setWarm({ state: "error", code: (e as { code?: string }).code ?? "unknown", text: (e as Error).message });
+    throw e;
+  } finally {
+    stopText();
+  }
+}
+
+/** Test copy (no sign-in, no Stripe): turned on for this device only, nothing sent to Apple or Stripe. */
+export function turnOnTapDemo() { markTapUsed(); }
+
+/** Turn it off on this iPhone: no more warm-up; checkout asks for an owner/manager again. */
+export async function turnOffTap(): Promise<void> {
+  try { localStorage.removeItem(USED); } catch { /* */ }
+  setWarm({ state: "off" });
+  await appCall({ reader: "disconnect" }).catch(() => null);
+}
 
 let warmSalon = "";
 let warming: Promise<void> | null = null;

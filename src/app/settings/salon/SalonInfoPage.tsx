@@ -6,7 +6,9 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button, Switch, Toast } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
+import { api } from "@/lib/api";
 import { rpc } from "@/lib/auth";
+import { addressOk, parseAddress } from "@/lib/stripe/address";
 import { STATES } from "@/lib/onboarding/data";
 import { dayName, fullWeek, infoProblem, sampleInfo, TIME_ZONES, US_STATES, type DayHours, type SalonInfo } from "@/lib/salonInfo";
 import SettingsShell, { type Access } from "../SettingsShell";
@@ -17,6 +19,7 @@ export default function SalonInfoPage() {
 }
 
 function Info({ a }: { a: Access }) {
+  const ta = useTranslations("settings.salon");
   const { lang } = useLang();
   const L = (en: string, vi: string) => (lang === "vi" ? vi : en);
   const [saved, setSaved] = useState<SalonInfo | null>(null);
@@ -36,19 +39,31 @@ function Info({ a }: { a: Access }) {
   const set = (p: Partial<SalonInfo>) => setS({ ...s, ...p });
   const setDay = (i: number, p: Partial<DayHours>) => set({ hours: s.hours.map((h) => (h.weekday === i ? { ...h, ...p } : h)) });
   const changed = JSON.stringify({ ...s, services: [] }) !== JSON.stringify({ ...saved, services: [] });
-  const problem = infoProblem(s);
+  const parts = parseAddress(s.address, s.state);
+  const addrOk = addressOk(parts);
+  const addrChanged = s.address.trim() !== saved.address.trim();
+  const missing = [parts.line1 === "Salon" && ta("street"), !parts.city && ta("city"), !parts.postal_code && ta("zip")].filter(Boolean) as string[];
+  // Card payments need a full address (Stripe location), so a changed address must be full before it saves.
+  const problem = infoProblem(s) || (addrChanged && !addrOk ? "address" : "");
 
   const save = async () => {
     setErr(""); setBusy(true);
     try {
+      let note = L("Saved", "Đã lưu");
+      if (!a.demo && addrChanged) {
+        // Same check + Stripe location update as before; card readers and Tap to Pay keep working on the new address.
+        const r = await api<{ stripe: string }>("/api/salon/address", { salonId: a.salonId, address: s.address });
+        if (r.stripe === "failed") note = ta("savedStripeFailed");
+      }
       if (!a.demo) load(await rpc<SalonInfo>("salon_info_save", { p_salon: a.salonId, p: { name: s.name, phone: s.phone, address: s.address, state: s.state, time_zone: s.time_zone, hours: s.hours } }));
       else setSaved(s);
-      say(L("Saved", "Đã lưu"));
+      say(note);
     } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
   };
 
   return (
     <div className="si-page" data-testid="salon-info">
+      {!addressOk(parseAddress(saved.address, saved.state)) && <div className="banner" role="status" data-testid="address-needed">{ta("needed")}</div>}
       <div className="eyebrow">{L("Salon", "Tiệm")}</div>
       <section className="card pad si-grid">
         <div className="si-full">
@@ -69,8 +84,14 @@ function Info({ a }: { a: Access }) {
         </div>
         <div className="si-full">
           <label className="lbl" htmlFor="si-addr">{L("Address", "Địa chỉ")}</label>
-          <input id="si-addr" className="inp" autoComplete="street-address" value={s.address} maxLength={200} placeholder="123 Main St, San Jose, CA 95112" onChange={(e) => set({ address: e.target.value })} data-testid="si-address" />
-          <div className="hint">{L("Street, city, state and ZIP. Card readers need the full address.", "Số nhà, thành phố, tiểu bang và ZIP. Máy quẹt thẻ cần địa chỉ đầy đủ.")}</div>
+          <input id="si-addr" className={`inp${addrChanged && !addrOk ? " err" : ""}`} autoComplete="street-address" value={s.address} maxLength={200} placeholder="1550 S Bascom Ave, Campbell, CA 95008" onChange={(e) => set({ address: e.target.value })} data-testid="address-input" />
+          <div className="si-addr-parts" data-testid="address-parts">
+            <span><span className="cap">{ta("street")}</span> <b>{parts.line1 === "Salon" ? "—" : parts.line1}</b></span>
+            <span><span className="cap">{ta("city")}</span> <b>{parts.city || "—"}</b></span>
+            <span><span className="cap">{ta("state")}</span> <b>{parts.state}</b></span>
+            <span><span className="cap">{ta("zip")}</span> <b>{parts.postal_code || "—"}</b></span>
+          </div>
+          <div className="hint" data-testid="address-check" style={{ color: addrOk ? undefined : "#b5470a" }}>{addrOk ? ta("ready") : ta("missing", { parts: missing.join(", ") })}</div>
         </div>
         <div>
           <label className="lbl" htmlFor="si-state">{L("State", "Tiểu bang")}</label>

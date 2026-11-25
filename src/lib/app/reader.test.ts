@@ -98,3 +98,31 @@ describe("Tap to Pay errors", () => {
     await expect(appCall({ reader: "connect" })).rejects.toMatchObject({ message: "Set a passcode", code: "passcode" });
   });
 });
+
+describe("Tap to Pay on iPhone: terms only in Settings", () => {
+  it("a checkout payment never asks for Apple's terms on an iPhone", async () => {
+    const sent = fakeApp("1.3", {}, ios("1.3"));
+    const { takeCard } = await import("./reader");
+    await takeCard({ id: "pr1", secret: "pi_secret", locationId: "tml_1", test: true }, () => {}, true);
+    expect(sent.find((m) => m.pay)).toMatchObject({ pay: "pi_secret", tap: true, terms: false });
+  });
+
+  it("Android keeps the old message (no terms flag)", async () => {
+    const sent = fakeApp("1.2", {});
+    const { takeCard } = await import("./reader");
+    await takeCard({ id: "pr1", secret: "pi_secret", locationId: "tml_1", test: true }, () => {}, true);
+    expect(sent.find((m) => m.pay)).not.toHaveProperty("terms");
+  });
+
+  it("turned on after a tap worked, off again after Turn off", async () => {
+    const store = new Map<string, string>();
+    vi.stubGlobal("localStorage", { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => store.set(k, v), removeItem: (k: string) => store.delete(k) });
+    fakeApp("1.3", {}, ios("1.3"));
+    const { tapOnHere, turnOnTapDemo, turnOffTap } = await import("./reader");
+    expect(tapOnHere()).toBe(false);
+    turnOnTapDemo();
+    expect(tapOnHere()).toBe(true);
+    await turnOffTap();
+    expect(tapOnHere()).toBe(false);
+  });
+});

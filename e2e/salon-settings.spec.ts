@@ -7,7 +7,7 @@ test("salon info: change name + address + a day's hours, then save", async ({ pa
   await page.goto("/settings/salon");
   await expect(page.getByTestId("si-save")).toBeDisabled();
   await page.getByTestId("si-name").fill("Lotus Nails & Spa");
-  await page.getByTestId("si-address").fill("9 Oak St, San Jose, CA 95112");
+  await page.getByTestId("address-input").fill("9 Oak St, San Jose, CA 95112");
   await page.getByTestId("si-day-6").getByRole("switch").click();
   await expect(page.getByTestId("si-day-6")).toContainText("Closed");
   await page.getByTestId("si-save").click();

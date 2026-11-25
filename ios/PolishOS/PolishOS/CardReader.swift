@@ -155,7 +155,9 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
     // MARK: Pay
 
     /// Take the card for one payment (made by the server). Connects first when needed.
-    func pay(secret: String, locationId: String, simulated: Bool, tap: Bool, done: @escaping Done) {
+    /// `terms` false (iPhone app 1.3+, web sends it) = never show Apple's Tap to Pay terms at checkout: an owner or
+    /// manager accepts them once in Settings → Tap to Pay on iPhone (Apple's rule). Older pages don't send it = true.
+    func pay(secret: String, locationId: String, simulated: Bool, tap: Bool, terms: Bool = true, done: @escaping Done) {
         if busy { // an older try is still open (e.g. the page was reloaded): end it so the next tap works
             cancel { _, _ in }
             done("The reader was finishing the last try. Try again.", ["code": "busy"])
@@ -163,7 +165,7 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
         }
         busy = true
         let finish: Done = { [weak self] e, x in self?.busy = false; self?.collecting = nil; done(e, x) }
-        connectInner(locationId: locationId, simulated: simulated, tap: tap) { error, _ in
+        connectInner(locationId: locationId, simulated: simulated, tap: tap, terms: terms) { error, _ in
             if let error { finish(error, nil); return }
             let t = Terminal.shared
             t.retrievePaymentIntent(clientSecret: secret) { intent, error in

@@ -306,7 +306,8 @@
     "tagPaid": "Paid",
     "tipOf": "tip {amount}",
     "allTechs": "All {n}",
-    "techFilter": "Show one tech's tickets"
+    "techFilter": "Show one tech's tickets",
+    "tapAskOwner": "Ask the owner or a manager to turn on Tap to Pay on iPhone in Settings."
   },
   "pay": {
     "title": "Pay {salon}",
@@ -1864,7 +1865,8 @@
       "bossOnly": "Only an owner or manager can open this.",
       "pick": "Owner or manager: tap your name, then your PIN.",
       "noBoss": "No owner or manager has a PIN yet.",
-      "pinFor": "{name}, your PIN for device settings"
+      "pinFor": "{name}, your PIN for device settings",
+      "backupHint": "Stuck? Open polishosapp.com/device"
     }
   },
   "clock": {
@@ -1888,19 +1890,22 @@
     "demo": "Test version: any PIN opens; nothing is saved."
   },
   "settings": {
-    "who": { "admin": "Owner + manager", "owner": "Owner only", "all": "Everyone" },
+    "access": { "admin": "Owner + manager", "owner": "Owner only", "all": "Everyone" },
     "youCan": "You ({role}) can open",
     "youCant": "Owner + manager only",
     "menuAdd": "Add service",
     "title": "Settings",
     "group": {
       "me": "Me",
-      "salon": "Salon · owner + manager",
-      "more": "More"
+      "salon": "Salon",
+      "team": "Team & time clock",
+      "pay": "Taking payments",
+      "clients": "Clients & booking",
+      "money": "Pay the team"
     },
     "nav": {
       "profile": "My profile",
-      "salon": "Salon info & hours",
+      "salon": "Salon info, address & hours",
       "menu": "Service menu",
       "team": "Team",
       "pinRules": "PIN rules",
@@ -1916,7 +1921,8 @@
       "texting": "Texting & credit",
       "billing": "Billing",
       "support": "Support",
-      "clockIn": "Clock-in"
+      "clockIn": "Clock-in",
+      "tapToPay": "Tap to Pay on iPhone"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -2369,7 +2375,49 @@
       "onToast": "Support is on for 24h",
       "offToast": "Support ended",
       "demo": "Test version: changes stay on this device."
-    }
+    },
+    "tapToPay": {
+      "loading": "Loading…",
+      "what": "Take cards on the salon's iPhone with no card reader: the client taps their card or phone wallet on the top of the iPhone.",
+      "notAppTitle": "Open this page in the PolishOS iPhone app",
+      "n1": "Use the salon's iPhone (iPhone XS or newer, latest iOS).",
+      "n2": "Open the PolishOS app on it and sign in as the owner or a manager.",
+      "n3": "Go to Settings → Tap to Pay on iPhone and tap Turn on.",
+      "stateOff": "Off",
+      "stateOn": "On",
+      "stateWarming": "Getting ready…",
+      "stateReady": "On · ready",
+      "offWhy": "Turn it on once for this iPhone. Apple shows its terms one time: read them and tap Accept. Staff never see them.",
+      "s1": "This iPhone needs a passcode (Settings → Face ID & Passcode).",
+      "s2": "Sign in to iCloud on this iPhone (Settings → your name).",
+      "s3": "Tap Turn on, then accept Apple's terms.",
+      "turnOn": "Turn on Tap to Pay on iPhone",
+      "turningOn": "Turning on…",
+      "onWhy": "On for this iPhone. Checkout shows Tap to Pay on iPhone, and the iPhone gets ready each time PolishOS opens.",
+      "turnOff": "Turn off on this iPhone",
+      "offAsk": "Turn off Tap to Pay on this iPhone? Staff can't take taps here until an owner or manager turns it on again.",
+      "toPayments": "Go to Payments",
+      "fee": "Same card fee as the card reader: 2.7% + 5¢, paid by the salon.",
+      "demo": "Test version: Turn on only marks this device. Apple's terms and the real tap come with the iPhone app on a real salon."
+    },
+    "salon": {
+      "loading": "Loading…",
+      "why": "Card payments need the salon's full address: Stripe uses it for the card reader and Tap to Pay on iPhone.",
+      "needed": "Add the full address with ZIP. Card payments in the salon won't work until it's here.",
+      "label": "Salon address",
+      "street": "Street",
+      "city": "City",
+      "state": "State",
+      "zip": "ZIP",
+      "ready": "✓ Ready for card payments",
+      "missing": "Missing: {parts}. Type it like: 1550 S Bascom Ave, Campbell, CA 95008",
+      "save": "Save address",
+      "saving": "Saving…",
+      "saved": "Saved. Card payments can use it now.",
+      "savedStripeFailed": "Saved. Stripe didn't take the new address yet; it will try again on the next card payment.",
+      "demo": "Test version: saved on this screen only."
+    },
+    "who": "Salon settings: owner + manager"
   },
   "promo": {
     "title": "Send promo text",
@@ -2527,5 +2575,20 @@
     "textCredit": "Text credit",
     "timeClock": "Time clock",
     "earnings": "Print my earnings"
+  },
+  "device": {
+    "title": "This device",
+    "sub": "Who this tablet is and who it's signed in as. The faces screen never covers this page.",
+    "noneTitle": "This browser isn't a salon device",
+    "noneWhy": "No salon device is saved in this browser.",
+    "signedInAs": "Signed in as {who}",
+    "signedOut": "Not signed in.",
+    "setUp": "Set up a salon device (owner or manager)",
+    "haveCode": "I have a device code",
+    "signIn": "Sign in",
+    "noBoss": "No owner or manager has a PIN yet. Set one in Settings → Team.",
+    "offline": "Needs internet to check the PIN. Try again when it's back.",
+    "back": "Back to the faces screen",
+    "demo": "Test version: a sample tablet; any PIN opens; nothing is saved."
   }
 }
