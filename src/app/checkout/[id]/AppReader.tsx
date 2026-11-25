@@ -29,6 +29,7 @@ export function AppReaderPay({ desk, ticket, onBack, tap = false }: { desk: Desk
   const [err, setErr] = useState("");
   const [test, setTest] = useState(false);
   const [real, setReal] = useState(false);
+  const stuck = useRef(false);
   const pay = useRef<AppPay | null>(null);
   const alive = useRef(true);
   useEffect(() => { setReal(wantsRealReader(tap)); }, [tap]);
@@ -60,7 +61,7 @@ export function AppReaderPay({ desk, ticket, onBack, tap = false }: { desk: Desk
   };
 
   const charge = async () => {
-    setErr(""); setText(""); setPhase("starting");
+    setErr(""); setText(""); stuck.current = false; setPhase("starting");
     try {
       await saveNow({ ...ticket, tips: {} });
       const a = getActing();
@@ -77,10 +78,19 @@ export function AppReaderPay({ desk, ticket, onBack, tap = false }: { desk: Desk
       if (!alive.current) return;
       // The app's code → our own words in English / Vietnamese; else the app's own words.
       const key = tapErrorKey((e as { code?: unknown }).code, typeof navigator === "undefined" || navigator.onLine);
-      setErr(msg === "canceled" ? "" : key ? t(key) : t("declined", { msg }));
+      setErr(stuck.current ? t("practiceStuck") : msg === "canceled" ? "" : key ? t(key) : t("declined", { msg }));
+      stuck.current = false;
       setPhase("tip");
     }
   };
+
+  // Practice tap (test mode) pays by itself in a few seconds. If nothing after 30 s, stop it: never a stuck spinner.
+  const practice = test && !real;
+  useEffect(() => {
+    if (phase !== "card" || !practice) return;
+    const id = setTimeout(() => { stuck.current = true; void stopCard(); }, 30_000);
+    return () => clearTimeout(id);
+  }, [phase, practice]);
 
   const cancel = async () => { await stopCard(); /* takeCard then fails with "canceled" → back to the tip step */ };
   const switchReader = async (useReal: boolean) => { setRealReader(useReal, tap); setReal(useReal); await stopCard(); };
@@ -98,7 +108,7 @@ export function AppReaderPay({ desk, ticket, onBack, tap = false }: { desk: Desk
     <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, padding: "24px 16px", textAlign: "center" }}>
       {head(base + tip)}
       <div className="spin" />
-      <b style={{ fontSize: 18 }} data-testid="app-reader-wait" aria-live="polite">{phase === "starting" ? (tap ? t("tapStarting") : t("appStarting")) : phase === "checking" ? t("appChecking") : text || (tap ? (iphone ? t("tapHoldIphone") : t("tapHold")) : t("appTap"))}</b>
+      <b style={{ fontSize: 18 }} data-testid="app-reader-wait" aria-live="polite">{phase === "starting" ? (tap ? t("tapStarting") : t("appStarting")) : phase === "checking" ? t("appChecking") : tap && practice ? t("tapPracticeWait") : text || (tap ? (iphone ? t("tapHoldIphone") : t("tapHold")) : t("appTap"))}</b>
       <div className="cap">{kind} · {t("readerFee")}</div>
       {phase === "card" && test && <div className="demo" style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center", maxWidth: 420 }}>
         <span>{tap ? (real ? t("tapTestReal") : t("tapTestPractice")) : real ? t("appTestReal") : t("appTestPractice")}</span>

@@ -62,18 +62,31 @@ function answerTokens() {
 export async function takeCard(pay: AppPay, say: (text: string) => void, tap = false): Promise<void> {
   answerTokens();
   tokenFor = { pr: pay.id };
+  paying = true;
   const stopText = onAppEvent("reader", (e) => { if (typeof e.text === "string" && e.text) say(e.text); });
+  // iPhone: Apple's terms are never shown at checkout (an owner/manager accepts them in Settings first).
+  const msg = { pay: pay.secret, locationId: pay.locationId, simulated: pay.test && !wantsRealReader(tap), tap, ...(tap && inIosApp() ? { terms: false } : {}) };
   try {
     // Up to 10 minutes: a new reader may update itself first.
-    // iPhone: Apple's terms are never shown at checkout (an owner/manager accepts them in Settings first).
-    await appCall({ pay: pay.secret, locationId: pay.locationId, simulated: pay.test && !wantsRealReader(tap), tap, ...(tap && inIosApp() ? { terms: false } : {}) }, 10 * 60 * 1000);
+    try {
+      await appCall(msg, 10 * 60 * 1000);
+    } catch (e) {
+      // Older apps answer "busy" when a get-ready or an older try is still open: stop it, wait, try once more.
+      if ((e as { code?: string }).code !== "busy") throw e;
+      await stopCard();
+      await new Promise((ok) => setTimeout(ok, 1500));
+      await appCall(msg, 10 * 60 * 1000);
+    }
     if (tap) markTapUsed();
   } catch (e) {
     throw explainAppError(e);
   } finally {
+    paying = false;
     stopText();
   }
 }
+/** A payment is running: the background get-ready waits (it would make the reader "busy"). */
+let paying = false;
 
 /** Stripe's kit hides our reason behind "…fetchConnectionToken with an error": put our own words back. */
 export function explainAppError(e: unknown): Error & { code?: string } {
@@ -152,7 +165,7 @@ let warmSalon = "";
 let warming: Promise<void> | null = null;
 /** Get Tap to Pay ready for this salon (iPhone app, after the first tap). Safe to call often. */
 export function warmTap(salonId: string): Promise<void> {
-  if (!salonId || !inIosApp() || !tapUsed()) return Promise.resolve();
+  if (!salonId || !inIosApp() || !tapUsed() || paying) return Promise.resolve();
   warmSalon = salonId;
   if (warming) return warming;
   warming = (async () => {
