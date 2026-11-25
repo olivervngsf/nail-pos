@@ -11,7 +11,8 @@ import { Avatar, Button, Card, Toast } from "@/components/kit";
 import { formatCents } from "@/lib/money";
 import { isoDay } from "@/lib/closeday";
 import { TechShell, useTechMe } from "./tech";
-import { svcNames, timeOf, useMyAppts, useMyEarnings } from "./data";
+import { fmtMins, minsSince, minsUntil } from "@/lib/booking/techday";
+import { svcNames, timeOf, useMyAppts, useMyEarnings, useNow } from "./data";
 
 type Staff = { membership_id: string; clocked_in: boolean; last_clock: string | null };
 const $ = formatCents;
@@ -38,10 +39,11 @@ export default function TechHome() {
   const day = useMyAppts(me, today, 1);
   const week = useMyEarnings(me, "week");
   const todayEarn = useMyEarnings(me, "today");
-  const now = Date.now();
+  const now = useNow();
   const inChair = useMemo(() => day.find((a) => a.status === "arrived" && a.ticketStatus !== "paid"), [day]);
   const next = useMemo(() => day.find((a) => (a.status === "booked" || a.status === "confirmed") && new Date(a.end).getTime() > now), [day, now]);
-  const left = day.filter((a) => a.status !== "done" && a.status !== "blocked" && a.ticketStatus !== "paid").length;
+  // Clients still to come today (not paid, not over yet): matches "next client" below.
+  const left = day.filter((a) => a.status !== "done" && a.status !== "blocked" && a.ticketStatus !== "paid" && new Date(a.end).getTime() > now).length;
 
   const doClock = async () => {
     if (!me) return;
@@ -92,6 +94,7 @@ export default function TechHome() {
           <Link href={`/t/schedule?open=${next.id}`} className="card" style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "inherit" }} data-testid="next-client">
             <span style={{ flex: 1 }}><b>{t("nextAt", { time: timeOf(next.start), name: next.client?.name ?? t("walkIn") })}</b>
               <span className="cap" style={{ display: "block", color: next.status === "confirmed" ? undefined : "#B5470A" }}>{svcNames(next)} · {next.status === "confirmed" ? t("confirmed") : t("notConfirmed")}</span></span>
+            <NextIn start={next.start} now={now} />
             <span className="cap">›</span>
           </Link>
         ) : <div className="cap">{t("noNext")}</div>}
@@ -102,24 +105,33 @@ export default function TechHome() {
           <Link className="tile" href="/t/earnings"><b>{t("myEarnings")}</b><span className="cap">{week ? t("weekAmount", { amount: $(week.total_cents) }) : "—"}</span></Link>
           <Link className="tile" href="/clients" data-testid="tech-clients"><b>{t("clientsTile")}</b><span className="cap">{t("clientsSub")}</span></Link>
         </div>
-        <span className="cap">{t("clockLater")}</span>
       </>}
       {toast && <Toast>{toast}</Toast>}
     </TechShell>
   );
 }
 
-/** Who is in my chair: minutes so far vs the usual time for the service. */
+/** "in 12 min" / "now" next to my next client. */
+function NextIn({ start, now }: { start: string; now: number }) {
+  const t = useTranslations("tech");
+  const m = minsUntil(start, now);
+  return <span className="tag" data-testid="next-in" style={m <= 10 ? { background: "var(--orange-soft)", color: "#B5470A" } : undefined}>{m <= 0 ? t("nowShort") : t("inMins", { time: fmtMins(m, t("minUnit")) })}</span>;
+}
+
+/** Who is in my chair: minutes so far vs the usual time for the service. Over the usual time = orange, plain words. */
 function InChair({ name, what, start, planned }: { name: string; what: string; start: string; planned: number }) {
   const t = useTranslations("tech");
-  const [mins, setMins] = useState(() => Math.max(0, Math.round((Date.now() - new Date(start).getTime()) / 60000)));
-  useEffect(() => { const i = setInterval(() => setMins(Math.max(0, Math.round((Date.now() - new Date(start).getTime()) / 60000))), 30000); return () => clearInterval(i); }, [start]);
-  const pct = Math.min(100, Math.round((mins / Math.max(planned, 1)) * 100));
+  const now = useNow();
+  const mins = minsSince(start, now);
+  const usual = Math.max(1, Math.round(planned));
+  const over = mins - usual;
+  const pct = Math.min(100, Math.round((mins / usual) * 100));
   return (
-    <div className="card" style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 6, background: "var(--jade-soft)" }} data-testid="in-chair">
+    <div className="card" style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 6, background: over > 0 ? "var(--orange-soft)" : "var(--jade-soft)" }} data-testid="in-chair">
       <b>{t("inChair", { name })}</b>
-      <span className="cap">{t("inChairSub", { what, mins, usual: Math.round(planned) })}</span>
-      <div className="t-bar jade"><span style={{ width: `${pct}%` }} /></div>
+      <span className="cap">{t("inChairSub", { what, mins: fmtMins(mins, t("minUnit")), usual: fmtMins(usual, t("minUnit")) })}</span>
+      <div className={`t-bar ${over > 0 ? "orange" : "jade"}`}><span style={{ width: `${pct}%` }} /></div>
+      {over > 0 && <span className="cap" data-testid="in-chair-over" style={{ color: "#B5470A" }}>{t("overBy", { time: fmtMins(over, t("minUnit")) })}</span>}
     </div>
   );
 }

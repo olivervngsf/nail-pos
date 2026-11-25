@@ -6,8 +6,14 @@
 type Bridge = { postMessage(s: string): void; onmessage: ((e: { data: string }) => void) | null };
 const bridge = (): Bridge | null => (typeof window !== "undefined" ? (window as unknown as { PolishOSApp?: Bridge }).PolishOSApp ?? null : null);
 
-/** Running inside the PolishOS Android app. */
+/** Running inside a PolishOS app (Android terminal/phone app or the iPhone app). */
 export const inApp = () => !!bridge();
+
+/** Inside the iPhone/iPad app (ios/PolishOS); its browser name ends with "PolishOS-iOS". */
+export const inIosApp = () => inApp() && typeof navigator !== "undefined" && /PolishOS-iOS/.test(navigator.userAgent);
+
+/** Inside the Android app, which prints on the terminal's built-in printer (the iPhone app has no printer yet). */
+export const appHasPrinter = () => inApp() && !inIosApp();
 
 /** The app's version from its browser name ("… PolishOSApp/1.1"), e.g. 1.1. 0 outside the app. */
 export function appVersion(): number {
@@ -29,7 +35,7 @@ function listen(app: Bridge) {
   };
 }
 
-/** Ask the app to do something and wait for its answer. Throws the app's plain-words reason. */
+/** Ask the app to do something and wait for its answer. Throws the app's plain-words reason (+ `code` when it sent one). */
 export function appCall<T = Record<string, unknown>>(message: Record<string, unknown>, waitMs = 30000): Promise<T> {
   const app = bridge();
   if (!app) return Promise.reject(new Error("Open PolishOS in the PolishOS app for this."));
@@ -37,7 +43,7 @@ export function appCall<T = Record<string, unknown>>(message: Record<string, unk
   const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   return new Promise<T>((resolve, reject) => {
     const timer = setTimeout(() => { waiting.delete(id); reject(new Error("The app didn't answer. Try again.")); }, waitMs);
-    waiting.set(id, (r) => { clearTimeout(timer); if (r.error) reject(new Error(r.error)); else resolve(r as T); });
+    waiting.set(id, (r) => { clearTimeout(timer); if (r.error) reject(Object.assign(new Error(r.error), { code: typeof r.code === "string" ? r.code : undefined })); else resolve(r as T); });
     app.postMessage(JSON.stringify({ ...message, id }));
   });
 }

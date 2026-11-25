@@ -15,7 +15,7 @@ import { logReceipt, pullTickets, putTicket, saveNow, takeCashPart, undoCashPart
 import { api } from "@/lib/api";
 import { GiftSellDrawer, GiftUseDrawer } from "./GiftDrawers";
 import { AppReaderPay } from "./AppReader";
-import { canAppReader } from "@/lib/app/reader";
+import { canAppReader, canTapToPay, keepTapWarm, onTapWarm, tapWarmNow, type TapCheck, type TapWarm } from "@/lib/app/reader";
 import { demoSettle, giftUndo } from "@/lib/checkout/gift";
 import { receiptBytes, type ReceiptDoc } from "@/lib/print/escpos";
 import { receiptCode } from "@/lib/receipt-code";
@@ -32,7 +32,7 @@ const uuid = () => crypto.randomUUID();
 const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 const $ = formatCents;
 
-type Step = "ticket" | "pay" | "cash" | "reader" | "link" | "app";
+type Step = "ticket" | "pay" | "cash" | "reader" | "link" | "app" | "tap";
 
 export default function TicketScreen({ id, pay }: { id: string; pay?: boolean }) {
   const t = useTranslations("checkout");
@@ -76,6 +76,7 @@ export default function TicketScreen({ id, pay }: { id: string; pay?: boolean })
           : step === "pay" ? <Pay desk={desk} ticket={ticket} onPick={setStep} say={say} />
           : step === "reader" || step === "link" ? <CardWait key={step} desk={desk} ticket={ticket} method={step} onBack={() => setStep("pay")} />
           : step === "app" ? <AppReaderPay desk={desk} ticket={ticket} onBack={() => setStep("pay")} />
+          : step === "tap" ? <AppReaderPay key="tap" tap desk={desk} ticket={ticket} onBack={() => setStep("pay")} />
           : step === "cash" ? <Cash desk={desk} ticket={ticket} save={save} onPart={() => setStep("pay")} />
           : <Build desk={desk} ticket={ticket} save={save} onCharge={() => setStep("pay")} />}
       </div>
@@ -457,7 +458,7 @@ function Pay({ desk, ticket, onPick, say }: { desk: Desk; ticket: Ticket; onPick
   const [gift, setGift] = useState(false);
   const online = typeof navigator === "undefined" || navigator.onLine;
   const why = desk.mode === "demo" ? t("payDemo") : !desk.pay.ready ? t("needStripe") : !online ? t("onlineOnly") : "";
-  const tile = (id: string, title: string, sub: string, fee: string, on: boolean, go: () => void, note?: string) => on
+  const tile = (id: string, title: React.ReactNode, sub: string, fee: string, on: boolean, go: () => void, note?: string) => on
     ? <button type="button" className="tile" data-testid={id} onClick={go} style={{ border: 0, font: "inherit", textAlign: "left", cursor: "pointer" }}>
         <div className="h2">{title}</div><div style={{ fontSize: 15 }}>{sub}</div><div className="cap num">{fee}</div></button>
     : <div className="tile" aria-disabled="true" data-testid={id} style={{ opacity: 0.55 }}>
@@ -466,6 +467,18 @@ function Pay({ desk, ticket, onPick, say }: { desk: Desk; ticket: Ticket; onPick
   // Inside our Android app (handheld terminal): the small reader next to it. No pairing in setup needed.
   const [appReader, setAppReader] = useState(false);
   useEffect(() => setAppReader(canAppReader()), []);
+  // Our app on a certified Android phone (app 1.2+): the phone itself takes the card (Tap to Pay). PS10 = no.
+  const [tap, setTap] = useState<TapCheck | null>(null);
+  useEffect(() => { void canTapToPay().then(setTap); }, []);
+  // Tap to Pay on iPhone: get ready before the client taps (Apple's rule; after this phone's first tap).
+  const [warm, setWarm] = useState<TapWarm>({ state: "off" });
+  useEffect(() => { setWarm(tapWarmNow()); const stop = onTapWarm(setWarm); if (desk.mode === "live") keepTapWarm(desk.salonId); return stop; }, [desk.salonId, desk.mode]);
+  // Apple: on an iPhone it is always "Tap to Pay on iPhone" with Apple's own symbol (the app hands it to us).
+  const tapTitle = tap?.ios
+    ? <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>{/* eslint-disable-next-line @next/next/no-img-element -- Apple's symbol, a small picture handed over by the app */}
+      {tap.icon && <img src={tap.icon} alt="" width={26} height={26} data-testid="tap-symbol" />}{t("tapTitleIphone")}</span>
+    : t("tapTitle");
+  const tapFee = tap?.ios && warm.state !== "off" ? `${t("readerFee")} · ${warm.state === "ready" ? t("tapReady") : warm.state === "warming" ? t("tapWarming") : ""}`.replace(/ · $/, "") : t("readerFee");
   return (
     <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28, padding: "24px 16px" }}>
       <div style={{ textAlign: "center" }}>
@@ -486,6 +499,7 @@ function Pay({ desk, ticket, onPick, say }: { desk: Desk; ticket: Ticket; onPick
         ))}
       </div>}
       <div className="grid2" style={{ width: "100%", maxWidth: 880, gap: 16 }}>
+        {tap?.supported && tile("pay-tap", tapTitle, tap.ios ? t("tapSubIphone") : t("tapSub"), tapFee, !why && !tap.nfcOff, () => onPick("tap"), why || (tap.nfcOff ? t("tapNfcOff") : undefined))}
         {appReader && tile("pay-app", t("appReader"), t("appReaderSub"), t("readerFee"), !why, () => onPick("app"), why)}
         {(!appReader || cardOk) && tile("pay-reader", t("reader"), t("readerSub"), t("readerFee"), cardOk, () => onPick("reader"), why || t("needReader"))}
         {tile("pay-cash", t("cash"), t("cashSub"), t("cashFee"), true, () => onPick("cash"))}

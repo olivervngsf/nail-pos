@@ -28,6 +28,18 @@ Bluetooth serial device. A web page in Chrome can't open it; an Android app can.
 - Tap to Pay on the terminal's own NFC is NOT possible on the PS10: Google has not certified the device
   (Play Store → Settings → About → "Device is not certified"), which Stripe requires.
 
+## Tap to Pay on a regular Android phone, app 1.2+ (Nov 24, 2026; not tried on a phone yet)
+- Same app, any Google-certified Android phone with NFC, Android 11+ (Pixel, Samsung…). No reader: the client taps
+  the card or phone wallet on the back of the phone. Stripe library `stripeterminal-taptopay` (same version as the
+  reader kit); Stripe's own "hold the card here" screen runs in a second process (`App.java` skips our start there).
+- Web app: on How to pay the page asks the app `{"reader":"tapCheck"}` → `{supported, reason, nfcOff}`; only a phone
+  that says yes shows "Tap card on this phone" (`canTapToPay` in `src/lib/app/reader.ts`). Then the same steps as the
+  M2: tip on screen → `/api/pay/start` method `app` → `{"pay", "locationId", "simulated", "tap": true}` → paid.
+- Rights: Location only (no Bluetooth). NFC must be on. Developer options / screen sharing / a rooted phone = refused.
+- Test mode: "practice tap" (Stripe's simulated tap, no card) or a real tap with Stripe's physical test card.
+- Same fee as the M2 (in-person card rate). The PS10 answers "not supported" and keeps the M2.
+- To try: install the 1.2 file on a Pixel/Samsung, sign in, open a ticket → How to pay → Tap card on this phone.
+
 ## Build
 - GitHub: Actions → "Terminal app (Android)" → the run → download `polishos-terminal-apk`.
 - By hand: `ANDROID_HOME=<sdk> gradle assembleRelease` in this folder (Gradle 8.14, JDK 17+).
@@ -53,4 +65,5 @@ For real use, make one key, keep it OUT of the repo, and pass it to the build:
 ## Not in the app
 - Bluetooth printers like the NETUM (use Chrome for those).
 - "Continue with Google" sign-in (Google blocks it inside app windows): use phone, email or password.
-- Card taps on the terminal's own NFC (Stripe Tap to Pay needs a Google-certified device; the PS10 is not).
+- Card taps on the PS10's own NFC (Stripe Tap to Pay needs a Google-certified device; the PS10 is not). Regular
+  certified Android phones can: see Tap to Pay above.

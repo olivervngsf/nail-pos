@@ -1,6 +1,8 @@
 package com.polishos.terminal;
 
 import android.content.Context;
+import android.nfc.NfcAdapter;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -13,6 +15,7 @@ import com.stripe.stripeterminal.external.callable.DiscoveryListener;
 import com.stripe.stripeterminal.external.callable.MobileReaderListener;
 import com.stripe.stripeterminal.external.callable.PaymentIntentCallback;
 import com.stripe.stripeterminal.external.callable.ReaderCallback;
+import com.stripe.stripeterminal.external.callable.TapToPayReaderListener;
 import com.stripe.stripeterminal.external.callable.TerminalListener;
 import com.stripe.stripeterminal.external.models.CollectPaymentIntentConfiguration;
 import com.stripe.stripeterminal.external.models.ConnectionConfiguration;
@@ -24,6 +27,7 @@ import com.stripe.stripeterminal.external.models.Reader;
 import com.stripe.stripeterminal.external.models.ReaderDisplayMessage;
 import com.stripe.stripeterminal.external.models.ReaderInputOptions;
 import com.stripe.stripeterminal.external.models.ReaderSoftwareUpdate;
+import com.stripe.stripeterminal.external.models.ReaderSupportResult;
 import com.stripe.stripeterminal.external.models.TerminalErrorCode;
 import com.stripe.stripeterminal.external.models.TerminalException;
 import com.stripe.stripeterminal.log.LogLevel;
@@ -42,6 +46,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * passes through this app (it goes reader → Stripe, encrypted).
  *
  * `simulated` = Stripe's pretend reader (test mode only): the whole flow with no hardware.
+ * `tap` = Tap to Pay: no reader at all, the client taps the card (or phone wallet) on the back of THIS phone
+ * (Stripe Tap to Pay on Android: Google-certified phone with NFC, Android 11+; the PS10 is not certified).
  */
 final class CardReader {
     /** Things we tell the web app without being asked: "token" (we need a connection token), "reader" (what to show). */
@@ -127,39 +133,64 @@ final class CardReader {
     }
 
     /** Find a reader near the terminal and connect it. Already connected (same kind) = nothing to do. */
-    void connect(String locationId, boolean simulated, Done done) {
+    void connect(String locationId, boolean simulated, boolean tap, Done done) {
         if (busy) { done.done("The reader is busy. Try again in a moment.", null); return; }
         busy = true;
-        connectInner(locationId, simulated, (error, extra) -> { busy = false; done.done(error, extra); });
+        connectInner(locationId, simulated, tap, (error, extra) -> { busy = false; done.done(error, extra); });
     }
 
-    private void connectInner(String locationId, boolean simulated, Done done) {
+    /** Can this phone take cards by itself (Tap to Pay)? {supported, reason}. Asks nothing of Stripe's servers. */
+    void tapCheck(Done done) {
+        JSONObject o = new JSONObject();
+        if (Build.VERSION.SDK_INT < 30) { done.done(null, put(put(o, "supported", false), "reason", "Tap to Pay needs Android 11 or newer.")); return; }
+        NfcAdapter nfc = NfcAdapter.getDefaultAdapter(app);
+        if (nfc == null) { done.done(null, put(put(o, "supported", false), "reason", "This device has no NFC (tap) chip.")); return; }
+        try {
+            ReaderSupportResult r = terminal().supportsReadersOfType(DeviceType.TAP_TO_PAY_DEVICE, new DiscoveryConfiguration.TapToPayDiscoveryConfiguration(false));
+            put(o, "supported", r.isSupported());
+            if (!r.isSupported()) put(o, "reason", r.getError() instanceof TerminalException ? reason((TerminalException) r.getError()) : "This phone can't take cards by tap.");
+            else if (!nfc.isEnabled()) put(o, "nfcOff", true);
+            done.done(null, o);
+        } catch (TerminalException e) {
+            done.done(null, put(put(o, "supported", false), "reason", reason(e)));
+        }
+    }
+
+    private static boolean isTap(Reader r) { return r.getDeviceType() == DeviceType.TAP_TO_PAY_DEVICE; }
+
+    private void connectInner(String locationId, boolean simulated, boolean tap, Done done) {
         final Terminal t;
         try { t = terminal(); } catch (TerminalException e) { done.done(reason(e), null); return; }
         Reader now = t.getConnectedReader();
-        if (now != null && now.isSimulated() == simulated) { done.done(null, about(now)); return; }
-        if (now != null) { // a pretend reader is connected but the real one is wanted (or the other way round)
+        if (now != null && now.isSimulated() == simulated && isTap(now) == tap) { done.done(null, about(now)); return; }
+        if (now != null) { // another kind is connected (pretend vs real, M2 vs Tap to Pay): let it go first
             t.disconnectReader(new Callback() {
-                @Override public void onSuccess() { connectInner(locationId, simulated, done); }
+                @Override public void onSuccess() { connectInner(locationId, simulated, tap, done); }
                 @Override public void onFailure(TerminalException e) { done.done(reason(e), null); }
             });
             return;
         }
-        event("reader", "text", simulated ? "Starting the practice reader…" : "Looking for the reader. Turn it on and keep it close.");
+        event("reader", "text", tap ? "Getting Tap to Pay ready…" : simulated ? "Starting the practice reader…" : "Looking for the reader. Turn it on and keep it close.");
         final boolean[] picked = { false };
-        scanning = t.discoverReaders(new DiscoveryConfiguration.BluetoothDiscoveryConfiguration(SCAN_SECONDS, simulated),
+        DiscoveryConfiguration find = tap
+            ? new DiscoveryConfiguration.TapToPayDiscoveryConfiguration(simulated)
+            : new DiscoveryConfiguration.BluetoothDiscoveryConfiguration(SCAN_SECONDS, simulated);
+        scanning = t.discoverReaders(find,
             (DiscoveryListener) readers -> {
                 Reader choice = choose(readers);
                 if (choice == null || picked[0]) return;
                 picked[0] = true;
-                event("reader", "text", "Connecting to the reader…");
-                t.connectReader(choice, new ConnectionConfiguration.BluetoothConnectionConfiguration(locationId, true, listener), new ReaderCallback() {
+                event("reader", "text", tap ? "Getting Tap to Pay ready…" : "Connecting to the reader…");
+                ConnectionConfiguration how = tap
+                    ? new ConnectionConfiguration.TapToPayConnectionConfiguration(locationId, true, new TapToPayReaderListener() { })
+                    : new ConnectionConfiguration.BluetoothConnectionConfiguration(locationId, true, listener);
+                t.connectReader(choice, how, new ReaderCallback() {
                     @Override public void onSuccess(Reader reader) { done.done(null, about(reader)); }
                     @Override public void onFailure(TerminalException e) { done.done(reason(e), null); }
                 });
             },
             new Callback() {
-                @Override public void onSuccess() { if (!picked[0]) done.done("No reader found. Turn the reader on, keep it close, then try again.", null); }
+                @Override public void onSuccess() { if (!picked[0]) done.done(tap ? "Tap to Pay didn't start on this phone. Try again." : "No reader found. Turn the reader on, keep it close, then try again.", null); }
                 @Override public void onFailure(TerminalException e) {
                     if (picked[0]) return; // the scan ends when we connect: not a failure
                     done.done(e.getErrorCode() == TerminalErrorCode.BLUETOOTH_SCAN_TIMED_OUT
@@ -176,7 +207,7 @@ final class CardReader {
     }
 
     /** Take the card for one payment (made by the server). Connects the reader first when needed. */
-    void pay(String clientSecret, String locationId, boolean simulated, Done done) {
+    void pay(String clientSecret, String locationId, boolean simulated, boolean tap, Done done) {
         if (busy) { // an older try is still open (e.g. the page was reloaded): end it so the next tap works
             cancel((error, extra) -> { });
             done.done("The reader was finishing the last try. Try again.", null);
@@ -184,13 +215,15 @@ final class CardReader {
         }
         busy = true;
         final Done finish = (error, extra) -> { busy = false; collecting = null; done.done(error, extra); };
-        connectInner(locationId, simulated, (error, reader) -> {
+        connectInner(locationId, simulated, tap, (error, reader) -> {
             if (error != null) { finish.done(error, null); return; }
             final Terminal t;
             try { t = terminal(); } catch (TerminalException e) { finish.done(reason(e), null); return; }
             t.retrievePaymentIntent(clientSecret, new PaymentIntentCallback() {
                 @Override public void onSuccess(PaymentIntent intent) {
                     // The tip was picked on the terminal's screen and is already in the amount.
+                    // Tap to Pay: Stripe's own full-screen "hold the card here" page opens now and closes by itself.
+                    if (tap) event("reader", "text", "Hold the card or phone wallet flat on the back of this phone.");
                     CollectPaymentIntentConfiguration config = new CollectPaymentIntentConfiguration.Builder().skipTipping(true).build();
                     collecting = t.collectPaymentMethod(intent, new PaymentIntentCallback() {
                         @Override public void onSuccess(PaymentIntent collected) {
@@ -237,7 +270,8 @@ final class CardReader {
 
     private static JSONObject about(Reader r) {
         JSONObject o = put(new JSONObject(), "connected", true);
-        put(o, "name", r.getDeviceType() == DeviceType.STRIPE_M2 ? "Stripe Reader M2" : String.valueOf(r.getDeviceType()));
+        put(o, "name", r.getDeviceType() == DeviceType.STRIPE_M2 ? "Stripe Reader M2" : isTap(r) ? "Tap to Pay on this phone" : String.valueOf(r.getDeviceType()));
+        put(o, "tap", isTap(r));
         put(o, "serial", r.getSerialNumber());
         put(o, "simulated", r.isSimulated());
         if (r.getBatteryLevel() != null) put(o, "battery", Math.round(r.getBatteryLevel() * 100));
@@ -251,6 +285,12 @@ final class CardReader {
         if (code == TerminalErrorCode.LOCATION_SERVICES_DISABLED) return "Turn on Location on this device (swipe down from the top), then try again.";
         if (code == TerminalErrorCode.BLUETOOTH_PERMISSION_DENIED) return "Allow Nearby devices for PolishOS, then try again.";
         if (code == TerminalErrorCode.BLUETOOTH_ERROR || code == TerminalErrorCode.BLUETOOTH_DISCONNECTED) return "Lost the reader. Check it is on and close, then try again.";
+        if (code == TerminalErrorCode.TAP_TO_PAY_NFC_DISABLED) return "Turn on NFC (Settings → Connected devices → NFC), then try again.";
+        if (code == TerminalErrorCode.TAP_TO_PAY_UNSUPPORTED_DEVICE || code == TerminalErrorCode.TAP_TO_PAY_UNSUPPORTED_PROCESSOR) return "This phone can't take cards by tap (Google hasn't certified it for payments). Use the small card reader or the pay link.";
+        if (code == TerminalErrorCode.TAP_TO_PAY_UNSUPPORTED_ANDROID_VERSION) return "Tap to Pay needs a newer Android. Update the phone, then try again.";
+        if (code == TerminalErrorCode.TAP_TO_PAY_DEVICE_TAMPERED || code == TerminalErrorCode.TAP_TO_PAY_INSECURE_ENVIRONMENT) return "This phone isn't safe for card taps (developer options, screen sharing or a changed system). Turn those off or use another phone.";
+        if (code == TerminalErrorCode.TAP_TO_PAY_DEBUG_NOT_SUPPORTED) return "Tap to Pay only works in the installed app, not a test build.";
+        if (code == TerminalErrorCode.TAP_TO_PAY_PIN_UNAVAILABLE) return "This card needs a PIN, which this phone can't take. Use the small card reader or another card.";
         if (code == TerminalErrorCode.DECLINED_BY_STRIPE_API || code == TerminalErrorCode.DECLINED_BY_READER) return "Card declined. " + e.getErrorMessage();
         return e.getErrorMessage();
     }

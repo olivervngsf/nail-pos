@@ -1,0 +1,28 @@
+# XcodeGen spec: `xcodegen generate` makes PolishOS.xcodeproj (not kept in git). CI: .github/workflows/ios.yml.
+name: PolishOS
+options:
+  bundleIdPrefix: com.polishos
+  deploymentTarget:
+    iOS: "16.4"
+packages:
+  StripeTerminal:
+    url: https://github.com/stripe/stripe-terminal-ios
+    exactVersion: 5.8.1
+targets:
+  PolishOS:
+    type: application
+    platform: iOS
+    sources: [PolishOS]
+    dependencies:
+      - package: StripeTerminal
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.polishos.app
+        MARKETING_VERSION: "1.3"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_ENTITLEMENTS: PolishOS/PolishOS.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: PolishOS/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

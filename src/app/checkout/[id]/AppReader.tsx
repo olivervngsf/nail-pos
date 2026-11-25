@@ -1,5 +1,6 @@
 "use client";
 // Card on the small reader next to a handheld terminal (Stripe Reader M2), inside our Android app.
+// `tap` = Tap to Pay on the phone itself (app 1.2+, certified Android phone): same steps, no reader.
 // 1. The client picks a tip on this screen (the reader has no screen). 2. The server makes the payment.
 // 3. The app's reader kit takes the card. 4. The server checks with Stripe and marks the ticket paid.
 import { useEffect, useRef, useState } from "react";
@@ -10,12 +11,13 @@ import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { getActing, type Desk } from "@/lib/desk";
 import { pullTickets, saveNow } from "@/lib/checkout/store";
 import { ticketLabel, totals, type Ticket } from "@/lib/checkout/ticket";
-import { setRealReader, stopCard, takeCard, wantsRealReader, type AppPay } from "@/lib/app/reader";
+import { inIosApp } from "@/lib/app/bridge";
+import { setRealReader, stopCard, takeCard, tapErrorKey, wantsRealReader, type AppPay } from "@/lib/app/reader";
 
 const $ = formatCents;
 type Phase = "tip" | "starting" | "card" | "checking";
 
-export function AppReaderPay({ desk, ticket, onBack }: { desk: Desk; ticket: Ticket; onBack: () => void }) {
+export function AppReaderPay({ desk, ticket, onBack, tap = false }: { desk: Desk; ticket: Ticket; onBack: () => void; tap?: boolean }) {
   const t = useTranslations("checkout");
   const tp = useTranslations("pay");
   const base = totals(ticket).toPay;
@@ -28,7 +30,8 @@ export function AppReaderPay({ desk, ticket, onBack }: { desk: Desk; ticket: Tic
   const [real, setReal] = useState(false);
   const pay = useRef<AppPay | null>(null);
   const alive = useRef(true);
-  useEffect(() => { setReal(wantsRealReader()); return () => { alive.current = false; }; }, []);
+  useEffect(() => { setReal(wantsRealReader(tap)); }, [tap]);
+  useEffect(() => () => { alive.current = false; }, []);
 
   const tip = pick === "none" ? 0 : pick === "custom" ? parseDollars(custom) ?? 0 : percentOf(base, pick);
   const name = (id: string) => desk.staff.find((s) => s.id === id)?.name ?? "";
@@ -64,20 +67,24 @@ export function AppReaderPay({ desk, ticket, onBack }: { desk: Desk; ticket: Tic
       pay.current = p;
       setTest(p.test);
       setPhase("card");
-      await takeCard(p, (s) => { if (alive.current) setText(s); });
+      await takeCard(p, (s) => { if (alive.current) setText(s); }, tap);
       setPhase("checking");
       await confirm(p.id);
     } catch (e) {
       const msg = (e as Error).message;
       if (await closeTry()) return; // the card went through after all
       if (!alive.current) return;
-      setErr(msg === "canceled" ? "" : t("declined", { msg }));
+      // The app's code → our own words in English / Vietnamese; else the app's own words.
+      const key = tapErrorKey((e as { code?: unknown }).code, typeof navigator === "undefined" || navigator.onLine);
+      setErr(msg === "canceled" ? "" : key ? t(key) : t("declined", { msg }));
       setPhase("tip");
     }
   };
 
   const cancel = async () => { await stopCard(); /* takeCard then fails with "canceled" → back to the tip step */ };
-  const switchReader = async (useReal: boolean) => { setRealReader(useReal); setReal(useReal); await stopCard(); };
+  const switchReader = async (useReal: boolean) => { setRealReader(useReal, tap); setReal(useReal); await stopCard(); };
+  const iphone = tap && inIosApp();
+  const kind = tap ? (iphone ? t("tapTitleIphone") : t("tapTitle")) : t("appReader");
 
   const head = (amount: number) => (
     <div style={{ textAlign: "center" }}>
@@ -90,11 +97,11 @@ export function AppReaderPay({ desk, ticket, onBack }: { desk: Desk; ticket: Tic
     <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, padding: "24px 16px", textAlign: "center" }}>
       {head(base + tip)}
       <div className="spin" />
-      <b style={{ fontSize: 18 }} data-testid="app-reader-wait" aria-live="polite">{phase === "starting" ? t("appStarting") : phase === "checking" ? t("appChecking") : text || t("appTap")}</b>
-      <div className="cap">{t("appReader")} · {t("readerFee")}</div>
+      <b style={{ fontSize: 18 }} data-testid="app-reader-wait" aria-live="polite">{phase === "starting" ? (tap ? t("tapStarting") : t("appStarting")) : phase === "checking" ? t("appChecking") : text || (tap ? (iphone ? t("tapHoldIphone") : t("tapHold")) : t("appTap"))}</b>
+      <div className="cap">{kind} · {t("readerFee")}</div>
       {phase === "card" && test && <div className="demo" style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center", maxWidth: 420 }}>
-        <span>{real ? t("appTestReal") : t("appTestPractice")}</span>
-        <Button size="sm" onClick={() => void switchReader(!real)}>{real ? t("appUsePractice") : t("appUseReal")}</Button>
+        <span>{tap ? (real ? t("tapTestReal") : t("tapTestPractice")) : real ? t("appTestReal") : t("appTestPractice")}</span>
+        <Button size="sm" onClick={() => void switchReader(!real)}>{tap ? (real ? t("tapUsePractice") : t("tapUseReal")) : real ? t("appUsePractice") : t("appUseReal")}</Button>
       </div>}
       {phase === "card" && <Button variant="ghost" onClick={() => void cancel()}>{t("cancelPay")}</Button>}
     </main>
@@ -125,7 +132,7 @@ export function AppReaderPay({ desk, ticket, onBack }: { desk: Desk; ticket: Tic
         <Button variant="primary" data-testid="app-charge" onClick={() => void charge()}>{t("appCharge", { amount: $(base + tip) })}</Button>
         <Button onClick={onBack}>{t("back")}</Button>
       </div>
-      <div className="cap">{t("appReader")} · {t("readerFee")}</div>
+      <div className="cap">{kind} · {t("readerFee")}</div>
     </main>
   );
 }

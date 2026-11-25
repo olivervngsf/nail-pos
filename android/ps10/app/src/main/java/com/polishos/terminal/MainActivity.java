@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
         s.setDomStorageEnabled(true);   // sign-in + the offline outbox live here
         s.setDatabaseEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false);
-        s.setUserAgentString(s.getUserAgentString() + " PolishOSApp/1.1");
+        s.setUserAgentString(s.getUserAgentString() + " PolishOSApp/1.2");
         CookieManager.getInstance().setAcceptThirdPartyCookies(web, true); // card pages
 
         reader = new CardReader(this, event -> runOnUiThread(() -> {
@@ -83,8 +83,9 @@ public class MainActivity extends Activity {
 
     // ── Messages from the web app (JSON, each with an "id"); every one gets {"id","ok":true,…} or {"id","error":"…"}.
     //   {"print": "<base64 ESC/POS>"}                                    print on the built-in printer
-    //   {"reader": "status" | "connect" | "disconnect" | "cancel", …}     the card reader ("connect" takes locationId, simulated)
-    //   {"pay": "<client secret>", "locationId": "…", "simulated": false} take the card for one payment
+    //   {"reader": "status" | "connect" | "disconnect" | "cancel" | "tapCheck", …}  the card reader ("connect" takes locationId, simulated, tap)
+    //   {"pay": "<client secret>", "locationId": "…", "simulated": false, "tap": false}  take the card for one payment
+    //       ("tap": true = Tap to Pay on this phone's own NFC instead of the M2)
     //   {"tokenFor": <ask>, "secret": "…"}                                the answer to our "token" event (no reply)
     private void onMessage(String text, JavaScriptReplyProxy reply) {
         page = reply;
@@ -97,10 +98,11 @@ public class MainActivity extends Activity {
         if (msg.has("tokenFor")) { reader.token(msg.optInt("tokenFor"), text(msg, "secret"), text(msg, "error")); return; }
         final String location = text(msg, "locationId");
         final boolean simulated = msg.optBoolean("simulated", false);
+        final boolean tap = msg.optBoolean("tap", false);
         if (msg.has("pay")) {
             final String secret = text(msg, "pay");
             if (secret == null || location == null) { done.done("Can't start the card payment.", null); return; }
-            withReaderRights(() -> reader.pay(secret, location, simulated, done), done);
+            withReaderRights(tap, () -> reader.pay(secret, location, simulated, tap, done), done);
             return;
         }
         String op = text(msg, "reader");
@@ -108,10 +110,11 @@ public class MainActivity extends Activity {
         switch (op) {
             case "connect":
                 if (location == null) { done.done("Can't find the salon's reader location.", null); return; }
-                withReaderRights(() -> reader.connect(location, simulated, done), done);
+                withReaderRights(tap, () -> reader.connect(location, simulated, tap, done), done);
                 break;
             case "disconnect": reader.disconnect(done); break;
             case "cancel": reader.cancel(done); break;
+            case "tapCheck": reader.tapCheck(done); break;
             default: reader.status(done);
         }
     }
@@ -142,18 +145,20 @@ public class MainActivity extends Activity {
         return checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
     }
 
-    /** The reader is found over Bluetooth, and Android + Stripe want Location for that: ask once, then go on. */
-    private void withReaderRights(Runnable go, CardReader.Done done) {
-        final boolean nearby = Build.VERSION.SDK_INT < 31 || (has(Manifest.permission.BLUETOOTH_SCAN) && has(Manifest.permission.BLUETOOTH_CONNECT));
+    /** The reader is found over Bluetooth, and Android + Stripe want Location for that: ask once, then go on.
+     *  Tap to Pay needs no Bluetooth, only Location (Stripe checks the phone is where the salon is). */
+    private void withReaderRights(boolean tap, Runnable go, CardReader.Done done) {
+        final boolean nearby = tap || Build.VERSION.SDK_INT < 31 || (has(Manifest.permission.BLUETOOTH_SCAN) && has(Manifest.permission.BLUETOOTH_CONNECT));
         final boolean where = has(Manifest.permission.ACCESS_FINE_LOCATION) || has(Manifest.permission.ACCESS_COARSE_LOCATION);
         if (nearby && where) { go.run(); return; }
         afterReader = () -> {
-            boolean nearbyNow = Build.VERSION.SDK_INT < 31 || (has(Manifest.permission.BLUETOOTH_SCAN) && has(Manifest.permission.BLUETOOTH_CONNECT));
+            boolean nearbyNow = tap || Build.VERSION.SDK_INT < 31 || (has(Manifest.permission.BLUETOOTH_SCAN) && has(Manifest.permission.BLUETOOTH_CONNECT));
             boolean whereNow = has(Manifest.permission.ACCESS_FINE_LOCATION) || has(Manifest.permission.ACCESS_COARSE_LOCATION);
             if (nearbyNow && whereNow) go.run();
-            else done.done("Allow Nearby devices and Location for PolishOS (needed to find the card reader), then try again.", null);
+            else done.done(tap ? "Allow Location for PolishOS (Stripe needs it for Tap to Pay), then try again."
+                : "Allow Nearby devices and Location for PolishOS (needed to find the card reader), then try again.", null);
         };
-        String[] ask = Build.VERSION.SDK_INT >= 31
+        String[] ask = !tap && Build.VERSION.SDK_INT >= 31
             ? new String[] { Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION }
             : new String[] { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION };
         requestPermissions(ask, ASK_READER);
