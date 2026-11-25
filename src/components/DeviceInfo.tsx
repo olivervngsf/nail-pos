@@ -38,12 +38,11 @@ export function DeviceStrip({ c, onGear }: { c: DeviceCheck; onGear: () => void 
   );
 }
 
-/** Owner/manager only (PIN checked before this opens). Closes by itself after 60 s. */
-export function DeviceMenu({ c, openedBy, onSettings, onClose }: { c: DeviceCheck; openedBy: string; onSettings?: () => void; onClose: () => void }) {
+/** The device's facts, same rows on the gear menu and on /device. */
+export function DeviceFacts({ c }: { c: DeviceCheck }) {
   const t = useTranslations("faces.dev");
   const td = useTranslations("settings.dev");
   const who = useWhoLine(c);
-  useEffect(() => { const h = setTimeout(onClose, 60_000); return () => clearTimeout(h); }, [onClose]);
   const facts: [string, string][] = [
     [t("nick"), c.name],
     [t("id"), `#${c.code} · ${t("idNote")}`],
@@ -52,25 +51,45 @@ export function DeviceMenu({ c, openedBy, onSettings, onClose }: { c: DeviceChec
     ...(c.setUpAt ? [[t("setUp"), `${new Date(c.setUpAt).toLocaleString()}${c.setUpBy ? ` · ${c.setUpBy}` : ""}`] as [string, string]] : []),
   ];
   return (
+    <dl className="dev-facts" data-testid="device-facts">
+      {facts.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
+      <div><dt>{t("status")}</dt><dd className="dev-st"><StatusIcon tone={tone(c.state)} size={16} />{t(`state.${c.state}`)}</dd></div>
+    </dl>
+  );
+}
+
+/** What an owner/manager may do with this device (PIN checked before these show). */
+export function DeviceActions({ c, onSettings }: { c: DeviceCheck; onSettings?: () => void }) {
+  const t = useTranslations("faces.dev");
+  return (
+    <>
+      {onSettings
+        ? <Button variant="primary" block data-testid="device-settings" onClick={onSettings}>{t("settings")}</Button>
+        : <p className="cap">{t("ownDevice")}</p>}
+      {c.person && (
+        <Button block data-testid="device-stop" onClick={() => { forgetDevice(); clearActing(); location.href = "/today"; }}>
+          {t("stop", { name: c.person.name })}
+        </Button>
+      )}
+      <Button block data-testid="device-signout" style={{ color: "var(--orange)" }}
+        onClick={async () => { forgetDevice(); clearActing(); await signOut(); location.href = "/login"; }}>{t("signOut")}</Button>
+    </>
+  );
+}
+
+/** Owner/manager only (PIN checked before this opens). Closes by itself after 60 s. */
+export function DeviceMenu({ c, openedBy, onSettings, onClose }: { c: DeviceCheck; openedBy: string; onSettings?: () => void; onClose: () => void }) {
+  const t = useTranslations("faces.dev");
+  useEffect(() => { const h = setTimeout(onClose, 60_000); return () => clearTimeout(h); }, [onClose]);
+  return (
     <>
       <button className="scrim" aria-label={t("close")} onClick={onClose} />
       <div className="faces-pin card dev-menu" role="dialog" aria-modal="true" aria-label={t("title")} data-testid="device-menu">
         <div className="dev-menu-h"><b className="h2">{t("title")}</b><span className="cap">{t("openedBy", { name: openedBy })}</span></div>
-        <dl className="dev-facts">
-          {facts.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
-          <div><dt>{t("status")}</dt><dd className="dev-st"><StatusIcon tone={tone(c.state)} size={16} />{t(`state.${c.state}`)}</dd></div>
-        </dl>
-        {onSettings
-          ? <Button variant="primary" block data-testid="device-settings" onClick={onSettings}>{t("settings")}</Button>
-          : <p className="cap">{t("ownDevice")}</p>}
-        {c.person && (
-          <Button block data-testid="device-stop" onClick={() => { forgetDevice(); clearActing(); location.href = "/today"; }}>
-            {t("stop", { name: c.person.name })}
-          </Button>
-        )}
-        <Button block data-testid="device-signout" style={{ color: "var(--orange)" }}
-          onClick={async () => { forgetDevice(); clearActing(); await signOut(); location.href = "/login"; }}>{t("signOut")}</Button>
+        <DeviceFacts c={c} />
+        <DeviceActions c={c} onSettings={onSettings} />
         <Button variant="ghost" onClick={onClose}>{t("close")}</Button>
+        <span className="cap" style={{ textAlign: "center" }}>{t("backupHint")}</span>
       </div>
     </>
   );
@@ -88,6 +107,7 @@ export function DeviceRemoved({ c }: { c: DeviceCheck }) {
         onClick={() => { forgetDevice(); clearActing(); location.href = c.person ? (c.person.role === "owner" || c.person.role === "manager" ? "/settings/devices" : "/today") : "/login"; }}>{t("again")}</Button>
       <Button variant="ghost" onClick={async () => { forgetDevice(); clearActing(); await signOut(); location.href = "/login"; }}>{t("signOutInstead")}</Button>
       {c.person?.role !== "owner" && <span className="cap">{t("askOwner")}</span>}
+      <span className="cap">{t("backupHint")}</span>
     </div>
   );
 }
