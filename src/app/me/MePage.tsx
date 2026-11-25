@@ -12,6 +12,7 @@ import TwoStep from "@/components/TwoStep";
 import { rpc, signOut, SMS_ON } from "@/lib/auth";
 import { cachedRules, pinProblem, saveRules, type PinRules } from "@/lib/pin";
 import { isAdminRole, useMe } from "@/lib/me";
+import { SettingsNav } from "../settings/SettingsShell";
 
 export default function MePage() {
   const t = useTranslations("me");
@@ -37,6 +38,7 @@ export default function MePage() {
   if (!me) return <div className="app" aria-busy="true" />;
   const vi = lang === "vi";
   const someoneElse = isDevice && acting && acting.name !== me.name;
+  const admin = isAdminRole(isDevice ? (acting?.role ?? me.role) : me.role);
 
   const saveName = async () => {
     if (!name.trim() || name.trim() === me.name) return;
@@ -57,8 +59,9 @@ export default function MePage() {
   };
 
   return (
-    <div className="app me-app">
+    <div className="app me-app set-app">
       <LeftMenu active="Me" salonInitials={me.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={me.name} />
+      <SettingsNav role={isDevice ? (acting?.role ?? me.role) : me.role} />
       <div className="col">
         <TopBar title={t("title")}><SyncPill /></TopBar>
         <main className="me-main">
@@ -70,6 +73,24 @@ export default function MePage() {
               <span className="cap">{ta(`role.${me.role}`)} · {me.salonName}</span>
             </span>
           </section>
+
+          {admin && <>
+            <div className="eyebrow">{vi ? "Tiệm" : "Salon"}</div>
+            <section className="group" data-testid="me-salon">
+              <button type="button" className="opt set-row" onClick={() => router.push("/settings/salon")}>
+                <span className="g" style={{ flex: 1, minWidth: 0 }}><b>{me.salonName}</b><span className="cap">{vi ? "Tên, địa chỉ, điện thoại, giờ mở cửa" : "Name, address, phone, opening hours"}</span></span>
+                <span className="cap">{vi ? "Sửa" : "Edit"} ›</span>
+              </button>
+              <button type="button" className="opt set-row" onClick={() => router.push("/settings/menu")}>
+                <span className="g" style={{ flex: 1, minWidth: 0 }}><b>{vi ? "Bảng dịch vụ" : "Service menu"}</b><span className="cap">{vi ? "Dịch vụ, giá, thời gian" : "Services, prices, minutes"}</span></span>
+                <span className="cap">{vi ? "Sửa" : "Edit"} ›</span>
+              </button>
+              <button type="button" className="opt set-row" onClick={() => router.push("/settings/team")}>
+                <span className="g" style={{ flex: 1, minWidth: 0 }}><b>{vi ? "Nhân viên" : "Team"}</b><span className="cap">{vi ? "Thợ, vai trò, lương, PIN" : "Staff, roles, pay, PIN"}</span></span>
+                <span className="cap">›</span>
+              </button>
+            </section>
+          </>}
 
           <div className="eyebrow">{t("about")}</div>
           <section className="card pad" style={{ gap: 12 }}>

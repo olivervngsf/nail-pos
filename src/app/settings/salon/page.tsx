@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import SalonAddressPage from "./SalonAddressPage";
+import SalonInfoPage from "./SalonInfoPage";
 
-export const metadata: Metadata = { title: "Salon address · PolishOS" };
+export const metadata: Metadata = { title: "Salon · PolishOS" };
 
-export default function Page() { return <SalonAddressPage />; }
+export default function Page() { return <SalonInfoPage />; }
