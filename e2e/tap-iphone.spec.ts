@@ -59,6 +59,12 @@ test("Settings → Tap to Pay on iPhone: owner turns it on for this iPhone, then
   page.once("dialog", (d) => void d.accept());
   await page.getByTestId("tap-turn-off").click();
   await expect(page.getByTestId("tap-state")).toHaveText("Off");
+  // R11: "Start over" for recording Apple's videos = Off again + the first-time sheet comes back
+  await page.evaluate(() => localStorage.setItem("nailpos.tapIntro", "seen"));
+  page.once("dialog", (d) => void d.accept());
+  await page.getByTestId("tap-reset-video").click();
+  await expect(page.getByTestId("tap-state")).toHaveText("Off");
+  expect(await page.evaluate(() => localStorage.getItem("nailpos.tapIntro"))).toBeNull();
 });
 
 test("iPhone app: an owner sees the Tap to Pay on iPhone sheet once (Not now = gone for good)", async ({ page }) => {

@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Button } from "@/components/kit";
 import { inIosApp } from "@/lib/app/bridge";
-import { canTapToPay, onTapWarm, showHowToTap, tapErrorKey, tapOnHere, tapWarmNow, turnOffTap, turnOnTap, turnOnTapDemo, type TapCheck, type TapWarm } from "@/lib/app/reader";
+import { canTapToPay, onTapWarm, showHowToTap, tapErrorKey, tapOnHere, tapWarmNow, resetTapForVideo, turnOffTap, turnOnTap, turnOnTapDemo, type TapCheck, type TapWarm } from "@/lib/app/reader";
 import { HowToTapButton, HowToTapSteps } from "@/components/HowToTap";
 import SettingsShell, { type Access } from "../SettingsShell";
 
@@ -52,6 +52,12 @@ function TapToPay({ a }: { a: Access }) {
     }
     catch (e) { if ((e as Error).message !== "canceled") setErr(words(e)); }
     setBusy(false); setText("");
+  };
+  const resetForVideo = async () => {
+    if (!confirm(t("resetAsk"))) return;
+    setBusy(true); setErr("");
+    await resetTapForVideo();
+    setOn(false); setBusy(false);
   };
   const turnOff = async () => {
     if (!confirm(t("offAsk"))) return;
@@ -102,6 +108,10 @@ function TapToPay({ a }: { a: Access }) {
       </div>}
 
       {app && a.demo && <div className="demo">{t("demo")}</div>}
+      {app && check?.supported && <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <span className="cap" style={{ flex: 1, minWidth: 200 }}>{t("resetWhy")}</span>
+        <Button size="sm" variant="ghost" data-testid="tap-reset-video" disabled={busy} onClick={() => void resetForVideo()}>{t("reset")}</Button>
+      </div>}
       {err && <div className="hint err" role="alert" data-testid="tap-error">{err} {/Stripe/.test(err) && <Link href="/settings/payments">{t("toPayments")}</Link>}</div>}
       <p className="cap" style={{ margin: 0 }}>{t("fee")}</p>
       {steps && <HowToTapSteps onClose={() => setSteps(false)} />}
