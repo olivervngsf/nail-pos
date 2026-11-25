@@ -873,9 +873,12 @@ button:disabled { cursor: not-allowed; }
 .clock-demo { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 37; }
 /* Settings (side nav + sections) */
 .set-nav { width: 220px; flex: none; background: var(--paper); border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; padding: 14px 10px; overflow: auto; }
-.set-nav-title { font-size: 20px; font-weight: 600; padding: 4px 10px 6px; }
-.set-nav-group { display: flex; flex-direction: column; gap: 2px; }
-.set-nav-h { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); padding: 12px 10px 4px; }
+.set-nav-title { font-size: 20px; font-weight: 600; padding: 4px 10px 10px; display: flex; flex-direction: column; gap: 2px; }
+.set-nav-who { font-size: 12px; font-weight: 400; color: var(--ink-soft); }
+/* Groups (Nov 25): a hairline + air between groups, a clear sentence-case heading, items indented under it. */
+.set-nav-group { display: flex; flex-direction: column; gap: 1px; padding: 10px 0; }
+.set-nav-group + .set-nav-group { border-top: 1px solid var(--line); }
+.set-nav-h { font-size: 13px; font-weight: 600; color: var(--ink); padding: 2px 10px 6px; }
 .set-nav a { display: flex; align-items: center; min-height: 34px; padding: 0 10px; border-radius: 8px; font-size: 14px; color: var(--ink); text-decoration: none; }
 .set-nav a:hover { background: var(--surface); }
 .set-nav a.on { background: var(--fill); font-weight: 600; }
@@ -910,7 +913,8 @@ button:disabled { cursor: not-allowed; }
   .set-app .rail { display: none; }
   .set-nav { width: auto; flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px; }
   .set-nav-title, .set-nav-h { display: none; }
-  .set-nav-group { flex-direction: row; }
+  .set-nav-group { flex-direction: row; padding: 0; }
+  .set-nav-group + .set-nav-group { border-top: 0; border-left: 1px solid var(--line); margin-left: 6px; padding-left: 6px; }
   .set-nav a { white-space: nowrap; }
   .set-two, .set-lens { grid-template-columns: 1fr; }
   .set-pay { display: none; }

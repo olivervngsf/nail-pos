@@ -1892,8 +1892,11 @@
     "title": "Cài đặt",
     "group": {
       "me": "Tôi",
-      "salon": "Tiệm · chủ + quản lý",
-      "more": "Thêm"
+      "salon": "Tiệm",
+      "team": "Nhân viên & chấm công",
+      "pay": "Nhận tiền",
+      "clients": "Khách & đặt lịch",
+      "money": "Trả lương"
     },
     "nav": {
       "profile": "Hồ sơ của tôi",
@@ -1912,7 +1915,8 @@
       "billing": "Thanh toán gói",
       "support": "Hỗ trợ",
       "clockIn": "Chấm công",
-      "tapToPay": "Tap to Pay on iPhone"
+      "tapToPay": "Tap to Pay on iPhone",
+      "salon": "Địa chỉ tiệm"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -2389,7 +2393,25 @@
       "toPayments": "Tới Thanh toán",
       "fee": "Phí thẻ giống máy đọc thẻ: 2,7% + 5¢, tiệm trả.",
       "demo": "Bản thử: Bật chỉ đánh dấu máy này. Điều khoản Apple và chạm thẻ thật có khi dùng app iPhone ở tiệm thật."
-    }
+    },
+    "salon": {
+      "loading": "Đang tải…",
+      "why": "Nhận thẻ cần địa chỉ đầy đủ của tiệm: Stripe dùng cho máy đọc thẻ và Tap to Pay on iPhone.",
+      "needed": "Thêm địa chỉ đầy đủ có ZIP. Nhận thẻ tại tiệm chưa chạy được cho tới khi có địa chỉ.",
+      "label": "Địa chỉ tiệm",
+      "street": "Đường",
+      "city": "Thành phố",
+      "state": "Bang",
+      "zip": "ZIP",
+      "ready": "✓ Sẵn sàng nhận thẻ",
+      "missing": "Còn thiếu: {parts}. Gõ như: 1550 S Bascom Ave, Campbell, CA 95008",
+      "save": "Lưu địa chỉ",
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu. Nhận thẻ dùng được rồi.",
+      "savedStripeFailed": "Đã lưu. Stripe chưa nhận địa chỉ mới; sẽ thử lại ở lần nhận thẻ tới.",
+      "demo": "Bản thử: chỉ lưu trên màn hình này."
+    },
+    "who": "Cài đặt tiệm: chủ + quản lý"
   },
   "promo": {
     "title": "Gửi tin khuyến mãi",

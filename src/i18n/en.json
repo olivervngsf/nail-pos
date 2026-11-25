@@ -1892,8 +1892,11 @@
     "title": "Settings",
     "group": {
       "me": "Me",
-      "salon": "Salon · owner + manager",
-      "more": "More"
+      "salon": "Salon",
+      "team": "Team & time clock",
+      "pay": "Taking payments",
+      "clients": "Clients & booking",
+      "money": "Pay the team"
     },
     "nav": {
       "profile": "My profile",
@@ -1912,7 +1915,8 @@
       "billing": "Billing",
       "support": "Support",
       "clockIn": "Clock-in",
-      "tapToPay": "Tap to Pay on iPhone"
+      "tapToPay": "Tap to Pay on iPhone",
+      "salon": "Salon address"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -2389,7 +2393,25 @@
       "toPayments": "Go to Payments",
       "fee": "Same card fee as the card reader: 2.7% + 5¢, paid by the salon.",
       "demo": "Test version: Turn on only marks this device. Apple's terms and the real tap come with the iPhone app on a real salon."
-    }
+    },
+    "salon": {
+      "loading": "Loading…",
+      "why": "Card payments need the salon's full address: Stripe uses it for the card reader and Tap to Pay on iPhone.",
+      "needed": "Add the full address with ZIP. Card payments in the salon won't work until it's here.",
+      "label": "Salon address",
+      "street": "Street",
+      "city": "City",
+      "state": "State",
+      "zip": "ZIP",
+      "ready": "✓ Ready for card payments",
+      "missing": "Missing: {parts}. Type it like: 1550 S Bascom Ave, Campbell, CA 95008",
+      "save": "Save address",
+      "saving": "Saving…",
+      "saved": "Saved. Card payments can use it now.",
+      "savedStripeFailed": "Saved. Stripe didn't take the new address yet; it will try again on the next card payment.",
+      "demo": "Test version: saved on this screen only."
+    },
+    "who": "Salon settings: owner + manager"
   },
   "promo": {
     "title": "Send promo text",
