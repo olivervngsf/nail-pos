@@ -40,14 +40,16 @@ export const setRealReader = (on: boolean, tap = false) => { try { if (on) local
 // comes back). Only this signed-in page can fetch one: for a payment (pr) or, for the warm-up, for the salon.
 let tokenFor: { pr: string } | { salonId: string } | null = null;
 let tokenListening = false;
+/** Why the last token ask failed (our own words): Stripe's kit only says "fetchConnectionToken … error". */
+let tokenError = "";
 function answerTokens() {
   if (tokenListening) return;
   tokenListening = true;
   onAppEvent("token", (e) => {
-    if (!tokenFor) { appTell({ tokenFor: e.ask, error: "Open the checkout first." }); return; }
+    if (!tokenFor) { tokenError = "Open the checkout first."; appTell({ tokenFor: e.ask, error: tokenError }); return; }
     void api<{ secret: string }>("/api/stripe/terminal-token", tokenFor)
-      .then((r) => appTell({ tokenFor: e.ask, secret: r.secret }))
-      .catch((err: Error) => appTell({ tokenFor: e.ask, error: err.message }));
+      .then((r) => { tokenError = ""; appTell({ tokenFor: e.ask, secret: r.secret }); })
+      .catch((err: Error) => { tokenError = err.message || "Couldn't get a card key from PolishOS."; appTell({ tokenFor: e.ask, error: tokenError }); });
   });
 }
 
@@ -64,9 +66,20 @@ export async function takeCard(pay: AppPay, say: (text: string) => void, tap = f
     // iPhone: Apple's terms are never shown at checkout (an owner/manager accepts them in Settings first).
     await appCall({ pay: pay.secret, locationId: pay.locationId, simulated: pay.test && !wantsRealReader(tap), tap, ...(tap && inIosApp() ? { terms: false } : {}) }, 10 * 60 * 1000);
     if (tap) markTapUsed();
+  } catch (e) {
+    throw explainAppError(e);
   } finally {
     stopText();
   }
+}
+
+/** Stripe's kit hides our reason behind "…fetchConnectionToken with an error": put our own words back. */
+export function explainAppError(e: unknown): Error & { code?: string } {
+  const err = e as Error & { code?: string };
+  if (/fetchConnectionToken/i.test(err?.message ?? "")) {
+    return Object.assign(new Error(tokenError ? `PolishOS couldn't get a card key: ${tokenError}` : "PolishOS couldn't get a card key. Check the internet, then try again."), { code: err.code === "offline" ? "offline" : "token" });
+  }
+  return err;
 }
 
 /** Stop waiting for the card (or stop looking for the reader). */
@@ -105,8 +118,9 @@ export async function turnOnTap(salonId: string, say: (text: string) => void): P
     await appCall({ reader: "connect", tap: true, warm: false, locationId: r.locationId, simulated: r.test && !wantsRealReader(true) }, 5 * 60 * 1000);
     markTapUsed();
   } catch (e) {
-    setWarm({ state: "error", code: (e as { code?: string }).code ?? "unknown", text: (e as Error).message });
-    throw e;
+    const why = explainAppError(e);
+    setWarm({ state: "error", code: why.code ?? "unknown", text: why.message });
+    throw why;
   } finally {
     stopText();
   }
@@ -142,7 +156,8 @@ export function warmTap(salonId: string): Promise<void> {
       await appCall({ reader: "connect", tap: true, warm: true, locationId: r.locationId, simulated: r.test && !wantsRealReader(true) }, 5 * 60 * 1000);
       setWarm({ state: "ready" });
     } catch (e) {
-      setWarm({ state: "error", code: (e as { code?: string }).code ?? "unknown", text: (e as Error).message });
+      const why = explainAppError(e);
+      setWarm({ state: "error", code: why.code ?? "unknown", text: why.message });
     } finally {
       stopText();
       warming = null;

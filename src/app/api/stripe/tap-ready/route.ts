@@ -15,6 +15,7 @@ export async function POST(req: Request) {
     const { locationId } = await ensureLocation(salonId);
     return Response.json({ locationId, test: testMode() });
   } catch (e) {
+    console.error("tap-ready:", salonId, (e as Error).message);
     return fail(409, (e as Error).message);
   }
 }

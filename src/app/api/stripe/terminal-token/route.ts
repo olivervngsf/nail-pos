@@ -18,15 +18,19 @@ export async function POST(req: Request) {
     if (!pr) return fail(404, "No such payment.");
     salon = pr.salon_id as string;
   } else {
-    if (!salonId || !(await isDeskOf(sb, salonId))) return fail(403, "Only the front desk, a manager or the owner can take cards.");
+    if (!salonId || !(await isDeskOf(sb, salonId))) {
+      console.error("terminal-token: not desk staff of", salonId);
+      return fail(403, "Only the front desk, a manager or the owner can take cards.");
+    }
     salon = salonId;
   }
   const { data: a } = await db.from("stripe_accounts").select("account_id").eq("salon_id", salon).maybeSingle();
-  if (!a) return fail(409, "Connect Stripe in setup first.");
+  if (!a) { console.error("terminal-token: no Stripe account for", salon); return fail(409, "Connect Stripe in setup first."); }
   try {
     const token = await st.terminal.connectionTokens.create({}, { stripeAccount: a.account_id as string });
     return Response.json({ secret: token.secret });
   } catch (e) {
+    console.error("terminal-token: Stripe refused", salon, (e as Error).message);
     return fail(503, (e as Error).message);
   }
 }
