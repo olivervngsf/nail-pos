@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Button, Chip, Switch, Toast } from "@/components/kit";
 import SettingsShell, { type Access } from "../SettingsShell";
 import PromoSend from "./PromoSend";
+import TextActivity from "./TextActivity";
 import { formatCents } from "@/lib/money";
 import { creditLevel, creditPct, textsLeft, useCredit } from "@/lib/texting/credit";
 
@@ -100,6 +101,8 @@ function Body({ a, sendOpen, setSendOpen }: { a: Access; sendOpen: boolean; setS
                     </table>
                   )}
                 </section>
+
+                <TextActivity salonId={a.salonId} demo={a.demo} />
               </div>
 
               <div className="tc-side">

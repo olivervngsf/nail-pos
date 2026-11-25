@@ -2626,5 +2626,111 @@
     "s4": "If the screen asks for a PIN, hand the iPhone to the client to type it.",
     "s5": "Wait for Paid before taking the iPhone back.",
     "ok": "Got it"
+  },
+  "textlog": {
+    "title": "Messages",
+    "all": "All",
+    "problems": "Needs a look",
+    "email": "Email",
+    "text": "Text",
+    "none": "No messages yet.",
+    "demo": "Test version: sample messages.",
+    "rulesLink": "Texting rules, and why",
+    "why_": "why?",
+    "state": {
+      "on": "Client texts are on.",
+      "onSub": "Sent from your salon's own number.",
+      "waiting": "Client texts: waiting for the phone carriers.",
+      "waitingSub": "Usually 1–3 weeks. Emails go out meanwhile.",
+      "notStarted": "Client texts aren't set up yet.",
+      "notStartedSub": "Your salon needs its own number, registered with the carriers. PolishOS does this with you."
+    },
+    "kind": {
+      "invite": "Staff invite",
+      "salon_ready": "Salon ready",
+      "confirm": "Booking confirmation",
+      "reminder": "Booking reminder",
+      "day_before": "Reminder, 1 day before",
+      "two_hours": "Reminder, 2 hours before",
+      "receipt": "Receipt",
+      "promo": "Promo",
+      "other": "Message"
+    },
+    "why": {
+      "delivered": "Delivered.",
+      "sent": "Sent. Waiting for the phone to confirm.",
+      "emailed": "Emailed.",
+      "scheduled": "Scheduled.",
+      "sending": "Sending now.",
+      "retrying": "Internet trouble. Trying again.",
+      "night": "Waiting until 8 AM: no texts at night.",
+      "stop": "Not sent: this person replied STOP. They must reply START first.",
+      "noYes": "Not sent: this client hasn't said yes to texts. Ask them at the desk.",
+      "notMobile": "Not sent: not a mobile number.",
+      "waitCarriers": "Not sent yet: texts start when the carriers approve your salon's number.",
+      "emailOff": "Not sent: email isn't switched on yet.",
+      "textOff": "Not sent: texting isn't switched on yet.",
+      "bookingGone": "Not sent: the booking was canceled, moved or already started.",
+      "noCredit": "Not sent: promo credit is empty. Add credit.",
+      "notDelivered": "Didn't arrive.",
+      "emailFailed": "Email didn't go through.",
+      "skipped": "Not sent.",
+      "other": "Not sent."
+    },
+    "rule": {
+      "law": "Law (FCC / state)",
+      "carriers": "Phone carriers + Twilio",
+      "stripe": "Stripe",
+      "polishos": "PolishOS"
+    }
+  },
+  "textrules": {
+    "title": "Texting rules, and why",
+    "intro": "Every text PolishOS sends follows these rules. Each one says who made it, so you always know why a text did or didn't go out.",
+    "note": "Plain-words summary, not legal advice. Rules can change; we'll tell you in the app when they do.",
+    "back": "Back to Texting & credit",
+    "law": {
+      "who": "Made by the government (FCC, TCPA law, state laws)",
+      "title": "Ask first, stop when asked, not at night",
+      "items": [
+        "A client gets texts only after they said yes. For promos the yes must be written (a checkbox they tick). PolishOS saves when, where and the exact words.",
+        "STOP stops every text from your salon at once. A client can also say stop any other way (\"don't text me\" at the desk): untick texts on their profile the same day.",
+        "No texts at night: reminders wait until 8 AM, promos only 9 AM–8 PM your salon's time (some states are stricter).",
+        "Every promo says who it's from and how to stop."
+      ],
+      "why": "Breaking these can cost a business $500–$1,500 per text in lawsuits. Nobody can switch them off."
+    },
+    "carriers": {
+      "who": "Made by the phone carriers (AT&T, T-Mobile, Verizon) and Twilio",
+      "title": "Every business number is registered",
+      "items": [
+        "Client texts go out only from your salon's own number, registered in your business name (\"10DLC\"). Review takes about 1–3 weeks.",
+        "The registration says what you text (reminders, receipts, promos). Promos are never sent on a number registered for notices only.",
+        "No texts about alcohol, tobacco, firearms, adult content or hate. No free short links like bit.ly.",
+        "Landlines can't get texts; a phone that's off gets it later or not at all. We show the carrier's reason."
+      ],
+      "why": "Carriers block or slow down numbers that break these, for everyone on them. That's why staff invites come from the PolishOS number and client texts from yours."
+    },
+    "stripe": {
+      "who": "Made by Stripe (card payments)",
+      "title": "Card money stays separate",
+      "items": [
+        "Stripe moves card money only. It never sees your clients' texts.",
+        "Promo credit is paid by card like your plan, and shows on your receipts.",
+        "Clients are never charged a card fee in a text or on the pay page."
+      ],
+      "why": "Keeps money and messages apart: a texting problem never touches your card payments."
+    },
+    "polishos": {
+      "who": "Made by PolishOS (to keep it fair and clear)",
+      "title": "No surprises",
+      "items": [
+        "Reminders, confirmations and receipts are included in your plan and never stop, even when promo credit is empty.",
+        "Promos use prepaid credit (2¢ per text part). You see the cost and who gets it before every send, and never half a send.",
+        "At most 1 promo per client per day.",
+        "Every text and email is listed in Messages with what happened."
+      ],
+      "why": "So you always know what was sent, what it cost and why."
+    }
   }
 }

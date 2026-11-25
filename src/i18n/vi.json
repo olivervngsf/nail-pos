@@ -2626,5 +2626,111 @@
     "s4": "Nếu màn hình hỏi mã PIN, đưa iPhone cho khách tự bấm.",
     "s5": "Đợi hiện Đã trả rồi mới lấy lại iPhone.",
     "ok": "Đã hiểu"
+  },
+  "textlog": {
+    "title": "Tin nhắn",
+    "all": "Tất cả",
+    "problems": "Cần xem",
+    "email": "Email",
+    "text": "Tin nhắn",
+    "none": "Chưa có tin nhắn.",
+    "demo": "Bản thử: tin nhắn mẫu.",
+    "rulesLink": "Quy định nhắn tin, và lý do",
+    "why_": "tại sao?",
+    "state": {
+      "on": "Tin nhắn cho khách đã bật.",
+      "onSub": "Gửi từ số điện thoại riêng của tiệm.",
+      "waiting": "Tin nhắn cho khách: đang chờ nhà mạng duyệt.",
+      "waitingSub": "Thường 1–3 tuần. Trong lúc chờ vẫn gửi email.",
+      "notStarted": "Tin nhắn cho khách chưa được cài.",
+      "notStartedSub": "Tiệm cần số riêng, đăng ký với nhà mạng. PolishOS làm cùng bạn."
+    },
+    "kind": {
+      "invite": "Mời nhân viên",
+      "salon_ready": "Tiệm đã sẵn sàng",
+      "confirm": "Xác nhận lịch hẹn",
+      "reminder": "Nhắc lịch hẹn",
+      "day_before": "Nhắc trước 1 ngày",
+      "two_hours": "Nhắc trước 2 giờ",
+      "receipt": "Hóa đơn",
+      "promo": "Khuyến mãi",
+      "other": "Tin nhắn"
+    },
+    "why": {
+      "delivered": "Đã đến máy.",
+      "sent": "Đã gửi. Chờ điện thoại xác nhận.",
+      "emailed": "Đã gửi email.",
+      "scheduled": "Đã hẹn giờ gửi.",
+      "sending": "Đang gửi.",
+      "retrying": "Mạng chập chờn. Đang thử lại.",
+      "night": "Chờ đến 8 giờ sáng: không nhắn tin ban đêm.",
+      "stop": "Không gửi: người này đã trả lời STOP. Họ phải trả lời START trước.",
+      "noYes": "Không gửi: khách chưa đồng ý nhận tin nhắn. Hỏi khách tại quầy.",
+      "notMobile": "Không gửi: không phải số di động.",
+      "waitCarriers": "Chưa gửi: tin nhắn bắt đầu khi nhà mạng duyệt số của tiệm.",
+      "emailOff": "Không gửi: email chưa được bật.",
+      "textOff": "Không gửi: nhắn tin chưa được bật.",
+      "bookingGone": "Không gửi: lịch hẹn đã hủy, đổi giờ hoặc đã bắt đầu.",
+      "noCredit": "Không gửi: hết tiền nhắn khuyến mãi. Nạp thêm.",
+      "notDelivered": "Không đến máy.",
+      "emailFailed": "Email không gửi được.",
+      "skipped": "Không gửi.",
+      "other": "Không gửi."
+    },
+    "rule": {
+      "law": "Luật (FCC / tiểu bang)",
+      "carriers": "Nhà mạng + Twilio",
+      "stripe": "Stripe",
+      "polishos": "PolishOS"
+    }
+  },
+  "textrules": {
+    "title": "Quy định nhắn tin, và lý do",
+    "intro": "Mọi tin nhắn PolishOS gửi đều theo các quy định này. Mỗi quy định ghi rõ ai đặt ra, để bạn luôn biết vì sao tin nhắn được gửi hay không.",
+    "note": "Tóm tắt dễ hiểu, không phải tư vấn pháp lý. Quy định có thể thay đổi; chúng tôi sẽ báo trong ứng dụng.",
+    "back": "Quay lại Nhắn tin & tiền nhắn",
+    "law": {
+      "who": "Do chính phủ đặt ra (FCC, luật TCPA, luật tiểu bang)",
+      "title": "Hỏi trước, ngừng khi khách yêu cầu, không nhắn ban đêm",
+      "items": [
+        "Khách chỉ nhận tin nhắn sau khi đã đồng ý. Tin khuyến mãi cần đồng ý bằng văn bản (khách tự đánh dấu). PolishOS lưu lúc nào, ở đâu và đúng lời đồng ý.",
+        "STOP ngừng mọi tin nhắn từ tiệm ngay lập tức. Khách cũng có thể nói ngừng cách khác (\"đừng nhắn cho tôi\" tại quầy): bỏ đánh dấu nhận tin trong hồ sơ khách ngay hôm đó.",
+        "Không nhắn ban đêm: tin nhắc chờ đến 8 giờ sáng, khuyến mãi chỉ 9 giờ sáng đến 8 giờ tối theo giờ tiệm (một số tiểu bang chặt hơn).",
+        "Mỗi tin khuyến mãi ghi rõ ai gửi và cách ngừng nhận."
+      ],
+      "why": "Vi phạm có thể bị kiện $500–$1.500 cho mỗi tin nhắn. Không ai tắt được các quy định này."
+    },
+    "carriers": {
+      "who": "Do nhà mạng (AT&T, T-Mobile, Verizon) và Twilio đặt ra",
+      "title": "Mọi số của doanh nghiệp phải đăng ký",
+      "items": [
+        "Tin nhắn cho khách chỉ gửi từ số riêng của tiệm, đăng ký theo tên doanh nghiệp của bạn (\"10DLC\"). Duyệt mất khoảng 1–3 tuần.",
+        "Đăng ký ghi rõ bạn nhắn gì (nhắc lịch, hóa đơn, khuyến mãi). Không bao giờ gửi khuyến mãi trên số chỉ đăng ký để thông báo.",
+        "Không nhắn về rượu, thuốc lá, súng, nội dung người lớn hay thù ghét. Không dùng link rút gọn miễn phí như bit.ly.",
+        "Điện thoại bàn không nhận tin nhắn; máy tắt sẽ nhận sau hoặc không nhận. Chúng tôi hiện lý do của nhà mạng."
+      ],
+      "why": "Nhà mạng chặn hoặc làm chậm các số vi phạm. Vì vậy tin mời nhân viên gửi từ số PolishOS, còn tin cho khách gửi từ số của tiệm."
+    },
+    "stripe": {
+      "who": "Do Stripe đặt ra (thanh toán thẻ)",
+      "title": "Tiền thẻ tách riêng",
+      "items": [
+        "Stripe chỉ chuyển tiền thẻ. Stripe không thấy tin nhắn của khách.",
+        "Tiền nhắn khuyến mãi trả bằng thẻ như gói dịch vụ, có trong hóa đơn của bạn.",
+        "Khách không bao giờ bị tính phí thẻ trong tin nhắn hay trang thanh toán."
+      ],
+      "why": "Tiền và tin nhắn tách riêng: lỗi nhắn tin không ảnh hưởng thanh toán thẻ."
+    },
+    "polishos": {
+      "who": "Do PolishOS đặt ra (để công bằng, rõ ràng)",
+      "title": "Không bất ngờ",
+      "items": [
+        "Tin nhắc lịch, xác nhận và hóa đơn đã có trong gói, không bao giờ ngừng, kể cả khi hết tiền nhắn khuyến mãi.",
+        "Khuyến mãi dùng tiền nạp trước (2¢ mỗi phần tin). Bạn thấy giá và người nhận trước mỗi lần gửi, không bao giờ gửi một nửa.",
+        "Tối đa 1 tin khuyến mãi mỗi khách mỗi ngày.",
+        "Mọi tin nhắn và email đều có trong mục Tin nhắn với kết quả."
+      ],
+      "why": "Để bạn luôn biết đã gửi gì, tốn bao nhiêu và vì sao."
+    }
   }
 }
