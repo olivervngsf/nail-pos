@@ -8,7 +8,7 @@ What this number may send: **staff invites + notices only** (the campaign's use 
 > - ✅ Staff invite texts (Settings → Team → "Text the invite") — PolishOS number
 > - ✅ PIN link texts (Team → PIN → "Text the PIN link") — PolishOS number
 > - ❌ Client texts (booking confirm, reminders, receipts, promos) are OFF. Each salon needs its OWN number + brand + campaign first. Never send them on the PolishOS number.
-> - Plan for salon numbers + promos: Salon Texting Plan https://claude.ai/artifact/HFF6aerJLea9q7nbAYJ6Nr
+> - Plan for salon numbers + promos: Research — The Salon Texting Plan https://claude.ai/artifact/HFF6aerJLea9q7nbAYJ6Nr
 
 Where to write results: tick the box, write the date + what you saw. Anything failing → send Claude the screen or the Admin "check" reason.
 
