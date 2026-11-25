@@ -111,7 +111,7 @@ export async function hello(slug: string, phone: string): Promise<string | null>
   return r?.first ?? null;
 }
 
-export async function book(page: BookPage, p: { src: ApptSource; day: string; start: number; phone: string; email?: string; name: string; textsOk: boolean; note: string; guests: Guest[] }): Promise<BookResult> {
+export async function book(page: BookPage, p: { src: ApptSource; day: string; start: number; phone: string; email?: string; name: string; textsOk: boolean; consentText?: string; note: string; guests: Guest[] }): Promise<BookResult> {
   if (!isDemo(page.salon.slug)) return rpc<BookResult>("book_create", { p: { ...p, phone: p.phone || null, email: p.email || null, slug: page.salon.slug } });
   const svc = (g: Guest) => page.services.filter((s) => g.serviceIds.includes(s.id));
   const mins = (g: Guest) => svc(g).reduce((a, s) => a + s.minutes, 0);

@@ -1,4 +1,6 @@
-# Builds the PolishOS app for handheld terminals (android/ps10) and keeps the install file as a download.
+# Builds the PolishOS Android app (android/ps10: PS10 handheld + Tap to Pay phones) and keeps the install file as a download.
+# Run by hand with "Publish" ticked: the install file also goes to polishosapp.com/polishos-ps10-v<version>.apk
+# (a branch apk/v<version> with the file in public/; merge its pull request to put it live).
 name: Terminal app (Android)
 
 on:
@@ -8,6 +10,11 @@ on:
     branches: [main]
     paths: ["android/**", ".github/workflows/android.yml"]
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish: put this install file on polishosapp.com (opens a pull request)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -25,11 +32,62 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.14.3"
+      # A fixed signing key (repo secret PS10_KEYSTORE_B64 = the .jks file in base64, plus its passwords) lets a new
+      # version install over the old one. Without it each build has a throwaway key: uninstall the old app first.
+      - name: Signing key (when set up)
+        env:
+          KS: ${{ secrets.PS10_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS" ]; then
+            printf '%s' "$KS" | base64 -d > "$RUNNER_TEMP/ps10.jks"
+            echo "PS10_KEYSTORE=$RUNNER_TEMP/ps10.jks" >> "$GITHUB_ENV"
+            echo "Signing with the fixed key."
+          else
+            echo "No PS10_KEYSTORE_B64 secret: throwaway key (uninstall the old app before installing this one)."
+          fi
       - name: Build the install file
         working-directory: android/ps10
+        env:
+          PS10_KEYSTORE_PASSWORD: ${{ secrets.PS10_KEYSTORE_PASSWORD }}
+          PS10_KEY_ALIAS: ${{ secrets.PS10_KEY_ALIAS }}
+          PS10_KEY_PASSWORD: ${{ secrets.PS10_KEY_PASSWORD }}
         run: gradle --no-daemon assembleRelease
       - uses: actions/upload-artifact@v4
         with:
           name: polishos-terminal-apk
           path: android/ps10/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
+
+  publish:
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: polishos-terminal-apk
+          path: ${{ runner.temp }}/apk
+      - name: Put the install file in public/ on a new branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(sed -n 's/.*versionName "\(.*\)".*/\1/p' android/ps10/app/build.gradle)
+          test -n "$VER"
+          BR="apk/v$VER-${{ github.run_number }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BR"
+          git rm -q --ignore-unmatch public/polishos-ps10-v*.apk
+          cp "$RUNNER_TEMP/apk/app-release.apk" "public/polishos-ps10-v$VER.apk"
+          sed -i "s#polishos-ps10-v[0-9.]*\.apk#polishos-ps10-v$VER.apk#g" android/ps10/README.md
+          git add -A public android/ps10/README.md
+          git commit -q -m "Android app $VER: install file at polishosapp.com/polishos-ps10-v$VER.apk"
+          git push -q origin "$BR"
+          gh pr create --base main --head "$BR" --title "Android app $VER install file" \
+            --body "Built by run #${{ github.run_number }}. Merge to put it live at polishosapp.com/polishos-ps10-v$VER.apk (the older file is removed)." \
+            || echo "Branch $BR is pushed; open a pull request for it on GitHub."

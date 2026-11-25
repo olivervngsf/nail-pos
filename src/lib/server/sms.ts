@@ -52,10 +52,12 @@ export async function sendText(db: SupabaseClient, input: SendInput, origin?: st
     .filter("salon_id", usesPlatform ? "is" : "eq", usesPlatform ? null : salonId).maybeSingle();
   if (stopped) return record("blocked", { error: "replied STOP" });
 
-  // Client said yes to texts at this salon?
+  // Client said yes to texts at this salon, and we can prove it? The latest recorded answer (text_consents: when,
+  // where, the words they saw) must be yes. A yes on file without a record counts as no: ask the client again.
   if (salonId && NEEDS_YES.includes(input.kind)) {
-    const { data: c } = await db.from("clients").select("texts_ok").eq("salon_id", salonId).eq("phone", to).maybeSingle();
-    if (!c?.texts_ok) return record("blocked", { error: "client hasn't said yes to texts" });
+    const { data: ok, error: cErr } = await db.rpc("consent_ok", { p_salon: salonId, p_phone: to });
+    if (cErr) throw new Error(cErr.message);
+    if (!ok) return record("blocked", { error: "no recorded yes to texts from this client" });
   }
 
   const from = await senderFor(db, input.kind, salonId);
@@ -100,5 +102,9 @@ export async function setOptOut(db: SupabaseClient, phone: string, salonId: stri
   } else {
     await db.from("text_optouts").delete().eq("phone", phone).filter("salon_id", salonId ? "eq" : "is", salonId);
   }
-  if (salonId) await db.from("clients").update({ texts_ok: !stop }).eq("salon_id", salonId).eq("phone", phone);
+  // Through the database so the reply is recorded as proof (text_consents: source text_reply, the word they sent).
+  if (salonId) {
+    const { error } = await db.rpc("consent_text_reply", { p_salon: salonId, p_phone: phone, p_stop: stop, p_words: stop ? "STOP" : "START" });
+    if (error) throw new Error(error.message);
+  }
 }

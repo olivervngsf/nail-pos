@@ -2,7 +2,7 @@
 
 Why now: Nov 24, 2026 the A2P 10DLC campaign was **approved** (Twilio email, campaign `CM72fc4b8e892533f9845eda3760ad8f63`, brand = sole proprietor "Viet Nguyen", number +1 (775) 535-8984 on Messaging Service "PolishOS"). Carriers now let our texts through.
 
-What this number may send: **staff invites + notices only** (the campaign's use case). Never promos. Never client confirms/reminders until consent proof (Build Tracker 4c; built in PR #169, open, needs its merge conflicts fixed) is merged and the salon has its own number.
+What this number may send: **staff invites + notices only** (the campaign's use case). Never promos. Never client confirms/reminders until the salon has its own number (consent proof, Build Tracker 4c, is in since PR #169: only a recorded yes gets a client text).
 
 Where to write results: tick the box, write the date + what you saw. Anything failing → send Claude the screen or the Admin "check" reason.
 
@@ -61,7 +61,7 @@ Use the demo salon "Lotus Demo Nails" on live, owner login.
 ## 7. After all green
 - [ ] Tick go-live plan § 6 "Campaign approved …" + Admin → System texting check.
 - [ ] Tell Claude → Build Tracker + Session log updated.
-- [ ] Next (Claude): fix conflicts + merge PR #169 (proof of consent, 4c) → "invite ends in 1 day" text → booking confirm/reminder texts (per-salon numbers).
+- [ ] Next (Claude): "invite ends in 1 day" text → booking confirm/reminder texts (per-salon numbers).
 
 ## Results log
 | Date | Step | Result | Note |
