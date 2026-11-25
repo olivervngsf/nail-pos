@@ -113,7 +113,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - [x] Nov 20 DONE (set by API): Messaging Service renamed "PolishOS" (MGfb1e10…), incoming = `https://polishosapp.com/api/sms/inbound`, delivery status = `https://polishosapp.com/api/sms/status`, number's own webhook off (STOP/HELP reach us).
 - [x] Nov 20: support@polishosapp.com is a real inbox (reviewers + the HELP reply point to it). Nov 23: now a Google Workspace alias of oliver@ (was ImprovMX → Gmail).
 - [x] **Claude: proof of consent** (Build Tracker row 4c; PR #169, migration `20270112000001_text_consent`, on test; goes to live with the merge): save WHEN + WHERE each client said yes to texts (booking page, desk, kiosk, START reply) and when they said STOP; today only yes/no. **Deadline: before the first real client text** (confirm, reminder, receipt, promo) = before any salon's own number is approved. Not needed for staff invites. Safe to ship any time.
-- [ ] Claude: "invite ends in 1 day" reminder text (campaign sample #3).
+- [x] Nov 25: "invite ends tomorrow" text built (hourly job `/api/cron/invite-reminders` via GitHub Actions "Scheduled texts"; once per invite, only to staff who got the first invite text, 9 AM–8 PM salon time). **Oliver: make a long random `CRON_SECRET`, put the same value in Vercel (Production) + GitHub → Settings → Secrets → Actions, redeploy.** Until then the job skips.
 - [ ] Claude: wire confirm / reminder / receipt texts (texting plan steps 3–6) once the campaign is approved.
 
 ## 7. Decisions + legal (Oliver + Elang · before the first paying salon)
