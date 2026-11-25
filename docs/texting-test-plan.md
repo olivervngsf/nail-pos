@@ -19,7 +19,8 @@ Where to write results: tick the box, write the date + what you saw. Anything fa
 - [ ] Redeploy Production (Deployments → latest → Redeploy).
 
 ## 1. First text (Oliver, 2 min)
-- [ ] polishosapp.com/admin → Home → **Send a test text** → your own phone.
+- [x] Nov 25, 2:48 PM: DELIVERED to Oliver's phone from +1 (775) 535-8984.
+- [x] polishosapp.com/admin → Home → **Send a test text** → your own phone.
   - Expect: text "PolishOS test text: texting works. Reply STOP to stop." arrives within ~1 min.
   - Card follows it to **Delivered**. If **Failed / Undelivered**: copy the reason shown (plain words from `explainTextError`) to Claude.
 - [ ] Twilio → Monitor → Messaging logs: same text, status Delivered, "Messaging Service = PolishOS".
@@ -66,4 +67,4 @@ Use the demo salon "Lotus Demo Nails" on live, owner login.
 ## Results log
 | Date | Step | Result | Note |
 |---|---|---|---|
-| | | | |
+| Nov 25 | 1. First text | Delivered | From +1 (775) 535-8984. Number shows "Messaging enabled"; Twilio's old onboarding-task box still open (harmless). Number's own webhook still says demo.twilio.com: if HELP/STOP get no reply, point the number at the PolishOS Messaging Service. |

@@ -100,7 +100,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 ## 6. Texting (Oliver · forms now, carriers take ~1–3 weeks)
 - [x] Nov 19: Twilio pay-as-you-go; number +1 (775) 535-8984; sole proprietor brand "Viet Nguyen" **approved**.
 - [x] Nov 24: **campaign approved** (Twilio email; campaign `CM72fc4b8e892533f9845eda3760ad8f63`, use case = staff invites + notices, no marketing). Registered with carriers.
-- [ ] Oliver: Messaging Service `MG…` → Vercel `TWILIO_MESSAGING_SERVICE_SID` (Production + Preview) + check `TWILIO_AUTH_TOKEN` = Nov 19 token → redeploy → run `docs/texting-test-plan.md` (first text Delivered, HELP/STOP/START/DUNG replies, invite + PIN link texts, things that must NOT text). Date: ____.
+- [x] Nov 25: first test text **Delivered**. Oliver: Messaging Service `MG…` → Vercel `TWILIO_MESSAGING_SERVICE_SID` (Production + Preview) + check `TWILIO_AUTH_TOKEN` = Nov 19 token → redeploy → run `docs/texting-test-plan.md` (first text Delivered, HELP/STOP/START/DUNG replies, invite + PIN link texts, things that must NOT text). Date: ____.
 - [ ] **Before charging the first salon money:** switch Twilio to a business account (EO Collective + EIN + business address) and move the tax info. Sole proprietor = testing/pilot only (1 number, <3,000 texts/day).
 - [ ] Salon promo texts never go on the PolishOS number: each salon needs its own number + brand + Marketing campaign (on its setup day).
 - [x] Nov 19: campaign form submitted (sole proprietor, invites + notices, verbal opt-in script, links `/legal/terms` + `/legal/privacy`); legal pages renamed "Terms of Service" / "Privacy Policy" with an SMS Terms section. Carrier review ~1–3 weeks.
