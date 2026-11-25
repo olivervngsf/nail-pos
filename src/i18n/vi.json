@@ -1864,7 +1864,8 @@
       "bossOnly": "Chỉ chủ hoặc quản lý mới mở được.",
       "pick": "Chủ hoặc quản lý: bấm tên, rồi nhập PIN.",
       "noBoss": "Chưa có chủ hoặc quản lý nào có PIN.",
-      "pinFor": "{name}, nhập PIN để mở cài đặt máy"
+      "pinFor": "{name}, nhập PIN để mở cài đặt máy",
+      "backupHint": "Bị kẹt? Mở polishosapp.com/device"
     }
   },
   "clock": {
@@ -2521,5 +2522,20 @@
     "textCredit": "Tiền nhắn tin",
     "timeClock": "Chấm công",
     "earnings": "In thu nhập của tôi"
+  },
+  "device": {
+    "title": "Máy này",
+    "sub": "Máy tính bảng này là máy nào và đang đăng nhập bằng ai. Màn hình chọn mặt không bao giờ che trang này.",
+    "noneTitle": "Trình duyệt này không phải máy của tiệm",
+    "noneWhy": "Chưa có máy của tiệm nào được lưu trong trình duyệt này.",
+    "signedInAs": "Đăng nhập bằng {who}",
+    "signedOut": "Chưa đăng nhập.",
+    "setUp": "Cài máy cho tiệm (chủ hoặc quản lý)",
+    "haveCode": "Tôi có mã máy",
+    "signIn": "Đăng nhập",
+    "noBoss": "Chưa có chủ hoặc quản lý nào có PIN. Đặt trong Cài đặt → Nhân viên.",
+    "offline": "Cần mạng để kiểm tra PIN. Thử lại khi có mạng.",
+    "back": "Quay lại màn hình chọn mặt",
+    "demo": "Bản thử: máy mẫu; PIN nào cũng mở; không lưu gì."
   }
 }

@@ -1568,3 +1568,8 @@ body:has(.dev-strip) .clock-qr { bottom: 108px; }
 body:has(.clock-demo) .faces { padding-bottom: 76px; }
 body:has(.clock-demo):has(.dev-strip) .clock-qr { bottom: 168px; }
 body:has(.faces .scrim) .clock-qr { display: none; }
+/* Backup page /device: same facts + buttons as the gear menu, never covered by the faces screen. */
+.dev-page { min-height: 100dvh; box-sizing: border-box; background: var(--surface); display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 40px 16px; text-align: center; }
+.dev-page > .cap { max-width: 480px; }
+.dev-card { width: 100%; max-width: 480px; box-sizing: border-box; padding: 20px; display: flex; flex-direction: column; gap: 12px; text-align: left; }
+.dev-pin { display: flex; flex-direction: column; align-items: center; gap: 12px; }
