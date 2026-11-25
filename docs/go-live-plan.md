@@ -47,13 +47,14 @@ When a step is done: tick it here, write the date, and tick the same check in **
   2. GoDaddy → polishosapp.com → DNS: delete any old MX rows; add MX `@` `mx1.improvmx.com` (10), MX `@` `mx2.improvmx.com` (20), TXT `@` `v=spf1 include:spf.improvmx.com ~all` (or add `include:spf.improvmx.com` to an existing SPF row). Never touch Resend's `mail` / `send` rows. Keep ONE `_dmarc` row (`v=DMARC1; p=none;`); two rows = both ignored, so GoDaddy's default `p=quarantine` row was deleted.
   3. ImprovMX "Check again" turns green → email support@ from another account → it lands in Gmail.
   - Resend = SENDING app email only (no-reply@mail.polishosapp.com); ImprovMX = RECEIVING. Replying AS support@ needs ImprovMX paid (~$9/mo) or Google Workspace (~$7/person); move to Workspace when Elang/Laura answer salons.
-- [ ] Nov 23 STARTED: **Google Workspace** = real work email (Stripe sales asked for one). Business Starter, monthly, **$8.40/user/mo**, free until Dec 7, billed to Viet Nguyen (change to EO Collective once the LLC exists: Admin console → Billing → payments profile). All prices: `docs/costs.md`.
+- [ ] Nov 23 MOSTLY DONE (mail runs on Google; oliver@ receives): **Google Workspace** = real work email (Stripe sales asked for one). Business Starter, monthly, **$8.40/user/mo**, free until Dec 7, billed to Viet Nguyen (change to EO Collective once the LLC exists: Admin console → Billing → payments profile). All prices: `docs/costs.md`.
   1. [x] workspace.google.com → business name "EO Collective" → 2–9 people → US → "I have a domain" → `polishosapp.com`.
   2. [x] User `oliver@polishosapp.com` (= the Workspace admin; password in 1Password) → Business Starter → checkout ($10 card check, refunded).
-  3. [ ] Verify the domain (Google signs in to GoDaddy, or paste its TXT row at GoDaddy).
-  4. [ ] Activate Gmail = swap mail at GoDaddy → polishosapp.com → DNS: delete MX `mx1.improvmx.com` + `mx2.improvmx.com`; add MX `@` `smtp.google.com` (1); SPF TXT `@` → `v=spf1 include:_spf.google.com ~all` (one SPF row only). Never touch Resend's `mail` / `send` rows; keep the one `_dmarc` row.
-  5. [ ] Admin console → Users → oliver → Add alternate email `support` (free alias, no 2nd seat) → email support@ + oliver@ from another account → both land in the Workspace inbox; reply works.
-  6. [ ] 2-step verification on oliver@ (admin account). Optional: Gmail "Check mail from other accounts" not needed.
+  3. [x] Nov 23: domain verified (TXT `google-site-verification=…` row at GoDaddy, kept forever).
+  4. [x] Nov 23 (done by hand; Google's "set up GoDaddy for me" gave Error 401): Activate Gmail = swap mail at GoDaddy → polishosapp.com → DNS: delete MX `mx1.improvmx.com` + `mx2.improvmx.com`; add MX `@` `smtp.google.com` (1); SPF TXT `@` → `v=spf1 include:_spf.google.com ~all` (one SPF row only). Never touch Resend's `mail` / `send` rows; keep the one `_dmarc` row.
+  5. [ ] Nov 23 alias added, test pending: Admin console → Directory → Users → Oliver → User information → Alternate email addresses → `support` (free alias, no 2nd seat) → email support@ + oliver@ from another account → both land in the Workspace inbox; reply works.
+  6. [ ] 2-step verification on oliver@ (admin account). Optional: reply AS support@ = Gmail Settings → Accounts → Send mail as → add support@.
+  6b. [ ] DKIM (emails not in spam): Admin → Apps → Google Workspace → Gmail → Authenticate email → Generate (2048) → GoDaddy TXT `google._domainkey` → Start authentication.
   7. [ ] Cancel ImprovMX (no longer used). Use oliver@ for Stripe sales + business sign-ups.
   - Later: Elang + Laura = +$8.40/mo each (Admin console → Users → Add). Add eo-collective.com as a secondary domain (free) when the company site starts.
 
@@ -102,7 +103,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - [ ] Salon promo texts never go on the PolishOS number: each salon needs its own number + brand + Marketing campaign (on its setup day).
 - [x] Nov 19: campaign form submitted (sole proprietor, invites + notices, verbal opt-in script, links `/legal/terms` + `/legal/privacy`); legal pages renamed "Terms of Service" / "Privacy Policy" with an SMS Terms section. Carrier review ~1–3 weeks.
 - [x] Nov 20 DONE (set by API): Messaging Service renamed "PolishOS" (MGfb1e10…), incoming = `https://polishosapp.com/api/sms/inbound`, delivery status = `https://polishosapp.com/api/sms/status`, number's own webhook off (STOP/HELP reach us).
-- [x] Nov 20: support@polishosapp.com is a real inbox (ImprovMX → Gmail; reviewers + the HELP reply point to it).
+- [x] Nov 20: support@polishosapp.com is a real inbox (reviewers + the HELP reply point to it). Nov 23: now a Google Workspace alias of oliver@ (was ImprovMX → Gmail).
 - [x] **Claude: proof of consent** (built Nov 24, migration `20270110000001_text_consent`, applied to test; goes to live with the merge) (Build Tracker row 4c, ~1 session): save WHEN + WHERE each client said yes to texts (booking page, desk, kiosk, START reply) and when they said STOP; today only yes/no. **Deadline: before the first real client text** (confirm, reminder, receipt, promo) = before any salon's own number is approved. Not needed for staff invites. Safe to ship any time.
 - [ ] Claude: "invite ends in 1 day" reminder text (campaign sample #3).
 - [ ] Claude: wire confirm / reminder / receipt texts (texting plan steps 3–6) once the campaign is approved.

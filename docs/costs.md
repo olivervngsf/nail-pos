@@ -44,8 +44,8 @@ Deeper math: `founder/cfo.md` (inputs in `founder/numbers.json`). Price reasonin
 ## 3. What WE pay every month (our tools)
 | Tool | What for | Price | Status Nov 23 |
 |---|---|---|---|
-| **Google Workspace** Business Starter | work email `oliver@polishosapp.com` (+ `support@` as a free alias), calendar, Drive | **$8.40/user/mo** (monthly, cancel any time) | **Real**: signed up Nov 23, free until Dec 7, billed to Viet Nguyen. Elang + Laura = +$8.40 each |
-| ImprovMX | forwarded support@ to Gmail | $0 | Real; not needed once Workspace mail is on (then cancel) |
+| **Google Workspace** Business Starter | work email `oliver@polishosapp.com` (+ `support@` as a free alias), calendar, Drive | **$8.40/user/mo** (monthly, cancel any time) | **Real**: live Nov 23 (mail on Google), free until Dec 7, billed to Viet Nguyen. Elang + Laura = +$8.40 each |
+| ImprovMX | forwarded support@ to Gmail until Nov 23 | $0 | Replaced by Workspace; cancel |
 | Resend | app emails (sign-in codes, booking confirms) from `no-reply@mail.polishosapp.com` | $0 now (100/day), $20/mo later | Free plan |
 | Supabase | database (test + live) | $25 + ~$10 = **$35/mo** | est.; Pro needed before the first real salon |
 | Vercel | hosting polishosapp.com | **$20/mo** | est. (Pro) |
