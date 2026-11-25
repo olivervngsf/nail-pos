@@ -847,7 +847,7 @@ button:disabled { cursor: not-allowed; }
 /* My profile (/me) */
 .me-main { padding: 24px; display: flex; flex-direction: column; gap: 12px; max-width: 640px; width: 100%; box-sizing: border-box; }
 .me-head { flex-direction: row; align-items: center; gap: 14px; }
-@media (max-width: 640px) { .me-app .rail { display: none; } .me-main { padding: 16px; } }
+@media (max-width: 640px) { .me-main { padding: 16px; } }
 /* faces screen (salon device lock: "Who's working?") */
 .faces { position: fixed; inset: 0; z-index: 35; background: var(--surface); overflow: auto; display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 40px 16px; box-sizing: border-box; animation: fadeIn .3s ease both; }
 .faces-h { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 860px; }
@@ -918,6 +918,13 @@ button:disabled { cursor: not-allowed; }
   .set-nav a { white-space: nowrap; }
   .set-two, .set-lens { grid-template-columns: 1fr; }
   .set-pay { display: none; }
+}
+/* Small tablets + iPhone Duo open (600–899): keep the main menu on the left so Settings is never a dead end; settings tabs sit on top of the page. */
+@media (min-width: 600px) and (max-width: 899px) {
+  .set-app { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 1fr; align-items: start; }
+  .set-app .rail { display: flex; grid-column: 1; grid-row: 1 / 3; position: sticky; top: 0; height: 100dvh; }
+  .set-app > .set-nav { grid-column: 2; grid-row: 1; min-width: 0; }
+  .set-app > .col { grid-column: 2; grid-row: 2; min-width: 0; }
 }
 /* Settings → Printer: options left, paper preview right (stacks on phones). */
 .ps{flex:1;overflow:auto;padding:18px 24px;display:grid;grid-template-columns:minmax(0,560px) auto;justify-content:start;gap:40px;align-items:start}
@@ -1368,6 +1375,12 @@ button:disabled { cursor: not-allowed; }
   .ck-cash .key { height: 52px; }
   .ck-pin { position: fixed; left: 16px; right: 16px; bottom: calc(12px + env(safe-area-inset-bottom)); width: auto !important; z-index: 30; height: 56px !important; }
   .ck-main:has(.ck-pin)::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: calc(80px + env(safe-area-inset-bottom)); background: var(--paper); border-top: 1px solid var(--line); z-index: 29; }
+}
+
+/* Touch screens 600–899 wide (iPhone Duo open, iPad upright): Cash received + paid screen's New ticket stay on screen while you scroll. */
+@media (min-width: 600px) and (max-width: 899px) and (pointer: coarse) {
+  .ck-pin { position: sticky; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 30; height: 56px !important; box-shadow: 0 0 0 12px var(--paper), 0 8px 24px -6px rgba(22,22,26,.35); }
+  .btn.primary.ck-pin:disabled { opacity: 1; background: #d4d4d9; border-color: #d4d4d9; color: #fff; }
 }
 
 /* ===== Phone menu = Today · Calendar · Checkout · Clients · More (Nov 20, board row 2) ===== */
