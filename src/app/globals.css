@@ -1379,7 +1379,7 @@ button:disabled { cursor: not-allowed; }
 
 /* Touch screens 600–899 wide (iPhone Duo open, iPad upright): Cash received + paid screen's New ticket stay on screen while you scroll. */
 @media (min-width: 600px) and (max-width: 899px) and (pointer: coarse) {
-  .ck-pin { position: sticky; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 30; height: 56px !important; box-shadow: 0 0 0 12px var(--paper), 0 8px 24px -6px rgba(22,22,26,.35); }
+  .btn.ck-pin { position: sticky; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 30; height: 56px !important; box-shadow: 0 0 0 16px var(--paper), 0 48px 0 16px var(--paper), 0 -17px 0 0 var(--line); }
   .btn.primary.ck-pin:disabled { opacity: 1; background: #d4d4d9; border-color: #d4d4d9; color: #fff; }
 }
 
