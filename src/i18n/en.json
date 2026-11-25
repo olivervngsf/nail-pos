@@ -1890,6 +1890,10 @@
     "demo": "Test version: any PIN opens; nothing is saved."
   },
   "settings": {
+    "access": { "admin": "Owner + manager", "owner": "Owner only", "all": "Everyone" },
+    "youCan": "You ({role}) can open",
+    "youCant": "Owner + manager only",
+    "menuAdd": "Add service",
     "title": "Settings",
     "group": {
       "me": "Me",
@@ -1901,6 +1905,8 @@
     },
     "nav": {
       "profile": "My profile",
+      "salon": "Salon info, address & hours",
+      "menu": "Service menu",
       "team": "Team",
       "pinRules": "PIN rules",
       "pinActivity": "PIN activity",
@@ -1916,8 +1922,7 @@
       "billing": "Billing",
       "support": "Support",
       "clockIn": "Clock-in",
-      "tapToPay": "Tap to Pay on iPhone",
-      "salon": "Salon address"
+      "tapToPay": "Tap to Pay on iPhone"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
