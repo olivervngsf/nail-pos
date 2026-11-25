@@ -98,6 +98,12 @@ When a step is done: tick it here, write the date, and tick the same check in **
   - Refund both in the Stripe dashboard. Write the date here: ____.
 
 ## 6. Texting (Oliver · forms now, carriers take ~1–3 weeks)
+> **What texts work today (Nov 25) — don't forget**
+> - ✅ Staff invite texts (Settings → Team → "Text the invite") — PolishOS number
+> - ✅ PIN link texts (Team → PIN → "Text the PIN link") — PolishOS number
+> - ❌ Client texts (booking confirm, reminders, receipts, promos) are OFF. Each salon needs its OWN number + brand + campaign first. Never send them on the PolishOS number.
+> - Plan for salon numbers + promos: Research — The Salon Texting Plan https://claude.ai/artifact/HFF6aerJLea9q7nbAYJ6Nr
+
 - [x] Nov 19: Twilio pay-as-you-go; number +1 (775) 535-8984; sole proprietor brand "Viet Nguyen" **approved**.
 - [x] Nov 24: **campaign approved** (Twilio email; campaign `CM72fc4b8e892533f9845eda3760ad8f63`, use case = staff invites + notices, no marketing). Registered with carriers.
 - [x] Nov 25: first test text **Delivered**. Oliver: Messaging Service `MG…` → Vercel `TWILIO_MESSAGING_SERVICE_SID` (Production + Preview) + check `TWILIO_AUTH_TOKEN` = Nov 19 token → redeploy → run `docs/texting-test-plan.md` (first text Delivered, HELP/STOP/START/DUNG replies, invite + PIN link texts, things that must NOT text). Date: ____.
