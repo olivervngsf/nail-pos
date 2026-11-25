@@ -20,6 +20,7 @@ const NAV = [
   { href: "/settings/devices", key: "devices", group: "salon" },
   { href: "/settings/payments", key: "payments", group: "salon" },
   { href: "/settings/reader", key: "reader", group: "salon" },
+  { href: "/settings/tap-to-pay", key: "tapToPay", group: "salon" },
   { href: "/settings/texting", key: "texting", group: "salon" },
   { href: "/settings/billing", key: "billing", group: "salon" },
   { href: "/settings/support", key: "support", group: "salon" },

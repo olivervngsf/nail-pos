@@ -68,7 +68,7 @@ final class WebViewController: UIViewController, WKScriptMessageHandler, WKNavig
 
         if let secret = msg["pay"] as? String {
             guard !secret.isEmpty, let location else { done("Can't start the card payment.", nil); return }
-            reader.pay(secret: secret, locationId: location, simulated: simulated, tap: tap, done: done)
+            reader.pay(secret: secret, locationId: location, simulated: simulated, tap: tap, terms: msg["terms"] as? Bool ?? true, done: done)
             return
         }
         switch msg["reader"] as? String {

@@ -32,3 +32,25 @@ test("iPhone app: pay tile says Tap to Pay on iPhone with Apple's symbol", async
   await expect(tile.getByTestId("tap-symbol")).toHaveAttribute("src", SYMBOL);
   await expect(tile).not.toContainText("Tap card on this phone");
 });
+
+test("Settings → Tap to Pay on iPhone: owner turns it on for this iPhone, then can turn it off", async ({ page }) => {
+  await page.addInitScript((icon) => {
+    const app = {
+      onmessage: null as null | ((e: { data: string }) => void),
+      postMessage(s: string) {
+        const m = JSON.parse(s);
+        const answer = m.reader === "tapCheck" ? { supported: true, ios: true, icon } : {};
+        setTimeout(() => app.onmessage?.({ data: JSON.stringify({ id: m.id, ok: true, ...answer }) }), 0);
+      },
+    };
+    (window as unknown as { PolishOSApp: typeof app }).PolishOSApp = app;
+  }, SYMBOL);
+  await page.goto("/settings/tap-to-pay");
+  await expect(page.getByTestId("tap-state")).toHaveText("Off");
+  await expect(page.getByText("Apple shows its terms one time")).toBeVisible();
+  await page.getByTestId("tap-turn-on").click();
+  await expect(page.getByTestId("tap-state")).toContainText("On");
+  page.once("dialog", (d) => void d.accept());
+  await page.getByTestId("tap-turn-off").click();
+  await expect(page.getByTestId("tap-state")).toHaveText("Off");
+});

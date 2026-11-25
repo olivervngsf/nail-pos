@@ -306,7 +306,8 @@
     "tagPaid": "Đã trả",
     "tipOf": "tip {amount}",
     "allTechs": "Tất cả {n}",
-    "techFilter": "Xem phiếu của một thợ"
+    "techFilter": "Xem phiếu của một thợ",
+    "tapAskOwner": "Nhờ chủ hoặc quản lý bật Tap to Pay on iPhone trong Cài đặt."
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -1910,7 +1911,8 @@
       "texting": "Tin nhắn & tín dụng",
       "billing": "Thanh toán gói",
       "support": "Hỗ trợ",
-      "clockIn": "Chấm công"
+      "clockIn": "Chấm công",
+      "tapToPay": "Tap to Pay on iPhone"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -2363,6 +2365,30 @@
       "onToast": "Đã bật hỗ trợ trong 24 giờ",
       "offToast": "Đã kết thúc hỗ trợ",
       "demo": "Bản thử: thay đổi chỉ lưu trên máy này."
+    },
+    "tapToPay": {
+      "loading": "Đang tải…",
+      "what": "Nhận thẻ bằng iPhone của tiệm, không cần máy đọc thẻ: khách chạm thẻ hoặc ví điện thoại vào phần trên của iPhone.",
+      "notAppTitle": "Mở trang này trong app PolishOS trên iPhone",
+      "n1": "Dùng iPhone của tiệm (iPhone XS trở lên, iOS mới nhất).",
+      "n2": "Mở app PolishOS trên máy đó và đăng nhập bằng chủ hoặc quản lý.",
+      "n3": "Vào Cài đặt → Tap to Pay on iPhone rồi bấm Bật.",
+      "stateOff": "Tắt",
+      "stateOn": "Bật",
+      "stateWarming": "Đang chuẩn bị…",
+      "stateReady": "Bật · sẵn sàng",
+      "offWhy": "Bật một lần cho iPhone này. Apple hiện điều khoản một lần: đọc và bấm Đồng ý. Thợ không bao giờ thấy.",
+      "s1": "iPhone này cần có mật mã (Cài đặt → Face ID & Mật mã).",
+      "s2": "Đăng nhập iCloud trên iPhone này (Cài đặt → tên của bạn).",
+      "s3": "Bấm Bật, rồi đồng ý điều khoản của Apple.",
+      "turnOn": "Bật Tap to Pay on iPhone",
+      "turningOn": "Đang bật…",
+      "onWhy": "Đã bật cho iPhone này. Tính tiền sẽ có Tap to Pay on iPhone, và iPhone tự chuẩn bị mỗi lần mở PolishOS.",
+      "turnOff": "Tắt trên iPhone này",
+      "offAsk": "Tắt Tap to Pay trên iPhone này? Thợ không nhận chạm thẻ ở đây cho tới khi chủ hoặc quản lý bật lại.",
+      "toPayments": "Tới Thanh toán",
+      "fee": "Phí thẻ giống máy đọc thẻ: 2,7% + 5¢, tiệm trả.",
+      "demo": "Bản thử: Bật chỉ đánh dấu máy này. Điều khoản Apple và chạm thẻ thật có khi dùng app iPhone ở tiệm thật."
     }
   },
   "promo": {

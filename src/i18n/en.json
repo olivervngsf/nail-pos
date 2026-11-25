@@ -306,7 +306,8 @@
     "tagPaid": "Paid",
     "tipOf": "tip {amount}",
     "allTechs": "All {n}",
-    "techFilter": "Show one tech's tickets"
+    "techFilter": "Show one tech's tickets",
+    "tapAskOwner": "Ask the owner or a manager to turn on Tap to Pay on iPhone in Settings."
   },
   "pay": {
     "title": "Pay {salon}",
@@ -1910,7 +1911,8 @@
       "texting": "Texting & credit",
       "billing": "Billing",
       "support": "Support",
-      "clockIn": "Clock-in"
+      "clockIn": "Clock-in",
+      "tapToPay": "Tap to Pay on iPhone"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -2363,6 +2365,30 @@
       "onToast": "Support is on for 24h",
       "offToast": "Support ended",
       "demo": "Test version: changes stay on this device."
+    },
+    "tapToPay": {
+      "loading": "Loading…",
+      "what": "Take cards on the salon's iPhone with no card reader: the client taps their card or phone wallet on the top of the iPhone.",
+      "notAppTitle": "Open this page in the PolishOS iPhone app",
+      "n1": "Use the salon's iPhone (iPhone XS or newer, latest iOS).",
+      "n2": "Open the PolishOS app on it and sign in as the owner or a manager.",
+      "n3": "Go to Settings → Tap to Pay on iPhone and tap Turn on.",
+      "stateOff": "Off",
+      "stateOn": "On",
+      "stateWarming": "Getting ready…",
+      "stateReady": "On · ready",
+      "offWhy": "Turn it on once for this iPhone. Apple shows its terms one time: read them and tap Accept. Staff never see them.",
+      "s1": "This iPhone needs a passcode (Settings → Face ID & Passcode).",
+      "s2": "Sign in to iCloud on this iPhone (Settings → your name).",
+      "s3": "Tap Turn on, then accept Apple's terms.",
+      "turnOn": "Turn on Tap to Pay on iPhone",
+      "turningOn": "Turning on…",
+      "onWhy": "On for this iPhone. Checkout shows Tap to Pay on iPhone, and the iPhone gets ready each time PolishOS opens.",
+      "turnOff": "Turn off on this iPhone",
+      "offAsk": "Turn off Tap to Pay on this iPhone? Staff can't take taps here until an owner or manager turns it on again.",
+      "toPayments": "Go to Payments",
+      "fee": "Same card fee as the card reader: 2.7% + 5¢, paid by the salon.",
+      "demo": "Test version: Turn on only marks this device. Apple's terms and the real tap come with the iPhone app on a real salon."
     }
   },
   "promo": {
