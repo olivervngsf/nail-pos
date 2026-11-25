@@ -62,6 +62,12 @@ Use the demo salon "Lotus Demo Nails" on live, owner login.
 - [ ] Run it again → no second text (once per invite).
 - [ ] Join with the link → no reminder for anyone who already joined.
 
+## 4c. Booking reminder emails (after CRON_SECRET + RESEND_API_KEY are set)
+- [ ] Book on the demo booking page for tomorrow with your own email → confirmation email now.
+- [ ] Around the same time tomorrow minus 1 day (hourly run, 8 AM–9 PM salon time) → "Reminder: <salon> tomorrow…" email.
+- [ ] 2 hours before → "See you today at …" email. Texts for these stay off until the salon has its own number (logged as skipped).
+- [ ] Cancel a booking with the change/cancel link → no reminders for it.
+
 ## 5. Things that must NOT text (5 min)
 - [ ] Book on the public booking page with a real phone + texts checkbox on → booked screen says texting **not on yet** (salon has no own number). No text arrives.
 - [ ] Settings → Texting → Send promo text → still **TEST VERSION**: credit taken, no text goes out.

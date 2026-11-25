@@ -8,24 +8,13 @@ import { asServer, originOf } from "@/lib/server/pay";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { manageUrl, noticeEmail, noticeSms, type Notice } from "@/lib/booking/notice";
 import { sendText } from "@/lib/server/sms";
+import { sendEmail } from "@/lib/server/email";
 
 export const runtime = "nodejs";
 
 type Send = { id: number; channel: "email" | "sms"; to: string | null };
 type Claim = Notice & { sends: Send[]; salon: Notice["salon"] & { id: string; texting: string } };
 type Outcome = "sent" | "off" | "failed";
-
-async function sendEmail(to: string, m: { subject: string; text: string; html: string }, replyName: string): Promise<[Outcome, string?]> {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return ["off", "email not switched on"];
-  const from = process.env.BOOKING_EMAIL_FROM || "PolishOS <no-reply@mail.polishosapp.com>";
-  const sender = from.replace(/^[^<]*</, `${replyName.replace(/[<>"]/g, "")} via PolishOS <`);
-  const r = await fetch("https://api.resend.com/emails", {
-    method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: sender, to: [to], subject: m.subject, text: m.text, html: m.html }),
-  });
-  return r.ok ? ["sent"] : ["failed", `resend ${r.status}: ${(await r.text()).slice(0, 200)}`];
-}
 
 /** Text through the one shared sender (salon's own number, STOP list, "said yes" check, never twice). */
 async function sendSms(db: SupabaseClient, id: number, salonId: string, to: string, body: string, origin: string): Promise<[Outcome, string?]> {

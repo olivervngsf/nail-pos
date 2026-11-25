@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { manageUrl, noticeEmail, noticeSms, type Notice } from "./notice";
+import { manageUrl, noticeEmail, noticeSms, reminderEmail, reminderSms, type Notice } from "./notice";
 
 const one: Notice = {
   salon: { name: "Lotus Nails & Spa", phone: "+14085550100", address: "1550 S Bascom Ave, Campbell", slug: "lotus", cancelHours: 2 },
@@ -38,5 +38,28 @@ describe("booking confirmation", () => {
     expect(m.text).toContain("– 2:15 PM with Kim & Tuyet");
     expect(m.html).not.toContain("<b>Sara</b>");
     expect(m.html).toContain("&lt;b&gt;Sara&lt;/b&gt;");
+  });
+});
+
+describe("booking reminders", () => {
+  it("day before: tomorrow, when, tech, link, STOP, plain, at most 2 parts", () => {
+    const s = reminderSms(one, link, "day_before");
+    expect(s).toBe(`Lotus Nails & Spa: Reminder, see you tomorrow Thu, Nov 19 at 1:15 PM with Kim. Change or cancel: ${link} Reply STOP to opt out.`);
+    expect(/^[\x20-\x7e]*$/.test(s)).toBe(true);
+    expect(s.length).toBeLessThanOrEqual(306);
+  });
+  it("2 hours: today, time, link", () => {
+    expect(reminderSms(one, link, "two_hours")).toBe(`Lotus Nails & Spa: See you today at 1:15 PM with Kim. Running late or can't come? ${link} Reply STOP to opt out.`);
+  });
+  it("email: reminder subject + greeting, same booking details and link", () => {
+    const d = reminderEmail(one, link, "day_before");
+    expect(d.subject).toBe("Reminder: Lotus Nails & Spa tomorrow, Thu, Nov 19 at 1:15 PM");
+    expect(d.text).toContain("Hi Lan, see you tomorrow at Lotus Nails & Spa.");
+    expect(d.text).toContain("- Regular spa pedicure (Kim)  $38.00");
+    expect(d.html).toContain("See you tomorrow, Lan");
+    expect(d.html).toContain(link);
+    const t = reminderEmail(one, link, "two_hours");
+    expect(t.subject).toBe("See you today at 1:15 PM: Lotus Nails & Spa");
+    expect(t.html).toContain("See you today, Lan");
   });
 });
