@@ -11,23 +11,27 @@ import { isAdminRole, useMe } from "@/lib/me";
 
 export type Access = { salonId: string; salonName: string; role: Role; owner: boolean; demo: boolean };
 
+// Grouped by job (Oliver, Nov 25: clearer grouping). Order inside a group = how often it's opened.
+const GROUPS = ["me", "salon", "team", "pay", "clients", "money"] as const;
 const NAV = [
   { href: "/me", key: "profile", group: "me" },
-  { href: "/settings/team", key: "team", group: "salon" },
-  { href: "/settings/pin", key: "pinRules", group: "salon" },
-  { href: "/settings/clock-in", key: "clockIn", group: "salon" },
-  { href: "/settings/pin-activity", key: "pinActivity", group: "salon" },
+  { href: "/settings/salon", key: "salon", group: "salon" },
   { href: "/settings/devices", key: "devices", group: "salon" },
-  { href: "/settings/payments", key: "payments", group: "salon" },
-  { href: "/settings/reader", key: "reader", group: "salon" },
-  { href: "/settings/texting", key: "texting", group: "salon" },
   { href: "/settings/billing", key: "billing", group: "salon" },
   { href: "/settings/support", key: "support", group: "salon" },
-  { href: "/settings/printer", key: "printer", group: "more" },
-  { href: "/settings/booking-page", key: "bookingPage", group: "more" },
-  { href: "/loyalty", key: "loyalty", group: "more" },
-  { href: "/gift-cards", key: "giftCards", group: "more" },
-  { href: "/payouts", key: "payouts", group: "more" },
+  { href: "/settings/team", key: "team", group: "team" },
+  { href: "/settings/clock-in", key: "clockIn", group: "team" },
+  { href: "/settings/pin", key: "pinRules", group: "team" },
+  { href: "/settings/pin-activity", key: "pinActivity", group: "team" },
+  { href: "/settings/payments", key: "payments", group: "pay" },
+  { href: "/settings/reader", key: "reader", group: "pay" },
+  { href: "/settings/tap-to-pay", key: "tapToPay", group: "pay" },
+  { href: "/settings/printer", key: "printer", group: "pay" },
+  { href: "/settings/booking-page", key: "bookingPage", group: "clients" },
+  { href: "/settings/texting", key: "texting", group: "clients" },
+  { href: "/loyalty", key: "loyalty", group: "clients" },
+  { href: "/gift-cards", key: "giftCards", group: "clients" },
+  { href: "/payouts", key: "payouts", group: "money" },
 ] as const;
 
 export default function SettingsShell({ title, actions, children }: { title: string; actions?: React.ReactNode; children: (a: Access) => React.ReactNode }) {
@@ -56,8 +60,8 @@ export default function SettingsShell({ title, actions, children }: { title: str
     <div className="app set-app">
       <LeftMenu active="Me" salonInitials={me.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={me.name} />
       <nav className="set-nav" aria-label={t("title")}>
-        <div className="set-nav-title">{t("title")}</div>
-        {(["me", "salon", "more"] as const).map((g) => (
+        <div className="set-nav-title">{t("title")}<span className="set-nav-who">{t("who")}</span></div>
+        {GROUPS.map((g) => (
           <div key={g} className="set-nav-group">
             <div className="set-nav-h">{t(`group.${g}`)}</div>
             {NAV.filter((n) => n.group === g).map((n) => (

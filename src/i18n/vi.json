@@ -306,7 +306,8 @@
     "tagPaid": "Đã trả",
     "tipOf": "tip {amount}",
     "allTechs": "Tất cả {n}",
-    "techFilter": "Xem phiếu của một thợ"
+    "techFilter": "Xem phiếu của một thợ",
+    "tapAskOwner": "Nhờ chủ hoặc quản lý bật Tap to Pay on iPhone trong Cài đặt."
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -1892,8 +1893,11 @@
     "title": "Cài đặt",
     "group": {
       "me": "Tôi",
-      "salon": "Tiệm · chủ + quản lý",
-      "more": "Thêm"
+      "salon": "Tiệm",
+      "team": "Nhân viên & chấm công",
+      "pay": "Nhận tiền",
+      "clients": "Khách & đặt lịch",
+      "money": "Trả lương"
     },
     "nav": {
       "profile": "Hồ sơ của tôi",
@@ -1911,7 +1915,9 @@
       "texting": "Tin nhắn & tín dụng",
       "billing": "Thanh toán gói",
       "support": "Hỗ trợ",
-      "clockIn": "Chấm công"
+      "clockIn": "Chấm công",
+      "tapToPay": "Tap to Pay on iPhone",
+      "salon": "Địa chỉ tiệm"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -2364,7 +2370,49 @@
       "onToast": "Đã bật hỗ trợ trong 24 giờ",
       "offToast": "Đã kết thúc hỗ trợ",
       "demo": "Bản thử: thay đổi chỉ lưu trên máy này."
-    }
+    },
+    "tapToPay": {
+      "loading": "Đang tải…",
+      "what": "Nhận thẻ bằng iPhone của tiệm, không cần máy đọc thẻ: khách chạm thẻ hoặc ví điện thoại vào phần trên của iPhone.",
+      "notAppTitle": "Mở trang này trong app PolishOS trên iPhone",
+      "n1": "Dùng iPhone của tiệm (iPhone XS trở lên, iOS mới nhất).",
+      "n2": "Mở app PolishOS trên máy đó và đăng nhập bằng chủ hoặc quản lý.",
+      "n3": "Vào Cài đặt → Tap to Pay on iPhone rồi bấm Bật.",
+      "stateOff": "Tắt",
+      "stateOn": "Bật",
+      "stateWarming": "Đang chuẩn bị…",
+      "stateReady": "Bật · sẵn sàng",
+      "offWhy": "Bật một lần cho iPhone này. Apple hiện điều khoản một lần: đọc và bấm Đồng ý. Thợ không bao giờ thấy.",
+      "s1": "iPhone này cần có mật mã (Cài đặt → Face ID & Mật mã).",
+      "s2": "Đăng nhập iCloud trên iPhone này (Cài đặt → tên của bạn).",
+      "s3": "Bấm Bật, rồi đồng ý điều khoản của Apple.",
+      "turnOn": "Bật Tap to Pay on iPhone",
+      "turningOn": "Đang bật…",
+      "onWhy": "Đã bật cho iPhone này. Tính tiền sẽ có Tap to Pay on iPhone, và iPhone tự chuẩn bị mỗi lần mở PolishOS.",
+      "turnOff": "Tắt trên iPhone này",
+      "offAsk": "Tắt Tap to Pay trên iPhone này? Thợ không nhận chạm thẻ ở đây cho tới khi chủ hoặc quản lý bật lại.",
+      "toPayments": "Tới Thanh toán",
+      "fee": "Phí thẻ giống máy đọc thẻ: 2,7% + 5¢, tiệm trả.",
+      "demo": "Bản thử: Bật chỉ đánh dấu máy này. Điều khoản Apple và chạm thẻ thật có khi dùng app iPhone ở tiệm thật."
+    },
+    "salon": {
+      "loading": "Đang tải…",
+      "why": "Nhận thẻ cần địa chỉ đầy đủ của tiệm: Stripe dùng cho máy đọc thẻ và Tap to Pay on iPhone.",
+      "needed": "Thêm địa chỉ đầy đủ có ZIP. Nhận thẻ tại tiệm chưa chạy được cho tới khi có địa chỉ.",
+      "label": "Địa chỉ tiệm",
+      "street": "Đường",
+      "city": "Thành phố",
+      "state": "Bang",
+      "zip": "ZIP",
+      "ready": "✓ Sẵn sàng nhận thẻ",
+      "missing": "Còn thiếu: {parts}. Gõ như: 1550 S Bascom Ave, Campbell, CA 95008",
+      "save": "Lưu địa chỉ",
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu. Nhận thẻ dùng được rồi.",
+      "savedStripeFailed": "Đã lưu. Stripe chưa nhận địa chỉ mới; sẽ thử lại ở lần nhận thẻ tới.",
+      "demo": "Bản thử: chỉ lưu trên màn hình này."
+    },
+    "who": "Cài đặt tiệm: chủ + quản lý"
   },
   "promo": {
     "title": "Gửi tin khuyến mãi",

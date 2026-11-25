@@ -15,7 +15,7 @@ import { logReceipt, pullTickets, putTicket, saveNow, takeCashPart, undoCashPart
 import { api } from "@/lib/api";
 import { GiftSellDrawer, GiftUseDrawer } from "./GiftDrawers";
 import { AppReaderPay } from "./AppReader";
-import { canAppReader, canTapToPay, keepTapWarm, onTapWarm, tapWarmNow, type TapCheck, type TapWarm } from "@/lib/app/reader";
+import { canAppReader, canTapToPay, keepTapWarm, onTapWarm, tapOnHere, tapWarmNow, type TapCheck, type TapWarm } from "@/lib/app/reader";
 import { demoSettle, giftUndo } from "@/lib/checkout/gift";
 import { receiptBytes, type ReceiptDoc } from "@/lib/print/escpos";
 import { receiptCode } from "@/lib/receipt-code";
@@ -472,7 +472,10 @@ function Pay({ desk, ticket, onPick, say }: { desk: Desk; ticket: Ticket; onPick
   useEffect(() => { void canTapToPay().then(setTap); }, []);
   // Tap to Pay on iPhone: get ready before the client taps (Apple's rule; after this phone's first tap).
   const [warm, setWarm] = useState<TapWarm>({ state: "off" });
-  useEffect(() => { setWarm(tapWarmNow()); const stop = onTapWarm(setWarm); if (desk.mode === "live") keepTapWarm(desk.salonId); return stop; }, [desk.salonId, desk.mode]);
+  // Apple: an owner/manager turns it on (and accepts Apple's terms) in Settings before anyone checks out with it.
+  const [tapOn, setTapOn] = useState(true);
+  useEffect(() => { setTapOn(tapOnHere()); setWarm(tapWarmNow()); const stop = onTapWarm((w) => { setWarm(w); setTapOn(tapOnHere()); }); if (desk.mode === "live") keepTapWarm(desk.salonId); return stop; }, [desk.salonId, desk.mode]);
+  const tapOff = !!tap?.ios && !tapOn;
   // Apple: on an iPhone it is always "Tap to Pay on iPhone" with Apple's own symbol (the app hands it to us).
   const tapTitle = tap?.ios
     ? <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>{/* eslint-disable-next-line @next/next/no-img-element -- Apple's symbol, a small picture handed over by the app */}
@@ -499,7 +502,7 @@ function Pay({ desk, ticket, onPick, say }: { desk: Desk; ticket: Ticket; onPick
         ))}
       </div>}
       <div className="grid2" style={{ width: "100%", maxWidth: 880, gap: 16 }}>
-        {tap?.supported && tile("pay-tap", tapTitle, tap.ios ? t("tapSubIphone") : t("tapSub"), tapFee, !why && !tap.nfcOff, () => onPick("tap"), why || (tap.nfcOff ? t("tapNfcOff") : undefined))}
+        {tap?.supported && tile("pay-tap", tapTitle, tap.ios ? t("tapSubIphone") : t("tapSub"), tapFee, !why && !tap.nfcOff && !tapOff, () => onPick("tap"), why || (tap.nfcOff ? t("tapNfcOff") : tapOff ? t("tapAskOwner") : undefined))}
         {appReader && tile("pay-app", t("appReader"), t("appReaderSub"), t("readerFee"), !why, () => onPick("app"), why)}
         {(!appReader || cardOk) && tile("pay-reader", t("reader"), t("readerSub"), t("readerFee"), cardOk, () => onPick("reader"), why || t("needReader"))}
         {tile("pay-cash", t("cash"), t("cashSub"), t("cashFee"), true, () => onPick("cash"))}

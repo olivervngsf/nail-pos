@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 // Phone friendly: desk screens keep a bottom menu, nothing scrolls sideways, typing never zooms on iPhone (16px+).
-const DESK = ["/checkout", "/calendar", "/calendar?view=week", "/clients", "/clients-ver-c", "/clients-ver-d", "/close-day", "/payouts", "/numbers", "/gift-cards", "/loyalty", "/settings/team", "/settings/pin", "/settings/printer", "/settings/booking-page", "/me", "/me/more"];
+const DESK = ["/checkout", "/calendar", "/calendar?view=week", "/clients", "/clients-ver-c", "/clients-ver-d", "/close-day", "/payouts", "/numbers", "/gift-cards", "/loyalty", "/settings/team", "/settings/pin", "/settings/printer", "/settings/booking-page", "/settings/tap-to-pay", "/settings/salon", "/me", "/me/more"];
 
 test("phone: bottom menu on every desk screen, no sideways scroll, inputs don't zoom", async ({ page }, info) => {
   test.skip(info.project.name !== "phone", "phone only");
