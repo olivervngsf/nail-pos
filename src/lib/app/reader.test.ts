@@ -141,3 +141,19 @@ describe("card key errors", () => {
     expect(explainAppError(e)).toBe(e);
   });
 });
+
+describe("how to tap (Apple R8)", () => {
+  it("opens Apple's screens when the iPhone can", async () => {
+    const sent = fakeApp("1.4", { supported: true, ios: true, howTo: true }, ios("1.4"));
+    const { showHowToTap } = await import("./reader");
+    expect(await showHowToTap()).toBe("apple");
+    expect(sent.map((m) => m.reader)).toEqual(["tapCheck", "howToTap"]);
+  });
+
+  it("older iOS or app: our own steps, no call to the app", async () => {
+    const sent = fakeApp("1.3", { supported: true, ios: true }, ios("1.3"));
+    const { showHowToTap } = await import("./reader");
+    expect(await showHowToTap()).toBe("own");
+    expect(sent.map((m) => m.reader)).toEqual(["tapCheck"]);
+  });
+});

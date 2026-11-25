@@ -18,6 +18,7 @@ import { receiptLines, type Paper, type ReceiptDoc } from "@/lib/print/escpos";
 import { useStored } from "@/lib/useStored";
 import { inIosApp } from "@/lib/app/bridge";
 import { canTapToPay, tapOnHere, turnOnTap, turnOnTapDemo, type TapCheck } from "@/lib/app/reader";
+import { HowToTapButton } from "@/components/HowToTap";
 import {
   STEPS, STATES, fmtHours, fmtMoney, fmtPhone, fmtTime, initials, newInviteCode, phoneOk, toMin,
   type PayType, type Service,
@@ -620,6 +621,7 @@ function TapOffer({ salonId }: { salonId?: string }) {
         <div><button className="btn" type="button" data-testid="setup-tap-turn-on" disabled={busy} onClick={() => void turnOn()}>{busy ? "Turning on…" : "Turn on Tap to Pay on iPhone"}</button></div>
         {busy && text && <div className="cap" aria-live="polite">{text}</div>}
       </>}
+      {check?.supported && on && <div><HowToTapButton /></div>}
       {check && !check.supported && <div className="cap">This iPhone can&apos;t take cards by tap (it needs an iPhone XS or newer with the latest iOS).</div>}
       {!check && <div className="cap" data-testid="setup-tap-later">On the salon&apos;s iPhone: open the PolishOS iPhone app, then Settings → Tap to Pay on iPhone → Turn on.</div>}
       {err && <div className="hint err" role="alert">{err}</div>}

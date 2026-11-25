@@ -11,7 +11,8 @@ import { appCall, appTell, appVersion, inIosApp, onAppEvent } from "./bridge";
 export const canAppReader = () => appVersion() >= 1.1;
 
 /** `icon` = Apple's own Tap to Pay symbol as a picture (iPhone app 1.3+); `ios` = Tap to Pay on iPhone. */
-export type TapCheck = { supported: boolean; reason?: string; nfcOff?: boolean; ios?: boolean; icon?: string };
+/** `howTo` = Apple's own "how to tap" screens can be shown (iPhone app 1.4+, iOS 18+). */
+export type TapCheck = { supported: boolean; reason?: string; nfcOff?: boolean; ios?: boolean; icon?: string; howTo?: boolean };
 let tapCheck: Promise<TapCheck> | null = null;
 /**
  * Can this phone take cards by tap (Stripe Tap to Pay: Google-certified Android phone with NFC, or iPhone XS+)?
@@ -23,6 +24,7 @@ export function canTapToPay(): Promise<TapCheck> {
     .then((r) => ({
       supported: !!r.supported, reason: r.reason, nfcOff: !!r.nfcOff,
       ios: !!r.ios || inIosApp(), icon: typeof r.icon === "string" && r.icon.startsWith("data:image/png;base64,") ? r.icon : undefined,
+      ...(r.howTo ? { howTo: true } : {}),
     }))
     .catch(() => { tapCheck = null; return { supported: false }; });
   return tapCheck;
@@ -80,6 +82,16 @@ export function explainAppError(e: unknown): Error & { code?: string } {
     return Object.assign(new Error(tokenError ? `PolishOS couldn't get a card key: ${tokenError}` : "PolishOS couldn't get a card key. Check the internet, then try again."), { code: err.code === "offline" ? "offline" : "token" });
   }
   return err;
+}
+
+/**
+ * Apple's rule R8: show staff how the client taps. Apple's own screens when the iPhone can (iOS 18+, app 1.4+);
+ * otherwise "own" = the page shows our short help instead. Never throws.
+ */
+export async function showHowToTap(): Promise<"apple" | "own"> {
+  const check = await canTapToPay();
+  if (!check.howTo) return "own";
+  try { await appCall({ reader: "howToTap" }, 10 * 60 * 1000); return "apple"; } catch { return "own"; }
 }
 
 /** Stop waiting for the card (or stop looking for the reader). */

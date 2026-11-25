@@ -1890,7 +1890,11 @@
     "demo": "Test version: any PIN opens; nothing is saved."
   },
   "settings": {
-    "access": { "admin": "Owner + manager", "owner": "Owner only", "all": "Everyone" },
+    "access": {
+      "admin": "Owner + manager",
+      "owner": "Owner only",
+      "all": "Everyone"
+    },
     "youCan": "You ({role}) can open",
     "youCant": "Owner + manager only",
     "menuAdd": "Add service",
@@ -2599,5 +2603,15 @@
     "p3": "Turn it on once: the owner or a manager accepts Apple's terms.",
     "on": "Turn it on",
     "later": "Not now"
+  },
+  "howToTap": {
+    "button": "How to tap",
+    "title": "How the client taps",
+    "s1": "Turn the iPhone so the client sees the amount.",
+    "s2": "The client holds their card, phone or watch flat on the top of the iPhone, near the camera.",
+    "s3": "Keep it there until the check mark shows.",
+    "s4": "If the screen asks for a PIN, hand the iPhone to the client to type it.",
+    "s5": "Wait for Paid before taking the iPhone back.",
+    "ok": "Got it"
   }
 }

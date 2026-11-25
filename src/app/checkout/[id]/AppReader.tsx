@@ -12,6 +12,7 @@ import { getActing, type Desk } from "@/lib/desk";
 import { pullTickets, saveNow } from "@/lib/checkout/store";
 import { ticketLabel, totals, type Ticket } from "@/lib/checkout/ticket";
 import { inIosApp } from "@/lib/app/bridge";
+import { HowToTapButton } from "@/components/HowToTap";
 import { setRealReader, stopCard, takeCard, tapErrorKey, wantsRealReader, type AppPay } from "@/lib/app/reader";
 
 const $ = formatCents;
@@ -103,7 +104,10 @@ export function AppReaderPay({ desk, ticket, onBack, tap = false }: { desk: Desk
         <span>{tap ? (real ? t("tapTestReal") : t("tapTestPractice")) : real ? t("appTestReal") : t("appTestPractice")}</span>
         <Button size="sm" onClick={() => void switchReader(!real)}>{tap ? (real ? t("tapUsePractice") : t("tapUseReal")) : real ? t("appUsePractice") : t("appUseReal")}</Button>
       </div>}
-      {phase === "card" && <Button variant="ghost" onClick={() => void cancel()}>{t("cancelPay")}</Button>}
+      {phase === "card" && <div style={{ display: "flex", gap: 10 }}>
+        {iphone && <HowToTapButton />}
+        <Button variant="ghost" onClick={() => void cancel()}>{t("cancelPay")}</Button>
+      </div>}
     </main>
   );
 
@@ -133,6 +137,7 @@ export function AppReaderPay({ desk, ticket, onBack, tap = false }: { desk: Desk
         <Button onClick={onBack}>{t("back")}</Button>
       </div>
       <div className="cap">{kind} · {t("readerFee")}</div>
+      {iphone && <HowToTapButton size="sm" />}
     </main>
   );
 }

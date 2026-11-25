@@ -1,5 +1,6 @@
 import UIKit
 import WebKit
+import ProximityReader
 
 /// The PolishOS web app in a full-screen window. Pages from polishosapp.com (only) get `window.PolishOSApp`,
 /// the same bridge the Android app offers (src/lib/app/bridge.ts): the page sends JSON with an "id", we answer
@@ -17,8 +18,8 @@ final class WebViewController: UIViewController, WKScriptMessageHandler, WKNavig
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
         config.websiteDataStore = .default()   // sign-in + the offline outbox live here
-        // "PolishOSApp/1.3" = the app version the web app reads; "PolishOS-iOS" = no built-in printer here.
-        config.applicationNameForUserAgent = "Mobile/15E148 Safari/604.1 PolishOSApp/1.3 PolishOS-iOS"
+        // "PolishOSApp/1.4" = the app version the web app reads; "PolishOS-iOS" = no built-in printer here.
+        config.applicationNameForUserAgent = "Mobile/15E148 Safari/604.1 PolishOSApp/1.4 PolishOS-iOS"
 
         let bridge = """
         (function () {
@@ -78,8 +79,30 @@ final class WebViewController: UIViewController, WKScriptMessageHandler, WKNavig
             reader.connect(locationId: location, simulated: simulated, tap: tap, warm: msg["warm"] as? Bool ?? false, done: done)
         case "disconnect": reader.disconnect(done)
         case "cancel": reader.cancel(done)
-        case "tapCheck": reader.tapCheck(done)
+        case "tapCheck": reader.tapCheck { error, extra in
+            // + whether Apple's own "how to tap" screens can be shown here (iOS 18+).
+            var x = extra ?? [:]
+            if #available(iOS 18.0, *) { x["howTo"] = true } else { x["howTo"] = false }
+            done(error, x)
+        }
+        case "howToTap": showHowToTap(done)
         default: reader.status(done)
+        }
+    }
+
+    /// Apple's own merchant education ("how to tap") screens, required for Tap to Pay on iPhone (iOS 18+:
+    /// ProximityReaderDiscovery). Older iOS answers code "old_ios" and the web app shows its own short help.
+    private func showHowToTap(_ done: @escaping CardReader.Done) {
+        guard #available(iOS 18.0, *) else { done("Apple's how-to screens need iOS 18 or newer.", ["code": "old_ios"]); return }
+        Task { @MainActor in
+            do {
+                let discovery = ProximityReaderDiscovery()
+                let content = try await discovery.content(for: .payment(.howToTap))
+                try await discovery.presentContent(content, from: self)
+                done(nil, nil)
+            } catch {
+                done(error.localizedDescription, ["code": "howto_failed"])
+            }
         }
     }
 
