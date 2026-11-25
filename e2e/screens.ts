@@ -1,0 +1,2 @@
+// Desk screens every phone-size test walks through. Add new desk screens here.
+export const DESK = ["/checkout", "/calendar", "/calendar?view=week", "/clients", "/clients-ver-c", "/clients-ver-d", "/close-day", "/payouts", "/numbers", "/gift-cards", "/loyalty", "/settings/team", "/settings/pin", "/settings/printer", "/settings/booking-page", "/settings/tap-to-pay", "/settings/salon", "/me", "/me/more"];
