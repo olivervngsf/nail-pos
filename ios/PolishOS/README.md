@@ -1,6 +1,6 @@
 # PolishOS for iPhone / iPad (shell app)
 
-Status (Nov 24, 2026): code only. Builds in CI for the simulator; not tried on an iPhone yet.
+Status (Nov 25, 2026): app 1.3 = Apple's Tap to Pay name + symbol, warm-up on open/coming back, error codes (EN/VI words in the web app). Code only. Builds in CI for the simulator; not tried on an iPhone yet.
 Tap to Pay (Nov 24): Apple granted the **development** entitlement = test iPhones registered in our account only.
 TestFlight / App Store can't carry Tap to Pay until Apple reviews 3 videos + a checklist and grants publishing
 (see "Apple's Tap to Pay review" below).

@@ -11,7 +11,8 @@ import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { getActing, type Desk } from "@/lib/desk";
 import { pullTickets, saveNow } from "@/lib/checkout/store";
 import { ticketLabel, totals, type Ticket } from "@/lib/checkout/ticket";
-import { setRealReader, stopCard, takeCard, wantsRealReader, type AppPay } from "@/lib/app/reader";
+import { inIosApp } from "@/lib/app/bridge";
+import { setRealReader, stopCard, takeCard, tapErrorKey, wantsRealReader, type AppPay } from "@/lib/app/reader";
 
 const $ = formatCents;
 type Phase = "tip" | "starting" | "card" | "checking";
@@ -73,14 +74,17 @@ export function AppReaderPay({ desk, ticket, onBack, tap = false }: { desk: Desk
       const msg = (e as Error).message;
       if (await closeTry()) return; // the card went through after all
       if (!alive.current) return;
-      setErr(msg === "canceled" ? "" : t("declined", { msg }));
+      // The app's code → our own words in English / Vietnamese; else the app's own words.
+      const key = tapErrorKey((e as { code?: unknown }).code, typeof navigator === "undefined" || navigator.onLine);
+      setErr(msg === "canceled" ? "" : key ? t(key) : t("declined", { msg }));
       setPhase("tip");
     }
   };
 
   const cancel = async () => { await stopCard(); /* takeCard then fails with "canceled" → back to the tip step */ };
   const switchReader = async (useReal: boolean) => { setRealReader(useReal, tap); setReal(useReal); await stopCard(); };
-  const kind = tap ? t("tapTitle") : t("appReader");
+  const iphone = tap && inIosApp();
+  const kind = tap ? (iphone ? t("tapTitleIphone") : t("tapTitle")) : t("appReader");
 
   const head = (amount: number) => (
     <div style={{ textAlign: "center" }}>
@@ -93,7 +97,7 @@ export function AppReaderPay({ desk, ticket, onBack, tap = false }: { desk: Desk
     <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 20, padding: "24px 16px", textAlign: "center" }}>
       {head(base + tip)}
       <div className="spin" />
-      <b style={{ fontSize: 18 }} data-testid="app-reader-wait" aria-live="polite">{phase === "starting" ? (tap ? t("tapStarting") : t("appStarting")) : phase === "checking" ? t("appChecking") : text || (tap ? t("tapHold") : t("appTap"))}</b>
+      <b style={{ fontSize: 18 }} data-testid="app-reader-wait" aria-live="polite">{phase === "starting" ? (tap ? t("tapStarting") : t("appStarting")) : phase === "checking" ? t("appChecking") : text || (tap ? (iphone ? t("tapHoldIphone") : t("tapHold")) : t("appTap"))}</b>
       <div className="cap">{kind} · {t("readerFee")}</div>
       {phase === "card" && test && <div className="demo" style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center", maxWidth: 420 }}>
         <span>{tap ? (real ? t("tapTestReal") : t("tapTestPractice")) : real ? t("appTestReal") : t("appTestPractice")}</span>

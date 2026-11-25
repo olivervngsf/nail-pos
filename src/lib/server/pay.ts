@@ -142,6 +142,13 @@ export async function stopTry(prId: string, why = "canceled by desk"): Promise<s
   return "canceled";
 }
 
+/** Can this signed-in person (or salon device) take cards for this salon? Desk roles only: owner, manager, front desk. */
+export async function isDeskOf(sb: SupabaseClient, salonId: string): Promise<boolean> {
+  const { data } = await sb.rpc("my_memberships");
+  return ((data ?? []) as { salon_id: string; role: string }[])
+    .some((m) => m.salon_id === salonId && ["owner", "manager", "front_desk"].includes(m.role));
+}
+
 /** Make sure the salon has a Stripe Terminal location (with on-reader tips 15/20/25%). */
 export async function ensureLocation(salonId: string): Promise<{ accountId: string; locationId: string }> {
   const db = asServer(), st = getStripe();
