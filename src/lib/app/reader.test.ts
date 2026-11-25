@@ -98,3 +98,86 @@ describe("Tap to Pay errors", () => {
     await expect(appCall({ reader: "connect" })).rejects.toMatchObject({ message: "Set a passcode", code: "passcode" });
   });
 });
+
+describe("Tap to Pay on iPhone: terms only in Settings", () => {
+  it("a checkout payment never asks for Apple's terms on an iPhone", async () => {
+    const sent = fakeApp("1.3", {}, ios("1.3"));
+    const { takeCard } = await import("./reader");
+    await takeCard({ id: "pr1", secret: "pi_secret", locationId: "tml_1", test: true }, () => {}, true);
+    expect(sent.find((m) => m.pay)).toMatchObject({ pay: "pi_secret", tap: true, terms: false });
+  });
+
+  it("Android keeps the old message (no terms flag)", async () => {
+    const sent = fakeApp("1.2", {});
+    const { takeCard } = await import("./reader");
+    await takeCard({ id: "pr1", secret: "pi_secret", locationId: "tml_1", test: true }, () => {}, true);
+    expect(sent.find((m) => m.pay)).not.toHaveProperty("terms");
+  });
+
+  it("turned on after a tap worked, off again after Turn off", async () => {
+    const store = new Map<string, string>();
+    vi.stubGlobal("localStorage", { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => store.set(k, v), removeItem: (k: string) => store.delete(k) });
+    fakeApp("1.3", {}, ios("1.3"));
+    const { tapOnHere, turnOnTapDemo, turnOffTap } = await import("./reader");
+    expect(tapOnHere()).toBe(false);
+    turnOnTapDemo();
+    expect(tapOnHere()).toBe(true);
+    await turnOffTap();
+    expect(tapOnHere()).toBe(false);
+  });
+});
+
+describe("card key errors", () => {
+  it("puts our own reason back when Stripe's kit hides it", async () => {
+    const { explainAppError } = await import("./reader");
+    const e = explainAppError(new Error("Connecting to the reader failed because the app completed fetchConnectionToken with an error."));
+    expect(e.message).toMatch(/PolishOS couldn't get a card key/);
+    expect(e.code).toBe("token");
+  });
+
+  it("leaves other errors alone", async () => {
+    const { explainAppError } = await import("./reader");
+    const e = Object.assign(new Error("Set a passcode"), { code: "passcode" });
+    expect(explainAppError(e)).toBe(e);
+  });
+});
+
+describe("how to tap (Apple R8)", () => {
+  it("opens Apple's screens when the iPhone can", async () => {
+    const sent = fakeApp("1.4", { supported: true, ios: true, howTo: true }, ios("1.4"));
+    const { showHowToTap } = await import("./reader");
+    expect(await showHowToTap()).toBe("apple");
+    expect(sent.map((m) => m.reader)).toEqual(["tapCheck", "howToTap"]);
+  });
+
+  it("older iOS or app: our own steps, no call to the app", async () => {
+    const sent = fakeApp("1.3", { supported: true, ios: true }, ios("1.3"));
+    const { showHowToTap } = await import("./reader");
+    expect(await showHowToTap()).toBe("own");
+    expect(sent.map((m) => m.reader)).toEqual(["tapCheck"]);
+  });
+});
+
+describe("busy reader (older app)", () => {
+  it("stops the old try and charges once more instead of failing", async () => {
+    const sent: Record<string, unknown>[] = [];
+    let pays = 0;
+    const app = {
+      onmessage: null as ((e: { data: string }) => void) | null,
+      postMessage: (s: string) => {
+        const m = JSON.parse(s);
+        sent.push(m);
+        const reply = m.pay ? (++pays === 1 ? { error: "The reader was finishing the last try. Try again.", code: "busy" } : { ok: true }) : { ok: true };
+        setTimeout(() => app.onmessage?.({ data: JSON.stringify({ id: m.id, ...reply }) }), 0);
+      },
+    };
+    vi.stubGlobal("window", { PolishOSApp: app });
+    vi.stubGlobal("navigator", { userAgent: ios("1.3") });
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const { takeCard } = await import("./reader");
+    await takeCard({ id: "pr1", secret: "pi_secret", locationId: "tml_1", test: true }, () => {}, true);
+    vi.useRealTimers();
+    expect(pays).toBe(2);
+    expect(sent.some((m) => m.reader === "cancel")).toBe(true);
+  });
+});

@@ -32,3 +32,77 @@ test("iPhone app: pay tile says Tap to Pay on iPhone with Apple's symbol", async
   await expect(tile.getByTestId("tap-symbol")).toHaveAttribute("src", SYMBOL);
   await expect(tile).not.toContainText("Tap card on this phone");
 });
+
+test("Settings → Tap to Pay on iPhone: owner turns it on for this iPhone, then can turn it off", async ({ page }) => {
+  await page.addInitScript((icon) => {
+    const app = {
+      onmessage: null as null | ((e: { data: string }) => void),
+      postMessage(s: string) {
+        const m = JSON.parse(s);
+        const answer = m.reader === "tapCheck" ? { supported: true, ios: true, icon } : {};
+        setTimeout(() => app.onmessage?.({ data: JSON.stringify({ id: m.id, ok: true, ...answer }) }), 0);
+      },
+    };
+    (window as unknown as { PolishOSApp: typeof app }).PolishOSApp = app;
+  }, SYMBOL);
+  await page.goto("/settings/tap-to-pay");
+  await expect(page.getByTestId("tap-state")).toHaveText("Off");
+  await expect(page.getByText("Apple shows its terms one time")).toBeVisible();
+  await page.getByTestId("tap-turn-on").click();
+  await expect(page.getByTestId("tap-state")).toContainText("On");
+  // Apple R8: right after turning on, how the client taps (our steps when Apple's screens aren't there)
+  await expect(page.getByTestId("how-to-tap-steps")).toContainText("flat on the top of the iPhone");
+  await page.getByRole("button", { name: "Got it" }).click();
+  await page.getByTestId("how-to-tap").click();
+  await expect(page.getByTestId("how-to-tap-steps")).toBeVisible();
+  await page.getByRole("button", { name: "Got it" }).click();
+  page.once("dialog", (d) => void d.accept());
+  await page.getByTestId("tap-turn-off").click();
+  await expect(page.getByTestId("tap-state")).toHaveText("Off");
+  // R11: "Start over" for recording Apple's videos = Off again + the first-time sheet comes back
+  await page.evaluate(() => localStorage.setItem("nailpos.tapIntro", "seen"));
+  page.once("dialog", (d) => void d.accept());
+  await page.getByTestId("tap-reset-video").click();
+  await expect(page.getByTestId("tap-state")).toHaveText("Off");
+  expect(await page.evaluate(() => localStorage.getItem("nailpos.tapIntro"))).toBeNull();
+});
+
+test("iPhone app: an owner sees the Tap to Pay on iPhone sheet once (Not now = gone for good)", async ({ page }) => {
+  await page.addInitScript((icon) => {
+    const app = {
+      onmessage: null as null | ((e: { data: string }) => void),
+      postMessage(s: string) {
+        const m = JSON.parse(s);
+        const answer = m.reader === "tapCheck" ? { supported: true, ios: true, icon } : {};
+        setTimeout(() => app.onmessage?.({ data: JSON.stringify({ id: m.id, ok: true, ...answer }) }), 0);
+      },
+    };
+    (window as unknown as { PolishOSApp: typeof app }).PolishOSApp = app;
+    localStorage.setItem("nailpos.acting", JSON.stringify({ membership_id: "m1", name: "Lan", role: "owner", at: Date.now() }));
+  }, SYMBOL);
+  await page.goto("/checkout");
+  const sheet = page.getByTestId("tap-intro");
+  await expect(sheet).toContainText("Take cards on this iPhone");
+  await page.getByTestId("tap-intro-later").click();
+  await expect(sheet).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByTestId("new-ticket")).toBeVisible();
+  await expect(page.getByTestId("tap-intro")).toHaveCount(0);
+});
+
+test("iPhone app: front desk staff never see the turn-on sheet", async ({ page }) => {
+  await page.addInitScript(() => {
+    const app = {
+      onmessage: null as null | ((e: { data: string }) => void),
+      postMessage(s: string) {
+        const m = JSON.parse(s);
+        setTimeout(() => app.onmessage?.({ data: JSON.stringify({ id: m.id, ok: true, ...(m.reader === "tapCheck" ? { supported: true, ios: true } : {}) }) }), 0);
+      },
+    };
+    (window as unknown as { PolishOSApp: typeof app }).PolishOSApp = app;
+  });
+  await page.goto("/checkout");
+  await expect(page.getByTestId("new-ticket")).toBeVisible();
+  await page.waitForTimeout(500);
+  await expect(page.getByTestId("tap-intro")).toHaveCount(0);
+});

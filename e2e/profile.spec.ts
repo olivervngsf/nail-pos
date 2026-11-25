@@ -62,6 +62,25 @@ test("time clock: device strip shows who + ID, gear asks owner PIN, menu shows t
   expect(errors).toEqual([]);
 });
 
+test("backup /device page: facts without a PIN, owner PIN opens the buttons, fits a phone", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/device");
+  const facts = page.getByTestId("device-facts");
+  await expect(facts).toContainText("Back room tablet");
+  await expect(facts).toContainText(/#[2-9A-HJ-NP-Z]{4}/);
+  await expect(facts).toContainText("Its own device login (QR)");
+  await expect(page.getByTestId("device-signout")).toHaveCount(0);
+  await page.getByTestId("boss-Owner (test)").click();
+  for (const d of "258013") await page.locator(".dev-pin .key", { hasText: new RegExp(`^${d}$`) }).click();
+  await expect(page.getByTestId("device-opened")).toContainText("Owner (test)");
+  await expect(page.getByTestId("device-signout")).toBeVisible();
+  await expect(page.getByTestId("device-back")).toHaveAttribute("href", "/clock");
+  const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(wide).toBeLessThanOrEqual(0);
+  expect(errors).toEqual([]);
+});
+
 test("settings: add a team member, PIN rules to 10 digits, PIN activity", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));

@@ -11,7 +11,8 @@ import { appCall, appTell, appVersion, inIosApp, onAppEvent } from "./bridge";
 export const canAppReader = () => appVersion() >= 1.1;
 
 /** `icon` = Apple's own Tap to Pay symbol as a picture (iPhone app 1.3+); `ios` = Tap to Pay on iPhone. */
-export type TapCheck = { supported: boolean; reason?: string; nfcOff?: boolean; ios?: boolean; icon?: string };
+/** `howTo` = Apple's own "how to tap" screens can be shown (iPhone app 1.4+, iOS 18+). */
+export type TapCheck = { supported: boolean; reason?: string; nfcOff?: boolean; ios?: boolean; icon?: string; howTo?: boolean };
 let tapCheck: Promise<TapCheck> | null = null;
 /**
  * Can this phone take cards by tap (Stripe Tap to Pay: Google-certified Android phone with NFC, or iPhone XS+)?
@@ -23,6 +24,7 @@ export function canTapToPay(): Promise<TapCheck> {
     .then((r) => ({
       supported: !!r.supported, reason: r.reason, nfcOff: !!r.nfcOff,
       ios: !!r.ios || inIosApp(), icon: typeof r.icon === "string" && r.icon.startsWith("data:image/png;base64,") ? r.icon : undefined,
+      ...(r.howTo ? { howTo: true } : {}),
     }))
     .catch(() => { tapCheck = null; return { supported: false }; });
   return tapCheck;
@@ -40,14 +42,16 @@ export const setRealReader = (on: boolean, tap = false) => { try { if (on) local
 // comes back). Only this signed-in page can fetch one: for a payment (pr) or, for the warm-up, for the salon.
 let tokenFor: { pr: string } | { salonId: string } | null = null;
 let tokenListening = false;
+/** Why the last token ask failed (our own words): Stripe's kit only says "fetchConnectionToken … error". */
+let tokenError = "";
 function answerTokens() {
   if (tokenListening) return;
   tokenListening = true;
   onAppEvent("token", (e) => {
-    if (!tokenFor) { appTell({ tokenFor: e.ask, error: "Open the checkout first." }); return; }
+    if (!tokenFor) { tokenError = "Open the checkout first."; appTell({ tokenFor: e.ask, error: tokenError }); return; }
     void api<{ secret: string }>("/api/stripe/terminal-token", tokenFor)
-      .then((r) => appTell({ tokenFor: e.ask, secret: r.secret }))
-      .catch((err: Error) => appTell({ tokenFor: e.ask, error: err.message }));
+      .then((r) => { tokenError = ""; appTell({ tokenFor: e.ask, secret: r.secret }); })
+      .catch((err: Error) => { tokenError = err.message || "Couldn't get a card key from PolishOS."; appTell({ tokenFor: e.ask, error: tokenError }); });
   });
 }
 
@@ -58,14 +62,49 @@ function answerTokens() {
 export async function takeCard(pay: AppPay, say: (text: string) => void, tap = false): Promise<void> {
   answerTokens();
   tokenFor = { pr: pay.id };
+  paying = true;
   const stopText = onAppEvent("reader", (e) => { if (typeof e.text === "string" && e.text) say(e.text); });
+  // iPhone: Apple's terms are never shown at checkout (an owner/manager accepts them in Settings first).
+  const msg = { pay: pay.secret, locationId: pay.locationId, simulated: pay.test && !wantsRealReader(tap), tap, ...(tap && inIosApp() ? { terms: false } : {}) };
   try {
     // Up to 10 minutes: a new reader may update itself first.
-    await appCall({ pay: pay.secret, locationId: pay.locationId, simulated: pay.test && !wantsRealReader(tap), tap }, 10 * 60 * 1000);
+    try {
+      await appCall(msg, 10 * 60 * 1000);
+    } catch (e) {
+      // Older apps answer "busy" when a get-ready or an older try is still open: stop it, wait, try once more.
+      if ((e as { code?: string }).code !== "busy") throw e;
+      await stopCard();
+      await new Promise((ok) => setTimeout(ok, 1500));
+      await appCall(msg, 10 * 60 * 1000);
+    }
     if (tap) markTapUsed();
+  } catch (e) {
+    throw explainAppError(e);
   } finally {
+    paying = false;
     stopText();
   }
+}
+/** A payment is running: the background get-ready waits (it would make the reader "busy"). */
+let paying = false;
+
+/** Stripe's kit hides our reason behind "…fetchConnectionToken with an error": put our own words back. */
+export function explainAppError(e: unknown): Error & { code?: string } {
+  const err = e as Error & { code?: string };
+  if (/fetchConnectionToken/i.test(err?.message ?? "")) {
+    return Object.assign(new Error(tokenError ? `PolishOS couldn't get a card key: ${tokenError}` : "PolishOS couldn't get a card key. Check the internet, then try again."), { code: err.code === "offline" ? "offline" : "token" });
+  }
+  return err;
+}
+
+/**
+ * Apple's rule R8: show staff how the client taps. Apple's own screens when the iPhone can (iOS 18+, app 1.4+);
+ * otherwise "own" = the page shows our short help instead. Never throws.
+ */
+export async function showHowToTap(): Promise<"apple" | "own"> {
+  const check = await canTapToPay();
+  if (!check.howTo) return "own";
+  try { await appCall({ reader: "howToTap" }, 10 * 60 * 1000); return "apple"; } catch { return "own"; }
 }
 
 /** Stop waiting for the card (or stop looking for the reader). */
@@ -82,15 +121,58 @@ const setWarm = (w: TapWarm) => { warm = w; warmFans.forEach((fn) => fn(w)); };
 export const tapWarmNow = () => warm;
 export const onTapWarm = (fn: (w: TapWarm) => void) => { warmFans.add(fn); return () => { warmFans.delete(fn); }; };
 
+// "Turned on on this iPhone": an owner/manager turned it on in Settings (Apple's terms accepted), or a tap worked here.
 const USED = "nailpos.tapused";
 function markTapUsed() { try { localStorage.setItem(USED, "1"); } catch { /* */ } setWarm({ state: "ready" }); }
 const tapUsed = () => { try { return localStorage.getItem(USED) === "1"; } catch { return false; } };
+/** Tap to Pay is turned on on this phone (Settings → Tap to Pay on iPhone). */
+export const tapOnHere = () => tapUsed();
+
+/**
+ * Settings → Tap to Pay on iPhone → Turn on (owner/manager only): connects Tap to Pay on this iPhone WITH Apple's terms
+ * allowed, so Apple shows them once and the owner/manager accepts. Then this iPhone gets ready on its own (warm-up).
+ */
+export async function turnOnTap(salonId: string, say: (text: string) => void): Promise<void> {
+  const r = await api<{ locationId: string; test: boolean }>("/api/stripe/tap-ready", { salonId });
+  answerTokens();
+  tokenFor = { salonId };
+  warmSalon = salonId;
+  setWarm({ state: "warming" });
+  const stopText = onAppEvent("reader", (e) => { if (typeof e.text === "string" && e.text) { say(e.text); setWarm({ state: "warming", text: e.text }); } });
+  try {
+    await appCall({ reader: "connect", tap: true, warm: false, locationId: r.locationId, simulated: r.test && !wantsRealReader(true) }, 5 * 60 * 1000);
+    markTapUsed();
+  } catch (e) {
+    const why = explainAppError(e);
+    setWarm({ state: "error", code: why.code ?? "unknown", text: why.message });
+    throw why;
+  } finally {
+    stopText();
+  }
+}
+
+/** Test copy (no sign-in, no Stripe): turned on for this device only, nothing sent to Apple or Stripe. */
+export function turnOnTapDemo() { markTapUsed(); }
+
+/** Turn it off on this iPhone: no more warm-up; checkout asks for an owner/manager again. */
+/** For recording Apple's review videos (R11): back to "never set up" on this iPhone (off + the one-time sheet shows
+ *  again). Apple's own terms stay accepted on Apple's side; that can't be undone from an app. */
+export async function resetTapForVideo(): Promise<void> {
+  try { localStorage.removeItem("nailpos.tapIntro"); } catch { /* */ }
+  await turnOffTap();
+}
+
+export async function turnOffTap(): Promise<void> {
+  try { localStorage.removeItem(USED); } catch { /* */ }
+  setWarm({ state: "off" });
+  await appCall({ reader: "disconnect" }).catch(() => null);
+}
 
 let warmSalon = "";
 let warming: Promise<void> | null = null;
 /** Get Tap to Pay ready for this salon (iPhone app, after the first tap). Safe to call often. */
 export function warmTap(salonId: string): Promise<void> {
-  if (!salonId || !inIosApp() || !tapUsed()) return Promise.resolve();
+  if (!salonId || !inIosApp() || !tapUsed() || paying) return Promise.resolve();
   warmSalon = salonId;
   if (warming) return warming;
   warming = (async () => {
@@ -106,7 +188,8 @@ export function warmTap(salonId: string): Promise<void> {
       await appCall({ reader: "connect", tap: true, warm: true, locationId: r.locationId, simulated: r.test && !wantsRealReader(true) }, 5 * 60 * 1000);
       setWarm({ state: "ready" });
     } catch (e) {
-      setWarm({ state: "error", code: (e as { code?: string }).code ?? "unknown", text: (e as Error).message });
+      const why = explainAppError(e);
+      setWarm({ state: "error", code: why.code ?? "unknown", text: why.message });
     } finally {
       stopText();
       warming = null;

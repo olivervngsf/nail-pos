@@ -847,7 +847,7 @@ button:disabled { cursor: not-allowed; }
 /* My profile (/me) */
 .me-main { padding: 24px; display: flex; flex-direction: column; gap: 12px; max-width: 640px; width: 100%; box-sizing: border-box; }
 .me-head { flex-direction: row; align-items: center; gap: 14px; }
-@media (max-width: 640px) { .me-app .rail { display: none; } .me-main { padding: 16px; } }
+@media (max-width: 640px) { .me-main { padding: 16px; } }
 /* faces screen (salon device lock: "Who's working?") */
 .faces { position: fixed; inset: 0; z-index: 35; background: var(--surface); overflow: auto; display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 40px 16px; box-sizing: border-box; animation: fadeIn .3s ease both; }
 .faces-h { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 860px; }
@@ -873,9 +873,12 @@ button:disabled { cursor: not-allowed; }
 .clock-demo { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 37; }
 /* Settings (side nav + sections) */
 .set-nav { width: 220px; flex: none; background: var(--paper); border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; padding: 14px 10px; overflow: auto; }
-.set-nav-title { font-size: 20px; font-weight: 600; padding: 4px 10px 6px; }
-.set-nav-group { display: flex; flex-direction: column; gap: 2px; }
-.set-nav-h { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); padding: 12px 10px 4px; }
+.set-nav-title { font-size: 20px; font-weight: 600; padding: 4px 10px 10px; display: flex; flex-direction: column; gap: 2px; }
+.set-nav-who { font-size: 12px; font-weight: 400; color: var(--ink-soft); }
+/* Groups (Nov 25): a hairline + air between groups, a clear sentence-case heading, items indented under it. */
+.set-nav-group { display: flex; flex-direction: column; gap: 1px; padding: 10px 0; }
+.set-nav-group + .set-nav-group { border-top: 1px solid var(--line); }
+.set-nav-h { font-size: 13px; font-weight: 600; color: var(--ink); padding: 2px 10px 6px; }
 .set-nav a { display: flex; align-items: center; min-height: 34px; padding: 0 10px; border-radius: 8px; font-size: 14px; color: var(--ink); text-decoration: none; }
 .set-nav a:hover { background: var(--surface); }
 .set-nav a.on { background: var(--fill); font-weight: 600; }
@@ -910,10 +913,18 @@ button:disabled { cursor: not-allowed; }
   .set-app .rail { display: none; }
   .set-nav { width: auto; flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px; }
   .set-nav-title, .set-nav-h { display: none; }
-  .set-nav-group { flex-direction: row; }
+  .set-nav-group { flex-direction: row; padding: 0; }
+  .set-nav-group + .set-nav-group { border-top: 0; border-left: 1px solid var(--line); margin-left: 6px; padding-left: 6px; }
   .set-nav a { white-space: nowrap; }
   .set-two, .set-lens { grid-template-columns: 1fr; }
   .set-pay { display: none; }
+}
+/* Small tablets + iPhone Duo open (600–899): keep the main menu on the left so Settings is never a dead end; settings tabs sit on top of the page. */
+@media (min-width: 600px) and (max-width: 899px) {
+  .set-app { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 1fr; align-items: start; }
+  .set-app .rail { display: flex; grid-column: 1; grid-row: 1 / 3; position: sticky; top: 0; height: 100dvh; }
+  .set-app > .set-nav { grid-column: 2; grid-row: 1; min-width: 0; }
+  .set-app > .col { grid-column: 2; grid-row: 2; min-width: 0; }
 }
 /* Settings → Printer: options left, paper preview right (stacks on phones). */
 .ps{flex:1;overflow:auto;padding:18px 24px;display:grid;grid-template-columns:minmax(0,560px) auto;justify-content:start;gap:40px;align-items:start}
@@ -1366,6 +1377,12 @@ button:disabled { cursor: not-allowed; }
   .ck-main:has(.ck-pin)::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: calc(80px + env(safe-area-inset-bottom)); background: var(--paper); border-top: 1px solid var(--line); z-index: 29; }
 }
 
+/* Touch screens 600–899 wide (iPhone Duo open, iPad upright): Cash received + paid screen's New ticket stay on screen while you scroll. */
+@media (min-width: 600px) and (max-width: 899px) and (pointer: coarse) {
+  .btn.ck-pin { position: sticky; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 30; height: 56px !important; box-shadow: 0 0 0 16px var(--paper), 0 48px 0 16px var(--paper), 0 -17px 0 0 var(--line); }
+  .btn.primary.ck-pin:disabled { opacity: 1; background: #d4d4d9; border-color: #d4d4d9; color: #fff; }
+}
+
 /* ===== Phone menu = Today · Calendar · Checkout · Clients · More (Nov 20, board row 2) ===== */
 .rail > a.rail-more { display: none; }
 .mm { padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 560px; box-sizing: border-box; }
@@ -1568,3 +1585,47 @@ body:has(.dev-strip) .clock-qr { bottom: 108px; }
 body:has(.clock-demo) .faces { padding-bottom: 76px; }
 body:has(.clock-demo):has(.dev-strip) .clock-qr { bottom: 168px; }
 body:has(.faces .scrim) .clock-qr { display: none; }
+
+/* Settings → Salon + Service menu (Nov 25) + who can open what in the settings menu */
+.set-nav a > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.set-nav a.locked { color: var(--ink-soft); }
+.set-nav a.locked:hover { background: transparent; }
+.set-lock { display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 500; color: var(--ink-soft); white-space: nowrap; margin-left: 6px; }
+.set-access { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.set-access > div { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.set-access b { width: 100%; font-size: 13px; }
+.si-page { display: flex; flex-direction: column; gap: 12px; max-width: 760px; width: 100%; padding-bottom: 72px; }
+.card.si-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+.si-full { grid-column: 1 / -1; }
+.si-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.si-hours { padding: 4px 16px; }
+.si-day { display: flex; align-items: center; gap: 14px; min-height: 52px; border-bottom: 1px solid var(--line); }
+.si-day:last-child { border-bottom: 0; }
+.si-dn { width: 44px; }
+.si-times { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.si-times .inp { width: 128px; }
+.si-bar { position: sticky; bottom: 0; display: flex; align-items: center; gap: 8px; justify-content: flex-end; padding: 12px 0; background: var(--surface); border-top: 1px solid var(--line); }
+.si-bar .cap { margin-right: auto; }
+.si-top { display: flex; align-items: center; gap: 12px; }
+.si-top .inp { max-width: 320px; }
+.si-group { display: flex; flex-direction: column; gap: 6px; }
+.si-gh { display: flex; align-items: center; justify-content: space-between; }
+.si-price { font-variant-numeric: tabular-nums; }
+.si-danger { color: var(--red); }
+.si-addr-parts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; font-size: 13px; }
+.me-app .me-main { max-width: 720px; }
+.card.pad.me-head { flex-direction: row; align-items: center; text-align: left; gap: 14px; }
+@media (max-width: 600px) {
+  .card.si-grid, .si-two { grid-template-columns: 1fr; }
+  .si-day { flex-wrap: wrap; gap: 8px 12px; padding: 8px 0; }
+  .si-times { width: 100%; margin-left: 0; }
+  .si-times .inp { width: auto; flex: 1; min-width: 0; }
+  .si-day > .cap.si-times { width: auto; margin-left: auto; }
+  .si-top .inp { max-width: none; }
+  .set-lock { display: none; }
+}
+/* Backup page /device: same facts + buttons as the gear menu, never covered by the faces screen. */
+.dev-page { min-height: 100dvh; box-sizing: border-box; background: var(--surface); display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 40px 16px; text-align: center; }
+.dev-page > .cap { max-width: 480px; }
+.dev-card { width: 100%; max-width: 480px; box-sizing: border-box; padding: 20px; display: flex; flex-direction: column; gap: 12px; text-align: left; }
+.dev-pin { display: flex; flex-direction: column; align-items: center; gap: 12px; }

@@ -18,6 +18,7 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
     private var scanning: Cancelable?
     private var collecting: Cancelable?
     private var busy = false
+    private var payRun = 0
     private var found: (([Reader]) -> Void)?
     private static var started = false
 
@@ -100,7 +101,13 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
     /// `warm` = getting Tap to Pay ready when the app opens / comes back (Apple's rule), before any ticket: never pops up
     /// Apple's terms then; those are accepted on purpose (first payment, later Settings).
     func connect(locationId: String, simulated: Bool, tap: Bool, warm: Bool = false, done: @escaping Done) {
-        if busy { done("The reader is busy. Try again in a moment.", ["code": "busy"]); return }
+        if busy {
+            if warm { done("The reader is busy. Try again in a moment.", ["code": "busy"]); return } // warm-up: skip
+            waitFree(until: Date().addingTimeInterval(60)) { [weak self] in
+                self?.connect(locationId: locationId, simulated: simulated, tap: tap, warm: warm, done: done)
+            }
+            return
+        }
         busy = true
         connectInner(locationId: locationId, simulated: simulated, tap: tap, terms: !warm) { [weak self] e, x in self?.busy = false; done(e, x) }
     }
@@ -155,15 +162,37 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
     // MARK: Pay
 
     /// Take the card for one payment (made by the server). Connects first when needed.
-    func pay(secret: String, locationId: String, simulated: Bool, tap: Bool, done: @escaping Done) {
-        if busy { // an older try is still open (e.g. the page was reloaded): end it so the next tap works
+    /// `terms` false (iPhone app 1.3+, web sends it) = never show Apple's Tap to Pay terms at checkout: an owner or
+    /// manager accepts them once in Settings → Tap to Pay on iPhone (Apple's rule). Older pages don't send it = true.
+    func pay(secret: String, locationId: String, simulated: Bool, tap: Bool, terms: Bool = true, done: @escaping Done) {
+        if busy {
+            // Still busy (getting ready in the background, or an older try the page left open): end the older try,
+            // wait until the reader is free (up to 60 s), then take this payment. Never a dead "try again" loop.
             cancel { _, _ in }
-            done("The reader was finishing the last try. Try again.", ["code": "busy"])
+            waitFree(until: Date().addingTimeInterval(60)) { [weak self] in
+                self?.pay(secret: secret, locationId: locationId, simulated: simulated, tap: tap, terms: terms, done: done)
+            }
             return
         }
         busy = true
-        let finish: Done = { [weak self] e, x in self?.busy = false; self?.collecting = nil; done(e, x) }
-        connectInner(locationId: locationId, simulated: simulated, tap: tap) { error, _ in
+        payRun += 1
+        let run = payRun
+        var ended = false
+        let finish: Done = { [weak self] e, x in
+            guard !ended else { return }
+            ended = true
+            self?.busy = false; self?.collecting = nil; done(e, x)
+        }
+        if simulated {
+            // Stripe's practice tap pays by itself in a few seconds. If it hasn't after 30 s, stop it so the reader
+            // is free again (and say so) instead of spinning forever.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 30) { [weak self] in
+                guard let self, self.payRun == run, !ended else { return }
+                self.cancel { _, _ in }
+                finish("The practice tap didn't answer. Try again.", ["code": "practice_stuck"])
+            }
+        }
+        connectInner(locationId: locationId, simulated: simulated, tap: tap, terms: terms) { error, _ in
             if let error { finish(error, nil); return }
             let t = Terminal.shared
             t.retrievePaymentIntent(clientSecret: secret) { intent, error in
@@ -181,6 +210,18 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
                 }
             }
         }
+    }
+
+    /// Run `go` once the reader is free. Past `until`, the stuck try is dropped (reader disconnected) so the app
+    /// never stays "busy" until it is restarted.
+    private func waitFree(until: Date, _ go: @escaping () -> Void) {
+        if !busy { go(); return }
+        if Date() > until {
+            busy = false; collecting = nil; scanning = nil
+            if terminal().connectedReader != nil { terminal().disconnectReader { _ in go() } } else { go() }
+            return
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in self?.waitFree(until: until, go) }
     }
 
     /// Stop waiting for the card / stop looking for a reader. The waiting payment ends with "canceled".

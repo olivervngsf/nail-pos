@@ -306,7 +306,10 @@
     "tagPaid": "Đã trả",
     "tipOf": "tip {amount}",
     "allTechs": "Tất cả {n}",
-    "techFilter": "Xem phiếu của một thợ"
+    "techFilter": "Xem phiếu của một thợ",
+    "tapAskOwner": "Nhờ chủ hoặc quản lý bật Tap to Pay on iPhone trong Cài đặt.",
+    "practiceStuck": "Chạm thử không trả lời nên đã dừng. Bấm Tính tiền để thử lại.",
+    "tapPracticeWait": "Chạm thử: tự trả trong vài giây…"
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -1872,7 +1875,8 @@
       "bossOnly": "Chỉ chủ hoặc quản lý mới mở được.",
       "pick": "Chủ hoặc quản lý: bấm tên, rồi nhập PIN.",
       "noBoss": "Chưa có chủ hoặc quản lý nào có PIN.",
-      "pinFor": "{name}, nhập PIN để mở cài đặt máy"
+      "pinFor": "{name}, nhập PIN để mở cài đặt máy",
+      "backupHint": "Bị kẹt? Mở polishosapp.com/device"
     }
   },
   "clock": {
@@ -1896,14 +1900,27 @@
     "demo": "Bản thử: PIN nào cũng mở; không lưu gì."
   },
   "settings": {
+    "access": {
+      "admin": "Chủ + quản lý",
+      "owner": "Chỉ chủ tiệm",
+      "all": "Mọi người"
+    },
+    "youCan": "Bạn ({role}) mở được",
+    "youCant": "Chỉ chủ + quản lý",
+    "menuAdd": "Thêm dịch vụ",
     "title": "Cài đặt",
     "group": {
       "me": "Tôi",
-      "salon": "Tiệm · chủ + quản lý",
-      "more": "Thêm"
+      "salon": "Tiệm",
+      "team": "Nhân viên & chấm công",
+      "pay": "Nhận tiền",
+      "clients": "Khách & đặt lịch",
+      "money": "Trả lương"
     },
     "nav": {
       "profile": "Hồ sơ của tôi",
+      "salon": "Thông tin tiệm",
+      "menu": "Bảng dịch vụ",
       "team": "Nhân viên",
       "pinRules": "Luật PIN",
       "pinActivity": "Nhật ký PIN",
@@ -1918,7 +1935,8 @@
       "texting": "Tin nhắn & tín dụng",
       "billing": "Thanh toán gói",
       "support": "Hỗ trợ",
-      "clockIn": "Chấm công"
+      "clockIn": "Chấm công",
+      "tapToPay": "Tap to Pay on iPhone"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -2371,7 +2389,52 @@
       "onToast": "Đã bật hỗ trợ trong 24 giờ",
       "offToast": "Đã kết thúc hỗ trợ",
       "demo": "Bản thử: thay đổi chỉ lưu trên máy này."
-    }
+    },
+    "tapToPay": {
+      "loading": "Đang tải…",
+      "what": "Nhận thẻ bằng iPhone của tiệm, không cần máy đọc thẻ: khách chạm thẻ hoặc ví điện thoại vào phần trên của iPhone.",
+      "notAppTitle": "Mở trang này trong app PolishOS trên iPhone",
+      "n1": "Dùng iPhone của tiệm (iPhone XS trở lên, iOS mới nhất).",
+      "n2": "Mở app PolishOS trên máy đó và đăng nhập bằng chủ hoặc quản lý.",
+      "n3": "Vào Cài đặt → Tap to Pay on iPhone rồi bấm Bật.",
+      "stateOff": "Tắt",
+      "stateOn": "Bật",
+      "stateWarming": "Đang chuẩn bị…",
+      "stateReady": "Bật · sẵn sàng",
+      "offWhy": "Bật một lần cho iPhone này. Apple hiện điều khoản một lần: đọc và bấm Đồng ý. Thợ không bao giờ thấy.",
+      "s1": "iPhone này cần có mật mã (Cài đặt → Face ID & Mật mã).",
+      "s2": "Đăng nhập iCloud trên iPhone này (Cài đặt → tên của bạn).",
+      "s3": "Bấm Bật, rồi đồng ý điều khoản của Apple.",
+      "turnOn": "Bật Tap to Pay on iPhone",
+      "turningOn": "Đang bật…",
+      "onWhy": "Đã bật cho iPhone này. Tính tiền sẽ có Tap to Pay on iPhone, và iPhone tự chuẩn bị mỗi lần mở PolishOS.",
+      "turnOff": "Tắt trên iPhone này",
+      "offAsk": "Tắt Tap to Pay trên iPhone này? Thợ không nhận chạm thẻ ở đây cho tới khi chủ hoặc quản lý bật lại.",
+      "toPayments": "Tới Thanh toán",
+      "fee": "Phí thẻ giống máy đọc thẻ: 2,7% + 5¢, tiệm trả.",
+      "demo": "Bản thử: Bật chỉ đánh dấu máy này. Điều khoản Apple và chạm thẻ thật có khi dùng app iPhone ở tiệm thật.",
+      "reset": "Làm lại từ đầu (quay video cho Apple)",
+      "resetWhy": "Đang quay video cho Apple? Làm lại từ đầu để iPhone này như mới: tắt Tap to Pay và hiện lại thông báo lần đầu.",
+      "resetAsk": "Làm lại từ đầu trên iPhone này? Tap to Pay sẽ tắt và thông báo lần đầu hiện lại."
+    },
+    "salon": {
+      "loading": "Đang tải…",
+      "why": "Nhận thẻ cần địa chỉ đầy đủ của tiệm: Stripe dùng cho máy đọc thẻ và Tap to Pay on iPhone.",
+      "needed": "Thêm địa chỉ đầy đủ có ZIP. Nhận thẻ tại tiệm chưa chạy được cho tới khi có địa chỉ.",
+      "label": "Địa chỉ tiệm",
+      "street": "Đường",
+      "city": "Thành phố",
+      "state": "Bang",
+      "zip": "ZIP",
+      "ready": "✓ Sẵn sàng nhận thẻ",
+      "missing": "Còn thiếu: {parts}. Gõ như: 1550 S Bascom Ave, Campbell, CA 95008",
+      "save": "Lưu địa chỉ",
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu. Nhận thẻ dùng được rồi.",
+      "savedStripeFailed": "Đã lưu. Stripe chưa nhận địa chỉ mới; sẽ thử lại ở lần nhận thẻ tới.",
+      "demo": "Bản thử: chỉ lưu trên màn hình này."
+    },
+    "who": "Cài đặt tiệm: chủ + quản lý"
   },
   "promo": {
     "title": "Gửi tin khuyến mãi",
@@ -2529,5 +2592,39 @@
     "textCredit": "Tiền nhắn tin",
     "timeClock": "Chấm công",
     "earnings": "In thu nhập của tôi"
+  },
+  "device": {
+    "title": "Máy này",
+    "sub": "Máy tính bảng này là máy nào và đang đăng nhập bằng ai. Màn hình chọn mặt không bao giờ che trang này.",
+    "noneTitle": "Trình duyệt này không phải máy của tiệm",
+    "noneWhy": "Chưa có máy của tiệm nào được lưu trong trình duyệt này.",
+    "signedInAs": "Đăng nhập bằng {who}",
+    "signedOut": "Chưa đăng nhập.",
+    "setUp": "Cài máy cho tiệm (chủ hoặc quản lý)",
+    "haveCode": "Tôi có mã máy",
+    "signIn": "Đăng nhập",
+    "noBoss": "Chưa có chủ hoặc quản lý nào có PIN. Đặt trong Cài đặt → Nhân viên.",
+    "offline": "Cần mạng để kiểm tra PIN. Thử lại khi có mạng.",
+    "back": "Quay lại màn hình chọn mặt",
+    "demo": "Bản thử: máy mẫu; PIN nào cũng mở; không lưu gì."
+  },
+  "tapIntro": {
+    "title": "Tap to Pay on iPhone",
+    "what": "Nhận thẻ bằng iPhone này. Không cần máy đọc thẻ.",
+    "p1": "Khách chạm thẻ, Apple Pay hoặc Google Pay vào phần trên của iPhone này.",
+    "p2": "Phí giống máy đọc thẻ: 2,7% + 5¢, tiệm trả.",
+    "p3": "Bật một lần: chủ hoặc quản lý đồng ý điều khoản của Apple.",
+    "on": "Bật ngay",
+    "later": "Để sau"
+  },
+  "howToTap": {
+    "button": "Cách chạm thẻ",
+    "title": "Khách chạm thẻ thế nào",
+    "s1": "Xoay iPhone để khách thấy số tiền.",
+    "s2": "Khách để thẻ, điện thoại hoặc đồng hồ nằm phẳng sát phần trên của iPhone, gần camera.",
+    "s3": "Giữ yên cho tới khi hiện dấu kiểm.",
+    "s4": "Nếu màn hình hỏi mã PIN, đưa iPhone cho khách tự bấm.",
+    "s5": "Đợi hiện Đã trả rồi mới lấy lại iPhone.",
+    "ok": "Đã hiểu"
   }
 }
