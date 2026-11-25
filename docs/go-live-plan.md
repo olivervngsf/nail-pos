@@ -86,7 +86,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - [ ] polishosapp.com/admin/system → Stripe webhooks card shows **live mode** → tap **Set up webhooks** → both rows **On**. (Live and sandbox are separate; the button makes both live webhooks and keeps their secrets. Details: `docs/stripe-webhooks.md`.)
 - [ ] **Prices final first** (see step 7): the app makes the plan prices in Stripe the first time an owner opens Billing ($49/mo, $468/yr today). Changing a price after that = Claude adds a new price version.
 - [ ] Order a Stripe S710 reader ($299 + tax/shipping) per pilot salon (live readers come from Stripe, not Amazon). Hardware list: `docs/hardware-shopping-list.md`.
-  - Test reader ordered Nov 24 ($354.17, pending). When it arrives: Stripe → Terminal → Locations → add one (full address + ZIP) → register the reader in **Sandbox**. Before the first real salon: unregister it, register it in Live under that salon's location.
+  - Test reader + dock ordered Nov 24 ($354.17, pending). When it arrives: Stripe → Terminal → Locations → add one (full address + ZIP) → register the reader in **Sandbox**. Before the first real salon: unregister it, register it in Live under that salon's location.
 - [ ] $1 test on the setup day with a real card, then refund it.
 - [ ] **Money salons pay us** (plan + text credit, our own Stripe account), after the live key + Set up webhooks:
   - Admin → System → Stripe webhooks card says **live mode** and both rows **On** (sandbox webhooks don't carry over).

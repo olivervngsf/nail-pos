@@ -17,8 +17,8 @@ final class WebViewController: UIViewController, WKScriptMessageHandler, WKNavig
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
         config.websiteDataStore = .default()   // sign-in + the offline outbox live here
-        // "PolishOSApp/1.2" = the app version the web app reads; "PolishOS-iOS" = no built-in printer here.
-        config.applicationNameForUserAgent = "Mobile/15E148 Safari/604.1 PolishOSApp/1.2 PolishOS-iOS"
+        // "PolishOSApp/1.3" = the app version the web app reads; "PolishOS-iOS" = no built-in printer here.
+        config.applicationNameForUserAgent = "Mobile/15E148 Safari/604.1 PolishOSApp/1.3 PolishOS-iOS"
 
         let bridge = """
         (function () {
@@ -44,6 +44,10 @@ final class WebViewController: UIViewController, WKScriptMessageHandler, WKNavig
     override func viewDidLoad() {
         super.viewDidLoad()
         web.load(URLRequest(url: Self.home))
+        // Back on screen: the web app gets Tap to Pay ready again (Apple: prepare on open + on coming back).
+        NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.send(["event": "foreground"])
+        }
     }
 
     // MARK: Messages from the web app
@@ -71,7 +75,7 @@ final class WebViewController: UIViewController, WKScriptMessageHandler, WKNavig
         case nil: done(nil, nil) // "are you there?"
         case "connect":
             guard let location else { done("Can't find the salon's reader location.", nil); return }
-            reader.connect(locationId: location, simulated: simulated, tap: tap, done: done)
+            reader.connect(locationId: location, simulated: simulated, tap: tap, warm: msg["warm"] as? Bool ?? false, done: done)
         case "disconnect": reader.disconnect(done)
         case "cancel": reader.cancel(done)
         case "tapCheck": reader.tapCheck(done)
