@@ -5,21 +5,25 @@
 // The server makes the payment (amount from its own copy of the ticket + the tip picked on screen); the app's reader
 // kit takes the card. Card details go reader → Stripe; this code only sees "worked" or a plain-words reason.
 import { api } from "@/lib/api";
-import { appCall, appTell, appVersion, onAppEvent } from "./bridge";
+import { appCall, appTell, appVersion, inIosApp, onAppEvent } from "./bridge";
 
 /** The app can take cards (version 1.1+). */
 export const canAppReader = () => appVersion() >= 1.1;
 
-export type TapCheck = { supported: boolean; reason?: string; nfcOff?: boolean };
+/** `icon` = Apple's own Tap to Pay symbol as a picture (iPhone app 1.3+); `ios` = Tap to Pay on iPhone. */
+export type TapCheck = { supported: boolean; reason?: string; nfcOff?: boolean; ios?: boolean; icon?: string };
 let tapCheck: Promise<TapCheck> | null = null;
 /**
- * Can this phone take cards by tap (Stripe Tap to Pay on Android: Google-certified phone with NFC, Android 11+)?
+ * Can this phone take cards by tap (Stripe Tap to Pay: Google-certified Android phone with NFC, or iPhone XS+)?
  * App 1.2+ only. Asked once per page load. The PS10 answers no.
  */
 export function canTapToPay(): Promise<TapCheck> {
   if (appVersion() < 1.2) return Promise.resolve({ supported: false });
   tapCheck ??= appCall<TapCheck>({ reader: "tapCheck" }, 8000)
-    .then((r) => ({ supported: !!r.supported, reason: r.reason, nfcOff: !!r.nfcOff }))
+    .then((r) => ({
+      supported: !!r.supported, reason: r.reason, nfcOff: !!r.nfcOff,
+      ios: !!r.ios || inIosApp(), icon: typeof r.icon === "string" && r.icon.startsWith("data:image/png;base64,") ? r.icon : undefined,
+    }))
     .catch(() => { tapCheck = null; return { supported: false }; });
   return tapCheck;
 }
@@ -32,25 +36,103 @@ const realKey = (tap: boolean) => (tap ? "nailpos.tapreal" : "nailpos.m2real");
 export const wantsRealReader = (tap = false) => { try { return localStorage.getItem(realKey(tap)) === "1"; } catch { return false; } };
 export const setRealReader = (on: boolean, tap = false) => { try { if (on) localStorage.setItem(realKey(tap), "1"); else localStorage.removeItem(realKey(tap)); } catch { /* */ } };
 
-/**
- * Take the card for this payment on the reader. `say` gets what to show ("Tap, insert or swipe…").
- * Resolves when Stripe took the card; rejects with a reason ("canceled" when someone stopped it).
- */
-export async function takeCard(pay: AppPay, say: (text: string) => void, tap = false): Promise<void> {
-  // The reader kit needs short-lived connection tokens; only this signed-in page can fetch them.
-  const stopToken = onAppEvent("token", (e) => {
-    void api<{ secret: string }>("/api/stripe/terminal-token", { pr: pay.id })
+// Connection tokens: the reader kit asks for a short-lived token any time (first connect, reconnects after the app
+// comes back). Only this signed-in page can fetch one: for a payment (pr) or, for the warm-up, for the salon.
+let tokenFor: { pr: string } | { salonId: string } | null = null;
+let tokenListening = false;
+function answerTokens() {
+  if (tokenListening) return;
+  tokenListening = true;
+  onAppEvent("token", (e) => {
+    if (!tokenFor) { appTell({ tokenFor: e.ask, error: "Open the checkout first." }); return; }
+    void api<{ secret: string }>("/api/stripe/terminal-token", tokenFor)
       .then((r) => appTell({ tokenFor: e.ask, secret: r.secret }))
       .catch((err: Error) => appTell({ tokenFor: e.ask, error: err.message }));
   });
+}
+
+/**
+ * Take the card for this payment on the reader. `say` gets what to show ("Tap, insert or swipe…").
+ * Resolves when Stripe took the card; rejects with a reason ("canceled" when someone stopped it) + `code`.
+ */
+export async function takeCard(pay: AppPay, say: (text: string) => void, tap = false): Promise<void> {
+  answerTokens();
+  tokenFor = { pr: pay.id };
   const stopText = onAppEvent("reader", (e) => { if (typeof e.text === "string" && e.text) say(e.text); });
   try {
     // Up to 10 minutes: a new reader may update itself first.
     await appCall({ pay: pay.secret, locationId: pay.locationId, simulated: pay.test && !wantsRealReader(tap), tap }, 10 * 60 * 1000);
+    if (tap) markTapUsed();
   } finally {
-    stopToken(); stopText();
+    stopText();
   }
 }
 
 /** Stop waiting for the card (or stop looking for the reader). */
 export const stopCard = () => appCall({ reader: "cancel" }).catch(() => null);
+
+// ── Tap to Pay on iPhone: get ready early (Apple's rule) ───────────────────────────────────────────────────────────
+// After this phone took one tap (Apple's terms accepted then), the app connects Tap to Pay when it opens and every
+// time it comes back to the screen, so the client's tap starts at once. Never pops up Apple's terms by itself.
+
+export type TapWarm = { state: "off" | "warming" | "ready" | "error"; text?: string; code?: string };
+let warm: TapWarm = { state: "off" };
+const warmFans = new Set<(w: TapWarm) => void>();
+const setWarm = (w: TapWarm) => { warm = w; warmFans.forEach((fn) => fn(w)); };
+export const tapWarmNow = () => warm;
+export const onTapWarm = (fn: (w: TapWarm) => void) => { warmFans.add(fn); return () => { warmFans.delete(fn); }; };
+
+const USED = "nailpos.tapused";
+function markTapUsed() { try { localStorage.setItem(USED, "1"); } catch { /* */ } setWarm({ state: "ready" }); }
+const tapUsed = () => { try { return localStorage.getItem(USED) === "1"; } catch { return false; } };
+
+let warmSalon = "";
+let warming: Promise<void> | null = null;
+/** Get Tap to Pay ready for this salon (iPhone app, after the first tap). Safe to call often. */
+export function warmTap(salonId: string): Promise<void> {
+  if (!salonId || !inIosApp() || !tapUsed()) return Promise.resolve();
+  warmSalon = salonId;
+  if (warming) return warming;
+  warming = (async () => {
+    const check = await canTapToPay();
+    if (!check.supported) return;
+    if (typeof navigator !== "undefined" && !navigator.onLine) { setWarm({ state: "error", code: "offline" }); return; }
+    setWarm({ state: "warming" });
+    const stopText = onAppEvent("reader", (e) => { if (typeof e.text === "string" && e.text) setWarm({ state: "warming", text: e.text }); });
+    try {
+      const r = await api<{ locationId: string; test: boolean }>("/api/stripe/tap-ready", { salonId });
+      answerTokens();
+      if (!tokenFor || "salonId" in tokenFor) tokenFor = { salonId };
+      await appCall({ reader: "connect", tap: true, warm: true, locationId: r.locationId, simulated: r.test && !wantsRealReader(true) }, 5 * 60 * 1000);
+      setWarm({ state: "ready" });
+    } catch (e) {
+      setWarm({ state: "error", code: (e as { code?: string }).code ?? "unknown", text: (e as Error).message });
+    } finally {
+      stopText();
+      warming = null;
+    }
+  })();
+  return warming;
+}
+
+let warmHooked = false;
+/** Warm now + again whenever the app comes back to the screen. */
+export function keepTapWarm(salonId: string) {
+  void warmTap(salonId);
+  if (warmHooked || typeof document === "undefined") return;
+  warmHooked = true;
+  onAppEvent("foreground", () => void warmTap(warmSalon));
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") void warmTap(warmSalon); });
+}
+
+// ── Plain words for what went wrong (EN + VI live in checkout.tapErr.*) ────────────────────────────────────────────
+/** Codes the apps send (ios CardReader.swift `code`); anything else shows the app's own words. */
+export const TAP_ERRORS = ["offline", "location", "bluetooth", "unsupported", "passcode", "call", "icloud", "terms",
+  "blocked", "account", "declined", "busy", "tap_start", "no_reader"] as const;
+export type TapErrorCode = (typeof TAP_ERRORS)[number];
+
+/** The translation key for an error code, or null when we show the app's own words. */
+export function tapErrorKey(code: unknown, online = true): `tapErr.${TapErrorCode}` | null {
+  if (!online) return "tapErr.offline";
+  return typeof code === "string" && (TAP_ERRORS as readonly string[]).includes(code) ? `tapErr.${code as TapErrorCode}` : null;
+}

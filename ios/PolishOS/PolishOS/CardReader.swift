@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import StripeTerminal
 
 /// Taking cards, the same way as android/ps10 CardReader.java:
@@ -66,12 +67,28 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
     // MARK: What can this phone do
 
     /// Can this iPhone take cards by itself (Tap to Pay)? {supported, reason}.
+    /// Also hands the web app Apple's own Tap to Pay symbol (SF Symbol "wave.3.right.circle") as a PNG, because Apple's
+    /// rules say: name it "Tap to Pay on iPhone" and use their symbol, never one we draw.
     func tapCheck(_ done: @escaping Done) {
         switch terminal().supportsReaders(of: .tapToPay, discoveryMethod: .tapToPay, simulated: false) {
-        case .success: done(nil, ["supported": true])
-        case .failure(let e): done(nil, ["supported": false, "reason": Self.reason(e)])
+        case .success:
+            var o: [String: Any] = ["supported": true, "ios": true]
+            if let icon = Self.tapSymbol() { o["icon"] = icon }
+            done(nil, o)
+        case .failure(let e): done(nil, ["supported": false, "reason": Self.reason(e), "code": Self.code(e)])
         }
     }
+
+    private static func tapSymbol() -> String? {
+        let config = UIImage.SymbolConfiguration(pointSize: 64, weight: .regular)
+        guard let symbol = UIImage(systemName: "wave.3.right.circle", withConfiguration: config)?
+            .withTintColor(UIColor(red: 0.086, green: 0.086, blue: 0.102, alpha: 1), renderingMode: .alwaysOriginal) else { return nil }
+        let png = UIGraphicsImageRenderer(size: symbol.size).image { _ in symbol.draw(at: .zero) }.pngData()
+        return png.map { "data:image/png;base64," + $0.base64EncodedString() }
+    }
+
+    /// Error answer: the plain-words reason + a short code the web app turns into English / Vietnamese.
+    private static func failed(_ error: Error?, _ done: Done) { done(reason(error), ["code": code(error)]) }
 
     /// Is a reader connected right now?
     func status(_ done: @escaping Done) {
@@ -80,21 +97,23 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
 
     // MARK: Connect
 
-    func connect(locationId: String, simulated: Bool, tap: Bool, done: @escaping Done) {
-        if busy { done("The reader is busy. Try again in a moment.", nil); return }
+    /// `warm` = getting Tap to Pay ready when the app opens / comes back (Apple's rule), before any ticket: never pops up
+    /// Apple's terms then; those are accepted on purpose (first payment, later Settings).
+    func connect(locationId: String, simulated: Bool, tap: Bool, warm: Bool = false, done: @escaping Done) {
+        if busy { done("The reader is busy. Try again in a moment.", ["code": "busy"]); return }
         busy = true
-        connectInner(locationId: locationId, simulated: simulated, tap: tap) { [weak self] e, x in self?.busy = false; done(e, x) }
+        connectInner(locationId: locationId, simulated: simulated, tap: tap, terms: !warm) { [weak self] e, x in self?.busy = false; done(e, x) }
     }
 
     private static func isTap(_ r: Reader) -> Bool { r.deviceType == .tapToPay }
 
-    private func connectInner(locationId: String, simulated: Bool, tap: Bool, done: @escaping Done) {
+    private func connectInner(locationId: String, simulated: Bool, tap: Bool, terms: Bool = true, done: @escaping Done) {
         let t = terminal()
         if let now = t.connectedReader {
             if now.simulated == simulated && Self.isTap(now) == tap { done(nil, Self.about(now)); return }
             // another kind is connected (pretend vs real, M2 vs Tap to Pay): let it go first
             t.disconnectReader { error in
-                if let error { done(Self.reason(error), nil) } else { self.connectInner(locationId: locationId, simulated: simulated, tap: tap, done: done) }
+                if let error { Self.failed(error, done) } else { self.connectInner(locationId: locationId, simulated: simulated, tap: tap, terms: terms, done: done) }
             }
             return
         }
@@ -104,7 +123,7 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
             config = tap
                 ? try TapToPayDiscoveryConfigurationBuilder().setSimulated(simulated).build()
                 : try BluetoothScanDiscoveryConfigurationBuilder().setSimulated(simulated).setTimeout(25).build()
-        } catch { done(Self.reason(error), nil); return }
+        } catch { Self.failed(error, done); return }
 
         var picked = false
         found = { [weak self] readers in
@@ -115,17 +134,17 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
             do {
                 how = tap
                     ? try TapToPayConnectionConfigurationBuilder(delegate: self, locationId: locationId)
-                        .setTosAcceptancePermitted(true).setAutoReconnectOnUnexpectedDisconnect(true).build()
+                        .setTosAcceptancePermitted(terms).setAutoReconnectOnUnexpectedDisconnect(true).build()
                     : try BluetoothConnectionConfigurationBuilder(delegate: self, locationId: locationId).setAutoReconnectOnUnexpectedDisconnect(true).build()
-            } catch { done(Self.reason(error), nil); return }
+            } catch { Self.failed(error, done); return }
             t.connectReader(choice, connectionConfig: how) { reader, error in
-                if let reader { done(nil, Self.about(reader)) } else { done(Self.reason(error), nil) }
+                if let reader { done(nil, Self.about(reader)) } else { Self.failed(error, done) }
             }
         }
         scanning = t.discoverReaders(config, delegate: self) { error in
             if picked { return } // the scan ends when we connect: not a failure
-            if let error { done(Self.reason(error), nil) }
-            else { done(tap ? "Tap to Pay didn't start on this phone. Try again." : "No reader found. Turn the reader on, keep it close, then try again.", nil) }
+            if let error { Self.failed(error, done) }
+            else { done(tap ? "Tap to Pay didn't start on this phone. Try again." : "No reader found. Turn the reader on, keep it close, then try again.", ["code": tap ? "tap_start" : "no_reader"]) }
         }
     }
 
@@ -139,7 +158,7 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
     func pay(secret: String, locationId: String, simulated: Bool, tap: Bool, done: @escaping Done) {
         if busy { // an older try is still open (e.g. the page was reloaded): end it so the next tap works
             cancel { _, _ in }
-            done("The reader was finishing the last try. Try again.", nil)
+            done("The reader was finishing the last try. Try again.", ["code": "busy"])
             return
         }
         busy = true
@@ -148,15 +167,15 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
             if let error { finish(error, nil); return }
             let t = Terminal.shared
             t.retrievePaymentIntent(clientSecret: secret) { intent, error in
-                guard let intent else { finish(Self.reason(error), nil); return }
+                guard let intent else { Self.failed(error, finish); return }
                 // The tip was picked on screen and is already in the amount.
                 let config = try? CollectPaymentIntentConfigurationBuilder().setSkipTipping(true).build()
                 if tap { self.say("Hold the card or phone wallet near the top of this iPhone.") }
                 self.collecting = t.collectPaymentMethod(intent, collectConfig: config) { collected, error in
-                    guard let collected else { finish(Self.reason(error), nil); return }
+                    guard let collected else { Self.failed(error, finish); return }
                     self.say("Checking the card…")
                     t.confirmPaymentIntent(collected) { paid, error in
-                        guard let paid else { finish(Self.reason(error), nil); return }
+                        guard let paid else { Self.failed(error, finish); return }
                         finish(nil, ["paymentIntent": paid.stripeId ?? "", "status": String(describing: paid.status)])
                     }
                 }
@@ -205,6 +224,28 @@ final class CardReader: NSObject, ConnectionTokenProvider, DiscoveryDelegate, Ta
         ]
         if let b = r.batteryLevel { o["battery"] = Int((b.floatValue * 100).rounded()) }
         return o
+    }
+
+    /// A short code for the web app's own words (EN + VI): src/lib/app/reader.ts `TAP_ERRORS`.
+    private static func code(_ error: Error?) -> String {
+        guard let e = error as NSError? else { return "unknown" }
+        if e.domain == NSURLErrorDomain { return "offline" }
+        guard e.domain == ErrorDomain else { return "unknown" }
+        switch e.code {
+        case 2020: return "canceled"
+        case 2200: return "location"
+        case 2320: return "bluetooth"
+        case 2910: return "unsupported"
+        case 2920: return "passcode"
+        case 2930: return "call"
+        case 2960: return "icloud"
+        case 2970, 3930: return "terms"
+        case 3920: return "blocked"
+        case 3950, 3960, 3970: return "account"
+        case 6000, 6500: return "declined"
+        case 9000...9999: return "offline"
+        default: return "unknown"
+        }
     }
 
     /// A short reason in plain words. "canceled" is a word the web app looks for.

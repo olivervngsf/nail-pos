@@ -13,6 +13,7 @@ import { useHomeLayout } from "@/lib/checkout/homeLayout";
 import HomeView from "./HomeViews";
 import { getTicket } from "@/lib/checkout/store";
 import { parseTicketScan } from "@/lib/print/print";
+import { keepTapWarm } from "@/lib/app/reader";
 
 const startOfDay = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString(); };
 
@@ -28,6 +29,7 @@ export default function CheckoutHome() {
     const name = (id: string) => desk.staff.find((s) => s.id === id)?.name ?? "";
     const pull = () => void pullTickets(desk.salonId, name, startOfDay()).catch(() => { /* offline: device copy */ });
     pull();
+    keepTapWarm(desk.salonId); // iPhone app: Tap to Pay ready before the first tap (no-op elsewhere)
     const iv = setInterval(pull, 30_000);
     return () => clearInterval(iv);
   }, [desk]);
