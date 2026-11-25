@@ -2404,7 +2404,10 @@
       "offAsk": "Turn off Tap to Pay on this iPhone? Staff can't take taps here until an owner or manager turns it on again.",
       "toPayments": "Go to Payments",
       "fee": "Same card fee as the card reader: 2.7% + 5¢, paid by the salon.",
-      "demo": "Test version: Turn on only marks this device. Apple's terms and the real tap come with the iPhone app on a real salon."
+      "demo": "Test version: Turn on only marks this device. Apple's terms and the real tap come with the iPhone app on a real salon.",
+      "reset": "Start over (for Apple's videos)",
+      "resetWhy": "Recording Apple's review videos? Start over makes this iPhone look new: Tap to Pay off and the first-time sheet shows again.",
+      "resetAsk": "Start over on this iPhone? Tap to Pay turns off here and the first-time sheet shows again."
     },
     "salon": {
       "loading": "Loading…",

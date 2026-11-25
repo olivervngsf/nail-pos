@@ -2404,7 +2404,10 @@
       "offAsk": "Tắt Tap to Pay trên iPhone này? Thợ không nhận chạm thẻ ở đây cho tới khi chủ hoặc quản lý bật lại.",
       "toPayments": "Tới Thanh toán",
       "fee": "Phí thẻ giống máy đọc thẻ: 2,7% + 5¢, tiệm trả.",
-      "demo": "Bản thử: Bật chỉ đánh dấu máy này. Điều khoản Apple và chạm thẻ thật có khi dùng app iPhone ở tiệm thật."
+      "demo": "Bản thử: Bật chỉ đánh dấu máy này. Điều khoản Apple và chạm thẻ thật có khi dùng app iPhone ở tiệm thật.",
+      "reset": "Làm lại từ đầu (quay video cho Apple)",
+      "resetWhy": "Đang quay video cho Apple? Làm lại từ đầu để iPhone này như mới: tắt Tap to Pay và hiện lại thông báo lần đầu.",
+      "resetAsk": "Làm lại từ đầu trên iPhone này? Tap to Pay sẽ tắt và thông báo lần đầu hiện lại."
     },
     "salon": {
       "loading": "Đang tải…",

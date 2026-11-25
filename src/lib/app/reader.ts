@@ -155,6 +155,13 @@ export async function turnOnTap(salonId: string, say: (text: string) => void): P
 export function turnOnTapDemo() { markTapUsed(); }
 
 /** Turn it off on this iPhone: no more warm-up; checkout asks for an owner/manager again. */
+/** For recording Apple's review videos (R11): back to "never set up" on this iPhone (off + the one-time sheet shows
+ *  again). Apple's own terms stay accepted on Apple's side; that can't be undone from an app. */
+export async function resetTapForVideo(): Promise<void> {
+  try { localStorage.removeItem("nailpos.tapIntro"); } catch { /* */ }
+  await turnOffTap();
+}
+
 export async function turnOffTap(): Promise<void> {
   try { localStorage.removeItem(USED); } catch { /* */ }
   setWarm({ state: "off" });
