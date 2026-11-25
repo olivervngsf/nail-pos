@@ -68,14 +68,16 @@ export async function takeCard(pay: AppPay, say: (text: string) => void, tap = f
   const msg = { pay: pay.secret, locationId: pay.locationId, simulated: pay.test && !wantsRealReader(tap), tap, ...(tap && inIosApp() ? { terms: false } : {}) };
   try {
     // Up to 10 minutes: a new reader may update itself first.
-    try {
-      await appCall(msg, 10 * 60 * 1000);
-    } catch (e) {
-      // Older apps answer "busy" when a get-ready or an older try is still open: stop it, wait, try once more.
-      if ((e as { code?: string }).code !== "busy") throw e;
-      await stopCard();
-      await new Promise((ok) => setTimeout(ok, 1500));
-      await appCall(msg, 10 * 60 * 1000);
+    // Older apps answer "busy" when a get-ready or an older try is still open: stop it, wait, try again (up to
+    // 4 times, ~10 s). Still busy = the app is stuck from the last try: say how to get out of it.
+    for (let attempt = 0; ; attempt += 1) {
+      try { await appCall(msg, 10 * 60 * 1000); break; }
+      catch (e) {
+        if ((e as { code?: string }).code !== "busy") throw e;
+        if (attempt >= 3) throw Object.assign(new Error("stuck"), { code: "stuck" });
+        await stopCard();
+        await new Promise((ok) => setTimeout(ok, 2500));
+      }
     }
     if (tap) markTapUsed();
   } catch (e) {
@@ -91,6 +93,8 @@ let paying = false;
 /** Stripe's kit hides our reason behind "…fetchConnectionToken with an error": put our own words back. */
 export function explainAppError(e: unknown): Error & { code?: string } {
   const err = e as Error & { code?: string };
+  // Apple: this copy of the app wasn't signed with the Tap to Pay permission (e.g. the TestFlight build).
+  if (/entitlement|operation not permitted/i.test(err?.message ?? "")) return Object.assign(new Error(err.message), { code: "entitlement" });
   if (/fetchConnectionToken/i.test(err?.message ?? "")) {
     return Object.assign(new Error(tokenError ? `PolishOS couldn't get a card key: ${tokenError}` : "PolishOS couldn't get a card key. Check the internet, then try again."), { code: err.code === "offline" ? "offline" : "token" });
   }
@@ -211,7 +215,7 @@ export function keepTapWarm(salonId: string) {
 // ── Plain words for what went wrong (EN + VI live in checkout.tapErr.*) ────────────────────────────────────────────
 /** Codes the apps send (ios CardReader.swift `code`); anything else shows the app's own words. */
 export const TAP_ERRORS = ["offline", "location", "bluetooth", "unsupported", "passcode", "call", "icloud", "terms",
-  "blocked", "account", "declined", "busy", "tap_start", "no_reader"] as const;
+  "blocked", "account", "declined", "busy", "tap_start", "no_reader", "entitlement", "stuck", "practice_stuck"] as const;
 export type TapErrorCode = (typeof TAP_ERRORS)[number];
 
 /** The translation key for an error code, or null when we show the app's own words. */
