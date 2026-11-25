@@ -14,6 +14,7 @@ import HomeView from "./HomeViews";
 import { getTicket } from "@/lib/checkout/store";
 import { parseTicketScan } from "@/lib/print/print";
 import { keepTapWarm } from "@/lib/app/reader";
+import TapIntro from "@/components/TapIntro";
 
 const startOfDay = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString(); };
 
@@ -105,6 +106,7 @@ export default function CheckoutHome() {
             onNew={newTicket} go={(x, pay) => router.push(`/checkout/${x.id}${pay ? "?pay=1" : ""}`)} />
         </main>
       </div>
+      <TapIntro desk={desk} />
     </div>
   );
 }

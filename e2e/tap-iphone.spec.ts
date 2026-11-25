@@ -54,3 +54,43 @@ test("Settings → Tap to Pay on iPhone: owner turns it on for this iPhone, then
   await page.getByTestId("tap-turn-off").click();
   await expect(page.getByTestId("tap-state")).toHaveText("Off");
 });
+
+test("iPhone app: an owner sees the Tap to Pay on iPhone sheet once (Not now = gone for good)", async ({ page }) => {
+  await page.addInitScript((icon) => {
+    const app = {
+      onmessage: null as null | ((e: { data: string }) => void),
+      postMessage(s: string) {
+        const m = JSON.parse(s);
+        const answer = m.reader === "tapCheck" ? { supported: true, ios: true, icon } : {};
+        setTimeout(() => app.onmessage?.({ data: JSON.stringify({ id: m.id, ok: true, ...answer }) }), 0);
+      },
+    };
+    (window as unknown as { PolishOSApp: typeof app }).PolishOSApp = app;
+    localStorage.setItem("nailpos.acting", JSON.stringify({ membership_id: "m1", name: "Lan", role: "owner", at: Date.now() }));
+  }, SYMBOL);
+  await page.goto("/checkout");
+  const sheet = page.getByTestId("tap-intro");
+  await expect(sheet).toContainText("Take cards on this iPhone");
+  await page.getByTestId("tap-intro-later").click();
+  await expect(sheet).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByTestId("new-ticket")).toBeVisible();
+  await expect(page.getByTestId("tap-intro")).toHaveCount(0);
+});
+
+test("iPhone app: front desk staff never see the turn-on sheet", async ({ page }) => {
+  await page.addInitScript(() => {
+    const app = {
+      onmessage: null as null | ((e: { data: string }) => void),
+      postMessage(s: string) {
+        const m = JSON.parse(s);
+        setTimeout(() => app.onmessage?.({ data: JSON.stringify({ id: m.id, ok: true, ...(m.reader === "tapCheck" ? { supported: true, ios: true } : {}) }) }), 0);
+      },
+    };
+    (window as unknown as { PolishOSApp: typeof app }).PolishOSApp = app;
+  });
+  await page.goto("/checkout");
+  await expect(page.getByTestId("new-ticket")).toBeVisible();
+  await page.waitForTimeout(500);
+  await expect(page.getByTestId("tap-intro")).toHaveCount(0);
+});

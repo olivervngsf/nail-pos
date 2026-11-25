@@ -16,6 +16,8 @@ import { printDoc } from "@/lib/print/print";
 import { printInWindow } from "@/lib/print/slip";
 import { receiptLines, type Paper, type ReceiptDoc } from "@/lib/print/escpos";
 import { useStored } from "@/lib/useStored";
+import { inIosApp } from "@/lib/app/bridge";
+import { canTapToPay, tapOnHere, turnOnTap, turnOnTapDemo, type TapCheck } from "@/lib/app/reader";
 import {
   STEPS, STATES, fmtHours, fmtMoney, fmtPhone, fmtTime, initials, newInviteCode, phoneOk, toMin,
   type PayType, type Service,
@@ -561,7 +563,11 @@ const Payments: StepView = ({ s, set }) => {
 };
 
 /* 5. Card reader */
-const Reader: StepView = ({ s, set }) => {
+const Reader: StepView = (p) => {
+  const [foot, body] = ReaderOnly(p);
+  return [foot, <>{body}<TapOffer key="tap" salonId={p.s.salonId} /></>];
+};
+const ReaderOnly: StepView = ({ s, set }) => {
   if (SMS_ON && s.reader !== "done") return [{ lock: true, skip: true }, <ReaderPair key="rp" s={s} set={set} />];
   if (s.reader === "done") return [{}, <>
     <H1>Card reader connected</H1>
@@ -583,6 +589,43 @@ const Reader: StepView = ({ s, set }) => {
     <div className="demo">Test version: pairing is simulated until Stripe Terminal is wired in.</div>
   </>];
 };
+
+/* Apple's rule R6 (docs/tap-to-pay-iphone-plan.md): new salons are offered Tap to Pay on iPhone during setup.
+   In the iPhone app (iPhone that can take taps): turn it on here (Apple's terms shown once, owner accepts).
+   Elsewhere: where to find it later. No card reader needed for it, so this step can be skipped. */
+function TapOffer({ salonId }: { salonId?: string }) {
+  const [check, setCheck] = useState<TapCheck | null>(null);
+  const [on, setOn] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [text, setText] = useState("");
+  const [err, setErr] = useState("");
+  useEffect(() => { setOn(tapOnHere()); if (inIosApp()) void canTapToPay().then(setCheck); }, []);
+  const turnOn = async () => {
+    setBusy(true); setErr("");
+    try { if (SMS_ON && salonId) await turnOnTap(salonId, setText); else turnOnTapDemo(); setOn(true); }
+    catch (e) { if ((e as Error).message !== "canceled") setErr((e as Error).message); }
+    setBusy(false); setText("");
+  };
+  return (
+    <div className="card pad" style={{ gap: 10, marginTop: 8 }} data-testid="setup-tap">
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- Apple's own symbol, handed over by the app */}
+        {check?.icon && <img src={check.icon} alt="" width={28} height={28} />}
+        <b style={{ fontSize: 17 }}>Tap to Pay on iPhone</b>
+        {on && <span className="pill ok" data-testid="setup-tap-on"><span className="dot" aria-hidden />On</span>}
+      </div>
+      <div style={{ fontSize: 15 }}>Take cards on an iPhone too, no reader needed: the client taps their card or phone on the top of the iPhone. Same fee: 2.7% + 5¢.</div>
+      {check?.supported && !on && <>
+        <div className="cap">Apple shows its terms once. Read them and tap Accept. The iPhone needs a passcode and iCloud sign-in.</div>
+        <div><button className="btn" type="button" data-testid="setup-tap-turn-on" disabled={busy} onClick={() => void turnOn()}>{busy ? "Turning on…" : "Turn on Tap to Pay on iPhone"}</button></div>
+        {busy && text && <div className="cap" aria-live="polite">{text}</div>}
+      </>}
+      {check && !check.supported && <div className="cap">This iPhone can&apos;t take cards by tap (it needs an iPhone XS or newer with the latest iOS).</div>}
+      {!check && <div className="cap" data-testid="setup-tap-later">On the salon&apos;s iPhone: open the PolishOS iPhone app, then Settings → Tap to Pay on iPhone → Turn on.</div>}
+      {err && <div className="hint err" role="alert">{err}</div>}
+    </div>
+  );
+}
 
 /* Real Stripe Connect (sign-in on): the salon's own Stripe account, Stripe's own sign-up page.
    Shows where things stand every time: checking → not connected → Stripe needs X → Stripe checking → Connected. */

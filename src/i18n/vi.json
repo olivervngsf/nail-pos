@@ -2585,5 +2585,14 @@
     "offline": "Cần mạng để kiểm tra PIN. Thử lại khi có mạng.",
     "back": "Quay lại màn hình chọn mặt",
     "demo": "Bản thử: máy mẫu; PIN nào cũng mở; không lưu gì."
+  },
+  "tapIntro": {
+    "title": "Tap to Pay on iPhone",
+    "what": "Nhận thẻ bằng iPhone này. Không cần máy đọc thẻ.",
+    "p1": "Khách chạm thẻ, Apple Pay hoặc Google Pay vào phần trên của iPhone này.",
+    "p2": "Phí giống máy đọc thẻ: 2,7% + 5¢, tiệm trả.",
+    "p3": "Bật một lần: chủ hoặc quản lý đồng ý điều khoản của Apple.",
+    "on": "Bật ngay",
+    "later": "Để sau"
   }
 }

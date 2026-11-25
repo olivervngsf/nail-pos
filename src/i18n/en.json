@@ -2585,5 +2585,14 @@
     "offline": "Needs internet to check the PIN. Try again when it's back.",
     "back": "Back to the faces screen",
     "demo": "Test version: a sample tablet; any PIN opens; nothing is saved."
+  },
+  "tapIntro": {
+    "title": "Tap to Pay on iPhone",
+    "what": "Take cards on this iPhone. No card reader needed.",
+    "p1": "The client taps their card, Apple Pay or Google Pay on the top of this iPhone.",
+    "p2": "Same fee as the card reader: 2.7% + 5¢, paid by the salon.",
+    "p3": "Turn it on once: the owner or a manager accepts Apple's terms.",
+    "on": "Turn it on",
+    "later": "Not now"
   }
 }

@@ -37,6 +37,8 @@ test("owner goes from sign-up to a ready salon, and it survives a reload", async
   await page.getByRole("button", { name: "Connect with Stripe" }).click();
   await page.getByRole("button", { name: "Agree and submit" }).click();
   await foot.getByRole("button", { name: "Continue" }).click();
+  // Apple R6: Tap to Pay on iPhone is offered here (in a browser: where to turn it on later)
+  await expect(page.getByTestId("setup-tap-later")).toContainText("Tap to Pay on iPhone");
   await page.fill("#pc", "tempo-quote-lima");
   await page.getByRole("button", { name: "Connect reader" }).click();
   await foot.getByRole("button", { name: "Continue" }).click();

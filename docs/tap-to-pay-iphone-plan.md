@@ -18,15 +18,15 @@ the PDFs once they're in the repo (`docs/apple/`).
 | R3 | Button says **Tap to Pay on iPhone** + Apple's symbol | iPhone app 1.3: tile "Tap to Pay on iPhone" + Apple's SF Symbol `wave.3.right.circle` (the app draws it, hands the picture to the page); "top of this iPhone" wording | Built (Nov 25), not on a phone yet | Try on Oliver's iPhone |
 | R4 | Owner/admin accepts Apple's terms BEFORE checkout; staff can't | Settings → Tap to Pay on iPhone (owner/manager only): Turn on = Apple's terms shown once and accepted there; checkout payments never show the terms (`terms:false`); until it's on, the checkout tile is greyed: "Ask the owner or a manager…" | Built (Nov 25), not on a phone yet | Try on Oliver's iPhone |
 | R5 | A place to turn it on + see its state | `/settings/tap-to-pay`: Off / Getting ready / On · ready, Turn on, Turn off on this iPhone; outside the iPhone app: steps to get there. Per iPhone (saved on the phone) | Built (Nov 25), not on a phone yet | — |
-| R6 | New users are offered it during onboarding | None | To build | Setup step "Take cards on your iPhone" |
-| R7 | Existing users are told it's there | None | To build | One-time sheet/banner on iPhone, leads to R5 |
+| R6 | New users are offered it during onboarding | Setup step 5 (card reader) has a Tap to Pay on iPhone card: in the iPhone app = Turn on right there (Apple's terms once); in a browser = where to turn it on later. Step can be skipped (no reader needed) | Built (Nov 25), not on a phone yet | — |
+| R7 | Existing users are told it's there | iPhone app, owner/manager, iPhone can tap, not on yet: one-time sheet on Checkout "Tap to Pay on iPhone · Take cards on this iPhone" → Turn it on (Settings) / Not now (never again on this iPhone). Staff never see it | Built (Nov 25), not on a phone yet | — |
 | R8 | Merchant education ("how to tap") | None | To build | Apple's screens (`ProximityReaderDiscovery`, iOS 18+) after turn-on, in Settings, "?" at checkout |
 | R9 | Reader warmed up so the tap is fast; progress shown | App 1.3: after this iPhone's first tap, Tap to Pay connects when checkout opens + every time the app comes back (`keepTapWarm`, `/api/stripe/tap-ready`); never pops Apple's terms by itself; tile shows "Getting ready…" / "Ready to tap" | Built (Nov 25), not on a phone yet | Warm-up before the FIRST tap comes with R4 (terms in Settings) |
 | R10 | Clear errors | App 1.3 sends a code (passcode, iCloud, terms, no internet, declined…) → our own words in English + Vietnamese (`checkout.tapErr.*`) | Built (Nov 25), not on a phone yet | — |
 | R11 | 3 videos + checklist sent to Apple | None | To do | Steps 9–11 |
 | R12 | Marketing: only Apple's toolkit, full name, Apple OKs press | None | Rule | Follow when we market it |
 
-Score (Nov 25): 1 done · 6 built, not tried on a phone (R2, R3, R4, R5, R9, R10) · 4 to build (R6, R7, R8, R11) · 1 rule.
+Score (Nov 25): 1 done · 8 built, not tried on a phone (R2–R7, R9, R10) · 2 to build (R8, R11) · 1 rule.
 
 ## Steps (who · how long)
 
@@ -42,7 +42,7 @@ Score (Nov 25): 1 done · 6 built, not tried on a phone (R2, R3, R4, R5, R9, R10
    app open / back to screen; clear error words (EN + VI).
 6. **Claude · done Nov 25** (R4, R5) — Turn on + terms: Settings → Payments → Tap to Pay on iPhone (owner/manager); accept
    Apple's terms there (not at checkout); staff see "Ask your owner"; saved per salon + per iPhone.
-7. **Claude · 1 session** (R6, R7) — Tell owners: setup step "Take cards on your iPhone" (new salons) + one-time sheet for
+7. **Claude · done Nov 25** (R6, R7) — Tell owners: setup step "Take cards on your iPhone" (new salons) + one-time sheet for
    existing salons on an iPhone; both lead to step 6.
 8. **Claude · 1 session** (R8) — "How to tap" screens: Apple's Merchant Education (`ProximityReaderDiscovery`) after
    turn-on, in Settings and a "?" on the tap screen. New app version 1.3 (Swift + bridge).
