@@ -126,3 +126,18 @@ describe("Tap to Pay on iPhone: terms only in Settings", () => {
     expect(tapOnHere()).toBe(false);
   });
 });
+
+describe("card key errors", () => {
+  it("puts our own reason back when Stripe's kit hides it", async () => {
+    const { explainAppError } = await import("./reader");
+    const e = explainAppError(new Error("Connecting to the reader failed because the app completed fetchConnectionToken with an error."));
+    expect(e.message).toMatch(/PolishOS couldn't get a card key/);
+    expect(e.code).toBe("token");
+  });
+
+  it("leaves other errors alone", async () => {
+    const { explainAppError } = await import("./reader");
+    const e = Object.assign(new Error("Set a passcode"), { code: "passcode" });
+    expect(explainAppError(e)).toBe(e);
+  });
+});
