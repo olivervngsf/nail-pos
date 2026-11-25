@@ -1888,6 +1888,10 @@
     "demo": "Bản thử: PIN nào cũng mở; không lưu gì."
   },
   "settings": {
+    "who": { "admin": "Chủ + quản lý", "owner": "Chỉ chủ tiệm", "all": "Mọi người" },
+    "youCan": "Bạn ({role}) mở được",
+    "youCant": "Chỉ chủ + quản lý",
+    "menuAdd": "Thêm dịch vụ",
     "title": "Cài đặt",
     "group": {
       "me": "Tôi",
@@ -1896,6 +1900,8 @@
     },
     "nav": {
       "profile": "Hồ sơ của tôi",
+      "salon": "Thông tin tiệm & giờ",
+      "menu": "Bảng dịch vụ",
       "team": "Nhân viên",
       "pinRules": "Luật PIN",
       "pinActivity": "Nhật ký PIN",

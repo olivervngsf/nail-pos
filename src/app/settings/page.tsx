@@ -1,3 +1,3 @@
 import { redirect } from "next/navigation";
 
-export default function Page() { redirect("/settings/team"); }
+export default function Page() { redirect("/settings/salon"); }

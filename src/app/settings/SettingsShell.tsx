@@ -12,26 +12,59 @@ import { isAdminRole, useMe } from "@/lib/me";
 export type Access = { salonId: string; salonName: string; role: Role; owner: boolean; demo: boolean };
 
 const NAV = [
-  { href: "/me", key: "profile", group: "me" },
-  { href: "/settings/team", key: "team", group: "salon" },
-  { href: "/settings/pin", key: "pinRules", group: "salon" },
-  { href: "/settings/clock-in", key: "clockIn", group: "salon" },
-  { href: "/settings/pin-activity", key: "pinActivity", group: "salon" },
-  { href: "/settings/devices", key: "devices", group: "salon" },
-  { href: "/settings/payments", key: "payments", group: "salon" },
-  { href: "/settings/reader", key: "reader", group: "salon" },
-  { href: "/settings/texting", key: "texting", group: "salon" },
-  { href: "/settings/billing", key: "billing", group: "salon" },
-  { href: "/settings/support", key: "support", group: "salon" },
-  { href: "/settings/printer", key: "printer", group: "more" },
-  { href: "/settings/booking-page", key: "bookingPage", group: "more" },
-  { href: "/loyalty", key: "loyalty", group: "more" },
-  { href: "/gift-cards", key: "giftCards", group: "more" },
-  { href: "/payouts", key: "payouts", group: "more" },
+  { href: "/me", key: "profile", group: "me", who: "all" },
+  { href: "/settings/salon", key: "salon", group: "salon", who: "admin" },
+  { href: "/settings/menu", key: "menu", group: "salon", who: "admin" },
+  { href: "/settings/team", key: "team", group: "salon", who: "admin" },
+  { href: "/settings/pin", key: "pinRules", group: "salon", who: "admin" },
+  { href: "/settings/clock-in", key: "clockIn", group: "salon", who: "admin" },
+  { href: "/settings/pin-activity", key: "pinActivity", group: "salon", who: "admin" },
+  { href: "/settings/devices", key: "devices", group: "salon", who: "admin" },
+  { href: "/settings/payments", key: "payments", group: "salon", who: "admin" },
+  { href: "/settings/reader", key: "reader", group: "salon", who: "admin" },
+  { href: "/settings/texting", key: "texting", group: "salon", who: "admin" },
+  { href: "/settings/billing", key: "billing", group: "salon", who: "admin" },
+  { href: "/settings/support", key: "support", group: "salon", who: "admin" },
+  { href: "/settings/printer", key: "printer", group: "more", who: "admin" },
+  { href: "/settings/booking-page", key: "bookingPage", group: "more", who: "admin" },
+  { href: "/loyalty", key: "loyalty", group: "more", who: "admin" },
+  { href: "/gift-cards", key: "giftCards", group: "more", who: "admin" },
+  { href: "/payouts", key: "payouts", group: "more", who: "admin" },
 ] as const;
+
+type Who = "all" | "admin" | "owner";
+/** Who may open a settings page: everyone (own profile), owner + manager, or the owner only. */
+export const canOpen = (who: Who, role: Role) => who === "all" || (who === "owner" ? role === "owner" : isAdminRole(role));
+
+/** Settings side menu; also shown on My profile (/me) for owners + managers so both feel like one place. */
+export function SettingsNav({ role }: { role: Role }) {
+  const t = useTranslations("settings");
+  const path = usePathname();
+  return (
+    <nav className="set-nav" aria-label={t("title")}>
+      <div className="set-nav-title">{t("title")}</div>
+      {(["me", "salon", "more"] as const).map((g) => (
+        <div key={g} className="set-nav-group">
+          <div className="set-nav-h">{t(`group.${g}`)}</div>
+          {NAV.filter((n) => n.group === g).map((n) => {
+            const ok = canOpen(n.who, role);
+            return (
+              <Link key={n.href} href={n.href} className={`${path === n.href ? "on" : ""}${ok ? "" : " locked"}`} aria-current={path === n.href ? "page" : undefined}
+                title={ok ? undefined : t(`who.${n.who}`)} data-testid={`nav-${n.key}`}>
+                <span style={{ flex: 1, minWidth: 0 }}>{t(`nav.${n.key}`)}</span>
+                {!ok && <span className="set-lock"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>{t(`who.${n.who}`)}</span>}
+              </Link>
+            );
+          })}
+        </div>
+      ))}
+    </nav>
+  );
+}
 
 export default function SettingsShell({ title, actions, children }: { title: string; actions?: React.ReactNode; children: (a: Access) => React.ReactNode }) {
   const t = useTranslations("settings");
+  const tr = useTranslations("account");
   const path = usePathname();
   const router = useRouter();
   const { me, isDevice, acting, device, ready } = useMe();
@@ -55,17 +88,7 @@ export default function SettingsShell({ title, actions, children }: { title: str
   return (
     <div className="app set-app">
       <LeftMenu active="Me" salonInitials={me.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={me.name} />
-      <nav className="set-nav" aria-label={t("title")}>
-        <div className="set-nav-title">{t("title")}</div>
-        {(["me", "salon", "more"] as const).map((g) => (
-          <div key={g} className="set-nav-group">
-            <div className="set-nav-h">{t(`group.${g}`)}</div>
-            {NAV.filter((n) => n.group === g).map((n) => (
-              <Link key={n.href} href={n.href} className={path === n.href ? "on" : ""} aria-current={path === n.href ? "page" : undefined}>{t(`nav.${n.key}`)}</Link>
-            ))}
-          </div>
-        ))}
-      </nav>
+      <SettingsNav role={role} />
       <div className="col">
         <TopBar title={title}>{ok && actions}<SyncPill /></TopBar>
         <OfflineBanner />
@@ -74,6 +97,10 @@ export default function SettingsShell({ title, actions, children }: { title: str
             <div className="card pad" style={{ maxWidth: 520 }} data-testid="settings-locked">
               <div className="h2">{t("needPin")}</div>
               <p className="cap">{isDevice ? t("needPinDevice") : t("needAdmin")}</p>
+              <div className="set-access" data-testid="settings-access">
+                <div><b>{t("youCan", { role: tr(`role.${role}`) })}</b>{NAV.filter((n) => canOpen(n.who, role)).map((n) => <Link key={n.href} href={n.href}>{t(`nav.${n.key}`)}</Link>)}</div>
+                <div><b>{t("youCant")}</b><span className="cap">{NAV.filter((n) => !canOpen(n.who, role)).map((n) => t(`nav.${n.key}`)).join(" · ")}</span></div>
+              </div>
               {isDevice && <Button variant="primary" onClick={async () => { await lockDevice(device?.id, acting?.membership_id); router.push("/desk"); }}>{t("unlock")}</Button>}
             </div>
           )}
