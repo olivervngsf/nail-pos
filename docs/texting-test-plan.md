@@ -55,6 +55,13 @@ Use the demo salon "Lotus Demo Nails" on live, owner login.
 - [ ] Settings → Team → pick that member → PIN → **Text the PIN link** → text arrives with `/t/pin?c=…`.
 - [ ] Open it, sign in with that phone, set PIN twice → works. Same link again → already used.
 
+## 4b. "Invite ends tomorrow" text (after CRON_SECRET is set)
+- [ ] Settings → Team → add a member with your second phone → invite text arrives. Don't join.
+- [ ] Wait until the invite has under 24h left (invites last 7 days), or ask Claude to shorten that one invite on the test database.
+- [ ] GitHub → Actions → "Scheduled texts" → Run workflow (or wait for the hourly run, 9 AM–8 PM salon time) → text: "PolishOS: your invite to join <salon> ends tomorrow. Join and set your PIN: <link> Reply STOP to stop."
+- [ ] Run it again → no second text (once per invite).
+- [ ] Join with the link → no reminder for anyone who already joined.
+
 ## 5. Things that must NOT text (5 min)
 - [ ] Book on the public booking page with a real phone + texts checkbox on → booked screen says texting **not on yet** (salon has no own number). No text arrives.
 - [ ] Settings → Texting → Send promo text → still **TEST VERSION**: credit taken, no text goes out.
