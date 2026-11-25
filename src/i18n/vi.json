@@ -1948,7 +1948,7 @@
       "add": "+ Thêm người",
       "people": "nhân viên",
       "inNow": "đang làm",
-      "invited": "chưa nhận lời mời",
+      "invited": "chưa tham gia",
       "licenseDue": "bằng sắp hết hạn",
       "search": "Tìm tên hoặc số điện thoại",
       "none": "Không có ai.",
@@ -1960,7 +1960,7 @@
         "nopin": "Chưa có PIN"
       },
       "st": {
-        "invited": "Đã mời",
+        "invited": "Chưa tham gia",
         "noPin": "Chưa có PIN",
         "locked": "PIN bị khoá",
         "license": "Bằng · còn {d} ngày",
@@ -1970,7 +1970,20 @@
       "saved": "Đã lưu",
       "addedInvite": "Đã thêm {name}. Link mời sẵn sàng: gửi tới điện thoại của họ.",
       "inviteTexted": "Đã nhắn link mời tới {name}.",
-      "inviteNotTexted": "Chưa nhắn được link mời: {why} Hãy sao chép link (bấm vào tên họ)."
+      "inviteNotTexted": "Chưa nhắn được link mời: {why} Hãy sao chép link (bấm vào tên họ).",
+      "since": "từ {t}",
+      "last": "lần cuối {t}",
+      "tile": {
+        "in": "đang làm",
+        "invited": "chưa tham gia",
+        "nopin": "chưa có PIN",
+        "license": "sắp hết hạn bằng"
+      },
+      "g": {
+        "boss": "Chủ + quản lý",
+        "desk": "Quầy",
+        "tech": "Thợ"
+      }
     },
     "m": {
       "name": "Tên",

@@ -1629,3 +1629,41 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .dev-page > .cap { max-width: 480px; }
 .dev-card { width: 100%; max-width: 480px; box-sizing: border-box; padding: 20px; display: flex; flex-direction: column; gap: 12px; text-align: left; }
 .dev-pin { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+/* Settings → Team list (Nov 25): tappable tiles, grouped by role, status = icon + word, quick Text invite */
+.tm-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.tm-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 14px; border-radius: 14px; background: var(--paper); box-shadow: var(--shadow); border: 1.5px solid transparent; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.tm-tile b { display: inline-flex; align-items: center; gap: 6px; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tm-tile.tm-total { cursor: default; }
+button.tm-tile:hover { border-color: var(--line); }
+.tm-tile.on { border-color: var(--ink); }
+.tm-bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.tm-search { width: 240px; }
+.tm-group { display: flex; flex-direction: column; gap: 6px; }
+.tm-gh { display: flex; align-items: baseline; gap: 8px; padding: 4px 2px 0; }
+.tm-row { cursor: pointer; }
+.tm-row:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+.tm-who { flex: 1; min-width: 0; }
+.tm-who b, .tm-who .cap { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tm-av.tm-boss { background: #E7F1FB; }
+.tm-av.tm-desk { background: #EFEDFF; }
+.tm-st { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-soft); white-space: nowrap; flex: none; }
+.tm-st.is-good { color: var(--ink); }
+.tm-st.is-watch, .tm-st.is-bad { color: var(--ink); font-weight: 500; }
+.tm-act { flex: none; }
+.tm-pay { width: 104px; text-align: right; flex: none; font-variant-numeric: tabular-nums; font-size: 14px; color: var(--ink-soft); }
+.tm-go { flex: none; }
+@media (max-width: 600px) {
+  .tm-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .tm-tile { padding: 8px 10px; border-radius: 12px; }
+  .tm-tile b { font-size: 18px; gap: 4px; }
+  .tm-tile .cap { font-size: 12px; line-height: 1.25; }
+  .tm-tile.tm-total { display: none; }
+  .tm-search { width: 100%; order: 9; }
+  .tm-row { flex-wrap: wrap; row-gap: 2px; column-gap: 12px; padding: 10px 14px; align-items: center; }
+  .tm-who { flex-basis: calc(100% - 56px); }
+  .tm-st { margin-left: 44px; }
+  .tm-pay { width: auto; margin-left: auto; font-size: 13px; }
+  .tm-act { margin-left: 44px; order: 9; }
+  .tm-go { display: none; }
+}

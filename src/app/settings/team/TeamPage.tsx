@@ -7,13 +7,15 @@ import { Button, Chip, Drawer, Field, ListGroup, PinKeypad, Toast } from "@/comp
 import { cachedRules, pinProblem } from "@/lib/pin";
 import { e164, rpc, type Role } from "@/lib/auth";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
-import { DAYS, DEMO_TEAM, SKILLS, blankMember, licenseDaysLeft, memberStatus, payLabel, savePayload, type Member, type PayType } from "@/lib/team";
+import { DAYS, DEMO_TEAM, SKILLS, TEAM_GROUPS, blankMember, clockWhen, groupOf, licenseDaysLeft, memberStatus, payLabel, savePayload, statusTone, type Member, type PayType } from "@/lib/team";
+import StatusIcon from "@/components/StatusIcon";
 import SettingsShell, { type Access } from "../SettingsShell";
 import { textInvite, textLine, textPinLink, type SendReply } from "@/lib/texting/client";
 
-type Filter = "all" | "tech" | "desk" | "invited" | "nopin";
+type Filter = "all" | "tech" | "desk" | "invited" | "nopin" | "in" | "license";
+const licenseSoon = (m: Member) => { const d = licenseDaysLeft(m); return d !== null && d <= 30; };
 const inFilter = (f: Filter, m: Member) => f === "all" || (f === "tech" && m.role === "tech") || (f === "desk" && m.role !== "tech")
-  || (f === "invited" && !m.joined) || (f === "nopin" && m.joined && !m.hasPin);
+  || (f === "invited" && !m.joined) || (f === "nopin" && m.joined && !m.hasPin) || (f === "in" && m.clockedIn) || (f === "license" && licenseSoon(m));
 const initials = (n: string) => n.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
 const nums = (x: Member): Member => ({ ...x, commissionPct: x.commissionPct == null ? null : Number(x.commissionPct), hourlyCents: x.hourlyCents == null ? null : Number(x.hourlyCents), checkPct: Number(x.checkPct ?? 100) });
 
@@ -50,37 +52,71 @@ function Team({ a, edit, setEdit }: { a: Access; edit: Member | null; setEdit: (
   if (err) return <p className="hint err">{err}</p>;
   if (!team) return <div aria-busy="true" />;
   const count = (f: Filter) => team.filter((m) => inFilter(f, m)).length;
-  const inNow = team.filter((m) => m.clockedIn).length;
-  const due = team.filter((m) => { const d = licenseDaysLeft(m); return d !== null && d <= 30; }).length;
+  const pick = (f: Filter) => setFilter((cur) => (cur === f ? "all" : f));
+  // Tiles: what's going on + what needs the owner. Tap = show only those (tap again = everyone).
+  const tiles: { f: Filter; tone: "good" | "watch" | "bad"; n: number; show: boolean }[] = [
+    { f: "in", tone: "good", n: count("in"), show: true },
+    { f: "invited", tone: "watch", n: count("invited"), show: true },
+    { f: "nopin", tone: "watch", n: count("nopin"), show: count("nopin") > 0 },
+    { f: "license", tone: "watch", n: count("license"), show: count("license") > 0 },
+  ];
+  const grouped = filter === "all" && !q;
+  const quickText = async (m: Member) => {
+    if (a.demo) return say(t("m.textDemo"));
+    try {
+      const code = m.invite ?? await rpc<string>("team_invite", { p_membership: m.id });
+      let r = await textInvite(code).catch((e: Error) => ({ status: "error", error: e.message }) as SendReply);
+      if (r.status === "error" && /ended/.test(r.error ?? "")) r = await textInvite(await rpc<string>("team_invite", { p_membership: m.id }));
+      say(r.status === "sent" || r.status === "queued" || r.status === "delivered" ? t("team.inviteTexted", { name: m.name })
+        : t("team.inviteNotTexted", { why: r.status === "error" ? r.error ?? "" : r.duplicate ? t("m.textAgain") : textLine(r) }));
+    } catch (e) { say((e as Error).message); }
+  };
+  const row = (m: Member) => {
+    const st = memberStatus(m);
+    const tone = statusTone(st, m);
+    const when = st === "in" ? clockWhen(m.lastClock) : st === "out" ? clockWhen(m.lastClock) : "";
+    const word = t(`team.st.${st}`, { d: licenseDaysLeft(m) ?? 0 }) + (when ? ` · ${st === "in" ? t("team.since", { t: when }) : t("team.last", { t: when })}` : "");
+    return (
+      <div key={m.id} role="button" tabIndex={0} className="opt set-row tm-row" data-testid={`member-${m.name}`} onClick={() => setEdit(m)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setEdit(m); } }}>
+        <span className={`av tm-av tm-${groupOf(m.role)}`} aria-hidden>{initials(m.name)}</span>
+        <span className="g tm-who"><b>{m.name}</b>
+          <span className="cap">{ta(`role.${m.role}`)}{m.skills.length ? ` · ${m.skills.join(", ")}` : ""}</span></span>
+        <span className={`tm-st${tone ? ` is-${tone}` : ""}`} data-testid="member-status">{tone && <StatusIcon tone={tone} size={16} />}<span>{word}</span></span>
+        {st === "invited" && <Button size="sm" className="tm-act" data-testid="row-text-invite" onClick={(e) => { e.stopPropagation(); void quickText(m); }}>{t("m.textInvite")}</Button>}
+        <span className="tm-pay">{m.role === "owner" ? "" : payLabel(m)}</span>
+        <span className="cap tm-go" aria-hidden>›</span>
+      </div>
+    );
+  };
 
   return (
     <>
-      <div className="card stat-grid" style={{ ["--n" as string]: 4, padding: "14px 10px" }}>
-        <div><b>{team.length}</b><span className="cap">{t("team.people")}</span></div>
-        <div><b>{inNow}</b><span className="cap">{t("team.inNow")}</span></div>
-        <div><b>{count("invited")}</b><span className="cap">{t("team.invited")}</span></div>
-        <div><b style={due ? { color: "var(--orange)" } : undefined}>{due}</b><span className="cap">{t("team.licenseDue")}</span></div>
+      <div className="tm-tiles" data-testid="team-tiles">
+        <div className="tm-tile tm-total"><b>{team.length}</b><span className="cap">{t("team.people")}</span></div>
+        {tiles.filter((x) => x.show).map((x) => (
+          <button key={x.f} type="button" className={`tm-tile${filter === x.f ? " on" : ""}`} aria-pressed={filter === x.f} data-testid={`tile-${x.f}`} onClick={() => pick(x.f)}>
+            <b>{x.n > 0 && <StatusIcon tone={x.tone} size={18} />}{x.n}</b><span className="cap">{t(`team.tile.${x.f}`)}</span>
+          </button>
+        ))}
       </div>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-        {(["all", "tech", "desk", "invited", "nopin"] as const).filter((f) => f !== "nopin" || count(f) > 0).map((f) => <Chip key={f} on={filter === f} onClick={() => setFilter(f)}>{t(`team.f.${f}`)} {count(f)}</Chip>)}
+      <div className="tm-bar">
+        {(["all", "tech", "desk"] as const).map((f) => <Chip key={f} on={filter === f} onClick={() => setFilter(f)}>{t(`team.f.${f}`)} {count(f)}</Chip>)}
+        {!["all", "tech", "desk"].includes(filter) && <Chip on onClick={() => setFilter("all")}>{t(`team.tile.${filter}`)} ✕</Chip>}
         <span style={{ flex: 1 }} />
-        <input className="inp" style={{ width: 220 }} placeholder={t("team.search")} aria-label={t("team.search")} value={q} onChange={(e) => setQ(e.target.value)} />
+        <input className="inp tm-search" type="search" placeholder={t("team.search")} aria-label={t("team.search")} value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
-      <ListGroup>
-        {shown.map((m) => {
-          const st = memberStatus(m);
-          return (
-            <button key={m.id} type="button" className="opt set-row" data-testid={`member-${m.name}`} onClick={() => setEdit(m)}>
-              <span className="av" aria-hidden>{initials(m.name)}</span>
-              <span className="g" style={{ flex: 1, minWidth: 0 }}><b>{m.name}</b>
-                <span className="cap">{ta(`role.${m.role}`)}{m.skills.length ? ` · ${m.skills.join(", ")}` : ""}</span></span>
-              <span className={`tag${st === "in" ? " jade" : ""}${st === "license" || st === "locked" ? " set-warn" : ""}`}>{t(`team.st.${st}`, { d: licenseDaysLeft(m) ?? 0 })}</span>
-              <span className="cap set-pay">{m.role === "owner" ? "" : payLabel(m)}</span>
-            </button>
-          );
-        })}
-        {!shown.length && <div className="row"><span className="cap">{t("team.none")}</span></div>}
-      </ListGroup>
+      {grouped
+        ? TEAM_GROUPS.map((g) => {
+            const list = shown.filter((m) => groupOf(m.role) === g);
+            return list.length ? (
+              <section key={g} className="tm-group">
+                <div className="tm-gh"><span className="eyebrow">{t(`team.g.${g}`)}</span><span className="cap">{list.length}</span></div>
+                <ListGroup>{list.map(row)}</ListGroup>
+              </section>
+            ) : null;
+          })
+        : <ListGroup>{shown.map(row)}{!shown.length && <div className="row"><span className="cap">{t("team.none")}</span></div>}</ListGroup>}
       {a.demo && <div className="demo">{t("demo")}</div>}
       {edit && <MemberDrawer a={a} m={edit} onClose={() => setEdit(null)}
         onSaved={(x, invite) => {
