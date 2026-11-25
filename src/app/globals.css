@@ -1574,6 +1574,7 @@ body:has(.clock-demo):has(.dev-strip) .clock-qr { bottom: 168px; }
 body:has(.faces .scrim) .clock-qr { display: none; }
 
 /* Settings → Salon + Service menu (Nov 25) + who can open what in the settings menu */
+.set-nav a > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .set-nav a.locked { color: var(--ink-soft); }
 .set-nav a.locked:hover { background: transparent; }
 .set-lock { display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 500; color: var(--ink-soft); white-space: nowrap; margin-left: 6px; }
