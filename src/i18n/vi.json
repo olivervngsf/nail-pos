@@ -307,7 +307,9 @@
     "tipOf": "tip {amount}",
     "allTechs": "Tất cả {n}",
     "techFilter": "Xem phiếu của một thợ",
-    "tapAskOwner": "Nhờ chủ hoặc quản lý bật Tap to Pay on iPhone trong Cài đặt."
+    "tapAskOwner": "Nhờ chủ hoặc quản lý bật Tap to Pay on iPhone trong Cài đặt.",
+    "practiceStuck": "Chạm thử không trả lời nên đã dừng. Bấm Tính tiền để thử lại.",
+    "tapPracticeWait": "Chạm thử: tự trả trong vài giây…"
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -1890,7 +1892,11 @@
     "demo": "Bản thử: PIN nào cũng mở; không lưu gì."
   },
   "settings": {
-    "access": { "admin": "Chủ + quản lý", "owner": "Chỉ chủ tiệm", "all": "Mọi người" },
+    "access": {
+      "admin": "Chủ + quản lý",
+      "owner": "Chỉ chủ tiệm",
+      "all": "Mọi người"
+    },
     "youCan": "Bạn ({role}) mở được",
     "youCant": "Chỉ chủ + quản lý",
     "menuAdd": "Thêm dịch vụ",
@@ -2599,5 +2605,15 @@
     "p3": "Bật một lần: chủ hoặc quản lý đồng ý điều khoản của Apple.",
     "on": "Bật ngay",
     "later": "Để sau"
+  },
+  "howToTap": {
+    "button": "Cách chạm thẻ",
+    "title": "Khách chạm thẻ thế nào",
+    "s1": "Xoay iPhone để khách thấy số tiền.",
+    "s2": "Khách để thẻ, điện thoại hoặc đồng hồ nằm phẳng sát phần trên của iPhone, gần camera.",
+    "s3": "Giữ yên cho tới khi hiện dấu kiểm.",
+    "s4": "Nếu màn hình hỏi mã PIN, đưa iPhone cho khách tự bấm.",
+    "s5": "Đợi hiện Đã trả rồi mới lấy lại iPhone.",
+    "ok": "Đã hiểu"
   }
 }

@@ -7,7 +7,8 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Button } from "@/components/kit";
 import { inIosApp } from "@/lib/app/bridge";
-import { canTapToPay, onTapWarm, tapErrorKey, tapOnHere, tapWarmNow, turnOffTap, turnOnTap, turnOnTapDemo, type TapCheck, type TapWarm } from "@/lib/app/reader";
+import { canTapToPay, onTapWarm, showHowToTap, tapErrorKey, tapOnHere, tapWarmNow, turnOffTap, turnOnTap, turnOnTapDemo, type TapCheck, type TapWarm } from "@/lib/app/reader";
+import { HowToTapButton, HowToTapSteps } from "@/components/HowToTap";
 import SettingsShell, { type Access } from "../SettingsShell";
 
 export default function TapToPayPage() {
@@ -25,6 +26,7 @@ function TapToPay({ a }: { a: Access }) {
   const [busy, setBusy] = useState(false);
   const [text, setText] = useState("");
   const [err, setErr] = useState("");
+  const [steps, setSteps] = useState(false);
 
   useEffect(() => {
     const ios = inIosApp();
@@ -42,7 +44,12 @@ function TapToPay({ a }: { a: Access }) {
   };
   const turnOn = async () => {
     setBusy(true); setErr(""); setText("");
-    try { if (a.demo) turnOnTapDemo(); else await turnOnTap(a.salonId, setText); setOn(true); }
+    try {
+      if (a.demo) turnOnTapDemo(); else await turnOnTap(a.salonId, setText);
+      setOn(true);
+      // Apple R8: right after turning on, show how the client taps (Apple's screens, else ours).
+      if ((await showHowToTap()) === "own") setSteps(true);
+    }
     catch (e) { if ((e as Error).message !== "canceled") setErr(words(e)); }
     setBusy(false); setText("");
   };
@@ -87,13 +94,17 @@ function TapToPay({ a }: { a: Access }) {
         </>}
         {on && <>
           <p style={{ margin: 0, fontSize: 15 }}>{t("onWhy")}</p>
-          <div><Button variant="ghost" data-testid="tap-turn-off" disabled={busy} onClick={() => void turnOff()}>{t("turnOff")}</Button></div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <HowToTapButton variant="primary" />
+            <Button variant="ghost" data-testid="tap-turn-off" disabled={busy} onClick={() => void turnOff()}>{t("turnOff")}</Button>
+          </div>
         </>}
       </div>}
 
       {app && a.demo && <div className="demo">{t("demo")}</div>}
       {err && <div className="hint err" role="alert" data-testid="tap-error">{err} {/Stripe/.test(err) && <Link href="/settings/payments">{t("toPayments")}</Link>}</div>}
       <p className="cap" style={{ margin: 0 }}>{t("fee")}</p>
+      {steps && <HowToTapSteps onClose={() => setSteps(false)} />}
     </div>
   );
 }

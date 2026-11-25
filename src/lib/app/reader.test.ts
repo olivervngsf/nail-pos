@@ -141,3 +141,43 @@ describe("card key errors", () => {
     expect(explainAppError(e)).toBe(e);
   });
 });
+
+describe("how to tap (Apple R8)", () => {
+  it("opens Apple's screens when the iPhone can", async () => {
+    const sent = fakeApp("1.4", { supported: true, ios: true, howTo: true }, ios("1.4"));
+    const { showHowToTap } = await import("./reader");
+    expect(await showHowToTap()).toBe("apple");
+    expect(sent.map((m) => m.reader)).toEqual(["tapCheck", "howToTap"]);
+  });
+
+  it("older iOS or app: our own steps, no call to the app", async () => {
+    const sent = fakeApp("1.3", { supported: true, ios: true }, ios("1.3"));
+    const { showHowToTap } = await import("./reader");
+    expect(await showHowToTap()).toBe("own");
+    expect(sent.map((m) => m.reader)).toEqual(["tapCheck"]);
+  });
+});
+
+describe("busy reader (older app)", () => {
+  it("stops the old try and charges once more instead of failing", async () => {
+    const sent: Record<string, unknown>[] = [];
+    let pays = 0;
+    const app = {
+      onmessage: null as ((e: { data: string }) => void) | null,
+      postMessage: (s: string) => {
+        const m = JSON.parse(s);
+        sent.push(m);
+        const reply = m.pay ? (++pays === 1 ? { error: "The reader was finishing the last try. Try again.", code: "busy" } : { ok: true }) : { ok: true };
+        setTimeout(() => app.onmessage?.({ data: JSON.stringify({ id: m.id, ...reply }) }), 0);
+      },
+    };
+    vi.stubGlobal("window", { PolishOSApp: app });
+    vi.stubGlobal("navigator", { userAgent: ios("1.3") });
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const { takeCard } = await import("./reader");
+    await takeCard({ id: "pr1", secret: "pi_secret", locationId: "tml_1", test: true }, () => {}, true);
+    vi.useRealTimers();
+    expect(pays).toBe(2);
+    expect(sent.some((m) => m.reader === "cancel")).toBe(true);
+  });
+});

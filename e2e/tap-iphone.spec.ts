@@ -50,6 +50,12 @@ test("Settings → Tap to Pay on iPhone: owner turns it on for this iPhone, then
   await expect(page.getByText("Apple shows its terms one time")).toBeVisible();
   await page.getByTestId("tap-turn-on").click();
   await expect(page.getByTestId("tap-state")).toContainText("On");
+  // Apple R8: right after turning on, how the client taps (our steps when Apple's screens aren't there)
+  await expect(page.getByTestId("how-to-tap-steps")).toContainText("flat on the top of the iPhone");
+  await page.getByRole("button", { name: "Got it" }).click();
+  await page.getByTestId("how-to-tap").click();
+  await expect(page.getByTestId("how-to-tap-steps")).toBeVisible();
+  await page.getByRole("button", { name: "Got it" }).click();
   page.once("dialog", (d) => void d.accept());
   await page.getByTestId("tap-turn-off").click();
   await expect(page.getByTestId("tap-state")).toHaveText("Off");

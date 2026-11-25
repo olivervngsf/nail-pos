@@ -11,7 +11,8 @@ import { appCall, appTell, appVersion, inIosApp, onAppEvent } from "./bridge";
 export const canAppReader = () => appVersion() >= 1.1;
 
 /** `icon` = Apple's own Tap to Pay symbol as a picture (iPhone app 1.3+); `ios` = Tap to Pay on iPhone. */
-export type TapCheck = { supported: boolean; reason?: string; nfcOff?: boolean; ios?: boolean; icon?: string };
+/** `howTo` = Apple's own "how to tap" screens can be shown (iPhone app 1.4+, iOS 18+). */
+export type TapCheck = { supported: boolean; reason?: string; nfcOff?: boolean; ios?: boolean; icon?: string; howTo?: boolean };
 let tapCheck: Promise<TapCheck> | null = null;
 /**
  * Can this phone take cards by tap (Stripe Tap to Pay: Google-certified Android phone with NFC, or iPhone XS+)?
@@ -23,6 +24,7 @@ export function canTapToPay(): Promise<TapCheck> {
     .then((r) => ({
       supported: !!r.supported, reason: r.reason, nfcOff: !!r.nfcOff,
       ios: !!r.ios || inIosApp(), icon: typeof r.icon === "string" && r.icon.startsWith("data:image/png;base64,") ? r.icon : undefined,
+      ...(r.howTo ? { howTo: true } : {}),
     }))
     .catch(() => { tapCheck = null; return { supported: false }; });
   return tapCheck;
@@ -60,18 +62,31 @@ function answerTokens() {
 export async function takeCard(pay: AppPay, say: (text: string) => void, tap = false): Promise<void> {
   answerTokens();
   tokenFor = { pr: pay.id };
+  paying = true;
   const stopText = onAppEvent("reader", (e) => { if (typeof e.text === "string" && e.text) say(e.text); });
+  // iPhone: Apple's terms are never shown at checkout (an owner/manager accepts them in Settings first).
+  const msg = { pay: pay.secret, locationId: pay.locationId, simulated: pay.test && !wantsRealReader(tap), tap, ...(tap && inIosApp() ? { terms: false } : {}) };
   try {
     // Up to 10 minutes: a new reader may update itself first.
-    // iPhone: Apple's terms are never shown at checkout (an owner/manager accepts them in Settings first).
-    await appCall({ pay: pay.secret, locationId: pay.locationId, simulated: pay.test && !wantsRealReader(tap), tap, ...(tap && inIosApp() ? { terms: false } : {}) }, 10 * 60 * 1000);
+    try {
+      await appCall(msg, 10 * 60 * 1000);
+    } catch (e) {
+      // Older apps answer "busy" when a get-ready or an older try is still open: stop it, wait, try once more.
+      if ((e as { code?: string }).code !== "busy") throw e;
+      await stopCard();
+      await new Promise((ok) => setTimeout(ok, 1500));
+      await appCall(msg, 10 * 60 * 1000);
+    }
     if (tap) markTapUsed();
   } catch (e) {
     throw explainAppError(e);
   } finally {
+    paying = false;
     stopText();
   }
 }
+/** A payment is running: the background get-ready waits (it would make the reader "busy"). */
+let paying = false;
 
 /** Stripe's kit hides our reason behind "…fetchConnectionToken with an error": put our own words back. */
 export function explainAppError(e: unknown): Error & { code?: string } {
@@ -80,6 +95,16 @@ export function explainAppError(e: unknown): Error & { code?: string } {
     return Object.assign(new Error(tokenError ? `PolishOS couldn't get a card key: ${tokenError}` : "PolishOS couldn't get a card key. Check the internet, then try again."), { code: err.code === "offline" ? "offline" : "token" });
   }
   return err;
+}
+
+/**
+ * Apple's rule R8: show staff how the client taps. Apple's own screens when the iPhone can (iOS 18+, app 1.4+);
+ * otherwise "own" = the page shows our short help instead. Never throws.
+ */
+export async function showHowToTap(): Promise<"apple" | "own"> {
+  const check = await canTapToPay();
+  if (!check.howTo) return "own";
+  try { await appCall({ reader: "howToTap" }, 10 * 60 * 1000); return "apple"; } catch { return "own"; }
 }
 
 /** Stop waiting for the card (or stop looking for the reader). */
@@ -140,7 +165,7 @@ let warmSalon = "";
 let warming: Promise<void> | null = null;
 /** Get Tap to Pay ready for this salon (iPhone app, after the first tap). Safe to call often. */
 export function warmTap(salonId: string): Promise<void> {
-  if (!salonId || !inIosApp() || !tapUsed()) return Promise.resolve();
+  if (!salonId || !inIosApp() || !tapUsed() || paying) return Promise.resolve();
   warmSalon = salonId;
   if (warming) return warming;
   warming = (async () => {
