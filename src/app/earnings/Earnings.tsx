@@ -3,7 +3,6 @@
 // types their PIN and sees only their own earnings for today or this week, then prints the slip. Nothing stays on screen after.
 import { pinLenFor } from "@/lib/pin";
 import { useRef, useState } from "react";
-import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, LeftMenu, ListGroup, PinKeypad, Segmented, SyncPill, TopBar } from "@/components/kit";
 import { pinMessage, rpc, type PinResult } from "@/lib/auth";
@@ -108,7 +107,7 @@ export default function Earnings() {
     <div className="app cd-app">
       <LeftMenu active="Today" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} />
       <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/today">‹ {t("back")}</Link>{t("myEarnings")}</span>}><SyncPill /></TopBar>
+        <TopBar back={{ href: "/today", label: t("back") }} title={t("myEarnings")}><SyncPill /></TopBar>
         {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
         <main style={{ padding: 24, maxWidth: 520, width: "100%", alignSelf: "center", display: "flex", flexDirection: "column", gap: 14 }}>
           <Segmented label={t("range")} value={period} onChange={(v) => { setPeriod(v); setRow(null); setTips(null); }} options={[{ value: "today", label: t("today") }, { value: "week", label: t("thisWeek") }, { value: "tips", label: t("tipsMonth") }]} />

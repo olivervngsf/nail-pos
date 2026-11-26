@@ -31,6 +31,8 @@
     "vi": "Tiếng Việt"
   },
   "kit": {
+    "menuHide": "Ẩn menu",
+    "menuShow": "Hiện menu",
     "title": "Bộ thiết kế",
     "lead": "Mọi phần dùng chung của giao diện PolishOS, từ design/kit/kit.css. Màn hình chỉ dùng những phần này.",
     "offlineTest": "Thử mất mạng",
@@ -1499,7 +1501,8 @@
     "cash": "Tiền mặt",
     "giftCard": "Thẻ quà",
     "toBankShort": "Vào ngân hàng",
-    "allMatch": "✓ Mọi phiếu khớp với thanh toán."
+    "allMatch": "✓ Mọi phiếu khớp với thanh toán.",
+    "stepOf": "Bước {n}/{total}"
   },
   "payouts": {
     "title": "Bảng lương",

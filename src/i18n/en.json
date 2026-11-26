@@ -31,6 +31,8 @@
     "vi": "Tiếng Việt"
   },
   "kit": {
+    "menuHide": "Hide menu",
+    "menuShow": "Show menu",
     "title": "Design kit",
     "lead": "Every shared piece of the PolishOS look, from design/kit/kit.css. Screens use only these.",
     "offlineTest": "Offline test",
@@ -1499,7 +1501,8 @@
     "cash": "Cash",
     "giftCard": "Gift card",
     "toBankShort": "To bank",
-    "allMatch": "✓ Every ticket matches its payments."
+    "allMatch": "✓ Every ticket matches its payments.",
+    "stepOf": "Step {n} of {total}"
   },
   "payouts": {
     "title": "Payout sheet",

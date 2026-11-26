@@ -2,7 +2,6 @@
 // Owner: loyalty program (Loyalty board L1–L2 + L6 receipt preview). V1 = points or a punch card tied to the phone number.
 // Packages, perks and referrals come later (shown as "later", not built).
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button, LeftMenu, OfflineBanner, Stepper, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
 import { rpc } from "@/lib/auth";
@@ -52,7 +51,7 @@ function Settings({ desk }: { desk: Desk }) {
     <div className="app nm-app">
       <LeftMenu active="Today" salonInitials={initials} me={desk.me.display_name[0]} />
       <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/today">‹ {t("back")}</Link>{t("title")}</span>}>
+        <TopBar back={{ href: "/today", label: t("back") }} title={t("title")}>
           {rule && admin && <span className="cap">{rule.on ? t("onSaved") : t("off")}</span>}
           <SyncPill />
         </TopBar>
