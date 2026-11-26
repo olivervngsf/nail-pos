@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Button, Chip, Drawer } from "@/components/kit";
+import { Button, Chip, DatePicker, Drawer } from "@/components/kit";
 import { e164, rpc } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
@@ -170,7 +170,7 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
         {[0, 1].map((n) => <Chip key={n} on={day === dayIn(n)} onClick={() => setDay(dayIn(n))}>{n === 0 ? t("today") : t("b2_tomorrow")}</Chip>)}
         {[14, 21, 28, 42].map((n) => <Chip key={n} on={day === dayIn(n)} onClick={() => setDay(dayIn(n))}>{t("b2_inWk", { n: n / 7, date: dayLbl(dayIn(n)) })}</Chip>)}
-        <input className="inp" type="date" aria-label={t("date")} value={day} onChange={(e) => e.target.value && setDay(e.target.value)} style={{ width: 150, height: 32 }} />
+        <DatePicker label={t("date")} value={day} onChange={(v) => v && setDay(v)} data-testid="book-date" />
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <label className="bk-tbx"><span className="cap">{t("b2_start")}</span>

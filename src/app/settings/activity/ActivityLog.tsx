@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { Button, Chip, Drawer } from "@/components/kit";
+import { Button, Chip, DatePicker, Drawer } from "@/components/kit";
 import { rpc } from "@/lib/auth";
 import {
   KINDS, activityCsv, actionKey, applyFilter, countKinds, demoActivity, facts, kindOf, needsLook, plainAction, toneOf,
@@ -83,7 +83,7 @@ function Log({ a }: { a: Access }) {
     <>
       <div className="act-bar act-noprint">
         <Button size="sm" variant="ghost" aria-label={t("earlier")} onClick={() => setDay(addDays(day, -span))}>‹</Button>
-        <input type="date" className="inp" value={day} max={today} aria-label={t("day")} onChange={(e) => e.target.value && setDay(e.target.value)} data-testid="act-day" />
+        <DatePicker label={t("day")} value={day} max={today} onChange={(v) => v && setDay(v)} data-testid="act-day" />
         <Button size="sm" variant="ghost" aria-label={t("later")} disabled={day >= today} onClick={() => setDay(addDays(day, span) > today ? today : addDays(day, span))}>›</Button>
         {([1, 7, 31] as const).map((d) => <Chip key={d} on={span === d} onClick={() => setSpan(d)}>{t(`span${d}`)}</Chip>)}
         <span className="act-spacer" />

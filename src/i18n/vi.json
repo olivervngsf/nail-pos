@@ -1527,7 +1527,10 @@
     "tipsSigned": "Đã ký. Cảm ơn.",
     "tipReportCap": "Mỗi người tự ký tháng của mình trên máy của tiệm: Thu nhập của tôi → Báo cáo tiền tip.",
     "month": "Tháng",
-    "signedCol": "Đã ký"
+    "signedCol": "Đã ký",
+    "yesterday": "Hôm qua",
+    "thisMonth": "Tháng này",
+    "lastMonthP": "Tháng trước"
   },
   "numbers": {
     "title": "Số liệu",
@@ -2894,5 +2897,20 @@
       "support_off": "Hết quyền hỗ trợ",
       "support_change": "PolishOS hỗ trợ đã đổi một mục"
     }
+  },
+  "picker": {
+    "pick": "Chọn ngày",
+    "prevMonth": "Tháng trước",
+    "nextMonth": "Tháng sau",
+    "prevYear": "Năm trước",
+    "nextYear": "Năm sau",
+    "clear": "Xoá",
+    "today": "Hôm nay",
+    "thisMonth": "Tháng này",
+    "apply": "Áp dụng",
+    "cancel": "Huỷ",
+    "quick": "Chọn nhanh",
+    "pickLast": "Giờ chạm ngày cuối",
+    "days": "{n} ngày"
   }
 }

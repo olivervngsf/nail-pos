@@ -1527,7 +1527,10 @@
     "tipsSigned": "Signed. Thank you.",
     "tipReportCap": "Each person signs their own month on the salon device: My earnings → Tips report.",
     "month": "Month",
-    "signedCol": "Signed"
+    "signedCol": "Signed",
+    "yesterday": "Yesterday",
+    "thisMonth": "This month",
+    "lastMonthP": "Last month"
   },
   "numbers": {
     "title": "Numbers",
@@ -2894,5 +2897,20 @@
       "support_off": "Support access ended",
       "support_change": "PolishOS support changed something"
     }
+  },
+  "picker": {
+    "pick": "Pick a date",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "prevYear": "Previous year",
+    "nextYear": "Next year",
+    "clear": "Clear",
+    "today": "Today",
+    "thisMonth": "This month",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "quick": "Quick picks",
+    "pickLast": "Now tap the last day",
+    "days": "{n, plural, one {# day} other {# days}}"
   }
 }

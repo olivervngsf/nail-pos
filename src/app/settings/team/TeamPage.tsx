@@ -3,7 +3,7 @@
 // Owner sets pay; managers edit the rest. A new member gets an invite link (they set their own PIN on their phone).
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Chip, Drawer, Field, ListGroup, PinKeypad, Toast } from "@/components/kit";
+import { Button, Chip, DateField, Drawer, Field, ListGroup, PinKeypad, Toast } from "@/components/kit";
 import { cachedRules, pinProblem } from "@/lib/pin";
 import { e164, rpc, type Role } from "@/lib/auth";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
@@ -251,7 +251,7 @@ function MemberDrawer({ a, m, onClose, onSaved, onChanged }: { a: Access; m: Mem
             <div className="cap" style={{ marginTop: 6 }}>{t("m.skillsHint")}</div></div>
           <div className="set-two">
             <Field id="m-lic" label={t("m.licenseNo")} value={x.licenseNo ?? ""} onChange={(e) => set({ licenseNo: e.target.value })} />
-            <Field id="m-licx" label={t("m.licenseExpires")} type="date" value={x.licenseExpires ?? ""} onChange={(e) => set({ licenseExpires: e.target.value || null })} />
+            <DateField id="m-licx" label={t("m.licenseExpires")} value={x.licenseExpires ?? ""} clearable onChange={(v) => set({ licenseExpires: v || null })} />
           </div>
         </>}
       </section>
@@ -275,7 +275,7 @@ function MemberDrawer({ a, m, onClose, onSaved, onChanged }: { a: Access; m: Mem
       <details className="set-sec set-more" open={!!(m.startDate || m.birthday || m.emergency)}>
         <summary className="set-sec-h">{t("m.more")}</summary>
         <div className="set-two">
-          <Field id="m-start" label={t("m.start")} type="date" value={x.startDate ?? ""} onChange={(e) => set({ startDate: e.target.value || null })} />
+          <DateField id="m-start" label={t("m.start")} value={x.startDate ?? ""} clearable onChange={(v) => set({ startDate: v || null })} />
           <Field id="m-bday" label={t("m.birthday")} placeholder="MM-DD" value={x.birthday ?? ""} onChange={(e) => set({ birthday: e.target.value })} />
         </div>
         <Field id="m-emer" label={t("m.emergency")} placeholder={t("m.emergencyHint")} value={x.emergency ?? ""} onChange={(e) => set({ emergency: e.target.value })} />
