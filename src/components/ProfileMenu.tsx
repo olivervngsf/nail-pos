@@ -47,6 +47,7 @@ export function PmRow({ icon, label, right, href, onClick, testid, sub, open, on
 }
 
 type SubProps = { sub: string | null; setSub: (s: string | null) => void; inline?: boolean; long?: boolean };
+// Hover opens a side menu on computers, so a click there only opens it (a toggle would close what the hover just opened).
 const hoverFor = (inline: boolean | undefined, setSub: SubProps["setSub"], k: string) => (inline ? undefined : () => setSub(k));
 
 /** Language row + its side menu (desktop: beside the pop-up on hover or tap; phone sheet: opens below). */
@@ -56,7 +57,7 @@ export function LangRow({ sub, setSub, inline, long }: SubProps) {
   const langName = (l: "en" | "vi") => (l === "en" ? "English" : "Tiếng Việt");
   return (
     <div className="pm-subw">
-      <PmRow icon={IC.globe} label={t("language")} right={`${long ? langName(lang) : lang.toUpperCase()} ›`} sub open={sub === "lang"} onHover={hoverFor(inline, setSub, "lang")} onClick={() => setSub(sub === "lang" ? null : "lang")} testid="pm-lang" />
+      <PmRow icon={IC.globe} label={t("language")} right={`${long ? langName(lang) : lang.toUpperCase()} ›`} sub open={sub === "lang"} onHover={hoverFor(inline, setSub, "lang")} onClick={() => setSub(inline && sub === "lang" ? null : "lang")} testid="pm-lang" />
       {sub === "lang" && (
         <div className={inline ? "pm-sub in" : "pm-sub"} role="menu" aria-label={t("language")}>
           {(["en", "vi"] as const).map((l) => (
@@ -77,7 +78,7 @@ export function SizeRow({ sub, setSub, inline }: SubProps) {
   useEffect(() => setSize(getTextSize()), []);
   return (
     <div className="pm-subw">
-      <PmRow icon={IC.size} label={t("textSize")} right={`${t(`size.${size}`)} ›`} sub open={sub === "size"} onHover={hoverFor(inline, setSub, "size")} onClick={() => setSub(sub === "size" ? null : "size")} testid="pm-size" />
+      <PmRow icon={IC.size} label={t("textSize")} right={`${t(`size.${size}`)} ›`} sub open={sub === "size"} onHover={hoverFor(inline, setSub, "size")} onClick={() => setSub(inline && sub === "size" ? null : "size")} testid="pm-size" />
       {sub === "size" && (
         <div className={inline ? "pm-sub in" : "pm-sub"} role="menu" aria-label={t("textSize")}>
           {TEXT_SIZES.map((s, i) => (
