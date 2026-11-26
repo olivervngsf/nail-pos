@@ -774,12 +774,13 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
           <button type="button" className="opt" data-testid="receipt-print" onClick={() => { logReceipt(ticket, "print"); setTimeout(() => window.print(), 50); say(t("printed")); }}>{canBluetooth() ? t("printWindow") : t("print")}<span className="grow" /><span className="cap">›</span></button>
           <button type="button" className="opt" data-testid="receipt-text" disabled={rcptBusy !== null} onClick={() => { if (!ticket.client?.phone) return say(t("noPhone")); askSend("text", ticket.client.phone); }}>
             {t("text")}<span className="grow" /><span className="cap num">{ticket.client?.phone ? fmtPhone(ticket.client.phone) : ""} ›</span></button>
-          <button type="button" className="opt" onClick={() => setEmail("")}>{t("email")}<span className="grow" /><span className="cap">›</span></button>
+          <button type="button" className="opt" data-testid="receipt-email" onClick={() => setEmail(ticket.client?.email ?? ticket.receiptTo ?? "")}>
+            {t("email")}<span className="grow" /><span className="cap">{ticket.client?.email ?? ""} ›</span></button>
           <button type="button" className="opt" style={{ color: "var(--ink-soft)" }} onClick={() => logReceipt(ticket, "none")}>{t("noReceipt")}</button>
         </div>
         {email !== null && <div style={{ display: "flex", gap: 8 }}>
-          <input className="inp" type="email" placeholder={t("emailPh")} aria-label={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Button disabled={!/^\S+@\S+\.\S+$/.test(email) || rcptBusy !== null} onClick={() => { const to = email; setEmail(null); askSend("email", to); }}>{t("send")}</Button>
+          <input className="inp" type="email" data-testid="receipt-email-input" placeholder={t("emailPh")} aria-label={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Button disabled={!/^\S+@\S+\.\S+$/.test(email) || rcptBusy !== null} onClick={() => { const to = email.trim(); setEmail(null); askSend("email", to); }}>{t("send")}</Button>
         </div>}
         {rcptBusy && <div className="cap" data-testid="receipt-result" aria-live="polite">{t("rcpt.sending")}</div>}
         {!rcptBusy && rcptAgain && <div className="note" data-testid="receipt-again" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
@@ -789,7 +790,7 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
         </div>}
         {!rcptBusy && !rcptAgain && ticket.receiptSent && (() => { const r = ticket.receiptSent; const l = receiptLine(r.channel, r); return (
           <div className="cap" data-testid="receipt-result" aria-live="polite" style={{ display: "flex", gap: 6, alignItems: "center" }}><StatusIcon tone={l.tone} />{t(`rcpt.${l.key}`, { to: maskTo(r.channel, r.to) })}</div>); })()}
-        {!rcptBusy && !rcptAgain && !ticket.receiptSent && ticket.receipt && <div className="cap">✓ {t(ticket.receipt === "none" ? "noReceipt" : ticket.receipt)}</div>}
+        {!rcptBusy && !rcptAgain && !ticket.receiptSent && ticket.receipt && <div className="cap" data-testid="receipt-done">✓ {t(ticket.receipt === "none" ? "noReceipt" : ticket.receipt)}{ticket.receiptTo ? ` · ${ticket.receipt === "text" ? fmtPhone(ticket.receiptTo) : ticket.receiptTo}` : ""}</div>}
         <div className="cap">{t("receiptLang")}</div>
         <div style={{ flex: 1 }} />
         {ticket.status === "paid" && <Button variant="ghost" data-testid="refund" onClick={() => setRefunding(true)}>{t("refund")}</Button>}
