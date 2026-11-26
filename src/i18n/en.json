@@ -2067,7 +2067,8 @@
       "pin": "PIN",
       "language": "Language",
       "textSize": "Text size",
-      "roles": "Roles"
+      "roles": "Roles",
+      "timesheet": "Timesheet"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -3033,7 +3034,8 @@
       "support_on": "Support access turned on",
       "support_off": "Support access ended",
       "support_change": "PolishOS support changed something",
-      "roles_saved": "Roles + permissions changed"
+      "roles_saved": "Roles + permissions changed",
+      "clock_fix": "Clock time fixed"
     }
   },
   "picker": {
@@ -3055,6 +3057,11 @@
     "title": "What’s new",
     "sub": "The latest changes to PolishOS, newest first.",
     "items": [
+      {
+        "date": "Nov 26",
+        "title": "Timesheet",
+        "body": "Settings → Timesheet: who is clocked in now, hours per day and week, late meal breaks and overtime. Fix a missing clock-out with a reason; the old time stays on record."
+      },
       {
         "date": "Nov 26",
         "title": "Settings like Claude + profile photo",
@@ -3091,5 +3098,89 @@
         "body": "Change the salon address, hours and every service after setup, in Settings."
       }
     ]
+  },
+  "timesheet": {
+    "title": "Timesheet",
+    "view": "Show",
+    "day": "Day",
+    "week": "Week",
+    "earlier": "Earlier",
+    "later": "Later",
+    "today": "Today",
+    "print": "Print",
+    "csv": "Download CSV",
+    "fixTitle": "{n, plural, one {# clock-out is missing} other {# clock-outs are missing}}",
+    "fixBody": "{name} never clocked out on {day}. Add the real time so their hours are right.",
+    "fixTime": "Fix time",
+    "tile": {
+      "inNow": "In now",
+      "inNowSub": "clocked in right now",
+      "hours": "Hours",
+      "hoursDay": "worked this day",
+      "hoursWeek": "worked this week",
+      "meal": "Late meal break",
+      "mealSub": "no 30-min break before the 5th hour",
+      "ot": "Overtime",
+      "otSub": "over 8h a day or 40h a week"
+    },
+    "person": "Person",
+    "inOut": "In → out",
+    "break": "Break",
+    "hours": "Hours",
+    "now": "Now",
+    "notIn": "Not in",
+    "refusedAt": "Clock-in refused {time} (not at the salon)",
+    "mealLate": "No meal break before the 5th hour",
+    "total": "Total",
+    "flags": "Check",
+    "flag": {
+      "fix": "Fix",
+      "ot": "Overtime",
+      "meal": "Meal break",
+      "ok": "OK"
+    },
+    "state": {
+      "fix": "Needs fix",
+      "in": "In",
+      "out": "Out",
+      "refused": "Refused",
+      "off": "Off"
+    },
+    "note": "Facts from the time clock, not payroll. California: overtime after 8h a day or 40h a week; a 30-min meal break before the 5th hour. Every fix keeps the old time with who and why.",
+    "in": "In",
+    "out": "Out",
+    "stillIn": "Still in",
+    "missing": "Missing",
+    "wasAt": "Was {time} · fixed by {by}",
+    "addedBy": "Added by {by}",
+    "fix": "Fix",
+    "add": "Add",
+    "via": {
+      "device": "Salon device",
+      "phone": "Own phone",
+      "fix": "Added by hand",
+      "pin": "Salon device"
+    },
+    "noPunches": "No clock in or out in these days.",
+    "drawerNote": "Fix a time or add a missing one. The old time stays on record and shows in the Activity log.",
+    "fixTitleOne": "Fix {name}'s time",
+    "addTitle": "Add {name}'s missing time",
+    "cancel": "Cancel",
+    "saveFix": "Save fix",
+    "saving": "Saving…",
+    "realTime": "Real time",
+    "inTime": "Real clock-in time",
+    "outTime": "Real clock-out time",
+    "future": "That time hasn't happened yet.",
+    "why": "Why",
+    "reason": {
+      "forgot": "Forgot",
+      "device_off": "Device was off",
+      "wrong_person": "Wrong person",
+      "other": "Other"
+    },
+    "noteLabel": "Note (optional)",
+    "notePh": "e.g. left at 6:30, told the desk",
+    "fixNote": "{name} can see this fix. It is saved with your name and the reason."
   }
 }
