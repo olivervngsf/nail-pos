@@ -178,8 +178,8 @@ export default function Payouts() {
             <section className="card" style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 10 }} data-testid="tip-report">
               <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                 <div className="h2" style={{ flex: 1 }}>{t("tipReport")}</div>
-                <input className="inp" type="month" aria-label={t("month")} value={tipMonth.slice(0, 7)} max={today.slice(0, 7)}
-                  onChange={(e) => e.target.value && setTipMonth(`${e.target.value}-01`)} style={{ height: 36, width: "auto" }} />
+                <MonthStep month={tipMonth} max={today} label={t("month")} onChange={setTipMonth}
+                  name={f.dateTime(new Date(`${tipMonth}T12:00:00`), { month: "long", year: "numeric" })} />
               </div>
               <table className="cd-table">
                 <thead><tr><th>{t("person")}</th><th>{t("cardTips")}</th><th>{t("cashTips")}</th><th>{t("signedCol")}</th></tr></thead>
@@ -231,6 +231,23 @@ export default function Payouts() {
         </div>
       )}
       {toast && <Toast>{toast}</Toast>}
+    </div>
+  );
+}
+
+/** Month picker: ‹ October 2026 › — one tap per month, never past this month. `month` = "YYYY-MM-01". */
+function MonthStep({ month, max, name, label, onChange }: { month: string; max: string; name: string; label: string; onChange: (m: string) => void }) {
+  const shift = (n: number) => {
+    const [y, m] = month.split("-").map(Number);
+    const d = new Date(Date.UTC(y, m - 1 + n, 1));
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-01`;
+  };
+  const atMax = month.slice(0, 7) >= max.slice(0, 7);
+  return (
+    <div className="month-step" role="group" aria-label={label} data-testid="tip-month">
+      <button type="button" aria-label="Previous month" onClick={() => onChange(shift(-1))}>‹</button>
+      <span aria-live="polite">{name}</span>
+      <button type="button" aria-label="Next month" disabled={atMax} onClick={() => onChange(shift(1))}>›</button>
     </div>
   );
 }
