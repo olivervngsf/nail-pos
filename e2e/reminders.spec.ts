@@ -5,8 +5,8 @@ test("booking reminders: pick times, test mode, save", async ({ page }) => {
   await page.goto("/settings/reminders");
   await expect(page.getByTestId("rem-plan")).toHaveText("Clients get a confirmation right away, then a reminder 24h before and 2h before.");
   await expect(page.getByTestId("rem-save")).toBeDisabled();
-  await page.getByRole("group", { name: "1st reminder" }).getByRole("button", { name: "48h before" }).click();
-  await page.getByRole("switch", { name: "Test reminders (24h)" }).click();
+  await page.getByRole("group", { name: "1st reminder" }).getByRole("button", { name: "48h", exact: true }).click();
+  await page.getByRole("switch", { name: "Test reminders" }).click();
   await expect(page.getByTestId("rem-plan")).toContainText("48h before and 2h before");
   await expect(page.getByTestId("rem-plan")).toContainText("3 minutes after booking");
   await page.getByTestId("rem-save").click();
