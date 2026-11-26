@@ -6,7 +6,7 @@ import type { PayoutRow } from "@/lib/closeday";
 import { formatCents } from "@/lib/money";
 import type { ReceiptDoc } from "./escpos";
 import { printDoc } from "./print";
-import { savedPrinter } from "./bluetooth";
+import { canBluetooth, savedPrinter } from "./bluetooth";
 import { printInWindow } from "./slip";
 import { PRINT_DEFAULTS, type PrintSettings } from "./settings";
 
@@ -55,9 +55,9 @@ export function earningsDoc(r: PayoutRow, salon: string, period: string, txt: Ea
 /** Only people who worked or earned something get a slip. */
 export const worked = (r: PayoutRow) => r.tickets > 0 || r.total_cents !== 0 || r.minutes > 0;
 
-/** Bluetooth only when a receipt printer was paired here, or on a phone/tablet (where it's the only way). A computer
- *  with a normal USB/Wi-Fi printer goes straight to its print window. */
-const viaBluetooth = () => !!savedPrinter() || (typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches);
+/** Same as the checkout receipt: straight to the receipt printer whenever this browser can (paired printer, Chrome's
+ *  Bluetooth list, or our app's built-in printer). Closing the printer list falls back to the computer's print window. */
+const viaBluetooth = () => !!savedPrinter() || canBluetooth();
 
 /** Print one slip per person. Returns how many were printed. */
 export async function printEarnings(docs: ReceiptDoc[], onEach?: (i: number) => void): Promise<number> {
