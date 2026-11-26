@@ -1,6 +1,7 @@
 "use client";
 // Tech app (M13): who I am on this phone + the shell every tab shares (top bar, bottom tabs Home · Schedule · Book ·
 // Earnings · Me). A tech only ever sees their own clients and money: bookings come from `my_appts`, money from `my_earnings`.
+import { useSyncWeekStart } from "@/lib/useWeekStart";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
@@ -41,6 +42,7 @@ export function useTechMe() {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
+  useSyncWeekStart(me?.salonId, !!me?.live);
   return { me, err };
 }
 

@@ -95,6 +95,12 @@ b,strong{font-weight:600} /* browsers default <b> to bold: semibold is our defau
 .inp:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(22,22,26,.10)}
 @media (pointer:coarse){.inp{height:48px;font-size:17px}}
 .inp.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(224,49,49,.10)}
+/* Dropdown: square with a soft corner (same family as .btn.primary), own chevron. select.inp = form size 40; .sel = compact toolbar size 32. Never a pill. */
+select.inp,.sel{-webkit-appearance:none;appearance:none;background-color:var(--paper);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%2316161A' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:12px;padding-right:34px;cursor:pointer;text-overflow:ellipsis}
+.sel{display:inline-flex;align-items:center;height:32px;width:auto;padding-left:12px;border-radius:8px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(22,22,26,.04);font:inherit;font-size:13px;font-weight:600;color:var(--ink);transition:border-color .2s,box-shadow .2s,background-color .2s}
+select.inp:hover,.sel:hover{border-color:rgba(22,22,26,.22)}
+.sel:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(22,22,26,.10)}
+@media (pointer:coarse){.sel{height:40px;font-size:16px;border-radius:10px}}
 .hint{font-size:13px;line-height:18px;color:var(--ink-soft);margin-top:6px}
 .hint.err{color:var(--red)}
 /* Chip: filters + quick picks. 36px. .on = chosen, .sug = AI suggestion (dashed) */

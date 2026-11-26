@@ -33,3 +33,26 @@ test("service menu: change a price, add a service, remove it", async ({ page }) 
   await page.getByTestId("menu-remove-yes").click();
   await expect(row).toHaveCount(0);
 });
+
+test("settings: week starts on Sunday → hours, calendar and date pickers follow; back to Monday", async ({ page }) => {
+  await page.goto("/settings/salon");
+  const wk = page.getByTestId("week-start");
+  await expect(wk.getByRole("button", { name: "Monday" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".si-hours .si-day").nth(1)).toContainText("Mon");
+  await wk.getByRole("button", { name: "Sunday" }).click();
+  await expect(page.locator(".si-hours .si-day").nth(1)).toContainText("Sun");
+  await page.getByTestId("si-save").click();
+  await expect(page.getByTestId("si-save")).toBeDisabled();
+  await page.goto("/calendar?view=month");
+  await expect(page.locator(".cal-mh").first()).toHaveText("Sun");
+  await page.goto("/payouts");
+  await page.getByTestId("po-range").click();
+  await expect(page.locator(".dp-pop .dp-wd").first()).toHaveText("S");
+  await expect(page.locator(".dp-pop .dp-wd").nth(1)).toHaveText("M");
+  await page.keyboard.press("Escape");
+  await page.goto("/settings/salon");
+  await page.getByTestId("week-start").getByRole("button", { name: "Monday" }).click();
+  await page.getByTestId("si-save").click();
+  await page.goto("/calendar?view=month");
+  await expect(page.locator(".cal-mh").first()).toHaveText("Mon");
+});
