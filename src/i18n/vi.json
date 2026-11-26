@@ -316,7 +316,9 @@
     "techFilter": "Xem phiếu của một thợ",
     "tapAskOwner": "Nhờ chủ hoặc quản lý bật Tap to Pay on iPhone trong Cài đặt.",
     "practiceStuck": "Chạm thử không trả lời nên đã dừng. Bấm Tính tiền để thử lại.",
-    "tapPracticeWait": "Chạm thử: tự trả trong vài giây…"
+    "tapPracticeWait": "Chạm thử: tự trả trong vài giây…",
+    "rcDone": "Xong",
+    "rcNoPhone": "Vé chưa có số điện thoại"
   },
   "pay": {
     "title": "Trả tiền cho {salon}",

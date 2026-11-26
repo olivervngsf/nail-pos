@@ -700,6 +700,8 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
   const given = pay?.givenCents ?? sum.left;
   const how = isCard ? (pay.brand ? `${pay.brand[0].toUpperCase()}${pay.brand.slice(1)} ••${pay.last4 ?? ""}` : t("viaLink")) : t("cash").toLowerCase();
   const [email, setEmail] = useState<string | null>(null);
+  // which receipt row was used: a check sits on that row (a print saved before this visit = the computer printer row)
+  const [rcDone, setRcDone] = useState<string | null>(ticket.receipt === "print" ? "pc" : ticket.receipt ?? null);
   const [refunding, setRefunding] = useState(false);
   const newTicket = () => {
     const id = uuid();
@@ -755,19 +757,19 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
       </section>
       <section className="ck-keys" style={{ gap: 10 }}>
         <div className="h2">{t("receipt")}</div>
-        <div className="group">
-          <BluetoothPrint desk={desk} ticket={ticket} say={say} />
-          <button type="button" className="opt" data-testid="receipt-print" onClick={() => { logReceipt(ticket, "print"); setTimeout(() => window.print(), 50); say(t("printed")); }}>{canBluetooth() ? t("printWindow") : t("print")}<span className="grow" /><span className="cap">›</span></button>
-          <button type="button" className="opt" onClick={() => { if (!ticket.client?.phone) return say(t("noPhone")); logReceipt(ticket, "text", ticket.client.phone); say(t("textLater")); }}>
-            {t("text")}<span className="grow" /><span className="cap num">{ticket.client?.phone ? fmtPhone(ticket.client.phone) : ""} ›</span></button>
-          <button type="button" className="opt" onClick={() => setEmail("")}>{t("email")}<span className="grow" /><span className="cap">›</span></button>
-          <button type="button" className="opt" style={{ color: "var(--ink-soft)" }} onClick={() => logReceipt(ticket, "none")}>{t("noReceipt")}</button>
+        <div className="group ck-rc">
+          <BluetoothPrint desk={desk} ticket={ticket} say={say} done={rcDone === "bt"} onDone={() => setRcDone("bt")} />
+          <RcRow testId="receipt-print" label={canBluetooth() ? t("printWindow") : t("print")} done={rcDone === "pc"}
+            onClick={() => { logReceipt(ticket, "print"); setRcDone("pc"); setTimeout(() => window.print(), 50); say(t("printed")); }} />
+          <RcRow label={t("text")} sub={ticket.client?.phone ? fmtPhone(ticket.client.phone) : t("rcNoPhone")} done={rcDone === "text"}
+            onClick={() => { if (!ticket.client?.phone) return say(t("noPhone")); logReceipt(ticket, "text", ticket.client.phone); setRcDone("text"); say(t("textLater")); }} />
+          <RcRow label={t("email")} done={rcDone === "email"} open={email !== null} onClick={() => setEmail(email === null ? "" : null)} />
+          {email !== null && <div className="ck-rc-email">
+            <input className="inp" type="email" autoFocus placeholder={t("emailPh")} aria-label={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Button variant="primary" disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => { logReceipt(ticket, "email", email); setRcDone("email"); setEmail(null); say(t("textLater")); }}>{t("send")}</Button>
+          </div>}
+          <RcRow label={t("noReceipt")} quiet chevron={false} done={rcDone === "none"} onClick={() => { logReceipt(ticket, "none"); setRcDone("none"); }} />
         </div>
-        {email !== null && <div style={{ display: "flex", gap: 8 }}>
-          <input className="inp" type="email" placeholder={t("emailPh")} aria-label={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Button disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => { logReceipt(ticket, "email", email); setEmail(null); say(t("textLater")); }}>{t("send")}</Button>
-        </div>}
-        {ticket.receipt && <div className="cap">✓ {t(ticket.receipt === "none" ? "noReceipt" : ticket.receipt)}</div>}
         <div className="cap">{t("receiptLang")}</div>
         <div style={{ flex: 1 }} />
         {ticket.status === "paid" && <Button variant="ghost" data-testid="refund" onClick={() => setRefunding(true)}>{t("refund")}</Button>}
@@ -852,7 +854,19 @@ function digitalReceiptUrl(desk: Desk, ticket: Ticket): string | undefined {
 }
 
 /** "Print by Bluetooth" (Android Chrome, or Bluefy on iPhone/iPad): pair once, then one tap prints. */
-function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: string) => void }) {
+/** One receipt choice: label (+ grey line under it) on the left, check when used, chevron on the right edge. */
+function RcRow({ label, sub, done, onClick, testId, quiet, chevron = true, open, disabled }: { label: string; sub?: string; done?: boolean; onClick: () => void; testId?: string; quiet?: boolean; chevron?: boolean; open?: boolean; disabled?: boolean }) {
+  const t = useTranslations("checkout");
+  return (
+    <button type="button" className={`opt${quiet ? " quiet" : ""}`} data-testid={testId} disabled={disabled} aria-expanded={open} onClick={onClick}>
+      <span className="rc-main"><span className="rc-label">{label}</span>{sub && <span className="rc-sub num">{sub}</span>}</span>
+      {done && <span className="rc-done" data-testid="receipt-done"><span aria-hidden>✓</span>{t("rcDone")}</span>}
+      {chevron && <span className={`rc-chev${open ? " open" : ""}`} aria-hidden>›</span>}
+    </button>
+  );
+}
+
+function BluetoothPrint({ desk, ticket, say, done, onDone }: { desk: Desk; ticket: Ticket; say: (s: string) => void; done?: boolean; onDone?: () => void }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
   const p = usePrinter();
@@ -866,6 +880,7 @@ function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say
       await printBytes(receiptBytes(doc, p.paper), p.paper); // text = fast; accents print plain
       p.refresh();
       logReceipt(ticket, "print");
+      onDone?.();
       say(t("printed"));
     } catch (e) {
       const m = (e as Error).message;
@@ -874,10 +889,9 @@ function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say
     setBusy(false);
   };
   return <>
-    <button type="button" className="opt" data-testid="print-bt" disabled={busy} onClick={() => void go()}>
-      <span className="g">{busy ? t("btPrinting") : t("printBt")}<span className="cap" style={{ display: "block" }}>{p.saved ? `${p.saved.name} · ${p.saved.paper} mm` : t("btPair")}</span></span><span className="cap">›</span>
-    </button>
-    {p.saved && <PrinterSetup p={p} />}
+    <RcRow testId="print-bt" disabled={busy} done={done} label={busy ? t("btPrinting") : t("printBt")}
+      sub={p.saved ? `${p.saved.name} · ${p.saved.paper} mm` : t("btPair")} onClick={() => void go()} />
+    {p.saved && <PrinterSetup p={p} inline />}
   </>;
 }
 

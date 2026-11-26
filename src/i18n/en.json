@@ -316,7 +316,9 @@
     "techFilter": "Show one tech's tickets",
     "tapAskOwner": "Ask the owner or a manager to turn on Tap to Pay on iPhone in Settings.",
     "practiceStuck": "The practice tap didn't answer, so it was stopped. Tap Charge to try again.",
-    "tapPracticeWait": "Practice tap: it pays by itself in a few seconds…"
+    "tapPracticeWait": "Practice tap: it pays by itself in a few seconds…",
+    "rcDone": "Done",
+    "rcNoPhone": "No phone on this ticket"
   },
   "pay": {
     "title": "Pay {salon}",
