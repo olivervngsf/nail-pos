@@ -12,7 +12,7 @@ import {
   pilotDaysLeft, planOf, type Mood, type SalonFacts, type Texting,
 } from "@/lib/admin/health";
 import { COLUMNS, COLUMN_LABEL, TONE_LABEL, columnSummary, healthRows, isOff, type Column, type HealthRow, type Tone } from "@/lib/admin/signals";
-import { Button, Chip, Drawer, Field } from "@/components/kit";
+import { Button, Chip, DateField, Drawer, Field } from "@/components/kit";
 import StatusIcon from "@/components/StatusIcon";
 import { AdminShell, useAdmin, type Admin } from "../shell";
 
@@ -245,7 +245,7 @@ export function CheckIn({ s, admin, onClose }: { s: SalonFacts; admin: Admin; on
           <textarea className="inp" id="c-note" rows={3} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} style={{ height: "auto", padding: "10px 12px" }} /></div>
         <Field id="c-need" label="What do they need from us? (optional)" maxLength={300} value={need} onChange={(e) => setNeed(e.target.value)} />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <Field id="c-due" label="Follow up by" type="date" value={due} onChange={(e) => setDue(e.target.value)} />
+          <DateField id="c-due" label="Follow up by" value={due} clearable onChange={setDue} />
           <Field id="c-who" label="Who" maxLength={60} value={who} onChange={(e) => setWho(e.target.value)} />
         </div>
         {err && <div className="hint err" role="alert">{err}</div>}
