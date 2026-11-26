@@ -13,6 +13,11 @@ test("owner goes from sign-up to a ready salon, and it survives a reload", async
   await page.getByRole("button", { name: "Verify" }).click();
 
   await page.fill("#salonName", "Mai Nails");
+  // No ZIP = no Continue (card readers + texting registration need the full address)
+  await page.fill("#address", "1550 S Bascom Ave, Campbell");
+  await expect(foot.getByRole("button", { name: "Continue" })).toBeDisabled();
+  await page.fill("#address", "1550 S Bascom Ave, Campbell, CA 95008");
+  await expect(page.getByTestId("setup-address-check")).toContainText("95008");
   await foot.getByRole("button", { name: "Continue" }).click();
   await foot.getByRole("button", { name: "Use the template" }).click();
   await expect(page.getByText("Check your services")).toBeVisible();
@@ -62,6 +67,7 @@ test("salon info: closing before opening blocks Continue", async ({ page }) => {
   await page.getByRole("button", { name: "Fill test code" }).click();
   await page.getByRole("button", { name: "Verify" }).click();
   await page.fill("#salonName", "Mai Nails");
+  await page.fill("#address", "1550 S Bascom Ave, Campbell, CA 95008");
   await page.getByLabel("Mon closes").selectOption("08:00");
   await expect(page.getByText("Closes before it opens")).toBeVisible();
   await expect(page.locator(".foot").getByRole("button", { name: "Continue" })).toBeDisabled();
