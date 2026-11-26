@@ -2,6 +2,7 @@
 // Checkout · one ticket (Checkout board Tk1–Tk7, Pay, Cash Cs1–Cs2, Done, An5 receipt).
 // Saved on this device after every tap; sent to the server through the outbox (works offline).
 import { pinLenFor } from "@/lib/pin";
+import { canOk, useRolePerms } from "@/lib/roles";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
@@ -278,8 +279,9 @@ function DiscountDrawer({ desk, subtotal, current, onClose, onApply }: { desk: D
   const [pinErr, setPinErr] = useState("");
   const o = DISC_OPTS[opt];
   const off = Math.min(subtotal, o.kind === "pct" ? percentOf(subtotal, o.value) : o.value);
-  const managers = desk.staff.filter((s) => s.role === "owner" || s.role === "manager");
-  const meIsAdmin = desk.me.role === "owner" || desk.me.role === "manager";
+  const perms = useRolePerms(desk.salonId, desk.mode === "demo");
+  const managers = desk.staff.filter((s) => canOk(perms, s.role, "discount"));
+  const meIsAdmin = canOk(perms, desk.me.role, "discount");
 
   const check = async (pin: string) => {
     setPinErr("");
@@ -775,8 +777,9 @@ function RefundDrawer({ desk, ticket, amount, card, onClose, say }: { desk: Desk
   const [ok, setOk] = useState<{ approvalId?: string; name: string } | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
-  const managers = desk.staff.filter((s) => s.role === "owner" || s.role === "manager");
-  const meIsAdmin = desk.me.role === "owner" || desk.me.role === "manager";
+  const perms = useRolePerms(desk.salonId, desk.mode === "demo");
+  const managers = desk.staff.filter((s) => canOk(perms, s.role, "refund"));
+  const meIsAdmin = canOk(perms, desk.me.role, "refund");
   const approve = async (pin?: string) => {
     setErr("");
     if (desk.mode === "demo") return setOk({ name: managers[0]?.name ?? "Mai" });
