@@ -1944,7 +1944,8 @@
       "support": "Support",
       "clockIn": "Clock-in",
       "tapToPay": "Tap to Pay on iPhone",
-      "business": "Business details"
+      "business": "Business details",
+      "reminders": "Booking reminders"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",

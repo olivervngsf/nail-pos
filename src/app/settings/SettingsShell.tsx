@@ -30,6 +30,7 @@ const NAV = [
   { href: "/settings/tap-to-pay", key: "tapToPay", group: "pay", who: "admin" },
   { href: "/settings/printer", key: "printer", group: "pay", who: "admin" },
   { href: "/settings/booking-page", key: "bookingPage", group: "clients", who: "admin" },
+  { href: "/settings/reminders", key: "reminders", group: "clients", who: "admin" },
   { href: "/settings/texting", key: "texting", group: "clients", who: "admin" },
   { href: "/loyalty", key: "loyalty", group: "clients", who: "admin" },
   { href: "/gift-cards", key: "giftCards", group: "clients", who: "admin" },
