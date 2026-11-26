@@ -336,7 +336,8 @@
     "rcPrinted": "Printed",
     "rcTexted": "Texted to {to}",
     "rcEmailed": "Emailed to {to}",
-    "rcPrinter": "Printer settings"
+    "rcPrinter": "Printer settings",
+    "rcSavesEmail": "Also saved to this client, since they have no email yet."
   },
   "pay": {
     "title": "Pay {salon}",

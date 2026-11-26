@@ -846,7 +846,8 @@ const emailOk = (e: string) => /^\S+@\S+\.\S+$/.test(e.trim());
 
 /** Receipt, design C (board "Paid Screen · Receipt", Nov 26): one big Print button for the usual way, then Text · Email ·
  * No receipt. Text and Email say what's on file (••last 4, a masked email) or "+ Add …"; a tap opens a small card in place:
- * on file = the full contact + Send, else type it (this receipt only: client details change only in the Edit drawer).
+ * on file = the full contact + Send, else type it (a typed email fills the client's empty email, #208; a typed phone is for
+ * this receipt only: client details change only in the Edit drawer).
  * "Sent for this ticket" lists what went out; printer settings fold away. */
 function ReceiptBox({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: string) => void }) {
   const t = useTranslations("checkout");
@@ -857,15 +858,16 @@ function ReceiptBox({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s
   const [open, setOpen] = useState<"text" | "email" | null>(null);
   const [other, setOther] = useState(false); // typing a contact other than the one on file
   const [typed, setTyped] = useState("");
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState<Sent[]>(() => (ticket.receipt ? [{ kind: ticket.receipt }] : []));
+  const [found, setFound] = useState("");
+  const [sent, setSent] = useState<Sent[]>(() => (ticket.receipt ? [{ kind: ticket.receipt, to: ticket.receiptTo }] : []));
   const phone = ticket.client?.phone ?? "";
   const c = ticket.client;
+  const email = c?.email || found; // on the ticket (pulled with the client), else from the profile
   useEffect(() => {
-    if (!c) return;
+    if (!c || c.email) return;
     let off = false;
     const who: Who = { mode: desk.mode, salonId: desk.salonId, salonName: desk.salonName, role: desk.me.role, name: desk.me.display_name };
-    void profileFor(who, c).then((pr) => { if (!off && pr?.email) setEmail(pr.email); });
+    void profileFor(who, c).then((pr) => { if (!off && pr?.email) setFound(pr.email); });
     return () => { off = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once per client
   }, [desk.salonId, c?.id, c?.phone]);
@@ -927,7 +929,7 @@ function ReceiptBox({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s
           <label className="rc-field"><span>{t(open === "text" ? "rcPhoneLbl" : "rcEmailLbl")}</span>
             <input className="inp" autoFocus type={open === "text" ? "tel" : "email"} inputMode={open === "text" ? "tel" : "email"} autoComplete="off"
               placeholder={open === "text" ? "(408) 555-0142" : t("emailPh")} value={typed} onChange={(e) => setTyped(e.target.value)} /></label>
-          <span className="cap">{t("rcOneTime")}</span>
+          <span className="cap">{t(open === "email" && c && !email ? "rcSavesEmail" : "rcOneTime")}</span>
           <Button type="submit" variant="primary" block disabled={!typedOk}>{t(open === "text" ? "rcSendText" : "rcSendEmail")}</Button>
           {onFile && <button type="button" className="rc-ghost" onClick={() => setOther(false)}>{t("rcBack", { to: open === "text" ? maskPhone(onFile) : maskEmail(onFile) })}</button>}
         </form>

@@ -336,7 +336,8 @@
     "rcPrinted": "Đã in",
     "rcTexted": "Đã nhắn tới {to}",
     "rcEmailed": "Đã gửi email tới {to}",
-    "rcPrinter": "Cài đặt máy in"
+    "rcPrinter": "Cài đặt máy in",
+    "rcSavesEmail": "Cũng lưu vào hồ sơ khách vì khách chưa có email."
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
