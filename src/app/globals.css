@@ -1887,26 +1887,48 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .set-win .rem-page { gap: 16px; }
 @media (max-width: 699px) { .rem-page .rem-row .seg { width: 100%; } .rem-page .rem-row .seg button { flex: 1; } }
 
-/* ===== Receipt choices on the paid screen (Nov 26): one line per choice, chevrons on the right edge,
-   grey second line (printer, phone), check on the used row, printer settings as one quiet strip ===== */
-.ck-rc .opt { gap: 10px; min-height: 60px; padding: 10px 16px; }
-.ck-rc .opt:disabled { cursor: default; opacity: .6; }
-.ck-rc .rc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.ck-rc .rc-label { font-weight: var(--fw-medium); }
-.ck-rc .rc-sub { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ck-rc .opt.quiet { min-height: 52px; color: var(--ink-soft); }
-.ck-rc .opt.quiet .rc-label { font-weight: var(--fw-regular); }
-.ck-rc .rc-chev { flex: none; width: 12px; color: var(--muted); font-size: 18px; text-align: center; transition: transform .2s var(--ease); }
-.ck-rc .rc-chev.open { transform: rotate(90deg); }
-.ck-rc .rc-done { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: var(--jade-soft); color: var(--jade); font-size: 13px; font-weight: var(--fw-semibold); }
-.ck-rc .prn-inline { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; padding: 4px 16px 12px; border-bottom: 1px solid var(--line); background: var(--paper); }
-.ck-rc .prn-paper { display: inline-flex; align-items: center; gap: 8px; }
-.ck-rc .prn-links { display: inline-flex; flex-wrap: wrap; gap: 4px 14px; }
-.ck-rc .prn-links .link { border: 0; background: none; padding: 6px 0; font: inherit; font-size: 13px; font-weight: var(--fw-semibold); color: var(--ink-soft); cursor: pointer; }
-.ck-rc .prn-links .link:hover { color: var(--ink); text-decoration: underline; }
-.ck-rc .ck-rc-email { display: flex; gap: 8px; padding: 0 16px 12px; border-bottom: 1px solid var(--line); background: var(--paper); }
-.ck-rc .ck-rc-email .inp { flex: 1; min-width: 0; }
-@media (pointer: coarse) { .ck-rc .prn-links .link { min-height: 44px; padding: 0 2px; font-size: 15px; } }
+/* ===== Receipt on the paid screen = design C (Nov 26, board "Paid Screen · Receipt"): one big Print button, then
+   Text · Email · No receipt (each says what's on file), a small card in place, "Sent for this ticket", printer folded away ===== */
+.rc { display: flex; flex-direction: column; gap: 12px; }
+.rc-print { display: flex; align-items: center; gap: 14px; min-height: 84px; padding: 0 18px; border: 0; border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--shadow); font: inherit; color: var(--ink); text-align: left; cursor: pointer; transition: background .2s; }
+.rc-print:hover { background: #FAFAFB; }
+.rc-print:disabled { cursor: default; opacity: .7; }
+.rc-print-ic { flex: none; width: 48px; height: 48px; border-radius: 12px; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; }
+.rc-print-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rc-print-t b { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+.rc-print-t span { font-size: 13px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-chev { flex: none; color: var(--muted); font-size: 20px; }
+.rc-pills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.rc-pill { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 84px; padding: 8px 6px; box-sizing: border-box; border: 1.5px solid transparent; border-radius: var(--r-md); background: var(--paper); box-shadow: var(--shadow); font: inherit; color: var(--ink); cursor: pointer; min-width: 0; }
+.rc-pill b { font-size: 15px; font-weight: 600; }
+.rc-pill small { max-width: 100%; font-size: 12px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-pill.add { background: var(--surface); box-shadow: none; border: 1.5px dashed #C7C7CC; }
+.rc-pill.on { border: 1.5px solid var(--ink); }
+.rc-pill.quiet { color: var(--ink-soft); }
+.rc-pill.quiet b { font-weight: 500; }
+.rc-card { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--shadow); animation: rcIn .25s var(--ease); }
+.rc-card-t { font-size: 15px; font-weight: 600; }
+.rc-to { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.rc-field { display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 600; }
+.rc-field .inp { font-size: 16px; }
+.rc-ghost { align-self: center; border: 0; background: none; padding: 8px 4px; font: inherit; font-size: 14px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+.rc-ghost:hover { color: var(--ink); text-decoration: underline; }
+.rc-sent { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: var(--r-md); background: var(--paper); box-shadow: var(--shadow); }
+.rc-sent-row { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.rc-sent-row .grow { flex: 1; min-width: 0; }
+.rc-ok { color: var(--jade); font-weight: 700; }
+.rc-prn summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink-soft); padding: 6px 0; }
+.rc-prn[open] { display: flex; flex-direction: column; gap: 8px; padding: 0 0 4px; }
+.rc-prn[open] summary { color: var(--ink); }
+.rc-prn .rc-ghost { align-self: flex-start; padding-left: 0; }
+.prn-inline { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+.prn-inline .prn-paper { display: inline-flex; align-items: center; gap: 8px; }
+.prn-inline .prn-links { display: inline-flex; flex-wrap: wrap; gap: 4px 14px; }
+.prn-inline .link { border: 0; background: none; padding: 6px 0; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+.prn-inline .link:hover { color: var(--ink); text-decoration: underline; }
+@keyframes rcIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .rc-card { animation: none; } }
+@media (pointer: coarse) { .rc-ghost, .prn-inline .link, .rc-prn summary { min-height: 44px; display: flex; align-items: center; font-size: 15px; } }
 /* Settings → Salon info: "Week starts on" row at the top of the hours card (Nov 26). */
 .si-week { padding: 10px 0; flex-wrap: wrap; row-gap: 8px; }
 .si-wk-t { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 2px; }

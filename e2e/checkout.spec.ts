@@ -57,6 +57,12 @@ test("front desk builds a ticket, takes cash with change + tips, ticket stays pa
   await page.getByTestId("cash-received").click();
   await expect(page.getByTestId("paid-total")).toHaveText("$62.00 cash");
   await expect(page.getByTestId("salon-keeps")).toHaveText("$55.00");
+  // receipt (design C): Text with no phone on file → type it in place → listed under "Sent for this ticket"
+  await expect(page.getByTestId("receipt-text")).toContainText("Add phone");
+  await page.getByTestId("receipt-text").click();
+  await page.getByTestId("receipt-card").getByRole("textbox").fill("4085550142");
+  await page.getByTestId("receipt-card").getByRole("button", { name: "Send text" }).click();
+  await expect(page.getByTestId("receipt-sent")).toContainText("Texted to ••0142");
   await page.getByRole("button", { name: "No receipt" }).click();
   await page.context().setOffline(false);
 
