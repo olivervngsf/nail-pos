@@ -2,6 +2,7 @@
 // One React component per Design System piece. They only put kit classes (design/kit/kit.css) on real elements:
 // never add a look here; change the kit, then `npm run kit:sync`.
 import { useEffect, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import Link from "next/link";
 import RailAccount from "@/components/RailAccount";
 import { useTranslations } from "next-intl";
 import { getMenuHidden, onMenuHidden, setMenuHidden } from "@/lib/menuFold";
@@ -223,8 +224,23 @@ export function MenuToggle() {
     </button>
   );
 }
-export function TopBar({ title, children }: { title: ReactNode; children?: ReactNode }) {
-  return <header className="bar"><MenuToggle /><span className="title">{title}</span>{children}</header>;
+/** One top bar for every desk screen (board "Top Bar · One Rule", Nov 26):
+ *  left = page name + one short fact (never the salon name) · middle = `find` (search / scan, only where people look
+ *  things up) · right = `children` (Saved pill, small extras) then `action` = the ONE dark main button, far right.
+ *  `back` = "‹ Back" built in, so no screen hand-makes it. */
+export function TopBar({ title, fact, back, find, action, children }: {
+  title: ReactNode; fact?: ReactNode; back?: { href: string; label: ReactNode }; find?: ReactNode; action?: ReactNode; children?: ReactNode;
+}) {
+  return (
+    <header className={`bar${find ? " has-find" : ""}`}>
+      <MenuToggle />
+      {back && <Link className="btn ghost sm bar-back" href={back.href} data-testid="bar-back">‹ {back.label}</Link>}
+      <span className="title" data-testid="bar-title">{title}{fact != null && fact !== "" && <span className="bar-fact"> · {fact}</span>}</span>
+      {find && <div className="bar-find">{find}</div>}
+      {children}
+      {action}
+    </header>
+  );
 }
 export function PhoneBar({ title, left, right }: { title: ReactNode; left?: ReactNode; right?: ReactNode }) {
   return <header className="pbar"><span style={{ minWidth: 70 }}>{left}</span><span>{title}</span><span style={{ minWidth: 70, textAlign: "right" }}>{right}</span></header>;

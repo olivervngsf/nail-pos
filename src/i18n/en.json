@@ -1476,7 +1476,8 @@
     "cash": "Cash",
     "giftCard": "Gift card",
     "toBankShort": "To bank",
-    "allMatch": "✓ Every ticket matches its payments."
+    "allMatch": "✓ Every ticket matches its payments.",
+    "stepOf": "Step {n} of {total}"
   },
   "payouts": {
     "title": "Payout sheet",

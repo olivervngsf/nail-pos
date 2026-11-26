@@ -132,7 +132,7 @@ export default function Payouts() {
     <div className="app cd-app">
       <LeftMenu active="Close day" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={desk.me.display_name[0]} />
       <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/close-day">‹ {t("back")}</Link>{t("title")}</span>}><SyncPill /></TopBar>
+        <TopBar back={{ href: "/close-day", label: t("back") }} title={t("title")}><SyncPill /></TopBar>
         <OfflineBanner />
         {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
         {!admin ? <main style={{ padding: "20px 24px" }}><p className="hint err">{t("ownerOnly")}</p></main> : (

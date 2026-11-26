@@ -3,7 +3,6 @@
 // last 4 phone digits, "Same name" tag, dot = needs attention), profile with next steps on the right.
 // Phone (tech or small screen): list only, tap → /clients/[id].
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button, LeftMenu, OfflineBanner, SyncPill, Toast, TopBar } from "@/components/kit";
@@ -67,9 +66,9 @@ export default function ClientsPage() {
     <div className="app cl-app">
       {desk && <LeftMenu active="Clients" salonInitials={initials(who.salonName)} me={who.name[0]} />}
       <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}>{!desk && <Link className="btn ghost sm" href="/t">‹ {t("back")}</Link>}{t("title")}{list ? <span className="cap"> · {list.counts.all}</span> : ""}</span>}>
+        <TopBar title={t("title")} fact={list ? list.counts.all : undefined} back={desk ? undefined : { href: "/t", label: t("back") }}
+          action={desk ? <Button variant="primary" onClick={() => setEdit("new")} data-testid="client-new">{t("newClient")}</Button> : undefined}>
           <SyncPill />
-          {desk && <Button onClick={() => setEdit("new")} data-testid="client-new">{t("newClient")}</Button>}
         </TopBar>
         <OfflineBanner />
         {who.mode === "demo" && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}

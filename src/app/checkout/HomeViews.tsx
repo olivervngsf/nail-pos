@@ -13,6 +13,8 @@ type Props = {
   layout: HomeLayout; open: Ticket[]; paid: Ticket[];
   scan: string; setScan: (s: string) => void; onScan: () => void; scanMsg: string; demo: boolean;
   onNew: () => void; go: (t: Ticket, pay?: boolean) => void;
+  /** Computer / iPad: the scan box + New ticket live in the top bar (CheckoutHome), not under it. */
+  inBar?: boolean;
 };
 type T = ReturnType<typeof useTranslations>;
 
@@ -21,6 +23,17 @@ const ScanIcon = ({ size = 18 }: { size?: number }) => (
     <path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3M8 9v6M12 9v6M16 9v6" />
   </svg>
 );
+
+/** Scan a slip or type a ticket number. In the top bar on computers / iPads, on top of the page on phones. */
+export function ScanBox({ scan, setScan, onScan, big }: { scan: string; setScan: (s: string) => void; onScan: () => void; big?: boolean }) {
+  const t = useTranslations("checkout");
+  return (
+    <form className="co-scan ck-scan" onSubmit={(e) => { e.preventDefault(); onScan(); }}>
+      <ScanIcon size={big ? 20 : 18} />
+      <input className="inp" data-testid="scan-box" aria-label={t("scanPh")} placeholder={t("scanPh")} value={scan} onChange={(e) => setScan(e.target.value)} />
+    </form>
+  );
+}
 
 /** Re-draw every 30 s so "Open 16 min" keeps counting. */
 function useNow() {
@@ -47,12 +60,7 @@ export default function HomeView(p: Props) {
   const shown = cards && pick ? open.filter((x) => techsOn(x).includes(pick)) : open;
   const paidAt = (x: Ticket) => f.dateTime(new Date(x.payment?.at ?? x.createdAt), { timeStyle: "short" });
 
-  const scanBox = (
-    <form className="co-scan ck-scan" onSubmit={(e) => { e.preventDefault(); p.onScan(); }}>
-      <ScanIcon size={cards ? 20 : 18} />
-      <input className="inp" data-testid="scan-box" aria-label={t("scanPh")} placeholder={t("scanPh")} value={p.scan} onChange={(e) => p.setScan(e.target.value)} />
-    </form>
-  );
+  const scanBox = <ScanBox scan={p.scan} setScan={p.setScan} onScan={p.onScan} big={cards} />;
   const action = (x: Ticket) => canCharge(x)
     ? <Button variant="primary" className="co-act" data-testid="row-charge" onClick={(e) => { e.stopPropagation(); p.go(x, true); }}>{t("chargeShort")}</Button>
     : <Button className="co-act" onClick={(e) => { e.stopPropagation(); p.go(x); }}>{t("openShort")}</Button>;
@@ -60,12 +68,13 @@ export default function HomeView(p: Props) {
   const sub = (x: Ticket) => `${t("ticket", { n: ticketLabel(x) })} · ${services(x)}${!x.number ? ` · ${t("notSynced")}` : ""}`;
 
   return <>
-    <div className="co-head ck-homebar">
-      <h1 className="h1">{t("title")}</h1>
-      {cards && <span className="cap num co-count">{t("openCount", { n: open.length })} · {formatCents(facts.toCollect)}</span>}
-      {scanBox}
-      {!cards && <Button variant="primary" className="ck-new" data-testid="new-ticket" onClick={p.onNew}>{t("newTicket")}</Button>}
-    </div>
+    {!p.inBar && (
+      <div className="co-head ck-homebar">
+        {cards && <span className="cap num co-count">{t("openCount", { n: open.length })} · {formatCents(facts.toCollect)}</span>}
+        {scanBox}
+        {!cards && <Button variant="primary" className="ck-new" data-testid="new-ticket" onClick={p.onNew}>{t("newTicket")}</Button>}
+      </div>
+    )}
     {p.scanMsg && <div className="hint err" role="alert">{p.scanMsg}</div>}
     {p.demo && <div className="demo">{t("demo")}</div>}
 

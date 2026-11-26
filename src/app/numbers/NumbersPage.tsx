@@ -2,7 +2,6 @@
 // Owner Numbers (Main Screens · Numbers, Owner Numbers board K1–K2): Today / This week / This month, top 5 KPIs vs the period
 // before (by now), chart this vs last + one plain fact, more numbers, per-staff table, CSV export. Owner + manager only.
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button, LeftMenu, OfflineBanner, StatTile, SyncPill, TopBar } from "@/components/kit";
 import { useDesk, type Desk } from "@/lib/desk";
@@ -31,7 +30,7 @@ function Numbers({ desk }: { desk: Desk }) {
     <div className="app nm-app">
       <LeftMenu active="Today" salonInitials={initials} me={desk.me.display_name[0]} />
       <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/today">‹ {t("back")}</Link>{t("title")}</span>}>
+        <TopBar back={{ href: "/today", label: t("back") }} title={t("title")}>
           {admin && <span className="seg">{(["day", "week", "month"] as Period[]).map((p) => (
             <button key={p} type="button" className={per === p ? "on" : ""} aria-pressed={per === p} onClick={() => setPer(p)} data-testid={`per-${p}`}
               style={{ border: 0, background: "transparent", font: "inherit", cursor: "pointer" }}>{t(p)}</button>))}</span>}
