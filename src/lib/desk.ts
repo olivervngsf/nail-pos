@@ -1,6 +1,7 @@
 "use client";
 // Desk context for front-desk screens (checkout): who's signed in, which salon, services + staff.
 // Cached on the device so checkout still opens with no internet. Test copy (sign-in off) uses sample data.
+import { useSyncWeekStart } from "@/lib/useWeekStart";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DEVICE_HOME, SMS_ON, getDevice, syncDevice, isSignedIn, myMemberships, rpc, type Device, type Membership, type Role } from "@/lib/auth";
@@ -103,6 +104,7 @@ export function useDesk() {
     } catch (e) { setDesk((cur) => { if (!cur) setErr((e as Error).message); return cur; }); }
   }, [m]);
   useEffect(() => { void refresh(); }, [refresh]);
+  useSyncWeekStart(desk?.salonId, desk?.mode === "live");
 
   return { desk, err, refresh };
 }

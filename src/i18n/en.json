@@ -316,7 +316,22 @@
     "techFilter": "Show one tech's tickets",
     "tapAskOwner": "Ask the owner or a manager to turn on Tap to Pay on iPhone in Settings.",
     "practiceStuck": "The practice tap didn't answer, so it was stopped. Tap Charge to try again.",
-    "tapPracticeWait": "Practice tap: it pays by itself in a few seconds…"
+    "tapPracticeWait": "Practice tap: it pays by itself in a few seconds…",
+    "rcpt": {
+      "texted": "Receipt texted to {to}.",
+      "emailed": "Receipt emailed to {to}.",
+      "queued": "Saved on this device. It sends when the internet is back.",
+      "demo": "Test version: nothing is sent.",
+      "textOff": "Not sent: client texts aren't on for this salon yet.",
+      "emailOff": "Not sent: email isn't switched on yet.",
+      "stop": "Not sent: this client replied STOP.",
+      "notMobile": "Not sent: that's not a mobile number.",
+      "failed": "Couldn't send. Try again.",
+      "sending": "Sending…",
+      "again": "Already sent to {to}. Send it again?",
+      "sendAgain": "Send again",
+      "cancel": "Cancel"
+    }
   },
   "pay": {
     "title": "Pay {salon}",
@@ -2714,7 +2729,8 @@
       "notDelivered": "Didn't arrive.",
       "emailFailed": "Email didn't go through.",
       "skipped": "Not sent.",
-      "other": "Not sent."
+      "other": "Not sent.",
+      "noAddress": "Not sent: no phone or email on this booking."
     },
     "rule": {
       "law": "Law (FCC / state)",

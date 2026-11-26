@@ -35,6 +35,7 @@ export function messageStatus(r: MessageRow, now: Date, timeZone?: string | null
       if (e.includes("mobile")) return { tone: "bad", key: "notMobile", rule: "carriers" };
       return { tone: "bad", key: "other", rule: null, detail: r.error };
     case "skipped":
+      if (e.startsWith("no phone or email")) return { tone: "none", key: "noAddress", rule: null };
       if (e.includes("number not registered") || e.includes("texting number")) return { tone: "watch", key: "waitCarriers", rule: "carriers" };
       if (e.includes("email not switched on")) return { tone: "none", key: "emailOff", rule: "polishos" };
       if (e.includes("twilio") || e.includes("polishos number")) return { tone: "none", key: "textOff", rule: "polishos" };

@@ -47,4 +47,8 @@ describe("kindKey + salonTexting", () => {
     expect(salonTexting({ number: null, texting: "waiting" })).toBe("waiting");
     expect(salonTexting({ number: null, texting: "not_started" })).toBe("notStarted");
   });
+  it("a booking with no phone or email = not sent, plain reason (never Scheduled forever)", () => {
+    const r = messageStatus({ id: "x", channel: "sms", kind: "day_before", status: "skipped", error: "no phone or email on this booking", to: "••", at: "2026-11-26T10:00:00Z" }, new Date("2026-11-26T11:00:00Z"));
+    expect(r.key).toBe("noAddress");
+  });
 });

@@ -316,7 +316,22 @@
     "techFilter": "Xem phiếu của một thợ",
     "tapAskOwner": "Nhờ chủ hoặc quản lý bật Tap to Pay on iPhone trong Cài đặt.",
     "practiceStuck": "Chạm thử không trả lời nên đã dừng. Bấm Tính tiền để thử lại.",
-    "tapPracticeWait": "Chạm thử: tự trả trong vài giây…"
+    "tapPracticeWait": "Chạm thử: tự trả trong vài giây…",
+    "rcpt": {
+      "texted": "Đã nhắn hóa đơn tới {to}.",
+      "emailed": "Đã email hóa đơn tới {to}.",
+      "queued": "Đã lưu trên máy. Sẽ gửi khi có mạng lại.",
+      "demo": "Bản thử: không gửi gì.",
+      "textOff": "Chưa gửi: tiệm chưa bật tin nhắn cho khách.",
+      "emailOff": "Chưa gửi: email chưa được bật.",
+      "stop": "Chưa gửi: khách đã trả lời STOP.",
+      "notMobile": "Chưa gửi: đây không phải số di động.",
+      "failed": "Không gửi được. Thử lại.",
+      "sending": "Đang gửi…",
+      "again": "Đã gửi tới {to}. Gửi lại?",
+      "sendAgain": "Gửi lại",
+      "cancel": "Hủy"
+    }
   },
   "pay": {
     "title": "Trả tiền cho {salon}",
@@ -2714,7 +2729,8 @@
       "notDelivered": "Không đến máy.",
       "emailFailed": "Email không gửi được.",
       "skipped": "Không gửi.",
-      "other": "Không gửi."
+      "other": "Không gửi.",
+      "noAddress": "Không gửi: lịch hẹn không có số điện thoại hay email."
     },
     "rule": {
       "law": "Luật (FCC / tiểu bang)",
