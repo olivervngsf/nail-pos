@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { enqueue, registerHandler } from "@/lib/offline/outbox";
 import { getSupabase } from "@/lib/supabase/client";
 import { rpc } from "@/lib/auth";
+import { api } from "@/lib/api";
 import { mergeOpen, seenIds, toPayload, type Ticket } from "./ticket";
 
 const KEY = "nailpos.tickets.v1";
@@ -183,6 +184,8 @@ export function undoCashPart(t: Ticket, partId: string) {
 registerHandler("ticket.receipt", async (item) => {
   const p = item.payload as { id: string; salonId: string; ticketId: string; channel: string; to?: string };
   await rpc("log_receipt", { p_id: p.id, p_salon: p.salonId, p_ticket: p.ticketId, p_channel: p.channel, p_to: p.to ?? null });
+  // Text / email: send it now (once; the server records sent / skipped / failed on the receipt). Never blocks the outbox.
+  if (p.channel === "text" || p.channel === "email") await api("/api/receipt/send", { id: p.id }).catch(() => undefined);
 });
 
 export function logReceipt(t: Ticket, channel: "print" | "text" | "email" | "none", to?: string) {

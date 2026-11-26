@@ -38,7 +38,7 @@ export default function TextActivity({ salonId, demo }: { salonId: string; demo:
               <div className="tl-main">
                 <div className="tl-top">
                   <b>{t(`kind.${kindKey(r.kind)}`)}</b>
-                  <span className="cap">{r.channel === "email" ? t("email") : t("text")} · {r.to} · {new Date(r.sendAt && s.key === "scheduled" ? r.sendAt : r.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
+                  <span className="cap">{r.channel === "email" ? t("email") : t("text")} · {r.to === "••" || r.to === "•••@" ? t("noAddress") : r.to} · {new Date(r.sendAt && s.key === "scheduled" ? r.sendAt : r.at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</span>
                 </div>
                 <div className="tl-why">{t(`why.${s.key}`)}{s.detail && s.key !== "skipped" && s.key !== "other" ? <span className="cap"> · {s.detail}</span> : null}</div>
                 {s.rule && <Link className="tl-rule" href={`/settings/texting/rules#${s.rule}`}>{t(`rule.${s.rule}`)} · {t("why_")}</Link>}

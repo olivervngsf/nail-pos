@@ -9,7 +9,7 @@ import { api } from "@/lib/api";
 import { dropQueued, syncNow } from "@/lib/offline/outbox";
 import { queueSave, withIds } from "./sync";
 import { importMenu, shrinkPhoto } from "./menuImport";
-import { Button, Segmented, SyncPill } from "@/components/kit";
+import { Banner, Button, Segmented, SyncPill } from "@/components/kit";
 import { usePrinter } from "@/components/PrinterSetup";
 import { pickPrinter } from "@/lib/print/bluetooth";
 import { printDoc } from "@/lib/print/print";
@@ -708,13 +708,13 @@ function StripeConnect({ s, set }: Pick<StepProps, "s" | "set">) {
     <H1>Connect payments</H1>
     <div className="cap lead">Your salon gets its own Stripe account. Money goes straight to your bank; we never hold it. Takes about 5 minutes: have your EIN (or SSN) and bank details ready.</div>
     {!st && !err && <div className="card pad" role="status" style={{ flexDirection: "row", alignItems: "center", gap: 10 }}><span className="dot pulse" aria-hidden /> Checking Stripe…</div>}
-    {st?.on === false && <div className="banner" role="status">Card payments aren&apos;t switched on for this site yet (Stripe key missing). Call us.</div>}
+    {st?.on === false && <Banner tone="info">Card payments aren&apos;t switched on for this site yet (Stripe key missing). Call us.</Banner>}
     {pending && <div className="card pad" role="status" style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
       <div className="okmark" style={{ background: "var(--orange)" }}>…</div>
       <div style={{ flex: 1 }}><b style={{ fontSize: 17 }}>Connected · Stripe is checking your details</b><div className="cap">Usually a minute, sometimes a day. You can keep going; this updates by itself.</div></div>
       <button type="button" className="btn sm" onClick={() => void check()}>Check again</button>
     </div>}
-    {st?.connected && !pending && !st.chargesEnabled && <div className="banner" role="status">{st.state === "rejected" ? "Stripe turned this account down. Call us." : st.missing?.length ? <>Stripe still needs: {st.missing.join(" · ")}. Tap Continue with Stripe.</> : "Finish your details on Stripe. Tap Continue with Stripe."}</div>}
+    {st?.connected && !pending && !st.chargesEnabled && <Banner tone={st.state === "rejected" ? "bad" : "warn"}>{st.state === "rejected" ? "Stripe turned this account down. Call us." : st.missing?.length ? <>Stripe still needs: {st.missing.join(" · ")}. Tap Continue with Stripe.</> : "Finish your details on Stripe. Tap Continue with Stripe."}</Banner>}
     {!pending && <div className="card pad" style={{ gap: 12 }}>
       <b>What you&apos;ll need</b>
       <div className="cap" style={{ fontSize: 14, lineHeight: "22px" }}>Business name and type · EIN or SSN · Bank account for payouts · Your date of birth</div>

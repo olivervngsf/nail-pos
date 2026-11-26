@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { Avatar, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Sheet, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
+import { Avatar, Banner, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Sheet, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
@@ -577,7 +577,7 @@ function CardWait({ desk, ticket, method, onBack }: { desk: Desk; ticket: Ticket
       <div className="cap">{t("ticket", { n: ticketLabel(ticket) })}{ticket.client?.name ? ` · ${ticket.client.name}` : ""}</div>
       <div className="money" style={{ fontSize: 56, lineHeight: "64px" }}>{$(sum.toPay)}</div>
       {err ? <>
-        <div className="banner" role="alert" data-testid="card-error" style={{ background: "var(--orange-soft)", color: "#b5470a", maxWidth: 520 }}>{err}</div>
+        <Banner tone="bad" className="bn-narrow" data-testid="card-error">{err}</Banner>
         <div style={{ display: "flex", gap: 10 }}><Button variant="primary" onClick={() => void start()}>{t("tryAgain")}</Button><Button onClick={onBack}>{t("back")}</Button></div>
       </> : !pr ? <><div className="spin" /><b>{method === "reader" ? t("startingReader") : t("waitingPay")}</b></>
       : method === "reader" ? <>

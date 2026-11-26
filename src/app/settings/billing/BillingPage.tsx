@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Button, DataTable, Drawer, StatusPill, Toast } from "@/components/kit";
+import { Banner, Button, DataTable, Drawer, StatusPill, Toast } from "@/components/kit";
 import { api } from "@/lib/api";
 import { formatCents } from "@/lib/money";
 import { useStored } from "@/lib/useStored";
@@ -102,7 +102,7 @@ function BillingView({ a }: { a: Access }) {
     <div className="bill" data-testid="billing">
       {!a.owner && <div className="note">{t("ownerOnly")}</div>}
       {(view.status === "past_due" || view.status === "unpaid") && (
-        <div className="banner" role="alert">{t("pastDueNote")} <Button size="sm" disabled={dis} onClick={() => void act("portal")}>{t("updateCard")}</Button></div>
+        <Banner tone="bad" id="billing-late" keep="day" action={<Button size="sm" disabled={dis} onClick={() => void act("portal")}>{t("updateCard")}</Button>}>{t("pastDueNote")}</Banner>
       )}
       {!live && <p className="cap" style={{ margin: 0 }}>{view.hadPlan ? t("pickAgain") : t("pickFirst")}</p>}
       <div className="bill-plans">

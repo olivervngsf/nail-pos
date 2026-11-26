@@ -6,7 +6,14 @@
     "offline": "Offline · saved on this device",
     "waiting": "{count, plural, one {# change waiting to sync} other {# changes waiting to sync}}",
     "banner": "No internet. Keep working: everything saves on this device and sends when you're back online.",
-    "stuck": "{count} not saved · tap to retry"
+    "stuck": "{count} not saved · tap to retry",
+    "close": "Close",
+    "offlineTitle": "No internet.",
+    "offlineText": "Keep working: everything saves on this device and sends when you're back online.",
+    "stuckTitle": "{count} not saved.",
+    "stuckText": "It's safe on this device. Tap Retry to send it again.",
+    "retry": "Retry",
+    "openAgain": "Open the message again"
   },
   "home": {
     "tagline": "Simple checkout and fair, clear pay for techs.",
@@ -181,7 +188,7 @@
     "email": "Email",
     "noReceipt": "No receipt",
     "receiptLang": "Receipt uses the client's language.",
-    "textLater": "Saved. Texts and emails start once the salon's texting number is set up.",
+    "textLater": "Saved. Sends now if this salon's texts / email are on (see Settings → Texting → Messages).",
     "printed": "Sent to the printer",
     "noPhone": "Add the client's phone on the ticket to text a receipt.",
     "emailPh": "client@email.com",
@@ -2690,7 +2697,8 @@
       "carriers": "Phone carriers + Twilio",
       "stripe": "Stripe",
       "polishos": "PolishOS"
-    }
+    },
+    "noAddress": "no phone"
   },
   "textrules": {
     "title": "Texting rules, and why",
