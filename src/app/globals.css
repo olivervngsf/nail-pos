@@ -2206,3 +2206,31 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .seg.pilled > :not(.seg-pill) { position: relative; z-index: 1; }
 .seg.pilled > .on { background: transparent !important; box-shadow: none !important; }
 .seg > button, .seg > a, .seg > span { transition: color var(--t-mid) var(--ease); }
+
+/* ---------- Motion step 4 (Nov 26): loading = soft shimmer shapes, never a blank screen or "Loading…" ----------
+   Every waiting box already says aria-busy="true" and is empty, so this needs no wiring: a whole desk screen
+   (.app) shows a ghost left menu + top bar + cards, anything else shows 3 soft lines. They fade in after 150ms
+   so a fast load never flashes. A sweep of light passes over them (off with reduced motion). */
+@keyframes skelIn { from { opacity: 0; } }
+@keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+[aria-busy="true"]:empty { position: relative; overflow: hidden; }
+[aria-busy="true"]:empty:not(.app) { min-height: 112px; }
+[aria-busy="true"]:empty::before { content: ""; position: absolute; left: 20px; top: 24px; width: min(60%, 360px); height: 14px; border-radius: 7px;
+  background: var(--fill); box-shadow: 0 28px 0 var(--fill), 0 56px 0 var(--fill); animation: skelIn var(--t-mid) var(--ease) .15s both; }
+[aria-busy="true"]:empty::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .6) 50%, transparent 70%); animation: shimmer 1.6s linear infinite; }
+/* whole screen: left menu line, top bar line, title, then cards (box-shadow copies keep the round corners) */
+.app[aria-busy="true"]:empty { min-height: var(--vh); background:
+  linear-gradient(var(--line), var(--line)) 76px 0 / 1px 100% no-repeat,
+  linear-gradient(var(--line), var(--line)) 76px 52px / 100% 1px no-repeat,
+  linear-gradient(var(--fill), var(--fill)) 100px 18px / 160px 16px no-repeat,
+  var(--surface); }
+.app[aria-busy="true"]:empty::before { left: 100px; top: 76px; width: calc(100% - 124px); height: 96px; border-radius: 16px; background: var(--paper);
+  box-shadow: 0 112px 0 var(--paper), 0 224px 0 var(--paper), 0 336px 0 var(--paper); }
+@media (max-width: 599px) {
+  .app[aria-busy="true"]:empty { background: linear-gradient(var(--line), var(--line)) 0 52px / 100% 1px no-repeat, linear-gradient(var(--fill), var(--fill)) 16px 18px / 140px 16px no-repeat, var(--surface); }
+  .app[aria-busy="true"]:empty::before { left: 16px; width: calc(100% - 32px); }
+}
+/* a skeleton block anywhere (kit Skeleton) */
+.skel { display: block; position: relative; overflow: hidden; border-radius: 8px; background: var(--fill); }
+.skel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .6) 50%, transparent 70%); animation: shimmer 1.6s linear infinite; }

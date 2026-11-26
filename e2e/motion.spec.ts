@@ -65,3 +65,38 @@ test("checkout steps slide forward, and back on Back", async ({ page }) => {
   await expect(col).toHaveAttribute("data-dir", "back");
   await expect(page.getByTestId("charge")).toBeVisible();
 });
+
+test("a new ticket line grows in and the total settles", async ({ page }) => {
+  await page.goto("/checkout");
+  await page.getByTestId("new-ticket").click();
+  const add = async (q: RegExp, search: string) => {
+    await page.getByTestId("add-service").click();
+    await page.getByLabel("Search services").fill(search);
+    await page.getByRole("button", { name: q }).first().click();
+    await page.getByTestId("pick-Kim").click();
+  };
+  await add(/Gel color manicure/, "gel color man");
+  // record animations started on lines + the total
+  await page.evaluate(() => {
+    (window as unknown as { seen: string[] }).seen = [];
+    const orig = Element.prototype.animate;
+    Element.prototype.animate = function (this: Element, ...a: Parameters<Element["animate"]>) {
+      const el = this as HTMLElement;
+      (window as unknown as { seen: string[] }).seen.push(el.dataset.testid ?? (el.classList.contains("lv") ? "ghost" : el.className));
+      return orig.apply(this, a);
+    };
+  });
+  await add(/Pedicure/, "pedicure");
+  await expect(page.getByTestId("line")).toHaveCount(2);
+  const seen = () => page.evaluate(() => (window as unknown as { seen: string[] }).seen);
+  await expect.poll(seen).toContain("line"); // the new line grew in
+  await expect.poll(seen).toContain("due"); // the total settled to its new value
+});
+
+test("waiting screens show soft shapes, not a blank page", async ({ page }) => {
+  await page.goto("/kit");
+  await page.evaluate(() => { const d = document.createElement("div"); d.setAttribute("aria-busy", "true"); d.id = "wait"; document.body.prepend(d); });
+  const before = await page.locator("#wait").evaluate((el) => getComputedStyle(el, "::before").content);
+  expect(before).toBe('""');
+  expect(await page.locator("#wait").evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(112);
+});

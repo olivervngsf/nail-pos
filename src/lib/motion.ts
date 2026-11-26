@@ -1,5 +1,5 @@
 "use client";
-// Motion (Nov 26). Step 2 = leave gently; step 3 = sliding switch pill (further down).
+// Motion (Nov 26). Step 2 = leave gently; step 3 = sliding switch pill; step 4 = rows flow in/out + money settles (further down).
 // Screens close pop-ups by removing them (React unmounts them). That made every drawer, sheet, toast and
 // pop-up vanish in one frame. One watcher fixes all of them at once: when an overlay leaves the page, a
 // silent copy (aria-hidden, inert, no ids/test ids, no clicks) takes its place and plays a short exit
@@ -115,6 +115,55 @@ function segsIn(n: Node, fn: (el: HTMLElement) => void) {
 }
 const unSeg = (el: HTMLElement) => { segOff.get(el)?.(); segOff.delete(el); };
 
+/* ---------- Lists + money (step 4) ----------
+   Rows marked `.flow` (ticket lines, checkout rows/cards, waitlist) grow in when added to a list already on
+   screen and fold away when removed (a silent copy folds, the real row is already gone). A whole list
+   arriving (page load, filter) doesn't animate; a row moving (re-sort) doesn't either. `data-flow="card"` =
+   fade + grow a touch instead of height. Money marked `data-roll` (and KPI tiles `.stat .v`) settles in
+   with a short lift when its value changes. */
+const EASE = "cubic-bezier(.2,.8,.2,1)", EASE_OUT = "cubic-bezier(.4,0,.9,.5)";
+const ROLL = "[data-roll], .stat .v";
+
+function sanitize(g: HTMLElement) {
+  for (const el of [g, ...Array.from(g.querySelectorAll<HTMLElement>("*"))]) { el.removeAttribute("id"); el.removeAttribute("data-testid"); el.removeAttribute("name"); }
+  g.setAttribute("aria-hidden", "true");
+  g.inert = true;
+  g.classList.add("lv");
+}
+function flowIn(el: HTMLElement) {
+  if (el.dataset.flow === "card") { el.animate([{ opacity: 0, scale: ".97" }, { opacity: 1, scale: "1" }], { duration: 280, easing: EASE }); return; }
+  const h = el.offsetHeight, cs = getComputedStyle(el);
+  el.style.overflow = "hidden";
+  const a = el.animate([
+    { height: "0px", minHeight: "0px", paddingTop: "0px", paddingBottom: "0px", opacity: 0 },
+    { height: `${h}px`, minHeight: "0px", paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, opacity: 1 },
+  ], { duration: 280, easing: EASE });
+  a.onfinish = a.oncancel = () => { el.style.overflow = ""; };
+}
+function flowOut(el: HTMLElement, parent: Node, next: Node | null) {
+  const g = el.cloneNode(true) as HTMLElement;
+  sanitize(g);
+  g.style.pointerEvents = "none";
+  parent.insertBefore(g, next && next.parentNode === parent ? next : null);
+  const card = el.dataset.flow === "card";
+  const h = g.offsetHeight, cs = getComputedStyle(g);
+  g.style.overflow = "hidden";
+  const a = card
+    ? g.animate([{ opacity: 1, scale: "1" }, { opacity: 0, scale: ".97" }], { duration: 200, easing: EASE_OUT, fill: "forwards" })
+    : g.animate([
+      { height: `${h}px`, minHeight: "0px", paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, opacity: 1 },
+      { height: "0px", minHeight: "0px", paddingTop: "0px", paddingBottom: "0px", opacity: 0 },
+    ], { duration: 240, easing: EASE_OUT, fill: "forwards" });
+  const done = () => g.remove();
+  a.onfinish = done;
+  setTimeout(done, MAX_MS);
+}
+function roll(el: HTMLElement) {
+  el.getAnimations().forEach((x) => { if (x.id === "roll") x.cancel(); });
+  const a = el.animate([{ opacity: 0.3, translate: "0 6px", filter: "blur(1.5px)" }, { opacity: 1, translate: "0 0", filter: "blur(0)" }], { duration: 300, easing: EASE });
+  a.id = "roll";
+}
+
 /** Start once (AppProviders). Returns stop. */
 export function startLeaveWatch(): () => void {
   if (typeof window === "undefined" || typeof MutationObserver === "undefined") return () => {};
@@ -127,6 +176,24 @@ export function startLeaveWatch(): () => void {
       r.removedNodes.forEach((n) => segsIn(n, (el) => { if (!el.isConnected) unSeg(el); }));
     }
     if (reducedMotion()) return;
+    // lists + money (step 4)
+    const removed = new Set<Node>(), added = new Set<Node>(), rolls = new Set<HTMLElement>();
+    const isFlow = (n: Node): n is HTMLElement => n instanceof HTMLElement && n.classList.contains("flow") && !n.classList.contains("lv");
+    const perList = new Map<Node, number>(); // a bulk change (filter, new day, page) doesn't animate: only 1–2 rows at a time do
+    for (const r of recs) {
+      r.removedNodes.forEach((n) => { removed.add(n); if (isFlow(n)) perList.set(r.target, (perList.get(r.target) ?? 0) + 1); });
+      r.addedNodes.forEach((n) => { added.add(n); if (isFlow(n)) perList.set(r.target, (perList.get(r.target) ?? 0) + 1); });
+    }
+    for (const r of recs) {
+      const t = r.target instanceof HTMLElement ? r.target : r.target.parentElement;
+      const money = t?.closest<HTMLElement>(ROLL);
+      if (money && !money.closest(".lv") && (r.type === "characterData" || r.type === "childList")) rolls.add(money);
+      if (r.type !== "childList" || !r.target.isConnected || (r.target as Element).closest?.(".lv")) continue;
+      if ((perList.get(r.target) ?? 0) > 2) continue;
+      r.addedNodes.forEach((n) => { if (isFlow(n) && !removed.has(n) && n.isConnected) flowIn(n); });
+      r.removedNodes.forEach((n) => { if (isFlow(n) && !added.has(n) && !n.isConnected) flowOut(n, r.target, r.nextSibling); });
+    }
+    rolls.forEach(roll);
     for (const r of recs) {
       r.removedNodes.forEach((n) => {
         for (const { el, l, top } of leaversIn(n)) {
@@ -144,7 +211,7 @@ export function startLeaveWatch(): () => void {
       });
     }
   });
-  mo.observe(document.body, { childList: true, subtree: true });
+  mo.observe(document.body, { childList: true, subtree: true, characterData: true });
   return () => { mo.disconnect(); document.removeEventListener("scroll", onScroll, true); document.querySelectorAll<HTMLElement>(".seg").forEach(unSeg); };
 }
 

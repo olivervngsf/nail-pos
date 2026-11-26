@@ -141,6 +141,12 @@ export function MiniBars({ bars, label }: { bars: { label: string; now: number; 
   );
 }
 export const MessageBubble = ({ children }: { children: ReactNode }) => <div className="bubble">{children}</div>;
+/** Waiting for data: soft shimmer lines in the shape of what's coming (never "Loading…"). */
+export const Skeleton = ({ lines = 3, label = "Loading" }: { lines?: number; label?: string }) => (
+  <div role="status" aria-label={label} style={{ display: "flex", flexDirection: "column", gap: 12, padding: "8px 0" }}>
+    {Array.from({ length: lines }, (_, i) => <span key={i} className="skel" style={{ height: 14, width: `${[72, 56, 64, 48][i % 4]}%` }} />)}
+  </div>
+);
 export const Empty = ({ title, children }: { title: string; children?: ReactNode }) => <div className="empty"><div className="h2">{title}</div>{children}</div>;
 
 /* ---------- overlays ---------- */

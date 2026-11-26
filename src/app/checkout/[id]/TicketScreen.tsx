@@ -144,7 +144,7 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
         <div className="h1">{t("services")}</div>
         <div className="group" data-testid="lines">
           {ticket.lines.map((l) => (
-            <div className="row" key={l.id} data-testid="line">
+            <div className="row flow" key={l.id} data-testid="line">
               <button type="button" className="av" style={{ border: 0, cursor: "pointer" }} aria-label={l.staffName ?? t("whoDoes")} onClick={() => setSheet({ kind: "staff", lineId: l.id })}>{l.staffName ? initials(l.staffName) : "?"}</button>
               <div className="grow">
                 <div className="ck-lname" style={{ fontWeight: 600 }}>{l.name}</div>
@@ -194,7 +194,7 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
           {sum.gift > 0 && <div className="line fade" data-testid="gift-total"><span>{t("giftCards")}</span><span>{$(sum.gift)}</span></div>}
           <div className="sep" />
           <div className="ck-paybar">
-            <div className="ck-due"><div className="cap">{t("dueNow")}</div><div className="money fade" data-testid="due">{$(sum.toPay)}</div></div>
+            <div className="ck-due"><div className="cap">{t("dueNow")}</div><div className="money fade" data-roll data-testid="due">{$(sum.toPay)}</div></div>
             <div className="ck-go">
               <Button className="ck-more" data-testid="ticket-more" aria-haspopup="dialog" onClick={() => setMore(true)}>{t("moreBtn")}</Button>
               <Button variant="primary" data-testid="charge" disabled={block.length > 0} onClick={onCharge}>{t("charge", { amount: $(sum.toPay) })}</Button>
@@ -641,7 +641,7 @@ function Cash({ desk, ticket, save, onPart }: { desk: Desk; ticket: Ticket; save
         {sum.giftPaid > 0 && <div className="line"><span>{t("giftCardPaid")}</span><span>−{$(sum.giftPaid)}</span></div>}
         {sum.cashPaid > 0 && <div className="line"><span>{t("cashPartPaid")}</span><span>−{$(sum.cashPaid)}</span></div>}
         {sum.tip > 0 && <div className="line"><span>{t("tips")}</span><span>{$(sum.tip)}</span></div>}
-        <div className="line"><span style={{ fontSize: 17, fontWeight: 600 }}>{t("total")}</span><span className="money" style={{ fontSize: 28 }} data-testid="cash-total">{$(sum.left)}</span></div>
+        <div className="line"><span style={{ fontSize: 17, fontWeight: 600 }}>{t("total")}</span><span className="money" style={{ fontSize: 28 }} data-roll data-testid="cash-total">{$(sum.left)}</span></div>
         <div>
           <div className="eyebrow" style={{ marginBottom: 8 }}>{t("clientGave")}</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 8 }}>
@@ -651,7 +651,7 @@ function Cash({ desk, ticket, save, onPart }: { desk: Desk; ticket: Ticket; save
         <div data-testid="change-box" data-short={short} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 20px", borderRadius: 16, background: short && typed ? "var(--orange-soft)" : "var(--surface)" }}>
           <span style={{ fontSize: 17, fontWeight: 600 }}>{short ? t("stillDue") : t("change")}
             {typed && short && <span className="cap" style={{ display: "block", fontWeight: 400 }}>{t("notEnough", { amount: $(given) })}</span>}</span>
-          <span className="money fade" style={{ fontSize: 40, color: short && typed ? "var(--orange)" : undefined }} data-testid="change">{$(Math.abs(typed ? diff : sum.left))}</span>
+          <span className="money fade" style={{ fontSize: 40, color: short && typed ? "var(--orange)" : undefined }} data-roll data-testid="change">{$(Math.abs(typed ? diff : sum.left))}</span>
         </div>
         <div className="sep" />
         <div className="ck-tips">
