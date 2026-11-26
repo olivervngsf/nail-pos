@@ -2976,6 +2976,11 @@
     "items": [
       {
         "date": "26/11",
+        "title": "Chọn hóa đơn rõ hơn",
+        "body": "Sau khi thanh toán: một nút lớn In hóa đơn, rồi Nhắn tin, Email hoặc Không lấy hóa đơn. Nhắn tin và Email hiện số hoặc email đã lưu (hoặc + Thêm). Mục Đã gửi cho vé này cho biết từng hóa đơn đã ra sao."
+      },
+      {
+        "date": "26/11",
         "title": "Menu hồ sơ mới",
         "body": "Bấm vào hình của bạn (góc trái dưới) để xem hồ sơ, cài đặt, ngôn ngữ, cỡ chữ, trợ giúp và đăng xuất. iPad của tiệm hiện ai đang dùng và đã làm bao lâu hôm nay."
       },

@@ -2976,6 +2976,11 @@
     "items": [
       {
         "date": "Nov 26",
+        "title": "Clearer receipt choices",
+        "body": "After payment: one big Print receipt button, then Text, Email or No receipt. Text and Email show the phone or email on file (or + Add). Sent for this ticket says what happened to each receipt."
+      },
+      {
+        "date": "Nov 26",
         "title": "New profile menu",
         "body": "Tap your picture (bottom left) for your profile, settings, language and text size, help and sign out. Salon iPads show who unlocked and how long they worked today."
       },
