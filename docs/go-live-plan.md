@@ -134,6 +134,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 ## 10. First pilot salon (Elang leads · Oliver on call)
 - [ ] Before: remove the live demo salon (`demo_remove.sql`) if it was added. Admin → System all green.
 - [ ] polishosapp.com/admin → Salons → Add salon by invite → text/email the invite → owner signs in → setup (10 steps, ~1 h): info, menu, staff + PINs, Connect payments, reader, printer, devices, clock-in rule, clients, $1 test. Show the owner the PIN box (Settings → Team → person): "Make a new PIN now" when they're here, PIN link when they're away (`docs/pin-help.md`).
+- [ ] Day 0 (as soon as the owner says yes): owner fills **Settings → Business details** (legal name, EIN, area code, how clients say yes, confirm) so card + texting registration can start; full steps in the Salon Onboarding doc https://claude.ai/artifact/6pxbR9ZNRba5m9WtKoVvwQ .
 - [ ] Day 1: Elang on call. Week 1: check-in logged in Admin → Salons. Week 4: pilot review (keep / pay / changes).
 
 ## Later (after the pilot)
