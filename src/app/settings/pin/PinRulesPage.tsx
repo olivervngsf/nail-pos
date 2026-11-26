@@ -37,7 +37,7 @@ function Rules({ a }: { a: Access }) {
 
   return (
     <div className="set-cols" data-testid="pin-rules">
-      <section style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+      <section style={{ flex: 1, minWidth: "min(320px, 100%)", display: "flex", flexDirection: "column", gap: 12 }}>
         {!a.owner && <div className="note">{t("ownerOnly")}</div>}
         <div className="eyebrow">{t("length")}</div>
         <div className="set-lens">
