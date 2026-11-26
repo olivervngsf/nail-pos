@@ -20,6 +20,10 @@ select set_config('request.jwt.claims', '{"role":"anon"}', true);
 insert into t_out values ('b', public.book_create(jsonb_build_object('slug', 'keep-rem', 'day', (now() at time zone 'America/Los_Angeles')::date + 3, 'start', 660,
   'phone', '+14085550142', 'email', 'lan@example.com', 'name', 'Lan Tran', 'textsOk', true,
   'guests', jsonb_build_array(jsonb_build_object('serviceIds', jsonb_build_array('00000000-0000-0000-0000-0000000040c1'), 'staffId', '00000000-0000-0000-0000-00000000407a')))));
+-- and one tomorrow 11:00 (the day-before time may already be past): both reminder kinds are still made, per channel
+insert into t_out values ('near', public.book_create(jsonb_build_object('slug', 'keep-rem', 'day', (now() at time zone 'America/Los_Angeles')::date + 1, 'start', 660,
+  'phone', '+14085550177', 'email', 'mia@example.com', 'name', 'Mia Le', 'textsOk', true,
+  'guests', jsonb_build_array(jsonb_build_object('serviceIds', jsonb_build_array('00000000-0000-0000-0000-0000000040c1'), 'staffId', '00000000-0000-0000-0000-00000000407a')))));
 reset role;
 create function pg_temp.rem(aid uuid) returns jsonb language sql as $$
   select coalesce(jsonb_agg(jsonb_build_object('k', kind, 'ch', channel, 'to', to_addr, 'st', status, 'at', send_at) order by kind, channel), '[]')
@@ -52,6 +56,7 @@ select public.appt_save(jsonb_build_object('id', '00000000-0000-0000-0000-000000
 reset role;
 insert into t_out values ('here', pg_temp.rem((select (v->'ids'->>0)::uuid from t_out where k = 'b')));
 insert into t_out values ('desk', pg_temp.rem('00000000-0000-0000-0000-0000000040d1'));
+insert into t_out values ('near_rem', pg_temp.rem((select (v->'ids'->>0)::uuid from t_out where k = 'near')));
 
 do $$
 declare o jsonb := (select jsonb_object_agg(k, v) from t_out); x jsonb;
@@ -67,6 +72,7 @@ begin
   end loop;
   if jsonb_array_length(o->'desk') <> 2 or o->'desk'->0->>'to' <> '+14085550142' or o->'desk'->0->>'ch' <> 'sms' or o->'desk'->0->>'st' <> 'queued' then
     raise exception 'FAIL desk booking reminders: %', o->'desk'; end if;
+  if (o->'near'->>'ok')::boolean is not true or jsonb_array_length(o->'near_rem') <> 4 then raise exception 'FAIL near booking reminders: % %', o->'near', o->'near_rem'; end if;
   raise notice 'PASS appt_save_reminders';
 end $$;
 select 'PASS' as result;
