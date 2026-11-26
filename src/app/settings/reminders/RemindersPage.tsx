@@ -5,11 +5,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Banner, Button, ListGroup, Row, Segmented, StatusPill, Switch, Toast } from "@/components/kit";
+import { Banner, ListGroup, Row, Segmented, StatusPill, Switch, Toast } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
 import { rpc } from "@/lib/auth";
 import { DEFAULT_PREFS, FIRST_HOURS, SECOND_HOURS, hoursLabel, plan, testOn, type ReminderPrefs } from "@/lib/booking/reminderPrefs";
-import SettingsShell, { type Access } from "../SettingsShell";
+import SettingsShell, { SaveCheck, type Access } from "../SettingsShell";
 
 export default function RemindersPage() {
   const t = useTranslations("settings");
@@ -87,10 +87,7 @@ function Form({ a }: { a: Access }) {
       </ListGroup>
       {test && +second === 0 && <Banner tone="warn">{T("Pick a 2nd reminder time so the test has something to send.", "Chọn giờ nhắc lần 2 để có tin thử.")}</Banner>}
 
-      <div className="si-bar">
-        <span className="cap">{changed ? T("Not saved yet", "Chưa lưu") : ""}</span>
-        <Button variant="primary" disabled={busy || !changed || (test && +second === 0)} onClick={() => void save()} data-testid="rem-save">{busy ? T("Saving…", "Đang lưu…") : T("Save", "Lưu")}</Button>
-      </div>
+      <SaveCheck dirty={changed} busy={busy} disabled={test && +second === 0} onSave={() => void save()} testId="rem-save" />
       {toast && <Toast>{toast}</Toast>}
     </div>
   );

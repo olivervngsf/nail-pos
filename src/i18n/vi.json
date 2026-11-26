@@ -1912,7 +1912,30 @@
     "signIn": "Cách đăng nhập",
     "techApp": "Phiếu, lịch hẹn + thu nhập của tôi",
     "onDevice": "{name} đang dùng thiết bị của tiệm. Đổi PIN ở màn hình danh sách; hồ sơ đầy đủ ở điện thoại của bạn.",
-    "demo": "Bản thử: thay đổi chỉ lưu trên máy này."
+    "demo": "Bản thử: thay đổi chỉ lưu trên máy này.",
+    "titleShort": "Hồ sơ",
+    "nameShort": "Tên",
+    "phone": "Số di động",
+    "signInTag": "Đăng nhập",
+    "role": "Vai trò",
+    "nameHint": "Tiệm thấy tên này trên vé, lịch hẹn và phiếu lương. Số điện thoại là cách bạn đăng nhập; muốn đổi, hãy hỏi bộ phận hỗ trợ.",
+    "thisDevice": "Thiết bị này",
+    "signInPin": "Đăng nhập + PIN",
+    "pinShort": "Mã PIN",
+    "signInShort": "Đăng nhập",
+    "signInWays": "Email · mật khẩu · 2 bước",
+    "signOutHere": "Đăng xuất",
+    "photoAdd": "Thêm ảnh",
+    "photoChange": "Đổi ảnh",
+    "photoRemove": "Xoá ảnh",
+    "photoSaving": "Đang lưu…",
+    "photoSaved": "Đã lưu ảnh",
+    "photoRemoved": "Đã xoá ảnh",
+    "photoOffline": "Cần internet để lưu ảnh.",
+    "photoBad": "Chọn một tấm ảnh (JPG hoặc PNG).",
+    "langHint": "Đổi ngay màn hình của thiết bị này. Khách luôn thấy ngôn ngữ của họ trên hoá đơn và trang đặt lịch.",
+    "sizeHint": "Chữ to hơn chỉ trên thiết bị này. Thiết bị khác giữ cỡ chữ riêng.",
+    "signInHint": "Số điện thoại luôn dùng được. Email hoặc mật khẩu là cách thứ hai; 2 bước thêm một mã từ ứng dụng."
   },
   "faces": {
     "gone": "Máy này đã bị gỡ khỏi tiệm. Cài lại để dùng mã PIN ở đây.",
@@ -2036,7 +2059,10 @@
       "tapToPay": "Tap to Pay on iPhone",
       "business": "Thông tin doanh nghiệp",
       "reminders": "Nhắc lịch hẹn",
-      "activity": "Nhật ký hoạt động"
+      "activity": "Nhật ký hoạt động",
+      "pin": "Mã PIN",
+      "language": "Ngôn ngữ",
+      "textSize": "Cỡ chữ"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -2537,7 +2563,12 @@
     "who": "Cài đặt tiệm: chủ + quản lý",
     "close": "Đóng",
     "search": "Tìm trong cài đặt",
-    "noMatch": "Không tìm thấy."
+    "noMatch": "Không tìm thấy.",
+    "notSaved": "Chưa lưu",
+    "undo": "Hoàn tác",
+    "save": "Lưu",
+    "saving": "Đang lưu…",
+    "lockDevice": "Khoá thiết bị này"
   },
   "promo": {
     "title": "Gửi tin khuyến mãi",
@@ -3004,6 +3035,11 @@
     "title": "Có gì mới",
     "sub": "Những thay đổi mới nhất của PolishOS, mới nhất ở trên.",
     "items": [
+      {
+        "date": "26/11",
+        "title": "Cài đặt giống Claude + ảnh hồ sơ",
+        "body": "Trên điện thoại và iPad, Cài đặt là một danh sách: chạm một dòng, ‹ để quay lại, ✓ để lưu. Hồ sơ → Đổi ảnh để thêm ảnh của bạn."
+      },
       {
         "date": "26/11",
         "title": "Chọn hóa đơn rõ hơn",

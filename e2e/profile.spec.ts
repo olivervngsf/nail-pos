@@ -144,7 +144,7 @@ test("devices: owner shows a QR, tablet types the code at /go and opens the fron
 });
 
 test("my profile shows 2-step sign-in (off) and the health check answers", async ({ page, request }) => {
-  await page.goto("/me");
+  await page.goto("/me/sign-in");
   await expect(page.getByTestId("two-step-state")).toHaveText("Off");
   const r = await request.get("/api/health");
   expect(r.status()).toBe(200);
