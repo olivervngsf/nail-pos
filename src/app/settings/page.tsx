@@ -1,3 +1,3 @@
-import { redirect } from "next/navigation";
+import SettingsHome from "./SettingsHome";
 
-export default function Page() { redirect("/settings/salon"); }
+export default function Page() { return <SettingsHome />; }
