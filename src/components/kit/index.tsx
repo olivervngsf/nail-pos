@@ -4,6 +4,7 @@
 import { useEffect, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
 import RailAccount from "@/components/RailAccount";
 import { useTranslations } from "next-intl";
+import { getMenuHidden, onMenuHidden, setMenuHidden } from "@/lib/menuFold";
 import { retryParked, subscribe, syncNow, type SyncState } from "@/lib/offline/outbox";
 import { CreditRing } from "@/components/CreditRing";
 import { hide, isHidden, unhide, type Keep } from "@/lib/banners";
@@ -210,8 +211,20 @@ export function Toast({ children, action }: { children: ReactNode; action?: { la
 }
 
 /* ---------- shells ---------- */
+/** Sidebar button at the start of every top bar: hide / show the left menu (per device). Only shows on screens with a left menu, 600px+. */
+export function MenuToggle() {
+  const t = useTranslations("kit");
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => { setHidden(getMenuHidden()); return onMenuHidden(setHidden); }, []);
+  const label = hidden ? t("menuShow") : t("menuHide");
+  return (
+    <button type="button" className="menu-tg" aria-label={label} title={label} aria-pressed={!hidden} data-testid="menu-toggle" onClick={() => setMenuHidden(!hidden)}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="3.5" /><path d="M8.5 8.5v7" /></svg>
+    </button>
+  );
+}
 export function TopBar({ title, children }: { title: ReactNode; children?: ReactNode }) {
-  return <header className="bar"><span className="title">{title}</span>{children}</header>;
+  return <header className="bar"><MenuToggle /><span className="title">{title}</span>{children}</header>;
 }
 export function PhoneBar({ title, left, right }: { title: ReactNode; left?: ReactNode; right?: ReactNode }) {
   return <header className="pbar"><span style={{ minWidth: 70 }}>{left}</span><span>{title}</span><span style={{ minWidth: 70, textAlign: "right" }}>{right}</span></header>;
