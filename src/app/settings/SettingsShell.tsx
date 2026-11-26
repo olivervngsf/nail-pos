@@ -12,7 +12,7 @@ import { isAdminRole, useMe } from "@/lib/me";
 export type Access = { salonId: string; salonName: string; role: Role; owner: boolean; demo: boolean };
 
 // Grouped by job (Oliver, Nov 25: clearer grouping). Order inside a group = how often it's opened.
-const GROUPS = ["me", "salon", "team", "pay", "clients", "money"] as const;
+const GROUPS = ["me", "salon", "team", "pay", "clients", "money", "safety"] as const;
 const NAV = [
   { href: "/me", key: "profile", group: "me", who: "all" },
   { href: "/settings/salon", key: "salon", group: "salon", who: "admin" },
@@ -20,11 +20,9 @@ const NAV = [
   { href: "/settings/menu", key: "menu", group: "salon", who: "admin" },
   { href: "/settings/devices", key: "devices", group: "salon", who: "admin" },
   { href: "/settings/billing", key: "billing", group: "salon", who: "admin" },
-  { href: "/settings/support", key: "support", group: "salon", who: "admin" },
   { href: "/settings/team", key: "team", group: "team", who: "admin" },
   { href: "/settings/clock-in", key: "clockIn", group: "team", who: "admin" },
   { href: "/settings/pin", key: "pinRules", group: "team", who: "admin" },
-  { href: "/settings/pin-activity", key: "pinActivity", group: "team", who: "admin" },
   { href: "/settings/payments", key: "payments", group: "pay", who: "admin" },
   { href: "/settings/reader", key: "reader", group: "pay", who: "admin" },
   { href: "/settings/tap-to-pay", key: "tapToPay", group: "pay", who: "admin" },
@@ -34,6 +32,8 @@ const NAV = [
   { href: "/loyalty", key: "loyalty", group: "clients", who: "admin" },
   { href: "/gift-cards", key: "giftCards", group: "clients", who: "admin" },
   { href: "/payouts", key: "payouts", group: "money", who: "admin" },
+  { href: "/settings/activity", key: "activity", group: "safety", who: "admin" },
+  { href: "/settings/support", key: "support", group: "safety", who: "admin" },
 ] as const;
 
 type Who = "all" | "admin" | "owner";

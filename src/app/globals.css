@@ -875,10 +875,51 @@ button:disabled { cursor: not-allowed; }
 .set-nav { width: 220px; flex: none; background: var(--paper); border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; padding: 14px 10px; overflow: auto; }
 .set-nav-title { font-size: 20px; font-weight: 600; padding: 4px 10px 10px; display: flex; flex-direction: column; gap: 2px; }
 .set-nav-who { font-size: 12px; font-weight: 400; color: var(--ink-soft); }
-/* Groups (Nov 25): a hairline + air between groups, a clear sentence-case heading, items indented under it. */
-.set-nav-group { display: flex; flex-direction: column; gap: 1px; padding: 10px 0; }
+/* Groups (Nov 25): a hairline + air between groups. Heading (Oliver, Nov 26, from the Settings board): small grey caps. */
+.set-nav-group { display: flex; flex-direction: column; gap: 1px; padding: 12px 0; }
 .set-nav-group + .set-nav-group { border-top: 1px solid var(--line); }
-.set-nav-h { font-size: 13px; font-weight: 600; color: var(--ink); padding: 2px 10px 6px; }
+.set-nav-h { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); padding: 2px 10px 6px; }
+/* Activity log */
+.act-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.act-tile { background: var(--paper); border-radius: 16px; box-shadow: var(--shadow); padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
+.act-tile b { font-size: 24px; line-height: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.act-tile b.warn { color: #B5470A; }
+.act-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.act-bar select, .act-bar input { height: 36px; font-size: 14px; width: auto; }
+.act-spacer { flex: 1; }
+.act-row { display: grid; grid-template-columns: 76px minmax(0, 1.2fr) minmax(0, 2fr) minmax(0, 1fr) 110px; gap: 12px; align-items: center; width: 100%; min-height: 52px; padding: 6px 16px; border: 0; border-bottom: 1px solid var(--line); background: var(--paper); font: inherit; font-size: 14px; color: var(--ink); text-align: left; cursor: pointer; box-sizing: border-box; }
+.act-row:last-child { border-bottom: 0; }
+.act-row:hover { background: #FAFAFB; }
+.act-row.head { min-height: 34px; font-size: 12px; font-weight: 600; color: var(--ink-soft); cursor: default; }
+.act-row.head:hover { background: var(--paper); }
+.act-row .ell { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.act-tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--fill); white-space: nowrap; }
+.act-tag.ok { background: var(--jade-soft); color: #1E6E30; }
+.act-tag.warn { background: var(--orange-soft); color: #B5470A; }
+.act-tag.bad { background: #FDECEC; color: #B42323; }
+.act-tag.info { background: #E7F0FD; color: #1B4F9C; }
+.act-kv { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px 12px; font-size: 14px; margin: 0; }
+.act-kv dt { color: var(--ink-soft); }
+.act-kv dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 599px) {
+  .act-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .act-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "what res" "who time"; gap: 2px 10px; padding: 10px 14px; }
+  .act-row .act-what { grid-area: what; }
+  .act-row .act-res { grid-area: res; }
+  .act-row .act-who { grid-area: who; display: flex; gap: 6px; align-items: baseline; min-width: 0; }
+  .act-row .act-time { grid-area: time; text-align: right; }
+  .act-row .act-dev, .act-row.head { display: none; }
+  .act-spacer { flex-basis: 100%; height: 0; }
+  .act-bar .act-sel { flex: 1 1 30%; min-width: 0; }
+  .act-bar .act-print { display: none; }
+  .act-tiles { display: none; }
+  .set-chips.act-kinds { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .act-kinds .chip { flex: none; }
+}
+@media print {
+  .rail, .set-nav, .bar, .act-bar, .act-noprint, .tabbar { display: none !important; }
+  .act-row { min-height: 0; padding: 4px 0; font-size: 11px; }
+}
 .set-nav a { display: flex; align-items: center; min-height: 34px; padding: 0 10px; border-radius: 8px; font-size: 14px; color: var(--ink); text-decoration: none; }
 .set-nav a:hover { background: var(--surface); }
 .set-nav a.on { background: var(--fill); font-weight: 600; }
