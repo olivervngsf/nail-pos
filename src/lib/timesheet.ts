@@ -1,6 +1,7 @@
 // Timesheet (Settings → Team + time clock → Timesheet): turn clock punches into pairs, hours, breaks and flags.
 // California rules as plain facts, not payroll: overtime after 8h a day or 40h a week; a meal break of 30 min
 // before the 5th hour. The owner decides what to do; we only show it.
+import { backDays, getWeekStart, type WeekStart } from "@/lib/weekStart";
 import type { Role } from "./auth";
 
 export type Fix = { old_at: string | null; reason: string; note: string | null; by: string; at: string };
@@ -83,10 +84,10 @@ export function dayList(from: string, to: string): string[] {
   return out;
 }
 
-/** Monday of the week holding `day`. */
-export function weekStart(day: string): string {
+/** First day (salon's pick: Monday by default, or Sunday) of the week holding `day`. */
+export function weekStart(day: string, ws: WeekStart = getWeekStart()): string {
   const d = new Date(`${day}T12:00:00Z`);
-  const back = (d.getUTCDay() + 6) % 7;
+  const back = backDays(d.getUTCDay(), ws);
   d.setUTCDate(d.getUTCDate() - back);
   return d.toISOString().slice(0, 10);
 }

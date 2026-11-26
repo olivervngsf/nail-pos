@@ -1,3 +1,4 @@
+import { backDays, getWeekStart, type WeekStart } from "@/lib/weekStart";
 // Calendar math: pure, tested (grid.test.ts). Minutes since midnight in the salon's local day.
 
 export const SNAP = 15;
@@ -11,7 +12,8 @@ export const addDays = (d: Date, n: number) => { const x = new Date(d); x.setDat
 export const minutesOf = (iso: string) => { const d = new Date(iso); return d.getHours() * 60 + d.getMinutes(); };
 /** ISO time for a local day + minutes since midnight. */
 export const at = (day: string, min: number) => { const d = fromDayKey(day); d.setMinutes(min); return d.toISOString(); };
-export const startOfWeek = (d: Date) => addDays(d, -((d.getDay() + 6) % 7)); // Monday
+/** Start of the week holding `d`: the salon's pick (Monday by default, or Sunday). */
+export const startOfWeek = (d: Date, ws: WeekStart = getWeekStart()) => addDays(d, -backDays(d.getDay(), ws));
 export const fmtMin = (min: number) => { const h = Math.floor(min / 60), m = min % 60, ap = h >= 12 ? "PM" : "AM"; return `${((h + 11) % 12) + 1}:${String(m).padStart(2, "0")} ${ap}`; };
 
 type Span = { id: string; start: number; end: number };

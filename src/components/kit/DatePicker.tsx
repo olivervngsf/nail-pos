@@ -7,6 +7,8 @@
 // Phones (<600px): the popover is a sheet from the bottom with 44px days. Keys: arrows, PageUp/Down, Enter, Esc.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { backDays, weekdayOrder, type WeekStart } from "@/lib/weekStart";
+import { useWeekStart } from "@/lib/useWeekStart";
 import { useLocale, useTranslations } from "next-intl";
 
 /* ---------- day math on "YYYY-MM-DD" strings (UTC, so time zones never shift a day) ---------- */
@@ -18,10 +20,10 @@ const monthOf = (s: string) => s.slice(0, 7) + "-01";
 const localToday = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 const daysBetween = (a: string, b: string) => Math.round((toD(b).getTime() - toD(a).getTime()) / 864e5);
 const inRange = (s: string, min?: string, max?: string) => (!min || s >= min) && (!max || s <= max);
-/** 42 days (6 weeks, Sunday first) covering the month of `month`. */
-function grid(month: string) {
+/** 42 days (6 weeks, first day = the salon's week start) covering the month of `month`. */
+function grid(month: string, ws: WeekStart) {
   const first = toD(monthOf(month));
-  const start = addDaysIso(toS(first), -first.getUTCDay());
+  const start = addDaysIso(toS(first), -backDays(first.getUTCDay(), ws));
   return Array.from({ length: 42 }, (_, i) => addDaysIso(start, i));
 }
 
@@ -39,7 +41,7 @@ function useFmt() {
       full: (s: string) => full.format(toD(s)),
       month: (s: string) => month.format(toD(monthOf(s))),
       mShort: (m: number) => mShort.format(new Date(Date.UTC(2026, m, 1))),
-      weekdays: Array.from({ length: 7 }, (_, i) => wd.format(new Date(Date.UTC(2026, 10, 1 + i)))), // Nov 1 2026 = Sunday
+      weekday: (dow: number) => wd.format(new Date(Date.UTC(2026, 10, 1 + dow))), // Nov 1 2026 = Sunday
       range: (a: string, b: string) => (a === b ? day.format(toD(a)) : (day as Intl.DateTimeFormat & { formatRange?: (x: Date, y: Date) => string }).formatRange?.(toD(a), toD(b)) ?? `${day.format(toD(a))} – ${day.format(toD(b))}`),
     };
   }, [locale]);
@@ -85,13 +87,14 @@ function MonthGrid({ view, setView, min, max, isOn, band, onPick, onHover, focus
   const t = useTranslations("picker");
   const fmt = useFmt();
   const today = localToday();
-  const days = grid(view);
+  const ws = useWeekStart();
+  const days = grid(view, ws);
   const move = (s: string) => { const c = min && s < min ? min : max && s > max ? max : s; setFocus(c); if (monthOf(c) !== monthOf(view)) setView(monthOf(c)); };
   const onKey = (e: React.KeyboardEvent) => {
     const n = ({ ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 } as Record<string, number>)[e.key];
     if (n) { e.preventDefault(); move(addDaysIso(focus, n)); }
     else if (e.key === "PageUp" || e.key === "PageDown") { e.preventDefault(); move(addMonths(focus, e.key === "PageUp" ? -1 : 1).slice(0, 8) + focus.slice(8)); }
-    else if (e.key === "Home" || e.key === "End") { e.preventDefault(); move(addDaysIso(focus, e.key === "Home" ? -toD(focus).getUTCDay() : 6 - toD(focus).getUTCDay())); }
+    else if (e.key === "Home" || e.key === "End") { e.preventDefault(); move(addDaysIso(focus, e.key === "Home" ? -backDays(toD(focus).getUTCDay(), ws) : 6 - backDays(toD(focus).getUTCDay(), ws))); }
   };
   useEffect(() => { document.querySelector<HTMLElement>(`.dp-pop [data-day="${focus}"]`)?.focus(); }, [focus]);
   return (
@@ -102,7 +105,7 @@ function MonthGrid({ view, setView, min, max, isOn, band, onPick, onHover, focus
         <button type="button" className="dp-nav" aria-label={t("nextMonth")} disabled={!!max && monthOf(view) >= monthOf(max)} onClick={() => setView(addMonths(view, 1))}>›</button>
       </div>
       <div className="dp-grid" role="grid" onKeyDown={onKey} onMouseLeave={() => onHover?.(null)}>
-        {fmt.weekdays.map((w, i) => <div key={i} className="dp-wd" aria-hidden>{w}</div>)}
+        {weekdayOrder(ws).map((d) => <div key={d} className="dp-wd" aria-hidden>{fmt.weekday(d)}</div>)}
         {days.map((s) => {
           const out = s.slice(0, 7) !== view.slice(0, 7);
           const ok = inRange(s, min, max);
@@ -165,6 +168,7 @@ export function DateRangePicker({ from, to, onChange, min, max, presets = [], la
   presets?: RangePreset[]; label: string; "data-testid"?: string;
 }) {
   const t = useTranslations("picker");
+  const ws = useWeekStart();
   const fmt = useFmt();
   const btn = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
@@ -184,7 +188,7 @@ export function DateRangePicker({ from, to, onChange, min, max, presets = [], la
   const apply = (f = a, l = b ?? a, key?: string) => { onChange(f, l, key); setOpen(false); btn.current?.focus(); };
   const band = (s: string) => {
     if (s < s0 || s > s1 || s0 === s1) return "" as const;
-    const col = toD(s).getUTCDay();
+    const col = backDays(toD(s).getUTCDay(), ws); // 0 = first column of the row
     const first = s === s0 || col === 0, last = s === s1 || col === 6;
     return (first && last ? "band first last" : first ? "band first" : last ? "band last" : "band") as "band";
   };
