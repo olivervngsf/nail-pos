@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { receiptEmail, receiptSms, receiptUrl } from "./receiptSend";
+import { maskTo, receiptEmail, receiptLine, receiptSms, receiptUrl } from "./receiptSend";
 import { onTestList, testPhones } from "@/lib/texting/sms";
 
 const r = { salon: "Lotus Demo Nails", number: 1284, totalCents: 11520, at: "2026-11-26T20:00:00Z", code: "0123456789abcdef" };
@@ -31,5 +31,20 @@ describe("test phones (before go-live)", () => {
     expect(onTestList("promo", "+14085550100", list)).toBe(false);
     expect(onTestList("reminder", "+14085550199", list)).toBe(false);
     expect(onTestList("reminder", "+14085550100", "")).toBe(false);
+  });
+});
+
+describe("what the paid screen says after Text / Email", () => {
+  it("masks the contact", () => {
+    expect(maskTo("text", "+16125457011")).toBe("••7011");
+    expect(maskTo("email", "oliver@gmail.com")).toBe("o•••@gmail.com");
+  });
+  it("one plain line per outcome", () => {
+    expect(receiptLine("text", { status: "sent" })).toEqual({ key: "texted", tone: "good" });
+    expect(receiptLine("email", { status: "sent" })).toEqual({ key: "emailed", tone: "good" });
+    expect(receiptLine("text", { status: "skipped", error: "salon's texting number not registered yet" }).key).toBe("textOff");
+    expect(receiptLine("text", { status: "skipped", error: "replied STOP" }).key).toBe("stop");
+    expect(receiptLine("text", { status: "queued" }).key).toBe("queued");
+    expect(receiptLine("text", { status: "failed", error: "x" }).tone).toBe("bad");
   });
 });
