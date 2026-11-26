@@ -110,7 +110,13 @@ export function timesheetCsv(rows: TsRow[], days: string[], today: string, nowIs
 
 /** Sample week for the test copy (no database): same people + story as the design board. */
 export function demoTimesheet(today: string): TsRow[] {
-  const at = (day: string, hm: string) => new Date(`${day}T${hm}:00`).toISOString();
+  // Sample times are salon wall-clock times (Los Angeles, like the app's date formatter), whatever the device's zone.
+  const at = (day: string, hm: string) => {
+    const guess = new Date(`${day}T${hm}:00Z`);
+    const la = new Date(guess.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+    const utc = new Date(guess.toLocaleString("en-US", { timeZone: "UTC" }));
+    return new Date(guess.getTime() + (utc.getTime() - la.getTime())).toISOString();
+  };
   let id = 1;
   const p = (day: string, kind: "in" | "out", hm: string, via = "device", device: string | null = "Time clock", fix: Fix | null = null): Punch =>
     ({ id: id++, kind, at: at(day, hm), day, via, device, fix });

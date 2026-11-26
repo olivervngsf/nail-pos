@@ -2067,7 +2067,8 @@
       "pin": "Mã PIN",
       "language": "Ngôn ngữ",
       "textSize": "Cỡ chữ",
-      "roles": "Vai trò"
+      "roles": "Vai trò",
+      "timesheet": "Bảng giờ làm"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -3033,7 +3034,8 @@
       "support_on": "Bật quyền hỗ trợ",
       "support_off": "Hết quyền hỗ trợ",
       "support_change": "PolishOS hỗ trợ đã đổi một mục",
-      "roles_saved": "Đổi vai trò + quyền"
+      "roles_saved": "Đổi vai trò + quyền",
+      "clock_fix": "Sửa giờ chấm công"
     }
   },
   "picker": {
@@ -3055,6 +3057,11 @@
     "title": "Có gì mới",
     "sub": "Những thay đổi mới nhất của PolishOS, mới nhất ở trên.",
     "items": [
+      {
+        "date": "26/11",
+        "title": "Bảng giờ làm",
+        "body": "Cài đặt → Bảng giờ làm: ai đang làm, giờ làm theo ngày và tuần, nghỉ ăn trễ và tăng ca. Sửa giờ ra bị thiếu kèm lý do; giờ cũ vẫn được lưu."
+      },
       {
         "date": "26/11",
         "title": "Cài đặt giống Claude + ảnh hồ sơ",
@@ -3091,5 +3098,89 @@
         "body": "Đổi địa chỉ, giờ mở cửa và mọi dịch vụ sau khi cài đặt, trong Cài đặt."
       }
     ]
+  },
+  "timesheet": {
+    "title": "Bảng giờ làm",
+    "view": "Xem",
+    "day": "Ngày",
+    "week": "Tuần",
+    "earlier": "Trước",
+    "later": "Sau",
+    "today": "Hôm nay",
+    "print": "In",
+    "csv": "Tải CSV",
+    "fixTitle": "{n, plural, other {# lần thiếu giờ ra}}",
+    "fixBody": "{name} chưa chấm giờ ra ngày {day}. Thêm giờ thật để tính đúng giờ làm.",
+    "fixTime": "Sửa giờ",
+    "tile": {
+      "inNow": "Đang làm",
+      "inNowSub": "đang chấm công",
+      "hours": "Giờ làm",
+      "hoursDay": "trong ngày này",
+      "hoursWeek": "trong tuần này",
+      "meal": "Nghỉ ăn trễ",
+      "mealSub": "không nghỉ 30 phút trước giờ thứ 5",
+      "ot": "Tăng ca",
+      "otSub": "hơn 8h/ngày hoặc 40h/tuần"
+    },
+    "person": "Người",
+    "inOut": "Vào → ra",
+    "break": "Nghỉ",
+    "hours": "Giờ",
+    "now": "Bây giờ",
+    "notIn": "Không vào",
+    "refusedAt": "Chấm công bị từ chối {time} (không ở tiệm)",
+    "mealLate": "Không nghỉ ăn trước giờ thứ 5",
+    "total": "Tổng",
+    "flags": "Kiểm tra",
+    "flag": {
+      "fix": "Cần sửa",
+      "ot": "Tăng ca",
+      "meal": "Nghỉ ăn",
+      "ok": "OK"
+    },
+    "state": {
+      "fix": "Cần sửa",
+      "in": "Đang vào",
+      "out": "Đã ra",
+      "refused": "Bị từ chối",
+      "off": "Nghỉ"
+    },
+    "note": "Số liệu từ máy chấm công, không phải bảng lương. California: tăng ca sau 8h/ngày hoặc 40h/tuần; nghỉ ăn 30 phút trước giờ thứ 5. Mỗi lần sửa đều giữ giờ cũ, ai sửa và lý do.",
+    "in": "Vào",
+    "out": "Ra",
+    "stillIn": "Vẫn đang làm",
+    "missing": "Thiếu",
+    "wasAt": "Trước là {time} · {by} sửa",
+    "addedBy": "{by} thêm",
+    "fix": "Sửa",
+    "add": "Thêm",
+    "via": {
+      "device": "Máy của tiệm",
+      "phone": "Điện thoại riêng",
+      "fix": "Thêm bằng tay",
+      "pin": "Máy của tiệm"
+    },
+    "noPunches": "Không có giờ vào/ra trong những ngày này.",
+    "drawerNote": "Sửa giờ hoặc thêm giờ bị thiếu. Giờ cũ vẫn được lưu và hiện trong Nhật ký hoạt động.",
+    "fixTitleOne": "Sửa giờ của {name}",
+    "addTitle": "Thêm giờ thiếu của {name}",
+    "cancel": "Huỷ",
+    "saveFix": "Lưu",
+    "saving": "Đang lưu…",
+    "realTime": "Giờ thật",
+    "inTime": "Giờ vào thật",
+    "outTime": "Giờ ra thật",
+    "future": "Giờ đó chưa tới.",
+    "why": "Lý do",
+    "reason": {
+      "forgot": "Quên",
+      "device_off": "Máy bị tắt",
+      "wrong_person": "Nhầm người",
+      "other": "Khác"
+    },
+    "noteLabel": "Ghi chú (không bắt buộc)",
+    "notePh": "vd: về lúc 6:30, đã báo quầy",
+    "fixNote": "{name} thấy được lần sửa này. Lưu kèm tên bạn và lý do."
   }
 }
