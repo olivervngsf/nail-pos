@@ -145,7 +145,7 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
               <div className="grow">
                 <div className="ck-lname" style={{ fontWeight: 600 }}>{l.name}</div>
                 {l.staffName
-                  ? <div className="cap">{l.staffName} · {l.minutes} min</div>
+                  ? <div className="cap">{l.staffName} · {l.minutes} min{l.fromPhone && <span className="tag ck-byphone" data-testid="line-by-phone">{l.addedAt ? t("addedByAt", { name: l.staffName, time: new Date(l.addedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) }) : t("addedBy", { name: l.staffName })}</span>}</div>
                   : <button type="button" className="cap" style={{ border: 0, background: "none", padding: 0, color: "var(--orange)", cursor: "pointer", font: "inherit" }} onClick={() => setSheet({ kind: "staff", lineId: l.id })}>{t("needStaff")}</button>}
               </div>
               {l.priceFrom

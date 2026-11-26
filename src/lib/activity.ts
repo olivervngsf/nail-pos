@@ -84,7 +84,7 @@ export function facts(detail: Record<string, unknown> | null | undefined): [stri
   keys.sort((a, b) => (ORDER.indexOf(a) < 0 ? 99 : ORDER.indexOf(a)) - (ORDER.indexOf(b) < 0 ? 99 : ORDER.indexOf(b)));
   return keys.map((k) => {
     const v = detail[k];
-    if (k.endsWith("_cents") && typeof v === "number") return [k, `$${(v / 100).toFixed(2)}`];
+    if ((k === "cents" || k.endsWith("_cents")) && typeof v === "number") return [k, `$${(v / 100).toFixed(2)}`];
     if (k === "number") return [k, `#${v}`];
     return [k, String(v)];
   });

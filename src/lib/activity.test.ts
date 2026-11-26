@@ -43,6 +43,7 @@ describe("activity log", () => {
   it("shows detail facts in plain words and order", () => {
     expect(facts({ method: "card", total_cents: 4500, number: 1291, ticket: "uuid" })).toEqual([["number", "#1291"], ["total_cents", "$45.00"], ["method", "card"]]);
     expect(facts(null)).toEqual([]);
+    expect(facts({ service: "Chrome powder", cents: 1500 })).toContainEqual(["cents", "$15.00"]);
     expect(plainAction("gift.linked_by_client")).toBe("Gift linked by client");
   });
 

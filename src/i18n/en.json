@@ -57,6 +57,8 @@
     "dueNow": "Due now · tip added at payment",
     "charge": "Charge {amount}",
     "needStaff": "Pick who does each service",
+    "addedBy": "Added by {name} on phone",
+    "addedByAt": "Added by {name} on phone · {time}",
     "needPrice": "Set the final price for “+” services",
     "needService": "Add a service to start",
     "search": "Search services",
@@ -1134,7 +1136,13 @@
     "tipCash": "{amount} cash",
     "tipCard": "{amount} card",
     "tipFee": "card fee −{amount}",
-    "noTip": "No tip on this visit."
+    "noTip": "No tip on this visit.",
+    "customTitle": "Not on the menu? Add your own",
+    "customName": "What did you do?",
+    "customPrice": "Price",
+    "customAdd": "Add",
+    "customBad": "Type a name and a price up to $1,000.",
+    "logged": "Everything you add or remove is saved in the salon's activity log with your name."
   },
   "book": {
     "photos": "Salon photos",
@@ -2952,6 +2960,8 @@
       "salon_address": "Salon address changed",
       "business_saved": "Business details changed",
       "service_added": "Service added",
+      "ticket_tech_added": "Tech added a service",
+      "ticket_tech_removed": "Tech removed a service",
       "service_saved": "Service changed",
       "service_removed": "Service removed",
       "pay_layout_saved": "Client pay page changed",
