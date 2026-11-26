@@ -1799,7 +1799,26 @@
       "tech": "Thợ"
     },
     "activity": "Nhật ký hoạt động",
-    "plan": "Gói + mức dùng"
+    "plan": "Gói + mức dùng",
+    "lockShort": "Khoá",
+    "backToFaces": "về danh sách",
+    "deviceNever": "Thiết bị của tiệm không bao giờ đăng xuất. Khoá để người kế tiếp dùng iPad.",
+    "byPin": "bằng PIN, {time}",
+    "myTimeToday": "Giờ làm hôm nay",
+    "myTime": "Giờ làm",
+    "today": "{time} hôm nay",
+    "textSize": "Cỡ chữ",
+    "size": {
+      "normal": "Vừa",
+      "large": "Lớn",
+      "larger": "Lớn hơn"
+    },
+    "help": "Trợ giúp",
+    "whatsNew": "Có gì mới",
+    "switchSalon": "Đổi tiệm",
+    "salons": "{n} tiệm",
+    "planSalon": "Salon · $49",
+    "changePin": "Đổi PIN của tôi"
   },
   "me": {
     "title": "Hồ sơ của tôi",
@@ -2894,5 +2913,36 @@
       "support_off": "Hết quyền hỗ trợ",
       "support_change": "PolishOS hỗ trợ đã đổi một mục"
     }
+  },
+  "whatsNew": {
+    "title": "Có gì mới",
+    "sub": "Những thay đổi mới nhất của PolishOS, mới nhất ở trên.",
+    "items": [
+      {
+        "date": "26/11",
+        "title": "Menu hồ sơ mới",
+        "body": "Bấm vào hình của bạn (góc trái dưới) để xem hồ sơ, cài đặt, ngôn ngữ, cỡ chữ, trợ giúp và đăng xuất. iPad của tiệm hiện ai đang dùng và đã làm bao lâu hôm nay."
+      },
+      {
+        "date": "26/11",
+        "title": "Chữ to hơn",
+        "body": "Menu hồ sơ → Cỡ chữ: Vừa, Lớn hoặc Lớn hơn. Chọn một lần trên mỗi máy."
+      },
+      {
+        "date": "26/11",
+        "title": "Nhật ký hoạt động",
+        "body": "Cài đặt → Nhật ký hoạt động: mọi lần nhập PIN, chấm công, tiền và thay đổi cài đặt, ai và lúc nào. In hoặc tải về."
+      },
+      {
+        "date": "26/11",
+        "title": "Cài đặt trong một cửa sổ",
+        "body": "Cài đặt mở ngay trên màn hình đang dùng. Bấm X hoặc Esc để quay lại."
+      },
+      {
+        "date": "25/11",
+        "title": "Địa chỉ tiệm + menu dịch vụ",
+        "body": "Đổi địa chỉ, giờ mở cửa và mọi dịch vụ sau khi cài đặt, trong Cài đặt."
+      }
+    ]
   }
 }

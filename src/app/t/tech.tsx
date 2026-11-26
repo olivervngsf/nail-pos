@@ -4,8 +4,10 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import { SMS_ON, isSignedIn, myMemberships, type Membership } from "@/lib/auth";
+import { SMS_ON, isSignedIn, myMemberships, myPhoneLast4, signOut, type Membership } from "@/lib/auth";
+import { IC, LangRow, PmRow, SizeRow, SUPPORT_MAIL, useMyTime } from "@/components/ProfileMenu";
 import { useLang } from "@/components/AppProviders";
 import { PhoneBar, SyncPill } from "@/components/kit";
 import { DEMO_DESK } from "@/lib/desk";
@@ -73,7 +75,7 @@ export function TechTabs() {
 export function TechShell({ title, me, err, children }: { title: string; me: TechMe | null; err?: string; children: ReactNode }) {
   return (
     <div className="phone">
-      <PhoneBar title={title} right={<SyncPill />} />
+      <PhoneBar title={title} left={me ? <TechSheet me={me} /> : null} right={<SyncPill />} />
       {err ? <div className="pbody"><p className="hint err">{err}</p></div>
         : !me ? <div className="pbody" aria-busy="true" />
         : <div className="pbody in">{!me.live && <TestNote />}{children}</div>}
@@ -85,4 +87,56 @@ export function TechShell({ title, me, err, children }: { title: string; me: Tec
 function TestNote() {
   const t = useTranslations("tech");
   return <div className="demo">{t("demo")}</div>;
+}
+
+const initial = (n: string) => n.trim()[0]?.toUpperCase() ?? "?";
+
+/** Profile sheet on the tech's own phone (board Profile pop-up C): tap your face (top left) → sheet from the bottom.
+ *  Own things only: profile, time, earnings, PIN, language, text size, help, sign out. Techs never see salon settings. */
+export function TechSheet({ me }: { me: TechMe }) {
+  const t = useTranslations("account");
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [sub, setSub] = useState<string | null>(null);
+  const [last4, setLast4] = useState<string | null>(null);
+  useEffect(() => { if (open) void myPhoneLast4().then(setLast4).catch(() => {}); else setSub(null); }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", esc);
+    return () => window.removeEventListener("keydown", esc);
+  }, [open]);
+  const time = useMyTime(me.live ? me.salonId : undefined, me.live ? me.id : undefined, 285);
+  const go = (href: string) => { setOpen(false); router.push(href); };
+  return (
+    <>
+      <button type="button" className="tk-me-btn" aria-label={t("menu")} aria-haspopup="dialog" aria-expanded={open} data-testid="tech-me" onClick={() => setOpen(true)}>
+        <span className="av tk-av" aria-hidden>{initial(me.name)}</span>
+      </button>
+      {open && createPortal(
+        <>
+          <div className="pm-scrim" onClick={() => setOpen(false)} aria-hidden />
+          <div className="pm-sheet" role="dialog" aria-modal="true" aria-label={t("menu")} data-testid="tech-sheet">
+            <div className="pm-grab" aria-hidden />
+            <div className="pm-who">
+              <span className="av tk-av lg" aria-hidden>{initial(me.name)}</span>
+              <span style={{ flex: 1, minWidth: 0 }}><b className="ell">{me.name}</b>
+                <span className="cap ell">{[t(`role.${me.role}`), me.salonName, last4 ? `••${last4}` : ""].filter(Boolean).join(" · ")}</span></span>
+            </div>
+            <div className="pm" role="menu">
+              <PmRow icon={IC.user} label={t("profile")} onClick={() => go("/t/me")} testid="sheet-me" />
+              <PmRow icon={IC.clock} label={t("myTime")} right={time ? t("today", { time }) : ""} onClick={() => go(`/t/clock?s=${me.salonId}`)} testid="sheet-time" />
+              <PmRow icon={IC.money} label={t("earnings")} onClick={() => go("/t/earnings")} testid="sheet-earnings" />
+              <PmRow icon={IC.lock} label={t("changePin")} onClick={() => go(`/t/pin?s=${me.salonId}`)} testid="sheet-pin" />
+              <LangRow sub={sub} setSub={setSub} inline long />
+              <SizeRow sub={sub} setSub={setSub} inline />
+              <PmRow icon={IC.help} label={t("help")} href={SUPPORT_MAIL} />
+              <div className="pm-sep" />
+              <PmRow icon={IC.out} label={t("signOut")} onClick={async () => { setOpen(false); await signOut(); router.replace("/login"); }} testid="sheet-out" />
+            </div>
+          </div>
+        </>, document.body,
+      )}
+    </>
+  );
 }

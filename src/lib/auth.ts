@@ -90,6 +90,14 @@ export async function myEmail(): Promise<string | null> {
   return data.user?.email || null;
 }
 
+/** Last 4 digits of the sign-in phone (profile sheet "••0142"). Test copy = sample. */
+export async function myPhoneLast4(): Promise<string | null> {
+  if (!SMS_ON) return "0142";
+  const { data } = await sb().auth.getUser();
+  const p = (data.user?.phone || "").replace(/\D/g, "");
+  return p ? p.slice(-4) : null;
+}
+
 /** Step 1 of adding an email: we email a code to the new address. */
 export async function startAddEmail(email: string): Promise<string | null> {
   if (!SMS_ON) return null;
