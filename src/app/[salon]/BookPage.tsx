@@ -212,46 +212,53 @@ function Flow({ page }: { page: Page }) {
     return (
       <div className="bw">
         <Header page={page} />
-        <div className="bw-done in" data-testid="booked">
-          <div className="bw-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
-          <h2 className="h1 bw-center">{t("booked", { name: first.charAt(0).toUpperCase() + first.slice(1) })}</h2>
-          <p className="cap bw-center" data-testid="sent-line">
-            {page.salon.slug === DEMO_SLUG || (!hasEmail && !(textsOk && hasPhone)) ? t("atDesk") : sent === null ? t("bookedSending") : <>
-              {sent.email === "sent" && <>{t("bookedEmailed", { email: email.trim().toLowerCase() })} </>}
-              {sent.sms === "sent" && <>{t("bookedTexted", { phone: fmtPhone(phone) })} </>}
-              {hasEmail && sent.email !== "sent" && <>{t("bookedEmailOff", { email: email.trim().toLowerCase() })} </>}
-              {textsOk && hasPhone && sent.sms !== "sent" && <>{t("bookedTextsSoon", { phone: fmtPhone(phone) })}</>}
-            </>}
-          </p>
+        <div className="bw-done bw-booked in" data-testid="booked">
+          {/* Hero: one mark, one line, then who we told (one line per channel). */}
+          <div className="bw-hero">
+            <div className="bw-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
+            <h2 className="h1 bw-center">{t("booked", { name: first.charAt(0).toUpperCase() + first.slice(1) })}</h2>
+            <p className="cap bw-center bw-sent" data-testid="sent-line">
+              {page.salon.slug === DEMO_SLUG || (!hasEmail && !(textsOk && hasPhone)) ? t("atDesk") : sent === null ? t("bookedSending") : <>
+                {sent.email === "sent" && <span>{t("bookedEmailed", { email: email.trim().toLowerCase() })}</span>}
+                {sent.sms === "sent" && <span>{t("bookedTexted", { phone: fmtPhone(phone) })}</span>}
+                {hasEmail && sent.email !== "sent" && <span>{t("bookedEmailOff", { email: email.trim().toLowerCase() })}</span>}
+                {textsOk && hasPhone && sent.sms !== "sent" && <span>{t("bookedTextsSoon", { phone: fmtPhone(phone) })}</span>}
+              </>}
+            </p>
+          </div>
 
+          {/* Ticket: when (the one thing to remember) → what → total. Salon name/address already sit in the header. */}
           <div className="bw-ticket">
             <div className="bw-when">
               <span className="eyebrow">{longDay}</span>
               <b className="num">{fmtMin(done.start)} – {fmtMin(done.start + longest)}</b>
               <span className="cap">{done.staff.map((s) => t("with", { name: s })).join(", ")} · {dur(longest)}</span>
             </div>
-            <div className="bw-stack">
+            <div className="bw-items">
               {guests.map((x, i) => x.serviceIds.length ? (
-                <div key={i} className="bw-stack">
+                <div key={i} className="bw-items">
                   {group && <span className="eyebrow">{guestLabel(i)}</span>}
                   {x.serviceIds.map((id) => svc[id] && <div key={id} className="bw-line"><span className="bw-grow">{svc[id].name}<span className="cap">{dur(svc[id].minutes)}</span></span><span className="num">{svc[id].from ? "from " : ""}{formatCents(svc[id].cents)}</span></div>)}
                 </div>) : null)}
-              <div className="bw-line bw-total"><span>{t("total")}</span><b className="num">{hasFrom ? "from " : ""}{formatCents(total)}</b></div>
+            </div>
+            <div className="bw-sum">
+              <div className="bw-line"><span>{t("total")}</span><b className="num">{hasFrom ? "from " : ""}{formatCents(total)}</b></div>
               <p className="cap">{t("tipNote")}</p>
             </div>
-            {page.salon.address && <div className="bw-where"><b>{page.salon.name}</b><span className="cap">{page.salon.address}</span></div>}
           </div>
 
           <div className="bw-acts">
             <a className="btn primary" href={ics} download={`${page.salon.slug}-booking.ics`}>{t("addCal")}</a>
             {page.salon.address && <a className="btn" target="_blank" rel="noreferrer" href={`https://maps.google.com/?q=${encodeURIComponent(`${page.salon.name}, ${page.salon.address}`)}`}>{t("directions")}</a>}
-            <Button variant="ghost" onClick={restart}>{t("again")}</Button>
           </div>
-          <p className="cap bw-center">
-            {done.token ? <a href={`/b/${done.token}`} data-testid="manage-link">{t("mLink")}</a> : t("cancelRule", { hours: page.salon.settings.cancel_hours })}
-            {done.token && <> · {t("mRule", { hours: page.salon.settings.cancel_hours })}</>}
-            {page.salon.phone && <> {t("callUs")} <a href={`tel:${page.salon.phone}`}>{fmtPhone(page.salon.phone)}</a></>}
-          </p>
+
+          <div className="bw-foot cap bw-center">
+            {done.token
+              ? <><a href={`/b/${done.token}`} data-testid="manage-link">{t("mLink")}</a><span>{t("mRule", { hours: page.salon.settings.cancel_hours })}</span></>
+              : <span>{t("cancelRule", { hours: page.salon.settings.cancel_hours })}</span>}
+            {page.salon.phone && <span>{t("callUs")} <a href={`tel:${page.salon.phone}`}>{fmtPhone(page.salon.phone)}</a></span>}
+            <button type="button" className="bw-link" onClick={restart}>{t("again")}</button>
+          </div>
         </div>
       </div>
     );
