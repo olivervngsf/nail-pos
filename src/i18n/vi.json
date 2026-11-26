@@ -1790,7 +1790,9 @@
       "manager": "Quản lý",
       "front_desk": "Quầy",
       "tech": "Thợ"
-    }
+    },
+    "activity": "Nhật ký hoạt động",
+    "plan": "Gói + mức dùng"
   },
   "me": {
     "title": "Hồ sơ của tôi",
@@ -2437,7 +2439,10 @@
       "savedStripeFailed": "Đã lưu. Stripe chưa nhận địa chỉ mới; sẽ thử lại ở lần nhận thẻ tới.",
       "demo": "Bản thử: chỉ lưu trên màn hình này."
     },
-    "who": "Cài đặt tiệm: chủ + quản lý"
+    "who": "Cài đặt tiệm: chủ + quản lý",
+    "close": "Đóng",
+    "search": "Tìm trong cài đặt",
+    "noMatch": "Không tìm thấy."
   },
   "promo": {
     "title": "Gửi tin khuyến mãi",

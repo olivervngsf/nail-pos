@@ -467,6 +467,19 @@ button:disabled { cursor: not-allowed; }
 .rail-pop { position: fixed; left: 84px; bottom: 14px; width: 300px; max-height: calc(100dvh - 28px); overflow: auto; padding: 14px;
   display: flex; flex-direction: column; gap: 10px; z-index: 40; box-shadow: 0 12px 48px rgba(28,28,30,.22), 0 0 0 1px rgba(0,0,0,.04); }
 .rail-pop-h { display: flex; align-items: center; gap: 10px; }
+/* Profile pop-up, Claude-style (Nov 26): who on top, rows with a line icon, Sign out / Lock last. */
+.rail-pop.pm { padding: 6px; gap: 0; display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 40px rgba(28, 28, 30, .16); }
+.pm-h { padding: 10px 10px 8px; display: flex; flex-direction: column; min-width: 0; }
+.pm-h b { font-size: 15px; }
+.pm-it { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 40px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; font: inherit; font-size: 15px; color: var(--ink); text-align: left; cursor: pointer; box-sizing: border-box; }
+.pm-it:hover { background: var(--surface); }
+.pm-static { cursor: default; }
+.pm-static:hover { background: transparent; }
+.pm-ico { width: 20px; height: 20px; flex: none; color: var(--ink); }
+.pm-r { margin-left: auto; font-size: 13px; color: var(--ink-soft); }
+.pm-sep { border-top: 1px solid var(--line); margin: 4px 6px; }
+.pm-note { padding: 4px 10px 6px; margin: 0; }
+@media (pointer: coarse) { .pm-it { min-height: 46px; } }
 .rail-pop-list { display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
 .rail-pop-list .opt { min-height: 44px; font-size: 15px; justify-content: space-between; }
 .rail-pop-list .opt .cap { margin-left: auto; }
@@ -949,23 +962,64 @@ button:disabled { cursor: not-allowed; }
 .set-len .dots i { width: 10px; height: 10px; }
 .set-len .dots i.on { background: var(--ink); }
 .set-table { overflow-x: auto; }
+/* Settings window (Oliver, Nov 26, "like Claude"): Settings is a window over the app, never a page beside it.
+   Computers (900+): menu with icons + grey caps headings on the left, the page on the right, search on top, X to close.
+   Phones + upright tablets: a sheet with "Settings ✕", search, a row of tabs you swipe sideways, the page below;
+   the bottom menu stays visible under it. */
+.set-scrim { position: fixed; inset: 0; background: rgba(28, 28, 30, .28); z-index: 30; }
+.set-win { position: fixed; z-index: 31; display: flex; flex-direction: column; min-width: 0; background: var(--paper); border-radius: 18px;
+  box-shadow: 0 30px 90px rgba(28, 28, 30, .30); overflow: hidden; animation: fadeIn .2s ease both; }
+.set-win-h { display: flex; align-items: center; gap: 8px; height: 52px; flex: none; padding: 0 10px 0 20px; border-bottom: 1px solid var(--line); font-size: 16px; font-weight: 600; }
+.set-win-h span { flex: 1; }
+.set-win-h .btn { min-width: 44px; min-height: 44px; }
+.set-search { display: flex; align-items: center; gap: 8px; height: 40px; margin: 10px 12px 4px; padding: 0 12px; border-radius: 10px; background: var(--fill); color: var(--ink-soft); flex: none; }
+.set-search input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--ink); outline: none; }
+.set-tabs-row { display: none; }
+.set-win-b { flex: 1; min-height: 0; display: flex; }
+.set-win .col { overflow: auto; background: var(--paper); min-width: 0; }
+.set-win .bar { background: var(--paper); }
+.set-nav-items { display: flex; flex-direction: column; gap: 1px; }
+.set-nav a .set-ico { width: 18px; height: 18px; flex: none; margin-right: 10px; color: var(--ink-soft); }
+.set-nav a.on .set-ico { color: var(--ink); }
+.set-nav .new-tag { margin-left: 8px; display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 999px; font-size: 10.5px; font-weight: 600; letter-spacing: .02em; background: #E7F0FD; color: #1B4F9C; }
+@media (min-width: 900px) {
+  .set-scrim { left: 76px; }
+  /* Like Claude's: centred, not edge to edge; at most 1160 wide and 860 tall. */
+  .set-win { top: max(24px, calc((100dvh - 860px) / 2)); bottom: max(24px, calc((100dvh - 860px) / 2)); left: calc(76px + max(24px, (100vw - 76px - 1160px) / 2)); right: max(24px, (100vw - 76px - 1160px) / 2); }
+  .set-win .bar { border-bottom: 0; height: 60px; padding: 0 28px; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .set-win .set-main { padding: 0 28px 32px; }
+  .set-win .set-nav a { min-height: 40px; font-size: 15px; border-radius: 10px; padding: 0 12px; }
+  .set-win .set-nav a .set-ico { margin-right: 12px; }
+  .set-win .set-nav a.on { font-weight: 500; }
+  .set-search { width: 226px; margin: 14px 0 4px 12px; height: 40px; }
+  .set-win { display: grid; grid-template-columns: 250px minmax(0, 1fr); grid-template-rows: auto auto 1fr; }
+  .set-win-h { grid-column: 1 / 3; }
+  .set-search { grid-column: 1; grid-row: 2; }
+  .set-win-b { display: contents; }
+  .set-win .set-nav { grid-column: 1; grid-row: 3; width: auto; padding: 6px 12px 16px; overflow: auto; border-right: 1px solid var(--line); gap: 0; }
+  .set-win .col { grid-column: 2; grid-row: 2 / 4; }
+  .set-win .set-nav-title { display: none; }
+  /* Air, not density (Oliver, Nov 26: "elegant, Apple look"): 40px rows, 12px icon gap, soft rounded highlight, short dividers. */
+  .set-win .set-nav-group { padding: 12px 0; }
+  .set-win .set-nav-group + .set-nav-group { border-top: 0; position: relative; }
+  .set-win .set-nav-group + .set-nav-group::before { content: ""; position: absolute; top: 0; left: 14px; right: 14px; border-top: 1px solid var(--line); }
+  .set-win .set-nav-h { padding: 4px 12px 8px; }
+  .set-win .set-nav-items { gap: 2px; }
+}
 @media (max-width: 899px) {
-  .set-app { flex-direction: column; }
-  .set-app .rail { display: none; }
-  .set-nav { width: auto; flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px; }
-  .set-nav-title, .set-nav-h { display: none; }
-  .set-nav-group { flex-direction: row; padding: 0; }
-  .set-nav-group + .set-nav-group { border-top: 0; border-left: 1px solid var(--line); margin-left: 6px; padding-left: 6px; }
-  .set-nav a { white-space: nowrap; }
+  .set-win { top: 10px; left: 8px; right: 8px; bottom: calc(68px + env(safe-area-inset-bottom)); z-index: 33; } /* above the bottom menu so drawers inside cover it */
+  .set-win .set-nav { display: none; }
+  .set-tabs-row { display: flex; gap: 4px; overflow-x: auto; padding: 6px 12px 8px; flex: none; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+  .set-tabs-row::-webkit-scrollbar { display: none; }
+  .set-tabs-row a { flex: none; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 10px; font-size: 15px; color: var(--ink-soft); text-decoration: none; white-space: nowrap; }
+  .set-tabs-row a.on { background: var(--fill); color: var(--ink); font-weight: 600; }
+  .set-win .col { flex: 1; }
   .set-two, .set-lens { grid-template-columns: 1fr; }
   .set-pay { display: none; }
 }
-/* Small tablets + iPhone Duo open (600–899): keep the main menu on the left so Settings is never a dead end; settings tabs sit on top of the page. */
 @media (min-width: 600px) and (max-width: 899px) {
-  .set-app { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 1fr; align-items: start; }
-  .set-app .rail { display: flex; grid-column: 1; grid-row: 1 / 3; position: sticky; top: 0; height: 100dvh; }
-  .set-app > .set-nav { grid-column: 2; grid-row: 1; min-width: 0; }
-  .set-app > .col { grid-column: 2; grid-row: 2; min-width: 0; }
+  .set-scrim { left: 76px; }
+  .set-win { left: 86px; right: 10px; bottom: 10px; }
 }
 /* Settings → Printer: options left, paper preview right (stacks on phones). */
 .ps{flex:1;overflow:auto;padding:18px 24px;display:grid;grid-template-columns:minmax(0,560px) auto;justify-content:start;gap:40px;align-items:start}

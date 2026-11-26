@@ -1790,7 +1790,9 @@
       "manager": "Manager",
       "front_desk": "Front desk",
       "tech": "Tech"
-    }
+    },
+    "activity": "Activity log",
+    "plan": "Plan + usage"
   },
   "me": {
     "title": "My profile",
@@ -2437,7 +2439,10 @@
       "savedStripeFailed": "Saved. Stripe didn't take the new address yet; it will try again on the next card payment.",
       "demo": "Test version: saved on this screen only."
     },
-    "who": "Salon settings: owner + manager"
+    "who": "Salon settings: owner + manager",
+    "close": "Close",
+    "search": "Search settings",
+    "noMatch": "Nothing matches."
   },
   "promo": {
     "title": "Send promo text",
