@@ -111,3 +111,7 @@ Only phones in `TEXT_TEST_PHONES` get texts, on the PolishOS number, starting "(
 | Date | Step | Result | Note |
 |---|---|---|---|
 | Nov 25 | 1. First text | Delivered | From +1 (775) 535-8984. Number shows "Messaging enabled"; Twilio's old onboarding-task box still open (harmless). Number's own webhook still says demo.twilio.com: if HELP/STOP get no reply, point the number at the PolishOS Messaging Service. |
+| Nov 25 (9:44 PM) | 4d. Setup (CRON_SECRET, TEXT_TEST_PHONES, Scheduled texts run) | Done | Every-minute sender registered itself (site address saved in the database). |
+| Nov 25 (9:44 PM) | 4d. Book online → confirm | Email sent + text Delivered | "(Test)" text from the PolishOS number to Oliver's cell. |
+| Nov 25 | 4d. Test reminder (3 min) | Waiting | Booked after 9 PM: night rule holds it until 8 AM. Check Nov 26 morning. |
+| — | 4d. Receipt text | Not run yet | Next: Checkout → Cash → Receipt → Text. |
