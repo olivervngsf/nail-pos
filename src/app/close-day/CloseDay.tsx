@@ -3,6 +3,7 @@
 // 4 tips per staff → 5 closed. Every number comes from the server (day_summary); closing saves a locked record (close_day).
 // Front desk can fill it in; finishing needs an owner/manager (own login) or a manager PIN on the salon device.
 import { pinLenFor } from "@/lib/pin";
+import { canOk, useRolePerms } from "@/lib/roles";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -31,6 +32,7 @@ export default function CloseDay() {
   const params = useSearchParams();
   const day = params.get("d") && /^\d{4}-\d{2}-\d{2}$/.test(params.get("d")!) ? params.get("d")! : isoDay();
   const { desk, err } = useDesk();
+  const perms = useRolePerms(desk?.salonId, desk?.mode === "demo");
   const [sum, setSum] = useState<DaySummary | null>(null);
   const [loadErr, setLoadErr] = useState("");
   const [step, setStep] = useState<Step>("open");
@@ -64,8 +66,8 @@ export default function CloseDay() {
   const diff = counted - expected;
   const allResolved = useMemo(() => (sum?.open ?? []).every((o) => left[o.id]), [sum, left]);
   const idx = STEPS.indexOf(step);
-  const admins = (desk?.staff ?? []).filter((s) => s.role === "owner" || s.role === "manager");
-  const ownLoginAdmin = !!desk && !desk.device && (desk.me.role === "owner" || desk.me.role === "manager");
+  const admins = (desk?.staff ?? []).filter((s) => canOk(perms, s.role, "close"));
+  const ownLoginAdmin = !!desk && !desk.device && canOk(perms, desk.me.role, "close");
 
   if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
   if (!desk) return <div className="app" aria-busy="true" />;
