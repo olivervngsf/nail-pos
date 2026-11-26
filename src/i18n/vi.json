@@ -908,6 +908,8 @@
     "adNext": "Bước tiếp",
     "adPhone": "SĐT ••{last4}",
     "adOwnerOnly": "Chỉ chủ tiệm",
+    "adCall": "Gọi",
+    "adText": "Nhắn nhắc lịch",
     "adStep_booked": "Đã đặt",
     "adStep_confirmed": "Đã xác nhận",
     "adStep_here": "Đã đến",
@@ -1912,7 +1914,30 @@
     "signIn": "Cách đăng nhập",
     "techApp": "Phiếu, lịch hẹn + thu nhập của tôi",
     "onDevice": "{name} đang dùng thiết bị của tiệm. Đổi PIN ở màn hình danh sách; hồ sơ đầy đủ ở điện thoại của bạn.",
-    "demo": "Bản thử: thay đổi chỉ lưu trên máy này."
+    "demo": "Bản thử: thay đổi chỉ lưu trên máy này.",
+    "titleShort": "Hồ sơ",
+    "nameShort": "Tên",
+    "phone": "Số di động",
+    "signInTag": "Đăng nhập",
+    "role": "Vai trò",
+    "nameHint": "Tiệm thấy tên này trên vé, lịch hẹn và phiếu lương. Số điện thoại là cách bạn đăng nhập; muốn đổi, hãy hỏi bộ phận hỗ trợ.",
+    "thisDevice": "Thiết bị này",
+    "signInPin": "Đăng nhập + PIN",
+    "pinShort": "Mã PIN",
+    "signInShort": "Đăng nhập",
+    "signInWays": "Email · mật khẩu · 2 bước",
+    "signOutHere": "Đăng xuất",
+    "photoAdd": "Thêm ảnh",
+    "photoChange": "Đổi ảnh",
+    "photoRemove": "Xoá ảnh",
+    "photoSaving": "Đang lưu…",
+    "photoSaved": "Đã lưu ảnh",
+    "photoRemoved": "Đã xoá ảnh",
+    "photoOffline": "Cần internet để lưu ảnh.",
+    "photoBad": "Chọn một tấm ảnh (JPG hoặc PNG).",
+    "langHint": "Đổi ngay màn hình của thiết bị này. Khách luôn thấy ngôn ngữ của họ trên hoá đơn và trang đặt lịch.",
+    "sizeHint": "Chữ to hơn chỉ trên thiết bị này. Thiết bị khác giữ cỡ chữ riêng.",
+    "signInHint": "Số điện thoại luôn dùng được. Email hoặc mật khẩu là cách thứ hai; 2 bước thêm một mã từ ứng dụng."
   },
   "faces": {
     "gone": "Máy này đã bị gỡ khỏi tiệm. Cài lại để dùng mã PIN ở đây.",
@@ -2012,7 +2037,8 @@
       "pay": "Nhận tiền",
       "clients": "Khách & đặt lịch",
       "money": "Trả lương",
-      "safety": "An toàn + hồ sơ"
+      "safety": "An toàn + hồ sơ",
+      "running": "Điều hành tiệm"
     },
     "nav": {
       "profile": "Hồ sơ của tôi",
@@ -2036,8 +2062,13 @@
       "tapToPay": "Tap to Pay on iPhone",
       "business": "Thông tin doanh nghiệp",
       "reminders": "Nhắc lịch hẹn",
+      "contact": "Gọi + nhắn khách",
       "activity": "Nhật ký hoạt động",
-      "roles": "Vai trò"
+      "pin": "Mã PIN",
+      "language": "Ngôn ngữ",
+      "textSize": "Cỡ chữ",
+      "roles": "Vai trò",
+      "timesheet": "Bảng giờ làm"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -2538,7 +2569,23 @@
     "who": "Cài đặt tiệm: chủ + quản lý",
     "close": "Đóng",
     "search": "Tìm trong cài đặt",
-    "noMatch": "Không tìm thấy."
+    "noMatch": "Không tìm thấy.",
+    "notSaved": "Chưa lưu",
+    "undo": "Hoàn tác",
+    "save": "Lưu",
+    "saving": "Đang lưu…",
+    "lockDevice": "Khoá thiết bị này",
+    "list": {
+      "profile": "Hồ sơ",
+      "billing": "Gói + thanh toán"
+    },
+    "val": {
+      "services": "{n} dịch vụ",
+      "people": "{n} người",
+      "stripeOk": "Stripe ✓",
+      "notSet": "Chưa cài",
+      "devicesOn": "{on}/{n} đang bật"
+    }
   },
   "promo": {
     "title": "Gửi tin khuyến mãi",
@@ -2965,6 +3012,9 @@
       "business_saved": "Đổi thông tin doanh nghiệp",
       "service_added": "Thêm dịch vụ",
       "ticket_tech_added": "Thợ thêm dịch vụ",
+      "client_called": "Đã gọi khách",
+      "client_texted": "Đã nhắn khách",
+      "contact_saved": "Đổi ai được gọi / nhắn khách",
       "ticket_tech_removed": "Thợ bỏ dịch vụ",
       "service_saved": "Sửa dịch vụ",
       "service_removed": "Bỏ dịch vụ",
@@ -2984,7 +3034,8 @@
       "support_on": "Bật quyền hỗ trợ",
       "support_off": "Hết quyền hỗ trợ",
       "support_change": "PolishOS hỗ trợ đã đổi một mục",
-      "roles_saved": "Đổi vai trò + quyền"
+      "roles_saved": "Đổi vai trò + quyền",
+      "clock_fix": "Sửa giờ chấm công"
     }
   },
   "picker": {
@@ -3006,6 +3057,16 @@
     "title": "Có gì mới",
     "sub": "Những thay đổi mới nhất của PolishOS, mới nhất ở trên.",
     "items": [
+      {
+        "date": "26/11",
+        "title": "Bảng giờ làm",
+        "body": "Cài đặt → Bảng giờ làm: ai đang làm, giờ làm theo ngày và tuần, nghỉ ăn trễ và tăng ca. Sửa giờ ra bị thiếu kèm lý do; giờ cũ vẫn được lưu."
+      },
+      {
+        "date": "26/11",
+        "title": "Cài đặt giống Claude + ảnh hồ sơ",
+        "body": "Trên điện thoại và iPad, Cài đặt là một danh sách: chạm một dòng, ‹ để quay lại, ✓ để lưu. Hồ sơ → Đổi ảnh để thêm ảnh của bạn."
+      },
       {
         "date": "26/11",
         "title": "Chọn hóa đơn rõ hơn",
@@ -3037,5 +3098,89 @@
         "body": "Đổi địa chỉ, giờ mở cửa và mọi dịch vụ sau khi cài đặt, trong Cài đặt."
       }
     ]
+  },
+  "timesheet": {
+    "title": "Bảng giờ làm",
+    "view": "Xem",
+    "day": "Ngày",
+    "week": "Tuần",
+    "earlier": "Trước",
+    "later": "Sau",
+    "today": "Hôm nay",
+    "print": "In",
+    "csv": "Tải CSV",
+    "fixTitle": "{n, plural, other {# lần thiếu giờ ra}}",
+    "fixBody": "{name} chưa chấm giờ ra ngày {day}. Thêm giờ thật để tính đúng giờ làm.",
+    "fixTime": "Sửa giờ",
+    "tile": {
+      "inNow": "Đang làm",
+      "inNowSub": "đang chấm công",
+      "hours": "Giờ làm",
+      "hoursDay": "trong ngày này",
+      "hoursWeek": "trong tuần này",
+      "meal": "Nghỉ ăn trễ",
+      "mealSub": "không nghỉ 30 phút trước giờ thứ 5",
+      "ot": "Tăng ca",
+      "otSub": "hơn 8h/ngày hoặc 40h/tuần"
+    },
+    "person": "Người",
+    "inOut": "Vào → ra",
+    "break": "Nghỉ",
+    "hours": "Giờ",
+    "now": "Bây giờ",
+    "notIn": "Không vào",
+    "refusedAt": "Chấm công bị từ chối {time} (không ở tiệm)",
+    "mealLate": "Không nghỉ ăn trước giờ thứ 5",
+    "total": "Tổng",
+    "flags": "Kiểm tra",
+    "flag": {
+      "fix": "Cần sửa",
+      "ot": "Tăng ca",
+      "meal": "Nghỉ ăn",
+      "ok": "OK"
+    },
+    "state": {
+      "fix": "Cần sửa",
+      "in": "Đang vào",
+      "out": "Đã ra",
+      "refused": "Bị từ chối",
+      "off": "Nghỉ"
+    },
+    "note": "Số liệu từ máy chấm công, không phải bảng lương. California: tăng ca sau 8h/ngày hoặc 40h/tuần; nghỉ ăn 30 phút trước giờ thứ 5. Mỗi lần sửa đều giữ giờ cũ, ai sửa và lý do.",
+    "in": "Vào",
+    "out": "Ra",
+    "stillIn": "Vẫn đang làm",
+    "missing": "Thiếu",
+    "wasAt": "Trước là {time} · {by} sửa",
+    "addedBy": "{by} thêm",
+    "fix": "Sửa",
+    "add": "Thêm",
+    "via": {
+      "device": "Máy của tiệm",
+      "phone": "Điện thoại riêng",
+      "fix": "Thêm bằng tay",
+      "pin": "Máy của tiệm"
+    },
+    "noPunches": "Không có giờ vào/ra trong những ngày này.",
+    "drawerNote": "Sửa giờ hoặc thêm giờ bị thiếu. Giờ cũ vẫn được lưu và hiện trong Nhật ký hoạt động.",
+    "fixTitleOne": "Sửa giờ của {name}",
+    "addTitle": "Thêm giờ thiếu của {name}",
+    "cancel": "Huỷ",
+    "saveFix": "Lưu",
+    "saving": "Đang lưu…",
+    "realTime": "Giờ thật",
+    "inTime": "Giờ vào thật",
+    "outTime": "Giờ ra thật",
+    "future": "Giờ đó chưa tới.",
+    "why": "Lý do",
+    "reason": {
+      "forgot": "Quên",
+      "device_off": "Máy bị tắt",
+      "wrong_person": "Nhầm người",
+      "other": "Khác"
+    },
+    "noteLabel": "Ghi chú (không bắt buộc)",
+    "notePh": "vd: về lúc 6:30, đã báo quầy",
+    "fixNote": "{name} thấy được lần sửa này. Lưu kèm tên bạn và lý do."
   }
 }

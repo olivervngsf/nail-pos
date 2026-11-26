@@ -1,139 +1,126 @@
 "use client";
-// My profile (board 4.1/4.2): who I am, language, my PIN, sign-in email + password, sign out. Own login only;
-// on a salon device the person working changes their PIN from the faces screen instead.
-import { useEffect, useState } from "react";
+// My profile (board "Settings like Claude · Tablet", frame 2): big photo + Edit photo, one card of who I am (name,
+// sign-in phone, role), This device (Language, Text size), Sign in + PIN rows, Sign out alone at the bottom.
+// Name is saved with ✓ in the header. Own login only for the photo + sign-in; on a salon device the person working
+// changes their PIN from the faces screen instead.
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Avatar, Banner, Button, LeftMenu, ListGroup, PinKeypad, Segmented, Toast } from "@/components/kit";
+import { Avatar, Banner, LeftMenu, Toast } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
-import SignInEmail from "@/components/SignInEmail";
-import SignInPassword from "@/components/SignInPassword";
-import TwoStep from "@/components/TwoStep";
 import { rpc, signOut, SMS_ON } from "@/lib/auth";
-import { cachedRules, pinProblem, saveRules, type PinRules } from "@/lib/pin";
-import { isAdminRole, useMe } from "@/lib/me";
-import { SettingsWindow } from "../settings/SettingsShell";
+import { getSupabase } from "@/lib/supabase/client";
+import { cachedRules, saveRules, type PinRules } from "@/lib/pin";
+import { getTextSize } from "@/lib/textSize";
+import { removeMyPhoto, setMyPhoto, useMyPhoto } from "@/lib/photo";
+import { fmtPhone } from "@/lib/onboarding/data";
+import { useMe } from "@/lib/me";
+import { SaveCheck, SettingsWindow } from "../settings/SettingsShell";
 
 export default function MePage() {
   const t = useTranslations("me");
   const ta = useTranslations("account");
   const router = useRouter();
-  const { lang, setLang } = useLang();
+  const { lang } = useLang();
   const { me, isDevice, acting } = useMe();
+  const photo = useMyPhoto();
+  const file = useRef<HTMLInputElement>(null);
   const [rules, setRules] = useState<PinRules>(cachedRules(null));
   const [name, setName] = useState("");
-  const [pinStep, setPinStep] = useState<"" | "one" | "two">("");
-  const [first, setFirst] = useState("");
-  const [pinErr, setPinErr] = useState("");
+  const [saved, setSaved] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [size, setSize] = useState("normal");
   const [toast, setToast] = useState("");
   const say = (m: string) => { setToast(m); setTimeout(() => setToast(""), 3000); };
 
   useEffect(() => {
     if (!me) return;
-    setName(me.name);
+    setName(me.name); setSaved(me.name);
     setRules(cachedRules(me.salonId));
-    if (SMS_ON) void rpc<PinRules>("pin_rules", { p_salon: me.salonId }).then((r) => { setRules(r); saveRules(me.salonId, r); }).catch(() => {});
+    setSize(getTextSize());
+    if (SMS_ON) {
+      void rpc<PinRules>("pin_rules", { p_salon: me.salonId }).then((r) => { setRules(r); saveRules(me.salonId, r); }).catch(() => {});
+      void getSupabase()?.auth.getUser().then(({ data }) => setPhone(data.user?.phone ? fmtPhone(data.user.phone.replace(/^1/, "")) : "")).catch(() => {});
+    }
   }, [me]);
 
   if (!me) return <div className="app" aria-busy="true" />;
-  const vi = lang === "vi";
   const someoneElse = isDevice && acting && acting.name !== me.name;
-  const admin = isAdminRole(isDevice ? (acting?.role ?? me.role) : me.role);
+  const dirty = name.trim() !== saved && !!name.trim();
 
   const saveName = async () => {
-    if (!name.trim() || name.trim() === me.name) return;
-    try { if (SMS_ON) await rpc("save_my_name", { p_salon: me.salonId, p_name: name.trim() }); say(t("saved")); } catch (e) { say((e as Error).message); }
+    if (!dirty) return;
+    setBusy(true);
+    try { if (SMS_ON) await rpc("save_my_name", { p_salon: me.salonId, p_name: name.trim() }); setSaved(name.trim()); say(t("saved")); }
+    catch (e) { say((e as Error).message); }
+    setBusy(false);
   };
-  const pinDone = async (pin: string) => {
-    setPinErr("");
-    if (pinStep === "one") {
-      const p = pinProblem(pin, rules.length);
-      if (p) return setPinErr(t(`pinBad.${p}`, { n: rules.length }));
-      setFirst(pin); setPinStep("two"); return;
-    }
-    if (pin !== first) { setPinErr(t("pinMismatch")); setPinStep("one"); return; }
-    try {
-      if (SMS_ON) await rpc("set_my_pin", { p_salon: me.salonId, p_pin: pin });
-      setPinStep(""); say(t("pinSaved"));
-    } catch (e) { setPinErr((e as Error).message.includes("weak") ? t("pinBad.run", { n: rules.length }) : (e as Error).message); setPinStep("one"); }
+  const pickPhoto = async (f: File | undefined) => {
+    if (!f) return;
+    setPhotoBusy(true);
+    try { await setMyPhoto(f); say(t("photoSaved")); }
+    catch (e) { const m = (e as Error).message; say(m === "offline" ? t("photoOffline") : m === "photo" ? t("photoBad") : m); }
+    setPhotoBusy(false);
+    if (file.current) file.current.value = "";
+  };
+  const dropPhoto = async () => {
+    setPhotoBusy(true);
+    try { await removeMyPhoto(); say(t("photoRemoved")); } catch (e) { say((e as Error).message === "offline" ? t("photoOffline") : (e as Error).message); }
+    setPhotoBusy(false);
   };
 
   return (
     <div className="app me-app set-app">
       <LeftMenu active="Me" salonInitials={me.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={me.name} />
-      <SettingsWindow role={isDevice ? (acting?.role ?? me.role) : me.role} title={t("title")}>
-        <main className="me-main">
+      <SettingsWindow role={isDevice ? (acting?.role ?? me.role) : me.role} title={t("titleShort")}>
+        <main className="me-main me-v2">
           {someoneElse && <Banner tone="info">{t("onDevice", { name: acting!.name })}</Banner>}
-          <section className="card pad me-head">
-            <Avatar name={me.name} large />
-            <span style={{ flex: 1, minWidth: 0 }}>
-              <span className="h2" style={{ display: "block" }}>{me.name}</span>
-              <span className="cap">{ta(`role.${me.role}`)} · {me.salonName}</span>
-            </span>
+
+          <section className="me-photo" data-testid="me-photo">
+            <Avatar name={saved || me.name} src={isDevice ? undefined : photo} className="me-av" />
+            {!isDevice && <div className="me-photo-acts">
+              <label className={`me-photo-btn${photoBusy ? " busy" : ""}`} data-testid="photo-edit">
+                {photoBusy ? t("photoSaving") : photo ? t("photoChange") : t("photoAdd")}
+                <input ref={file} type="file" accept="image/*" disabled={photoBusy} onChange={(e) => void pickPhoto(e.target.files?.[0])} data-testid="photo-input" />
+              </label>
+              {photo && !photoBusy && <button type="button" className="me-photo-rm" onClick={() => void dropPhoto()} data-testid="photo-remove">{t("photoRemove")}</button>}
+            </div>}
           </section>
 
-          {admin && <>
-            <div className="eyebrow">{vi ? "Tiệm" : "Salon"}</div>
-            <section className="group" data-testid="me-salon">
-              <button type="button" className="opt set-row" onClick={() => router.push("/settings/salon")}>
-                <span className="g" style={{ flex: 1, minWidth: 0 }}><b>{me.salonName}</b><span className="cap">{vi ? "Tên, địa chỉ, điện thoại, giờ mở cửa" : "Name, address, phone, opening hours"}</span></span>
-                <span className="cap">{vi ? "Sửa" : "Edit"} ›</span>
-              </button>
-              <button type="button" className="opt set-row" onClick={() => router.push("/settings/menu")}>
-                <span className="g" style={{ flex: 1, minWidth: 0 }}><b>{vi ? "Bảng dịch vụ" : "Service menu"}</b><span className="cap">{vi ? "Dịch vụ, giá, thời gian" : "Services, prices, minutes"}</span></span>
-                <span className="cap">{vi ? "Sửa" : "Edit"} ›</span>
-              </button>
-              <button type="button" className="opt set-row" onClick={() => router.push("/settings/team")}>
-                <span className="g" style={{ flex: 1, minWidth: 0 }}><b>{vi ? "Nhân viên" : "Team"}</b><span className="cap">{vi ? "Thợ, vai trò, lương, PIN" : "Staff, roles, pay, PIN"}</span></span>
-                <span className="cap">›</span>
-              </button>
+          <div>
+            <section className="me-card">
+              <label className="me-f"><span className="me-k">{t("nameShort")}</span>
+                <input id="me-name" className="me-in" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" data-testid="me-name" /></label>
+              <div className="me-f"><span className="me-k">{t("phone")}</span><span className="me-v num">{phone || (SMS_ON ? "—" : "(408) 555-0101")}</span><span className="me-tag">{t("signInTag")}</span></div>
+              <div className="me-f"><span className="me-k">{t("role")}</span><span className="me-v">{ta(`role.${me.role}`)} · {me.salonName}</span></div>
             </section>
-          </>}
+            <p className="me-hint">{t("nameHint")}</p>
+          </div>
 
-          <div className="eyebrow">{t("about")}</div>
-          <section className="card pad" style={{ gap: 12 }}>
-            <div>
-              <label className="lbl" htmlFor="me-name">{t("name")}</label>
-              <div style={{ display: "flex", gap: 8 }}>
-                <input id="me-name" className="inp" value={name} onChange={(e) => setName(e.target.value)} />
-                <Button onClick={() => void saveName()} disabled={!name.trim() || name.trim() === me.name}>{t("save")}</Button>
-              </div>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-              <span>{ta("language")}<span className="cap" style={{ display: "block" }}>{t("languageNote")}</span></span>
-              <Segmented label={ta("language")} value={lang} onChange={setLang} options={[{ value: "en", label: "English" }, { value: "vi", label: "Tiếng Việt" }]} />
-            </div>
-          </section>
+          <div>
+            <div className="me-h">{t("thisDevice")}</div>
+            <section className="me-card">
+              <Link href="/me/language" className="me-f me-link" data-testid="me-language"><span className="me-k">{ta("language")}</span><span className="me-v r">{lang === "vi" ? "Tiếng Việt" : "English"}</span><span className="me-chev" aria-hidden>›</span></Link>
+              <Link href="/me/text-size" className="me-f me-link" data-testid="me-text-size"><span className="me-k">{ta("textSize")}</span><span className="me-v r">{ta(`size.${size}`)}</span><span className="me-chev" aria-hidden>›</span></Link>
+            </section>
+          </div>
 
-          <div className="eyebrow">{t("pin")}</div>
-          <section className="card pad" style={{ gap: 12 }} data-testid="my-pin">
-            {!pinStep
-              ? <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <span style={{ flex: 1 }}>{t("pinNow", { n: rules.length })}<span className="cap" style={{ display: "block" }}>{t("pinUse")}</span></span>
-                  <Button data-testid="change-pin" onClick={() => { setPinErr(""); setPinStep("one"); }}>{t("changePin")}</Button>
-                </div>
-              : <div style={{ maxWidth: 320, margin: "0 auto", width: "100%", display: "flex", flexDirection: "column", gap: 8 }}>
-                  <b style={{ textAlign: "center" }}>{pinStep === "one" ? t("pinNew", { n: rules.length }) : t("pinAgain")}</b>
-                  <PinKeypad key={pinStep} length={rules.length} error={pinErr} onDone={(p) => void pinDone(p)} />
-                  <Button variant="ghost" onClick={() => setPinStep("")}>{t("cancel")}</Button>
-                </div>}
-          </section>
+          <div>
+            <div className="me-h">{t("signInPin")}</div>
+            <section className="me-card" data-testid="my-pin">
+              <Link href="/me/pin" className="me-f me-link" data-testid="change-pin"><span className="me-k">{t("pinShort")}</span><span className="me-v r">{t("pinNow", { n: rules.length })}</span><span className="me-chev" aria-hidden>›</span></Link>
+              <Link href="/me/sign-in" className="me-f me-link" data-testid="me-sign-in"><span className="me-k">{t("signInShort")}</span><span className="me-v r">{t("signInWays")}</span><span className="me-chev" aria-hidden>›</span></Link>
+            </section>
+            <p className="me-hint">{t("pinUse")}</p>
+          </div>
 
-          <div className="eyebrow">{t("signIn")}</div>
-          <section className="card pad" style={{ gap: 12 }}>
-            <SignInEmail vi={vi} />
-            <div className="sep" />
-            <SignInPassword vi={vi} />
-            {isAdminRole(me.role) && !isDevice && <><div className="sep" /><TwoStep vi={vi} /></>}
-          </section>
-
-          <ListGroup>
-            {isAdminRole(me.role) && <button type="button" className="opt" onClick={() => router.push("/settings")}>{ta("settings")}<span className="cap" style={{ marginLeft: "auto" }}>›</span></button>}
-            {me.role === "tech" && <button type="button" className="opt" onClick={() => router.push("/t")}>{t("techApp")}<span className="cap" style={{ marginLeft: "auto" }}>›</span></button>}
-            {!isDevice && <button type="button" className="opt rail-pop-out" data-testid="sign-out" style={{ padding: "0 16px" }}
-              onClick={async () => { await signOut(); router.replace("/login"); }}>{ta("signOut")}</button>}
-          </ListGroup>
+          {me.role === "tech" && <section className="me-card"><Link href="/t" className="me-f me-link"><span className="me-k" style={{ flex: 1 }}>{t("techApp")}</span><span className="me-chev" aria-hidden>›</span></Link></section>}
+          {!isDevice && <button type="button" className="me-card me-danger" data-testid="sign-out" onClick={async () => { await signOut(); router.replace("/login"); }}>{t("signOutHere")}</button>}
           {!SMS_ON && <div className="demo">{t("demo")}</div>}
+          <SaveCheck dirty={dirty} busy={busy} onSave={() => void saveName()} onUndo={() => setName(saved)} testId="me-save" />
         </main>
       </SettingsWindow>
       {toast && <Toast>{toast}</Toast>}

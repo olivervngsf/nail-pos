@@ -93,8 +93,11 @@ export function Row({ size, title, sub, right, className, ...p }: Omit<React.HTM
   );
 }
 export const Tag = ({ tone, children }: { tone?: "jade"; children: ReactNode }) => <span className={cx("tag", tone)}>{children}</span>;
-export const Avatar = ({ name, large }: { name: string; large?: boolean }) => (
-  <span className={cx("av", large && "lg")} aria-hidden>{name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?"}</span>
+export const Avatar = ({ name, large, src, className }: { name: string; large?: boolean; src?: string; className?: string }) => (
+  <span className={cx("av", large && "lg", src && "has-photo", className)} aria-hidden>
+    {/* eslint-disable-next-line @next/next/no-img-element -- own profile photo (public link or data: URL) */}
+    {src ? <img src={src} alt="" /> : name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?"}
+  </span>
 );
 export const StatusPill = ({ tone, children }: { tone?: "ok" | "warn"; children: ReactNode }) => (
   <span className={cx("pill", tone)}>{tone === "warn" ? <span aria-hidden>▲</span> : <span className="dot" aria-hidden />}{children}</span>

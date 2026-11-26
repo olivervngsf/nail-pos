@@ -2031,3 +2031,156 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .bar-find .co-scan { width: 380px; }
 .bar-back { flex: none; }
 @media (max-width: 599px) { .bar-fact { display: none; } }
+
+/* ===== Settings like Claude (Nov 26, board "Settings like Claude · Tablet"): phones + upright tablets get list → page
+   (home = your card + grouped rows with a value and ›; a page = ‹ back · title · ✓ Save). Computers keep the window
+   with the menu beside the page; the ✓ Save sits in the page header there too. Profile photos on every avatar. ===== */
+.av.has-photo { padding: 0; overflow: hidden; background: var(--fill); }
+.av img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+.set-win .menu-tg { display: none !important; }                      /* the left-menu toggle means nothing inside Settings */
+.set-x-pad { width: 44px; flex: none; }
+.set-list { display: none; }
+/* ✓ Save in the header */
+.set-save-slot { display: inline-flex; align-items: center; }
+.set-bar-r { display: inline-flex; align-items: center; gap: 10px; margin-left: auto; }
+.set-save { display: inline-flex; align-items: center; gap: 10px; margin-left: auto; }
+.set-save-note { font-size: 13px; font-weight: 600; color: #B5470A; }
+.set-undo { border: 0; background: none; font: inherit; font-size: 14px; font-weight: 600; color: var(--ink-soft); cursor: pointer; padding: 6px 4px; }
+.set-undo:hover { color: var(--ink); }
+.set-check { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--fill); color: var(--muted); display: inline-flex; align-items: center; justify-content: center; cursor: default; flex: none; }
+.set-check.on { background: var(--ink); color: #fff; cursor: pointer; }
+.set-check.on:hover { opacity: .9; }
+.set-spin { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .4); border-top-color: #fff; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (pointer: coarse) { .set-check { width: 44px; height: 44px; } .set-undo { min-height: 44px; } }
+@media (min-width: 900px) {
+  .set-win:not(.is-deep) .bar-back { display: none; }       /* the menu on the left is the way back on computers */
+  .set-x-pad { display: none; }
+  .set-win-h .set-x { order: 3; }
+}
+@media (max-width: 899px) {
+  .set-win { background: var(--surface); }
+  .set-win .col, .set-win .bar { background: var(--surface); }
+  .set-win-h { border-bottom: 0; height: 64px; padding: 8px 14px 0; }
+  .set-win-h span:not(.set-x-pad) { text-align: center; font-size: 17px; }
+  .set-win-h .set-x { width: 44px; height: 44px; border-radius: 50%; background: var(--fill); padding: 0; font-size: 16px; }
+  .set-win.is-page .set-win-h, .set-win.is-page .set-search { display: none; }
+  .set-search { margin: 4px 18px 6px; }
+  /* page header: ‹ · title (centred) · ✓ */
+  .set-win.is-page .bar { display: grid; grid-template-columns: minmax(44px, 1fr) auto minmax(44px, 1fr); align-items: center; height: 64px; padding: 0 14px; border-bottom: 0; }
+  .set-win.is-page .bar .bar-back { grid-column: 1; justify-self: start; width: 44px; height: 44px; min-width: 44px; padding: 0; border-radius: 50%; background: var(--fill); font-size: 0; display: inline-flex; align-items: center; justify-content: center; }
+  .set-win.is-page .bar .bar-back::before { content: "‹"; font-size: 26px; line-height: 1; margin-top: -3px; color: var(--ink); }
+  .set-win.is-page .bar .title { grid-column: 2; text-align: center; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .set-win.is-page .bar .set-bar-r { grid-column: 3; justify-self: end; grid-row: 1; margin-left: 0; }
+  .set-win.is-page .bar .pill.ok { display: none; }
+  .set-win.is-page .bar .set-save { margin-left: 0; }
+  .set-win.is-page .bar .set-save-note { display: none; }   /* phones: the orange note goes under the header instead */
+  /* the list */
+  .set-win.is-home .set-list { display: flex; flex-direction: column; gap: 22px; padding: 6px 18px 28px; overflow: auto; flex: 1; min-width: 0; }
+  .set-acct { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; background: var(--paper); color: var(--ink); text-decoration: none; }
+  .set-acct .av { width: 56px; height: 56px; font-size: 20px; background: var(--ink); color: #fff; }
+  .set-acct .av.has-photo { background: var(--fill); }
+  .set-acct-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .set-acct-t b { font-size: 18px; font-weight: 600; }
+  .set-acct-t span { font-size: 14px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .set-lgroup-h { font-size: 11px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 0 16px 6px; }
+  .set-lcard { display: flex; flex-direction: column; border-radius: 16px; background: var(--paper); overflow: hidden; border: 0; }
+  .set-lrow { display: flex; align-items: center; gap: 14px; min-height: 54px; padding: 0 0 0 16px; color: var(--ink); text-decoration: none; font-size: 16px; }
+  .set-lrow .set-ico { width: 22px; height: 22px; flex: none; color: var(--ink-soft); }
+  .set-lrow-t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; align-self: stretch; display: flex; align-items: center; }
+  .set-lrow + .set-lrow { position: relative; }
+  .set-lrow + .set-lrow::before { content: ""; position: absolute; top: 0; left: 52px; right: 0; height: 1px; background: var(--line); } /* one unbroken hairline, from the text to the edge */
+  .set-lrow-v { font-size: 15px; color: var(--ink-soft); align-self: stretch; display: flex; align-items: center; white-space: nowrap; }
+  .set-chev { color: var(--muted); font-size: 20px; padding-right: 16px; align-self: stretch; display: flex; align-items: center; }
+  .set-acct .set-chev { padding-right: 0; }
+  .set-lrow:active, .set-acct:active { background: var(--fill); }
+  .set-danger { min-height: 54px; font: inherit; font-size: 16px; font-weight: 500; color: var(--red); cursor: pointer; align-items: center; justify-content: center; }
+  .set-win .set-main, .set-win .me-main { padding-left: 18px; padding-right: 18px; }
+}
+/* Profile (Claude-style): photo on top, field cards with label left / value right, small grey headings + hints. */
+.me-v2 { gap: 22px !important; }
+.me-photo { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 4px; }
+.me-photo .me-av { width: 112px; height: 112px; font-size: 40px; background: var(--ink); color: #fff; }
+.me-photo .me-av.has-photo { background: var(--fill); }
+.me-photo-acts { display: flex; gap: 10px; align-items: center; }
+.me-photo-btn { position: relative; display: inline-flex; align-items: center; height: 36px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); font-size: 15px; font-weight: 600; cursor: pointer; }
+.me-photo-btn.busy { opacity: .6; cursor: default; }
+.me-photo-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.me-photo-rm { border: 0; background: none; font: inherit; font-size: 14px; font-weight: 600; color: var(--ink-soft); cursor: pointer; padding: 8px 4px; }
+.me-card { display: flex; flex-direction: column; background: var(--paper); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); border: 0; }
+.me-f { display: flex; align-items: center; gap: 12px; min-height: 54px; margin-left: 16px; padding-right: 16px; font-size: 16px; color: var(--ink); text-decoration: none; }
+.me-f + .me-f { box-shadow: inset 0 1px 0 var(--line); }
+.me-k { width: 120px; flex: none; color: var(--ink-soft); display: flex; flex-direction: column; }
+.me-k small { font-size: 13px; color: var(--ink-soft); }
+.me-v { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.me-v.r { text-align: right; color: var(--ink-soft); }
+.me-in { flex: 1; min-width: 0; border: 0; background: none; font: inherit; font-size: 16px; color: var(--ink); outline: none; padding: 0; height: 52px; }
+.me-tag { font-size: 12px; color: var(--ink-soft); }
+.me-chev { color: var(--muted); font-size: 20px; }
+.me-link { cursor: pointer; background: none; border: 0; font: inherit; text-align: left; width: calc(100% - 16px); }
+.me-link:hover { background: transparent; }
+.me-card .me-link:active { background: var(--fill); }
+.me-choice .me-k { color: var(--ink); width: auto; }
+.me-h { font-size: 11px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 0 16px 6px; }
+.me-hint { margin: 8px 4px 0; font-size: 13px; line-height: 18px; color: var(--ink-soft); }
+.me-danger { min-height: 54px; align-items: center; justify-content: center; font: inherit; font-size: 16px; font-weight: 500; color: var(--red); cursor: pointer; }
+.me-pin { display: flex; flex-direction: column; gap: 10px; max-width: 420px; }
+@media (max-width: 599px) { .me-k { width: 104px; } }
+/* iPhone/iPad Safari: never blow small text up on its own (it made the Settings group headings look loud). */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* Settings on phones + tablets = full screen over the whole app (board "Settings like Claude · Tablet", Oliver Nov 26:
+   "one is the full screen, one still shows the nav"): no left menu, no bottom menu. Tablets: a sheet on a grey dim with
+   even space around it; phones: edge to edge. Title centred on the sheet; slim search; quiet list. */
+@media (max-width: 899px) {
+  .set-scrim { left: 0; z-index: 40; background: rgba(28, 28, 30, .32); }
+  .set-win { z-index: 41; }
+  .set-win-h .set-x-pad { flex: none; width: 44px; }
+  .set-search { height: 36px; border-radius: 10px; }
+  .set-win.is-home .set-list { scrollbar-width: none; gap: 20px; }
+  .set-win.is-home .set-list::-webkit-scrollbar { display: none; }
+  .set-acct { padding: 10px 14px; gap: 12px; border-radius: 14px; }
+  .set-acct .av { width: 40px; height: 40px; font-size: 15px; }
+  .set-acct-t b { font-size: 16px; }
+  .set-acct-t span { font-size: 13px; }
+  .set-lrow { min-height: 50px; font-size: 16px; }
+  .set-lrow-v { font-size: 15px; }
+  .set-more { padding-top: 8px !important; }
+}
+@media (min-width: 600px) and (max-width: 899px) {
+  .set-win { top: 24px; bottom: 24px; left: max(24px, (100vw - 720px) / 2); right: max(24px, (100vw - 720px) / 2); }
+}
+@media (max-width: 599px) {
+  .set-win { inset: 0; border-radius: 0; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+}
+/* Booking drawer: Call / Text the client without seeing the number (Settings → Call + text clients) */
+.ad-reach { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; margin-top: 10px; }
+.ad-reach-btn { min-height: 40px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); color: var(--ink); font-weight: 600; font-size: 14px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+.ad-reach-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.ad-reach-btn:hover { background: var(--fill); }
+@media (pointer: coarse) { .ad-reach-btn { min-height: 44px; } }
+
+/* Timesheet (Settings → Team + time clock → Timesheet; board Timesheet.dc.html). */
+.ts-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 2fr) 70px 80px 110px; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 16px; border: 0; border-bottom: 1px solid var(--line); background: var(--paper); font: inherit; font-size: 14px; color: var(--ink); text-align: left; cursor: pointer; box-sizing: border-box; }
+.ts-row:last-child { border-bottom: 0; }
+.ts-row:hover { background: #FAFAFB; }
+.ts-row.head { min-height: 34px; font-size: 12px; font-weight: 600; color: var(--ink-soft); cursor: default; }
+.ts-row.head:hover { background: var(--paper); }
+.ts-pairs { display: flex; flex-direction: column; min-width: 0; }
+.ts-warn { color: #B5470A; }
+.ts-cell-warn { color: #B5470A; font-weight: 600; }
+.ts-dday { display: flex; flex-direction: column; gap: 6px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.ts-punch { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.ts-ba { display: grid; grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr); gap: 8px; align-items: center; }
+.ts-ba > div { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+.ts-ba > div.after { border-color: var(--ink); }
+@media (max-width: 599px) {
+  .ts-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "who state" "pairs hours"; row-gap: 4px; }
+  .ts-row.head { display: none; }
+  .ts-row > :nth-child(1) { grid-area: who; } .ts-row > :nth-child(2) { grid-area: pairs; } .ts-row > :nth-child(3) { display: none; }
+  .ts-row > :nth-child(4) { grid-area: hours; text-align: right; } .ts-row > :nth-child(5) { grid-area: state; text-align: right; }
+}
+.set-win .act-tile .eyebrow { margin: 0; }
+.ts-who { display: flex; flex-direction: column; min-width: 0; }
+.ts-who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.set-table .dtable td, .set-table .dtable th { white-space: nowrap; }

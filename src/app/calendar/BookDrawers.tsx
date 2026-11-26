@@ -19,6 +19,8 @@ import { GoodFit, SkillTags } from "./SkillTags";
 import { CustomService } from "./CustomService";
 import { ClientFacts } from "./ClientFacts";
 import { last4 } from "@/lib/clients";
+import { useLang } from "@/components/AppProviders";
+import { canContact, logContact, reminderBody, seesFullPhone, smsHref, telHref, useContactSettings } from "@/lib/clientContact";
 
 export type BookDraft = { day: string; start: number; minutes: number; staffId?: string;
   /** "Book a later time" from a waiting walk-in: start with their name, phone and services; the walk-in leaves the waitlist once booked. */
@@ -221,6 +223,8 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
 export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; onClose: () => void; say: (s: string, undo?: () => void) => void }) {
   const t = useTranslations("calendar");
   const router = useRouter();
+  const contact = useContactSettings(desk.salonId, desk.mode === "demo");
+  const { lang } = useLang();
   const st = statusOf(a);
   const staff = desk.staff.find((s) => s.id === a.staffId);
   const set = (status: Appt["status"], msg: string) => { const before = { ...a }; putAppt({ ...a, status }); say(msg, () => putAppt(before)); onClose(); };
@@ -245,7 +249,9 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
   );
   const total = a.services.reduce((x, s) => x + s.cents, 0);
   // Only the owner sees a client's full phone; everyone else sees the last 4 (Oliver, Nov 26).
-  const viewer = getActing()?.role ?? desk.me.role;
+  const acting = getActing();
+  const viewer = acting?.role ?? desk.me.role;
+  const demo = desk.mode === "demo";
   const phone = a.client?.phone ?? "";
   const len = em - sm;
   const lenTxt = len >= 60 ? `${Math.floor(len / 60)}h${len % 60 ? ` ${t("min", { n: len % 60 })}` : ""}` : t("min", { n: len });
@@ -285,12 +291,23 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
           {STEPS.map((k, i) => <li key={k} className={i < step ? "done" : i === step ? "now" : ""} aria-current={i === step ? "step" : undefined}><i />{t(`adStep_${k}`)}</li>)}
         </ol>}
         <div className="ad-who">
-          {phone ? viewer === "owner"
+          {phone ? seesFullPhone(viewer)
             ? <span className="num" data-testid="appt-phone">{fmtPhone(phone)} <span className="tag">{t("adOwnerOnly")}</span></span>
             : <span className="num cap" data-testid="appt-phone">{t("adPhone", { last4: last4(phone) })}</span>
             : <span className="cap">—</span>}
           {a.client?.id && <a href={`/clients/${a.client.id}`} className="ad-link">{t("profile")} ›</a>}
         </div>
+        {phone && (canContact(contact, viewer, "call") || canContact(contact, viewer, "text")) && <div className="ad-reach">
+          {/* Reach the client without seeing the number (only the owner sees it); every tap is logged. */}
+          {canContact(contact, viewer, "call") && <a className="ad-reach-btn" href={telHref(phone)} data-testid="appt-call"
+            onClick={() => logContact({ salonId: desk.salonId, clientId: a.client?.id, apptId: a.id, way: "call", by: acting?.membership_id, demo })}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z" /></svg>{t("adCall")}</a>}
+          {canContact(contact, viewer, "text") && <a className="ad-reach-btn" data-testid="appt-text"
+            href={smsHref(phone, reminderBody({ first: (a.client?.name ?? "").split(" ")[0], salon: desk.salonName,
+              when: `${new Date(a.start).toLocaleDateString(lang === "vi" ? "vi-VN" : "en-US", { weekday: "short", month: "short", day: "numeric" })} ${lang === "vi" ? "lúc" : "at"} ${fmtMin(sm)}` }, lang === "vi" ? "vi" : "en"))}
+            onClick={() => logContact({ salonId: desk.salonId, clientId: a.client?.id, apptId: a.id, way: "text", by: acting?.membership_id, demo })}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H8l-4 4z" /></svg>{t("adText")}</a>}
+        </div>}
       </div>
       {a.client?.care && <div className="card cl-care"><b>▲ {t("care")}</b></div>}
       {a.services.length > 0 && <>

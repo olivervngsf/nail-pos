@@ -5,7 +5,7 @@ test("add a sign-in email on My profile", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
-  await page.goto("/me");
+  await page.goto("/me/sign-in");
   await expect(page.getByTestId("signin-email")).toContainText("None yet");
   await page.getByTestId("add-email").click();
   await page.getByTestId("add-email-input").fill("owner@example.com");
@@ -47,7 +47,7 @@ test("sign in with email + code", async ({ page }) => {
 test("set a password on My profile", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/me");
+  await page.goto("/me/sign-in");
   await expect(page.getByTestId("password-state")).toContainText("None yet");
   await page.getByTestId("set-password").click();
   await page.getByTestId("set-password-input").fill("short");

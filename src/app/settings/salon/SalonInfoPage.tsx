@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Banner, Button, Segmented, Switch, Toast } from "@/components/kit";
+import { Banner, Segmented, Switch, Toast } from "@/components/kit";
 import { getWeekStart, setWeekStartLocal, type WeekStart } from "@/lib/weekStart";
 import { useLang } from "@/components/AppProviders";
 import { api } from "@/lib/api";
@@ -12,7 +12,7 @@ import { rpc } from "@/lib/auth";
 import { addressOk, parseAddress } from "@/lib/stripe/address";
 import { STATES } from "@/lib/onboarding/data";
 import { dayName, fullWeek, infoProblem, sampleInfo, TIME_ZONES, US_STATES, type DayHours, type SalonInfo } from "@/lib/salonInfo";
-import SettingsShell, { type Access } from "../SettingsShell";
+import SettingsShell, { SaveCheck, type Access } from "../SettingsShell";
 
 export default function SalonInfoPage() {
   const t = useTranslations("settings");
@@ -137,7 +137,8 @@ function Info({ a }: { a: Access }) {
 
       <div className="eyebrow">{L("More from setup", "Các mục khác từ lúc cài đặt")}</div>
       <div className="group">
-        {([["/settings/menu", L("Service menu", "Bảng dịch vụ"), L("Services, prices, minutes", "Dịch vụ, giá, thời gian")],
+        {([["/settings/business", L("Business details", "Thông tin doanh nghiệp"), L("Legal name, EIN, texting sign-up", "Tên pháp lý, EIN, đăng ký nhắn tin")],
+           ["/settings/menu", L("Service menu", "Bảng dịch vụ"), L("Services, prices, minutes", "Dịch vụ, giá, thời gian")],
            ["/settings/team", L("Team", "Nhân viên"), L("Staff, roles, pay, PIN", "Thợ, vai trò, lương, PIN")],
            ["/settings/payments", L("Payments", "Thanh toán"), L("Stripe account", "Tài khoản Stripe")],
            ["/settings/reader", L("Card reader", "Máy quẹt thẻ"), L("Pair or remove", "Kết nối hoặc gỡ")],
@@ -151,11 +152,7 @@ function Info({ a }: { a: Access }) {
 
       {err && <Banner tone="bad" onClose={() => setErr("")}>{err}</Banner>}
       {a.demo && <div className="demo">{L("Test version: changes stay on this screen.", "Bản thử: thay đổi chỉ ở màn hình này.")}</div>}
-      <div className="si-bar">
-        <span className="cap">{changed ? L("You have changes", "Có thay đổi chưa lưu") : L("All saved", "Đã lưu hết")}</span>
-        <Button onClick={() => setS(saved)} disabled={!changed || busy}>{L("Undo", "Hoàn tác")}</Button>
-        <Button variant="primary" onClick={() => void save()} disabled={!changed || !!problem || busy} data-testid="si-save">{busy ? L("Saving…", "Đang lưu…") : L("Save", "Lưu")}</Button>
-      </div>
+      <SaveCheck dirty={changed} busy={busy} disabled={!!problem} onSave={() => void save()} onUndo={() => setS(saved)} testId="si-save" />
       {toast && <Toast>{toast}</Toast>}
     </div>
   );

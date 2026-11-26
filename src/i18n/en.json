@@ -908,6 +908,8 @@
     "adNext": "Next step",
     "adPhone": "Phone ••{last4}",
     "adOwnerOnly": "Owner only",
+    "adCall": "Call",
+    "adText": "Text reminder",
     "adStep_booked": "Booked",
     "adStep_confirmed": "Confirmed",
     "adStep_here": "Here",
@@ -1912,7 +1914,30 @@
     "signIn": "How I sign in",
     "techApp": "My tickets, bookings + earnings",
     "onDevice": "{name} is using this salon device. Change your PIN from the faces screen; your full profile is on your own phone.",
-    "demo": "Test version: changes stay on this device."
+    "demo": "Test version: changes stay on this device.",
+    "titleShort": "Profile",
+    "nameShort": "Name",
+    "phone": "Cell phone",
+    "signInTag": "Sign-in",
+    "role": "Role",
+    "nameHint": "The salon sees this name on tickets, the calendar and pay slips. Your phone is how you sign in; to change it, ask support.",
+    "thisDevice": "This device",
+    "signInPin": "Sign in + PIN",
+    "pinShort": "PIN",
+    "signInShort": "Sign in",
+    "signInWays": "Email · password · 2-step",
+    "signOutHere": "Sign out",
+    "photoAdd": "Add photo",
+    "photoChange": "Edit photo",
+    "photoRemove": "Remove photo",
+    "photoSaving": "Saving…",
+    "photoSaved": "Photo saved",
+    "photoRemoved": "Photo removed",
+    "photoOffline": "Needs internet to save a photo.",
+    "photoBad": "Pick a photo (JPG or PNG).",
+    "langHint": "Changes this device's screens right away. Clients always see their own language on receipts and the booking page.",
+    "sizeHint": "Bigger text on this device only. Other devices keep their own size.",
+    "signInHint": "Your phone number always works. An email or password is a second way in; 2-step adds a code from an app."
   },
   "faces": {
     "gone": "This device was removed from the salon. Set it up again to use PINs here.",
@@ -2012,7 +2037,8 @@
       "pay": "Taking payments",
       "clients": "Clients & booking",
       "money": "Pay the team",
-      "safety": "Safety + records"
+      "safety": "Safety + records",
+      "running": "Running the salon"
     },
     "nav": {
       "profile": "My profile",
@@ -2036,8 +2062,13 @@
       "tapToPay": "Tap to Pay on iPhone",
       "business": "Business details",
       "reminders": "Booking reminders",
+      "contact": "Call + text clients",
       "activity": "Activity log",
-      "roles": "Roles"
+      "pin": "PIN",
+      "language": "Language",
+      "textSize": "Text size",
+      "roles": "Roles",
+      "timesheet": "Timesheet"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -2538,7 +2569,23 @@
     "who": "Salon settings: owner + manager",
     "close": "Close",
     "search": "Search settings",
-    "noMatch": "Nothing matches."
+    "noMatch": "Nothing matches.",
+    "notSaved": "Not saved",
+    "undo": "Undo",
+    "save": "Save",
+    "saving": "Saving…",
+    "lockDevice": "Lock this device",
+    "list": {
+      "profile": "Profile",
+      "billing": "Plan + billing"
+    },
+    "val": {
+      "services": "{n} services",
+      "people": "{n} people",
+      "stripeOk": "Stripe ✓",
+      "notSet": "Not set up",
+      "devicesOn": "{on} of {n} on"
+    }
   },
   "promo": {
     "title": "Send promo text",
@@ -2965,6 +3012,9 @@
       "business_saved": "Business details changed",
       "service_added": "Service added",
       "ticket_tech_added": "Tech added a service",
+      "client_called": "Called a client",
+      "client_texted": "Texted a client",
+      "contact_saved": "Changed who may call or text clients",
       "ticket_tech_removed": "Tech removed a service",
       "service_saved": "Service changed",
       "service_removed": "Service removed",
@@ -2984,7 +3034,8 @@
       "support_on": "Support access turned on",
       "support_off": "Support access ended",
       "support_change": "PolishOS support changed something",
-      "roles_saved": "Roles + permissions changed"
+      "roles_saved": "Roles + permissions changed",
+      "clock_fix": "Clock time fixed"
     }
   },
   "picker": {
@@ -3006,6 +3057,16 @@
     "title": "What’s new",
     "sub": "The latest changes to PolishOS, newest first.",
     "items": [
+      {
+        "date": "Nov 26",
+        "title": "Timesheet",
+        "body": "Settings → Timesheet: who is clocked in now, hours per day and week, late meal breaks and overtime. Fix a missing clock-out with a reason; the old time stays on record."
+      },
+      {
+        "date": "Nov 26",
+        "title": "Settings like Claude + profile photo",
+        "body": "On phones and iPads, Settings is a list: tap a row, ‹ to go back, ✓ to save. Profile → Edit photo adds your picture to your avatar."
+      },
       {
         "date": "Nov 26",
         "title": "Clearer receipt choices",
@@ -3037,5 +3098,89 @@
         "body": "Change the salon address, hours and every service after setup, in Settings."
       }
     ]
+  },
+  "timesheet": {
+    "title": "Timesheet",
+    "view": "Show",
+    "day": "Day",
+    "week": "Week",
+    "earlier": "Earlier",
+    "later": "Later",
+    "today": "Today",
+    "print": "Print",
+    "csv": "Download CSV",
+    "fixTitle": "{n, plural, one {# clock-out is missing} other {# clock-outs are missing}}",
+    "fixBody": "{name} never clocked out on {day}. Add the real time so their hours are right.",
+    "fixTime": "Fix time",
+    "tile": {
+      "inNow": "In now",
+      "inNowSub": "clocked in right now",
+      "hours": "Hours",
+      "hoursDay": "worked this day",
+      "hoursWeek": "worked this week",
+      "meal": "Late meal break",
+      "mealSub": "no 30-min break before the 5th hour",
+      "ot": "Overtime",
+      "otSub": "over 8h a day or 40h a week"
+    },
+    "person": "Person",
+    "inOut": "In → out",
+    "break": "Break",
+    "hours": "Hours",
+    "now": "Now",
+    "notIn": "Not in",
+    "refusedAt": "Clock-in refused {time} (not at the salon)",
+    "mealLate": "No meal break before the 5th hour",
+    "total": "Total",
+    "flags": "Check",
+    "flag": {
+      "fix": "Fix",
+      "ot": "Overtime",
+      "meal": "Meal break",
+      "ok": "OK"
+    },
+    "state": {
+      "fix": "Needs fix",
+      "in": "In",
+      "out": "Out",
+      "refused": "Refused",
+      "off": "Off"
+    },
+    "note": "Facts from the time clock, not payroll. California: overtime after 8h a day or 40h a week; a 30-min meal break before the 5th hour. Every fix keeps the old time with who and why.",
+    "in": "In",
+    "out": "Out",
+    "stillIn": "Still in",
+    "missing": "Missing",
+    "wasAt": "Was {time} · fixed by {by}",
+    "addedBy": "Added by {by}",
+    "fix": "Fix",
+    "add": "Add",
+    "via": {
+      "device": "Salon device",
+      "phone": "Own phone",
+      "fix": "Added by hand",
+      "pin": "Salon device"
+    },
+    "noPunches": "No clock in or out in these days.",
+    "drawerNote": "Fix a time or add a missing one. The old time stays on record and shows in the Activity log.",
+    "fixTitleOne": "Fix {name}'s time",
+    "addTitle": "Add {name}'s missing time",
+    "cancel": "Cancel",
+    "saveFix": "Save fix",
+    "saving": "Saving…",
+    "realTime": "Real time",
+    "inTime": "Real clock-in time",
+    "outTime": "Real clock-out time",
+    "future": "That time hasn't happened yet.",
+    "why": "Why",
+    "reason": {
+      "forgot": "Forgot",
+      "device_off": "Device was off",
+      "wrong_person": "Wrong person",
+      "other": "Other"
+    },
+    "noteLabel": "Note (optional)",
+    "notePh": "e.g. left at 6:30, told the desk",
+    "fixNote": "{name} can see this fix. It is saved with your name and the reason."
   }
 }
