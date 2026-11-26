@@ -11,7 +11,7 @@ import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { useDesk, getActing, touchActing, type Desk, type DeskService } from "@/lib/desk";
-import { logReceipt, pullTickets, putTicket, saveNow, takeCashPart, undoCashPart, useTicket } from "@/lib/checkout/store";
+import { logReceipt, sendReceipt, pullTickets, putTicket, saveNow, takeCashPart, undoCashPart, useTicket } from "@/lib/checkout/store";
 import { api } from "@/lib/api";
 import { GiftSellDrawer, GiftUseDrawer } from "./GiftDrawers";
 import { AppReaderPay } from "./AppReader";
@@ -19,12 +19,14 @@ import { canAppReader, canTapToPay, keepTapWarm, onTapWarm, tapOnHere, tapWarmNo
 import { demoSettle, giftUndo } from "@/lib/checkout/gift";
 import { receiptBytes, type ReceiptDoc } from "@/lib/print/escpos";
 import { receiptCode } from "@/lib/receipt-code";
-import { canBluetooth, printBytes } from "@/lib/print/bluetooth";
+import { maskTo, receiptLine, type ReceiptOutcome } from "@/lib/checkout/receiptSend";
+import StatusIcon from "@/components/StatusIcon";
+import { printBytes } from "@/lib/print/bluetooth";
 import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 import { usePrintSettings, type PrintSettings } from "@/lib/print/settings";
 import { printTicketSlip } from "@/lib/print/slip";
 import { clientLoyalty, pointsFor, type ClientLoyalty } from "@/lib/loyalty/loyalty";
-import { getProfile, type Profile, type Who } from "@/lib/clients";
+import { getProfile, profileFor, type Profile, type Who } from "@/lib/clients";
 import { EditDrawer } from "@/app/clients/ClientParts";
 import { blockers, changeCents, quickCash, splitTipByPrice, staffOn, ticketLabel, totals, type Discount, type ServiceLine, type Ticket } from "@/lib/checkout/ticket";
 
@@ -699,7 +701,6 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
   const fee = isCard ? pay.feeCents ?? 0 : 0;
   const given = pay?.givenCents ?? sum.left;
   const how = isCard ? (pay.brand ? `${pay.brand[0].toUpperCase()}${pay.brand.slice(1)} ••${pay.last4 ?? ""}` : t("viaLink")) : t("cash").toLowerCase();
-  const [email, setEmail] = useState<string | null>(null);
   const [refunding, setRefunding] = useState(false);
   const newTicket = () => {
     const id = uuid();
@@ -755,20 +756,7 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
       </section>
       <section className="ck-keys" style={{ gap: 10 }}>
         <div className="h2">{t("receipt")}</div>
-        <div className="group">
-          <BluetoothPrint desk={desk} ticket={ticket} say={say} />
-          <button type="button" className="opt" data-testid="receipt-print" onClick={() => { logReceipt(ticket, "print"); setTimeout(() => window.print(), 50); say(t("printed")); }}>{canBluetooth() ? t("printWindow") : t("print")}<span className="grow" /><span className="cap">›</span></button>
-          <button type="button" className="opt" onClick={() => { if (!ticket.client?.phone) return say(t("noPhone")); logReceipt(ticket, "text", ticket.client.phone); say(t("textLater")); }}>
-            {t("text")}<span className="grow" /><span className="cap num">{ticket.client?.phone ? fmtPhone(ticket.client.phone) : ""} ›</span></button>
-          <button type="button" className="opt" data-testid="receipt-email" onClick={() => setEmail(ticket.client?.email ?? ticket.receiptTo ?? "")}>
-            {t("email")}<span className="grow" /><span className="cap">{ticket.client?.email ?? ""} ›</span></button>
-          <button type="button" className="opt" style={{ color: "var(--ink-soft)" }} onClick={() => logReceipt(ticket, "none")}>{t("noReceipt")}</button>
-        </div>
-        {email !== null && <div style={{ display: "flex", gap: 8 }}>
-          <input className="inp" type="email" data-testid="receipt-email-input" placeholder={t("emailPh")} aria-label={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Button disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => { logReceipt(ticket, "email", email.trim()); setEmail(null); say(t("textLater")); }}>{t("send")}</Button>
-        </div>}
-        {ticket.receipt && <div className="cap" data-testid="receipt-done">✓ {t(ticket.receipt === "none" ? "noReceipt" : ticket.receipt)}{ticket.receiptTo ? ` · ${ticket.receipt === "text" ? fmtPhone(ticket.receiptTo) : ticket.receiptTo}` : ""}</div>}
+        <ReceiptBox desk={desk} ticket={ticket} say={say} />
         <div className="cap">{t("receiptLang")}</div>
         <div style={{ flex: 1 }} />
         {ticket.status === "paid" && <Button variant="ghost" data-testid="refund" onClick={() => setRefunding(true)}>{t("refund")}</Button>}
@@ -853,20 +841,55 @@ function digitalReceiptUrl(desk: Desk, ticket: Ticket): string | undefined {
 }
 
 /** "Print by Bluetooth" (Android Chrome, or Bluefy on iPhone/iPad): pair once, then one tap prints. */
-function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: string) => void }) {
+type Sent = { kind: "print" | "text" | "email" | "none"; to?: string; at?: string; out?: ReceiptOutcome };
+const maskPhone = (p: string) => maskTo("text", p);
+const maskEmail = (e: string) => maskTo("email", e);
+const emailOk = (e: string) => /^\S+@\S+\.\S+$/.test(e.trim());
+
+/** Receipt, design C (board "Paid Screen · Receipt", Nov 26): one big Print button for the usual way, then Text · Email ·
+ * No receipt. Text and Email say what's on file (••last 4, a masked email) or "+ Add …"; a tap opens a small card in place:
+ * on file = the full contact + Send, else type it (a typed email fills the client's empty email, #208; a typed phone is for
+ * this receipt only: client details change only in the Edit drawer).
+ * "Sent for this ticket" lists what went out; printer settings fold away. */
+function ReceiptBox({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: string) => void }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
   const p = usePrinter();
   const { settings } = usePrintSettings(desk.salonId, desk.mode === "demo");
   const [busy, setBusy] = useState(false);
-  if (!p.ok) return <PrinterSetup p={p} />;
-  const go = async () => {
+  const [open, setOpen] = useState<"text" | "email" | null>(null);
+  const [other, setOther] = useState(false); // typing a contact other than the one on file
+  const [typed, setTyped] = useState("");
+  const [found, setFound] = useState("");
+  const [sending, setSending] = useState(false);
+  const [again, setAgain] = useState(false); // this way was already sent: ask before sending it twice
+  const [sent, setSent] = useState<Sent[]>(() => {
+    const r = ticket.receiptSent;
+    if (r) return [{ kind: r.channel, to: r.to, at: r.at, out: { status: r.status, error: r.error } }];
+    return ticket.receipt ? [{ kind: ticket.receipt, to: ticket.receiptTo }] : [];
+  });
+  const phone = ticket.client?.phone ?? "";
+  const c = ticket.client;
+  const email = c?.email || found; // on the ticket (pulled with the client), else from the profile
+  useEffect(() => {
+    if (!c || c.email) return;
+    let off = false;
+    const who: Who = { mode: desk.mode, salonId: desk.salonId, salonName: desk.salonName, role: desk.me.role, name: desk.me.display_name };
+    void profileFor(who, c).then((pr) => { if (!off && pr?.email) setFound(pr.email); });
+    return () => { off = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per client
+  }, [desk.salonId, c?.id, c?.phone]);
+
+  const add = (s: Sent) => setSent((l) => [...l, { ...s, at: new Date().toISOString() }]);
+  const printPc = () => { logReceipt(ticket, "print"); add({ kind: "print" }); setTimeout(() => window.print(), 50); say(t("printed")); };
+  const printBt = async () => {
     setBusy(true);
     try {
       const doc = receiptDoc(desk, ticket, t, f.dateTime(new Date(ticket.payment?.at ?? ticket.createdAt), { dateStyle: "medium", timeStyle: "short" }), settings.receipt);
       await printBytes(receiptBytes(doc, p.paper), p.paper); // text = fast; accents print plain
       p.refresh();
       logReceipt(ticket, "print");
+      add({ kind: "print", to: p.saved?.name });
       say(t("printed"));
     } catch (e) {
       const m = (e as Error).message;
@@ -874,12 +897,85 @@ function BluetoothPrint({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say
     }
     setBusy(false);
   };
-  return <>
-    <button type="button" className="opt" data-testid="print-bt" disabled={busy} onClick={() => void go()}>
-      <span className="g">{busy ? t("btPrinting") : t("printBt")}<span className="cap" style={{ display: "block" }}>{p.saved ? `${p.saved.name} · ${p.saved.paper} mm` : t("btPair")}</span></span><span className="cap">›</span>
-    </button>
-    {p.saved && <PrinterSetup p={p} />}
-  </>;
+  const toggle = (k: "text" | "email") => { setOpen(open === k ? null : k); setOther(false); setTyped(""); setAgain(false); };
+  // One send per tap (main's sendReceipt: sends now, or saves on the device when offline) and the result goes in the list.
+  const send = async (k: "text" | "email", raw: string) => {
+    const to = k === "text" ? e164(raw) : raw.trim();
+    const last = [...sent].reverse().find((s) => s.kind === k);
+    if (!again && last?.out && (last.out.status === "sent" || last.out.status === "queued")) { setAgain(true); return; }
+    setSending(true);
+    try {
+      const out = await sendReceipt(ticket, k, to);
+      add({ kind: k, to, out });
+      setOpen(null); setOther(false); setTyped(""); setAgain(false);
+    } finally { setSending(false); }
+  };
+  const onFile = open === "text" ? phone : open === "email" ? email : "";
+  const typing = open !== null && (other || !onFile);
+  const typedOk = open === "text" ? phoneOk(typed) : emailOk(typed);
+  const sentLine = (s: Sent): { text: string; tone: "good" | "watch" | "bad" | "none" } => {
+    if (s.kind === "print") return { text: t("rcPrinted"), tone: "good" };
+    if (s.kind === "none") return { text: t("noReceipt"), tone: "good" };
+    const to = s.to ? maskTo(s.kind, s.to) : "";
+    if (!s.out) return { text: t(s.kind === "text" ? "rcTexted" : "rcEmailed", { to }), tone: "good" };
+    const l = receiptLine(s.kind, s.out);
+    return l.key === "demo" ? { text: t("rcDemo", { to }), tone: "none" } : { text: t(`rcpt.${l.key}`, { to }), tone: l.tone };
+  };
+
+  return (
+    <div className="rc">
+      <button type="button" className="rc-print" data-testid="print-main" disabled={busy} onClick={() => (p.ok ? void printBt() : printPc())}>
+        <span className="rc-print-ic" aria-hidden><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2M6 14h12v7H6z" /></svg></span>
+        <span className="rc-print-t"><b>{busy ? t("btPrinting") : t("rcPrint")}</b>
+          <span>{p.ok ? (p.saved ? `${p.saved.name} · ${p.saved.paper} mm` : t("btPair")) : t("rcPcPrinter")}</span></span>
+        <span className="rc-chev" aria-hidden>›</span>
+      </button>
+      <div className="rc-pills">
+        <button type="button" className={`rc-pill${open === "text" ? " on" : ""}${phone ? "" : " add"}`} data-testid="receipt-text" aria-expanded={open === "text"} onClick={() => toggle("text")}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.5A8 8 0 1 1 21 12z" /></svg>
+          <b>{t("text")}</b><small className="num">{phone ? maskPhone(phone) : t("rcAddPhone")}</small>
+        </button>
+        <button type="button" className={`rc-pill${open === "email" ? " on" : ""}${email ? "" : " add"}`} data-testid="receipt-email" aria-expanded={open === "email"} onClick={() => toggle("email")}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg>
+          <b>{t("email")}</b><small>{email ? maskEmail(email) : t("rcAddEmail")}</small>
+        </button>
+        <button type="button" className="rc-pill quiet" data-testid="receipt-none" onClick={() => { logReceipt(ticket, "none"); add({ kind: "none" }); setOpen(null); }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden><path d="M6 6l12 12M18 6L6 18" /></svg>
+          <b>{t("noReceipt")}</b>
+        </button>
+      </div>
+      {open && (typing ? (
+        <form className="rc-card" data-testid="receipt-card" onSubmit={(e) => { e.preventDefault(); if (typedOk && !sending) void send(open, typed); }}>
+          <label className="rc-field"><span>{t(open === "text" ? "rcPhoneLbl" : "rcEmailLbl")}</span>
+            <input className="inp" autoFocus type={open === "text" ? "tel" : "email"} inputMode={open === "text" ? "tel" : "email"} autoComplete="off"
+              placeholder={open === "text" ? "(408) 555-0142" : t("emailPh")} value={typed} onChange={(e) => setTyped(e.target.value)} /></label>
+          <span className="cap">{t(open === "email" && c && !email ? "rcSavesEmail" : "rcOneTime")}</span>
+          <Button type="submit" variant="primary" block disabled={!typedOk || sending}>{sending ? t("rcpt.sending") : t(open === "text" ? "rcSendText" : "rcSendEmail")}</Button>
+          {onFile && <button type="button" className="rc-ghost" onClick={() => setOther(false)}>{t("rcBack", { to: open === "text" ? maskPhone(onFile) : maskEmail(onFile) })}</button>}
+        </form>
+      ) : (
+        <div className="rc-card" data-testid="receipt-card">
+          <span className="rc-card-t">{t(open === "text" ? "rcTextTo" : "rcEmailTo")}</span>
+          <b className="rc-to num" data-testid="receipt-to">{open === "text" ? fmtPhone(onFile) : onFile}</b>
+          {c?.name && <span className="cap">{t("rcFromProfile", { name: c.name })}</span>}
+          {again && <span className="cap" data-testid="receipt-again">{t("rcpt.again", { to: maskTo(open, onFile) })}</span>}
+          <Button variant="primary" block data-testid="receipt-send" disabled={sending} onClick={() => void send(open, onFile)}>
+            {sending ? t("rcpt.sending") : again ? t("rcpt.sendAgain") : t(open === "text" ? "rcSendText" : "rcSendEmail")}</Button>
+          <button type="button" className="rc-ghost" onClick={() => { setOther(true); setTyped(""); }}>{t(open === "text" ? "rcOtherPhone" : "rcOtherEmail")}</button>
+        </div>
+      ))}
+      {sent.length > 0 && <div className="rc-sent" data-testid="receipt-sent">
+        <span className="eyebrow">{t("rcSent")}</span>
+        {sent.map((s, i) => { const l = sentLine(s); return <div key={i} className="rc-sent-row" data-testid="receipt-result"><StatusIcon tone={l.tone} /><span className="grow">{l.text}</span>
+          {s.at && <span className="cap num">{f.dateTime(new Date(s.at), { timeStyle: "short" })}</span>}</div>; })}
+      </div>}
+      {(p.ok || p.ios) && <details className="rc-prn">
+        <summary>{t("rcPrinter")}</summary>
+        <PrinterSetup p={p} inline />
+        {p.ok && <button type="button" className="rc-ghost" data-testid="receipt-print" onClick={printPc}>{t("printWindow")}</button>}
+      </details>}
+    </div>
+  );
 }
 
 /** Receipt for the receipt printer (80 mm): only visible when printing. */

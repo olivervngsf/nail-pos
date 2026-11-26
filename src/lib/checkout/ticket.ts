@@ -66,6 +66,8 @@ export type Ticket = {
   receipt?: "print" | "text" | "email" | "none";
   /** Where the last text / email receipt went (shown on the paid screen). */
   receiptTo?: string;
+  /** Where the last text/email receipt went + what happened (shown on the paid screen). */
+  receiptSent?: { channel: "text" | "email"; to: string; status: "sent" | "skipped" | "failed" | "queued" | "demo"; error?: string | null; at: string };
 };
 
 export function discountCents(subtotal: number, d?: Discount): number {
