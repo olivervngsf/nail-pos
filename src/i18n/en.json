@@ -1987,7 +1987,7 @@
       "business": "Business details",
       "reminders": "Booking reminders",
       "activity": "Activity log",
-      "roles": "Roles + permissions"
+      "roles": "Roles"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",

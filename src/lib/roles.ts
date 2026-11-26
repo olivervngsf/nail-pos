@@ -45,6 +45,36 @@ export function diffFromDefaults(p: RolePerms): RolePerms {
   return out;
 }
 
+/** Quick levels (board "Roles + Permissions", mix of A + D): one tap fills a role's column, the grid fine-tunes it.
+ *  Each role's default level = how the app worked before (manager Standard = everything, front desk Careful = no OKs). */
+export type Level = "careful" | "standard" | "trusted";
+const ALL_OK = [...OK_PERMS] as Perm[];
+const ALL_SET = [...SET_PERMS] as Perm[];
+export const LEVELS: Record<EditRole, { key: Level; on: Perm[] }[]> = {
+  manager: [
+    { key: "careful", on: ["ok.discount", "ok.client", "ok.menu", "set.salon", "set.clients"] },
+    { key: "standard", on: [...ALL_OK, ...ALL_SET] },
+  ],
+  front_desk: [
+    { key: "careful", on: [] },
+    { key: "standard", on: ["ok.discount"] },
+    { key: "trusted", on: ALL_OK },
+  ],
+};
+export const permsFor = (role: EditRole): Perm[] => (role === "manager" ? [...ALL_OK, ...ALL_SET] : ALL_OK);
+
+/** The level this role's switches match right now, or null (= Custom). */
+export function levelOf(p: RolePerms, role: EditRole): Level | null {
+  const hit = LEVELS[role].find((l) => permsFor(role).every((k) => can(p, role, k) === l.on.includes(k)));
+  return hit?.key ?? null;
+}
+/** Set every switch of a role to a level. */
+export function applyLevel(p: RolePerms, role: EditRole, level: Level): RolePerms {
+  const l = LEVELS[role].find((x) => x.key === level);
+  if (!l) return p;
+  return { ...p, [role]: Object.fromEntries(permsFor(role).map((k) => [k, l.on.includes(k)])) };
+}
+
 const KEY = (salon: string) => `nailpos.roles.${salon}`;
 export function cachedPerms(salon: string): RolePerms {
   try { return JSON.parse(localStorage.getItem(KEY(salon)) ?? "{}") as RolePerms; } catch { return {}; }

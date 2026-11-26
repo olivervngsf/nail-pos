@@ -1736,6 +1736,40 @@ body:has(.clock-demo) .faces { padding-bottom: 76px; }
 body:has(.clock-demo):has(.dev-strip) .clock-qr { bottom: 168px; }
 body:has(.faces .scrim) .clock-qr { display: none; }
 
+/* Settings → Roles + permissions (Nov 26, board "Roles + Permissions" A + D): quick levels per role, then one
+   checklist grid (Owner always · Manager · Front desk · Tech never). Phones: Owner + Tech columns hide. */
+.rp-page{display:flex;flex-direction:column;gap:16px}
+.rp-levels{display:flex;flex-direction:column;gap:8px}
+.rp-page .rp-levels .eyebrow{margin:6px 0 0}
+.rp-custom{margin-left:8px;padding:2px 8px;border-radius:999px;background:var(--orange-soft);color:#B5470A;letter-spacing:0;text-transform:none;font-weight:600}
+.rp-level-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.rp-level{text-align:left;display:flex;flex-direction:column;gap:6px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--paper);font:inherit;color:var(--ink);cursor:pointer}
+.rp-level.is-on{border:2px solid var(--ink);padding:13px 15px}
+.rp-level-h{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600}
+.rp-dot{width:20px;height:20px;border-radius:999px;border:2px solid #C7C7CC;box-sizing:border-box;flex-shrink:0}
+.rp-level.is-on .rp-dot{border:6px solid var(--ink)}
+.rp-grid{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.rp-head,.rp-row{display:grid;grid-template-columns:minmax(0,1fr) 84px 104px 104px 84px;align-items:center;padding:0 16px}
+.rp-head{min-height:44px;background:var(--surface);border-bottom:1px solid var(--line);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
+.rp-row{min-height:52px;border-bottom:1px solid var(--line)}
+.rp-row:last-child{border-bottom:0}
+.rp-sec{padding:14px 16px 4px;font-size:13px;font-weight:600;color:var(--ink-soft)}
+.rp-what{display:flex;flex-direction:column;min-width:0;padding:6px 0}
+.rp-what b{font-weight:500;font-size:15px}
+.rp-c{display:flex;justify-content:center;text-align:center}
+.rp-box{width:26px;height:26px;border-radius:8px;border:2px solid #C7C7CC;background:var(--paper);color:#fff;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
+.rp-box.is-on{border-color:var(--jade);background:var(--jade)}
+.rp-box.is-always{border:0;background:var(--fill);color:var(--muted);cursor:default}
+.rp-never{color:var(--muted);font-size:14px}
+.rp-bar{flex-wrap:wrap;gap:12px}
+.rp-short{flex:1 1 320px;display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--ink-soft)}
+.rp-short b{color:var(--ink);font-weight:600}
+@media (max-width:599px){
+  .rp-head,.rp-row{grid-template-columns:minmax(0,1fr) 76px 76px;padding:0 12px}
+  .rp-fixed{display:none}
+}
+@media (pointer:coarse){.rp-box{width:44px;height:44px;border-radius:10px}}
+
 /* Settings → Salon + Service menu (Nov 25) + who can open what in the settings menu */
 .set-nav a > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .set-nav a.locked { color: var(--ink-soft); }
