@@ -244,19 +244,26 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
   );
   const total = a.services.reduce((x, s) => x + s.cents, 0);
   return (
-    <Drawer title={a.client?.name || t("walkIn")} onClose={onClose} footer={<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      {canHere && <Button variant="primary" block onClick={markHere} data-testid="here-btn">{t("hereBtn")}</Button>}
-      {(st === "booked" || st === "confirmed" || st === "arrived") && <Button variant={canHere ? "default" : "primary"} block onClick={checkIn} data-testid="check-in">{st === "arrived" ? t("openTicket") : t("startService")}</Button>}
+    <Drawer title={a.client?.name || t("walkIn")} onClose={onClose} footer={<div className="ad-acts">
+      {canHere && <div className="ad-step">
+        <Button variant="primary" block onClick={markHere} data-testid="here-btn">{t("hereBtn")}</Button>
+        <span className="ad-hint">{t("hereHint")}</span>
+      </div>}
+      {(st === "booked" || st === "confirmed" || st === "arrived") && <div className="ad-step">
+        <Button variant={canHere ? "default" : "primary"} block onClick={checkIn} data-testid="check-in">{st === "arrived" ? t("openTicket") : t("startService")}</Button>
+        {!canHere && <span className="ad-hint">{st === "arrived" ? t("openHint") : t("startHint")}</span>}
+      </div>}
       {st === "done" && a.ticketId && <Button block onClick={() => router.push(`/checkout/${a.ticketId}`)}>{t("openTicket")}</Button>}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      {(st === "booked" || st === "confirmed") && <div className="ad-row">
         {st === "booked" && <Button onClick={() => set("confirmed", t("confirmedMsg"))} data-testid="confirm">{t("confirm")}</Button>}
-        {(st === "booked" || st === "confirmed") && <Button onClick={() => set("no_show", t("noShowMsg"))}>{t("noShow")}</Button>}
-        {(st === "booked" || st === "confirmed") && <Button variant="ghost" onClick={() => set("canceled", t("canceledMsg"))} data-testid="cancel-appt">{t("cancel")}</Button>}
-        {(st === "canceled" || st === "no_show") && <Button onClick={() => set("booked", t("restoredMsg"))}>{t("restore")}</Button>}
-      </div>
+        <Button onClick={() => set("no_show", t("noShowMsg"))}>{t("noShow")}</Button>
+        <Button variant="ghost" className="ad-cancel" onClick={() => set("canceled", t("canceledMsg"))} data-testid="cancel-appt">{t("cancel")}</Button>
+      </div>}
+      {(st === "canceled" || st === "no_show") && <Button block onClick={() => set("booked", t("restoredMsg"))}>{t("restore")}</Button>}
+      {st !== "done" && <span className="ad-note">{t("actsNote")}</span>}
     </div>}>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <span className={`tag ${st === "confirmed" || st === "arrived" || here ? "jade" : ""}`} data-testid="appt-status">{here ? t("hereTag", { min: hereMin }) : t(`st_${st}`)}</span>
+        <span className={`tag ${st === "confirmed" || st === "arrived" || here ? "jade" : st === "booked" ? "warn" : ""}`} data-testid="appt-status">{here ? t("hereTag", { min: hereMin }) : t(`st_${st}`)}</span>
         <span className="tag">{t(`src_${a.source}`)}</span>
         {a.repeatRuleId && <span className="tag">{t("repeats")}</span>}
       </div>
