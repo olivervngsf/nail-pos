@@ -1485,7 +1485,7 @@
     "printMine": "Print my earnings",
     "done": "Done",
     "splitLine": "Paid {check} by check + {cash} in cash",
-    "printOne": "Print",
+    "printOne": "Print slip",
     "printing": "Printing {n} of {total}…",
     "printedN": "{count, plural, one {Printed # slip} other {Printed # slips}}",
     "printed": "Printed",
@@ -1967,6 +1967,7 @@
       "clockIn": "Clock-in",
       "tapToPay": "Tap to Pay on iPhone",
       "business": "Business details",
+      "reminders": "Booking reminders",
       "activity": "Activity log"
     },
     "needPin": "Owner or manager only",
