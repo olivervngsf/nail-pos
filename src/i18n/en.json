@@ -181,7 +181,7 @@
     "email": "Email",
     "noReceipt": "No receipt",
     "receiptLang": "Receipt uses the client's language.",
-    "textLater": "Saved. Texts and emails start once the salon's texting number is set up.",
+    "textLater": "Saved. Sends now if this salon's texts / email are on (see Settings → Texting → Messages).",
     "printed": "Sent to the printer",
     "noPhone": "Add the client's phone on the ticket to text a receipt.",
     "emailPh": "client@email.com",
@@ -2683,7 +2683,8 @@
       "carriers": "Phone carriers + Twilio",
       "stripe": "Stripe",
       "polishos": "PolishOS"
-    }
+    },
+    "noAddress": "no phone"
   },
   "textrules": {
     "title": "Texting rules, and why",
