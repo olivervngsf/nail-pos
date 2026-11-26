@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Avatar, Button, LeftMenu, ListGroup, PinKeypad, Segmented, SyncPill, Toast, TopBar } from "@/components/kit";
+import { Avatar, Banner, Button, LeftMenu, ListGroup, PinKeypad, Segmented, SyncPill, Toast, TopBar } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
 import SignInEmail from "@/components/SignInEmail";
 import SignInPassword from "@/components/SignInPassword";
@@ -65,7 +65,7 @@ export default function MePage() {
       <div className="col">
         <TopBar title={t("title")}><SyncPill /></TopBar>
         <main className="me-main">
-          {someoneElse && <div className="banner" role="status">{t("onDevice", { name: acting!.name })}</div>}
+          {someoneElse && <Banner tone="info">{t("onDevice", { name: acting!.name })}</Banner>}
           <section className="card pad me-head">
             <Avatar name={me.name} large />
             <span style={{ flex: 1, minWidth: 0 }}>

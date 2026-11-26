@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Button, Switch, Toast } from "@/components/kit";
+import { Banner, Button, Switch, Toast } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
 import { api } from "@/lib/api";
 import { rpc } from "@/lib/auth";
@@ -63,7 +63,7 @@ function Info({ a }: { a: Access }) {
 
   return (
     <div className="si-page" data-testid="salon-info">
-      {!addressOk(parseAddress(saved.address, saved.state)) && <div className="banner" role="status" data-testid="address-needed">{ta("needed")}</div>}
+      {!addressOk(parseAddress(saved.address, saved.state)) && <Banner tone="warn" data-testid="address-needed">{ta("needed")}</Banner>}
       <div className="eyebrow">{L("Salon", "Tiệm")}</div>
       <section className="card pad si-grid">
         <div className="si-full">
@@ -134,7 +134,7 @@ function Info({ a }: { a: Access }) {
         ))}
       </div>
 
-      {err && <div className="banner" role="alert">{err}</div>}
+      {err && <Banner tone="bad" onClose={() => setErr("")}>{err}</Banner>}
       {a.demo && <div className="demo">{L("Test version: changes stay on this screen.", "Bản thử: thay đổi chỉ ở màn hình này.")}</div>}
       <div className="si-bar">
         <span className="cap">{changed ? L("You have changes", "Có thay đổi chưa lưu") : L("All saved", "Đã lưu hết")}</span>

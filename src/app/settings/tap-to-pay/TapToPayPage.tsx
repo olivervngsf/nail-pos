@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { Button } from "@/components/kit";
+import { Banner, Button } from "@/components/kit";
 import { inIosApp } from "@/lib/app/bridge";
 import { canTapToPay, onTapWarm, showHowToTap, tapErrorKey, tapOnHere, tapWarmNow, resetTapForVideo, turnOffTap, turnOnTap, turnOnTapDemo, type TapCheck, type TapWarm } from "@/lib/app/reader";
 import { HowToTapButton, HowToTapSteps } from "@/components/HowToTap";
@@ -79,7 +79,7 @@ function TapToPay({ a }: { a: Access }) {
         </ol>
       </div>}
 
-      {app && check && !check.supported && <div className="banner" role="status" data-testid="tap-unsupported">{tc("tapErr.unsupported")}</div>}
+      {app && check && !check.supported && <Banner tone="info" id="tap-unsupported" keep="device" data-testid="tap-unsupported">{tc("tapErr.unsupported")}</Banner>}
 
       {app && check?.supported && <div className="card pad" style={{ gap: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

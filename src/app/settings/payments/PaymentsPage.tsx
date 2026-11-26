@@ -3,7 +3,7 @@
 // any time after setup. Bank + business details are changed on Stripe's own dashboard (the salon owns the account).
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/kit";
+import { Banner, Button } from "@/components/kit";
 import { api } from "@/lib/api";
 import { usePayLayout } from "@/lib/checkout/payLayout";
 import { PAY_LAYOUTS, type PayLayout } from "@/lib/checkout/paypage";
@@ -54,14 +54,14 @@ function Payments({ a }: { a: Access }) {
           <b style={{ flex: 1, fontSize: 17 }}>Stripe</b>
           {!st && !err ? <span className="cap" role="status">{t("loading")}</span> : pill}
         </div>
-        {st?.on === false && <div className="banner" role="status">{t("off")}</div>}
+        {st?.on === false && <Banner tone="info">{t("off")}</Banner>}
         {st?.connected && <div className="group">
           <div className="row"><span className="g">{t("account")}</span><b>{st.name || a.salonName}</b></div>
           <div className="row"><span className="g">{t("cards")}</span><b>{st.chargesEnabled ? t("on") : t("notYet")}</b></div>
           <div className="row"><span className="g">{t("payouts")}</span><b>{st.payoutsEnabled ? t("on") : t("notYet")}</b></div>
         </div>}
         {st?.connected && !st.chargesEnabled && (
-          <div className="banner" role="status">{st.state === "rejected" ? t("rejected") : st.missing?.length ? t("missing", { list: st.missing.join(" · ") }) : pending ? t("pendingWhy") : t("finish")}</div>
+          <Banner tone={st.state === "rejected" ? "bad" : "warn"}>{st.state === "rejected" ? t("rejected") : st.missing?.length ? t("missing", { list: st.missing.join(" · ") }) : pending ? t("pendingWhy") : t("finish")}</Banner>
         )}
         {st && !st.connected && st.on !== false && <div className="cap">{t("need")}</div>}
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>

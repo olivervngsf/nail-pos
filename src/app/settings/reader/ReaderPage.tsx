@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { Button } from "@/components/kit";
+import { Banner, Button } from "@/components/kit";
 import { api } from "@/lib/api";
 import SettingsShell, { type Access } from "../SettingsShell";
 
@@ -52,7 +52,7 @@ function Readers({ a }: { a: Access }) {
   const noStripe = list && (list.on === false || !list.connected);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 640 }} data-testid="settings-reader">
-      {noStripe && <div className="banner" role="status">{list?.on === false ? t("off") : <>{t("needStripe")} <Link href="/settings/payments">{t("toPayments")}</Link></>}</div>}
+      {noStripe && <Banner tone="info">{list?.on === false ? t("off") : <>{t("needStripe")} <Link href="/settings/payments">{t("toPayments")}</Link></>}</Banner>}
       {list && list.readers.length > 0 && <div className="group">
         {list.readers.map((r) => (
           <div key={r.id} className="row" style={{ gap: 12 }}>

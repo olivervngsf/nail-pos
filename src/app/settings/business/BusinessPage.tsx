@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Button, Switch, Toast } from "@/components/kit";
+import { Banner, Button, Switch, Toast } from "@/components/kit";
 import StatusIcon from "@/components/StatusIcon";
 import { useLang } from "@/components/AppProviders";
 import { rpc } from "@/lib/auth";
@@ -76,7 +76,7 @@ function Form({ a }: { a: Access }) {
       </section>
       <p className="cap" style={{ margin: 0 }}>{T("Card payments (Stripe) and client texts (phone carriers) must be registered in your business's legal name. You type it once here; PolishOS does the registration for you. Nobody needs a Twilio or Stripe login.",
         "Thanh toán thẻ (Stripe) và tin nhắn cho khách (nhà mạng) phải đăng ký theo tên hợp pháp của doanh nghiệp. Bạn nhập một lần ở đây; PolishOS đăng ký giúp bạn.")} <Link href="/settings/texting/rules">{T("Why?", "Tại sao?")}</Link></p>
-      {!edit && <div className="banner" role="status">{T("Only the owner can change business details.", "Chỉ chủ tiệm được sửa thông tin doanh nghiệp.")}</div>}
+      {!edit && <Banner tone="info">{T("Only the owner can change business details.", "Chỉ chủ tiệm được sửa thông tin doanh nghiệp.")}</Banner>}
       {err && <p className="hint err" role="alert">{err}</p>}
 
       <section className="card pad in2 biz-card">

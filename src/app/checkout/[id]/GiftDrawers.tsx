@@ -4,7 +4,7 @@
 // Use: scan / type a code or find by the client's phone → checks → use part or all of it.
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Chip, Drawer, Field } from "@/components/kit";
+import { Banner, Button, Chip, Drawer, Field } from "@/components/kit";
 import { e164 } from "@/lib/auth";
 import { formatCents, parseDollars } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
@@ -32,10 +32,7 @@ function Refused({ r }: { r: GiftResult }) {
   const t = useTranslations("gift");
   const key = r.reason ?? "not_found";
   return (
-    <div className="banner" role="alert" data-testid="gift-refused" style={{ background: "var(--orange-soft)", color: "#8a3a0a", display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-start" }}>
-      <b>{t(`no_${key}` as "no_not_found")}</b>
-      <span style={{ fontSize: 14 }}>{t(`noWhy_${key}` as "noWhy_not_found", { last4: r.card?.replacedByLast4 ?? "" })}</span>
-    </div>
+    <Banner tone="bad" data-testid="gift-refused" title={t(`no_${key}` as "no_not_found")}>{t(`noWhy_${key}` as "noWhy_not_found", { last4: r.card?.replacedByLast4 ?? "" })}</Banner>
   );
 }
 

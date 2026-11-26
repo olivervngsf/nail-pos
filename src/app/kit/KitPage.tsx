@@ -109,8 +109,10 @@ export default function KitPage() {
               <Card pad><MessageBubble>Mai Nails: Hi Lan! Your gel mani with Kim is tomorrow at 2:00 PM. Reply C to confirm.</MessageBubble></Card>
               <Card><Empty title="Nothing needs you right now"><span className="cap">Done items slide away.</span></Empty></Card>
             </div>
-            <Banner>No internet. Everything saves on this device.</Banner>
-            <Banner tone="ok">Back online · 3 changes sent.</Banner>
+            <Banner tone="info" title="Lan is signed in on this iPad.">You are acting as Mai.</Banner>
+            <Banner tone="ok" title="Back online.">3 changes sent.</Banner>
+            <Banner tone="warn" title="PolishOS payment is late." action={<Button size="sm">Update card</Button>}>Update the card on file.</Banner>
+            <Banner tone="bad" title="Card declined.">Nothing was charged. Ask for another card or take cash.</Banner>
           </Sec>
 
           <Sec title="Drawer · sheet · toast">
