@@ -1748,7 +1748,9 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .rp-level-h{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600}
 .rp-dot{width:20px;height:20px;border-radius:999px;border:2px solid #C7C7CC;box-sizing:border-box;flex-shrink:0}
 .rp-level.is-on .rp-dot{border:6px solid var(--ink)}
-.rp-grid{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.rp-grid{background:var(--paper);border:1px solid var(--line);border-radius:16px}
+/* Header row stays on screen while the list scrolls (Oliver, Nov 26: "I can't see owner, manager… when I scroll"). */
+.rp-head{position:sticky;top:0;z-index:2;border-radius:15px 15px 0 0}
 .rp-head,.rp-row{display:grid;grid-template-columns:minmax(0,1fr) 84px 104px 104px 84px;align-items:center;padding:0 16px}
 .rp-head{min-height:44px;background:var(--surface);border-bottom:1px solid var(--line);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
 .rp-row{min-height:52px;border-bottom:1px solid var(--line)}
@@ -1757,10 +1759,18 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .rp-what{display:flex;flex-direction:column;min-width:0;padding:6px 0}
 .rp-what b{font-weight:500;font-size:15px}
 .rp-c{display:flex;justify-content:center;text-align:center}
-.rp-box{width:26px;height:26px;border-radius:8px;border:2px solid #C7C7CC;background:var(--paper);color:#fff;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
-.rp-box.is-on{border-color:var(--jade);background:var(--jade)}
-.rp-box.is-always{border:0;background:var(--fill);color:var(--muted);cursor:default}
-.rp-never{color:var(--muted);font-size:14px}
+/* Checkbox (Oliver, Nov 26: lighter): a small 22px box inside a bigger invisible tap area (36px mouse, 44px touch). */
+.rp-hit{width:36px;height:36px;border:0;background:none;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:10px;-webkit-tap-highlight-color:transparent}
+.rp-hit:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.rp-box{width:22px;height:22px;border-radius:6px;border:1.5px solid #C2C2CA;background:var(--paper);color:#fff;display:flex;align-items:center;justify-content:center;box-sizing:border-box;transition:background .15s,border-color .15s,transform .1s}
+.rp-box svg{width:14px;height:14px}
+.rp-hit:hover .rp-box{border-color:var(--ink-soft)}
+.rp-hit:active .rp-box{transform:scale(.92)}
+.rp-hit.is-on .rp-box{border-color:var(--jade);background:var(--jade)}
+.rp-always{color:#AEAEB6;display:flex}
+.rp-always svg{width:18px;height:18px}
+.rp-never{color:#C2C2CA;font-size:14px}
+@media (prefers-reduced-motion:reduce){.rp-box{transition:none}}
 .rp-bar{flex-wrap:wrap;gap:12px}
 .rp-short{flex:1 1 320px;display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--ink-soft)}
 .rp-short b{color:var(--ink);font-weight:600}
@@ -1768,7 +1778,7 @@ body:has(.faces .scrim) .clock-qr { display: none; }
   .rp-head,.rp-row{grid-template-columns:minmax(0,1fr) 76px 76px;padding:0 12px}
   .rp-fixed{display:none}
 }
-@media (pointer:coarse){.rp-box{width:44px;height:44px;border-radius:10px}}
+@media (pointer:coarse){.rp-hit{width:44px;height:44px}.rp-box{width:24px;height:24px}}
 
 /* Settings → Salon + Service menu (Nov 25) + who can open what in the settings menu */
 .set-nav a > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

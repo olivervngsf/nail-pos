@@ -99,8 +99,8 @@ function Form({ a }: { a: Access }) {
     const on = can(draft, r, k);
     const [en, , v] = WORDS[k];
     return (
-      <button type="button" role="checkbox" aria-checked={on} aria-label={`${roleName(r)}: ${vi ? v : en}`} className={`rp-box${on ? " is-on" : ""}`}
-        onClick={() => flip(r, k)} data-testid={`perm-${r}-${k}`}><Check on={on} /></button>
+      <button type="button" role="checkbox" aria-checked={on} aria-label={`${roleName(r)}: ${vi ? v : en}`} className={`rp-hit${on ? " is-on" : ""}`}
+        onClick={() => flip(r, k)} data-testid={`perm-${r}-${k}`}><span className="rp-box" aria-hidden><Check on={on} /></span></button>
     );
   };
 
@@ -112,7 +112,7 @@ function Form({ a }: { a: Access }) {
         return (
           <div key={k} className="rp-row" role="row" data-testid={`perm-${k}`}>
             <span className="rp-what" role="rowheader"><b>{vi ? v : en}</b><span className="cap">{vi ? viSub : enSub}</span></span>
-            <span className="rp-c rp-fixed" role="cell"><span className="rp-box is-always" aria-label={T("Always", "Luôn luôn")}><Check on /></span></span>
+            <span className="rp-c rp-fixed" role="cell"><span className="rp-always" role="img" aria-label={T("Always", "Luôn luôn")}><Check on /></span></span>
             {ROLES.map((r) => <span key={r} className="rp-c" role="cell">{cell(r, k)}</span>)}
             <span className="rp-c rp-fixed" role="cell"><span className="rp-never" aria-label={T("Never", "Không bao giờ")}>—</span></span>
           </div>
