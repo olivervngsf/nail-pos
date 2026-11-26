@@ -7,7 +7,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { Avatar, Button, PhoneBar, Toast } from "@/components/kit";
 import { getSupabase } from "@/lib/supabase/client";
 import { SMS_ON, isSignedIn, rpc } from "@/lib/auth";
-import { formatCents as $ } from "@/lib/money";
+import { formatCents as $, parseDollars } from "@/lib/money";
 
 type Line = { id: string; name: string; cents: number; staff_id: string | null; staff: string | null };
 type Tip = { cash_cents: number; card_cents: number; fee_cents: number };
@@ -25,6 +25,8 @@ export default function TechTicket({ id }: { id: string }) {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState("");
+  const [cName, setCName] = useState("");
+  const [cPrice, setCPrice] = useState("");
   const poll = useRef<ReturnType<typeof setInterval>>(undefined);
 
   // Techs can't read tickets in general; tech_ticket shows just this one (no client phone).
@@ -57,6 +59,18 @@ export default function TechTicket({ id }: { id: string }) {
     setBusy(true);
     try { await rpc("tech_add_service", { p_ticket: id, p_line: crypto.randomUUID(), p_service: s.id }); await load(); say(t("added", { name: s.name })); }
     catch (e) { say((e as Error).message.includes("paid") ? t("paid") : (e as Error).message); }
+    setBusy(false);
+  };
+  // Not on the menu: the tech types a name + price (logged with their name, desk can still change the price).
+  const addCustom = async () => {
+    const cents = parseDollars(cPrice);
+    const name = cName.trim();
+    if (!name || name.length > 60 || cents === null || cents > 100000) { say(t("customBad")); return; }
+    setBusy(true);
+    try {
+      await rpc("tech_add_custom", { p_ticket: id, p_line: crypto.randomUUID(), p_name: name, p_cents: cents, p_minutes: 15 });
+      await load(); setCName(""); setCPrice(""); say(t("added", { name }));
+    } catch (e) { say((e as Error).message.includes("paid") ? t("paid") : (e as Error).message); }
     setBusy(false);
   };
   const remove = async (l: Line) => {
@@ -127,7 +141,14 @@ export default function TechTicket({ id }: { id: string }) {
               </button>
             ))}
           </div>
+          <div className="eyebrow">{t("customTitle")}</div>
+          <div className="group" style={{ padding: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <input className="inp" style={{ flex: "2 1 160px" }} placeholder={t("customName")} aria-label={t("customName")} maxLength={60} value={cName} onChange={(e) => setCName(e.target.value)} data-testid="custom-name" />
+            <input className="inp num" style={{ flex: "1 1 90px" }} inputMode="decimal" placeholder="$0.00" aria-label={t("customPrice")} value={cPrice} onChange={(e) => setCPrice(e.target.value)} data-testid="custom-price" />
+            <Button variant="primary" disabled={busy || !cName.trim() || !cPrice.trim()} onClick={() => void addCustom()} data-testid="custom-add">{t("customAdd")}</Button>
+          </div>
           <div className="cap" style={{ textAlign: "center" }}>{t("deskSees")}</div>
+          <div className="cap" style={{ textAlign: "center" }}>{t("logged")}</div>
         </>}
       </div>
       {toast && <Toast>{toast}</Toast>}

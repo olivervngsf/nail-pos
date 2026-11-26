@@ -1933,6 +1933,39 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .si-wk-t { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 2px; }
 .si-wk-t b { font-weight: 600; }
 
+/* Booking details drawer = board "Booking Details Drawer" version E (Nov 26): big time (C) + timeline (A) */
+.ad-hero { margin: -20px -20px 0; padding: 16px 20px 18px; background: var(--surface); display: flex; flex-direction: column; gap: 6px; }
+.ad-time { font-size: 34px; line-height: 40px; font-weight: 700; letter-spacing: -0.03em; margin-top: 4px; }
+.ad-sub { font-size: 15px; }
+.ad-steps { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.ad-steps li { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--ink-soft); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-steps i { display: block; height: 4px; border-radius: 2px; background: var(--line); }
+.ad-steps li.done i { background: var(--jade); }
+.ad-steps li.now i { background: var(--orange); }
+.ad-steps li.now { color: #b5470a; font-weight: 600; }
+.ad-who { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.ad-who > span { flex: 1; min-width: 0; }
+.ad-link { font-size: 13px; font-weight: 600; color: var(--ink); }
+.ad-svc .grow { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ad-svc .grow b { font-weight: 600; }
+.ad-total { background: var(--surface); }
+.ad-total .num { font-size: 20px; font-weight: 700; }
+.ad-facts { line-height: 20px; }
+.drawer-f > .ad-acts { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.ad-two { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; }
+.ad-big { min-height: 60px; border: 0; border-radius: 14px; background: var(--fill); color: var(--ink); font: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 8px; cursor: pointer; }
+.ad-big b { font-size: 16px; font-weight: 600; }
+.ad-big span { font-size: 12px; color: var(--ink-soft); }
+.ad-big.primary { background: var(--ink); color: #fff; }
+.ad-big.primary span { color: #c7c7cc; }
+.ad-row { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; }
+.ad-tile { min-height: 56px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font: inherit; font-size: 13px; font-weight: 600; color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; }
+.ad-tile svg { width: 20px; height: 20px; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.ad-tile.ad-cancel { color: var(--red); }
+.ad-big:hover, .ad-tile:hover { filter: brightness(0.97); }
+.ad-note { font-size: 12px; color: var(--ink-soft); text-align: center; }
+.ck-byphone { margin-left: 6px; height: 20px; font-size: 11px; padding: 0 8px; vertical-align: middle; }
+
 /* ---------- Left menu: hide / show (top bar sidebar button, src/lib/menuFold.ts) ----------
    Button only on screens that have a left menu, 600px+ (phones use the bottom tab bar). Per device. */
 .menu-tg { display: none; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; margin-left: -8px; padding: 0;
