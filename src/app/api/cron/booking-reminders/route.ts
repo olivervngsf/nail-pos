@@ -1,10 +1,11 @@
-// Hourly job (GitHub Actions "Scheduled texts"): booking reminders 1 day and 2 hours before, by email and/or text,
+// Every minute (the database's own job, see src/lib/server/cron.ts) + the half-hourly GitHub "Scheduled texts" job: booking reminders 1 day and 2 hours before, by email and/or text,
 // to the contact typed for that booking. The database hands out only what is due, once, never at night, never for a
 // canceled booking (booking_reminders_claim). Email: Resend. Text: sendText (salon's own number + recorded yes only;
 // until the salon has a number it is logged as skipped). Needs CRON_SECRET like /api/cron/invite-reminders.
 import { asServer, fail, originOf } from "@/lib/server/pay";
 import { sendEmail } from "@/lib/server/email";
 import { sendText } from "@/lib/server/sms";
+import { cronAuth } from "@/lib/server/cron";
 import { manageUrl, reminderEmail, reminderSms, type Notice, type ReminderKind } from "@/lib/booking/notice";
 
 export const runtime = "nodejs";
@@ -13,11 +14,9 @@ export const dynamic = "force-dynamic";
 type Due = { id: number; channel: "email" | "sms"; to: string | null; kind: ReminderKind; token: string; notice: (Notice & { salon: Notice["salon"] & { id: string } }) | null };
 
 async function run(req: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return fail(503, "CRON_SECRET not set.");
-  if (req.headers.get("authorization") !== `Bearer ${secret}`) return fail(401, "Not allowed.");
   const db = asServer();
   if (!db) return fail(503, "Server key missing.");
+  if (!(await cronAuth(req, db, originOf(req)))) return fail(401, "Not allowed.");
 
   const { data, error } = await db.rpc("booking_reminders_claim", { p_limit: 100 });
   if (error) return fail(500, error.message);
