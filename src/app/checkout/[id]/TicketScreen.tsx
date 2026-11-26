@@ -760,14 +760,15 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
           <button type="button" className="opt" data-testid="receipt-print" onClick={() => { logReceipt(ticket, "print"); setTimeout(() => window.print(), 50); say(t("printed")); }}>{canBluetooth() ? t("printWindow") : t("print")}<span className="grow" /><span className="cap">›</span></button>
           <button type="button" className="opt" onClick={() => { if (!ticket.client?.phone) return say(t("noPhone")); logReceipt(ticket, "text", ticket.client.phone); say(t("textLater")); }}>
             {t("text")}<span className="grow" /><span className="cap num">{ticket.client?.phone ? fmtPhone(ticket.client.phone) : ""} ›</span></button>
-          <button type="button" className="opt" onClick={() => setEmail("")}>{t("email")}<span className="grow" /><span className="cap">›</span></button>
+          <button type="button" className="opt" data-testid="receipt-email" onClick={() => setEmail(ticket.client?.email ?? ticket.receiptTo ?? "")}>
+            {t("email")}<span className="grow" /><span className="cap">{ticket.client?.email ?? ""} ›</span></button>
           <button type="button" className="opt" style={{ color: "var(--ink-soft)" }} onClick={() => logReceipt(ticket, "none")}>{t("noReceipt")}</button>
         </div>
         {email !== null && <div style={{ display: "flex", gap: 8 }}>
-          <input className="inp" type="email" placeholder={t("emailPh")} aria-label={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Button disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => { logReceipt(ticket, "email", email); setEmail(null); say(t("textLater")); }}>{t("send")}</Button>
+          <input className="inp" type="email" data-testid="receipt-email-input" placeholder={t("emailPh")} aria-label={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Button disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => { logReceipt(ticket, "email", email.trim()); setEmail(null); say(t("textLater")); }}>{t("send")}</Button>
         </div>}
-        {ticket.receipt && <div className="cap">✓ {t(ticket.receipt === "none" ? "noReceipt" : ticket.receipt)}</div>}
+        {ticket.receipt && <div className="cap" data-testid="receipt-done">✓ {t(ticket.receipt === "none" ? "noReceipt" : ticket.receipt)}{ticket.receiptTo ? ` · ${ticket.receipt === "text" ? fmtPhone(ticket.receiptTo) : ticket.receiptTo}` : ""}</div>}
         <div className="cap">{t("receiptLang")}</div>
         <div style={{ flex: 1 }} />
         {ticket.status === "paid" && <Button variant="ghost" data-testid="refund" onClick={() => setRefunding(true)}>{t("refund")}</Button>}
