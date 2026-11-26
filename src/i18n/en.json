@@ -1914,7 +1914,30 @@
     "signIn": "How I sign in",
     "techApp": "My tickets, bookings + earnings",
     "onDevice": "{name} is using this salon device. Change your PIN from the faces screen; your full profile is on your own phone.",
-    "demo": "Test version: changes stay on this device."
+    "demo": "Test version: changes stay on this device.",
+    "titleShort": "Profile",
+    "nameShort": "Name",
+    "phone": "Cell phone",
+    "signInTag": "Sign-in",
+    "role": "Role",
+    "nameHint": "The salon sees this name on tickets, the calendar and pay slips. Your phone is how you sign in; to change it, ask support.",
+    "thisDevice": "This device",
+    "signInPin": "Sign in + PIN",
+    "pinShort": "PIN",
+    "signInShort": "Sign in",
+    "signInWays": "Email · password · 2-step",
+    "signOutHere": "Sign out",
+    "photoAdd": "Add photo",
+    "photoChange": "Edit photo",
+    "photoRemove": "Remove photo",
+    "photoSaving": "Saving…",
+    "photoSaved": "Photo saved",
+    "photoRemoved": "Photo removed",
+    "photoOffline": "Needs internet to save a photo.",
+    "photoBad": "Pick a photo (JPG or PNG).",
+    "langHint": "Changes this device's screens right away. Clients always see their own language on receipts and the booking page.",
+    "sizeHint": "Bigger text on this device only. Other devices keep their own size.",
+    "signInHint": "Your phone number always works. An email or password is a second way in; 2-step adds a code from an app."
   },
   "faces": {
     "gone": "This device was removed from the salon. Set it up again to use PINs here.",
@@ -2014,7 +2037,8 @@
       "pay": "Taking payments",
       "clients": "Clients & booking",
       "money": "Pay the team",
-      "safety": "Safety + records"
+      "safety": "Safety + records",
+      "running": "Running the salon"
     },
     "nav": {
       "profile": "My profile",
@@ -2040,6 +2064,9 @@
       "reminders": "Booking reminders",
       "contact": "Call + text clients",
       "activity": "Activity log",
+      "pin": "PIN",
+      "language": "Language",
+      "textSize": "Text size",
       "roles": "Roles"
     },
     "needPin": "Owner or manager only",
@@ -2541,7 +2568,23 @@
     "who": "Salon settings: owner + manager",
     "close": "Close",
     "search": "Search settings",
-    "noMatch": "Nothing matches."
+    "noMatch": "Nothing matches.",
+    "notSaved": "Not saved",
+    "undo": "Undo",
+    "save": "Save",
+    "saving": "Saving…",
+    "lockDevice": "Lock this device",
+    "list": {
+      "profile": "Profile",
+      "billing": "Plan + billing"
+    },
+    "val": {
+      "services": "{n} services",
+      "people": "{n} people",
+      "stripeOk": "Stripe ✓",
+      "notSet": "Not set up",
+      "devicesOn": "{on} of {n} on"
+    }
   },
   "promo": {
     "title": "Send promo text",
@@ -3012,6 +3055,11 @@
     "title": "What’s new",
     "sub": "The latest changes to PolishOS, newest first.",
     "items": [
+      {
+        "date": "Nov 26",
+        "title": "Settings like Claude + profile photo",
+        "body": "On phones and iPads, Settings is a list: tap a row, ‹ to go back, ✓ to save. Profile → Edit photo adds your picture to your avatar."
+      },
       {
         "date": "Nov 26",
         "title": "Clearer receipt choices",

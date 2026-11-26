@@ -1,6 +1,7 @@
 "use client";
 // Owner / manager: what every printout shows. Pick a printout (client receipt, staff slip, ticket slip), turn parts
 // on/off, see the paper change on the right (the same lines the printer prints), save for the whole salon, print a test.
+import { SaveCheck } from "../SettingsShell";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Field, LeftMenu, OfflineBanner, Segmented, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
@@ -109,7 +110,7 @@ export default function PrinterSettings() {
                   value={draft.receipt.thanks} onChange={(e) => set("receipt", { thanks: e.target.value })} /></div>}
               </div>
               <div style={{ display: "flex", gap: 8 }}>
-                <Button variant="primary" data-testid="ps-save" disabled={!changed || busy} onClick={() => void doSave()}>{t("save")}</Button>
+                <SaveCheck dirty={changed} busy={busy} onSave={() => void doSave()} testId="ps-save" />
                 <Button onClick={() => setDraft(PRINT_DEFAULTS)}>{t("reset")}</Button>
                 <span style={{ flex: 1 }} />
                 <Button data-testid="ps-test" onClick={() => void test()}>{t("test")}</Button>

@@ -11,10 +11,12 @@ import { amPlatformAdmin, myEmail, rpc, signOut, SMS_ON } from "@/lib/auth";
 import { setActing } from "@/lib/desk";
 import { deviceCode } from "@/lib/deviceInfo";
 import { isAdminRole, useMe } from "@/lib/me";
+import { useMyPhoto } from "@/lib/photo";
 import { IC, LangAndSize, LangRow, PmRow, SizeRow, SUPPORT_MAIL, useMyTime } from "@/components/ProfileMenu";
 
 const initials = (n: string) => n.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
-const Avatar = ({ name, large }: { name: string; large?: boolean }) => <span className={large ? "av lg" : "av"} aria-hidden>{initials(name)}</span>;
+// eslint-disable-next-line @next/next/no-img-element -- own profile photo (public link or data: URL)
+const Avatar = ({ name, large, src }: { name: string; large?: boolean; src?: string }) => <span className={`${large ? "av lg" : "av"}${src ? " has-photo" : ""}`} aria-hidden>{src ? <img src={src} alt="" /> : initials(name)}</span>;
 
 /** Lock the salon device: forget who is working, log it, show the faces screen. */
 export async function lockDevice(deviceId: string | undefined, membershipId: string | undefined) {
@@ -27,6 +29,7 @@ export default function RailAccount({ initial }: { initial?: string }) {
   const f = useFormatter();
   const router = useRouter();
   const { me, device, acting, isDevice } = useMe();
+  const photo = useMyPhoto();
   const [open, setOpen] = useState(false);
   const [sub, setSub] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -69,7 +72,7 @@ export default function RailAccount({ initial }: { initial?: string }) {
   return (
     <div className="rail-acct" ref={box}>
       <button type="button" className="rail-acct-btn" aria-haspopup="menu" aria-expanded={open} aria-label={t("menu")} data-testid="account-menu" onClick={() => setOpen((o) => !o)}>
-        <Avatar name={name || "?"} />
+        <Avatar name={name || "?"} src={isDevice ? undefined : photo} />
       </button>
       {open && (
         <div className="rail-pop pm" role="menu" aria-label={t("menu")} data-testid="account-pop">

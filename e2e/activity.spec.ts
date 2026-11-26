@@ -31,24 +31,38 @@ test("activity log: filter, details, export", async ({ page }) => {
 });
 
 
-// Nov 26 (like Claude): tap your profile → pop-up → Settings opens as a window (computer) or a sheet with
-// swipeable tabs (phone), with search; X goes back to where you were.
+// Nov 26 (like Claude): tap your profile → pop-up → Settings opens as a window with the menu beside the page
+// (computer), or as a list → page (phone / upright tablet: ‹ back, search on the list); X goes back to where you were.
 test("profile pop-up opens Settings as a window; search + close", async ({ page }, info) => {
   await page.goto("/checkout");
   if (info.project.name === "desktop") {
     await page.getByTestId("account-menu").click();
     await expect(page.getByTestId("account-pop")).toContainText("Activity log");
     await page.getByTestId("go-activity").click();
-  } else {
-    await page.goto("/settings/activity"); // phones reach it from More
+    await expect(page).toHaveURL(/\/settings\/activity/);
+    await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
+    await expect(page.getByTestId("nav-activity")).toBeVisible();
+    await page.getByTestId("settings-search").fill("print");
+    await expect(page.getByTestId("nav-printer")).toBeVisible();
+    await expect(page.getByTestId("nav-team")).toHaveCount(0);
+    await page.getByTestId("settings-close").click();
+    await expect(page).toHaveURL(/\/checkout/);
+    return;
   }
+  // phones: Settings = a list; a row opens its page; ‹ goes back to the list; X closes
+  await page.goto("/settings");
+  await expect(page.getByTestId("settings-list")).toBeVisible();
+  await expect(page.getByTestId("settings-account")).toBeVisible();
+  // "Safety + records" opens its short list, then Activity log (board: 13 rows, Running the salon rows open a list)
+  await page.getByTestId("row-safety").click();
+  await expect(page).toHaveURL(/\/settings\/more\/safety$/);
+  await page.getByTestId("row-activity").click();
   await expect(page).toHaveURL(/\/settings\/activity/);
-  await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
-  const item = info.project.name === "desktop" ? "nav" : "tab";
-  await expect(page.getByTestId(`${item}-activity`)).toBeVisible();
+  await page.getByTestId("bar-back").click();
+  await expect(page).toHaveURL(/\/settings$/);
   await page.getByTestId("settings-search").fill("print");
-  await expect(page.getByTestId(`${item}-printer`)).toBeVisible();
-  await expect(page.getByTestId(`${item}-team`)).toHaveCount(0);
+  await expect(page.getByTestId("row-printer")).toBeVisible();
+  await expect(page.getByTestId("row-team")).toHaveCount(0);
   await page.getByTestId("settings-close").click();
-  await expect(page).toHaveURL(info.project.name === "desktop" ? /\/checkout/ : /\/today/);
+  await expect(page).toHaveURL(/\/today/);
 });
