@@ -1752,3 +1752,32 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .biz-confirm{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.45;cursor:pointer}
 .biz-confirm input{width:20px;height:20px;margin-top:2px;flex:none}
 @media (max-width:599px){.biz{padding:16px}}
+/* Settings pages: airy, Apple-like (Oliver, Nov 26: "less dense"). Only inside the Settings window, so desk screens stay compact. */
+.set-win .set-main, .set-win .me-main { gap: 24px; padding-top: 8px; padding-bottom: 40px; }
+.set-win .card.pad { padding: 22px 24px; }
+.set-win .card.pad[style*="gap"] { gap: 16px !important; }
+.set-win .group > .opt, .set-win .group > .row, .set-win .group > button.opt { min-height: 60px; padding-left: 20px; padding-right: 20px; }
+.set-win .set-row { min-height: 68px; }
+.set-win .eyebrow { margin: 8px 0 -12px 4px; }
+.set-win .cap { line-height: 20px; }
+.set-win .lbl { margin-bottom: 8px; }
+.set-win .set-sec { padding: 20px; gap: 16px; }
+.set-win .set-chips { gap: 8px; }
+.set-win .act-tiles { gap: 14px; }
+.set-win .act-tile { padding: 16px 18px; gap: 4px; }
+.set-win .act-row { min-height: 60px; padding: 10px 20px; }
+.set-win .act-row.head { min-height: 40px; }
+.set-win .act-bar { gap: 10px; }
+.set-win .dtable td { height: 52px; }
+.set-win .dtable th { height: 40px; }
+@media (max-width: 599px) {
+  .set-win .set-main, .set-win .me-main { gap: 20px; padding: 6px 16px 32px; }
+  .set-win .card.pad { padding: 18px; }
+  .set-win .group > .opt, .set-win .group > .row, .set-win .group > button.opt { padding-left: 16px; padding-right: 16px; }
+}
+@media (max-width: 599px) {
+  .set-win .bar { height: 52px; padding: 0 16px; }
+  .set-win .bar .pill.ok { display: none; } /* plain "Saved" hidden on phones; offline / stuck still show */
+  .set-win .set-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .set-win .set-chips .chip { flex: none; }
+}
