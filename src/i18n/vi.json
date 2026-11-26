@@ -2035,7 +2035,8 @@
       "pay": "Nhận tiền",
       "clients": "Khách & đặt lịch",
       "money": "Trả lương",
-      "safety": "An toàn + hồ sơ"
+      "safety": "An toàn + hồ sơ",
+      "running": "Điều hành tiệm"
     },
     "nav": {
       "profile": "Hồ sơ của tôi",
@@ -2568,7 +2569,18 @@
     "undo": "Hoàn tác",
     "save": "Lưu",
     "saving": "Đang lưu…",
-    "lockDevice": "Khoá thiết bị này"
+    "lockDevice": "Khoá thiết bị này",
+    "list": {
+      "profile": "Hồ sơ",
+      "billing": "Gói + thanh toán"
+    },
+    "val": {
+      "services": "{n} dịch vụ",
+      "people": "{n} người",
+      "stripeOk": "Stripe ✓",
+      "notSet": "Chưa cài",
+      "devicesOn": "{on}/{n} đang bật"
+    }
   },
   "promo": {
     "title": "Gửi tin khuyến mãi",

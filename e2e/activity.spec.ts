@@ -53,6 +53,9 @@ test("profile pop-up opens Settings as a window; search + close", async ({ page 
   await page.goto("/settings");
   await expect(page.getByTestId("settings-list")).toBeVisible();
   await expect(page.getByTestId("settings-account")).toBeVisible();
+  // "Safety + records" opens its short list, then Activity log (board: 13 rows, Running the salon rows open a list)
+  await page.getByTestId("row-safety").click();
+  await expect(page).toHaveURL(/\/settings\/more\/safety$/);
   await page.getByTestId("row-activity").click();
   await expect(page).toHaveURL(/\/settings\/activity/);
   await page.getByTestId("bar-back").click();

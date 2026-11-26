@@ -137,7 +137,8 @@ function Info({ a }: { a: Access }) {
 
       <div className="eyebrow">{L("More from setup", "Các mục khác từ lúc cài đặt")}</div>
       <div className="group">
-        {([["/settings/menu", L("Service menu", "Bảng dịch vụ"), L("Services, prices, minutes", "Dịch vụ, giá, thời gian")],
+        {([["/settings/business", L("Business details", "Thông tin doanh nghiệp"), L("Legal name, EIN, texting sign-up", "Tên pháp lý, EIN, đăng ký nhắn tin")],
+           ["/settings/menu", L("Service menu", "Bảng dịch vụ"), L("Services, prices, minutes", "Dịch vụ, giá, thời gian")],
            ["/settings/team", L("Team", "Nhân viên"), L("Staff, roles, pay, PIN", "Thợ, vai trò, lương, PIN")],
            ["/settings/payments", L("Payments", "Thanh toán"), L("Stripe account", "Tài khoản Stripe")],
            ["/settings/reader", L("Card reader", "Máy quẹt thẻ"), L("Pair or remove", "Kết nối hoặc gỡ")],

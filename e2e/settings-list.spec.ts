@@ -54,6 +54,12 @@ test("phones + tablets: Settings is a list with values; a row opens its page", a
   await expect(page.getByTestId("settings-list")).toBeVisible();
   await expect(page.getByTestId("row-language")).toContainText("English");
   await expect(page.getByTestId("row-pin")).toContainText("digit");
+  await expect(page.getByTestId("row-devices")).toContainText("2 of 3 on");
+  await expect(page.getByTestId("row-team")).toContainText("people");
+  await expect(page.locator(".set-lrow")).toHaveCount(13); // the board's list: 4 + 4 + 5
+  // full screen: the left / bottom menu sits under Settings (never on top of it)
+  const onTop = await page.evaluate(() => [[10, 300], [innerWidth / 2, innerHeight - 10]].some(([x, y]) => !!document.elementFromPoint(x, y)?.closest(".rail")));
+  expect(onTop).toBe(false);
   await expect(page.getByTestId("settings-signout")).toBeVisible();
   await page.getByTestId("settings-account").click();
   await expect(page).toHaveURL(/\/me$/);

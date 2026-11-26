@@ -2035,7 +2035,8 @@
       "pay": "Taking payments",
       "clients": "Clients & booking",
       "money": "Pay the team",
-      "safety": "Safety + records"
+      "safety": "Safety + records",
+      "running": "Running the salon"
     },
     "nav": {
       "profile": "My profile",
@@ -2568,7 +2569,18 @@
     "undo": "Undo",
     "save": "Save",
     "saving": "Saving…",
-    "lockDevice": "Lock this device"
+    "lockDevice": "Lock this device",
+    "list": {
+      "profile": "Profile",
+      "billing": "Plan + billing"
+    },
+    "val": {
+      "services": "{n} services",
+      "people": "{n} people",
+      "stripeOk": "Stripe ✓",
+      "notSet": "Not set up",
+      "devicesOn": "{on} of {n} on"
+    }
   },
   "promo": {
     "title": "Send promo text",

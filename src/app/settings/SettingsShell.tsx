@@ -9,7 +9,11 @@ import { useTranslations } from "next-intl";
 import { Avatar, Button, LeftMenu, OfflineBanner, SyncPill, TopBar } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
 import { lockDevice } from "@/components/RailAccount";
-import { signOut, SMS_ON, type Role } from "@/lib/auth";
+import { rpc, signOut, SMS_ON, type Role } from "@/lib/auth";
+import { DEMO_DESK, type Desk } from "@/lib/desk";
+import { devicesOn } from "@/lib/devices";
+import { fmtPhone } from "@/lib/onboarding/data";
+import { getSupabase } from "@/lib/supabase/client";
 import { cachedRules } from "@/lib/pin";
 import { getTextSize } from "@/lib/textSize";
 import { useMyPhoto } from "@/lib/photo";
@@ -105,22 +109,88 @@ export function rememberSettingsBack(path: string) { try { if (!path.startsWith(
 /** Where a page's ✓ Save goes: the page header (all sizes). Pages render <SaveCheck> and it lands here. */
 export const SAVE_SLOT = "set-save-slot";
 
-/** Right-hand value on a Settings row ("English", "6-digit", "Salon · $49"). Saved on this device, so it shows offline. */
-function useRowValues(): Record<string, string> {
+/** Phones + tablets list (board "Settings like Claude · Tablet", frame 1): 3 groups, 13 rows. Each row in "Running the
+ *  salon" opens a short list of its pages (/settings/more/<group>); Business details sits on Salon info. Search = every page. */
+type LRow = { key: string; href: string; who: Who; label?: string; icon?: string };
+const HUB_ICON: Record<string, string> = { team: "team", pay: "payments", clients: "bookingPage", money: "payouts", safety: "activity" };
+const HUBS = ["team", "pay", "clients", "money", "safety"] as const;
+const ME_ROWS: LRow[] = [
+  { key: "profile", href: "/me", who: "all", label: "list.profile" },
+  { key: "pin", href: "/me/pin", who: "all" }, { key: "language", href: "/me/language", who: "all" }, { key: "textSize", href: "/me/text-size", who: "all" },
+];
+const SALON_ROWS: LRow[] = [
+  { key: "salon", href: "/settings/salon", who: "admin" }, { key: "menu", href: "/settings/menu", who: "admin" },
+  { key: "devices", href: "/settings/devices", who: "admin" }, { key: "billing", href: "/settings/billing", who: "admin", label: "list.billing" },
+];
+/** The pages behind one "Running the salon" row, for this role. */
+const hubItems = (g: string, role: Role) => NAV.filter((n) => n.group === g && canOpen(n.who, role));
+
+const ICO = ({ k }: { k: string }) => <svg className="set-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={ICON[k] ?? ICON.menu} /></svg>;
+
+/** One card of rows: icon · name · value · ›. */
+function RowCard({ rows, vals }: { rows: { key: string; href: string; name: string; icon?: string }[]; vals: Record<string, string> }) {
+  return (
+    <div className="set-lcard">
+      {rows.map((r) => (
+        <Link key={r.href} href={r.href} className="set-lrow" data-testid={`row-${r.key}`}>
+          <ICO k={r.icon ?? r.key} />
+          <span className="set-lrow-t">{r.name}</span>
+          {vals[r.key] && <span className="set-lrow-v">{vals[r.key]}</span>}
+          <span className="set-chev" aria-hidden>›</span>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+/** Right-hand value on a row ("English", "6-digit", "42 services", "2 of 3 on", "Stripe ✓"). From what this device
+ *  already saved (desk cache), so it shows offline; devices are re-checked when online. */
+function useRowValues(role: Role): Record<string, string> {
+  const t = useTranslations("settings.val");
   const ta = useTranslations("account");
   const { lang } = useLang();
   const { me } = useMe();
   const [v, setV] = useState<Record<string, string>>({});
   useEffect(() => {
-    const size = getTextSize();
-    setV({
+    if (!me) return;
+    const salon = me.salonId;
+    const desk: Desk | null = !SMS_ON ? DEMO_DESK : (() => { try { const r = localStorage.getItem(`nailpos.desk.${salon}`); return r ? (JSON.parse(r) as Desk) : null; } catch { return null; } })();
+    const devKey = `nailpos.devOn.${salon}`;
+    const devText = (on: number, n: number) => (n ? t("devicesOn", { on, n }) : "");
+    let dev = "";
+    try { dev = localStorage.getItem(devKey) || ""; } catch { /* */ }
+    const base: Record<string, string> = {
       language: lang === "vi" ? "Tiếng Việt" : "English",
-      textSize: ta(`size.${size}`),
-      pin: me ? `${cachedRules(me.salonId).length}-digit` : "",
+      textSize: ta(`size.${getTextSize()}`),
+      pin: `${cachedRules(salon).length}-digit`,
       billing: ta("planSalon"),
-    });
-  }, [lang, me, ta]);
+    };
+    if (isAdminRole(role)) {
+      if (desk?.services?.length) base.menu = t("services", { n: desk.services.length });
+      if (desk?.staff?.length) base.team = t("people", { n: desk.staff.length });
+      if (desk) base.pay = desk.pay?.ready ? t("stripeOk") : t("notSet");
+      base.devices = !SMS_ON ? devText(2, 3) : dev;
+    }
+    setV(base);
+    if (SMS_ON && isAdminRole(role) && navigator.onLine) {
+      void rpc<{ last_seen: string | null }[]>("devices_list", { p_salon: salon }).then((list) => {
+        const txt = devText(devicesOn(list.map((d) => d.last_seen), Date.now()), list.length);
+        try { localStorage.setItem(devKey, txt); } catch { /* */ }
+        setV((cur) => ({ ...cur, devices: txt }));
+      }).catch(() => { /* offline or not allowed: keep the saved one */ });
+    }
+  }, [lang, me, role, t, ta]);
   return v;
+}
+
+/** The sign-in phone of this login, for the account card ("Owner · Lotus Nails · (408) 555-0101"). */
+function useMyPhone(): string {
+  const [p, setP] = useState(SMS_ON ? "" : "(408) 555-0101");
+  useEffect(() => {
+    if (!SMS_ON) return;
+    void getSupabase()?.auth.getUser().then(({ data }) => setP(data.user?.phone ? fmtPhone(data.user.phone.replace(/^1/, "")) : "")).catch(() => {});
+  }, []);
+  return p;
 }
 
 /** Phones + upright tablets: Settings opens as a list (Claude's iPad app): your card, then grouped rows with a value
@@ -131,41 +201,68 @@ function SettingsList({ role, q }: { role: Role; q: string }) {
   const router = useRouter();
   const { me, isDevice, device, acting } = useMe();
   const photo = useMyPhoto();
-  const items = useItems(role, q);
-  const vals = useRowValues();
-  const extra = [ // Me rows that open small pages of My profile
-    { href: "/me/pin", key: "pin", group: "me" }, { href: "/me/language", key: "language", group: "me" }, { href: "/me/text-size", key: "textSize", group: "me" },
-  ].filter((n) => !q.trim() || t(`nav.${n.key}`).toLowerCase().includes(q.trim().toLowerCase()));
-  const all = [...items.slice(0, 1), ...extra, ...items.slice(1)];
-  const groups = GROUPS.map((g) => ({ g, items: all.filter((n) => n.group === g) })).filter((x) => x.items.length);
+  const phone = useMyPhone();
+  const vals = useRowValues(role);
+  const words = q.trim().toLowerCase();
+  const name = (r: LRow) => t(r.label ?? `nav.${r.key}`);
+  const groups: { g: string; rows: { key: string; href: string; name: string; icon?: string }[] }[] = words
+    ? [{ g: "", rows: [...ME_ROWS.map((r) => ({ ...r, name: name(r) })), ...NAV.filter((n) => n.href !== "/me" && canOpen(n.who, role)).map((n) => ({ key: n.key, href: n.href, name: t(`nav.${n.key}`) }))]
+        .filter((r) => r.name.toLowerCase().includes(words)) }]
+    : [
+        { g: "me", rows: ME_ROWS.filter((r) => canOpen(r.who, role)).map((r) => ({ ...r, name: name(r) })) },
+        { g: "salon", rows: SALON_ROWS.filter((r) => canOpen(r.who, role)).map((r) => ({ ...r, name: name(r) })) },
+        { g: "running", rows: HUBS.map((g) => ({ g, items: hubItems(g, role) })).filter((h) => h.items.length).map(({ g, items }) => ({
+            key: g, name: t(`group.${g}`), icon: HUB_ICON[g], href: items.length === 1 ? items[0].href : `/settings/more/${g}` })) },
+      ];
+  const shown = groups.filter((x) => x.rows.length);
   return (
     <div className="set-list" data-testid="settings-list">
-      {me && !q.trim() && (
+      {me && !words && (
         <Link href="/me" className="set-acct" data-testid="settings-account">
           <Avatar name={me.name} src={isDevice ? undefined : photo} />
-          <span className="set-acct-t"><b>{me.name}</b><span>{ta(`role.${me.role}`)} · {me.salonName}</span></span>
+          <span className="set-acct-t"><b>{me.name}</b><span>{[ta(`role.${me.role}`), me.salonName, isDevice ? "" : phone].filter(Boolean).join(" · ")}</span></span>
           <span className="set-chev" aria-hidden>›</span>
         </Link>
       )}
-      {groups.map(({ g, items }) => (
-        <div key={g} className="set-lgroup">
-          <div className="set-lgroup-h">{t(`group.${g}`)}</div>
-          <div className="set-lcard">
-            {items.map((n) => (
-              <Link key={n.href} href={n.href} className="set-lrow" data-testid={`row-${n.key}`}>
-                <svg className="set-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={ICON[n.key] ?? ICON.menu} /></svg>
-                <span className="set-lrow-t">{t(`nav.${n.key}`)}</span>
-                {vals[n.key] && <span className="set-lrow-v">{vals[n.key]}</span>}
-                <span className="set-chev" aria-hidden>›</span>
-              </Link>
-            ))}
-          </div>
+      {shown.map(({ g, rows }) => (
+        <div key={g || "found"} className="set-lgroup">
+          {g && <div className="set-lgroup-h">{t(`group.${g}`)}</div>}
+          <RowCard rows={rows} vals={vals} />
         </div>
       ))}
-      {!groups.length && <p className="cap" style={{ padding: "8px 4px" }}>{t("noMatch")}</p>}
-      {!q.trim() && (isDevice
+      {!shown.length && <p className="cap" style={{ padding: "8px 4px" }}>{t("noMatch")}</p>}
+      {!words && (isDevice
         ? <button type="button" className="set-lcard set-danger" data-testid="settings-lock" onClick={async () => { await lockDevice(device?.id, acting?.membership_id); router.push("/desk"); }}>{t("lockDevice")}</button>
         : <button type="button" className="set-lcard set-danger" data-testid="settings-signout" onClick={async () => { await signOut(); router.replace("/login"); }}>{ta("signOut")}</button>)}
+    </div>
+  );
+}
+
+/** /settings/more/<group>: the pages behind one "Running the salon" row (phones + tablets). Computers have the menu
+ *  beside every page, so they go straight to the group's first page. */
+export function SettingsGroupPage({ group }: { group: string }) {
+  const t = useTranslations("settings");
+  const router = useRouter();
+  const { me, isDevice, acting, ready } = useMe();
+  const role: Role | null = me ? (isDevice ? (acting?.role ?? "tech") : me.role) : null;
+  const items = role ? hubItems(group, role) : [];
+  const first = items[0]?.href ?? "";
+  const vals = useRowValues(role ?? "tech");
+  useEffect(() => {
+    if (!ready) return;
+    if (!me) { router.replace(`/login?next=/settings/more/${group}`); return; }
+    if (!(HUBS as readonly string[]).includes(group) || !first) { router.replace("/settings"); return; }
+    if (window.matchMedia("(min-width: 900px)").matches) router.replace(first);
+  }, [ready, me, group, first, router]);
+  if (!me || !role || !items.length) return <div className="app" aria-busy="true" />;
+  return (
+    <div className="app set-app">
+      <LeftMenu active="Me" salonInitials={me.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={me.name} />
+      <SettingsWindow role={role} title={t(`group.${group}`)}>
+        <main className="set-main set-more" data-testid="settings-more">
+          <RowCard rows={items.map((n) => ({ key: n.key, href: n.href, name: t(`nav.${n.key}`) }))} vals={vals} />
+        </main>
+      </SettingsWindow>
     </div>
   );
 }

@@ -2039,12 +2039,13 @@ body:has(.faces .scrim) .clock-qr { display: none; }
   .set-acct-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
   .set-acct-t b { font-size: 18px; font-weight: 600; }
   .set-acct-t span { font-size: 14px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .set-lgroup-h { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); padding: 0 4px 8px; }
+  .set-lgroup-h { font-size: 11px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 0 16px 6px; }
   .set-lcard { display: flex; flex-direction: column; border-radius: 16px; background: var(--paper); overflow: hidden; border: 0; }
   .set-lrow { display: flex; align-items: center; gap: 14px; min-height: 54px; padding: 0 0 0 16px; color: var(--ink); text-decoration: none; font-size: 16px; }
   .set-lrow .set-ico { width: 22px; height: 22px; flex: none; color: var(--ink-soft); }
   .set-lrow-t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; align-self: stretch; display: flex; align-items: center; }
-  .set-lrow + .set-lrow .set-lrow-t, .set-lrow + .set-lrow .set-lrow-v, .set-lrow + .set-lrow .set-chev { box-shadow: inset 0 1px 0 var(--line); }
+  .set-lrow + .set-lrow { position: relative; }
+  .set-lrow + .set-lrow::before { content: ""; position: absolute; top: 0; left: 52px; right: 0; height: 1px; background: var(--line); } /* one unbroken hairline, from the text to the edge */
   .set-lrow-v { font-size: 15px; color: var(--ink-soft); align-self: stretch; display: flex; align-items: center; white-space: nowrap; }
   .set-chev { color: var(--muted); font-size: 20px; padding-right: 16px; align-self: stretch; display: flex; align-items: center; }
   .set-acct .set-chev { padding-right: 0; }
@@ -2076,8 +2077,34 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .me-link:hover { background: transparent; }
 .me-card .me-link:active { background: var(--fill); }
 .me-choice .me-k { color: var(--ink); width: auto; }
-.me-h { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); padding: 0 4px 8px; }
+.me-h { font-size: 11px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); padding: 0 16px 6px; }
 .me-hint { margin: 8px 4px 0; font-size: 13px; line-height: 18px; color: var(--ink-soft); }
 .me-danger { min-height: 54px; align-items: center; justify-content: center; font: inherit; font-size: 16px; font-weight: 500; color: var(--red); cursor: pointer; }
 .me-pin { display: flex; flex-direction: column; gap: 10px; max-width: 420px; }
 @media (max-width: 599px) { .me-k { width: 104px; } }
+/* iPhone/iPad Safari: never blow small text up on its own (it made the Settings group headings look loud). */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* Settings on phones + tablets = full screen over the whole app (board "Settings like Claude · Tablet", Oliver Nov 26:
+   "one is the full screen, one still shows the nav"): no left menu, no bottom menu. Tablets: a sheet on a grey dim with
+   even space around it; phones: edge to edge. Title centred on the sheet; slim search; quiet list. */
+@media (max-width: 899px) {
+  .set-scrim { left: 0; z-index: 40; background: rgba(28, 28, 30, .32); }
+  .set-win { z-index: 41; }
+  .set-win-h .set-x-pad { flex: none; width: 44px; }
+  .set-search { height: 36px; border-radius: 10px; }
+  .set-win.is-home .set-list { scrollbar-width: none; gap: 20px; }
+  .set-win.is-home .set-list::-webkit-scrollbar { display: none; }
+  .set-acct { padding: 10px 14px; gap: 12px; border-radius: 14px; }
+  .set-acct .av { width: 40px; height: 40px; font-size: 15px; }
+  .set-acct-t b { font-size: 16px; }
+  .set-acct-t span { font-size: 13px; }
+  .set-lrow { min-height: 50px; font-size: 16px; }
+  .set-lrow-v { font-size: 15px; }
+  .set-more { padding-top: 8px !important; }
+}
+@media (min-width: 600px) and (max-width: 899px) {
+  .set-win { top: 24px; bottom: 24px; left: max(24px, (100vw - 720px) / 2); right: max(24px, (100vw - 720px) / 2); }
+}
+@media (max-width: 599px) {
+  .set-win { inset: 0; border-radius: 0; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+}
