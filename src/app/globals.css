@@ -286,7 +286,7 @@ button:disabled { cursor: not-allowed; }
 @media (max-width: 899px) { .cal-wsep { display: block; order: -1; } }
 .cal-cscroll { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 .cal-cscroll::-webkit-scrollbar { display: none; }
-.cal-cnt { white-space: nowrap; flex: none; height: 26px; padding: 0 9px; border-radius: 7px; border: 0; background: transparent; font: inherit; font-size: 12px; font-weight: 600; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; flex: none; transition: background .2s; }
+.cal-cnt { white-space: nowrap; flex: none; height: 26px; padding: 0 9px; border-radius: 999px; border: 0; background: transparent; font: inherit; font-size: 12px; font-weight: 600; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; flex: none; transition: background .2s; }
 .cal-cnt:hover { background: #EFEFF2; }
 .cal-cnt.on { background: #1C1C1E; color: #fff; }
 .cal-heads { display: grid; margin-left: 52px; border-bottom: 1px solid var(--line); height: 56px; flex: none; }
@@ -375,7 +375,7 @@ button:disabled { cursor: not-allowed; }
 .cal-rowlbl { font-size: 12px; }
 .cal-cdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 2px; }
 .cal-cn { font-weight: 500; opacity: .65; margin-left: 4px; }
-.cal-key { position: relative; flex: none; display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 10px 0 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); font-size: 12px; font-weight: 600; cursor: help; outline: none; }
+.cal-key { position: relative; flex: none; display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 10px 0 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); font-size: 12px; font-weight: 600; cursor: help; outline: none; }
 .cal-key:focus-visible { box-shadow: 0 0 0 2px var(--ink); }
 .cal-keysw { display: flex; }
 .cal-keysw i, .cal-kr i { width: 12px; height: 12px; border-radius: 4px; border: 1px solid #E5E5EA; background: #fff; margin-left: -3px; box-sizing: border-box; }
@@ -1312,7 +1312,7 @@ html[data-text="larger"] { zoom: 1.2; --vh: calc(100dvh / 1.2); }
 /* bottom pills bar (design .foot + .fbar) */
 .cal-cards .cal-counts { height: 44px; padding: 0 12px; gap: 10px; border-top: 1px solid var(--line); border-bottom: 0; background: #fff; }
 .cal-show { font-size: 12px; }
-.cal-cnt { height: 30px; padding: 0 11px; border-radius: 8px; border: 1px solid var(--line); background: #fff; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); display: inline-flex; align-items: center; gap: 6px; transition: background .15s, color .15s; }
+.cal-cnt { height: 30px; padding: 0 11px; border-radius: 999px; border: 1px solid var(--line); background: #fff; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); display: inline-flex; align-items: center; gap: 6px; transition: background .15s, color .15s; }
 .cal-cnt:hover { background: #F6F6F8; }
 .cal-cnt.on { background: #16161A; border-color: #16161A; color: #fff; }
 .cal-cn { margin-left: 0; }
@@ -1931,7 +1931,103 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .set-win .rem-page { gap: 16px; }
 @media (max-width: 699px) { .rem-page .rem-row .seg { width: 100%; } .rem-page .rem-row .seg button { flex: 1; } }
 
+/* ===== Receipt on the paid screen = design C (Nov 26, board "Paid Screen · Receipt"): one big Print button, then
+   Text · Email · No receipt (each says what's on file), a small card in place, "Sent for this ticket", printer folded away ===== */
+.rc { display: flex; flex-direction: column; gap: 12px; }
+.rc-print { display: flex; align-items: center; gap: 14px; min-height: 84px; padding: 0 18px; border: 0; border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--shadow); font: inherit; color: var(--ink); text-align: left; cursor: pointer; transition: background .2s; }
+.rc-print:hover { background: #FAFAFB; }
+.rc-print:disabled { cursor: default; opacity: .7; }
+.rc-print-ic { flex: none; width: 48px; height: 48px; border-radius: 12px; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; }
+.rc-print-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rc-print-t b { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+.rc-print-t span { font-size: 13px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-chev { flex: none; color: var(--muted); font-size: 20px; }
+.rc-pills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.rc-pill { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 84px; padding: 8px 6px; box-sizing: border-box; border: 1.5px solid transparent; border-radius: var(--r-md); background: var(--paper); box-shadow: var(--shadow); font: inherit; color: var(--ink); cursor: pointer; min-width: 0; }
+.rc-pill b { font-size: 15px; font-weight: 600; }
+.rc-pill small { max-width: 100%; font-size: 12px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-pill.add { background: var(--surface); box-shadow: none; border: 1.5px dashed #C7C7CC; }
+.rc-pill.on { border: 1.5px solid var(--ink); }
+.rc-pill.quiet { color: var(--ink-soft); }
+.rc-pill.quiet b { font-weight: 500; }
+.rc-card { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--shadow); animation: rcIn .25s var(--ease); }
+.rc-card-t { font-size: 15px; font-weight: 600; }
+.rc-to { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.rc-field { display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 600; }
+.rc-field .inp { font-size: 16px; }
+.rc-ghost { align-self: center; border: 0; background: none; padding: 8px 4px; font: inherit; font-size: 14px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+.rc-ghost:hover { color: var(--ink); text-decoration: underline; }
+.rc-sent { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: var(--r-md); background: var(--paper); box-shadow: var(--shadow); }
+.rc-sent-row { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.rc-sent-row .grow { flex: 1; min-width: 0; }
+.rc-prn summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink-soft); padding: 6px 0; }
+.rc-prn[open] { display: flex; flex-direction: column; gap: 8px; padding: 0 0 4px; }
+.rc-prn[open] summary { color: var(--ink); }
+.rc-prn .rc-ghost { align-self: flex-start; padding-left: 0; }
+.prn-inline { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+.prn-inline .prn-paper { display: inline-flex; align-items: center; gap: 8px; }
+.prn-inline .prn-links { display: inline-flex; flex-wrap: wrap; gap: 4px 14px; }
+.prn-inline .link { border: 0; background: none; padding: 6px 0; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+.prn-inline .link:hover { color: var(--ink); text-decoration: underline; }
+@keyframes rcIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .rc-card { animation: none; } }
+@media (pointer: coarse) { .rc-ghost, .prn-inline .link, .rc-prn summary { min-height: 44px; display: flex; align-items: center; font-size: 15px; } }
 /* Settings → Salon info: "Week starts on" row at the top of the hours card (Nov 26). */
 .si-week { padding: 10px 0; flex-wrap: wrap; row-gap: 8px; }
 .si-wk-t { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 2px; }
 .si-wk-t b { font-weight: 600; }
+
+/* Booking details drawer = board "Booking Details Drawer" version E (Nov 26): big time (C) + timeline (A) */
+.ad-hero { margin: -20px -20px 0; padding: 16px 20px 18px; background: var(--surface); display: flex; flex-direction: column; gap: 6px; }
+.ad-time { font-size: 34px; line-height: 40px; font-weight: 700; letter-spacing: -0.03em; margin-top: 4px; }
+.ad-sub { font-size: 15px; }
+.ad-steps { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.ad-steps li { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--ink-soft); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-steps i { display: block; height: 4px; border-radius: 2px; background: var(--line); }
+.ad-steps li.done i { background: var(--jade); }
+.ad-steps li.now i { background: var(--orange); }
+.ad-steps li.now { color: #b5470a; font-weight: 600; }
+.ad-who { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.ad-who > span { flex: 1; min-width: 0; }
+.ad-link { font-size: 13px; font-weight: 600; color: var(--ink); }
+.ad-svc .grow { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ad-svc .grow b { font-weight: 600; }
+.ad-total { background: var(--surface); }
+.ad-total .num { font-size: 20px; font-weight: 700; }
+.ad-facts { line-height: 20px; }
+.drawer-f > .ad-acts { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.ad-two { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; }
+.ad-big { min-height: 60px; border: 0; border-radius: 14px; background: var(--fill); color: var(--ink); font: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 8px; cursor: pointer; }
+.ad-big b { font-size: 16px; font-weight: 600; }
+.ad-big span { font-size: 12px; color: var(--ink-soft); }
+.ad-big.primary { background: var(--ink); color: #fff; }
+.ad-big.primary span { color: #c7c7cc; }
+.ad-row { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; }
+.ad-tile { min-height: 56px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); font: inherit; font-size: 13px; font-weight: 600; color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; }
+.ad-tile svg { width: 20px; height: 20px; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.ad-tile.ad-cancel { color: var(--red); }
+.ad-big:hover, .ad-tile:hover { filter: brightness(0.97); }
+.ad-note { font-size: 12px; color: var(--ink-soft); text-align: center; }
+.ck-byphone { margin-left: 6px; height: 20px; font-size: 11px; padding: 0 8px; vertical-align: middle; }
+
+/* ---------- Left menu: hide / show (top bar sidebar button, src/lib/menuFold.ts) ----------
+   Button only on screens that have a left menu, 600px+ (phones use the bottom tab bar). Per device. */
+.menu-tg { display: none; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; margin-left: -8px; padding: 0;
+  border: 0; border-radius: 8px; background: transparent; color: var(--ink-soft); cursor: pointer; transition: background .15s var(--ease), color .15s var(--ease); }
+.menu-tg:hover { background: var(--fill); color: var(--ink); }
+.menu-tg:focus-visible { outline: 2px solid var(--blue, #0a84ff); outline-offset: 1px; }
+@media (min-width: 600px) {
+  .app:has(> .rail) .menu-tg { display: inline-flex; }
+  html[data-menu="hidden"] .app > .rail { display: none !important; }
+}
+@media (min-width: 600px) and (pointer: coarse) { .menu-tg { width: 44px; height: 44px; margin-left: -12px; } }
+
+/* Top bar · one rule (board "Top Bar · One Rule", Nov 26): page name + one fact left, find in the middle,
+   Saved then the ONE dark main button far right. Never the salon name. */
+.bar .title { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-fact { font-weight: 400; color: var(--ink-soft); }
+.bar.has-find .title { flex: 0 1 auto; }
+.bar-find { flex: 1; min-width: 0; display: flex; justify-content: center; }
+.bar-find .co-scan { width: 380px; }
+.bar-back { flex: none; }
+@media (max-width: 599px) { .bar-fact { display: none; } }

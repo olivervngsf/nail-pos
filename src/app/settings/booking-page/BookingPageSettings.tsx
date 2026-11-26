@@ -149,7 +149,7 @@ function Settings({ desk }: { desk: Desk }) {
     <div className="app">
       <LeftMenu active="Today" salonInitials={initials} me={desk.me.display_name[0]} />
       <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/today">‹ {t("back")}</Link>{t("title")}</span>}>
+        <TopBar back={{ href: "/today", label: t("back") }} title={t("title")}>
           {conf && <a className="btn sm" href={url()} target="_blank" rel="noreferrer" data-testid="bp-preview">{t("preview")}</a>}
           <SyncPill />
         </TopBar>

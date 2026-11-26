@@ -9,6 +9,7 @@ import DeviceBeat from "@/components/DeviceBeat";
 import SupportBanner from "@/components/SupportBanner";
 import TwoStepGate from "@/components/TwoStepGate";
 import { applyTextSize, getTextSize } from "@/lib/textSize";
+import { applyMenuHidden, getMenuHidden } from "@/lib/menuFold";
 
 export type Lang = "en" | "vi";
 const MESSAGES = { en, vi };
@@ -37,6 +38,7 @@ export default function AppProviders({ children }: { children: React.ReactNode }
       /* storage blocked */
     }
     applyTextSize(getTextSize());
+    applyMenuHidden(getMenuHidden());
     startSync();
   }, []);
   const setLang = (l: Lang) => {

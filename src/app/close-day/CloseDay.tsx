@@ -123,7 +123,10 @@ export default function CloseDay() {
     <div className="app cd-app">
       <LeftMenu active="Close day" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={desk.me.display_name[0]} />
       <div className="col">
-        <TopBar title={<>{t("title")} <span className="cap">· {dayLabel}</span></>}><SyncPill /></TopBar>
+        <TopBar title={t("title")} fact={dayLabel}>
+          {step !== "done" && !closed && <span className="cap bar-step" data-testid="bar-step">{t("stepOf", { n: idx + 1, total: STEPS.length })}</span>}
+          <SyncPill />
+        </TopBar>
         <OfflineBanner />
         {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
         {loadErr && <p className="hint err" style={{ margin: "12px 24px 0" }}>{loadErr} <Button size="sm" onClick={() => void load()}>{t("retry")}</Button></p>}

@@ -18,6 +18,7 @@ import { skillsNeeded } from "@/lib/booking/skills";
 import { GoodFit, SkillTags } from "./SkillTags";
 import { CustomService } from "./CustomService";
 import { ClientFacts } from "./ClientFacts";
+import { last4 } from "@/lib/clients";
 
 export type BookDraft = { day: string; start: number; minutes: number; staffId?: string;
   /** "Book a later time" from a waiting walk-in: start with their name, phone and services; the walk-in leaves the waitlist once booked. */
@@ -243,35 +244,64 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
     </Drawer>
   );
   const total = a.services.reduce((x, s) => x + s.cents, 0);
+  // Only the owner sees a client's full phone; everyone else sees the last 4 (Oliver, Nov 26).
+  const viewer = getActing()?.role ?? desk.me.role;
+  const phone = a.client?.phone ?? "";
+  const len = em - sm;
+  const lenTxt = len >= 60 ? `${Math.floor(len / 60)}h${len % 60 ? ` ${t("min", { n: len % 60 })}` : ""}` : t("min", { n: len });
+  const STEPS = ["booked", "confirmed", "here", "chair", "paid"] as const;
+  const step = st === "done" ? 4 : st === "arrived" ? 3 : here ? 2 : st === "confirmed" ? 1 : st === "booked" ? 0 : -1;
+  const pre = st === "booked" || st === "confirmed";
   return (
-    <Drawer title={a.client?.name || t("walkIn")} onClose={onClose} footer={<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      {canHere && <Button variant="primary" block onClick={markHere} data-testid="here-btn">{t("hereBtn")}</Button>}
-      {(st === "booked" || st === "confirmed" || st === "arrived") && <Button variant={canHere ? "default" : "primary"} block onClick={checkIn} data-testid="check-in">{st === "arrived" ? t("openTicket") : t("startService")}</Button>}
+    <Drawer title={a.client?.name || t("walkIn")} onClose={onClose} footer={<div className="ad-acts">
+      {(pre || st === "arrived") && <span className="eyebrow">{t("adNext")}</span>}
+      {(pre || st === "arrived") && <div className="ad-two">
+        {canHere && <button type="button" className="ad-big primary" onClick={markHere} data-testid="here-btn"><b>{t("hereBtn")}</b><span>{t("hereHint")}</span></button>}
+        <button type="button" className={`ad-big${canHere ? "" : " primary"}`} onClick={checkIn} data-testid="check-in">
+          <b>{st === "arrived" ? t("openTicket") : t("startService")}</b><span>{st === "arrived" ? t("openHint") : t("startHint")}</span>
+        </button>
+      </div>}
       {st === "done" && a.ticketId && <Button block onClick={() => router.push(`/checkout/${a.ticketId}`)}>{t("openTicket")}</Button>}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        {st === "booked" && <Button onClick={() => set("confirmed", t("confirmedMsg"))} data-testid="confirm">{t("confirm")}</Button>}
-        {(st === "booked" || st === "confirmed") && <Button onClick={() => set("no_show", t("noShowMsg"))}>{t("noShow")}</Button>}
-        {(st === "booked" || st === "confirmed") && <Button variant="ghost" onClick={() => set("canceled", t("canceledMsg"))} data-testid="cancel-appt">{t("cancel")}</Button>}
-        {(st === "canceled" || st === "no_show") && <Button onClick={() => set("booked", t("restoredMsg"))}>{t("restore")}</Button>}
-      </div>
+      {pre && <div className="ad-row">
+        {st === "booked" && <button type="button" className="ad-tile" onClick={() => set("confirmed", t("confirmedMsg"))} data-testid="confirm">
+          <svg viewBox="0 0 24 24" aria-hidden="true" style={{ stroke: "var(--jade)" }}><polyline points="20 6 9 17 4 12" /></svg>{t("confirm")}</button>}
+        <button type="button" className="ad-tile" onClick={() => set("no_show", t("noShowMsg"))}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" style={{ stroke: "var(--orange)" }}><circle cx="12" cy="12" r="9" /><line x1="6" y1="6" x2="18" y2="18" /></svg>{t("noShow")}</button>
+        <button type="button" className="ad-tile ad-cancel" onClick={() => set("canceled", t("canceledMsg"))} data-testid="cancel-appt">
+          <svg viewBox="0 0 24 24" aria-hidden="true" style={{ stroke: "var(--red)" }}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>{t("cancel")}</button>
+      </div>}
+      {(st === "canceled" || st === "no_show") && <Button block onClick={() => set("booked", t("restoredMsg"))}>{t("restore")}</Button>}
+      {st !== "done" && <span className="ad-note">{t("actsNote")}</span>}
     </div>}>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <span className={`tag ${st === "confirmed" || st === "arrived" || here ? "jade" : ""}`} data-testid="appt-status">{here ? t("hereTag", { min: hereMin }) : t(`st_${st}`)}</span>
-        <span className="tag">{t(`src_${a.source}`)}</span>
-        {a.repeatRuleId && <span className="tag">{t("repeats")}</span>}
+      <div className="ad-hero">
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <span className={`tag ${st === "confirmed" || st === "arrived" || here ? "jade" : st === "booked" ? "warn" : ""}`} data-testid="appt-status">{here ? t("hereTag", { min: hereMin }) : t(`st_${st}`)}</span>
+          <span className="cap">{t(`src_${a.source}`)}</span>
+          {a.repeatRuleId && <span className="tag">{t("repeats")}</span>}
+        </div>
+        <div className="ad-time num">{fmtMin(sm)}</div>
+        <div className="cap ad-sub">{t("adUntil", { date: new Date(a.start).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }), len: lenTxt, end: fmtMin(em) })} · {staff?.name ?? t("anyone")}</div>
+        {step >= 0 && <ol className="ad-steps" aria-label={t(`st_${st}`)}>
+          {STEPS.map((k, i) => <li key={k} className={i < step ? "done" : i === step ? "now" : ""} aria-current={i === step ? "step" : undefined}><i />{t(`adStep_${k}`)}</li>)}
+        </ol>}
+        <div className="ad-who">
+          {phone ? viewer === "owner"
+            ? <span className="num" data-testid="appt-phone">{fmtPhone(phone)} <span className="tag">{t("adOwnerOnly")}</span></span>
+            : <span className="num cap" data-testid="appt-phone">{t("adPhone", { last4: last4(phone) })}</span>
+            : <span className="cap">—</span>}
+          {a.client?.id && <a href={`/clients/${a.client.id}`} className="ad-link">{t("profile")} ›</a>}
+        </div>
       </div>
       {a.client?.care && <div className="card cl-care"><b>▲ {t("care")}</b></div>}
-      <div className="group">
-        <div className="row"><span className="grow cap">{t("when")}</span><b className="num">{new Date(a.start).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} · {fmtMin(sm)} – {fmtMin(em)}</b></div>
-        <div className="row"><span className="grow cap">{t("with")}</span><b>{staff?.name ?? t("anyone")}</b></div>
-        <div className="row"><span className="grow cap">{t("phone")}</span><b className="num">{a.client?.phone ? fmtPhone(a.client.phone) : "—"}</b></div>
-        {a.services.map((s, i) => <div key={i} className="row"><span className="grow">{s.name}</span><span className="cap">{t("min", { n: s.minutes })}</span><b className="num">{formatCents(s.cents)}</b></div>)}
-        {a.services.length > 0 && <div className="row"><b className="grow">{t("totalPreTip")}</b><b className="num" data-testid="appt-total">{formatCents(total)}</b></div>}
-      </div>
-      <div className="eyebrow">{t("cfTitle")}</div>
-      <ClientFacts desk={desk} client={a.client} />
+      {a.services.length > 0 && <>
+        <div className="eyebrow">{t("adServices", { n: a.services.length })}</div>
+        <div className="group">
+          {a.services.map((s, i) => <div key={i} className="row ad-svc"><span className="grow"><b>{s.name}</b><span className="cap">{t("min", { n: s.minutes })}</span></span><b className="num">{formatCents(s.cents)}</b></div>)}
+          <div className="row ad-total"><b className="grow">{t("totalPreTip")}</b><b className="num" data-testid="appt-total">{formatCents(total)}</b></div>
+        </div>
+      </>}
+      <ClientFacts desk={desk} client={a.client} line />
       {a.note && <div className="cap" style={{ background: "#F5F5F7", borderRadius: 8, padding: "6px 8px" }}>{a.note}</div>}
-      {a.client?.id && <a className="cap" href={`/clients/${a.client.id}`} style={{ fontWeight: 600 }}>{t("profile")} ›</a>}
       <div className="cap">{t("dragHint")}</div>
       {a.client?.textsOk === false && <div className="cap">{t("noTexts")}</div>}
     </Drawer>

@@ -13,6 +13,9 @@ export type ServiceLine = {
   priceSet?: boolean;
   staffId?: string;
   staffName?: string;
+  /** The tech added this from their phone (ticket slip); addedAt = when. */
+  fromPhone?: boolean;
+  addedAt?: string;
 };
 export type Discount = { id: string; kind: "amt" | "pct"; value: number; reason: string; approvalId?: string; approvedBy?: string };
 export type Payment = {
