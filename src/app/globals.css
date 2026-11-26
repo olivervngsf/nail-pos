@@ -2031,3 +2031,10 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .bar-find .co-scan { width: 380px; }
 .bar-back { flex: none; }
 @media (max-width: 599px) { .bar-fact { display: none; } }
+/* Booking drawer: Call / Text the client without seeing the number (Settings → Call + text clients) */
+.ad-reach { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; margin-top: 10px; }
+.ad-reach-btn { min-height: 40px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); color: var(--ink); font-weight: 600; font-size: 14px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+.ad-reach-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.ad-reach-btn:hover { background: var(--fill); }
+@media (pointer: coarse) { .ad-reach-btn { min-height: 44px; } }
