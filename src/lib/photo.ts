@@ -1,7 +1,7 @@
 "use client";
 // My profile photo (Nov 26, Oliver: "users can upload a profile photo"). One square photo per login, shown wherever
 // my initials show (profile, Settings, the profile pop-up, the left menu). File: Storage bucket "profile-photos" at
-// <auth user id>/<random>.jpg (public read, only the owner writes; migration 20270124000001_profile_photos); the link is
+// <auth user id>/<random>.jpg (public read, only the owner writes; migration 20270125000001_profile_photos); the link is
 // kept on the login (user_metadata.photo_url) and copied to this device so it shows offline. Test copy: device only.
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase/client";
