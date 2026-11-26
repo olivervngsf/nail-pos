@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Avatar, Banner, Button, LeftMenu, ListGroup, PinKeypad, Segmented, SyncPill, Toast, TopBar } from "@/components/kit";
+import { Avatar, Banner, Button, LeftMenu, ListGroup, PinKeypad, Segmented, Toast } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
 import SignInEmail from "@/components/SignInEmail";
 import SignInPassword from "@/components/SignInPassword";
@@ -12,7 +12,7 @@ import TwoStep from "@/components/TwoStep";
 import { rpc, signOut, SMS_ON } from "@/lib/auth";
 import { cachedRules, pinProblem, saveRules, type PinRules } from "@/lib/pin";
 import { isAdminRole, useMe } from "@/lib/me";
-import { SettingsNav } from "../settings/SettingsShell";
+import { SettingsWindow } from "../settings/SettingsShell";
 
 export default function MePage() {
   const t = useTranslations("me");
@@ -61,9 +61,7 @@ export default function MePage() {
   return (
     <div className="app me-app set-app">
       <LeftMenu active="Me" salonInitials={me.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={me.name} />
-      <SettingsNav role={isDevice ? (acting?.role ?? me.role) : me.role} />
-      <div className="col">
-        <TopBar title={t("title")}><SyncPill /></TopBar>
+      <SettingsWindow role={isDevice ? (acting?.role ?? me.role) : me.role} title={t("title")}>
         <main className="me-main">
           {someoneElse && <Banner tone="info">{t("onDevice", { name: acting!.name })}</Banner>}
           <section className="card pad me-head">
@@ -137,7 +135,7 @@ export default function MePage() {
           </ListGroup>
           {!SMS_ON && <div className="demo">{t("demo")}</div>}
         </main>
-      </div>
+      </SettingsWindow>
       {toast && <Toast>{toast}</Toast>}
     </div>
   );
