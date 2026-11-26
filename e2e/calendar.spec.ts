@@ -92,6 +92,8 @@ test("calendar: book, move with undo, check in, week + month", async ({ page }) 
 
   // Open → confirm → check in → ticket with the service + Kim
   await vy.click();
+  // Front desk sees only the last 4 of the client's phone (owner only sees all of it)
+  await expect(page.getByTestId("appt-phone")).toHaveText(/^Phone ••\d{4}$/);
   await page.getByTestId("confirm").click();
   await expect(vy).toContainText("Confirmed");
   if (!phone) {

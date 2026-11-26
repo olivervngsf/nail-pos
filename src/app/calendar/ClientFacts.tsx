@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import type { Desk } from "@/lib/desk";
 import { profileFor, type Profile } from "@/lib/clients";
 
-export function ClientFacts({ desk, client }: { desk: Desk; client?: { id?: string; name: string; phone: string } }) {
+export function ClientFacts({ desk, client, line }: { desk: Desk; client?: { id?: string; name: string; phone: string }; line?: boolean }) {
   const t = useTranslations("calendar");
   const [p, setP] = useState<Profile | null | undefined>(undefined);
   useEffect(() => {
@@ -19,6 +19,13 @@ export function ClientFacts({ desk, client }: { desk: Desk; client?: { id?: stri
   if (p === undefined) return null;
   if (p === null) return <div className="cap" data-testid="cf-new">{t("cfNew")}</div>;
   const last = p.stats.last_visit ? new Date(p.stats.last_visit).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : null;
+  // One quiet grey line (booking details): facts, not a block that pulls the eye.
+  if (line) return (
+    <div className="cap ad-facts" data-testid="client-facts">
+      {[last ? t("cfLastShort", { date: last }) : t("cfFirst"), p.usual_staff && t("cfLikesShort", { name: p.usual_staff }), t("cfVisitsShort", { n: p.stats.visits })].filter(Boolean).join(" · ")}
+      {p.care && <b style={{ color: "#A63F06", display: "block" }}>{p.care}</b>}
+    </div>
+  );
   return (
     <div className="group" data-testid="client-facts">
       <div className="row"><span className="grow cap">{t("cfLast")}</span><span>{last ? `${p.usual_service ? `${p.usual_service} · ` : ""}${last}` : t("cfFirst")}</span></div>
