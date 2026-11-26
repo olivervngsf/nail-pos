@@ -7,6 +7,8 @@
 /* 1. reset */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; }
+/* Screen height that stays right when Text size zooms the page (zoom also scales viewport units). */
+:root { --vh: 100dvh; }
 body { background: var(--surface); font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif; color-scheme: light; }
 h1, h2, h3, p { margin: 0; }
 button { color: inherit; }
@@ -17,12 +19,12 @@ button:disabled { cursor: not-allowed; }
 @media (max-width: 640px) { .h1 { font-size: 24px; line-height: 30px; } }
 
 /* 2. real-screen sizing for kit shells */
-.app { width: 100%; height: auto; min-height: 100dvh; overflow: visible; overflow-x: clip; }
-.wiz { width: 100%; height: auto; min-height: 100dvh; }
-.side { position: sticky; top: 0; height: 100dvh; }
+.app { width: 100%; height: auto; min-height: var(--vh); overflow: visible; overflow-x: clip; }
+.wiz { width: 100%; height: auto; min-height: var(--vh); }
+.side { position: sticky; top: 0; height: var(--vh); }
 /* left menu stays put while the page scrolls: profile always bottom-left */
 /* z 32: its pop-ups sit over the page (calendar bar is 30) but under drawers/scrims (40+) and the lock screen (35) */
-.app > .rail { position: sticky; top: 0; z-index: 32; height: 100dvh; align-self: flex-start; box-sizing: border-box; flex: none; }
+.app > .rail { position: sticky; top: 0; z-index: 32; height: var(--vh); align-self: flex-start; box-sizing: border-box; flex: none; }
 .prog { margin: 0; }
 .st { border: 0; background: transparent; text-align: left; cursor: pointer; font: inherit; }
 .st.has-sub { height: auto; min-height: 40px; padding: 6px 10px; }
@@ -40,7 +42,7 @@ button:disabled { cursor: not-allowed; }
   .foot { padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); }
   .foot .btn.primary { flex: 1; padding: 0 16px; }
 }
-.phone { width: 100%; height: auto; min-height: 100dvh; max-width: 480px; margin: 0 auto; overflow: visible; }
+.phone { width: 100%; height: auto; min-height: var(--vh); max-width: 480px; margin: 0 auto; overflow: visible; }
 .pbar { justify-content: space-between; padding: env(safe-area-inset-top) 8px 0; position: sticky; top: 0; z-index: 5; }
 .pbody { display: flex; flex-direction: column; gap: 14px; padding: 20px 16px calc(24px + env(safe-area-inset-bottom)); }
 .ptabs { position: sticky; margin-top: auto; padding-bottom: env(safe-area-inset-bottom); }
@@ -464,22 +466,50 @@ button:disabled { cursor: not-allowed; }
 .rail-acct { position: relative; margin-top: 6px; }
 .rail-acct-btn { border: 0; background: transparent; padding: 6px; border-radius: 12px; cursor: pointer; }
 .rail-acct-btn:hover, .rail-acct-btn[aria-expanded="true"] { background: var(--fill); }
-.rail-pop { position: fixed; left: 84px; bottom: 14px; width: 300px; max-height: calc(100dvh - 28px); overflow: auto; padding: 14px;
+.rail-pop { position: fixed; left: 84px; bottom: 14px; width: 300px; max-height: calc(var(--vh) - 28px); overflow: auto; padding: 14px;
   display: flex; flex-direction: column; gap: 10px; z-index: 40; box-shadow: 0 12px 48px rgba(28,28,30,.22), 0 0 0 1px rgba(0,0,0,.04); }
 .rail-pop-h { display: flex; align-items: center; gap: 10px; }
 /* Profile pop-up, Claude-style (Nov 26): who on top, rows with a line icon, Sign out / Lock last. */
-.rail-pop.pm { padding: 6px; gap: 0; display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 40px rgba(28, 28, 30, .16); }
-.pm-h { padding: 10px 10px 8px; display: flex; flex-direction: column; min-width: 0; }
-.pm-h b { font-size: 15px; }
-.pm-it { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 40px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; font: inherit; font-size: 15px; color: var(--ink); text-align: left; cursor: pointer; box-sizing: border-box; }
-.pm-it:hover { background: var(--surface); }
-.pm-static { cursor: default; }
-.pm-static:hover { background: transparent; }
-.pm-ico { width: 20px; height: 20px; flex: none; color: var(--ink); }
+/* Profile pop-up, like Claude (board "Settings, Activity log + Timesheet" → Profile pop-up A · B · C; exact board sizes). */
+.rail-pop.pm { width: 300px; padding: 6px; gap: 0; display: flex; flex-direction: column; overflow: visible; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 12px 40px rgba(28, 28, 30, .14); box-sizing: border-box; }
+.pm-h { padding: 8px 10px 6px; font-size: 13px; color: var(--ink-soft); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pm-h.dev { display: flex; flex-direction: column; white-space: normal; }
+.pm-h.dev b { color: var(--ink); font-size: 14px; display: block; }
+.pm-it { display: flex; align-items: center; gap: 12px; width: 100%; height: 40px; padding: 0 10px; border: 0; border-radius: 10px; background: transparent; font: inherit; font-size: 15px; font-weight: 400; color: var(--ink); text-align: left; text-decoration: none; cursor: pointer; box-sizing: border-box; white-space: nowrap; }
+.pm-it:hover, .pm-it.on { background: var(--surface); }
+.pm-it.sel { background: var(--surface); }
+.pm-ico { flex: none; color: var(--ink); }
 .pm-r { margin-left: auto; font-size: 13px; color: var(--ink-soft); }
+.pm-ck { color: var(--ink); font-size: 15px; }
 .pm-sep { border-top: 1px solid var(--line); margin: 4px 6px; }
-.pm-note { padding: 4px 10px 6px; margin: 0; }
-@media (pointer: coarse) { .pm-it { min-height: 46px; } }
+.pm-note { padding: 6px 10px 4px; margin: 0; font-size: 13px; color: var(--ink-soft); line-height: 1.45; white-space: normal; }
+.pm-subw { position: relative; }
+.rail .rail-pop a.pm-it { width: 100%; flex-direction: row; gap: 12px; padding: 0 10px; border-radius: 10px; font-size: 15px; color: var(--ink); }
+.rail .rail-pop a.pm-it:hover { background: var(--surface); }
+.pm-sub { position: absolute; z-index: 5; left: calc(100% + 10px); top: -6px; width: 200px; padding: 6px; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 12px 40px rgba(28, 28, 30, .14); box-sizing: border-box; animation: pmUp .14s ease-out both; }
+.pm-sub.in { position: static; width: auto; margin: 2px 0 4px 32px; box-shadow: none; animation: none; }
+@media (pointer: coarse) { .rail-pop.pm .pm-it { height: 46px; } }
+/* C · tech phone: tap your face (top left) → sheet from the bottom. */
+.tk-me-btn { border: 0; background: transparent; padding: 0 0 0 12px; display: flex; align-items: center; cursor: pointer; min-height: 44px; }
+.tk-av { width: 32px; height: 32px; font-size: 13px; background: #F5E6C8; color: var(--ink); }
+.tk-av.lg { width: 40px; height: 40px; font-size: 15px; }
+.pm-scrim { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, .28); animation: pmFade .16s ease-out both; }
+.pm-sheet { position: fixed; z-index: 61; left: 0; right: 0; bottom: 0; max-width: 480px; margin: 0 auto; max-height: calc(var(--vh) - 24px); overflow: auto; background: var(--paper); border-radius: 28px 28px 0 0; box-shadow: 0 12px 40px rgba(28, 28, 30, .14); padding: 8px 10px calc(14px + env(safe-area-inset-bottom)); box-sizing: border-box; animation: pmSheet .22s cubic-bezier(.2, .8, .2, 1) both; }
+.pm-grab { width: 40px; height: 5px; border-radius: 3px; background: #D1D1D6; margin: 2px auto 10px; }
+.pm-who { display: flex; align-items: center; gap: 10px; padding: 0 6px 8px; min-width: 0; }
+.pm-who b, .pm-who .cap { display: block; }
+.pm-sheet .pm { display: flex; flex-direction: column; }
+.pm-sheet .pm-it { height: 48px; font-size: 16px; }
+.pm-sheet .pm-ico { width: 22px; height: 22px; }
+@keyframes pmFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pmSheet { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .pm-sub, .pm-scrim, .pm-sheet { animation: none; } }
+/* Text size (profile pop-up → Text size), per device. The whole screen grows, so taps grow with the words. */
+html[data-text="large"] { zoom: 1.1; --vh: calc(100dvh / 1.1); }
+html[data-text="larger"] { zoom: 1.2; --vh: calc(100dvh / 1.2); }
+/* What's new */
+.wn-row { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.wn-row:last-child { border-bottom: 0; }
 .rail-pop-list { display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
 .rail-pop-list .opt { min-height: 44px; font-size: 15px; justify-content: space-between; }
 .rail-pop-list .opt .cap { margin-left: auto; }
@@ -488,7 +518,7 @@ button:disabled { cursor: not-allowed; }
 .row.set { min-height: 56px; padding: 10px 16px; flex-wrap: wrap; row-gap: 8px; font-size: 15px; }
 
 /* ---------- public booking page (Booking board BookWeb W1–W8) ---------- */
-.bw { min-height: 100dvh; background: var(--surface); display: flex; flex-direction: column; }
+.bw { min-height: var(--vh); background: var(--surface); display: flex; flex-direction: column; }
 .bw-hdr { display: flex; gap: 20px; align-items: center; padding: 18px 48px 14px; background: var(--paper); border-bottom: 1px solid var(--line); }
 .bw-logo { width: 56px; height: 56px; border-radius: 14px; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 18px; flex: none; }
 .bw-who { flex: 1; min-width: 0; }
@@ -570,7 +600,7 @@ button:disabled { cursor: not-allowed; }
 }
 
 /* ---------- walk-in kiosk (Booking board Kiosk K1–K4) ---------- */
-.ki { min-height: 100dvh; background: var(--surface); display: flex; flex-direction: column; align-items: center; padding: 20px 16px 40px; box-sizing: border-box; gap: 16px; }
+.ki { min-height: var(--vh); background: var(--surface); display: flex; flex-direction: column; align-items: center; padding: 20px 16px 40px; box-sizing: border-box; gap: 16px; }
 .ki-top { width: min(720px, 100%); display: flex; justify-content: space-between; align-items: center; }
 .ki-exit { color: var(--ink-soft); }
 .ki-note { width: min(720px, 100%); box-sizing: border-box; }
@@ -808,7 +838,7 @@ button:disabled { cursor: not-allowed; }
 .ly-link { background: var(--surface); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
 @media (max-width: 900px) { .ly { padding: 12px; } .ly-two { grid-template-columns: 1fr; } }
 /* ---------- client page (Loyalty L10, Gift cards G13–G16) ---------- */
-.cp { max-width: 480px; margin: 0 auto; padding: 20px 16px 32px; display: flex; flex-direction: column; gap: 12px; min-height: 100dvh; box-sizing: border-box; }
+.cp { max-width: 480px; margin: 0 auto; padding: 20px 16px 32px; display: flex; flex-direction: column; gap: 12px; min-height: var(--vh); box-sizing: border-box; }
 .cp-head { display: flex; flex-direction: column; gap: 2px; font-size: 17px; }
 .cp-card { display: flex; flex-direction: column; gap: 10px; }
 .cp-pts { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
@@ -825,7 +855,7 @@ button:disabled { cursor: not-allowed; }
 /* booking page: full-size photo viewer */
 .bw-lb { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.88); display: flex; align-items: center; justify-content: center; padding: 56px 16px 24px; box-sizing: border-box; animation: bwLbIn .18s ease-out; }
 .bw-lb-fig { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: min(1100px, 100%); max-height: 100%; }
-.bw-lb-fig img { max-width: 100%; max-height: calc(100vh - 140px); object-fit: contain; border-radius: 12px; display: block; }
+.bw-lb-fig img { max-width: 100%; max-height: calc(var(--vh) - 140px); object-fit: contain; border-radius: 12px; display: block; }
 .bw-lb-ph { width: min(720px, 90vw); aspect-ratio: 4 / 3; border-radius: 12px; }
 .bw-lb-fig figcaption { color: #fff; display: flex; gap: 10px; align-items: baseline; }
 .bw-lb-fig figcaption .cap { color: rgba(255,255,255,.7); }
@@ -870,11 +900,11 @@ button:disabled { cursor: not-allowed; }
 .face.last { box-shadow: 0 0 0 2px var(--ink), var(--shadow); }
 .face-in { position: absolute; top: 10px; right: 10px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 600; display: flex; align-items: center; background: var(--fill); color: var(--ink-soft); }
 .face-in.is-in { background: var(--jade-soft); color: #1F7A33; }
-.faces-pin { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(380px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; z-index: 36; padding: 22px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.faces-pin { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(380px, calc(100vw - 32px)); max-height: calc(var(--vh) - 32px); overflow: auto; z-index: 36; padding: 22px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .faces-pin > div:last-of-type, .faces-pin .keys { width: 100%; }
 .faces ~ .scrim, .faces .scrim { z-index: 35; }
 /* time clock (/clock) */
-.clock { min-height: 100dvh; background: var(--surface); display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 32px 16px; box-sizing: border-box; }
+.clock { min-height: var(--vh); background: var(--surface); display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 32px 16px; box-sizing: border-box; }
 .clock-h, .clock-body { width: 100%; max-width: 760px; display: flex; gap: 14px; align-items: center; }
 .clock-body { align-items: stretch; }
 .clock-big { height: 120px; border: 0; border-radius: 24px; font: inherit; font-size: 26px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); }
@@ -982,7 +1012,7 @@ button:disabled { cursor: not-allowed; }
 @media (min-width: 900px) {
   .set-scrim { left: 76px; }
   /* Like Claude's: centred, not edge to edge; at most 1160 wide and 860 tall. */
-  .set-win { top: max(24px, calc((100dvh - 860px) / 2)); bottom: max(24px, calc((100dvh - 860px) / 2)); left: calc(76px + max(24px, (100vw - 76px - 1160px) / 2)); right: max(24px, (100vw - 76px - 1160px) / 2); }
+  .set-win { top: max(24px, calc((var(--vh) - 860px) / 2)); bottom: max(24px, calc((var(--vh) - 860px) / 2)); left: calc(76px + max(24px, (100vw - 76px - 1160px) / 2)); right: max(24px, (100vw - 76px - 1160px) / 2); }
   .set-win .bar { border-bottom: 0; height: 60px; padding: 0 28px; backdrop-filter: none; -webkit-backdrop-filter: none; }
   .set-win .set-main { padding: 0 28px 32px; }
   .set-win .set-nav a { min-height: 40px; font-size: 15px; border-radius: 10px; padding: 0 12px; }
@@ -1142,7 +1172,7 @@ button:disabled { cursor: not-allowed; }
 .ad-care th:last-child { position: sticky; right: 0; background: #fff; }
 .ad-dots { width: 40px; height: 40px; border-radius: 10px; border: 0; background: transparent; color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .ad-dots:hover, .ad-dots.open { background: var(--fill); }
-.ad-menu { position: fixed; z-index: 30; width: 240px; max-height: calc(100dvh - 16px); overflow-y: auto; background: #fff; border-radius: 14px; box-shadow: 0 0 0 1px var(--line), 0 12px 32px rgba(28,28,30,.16); padding: 6px; display: flex; flex-direction: column; }
+.ad-menu { position: fixed; z-index: 30; width: 240px; max-height: calc(var(--vh) - 16px); overflow-y: auto; background: #fff; border-radius: 14px; box-shadow: 0 0 0 1px var(--line), 0 12px 32px rgba(28,28,30,.16); padding: 6px; display: flex; flex-direction: column; }
 .ad-menu > button, .ad-menu > a { min-height: 38px; padding: 8px 12px; border-radius: 8px; border: 0; background: transparent; font: 500 14px/20px inherit; font-family: inherit; color: var(--ink); text-align: left; text-decoration: none; cursor: pointer; white-space: normal; box-sizing: border-box; }
 .ad-menu > button:hover, .ad-menu > a:hover { background: var(--fill); }
 .ad-menu > .danger { color: #B42318; }
@@ -1168,7 +1198,7 @@ button:disabled { cursor: not-allowed; }
 .ad-bar i { display: block; width: 100%; max-width: 40px; border-radius: 6px 6px 2px 2px; margin-top: auto; }
 .ad-bar span { font-size: 11px; color: var(--ink-soft); }
 /* /go — tablet side of QR device set-up */
-.go-page { min-height: 100dvh; display: grid; place-items: center; padding: 16px; background: var(--surface); }
+.go-page { min-height: var(--vh); display: grid; place-items: center; padding: 16px; background: var(--surface); }
 .go-card { width: min(440px, 100%); display: flex; flex-direction: column; gap: 14px; text-align: center; }
 .go-code { text-align: center; font-size: 28px; letter-spacing: 0.12em; font-variant-numeric: tabular-nums; height: 56px; }
 .go-ok { width: 56px; height: 56px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 28px; color: #fff; background: var(--jade); }
@@ -1194,7 +1224,7 @@ button:disabled { cursor: not-allowed; }
 .bn-narrow { max-width: 520px; width: 100%; }
 
 /* ===== Calendar · Live design (Nov 18): exact sizes + looks from the Live calendar board (cal.css / Live.dc.html) ===== */
-.cal-app { background: #F6F6F8; height: 100dvh; overflow: hidden; }
+.cal-app { background: #F6F6F8; height: var(--vh); overflow: hidden; }
 .cal-app > .col { min-height: 0; }
 .cal-cards > .card { min-height: 0; }
 .cal-top { gap: 10px; }
@@ -1318,7 +1348,7 @@ button:disabled { cursor: not-allowed; }
   .app:not(.ad-app) .rail > a { flex: 1; width: auto; min-width: 0; min-height: 52px; justify-content: center; padding: 4px 0; font-size: 10.5px; white-space: nowrap; }
   .app:not(.ad-app) .rail > a.on { background: transparent; box-shadow: none; }
   .app:not(.ad-app) .rail .rail-acct { margin: 0; display: flex; align-items: center; }
-  .rail-pop { left: 8px; right: 8px; width: auto; bottom: calc(68px + env(safe-area-inset-bottom)); max-height: calc(100dvh - 90px); }
+  .rail-pop { left: 8px; right: 8px; width: auto; bottom: calc(68px + env(safe-area-inset-bottom)); max-height: calc(var(--vh) - 90px); }
   .app:has(.rail) .cl2-pbar { bottom: calc(60px + env(safe-area-inset-bottom)); padding-bottom: 12px; }
   .app:has(.rail) .cal-movebar { bottom: calc(72px + env(safe-area-inset-bottom)); }
 }
@@ -1663,7 +1693,7 @@ button:disabled { cursor: not-allowed; }
 .dev-gear { width: 44px; height: 44px; flex: none; border: 0; border-radius: var(--r-md); background: var(--fill); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .dev-gear:hover { background: var(--line); }
 .dev-pick { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-.dev-menu { gap: 12px; max-height: calc(100dvh - 32px); overflow: auto; }
+.dev-menu { gap: 12px; max-height: calc(var(--vh) - 32px); overflow: auto; }
 .dev-menu-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .dev-facts { margin: 0; background: var(--surface); border-radius: var(--r-md); padding: 4px 14px; }
 .dev-facts > div { display: flex; justify-content: space-between; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
@@ -1720,7 +1750,7 @@ body:has(.faces .scrim) .clock-qr { display: none; }
   .set-lock { display: none; }
 }
 /* Backup page /device: same facts + buttons as the gear menu, never covered by the faces screen. */
-.dev-page { min-height: 100dvh; box-sizing: border-box; background: var(--surface); display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 40px 16px; text-align: center; }
+.dev-page { min-height: var(--vh); box-sizing: border-box; background: var(--surface); display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 40px 16px; text-align: center; }
 .dev-page > .cap { max-width: 480px; }
 .dev-card { width: 100%; max-width: 480px; box-sizing: border-box; padding: 20px; display: flex; flex-direction: column; gap: 12px; text-align: left; }
 .dev-pin { display: flex; flex-direction: column; align-items: center; gap: 12px; }
@@ -1800,7 +1830,7 @@ body:has(.faces .scrim) .clock-qr { display: none; }
    with clear space above and below; save bars inside the window have no grey strip. */
 @media (min-width: 900px) {
   .set-scrim { left: 0; z-index: 40; }
-  .set-win { z-index: 41; top: max(56px, calc((100dvh - 820px) / 2)); bottom: max(56px, calc((100dvh - 820px) / 2));
+  .set-win { z-index: 41; top: max(56px, calc((var(--vh) - 820px) / 2)); bottom: max(56px, calc((var(--vh) - 820px) / 2));
     left: max(40px, calc((100vw - 1120px) / 2)); right: max(40px, calc((100vw - 1120px) / 2)); }
 }
 .set-win .si-bar { background: var(--paper); border-top: 1px solid var(--line); margin: 0 -32px; padding: 14px 32px; }
@@ -1809,7 +1839,7 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 /* Profile pop-up opens straight UP from the avatar (Oliver, Nov 26: "like Claude"): same left edge as the left menu,
    sitting just above the button, growing upward. Phones keep their own spot above the bottom menu. */
 @media (min-width: 600px) {
-  .rail-pop.pm { left: 8px; bottom: 72px; width: 300px; max-height: calc(100dvh - 96px); transform-origin: bottom left; animation: pmUp .16s ease-out both; }
+  .rail-pop.pm { left: 8px; bottom: 72px; width: 300px; transform-origin: bottom left; animation: pmUp .16s ease-out both; }
 }
 @keyframes pmUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .rail-pop.pm { animation: none; } }

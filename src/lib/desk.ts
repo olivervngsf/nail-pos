@@ -108,7 +108,7 @@ export function useDesk() {
 }
 
 /* ---------- who is working the desk right now (salon device; set by PIN on Today) ---------- */
-export type Acting = { membership_id: string; name: string; role: Role; at: number };
+export type Acting = { membership_id: string; name: string; role: Role; at: number; since?: number };
 const ACT_KEY = "nailpos.acting";
 /** Auto-lock after the salon's idle time (Settings → PIN rules; default 2 minutes). */
 export function idleMs(): number { try { return Number(localStorage.getItem("nailpos.idle")) || 2 * 60 * 1000; } catch { return 2 * 60 * 1000; } }
@@ -119,7 +119,13 @@ export function getActing(): Acting | null {
   } catch { return null; }
 }
 export function setActing(a: Acting | null) {
-  try { if (a) localStorage.setItem(ACT_KEY, JSON.stringify({ ...a, at: Date.now() })); else localStorage.removeItem(ACT_KEY); } catch { /* */ }
+  try {
+    if (!a) { localStorage.removeItem(ACT_KEY); return; }
+    // since = when this person unlocked with their PIN (profile pop-up "by PIN, 9:15 AM"); kept while they stay on.
+    const was = getActing();
+    const since = a.since ?? (was && was.membership_id === a.membership_id ? was.since : undefined) ?? Date.now();
+    localStorage.setItem(ACT_KEY, JSON.stringify({ ...a, at: Date.now(), since }));
+  } catch { /* */ }
 }
 /** Keep the acting person signed in while they use the screen. */
 export function touchActing() { const a = getActing(); if (a) setActing(a); }
