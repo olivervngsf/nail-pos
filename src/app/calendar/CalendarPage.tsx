@@ -403,7 +403,7 @@ function DayView({ desk, day, list, onBook, onOpen, say, waiting, onSeat, onWalk
         <span className="seg cal-avail" data-testid="row-height">{ROW_LBL.map((l, i) => (
           <button key={l} type="button" className={rowH.i === i ? "on" : ""} aria-pressed={rowH.i === i} onClick={() => setRowH({ i })}>{l}</button>))}</span>
         <span style={{ flex: 1 }} />
-        <select className="cal-svc" value={cat} onChange={(e) => setCat(e.target.value)} aria-label={t("serviceAny")}>
+        <select className="sel cal-svc" value={cat} onChange={(e) => setCat(e.target.value)} aria-label={t("serviceAny")}>
           <option value="">{t("serviceAny")}</option>
           {cats.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
