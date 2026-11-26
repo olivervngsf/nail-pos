@@ -31,6 +31,8 @@
     "vi": "Tiếng Việt"
   },
   "kit": {
+    "menuHide": "Hide menu",
+    "menuShow": "Show menu",
     "title": "Design kit",
     "lead": "Every shared piece of the PolishOS look, from design/kit/kit.css. Screens use only these.",
     "offlineTest": "Offline test",

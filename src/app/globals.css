@@ -1891,3 +1891,15 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .si-week { padding: 10px 0; flex-wrap: wrap; row-gap: 8px; }
 .si-wk-t { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 2px; }
 .si-wk-t b { font-weight: 600; }
+
+/* ---------- Left menu: hide / show (top bar sidebar button, src/lib/menuFold.ts) ----------
+   Button only on screens that have a left menu, 600px+ (phones use the bottom tab bar). Per device. */
+.menu-tg { display: none; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; margin-left: -8px; padding: 0;
+  border: 0; border-radius: 8px; background: transparent; color: var(--ink-soft); cursor: pointer; transition: background .15s var(--ease), color .15s var(--ease); }
+.menu-tg:hover { background: var(--fill); color: var(--ink); }
+.menu-tg:focus-visible { outline: 2px solid var(--blue, #0a84ff); outline-offset: 1px; }
+@media (min-width: 600px) {
+  .app:has(> .rail) .menu-tg { display: inline-flex; }
+  html[data-menu="hidden"] .app > .rail { display: none !important; }
+}
+@media (min-width: 600px) and (pointer: coarse) { .menu-tg { width: 44px; height: 44px; margin-left: -12px; } }
