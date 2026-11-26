@@ -2063,7 +2063,8 @@
       "activity": "Activity log",
       "pin": "PIN",
       "language": "Language",
-      "textSize": "Text size"
+      "textSize": "Text size",
+      "roles": "Roles"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -3025,7 +3026,8 @@
       "device_code_made": "Device QR code made",
       "support_on": "Support access turned on",
       "support_off": "Support access ended",
-      "support_change": "PolishOS support changed something"
+      "support_change": "PolishOS support changed something",
+      "roles_saved": "Roles + permissions changed"
     }
   },
   "picker": {

@@ -18,6 +18,7 @@ import { cachedRules } from "@/lib/pin";
 import { getTextSize } from "@/lib/textSize";
 import { useMyPhoto } from "@/lib/photo";
 import { isAdminRole, useMe } from "@/lib/me";
+import { can, useRolePerms, type Perm, type RolePerms } from "@/lib/roles";
 
 export type Access = { salonId: string; salonName: string; role: Role; owner: boolean; demo: boolean };
 
@@ -33,6 +34,7 @@ const NAV = [
   { href: "/settings/team", key: "team", group: "team", who: "admin" },
   { href: "/settings/clock-in", key: "clockIn", group: "team", who: "admin" },
   { href: "/settings/pin", key: "pinRules", group: "team", who: "admin" },
+  { href: "/settings/roles", key: "roles", group: "team", who: "owner" },
   { href: "/settings/payments", key: "payments", group: "pay", who: "admin" },
   { href: "/settings/reader", key: "reader", group: "pay", who: "admin" },
   { href: "/settings/tap-to-pay", key: "tapToPay", group: "pay", who: "admin" },
@@ -57,22 +59,33 @@ const ICON: Record<string, string> = {
   payments: "M2 6h20v12H2zM12 9.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5", reader: "M7 2h10v20H7zM10 6h4M10 18h4", tapToPay: "M6 3h12v18H6zM11 18h2M9 9c1.5-1.5 4.5-1.5 6 0M10.5 11.5c.8-.8 2.2-.8 3 0",
   printer: "M6 9V3h12v6M6 17H4v-6h16v6h-2M7 14h10v7H7z", bookingPage: "M3 5h18v16H3zM3 10h18M8 3v4M16 3v4", texting: "M4 4h16v12H8l-4 4z", reminders: "M12 3a7 7 0 00-7 7v4l-2 3h18l-2-3v-4a7 7 0 00-7-7zM10 20a2 2 0 004 0",
   loyalty: "M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z", giftCards: "M3 9h18v4H3zM5 13h14v8H5zM12 9v12",
+  roles: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6zM9 12l2 2 4-4",
   payouts: "M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z", activity: "M5 3h14v18H5zM9 8h6M9 12h6M9 16h4",
   pin: "M5 11h14v10H5zM8 11V8a4 4 0 018 0v3M12 15v2", language: "M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
   textSize: "M4 18L9 6l5 12M6 14h6M15 18l3-7 3 7M16 15.5h4",
 };
-const NEW = new Set(["activity"]);
+const NEW = new Set(["activity", "roles"]);
 
 type Who = "all" | "admin" | "owner";
-/** Who may open a settings page: everyone (own profile), owner + manager, or the owner only. */
-export const canOpen = (who: Who, role: Role) => who === "all" || (who === "owner" ? role === "owner" : isAdminRole(role));
+/** Who may open a settings page: everyone (own profile), owner + manager, or the owner only.
+ *  A manager also needs that group switched on by the owner (Settings → Roles + permissions). */
+export const canOpen = (who: Who, role: Role, group?: string, perms?: RolePerms) =>
+  who === "all" || (who === "owner" ? role === "owner" : isAdminRole(role) && (role !== "manager" || !group || group === "me" || can(perms, role, `set.${group}` as Perm)));
+
+/** This salon's permissions for the menu (salon from the device's cached "who am I"). */
+function useMyPerms() {
+  const [salon, setSalon] = useState<string | null>(null);
+  useEffect(() => { try { setSalon((JSON.parse(localStorage.getItem("nailpos.me") ?? "null") as { salonId?: string } | null)?.salonId ?? null); } catch { /* */ } }, []);
+  return useRolePerms(salon, !SMS_ON);
+}
 
 /** Settings side menu; also shown on My profile (/me) for owners + managers so both feel like one place. */
 /** Menu items this person may open (techs + front desk see just Me: no locked clutter), filtered by the search box. */
 function useItems(role: Role, q: string) {
   const t = useTranslations("settings");
   const words = q.trim().toLowerCase();
-  return NAV.filter((n) => canOpen(n.who, role) && (!words || t(`nav.${n.key}`).toLowerCase().includes(words) || t(`group.${n.group}`).toLowerCase().includes(words)));
+  const perms = useMyPerms();
+  return NAV.filter((n) => canOpen(n.who, role, n.group, perms) && (!words || t(`nav.${n.key}`).toLowerCase().includes(words) || t(`group.${n.group}`).toLowerCase().includes(words)));
 }
 
 export function SettingsNav({ role, q = "" }: { role: Role; q?: string }) {
@@ -343,6 +356,7 @@ export default function SettingsShell({ title, actions, children }: { title: str
   const path = usePathname();
   const router = useRouter();
   const { me, isDevice, acting, device, ready } = useMe();
+  const perms = useRolePerms(me?.salonId, !SMS_ON);
   if (!me) {
     // Not signed in on this device (or no salon yet): say so instead of a blank page.
     if (!ready) return <div className="app" aria-busy="true" />;
@@ -357,7 +371,8 @@ export default function SettingsShell({ title, actions, children }: { title: str
     );
   }
   const role: Role = isDevice ? (acting?.role ?? "tech") : me.role;
-  const ok = isAdminRole(role);
+  const page = NAV.find((n) => n.href === path);
+  const ok = isAdminRole(role) && (!page || canOpen(page.who, role, page.group, perms));
   const a: Access = { salonId: me.salonId, salonName: me.salonName, role, owner: role === "owner", demo: !SMS_ON };
 
   return (
@@ -370,8 +385,8 @@ export default function SettingsShell({ title, actions, children }: { title: str
               <div className="h2">{t("needPin")}</div>
               <p className="cap">{isDevice ? t("needPinDevice") : t("needAdmin")}</p>
               <div className="set-access" data-testid="settings-access">
-                <div><b>{t("youCan", { role: tr(`role.${role}`) })}</b>{NAV.filter((n) => canOpen(n.who, role)).map((n) => <Link key={n.href} href={n.href}>{t(`nav.${n.key}`)}</Link>)}</div>
-                <div><b>{t("youCant")}</b><span className="cap">{NAV.filter((n) => !canOpen(n.who, role)).map((n) => t(`nav.${n.key}`)).join(" · ")}</span></div>
+                <div><b>{t("youCan", { role: tr(`role.${role}`) })}</b>{NAV.filter((n) => canOpen(n.who, role, n.group, perms)).map((n) => <Link key={n.href} href={n.href}>{t(`nav.${n.key}`)}</Link>)}</div>
+                <div><b>{t("youCant")}</b><span className="cap">{NAV.filter((n) => !canOpen(n.who, role, n.group, perms)).map((n) => t(`nav.${n.key}`)).join(" · ")}</span></div>
               </div>
               {isDevice && <Button variant="primary" onClick={async () => { await lockDevice(device?.id, acting?.membership_id); router.push("/desk"); }}>{t("unlock")}</Button>}
             </div>

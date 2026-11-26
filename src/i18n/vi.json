@@ -2063,7 +2063,8 @@
       "activity": "Nhật ký hoạt động",
       "pin": "Mã PIN",
       "language": "Ngôn ngữ",
-      "textSize": "Cỡ chữ"
+      "textSize": "Cỡ chữ",
+      "roles": "Vai trò"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -3025,7 +3026,8 @@
       "device_code_made": "Tạo mã QR thiết bị",
       "support_on": "Bật quyền hỗ trợ",
       "support_off": "Hết quyền hỗ trợ",
-      "support_change": "PolishOS hỗ trợ đã đổi một mục"
+      "support_change": "PolishOS hỗ trợ đã đổi một mục",
+      "roles_saved": "Đổi vai trò + quyền"
     }
   },
   "picker": {
