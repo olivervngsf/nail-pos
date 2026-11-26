@@ -8,8 +8,15 @@
 --    platform_secrets 'db_cron'. The app registers its own URL + token the first time the GitHub "Scheduled texts"
 --    job calls it with CRON_SECRET (db_cron_register), so nothing is set up by hand; before that it does nothing.
 
-create extension if not exists pg_net with schema extensions;   -- functions live in schema net either way
-create extension if not exists pg_cron;
+-- Supabase has both add-ons; a plain Postgres (CI, backup restore test) has neither: then the minute job is just
+-- not scheduled and the half-hourly GitHub job keeps sending reminders.
+do $$ begin
+  if exists (select 1 from pg_available_extensions where name = 'pg_net') then
+    create schema if not exists extensions;
+    create extension if not exists pg_net with schema extensions;   -- its functions live in schema net either way
+  end if;
+  if exists (select 1 from pg_available_extensions where name = 'pg_cron') then create extension if not exists pg_cron; end if;
+end $$;
 
 create function public._reminder_prefs(s jsonb) returns jsonb
 language sql immutable set search_path = '' as $$
@@ -87,7 +94,11 @@ begin
     headers := jsonb_build_object('Authorization', 'Bearer ' || t, 'Content-Type', 'application/json'), timeout_milliseconds := 30000);
 end $$;
 
-select cron.schedule('polishos-booking-reminders', '* * * * *', 'select public._cron_ping()');
+do $$ begin
+  if exists (select 1 from pg_extension where extname = 'pg_cron') and exists (select 1 from pg_extension where extname = 'pg_net') then
+    perform cron.schedule('polishos-booking-reminders', '* * * * *', 'select public._cron_ping()');
+  end if;
+end $$;
 
 revoke execute on function public._reminder_prefs(jsonb), public._reminder_timing(), public._cron_ping() from public, anon, authenticated;
 revoke execute on function public.db_cron_register(text) from public, anon, authenticated;
