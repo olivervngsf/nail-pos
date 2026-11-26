@@ -1802,7 +1802,26 @@
       "tech": "Tech"
     },
     "activity": "Activity log",
-    "plan": "Plan + usage"
+    "plan": "Plan + usage",
+    "lockShort": "Lock",
+    "backToFaces": "back to faces",
+    "deviceNever": "Salon devices never sign out. Lock hands the iPad to the next person.",
+    "byPin": "by PIN, {time}",
+    "myTimeToday": "My time today",
+    "myTime": "My time",
+    "today": "{time} today",
+    "textSize": "Text size",
+    "size": {
+      "normal": "Normal",
+      "large": "Large",
+      "larger": "Larger"
+    },
+    "help": "Get help",
+    "whatsNew": "What’s new",
+    "switchSalon": "Switch salon",
+    "salons": "{n} salons",
+    "planSalon": "Salon · $49",
+    "changePin": "Change my PIN"
   },
   "me": {
     "title": "My profile",
@@ -2912,5 +2931,36 @@
     "quick": "Quick picks",
     "pickLast": "Now tap the last day",
     "days": "{n, plural, one {# day} other {# days}}"
+  },
+  "whatsNew": {
+    "title": "What’s new",
+    "sub": "The latest changes to PolishOS, newest first.",
+    "items": [
+      {
+        "date": "Nov 26",
+        "title": "New profile menu",
+        "body": "Tap your picture (bottom left) for your profile, settings, language and text size, help and sign out. Salon iPads show who unlocked and how long they worked today."
+      },
+      {
+        "date": "Nov 26",
+        "title": "Bigger text",
+        "body": "Profile menu → Text size: Normal, Large or Larger. Set it once on each device."
+      },
+      {
+        "date": "Nov 26",
+        "title": "Activity log",
+        "body": "Settings → Activity log: every PIN, clock in/out, money and settings change, with who and when. Print or download it."
+      },
+      {
+        "date": "Nov 26",
+        "title": "Settings in one window",
+        "body": "Settings opens on top of the screen you were on. Close it with X or Esc to go straight back."
+      },
+      {
+        "date": "Nov 25",
+        "title": "Salon address + service menu",
+        "body": "Change the salon address, hours and every service after setup, in Settings."
+      }
+    ]
   }
 }

@@ -8,6 +8,7 @@ import { registerHandler, startSync } from "@/lib/offline/outbox";
 import DeviceBeat from "@/components/DeviceBeat";
 import SupportBanner from "@/components/SupportBanner";
 import TwoStepGate from "@/components/TwoStepGate";
+import { applyTextSize, getTextSize } from "@/lib/textSize";
 
 export type Lang = "en" | "vi";
 const MESSAGES = { en, vi };
@@ -35,6 +36,7 @@ export default function AppProviders({ children }: { children: React.ReactNode }
     } catch {
       /* storage blocked */
     }
+    applyTextSize(getTextSize());
     startSync();
   }, []);
   const setLang = (l: Lang) => {
