@@ -1936,7 +1936,8 @@
       "billing": "Billing",
       "support": "Support",
       "clockIn": "Clock-in",
-      "tapToPay": "Tap to Pay on iPhone"
+      "tapToPay": "Tap to Pay on iPhone",
+      "business": "Business details"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",

@@ -16,6 +16,7 @@ const GROUPS = ["me", "salon", "team", "pay", "clients", "money"] as const;
 const NAV = [
   { href: "/me", key: "profile", group: "me", who: "all" },
   { href: "/settings/salon", key: "salon", group: "salon", who: "admin" },
+  { href: "/settings/business", key: "business", group: "salon", who: "admin" },
   { href: "/settings/menu", key: "menu", group: "salon", who: "admin" },
   { href: "/settings/devices", key: "devices", group: "salon", who: "admin" },
   { href: "/settings/billing", key: "billing", group: "salon", who: "admin" },

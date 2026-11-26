@@ -1936,7 +1936,8 @@
       "billing": "Thanh toán gói",
       "support": "Hỗ trợ",
       "clockIn": "Chấm công",
-      "tapToPay": "Tap to Pay on iPhone"
+      "tapToPay": "Tap to Pay on iPhone",
+      "business": "Thông tin doanh nghiệp"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",

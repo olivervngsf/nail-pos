@@ -1649,3 +1649,11 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .tr-sec{gap:8px;scroll-margin-top:16px}
 .tr-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:1.45}
 @media (max-width:599px){.tr{padding:16px}.tl-row{padding:12px}}
+
+/* Settings → Business details */
+.biz{flex:1;overflow:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px;max-width:760px}
+.set-main .biz{padding:0;flex:none}
+.biz-card{gap:14px}
+.biz-confirm{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.45;cursor:pointer}
+.biz-confirm input{width:20px;height:20px;margin-top:2px;flex:none}
+@media (max-width:599px){.biz{padding:16px}}

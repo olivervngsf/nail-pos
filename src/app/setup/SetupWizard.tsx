@@ -19,6 +19,7 @@ import { useStored } from "@/lib/useStored";
 import { inIosApp } from "@/lib/app/bridge";
 import { canTapToPay, tapOnHere, turnOnTap, turnOnTapDemo, type TapCheck } from "@/lib/app/reader";
 import { HowToTapButton } from "@/components/HowToTap";
+import { addressOk, parseAddress } from "@/lib/stripe/address";
 import {
   STEPS, STATES, fmtHours, fmtMoney, fmtPhone, fmtTime, initials, newInviteCode, phoneOk, toMin,
   type PayType, type Service,
@@ -245,7 +246,10 @@ export function stepStatus(s: SetupState, i: number): { text: string; good?: boo
 /* 1. Salon info */
 const SalonInfo: StepView = ({ s, set, say }) => {
   const badDay = s.hours.some((h) => h.on && toMin(h.close) <= toMin(h.open));
-  const lock = badDay || !s.salonName.trim();
+  // Card readers + texting registration need a full address (street, city, ZIP): no Continue without it.
+  const addr = parseAddress(s.address, s.state);
+  const addrOk = addressOk(addr);
+  const lock = badDay || !s.salonName.trim() || !addrOk;
   const field = (k: "salonName" | "salonPhone" | "address", label: string, extra: Partial<React.InputHTMLAttributes<HTMLInputElement>> = {}) => (
     <div>
       <label className="lbl" htmlFor={k}>{label}</label>
@@ -258,7 +262,12 @@ const SalonInfo: StepView = ({ s, set, say }) => {
     <div className="grid2" style={{ gap: 16 }}>
       {field("salonName", "Salon name", { placeholder: "Mai Nails" })}
       {field("salonPhone", "Salon phone", { inputMode: "tel", placeholder: "(408) 555-0100" })}
-      {field("address", "Address", { autoComplete: "street-address" })}
+      <div>
+        {field("address", "Address", { autoComplete: "street-address", placeholder: "1550 S Bascom Ave, Campbell, CA 95008" })}
+        <div className="hint" data-testid="setup-address-check" style={{ color: addrOk || !s.address.trim() ? undefined : "#b5470a" }}>
+          {addrOk ? `✓ ${addr.line1}, ${addr.city}, ${addr.state} ${addr.postal_code}` : "Street, city, ZIP (card readers + texting need the ZIP)"}
+        </div>
+      </div>
       <div>
         <label className="lbl" htmlFor="st">State</label>
         <select className="inp" id="st" value={s.state} onChange={(e) => set((p) => ({ ...p, state: e.target.value }))}>
@@ -918,10 +927,11 @@ const Ready: StepView = ({ s, go }) => {
       <div className="okmark lg">✓</div>
       <H1>{s.salonName || "Your salon"} is ready</H1>
       <div className="cap lead" style={{ maxWidth: 520 }}>
-        {s.menu.filter((m) => m.on).length} services, payments, reader and printer are set. {waiting ? `${waiting} staff still to join (their invite is waiting).` : "Add staff any time in Settings."}
+        {s.menu.filter((m) => m.on).length} services, payments, reader and printer are set. Last step for client texts: your business details (legal name, EIN), so PolishOS can register your salon with the phone carriers. {waiting ? `${waiting} staff still to join (their invite is waiting).` : "Add staff any time in Settings."}
       </div>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
         {/* Setup is finished here: staff changes now live in Settings → Team (the wizard no longer saves them). */}
+        <Link className="btn" href="/settings/business" data-testid="setup-business">Business details (for cards + texting)</Link>
         {SMS_ON ? <Link className="btn" href="/settings/team">Staff</Link> : <button className="btn" type="button" onClick={() => go(2)}>Staff</button>}
         <Link className="btn primary" href={SMS_ON ? "/today" : "/"} onClick={() => queueSave(s)}>Open Today</Link>
       </div>
