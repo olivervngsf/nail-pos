@@ -77,7 +77,7 @@ export function applyFilter(rows: ActivityRow[], f: Filter): ActivityRow[] {
 
 /** Detail facts worth showing, in a fixed order; money in cents becomes dollars. Unknown keys come last. */
 const ORDER = ["number", "total_cents", "amount_cents", "method", "purpose", "kind", "reason", "rule", "source", "via", "by", "name", "status"];
-const HIDE = new Set(["ticket", "client", "ids", "membership", "device", "salon"]);
+const HIDE = new Set(["ticket", "client", "ids", "membership", "device", "salon", "appointment"]);
 export function facts(detail: Record<string, unknown> | null | undefined): [string, string][] {
   if (!detail) return [];
   const keys = Object.keys(detail).filter((k) => !HIDE.has(k) && detail[k] !== null && detail[k] !== "" && typeof detail[k] !== "object");

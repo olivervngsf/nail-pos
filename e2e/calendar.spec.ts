@@ -94,6 +94,9 @@ test("calendar: book, move with undo, check in, week + month", async ({ page }) 
   await vy.click();
   // Front desk sees only the last 4 of the client's phone (owner only sees all of it)
   await expect(page.getByTestId("appt-phone")).toHaveText(/^Phone ••\d{4}$/);
+  // …and can still Call / Text (owner's default lets the front desk): links carry the number, the screen doesn't
+  await expect(page.getByTestId("appt-call")).toHaveAttribute("href", /^tel:\+1\d{10}$/);
+  await expect(page.getByTestId("appt-text")).toHaveAttribute("href", /^sms:\+1\d{10}\?&body=Hi%20/);
   await page.getByTestId("confirm").click();
   await expect(vy).toContainText("Confirmed");
   if (!phone) {
