@@ -1,7 +1,7 @@
 "use client";
 // One React component per Design System piece. They only put kit classes (design/kit/kit.css) on real elements:
 // never add a look here; change the kit, then `npm run kit:sync`.
-import { useEffect, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
 import Link from "next/link";
 import RailAccount from "@/components/RailAccount";
 import { useTranslations } from "next-intl";
@@ -9,6 +9,7 @@ import { getMenuHidden, onMenuHidden, setMenuHidden } from "@/lib/menuFold";
 import { retryParked, subscribe, syncNow, type SyncState } from "@/lib/offline/outbox";
 import { CreditRing } from "@/components/CreditRing";
 import { hide, isHidden, unhide, type Keep } from "@/lib/banners";
+import { collapseOut } from "@/lib/motion";
 
 const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(" ");
 
@@ -190,11 +191,12 @@ type BannerProps = {
 export function Banner({ tone = "warn", title, children, action, id, keep = "visit", onClose, strip, className, ...rest }: BannerProps) {
   const [shut, setShut] = useState(false);
   const [memo, setMemo] = useState(!!id); // hidden until storage is read (no flash of a banner closed earlier)
+  const box = useRef<HTMLDivElement>(null);
   useEffect(() => { if (id) setMemo(isHidden(id)); }, [id]);
   if (shut || memo) return null;
-  const close = () => { if (id) hide(id, keep); setShut(true); onClose?.(); };
+  const close = () => { if (id) hide(id, keep); collapseOut(box.current, () => { setShut(true); onClose?.(); }); }; // folds away, then goes
   return (
-    <div className={cx("banner", tone, strip && "strip", className)} role={tone === "bad" ? "alert" : "status"} data-testid={rest["data-testid"]}>
+    <div ref={box} className={cx("banner", tone, strip && "strip", className)} role={tone === "bad" ? "alert" : "status"} data-testid={rest["data-testid"]}>
       <svg className="bn-ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{TONE_ICON[tone]}</svg>
       <span className="bn-t">{title && <b>{title}</b>}{title && children ? " " : null}{children}</span>
       {action && <span className="bn-a">{action}</span>}

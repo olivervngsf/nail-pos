@@ -11,6 +11,10 @@
   --shadow:0 0 0 1px rgba(22,22,26,.05),0 1px 2px rgba(22,22,26,.04),0 8px 24px -6px rgba(22,22,26,.08);
   --shadow-lg:0 0 0 1px rgba(22,22,26,.05),0 4px 8px rgba(22,22,26,.04),0 24px 48px -12px rgba(22,22,26,.18);
   --ease:cubic-bezier(.2,.8,.2,1);
+  /* Motion (Nov 26): 3 speeds + 2 curves, nothing else. Enter = --ease (soft stop). Leave = --ease-exit, quicker.
+     fast = press, hover, colour · mid = pop-ups, toggles, fades · slow = drawers, sheets, pages. Never over 400ms. */
+  --t-fast:140ms; --t-mid:220ms; --t-slow:360ms; --t-out:180ms; --t-out-slow:240ms;
+  --ease-exit:cubic-bezier(.4,0,.9,.5);
   /* Weight rule (Oliver, Nov 17): semibold = default emphasis; bold only on purpose (big money, KPI numbers, totals, codes). */
   --fw-regular:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700;
 }
@@ -29,7 +33,7 @@ b,strong{font-weight:600} /* browsers default <b> to bold: semibold is our defau
 .app{width:1280px;height:800px;display:flex;background:var(--surface);overflow:hidden}
 .rail{width:76px;background:rgba(255,255,255,.72);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 0}
 .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(180deg,#34343C,#121216);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 2px 6px rgba(22,22,26,.25);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;margin-bottom:12px}
-.rail a{width:60px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border-radius:var(--r-sm);font-size:11px;color:var(--ink-soft);text-decoration:none;transition:background .2s var(--ease)}
+.rail a{width:60px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border-radius:var(--r-sm);font-size:11px;color:var(--ink-soft);text-decoration:none;transition:background var(--t-mid) var(--ease)}
 .rail a:hover{background:var(--fill)}
 .rail a.on{background:var(--paper);color:var(--ink);font-weight:600;box-shadow:var(--shadow-sm)}
 .col{flex:1;display:flex;flex-direction:column;min-width:0}
@@ -55,7 +59,7 @@ b,strong{font-weight:600} /* browsers default <b> to bold: semibold is our defau
 .tag.jade{background:var(--jade-soft)}
 
 /* controls */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;border-radius:var(--r-sm);border:0;background:var(--paper);box-shadow:var(--shadow-sm);color:var(--ink);font:inherit;font-size:14px;font-weight:600;letter-spacing:-0.01em;white-space:nowrap;text-decoration:none;cursor:pointer;transition:transform .15s var(--ease),background .2s var(--ease),box-shadow .2s var(--ease),opacity .2s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;border-radius:var(--r-sm);border:0;background:var(--paper);box-shadow:var(--shadow-sm);color:var(--ink);font:inherit;font-size:14px;font-weight:600;letter-spacing:-0.01em;white-space:nowrap;text-decoration:none;cursor:pointer;transition:transform var(--t-fast) var(--ease),background var(--t-mid) var(--ease),box-shadow var(--t-mid) var(--ease),opacity var(--t-mid)}
 .btn:hover{background:#FAFAFC;color:var(--ink);box-shadow:0 0 0 1px rgba(22,22,26,.10),0 2px 4px rgba(22,22,26,.06)}
 .btn:active{transform:scale(.98)}
 .btn.primary{background:linear-gradient(180deg,#2E2E36 0%,#141418 100%);color:#fff;height:40px;padding:0 18px;font-size:15px;border-radius:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 0 1px #0E0E12,0 2px 6px rgba(22,22,26,.22)}
@@ -67,7 +71,7 @@ b,strong{font-weight:600} /* browsers default <b> to bold: semibold is our defau
 .seg{display:inline-flex;padding:2px;border-radius:9px;background:var(--fill);box-shadow:inset 0 0 0 1px rgba(22,22,26,.04);gap:2px}
 .seg span{height:28px;padding:0 12px;border-radius:7px;display:flex;align-items:center;font-size:13px;font-weight:600;color:var(--ink-soft)}
 .seg span.on{background:var(--paper);color:var(--ink);box-shadow:0 0 0 .5px rgba(22,22,26,.08),0 1px 3px rgba(22,22,26,.10)}
-.tile{display:flex;flex-direction:column;gap:6px;padding:20px;border-radius:var(--r-lg);background:var(--paper);box-shadow:var(--shadow);text-decoration:none;color:var(--ink);transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.tile{display:flex;flex-direction:column;gap:6px;padding:20px;border-radius:var(--r-lg);background:var(--paper);box-shadow:var(--shadow);text-decoration:none;color:var(--ink);transition:transform var(--t-mid) var(--ease),box-shadow var(--t-mid) var(--ease)}
 .tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);color:var(--ink)}
 .ico{width:36px;height:36px;border-radius:10px;background:var(--fill);box-shadow:inset 0 0 0 1px rgba(22,22,26,.04);display:flex;align-items:center;justify-content:center}
 
@@ -76,12 +80,23 @@ b,strong{font-weight:600} /* browsers default <b> to bold: semibold is our defau
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 @keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.06);opacity:1}100%{transform:scale(1)}}
-.in{animation:fadeUp .45s var(--ease) both}
-.in2{animation:fadeUp .45s var(--ease) .08s both}
-.in3{animation:fadeUp .45s var(--ease) .16s both}
-.fade{animation:fadeIn .6s var(--ease) both}
+.in{animation:fadeUp var(--t-slow) var(--ease) both}
+.in2{animation:fadeUp var(--t-slow) var(--ease) .08s both}
+.in3{animation:fadeUp var(--t-slow) var(--ease) .16s both}
+.fade{animation:fadeIn var(--t-slow) var(--ease) both}
 .pulse{animation:pulse 1.4s ease-in-out infinite}
-.pop{animation:pop .5s var(--ease) both}
+.pop{animation:pop var(--t-slow) var(--ease) both}
+/* Leaving (src/lib/motion.ts): a silent copy of a closed overlay plays one of these, then is removed.
+   Uses translate/scale (not transform) so the overlay's own position (centred, -50%) stays. */
+@keyframes lvFade{to{opacity:0}}
+@keyframes lvRight{to{opacity:0;translate:28px 0}}
+@keyframes lvDown{to{opacity:0;translate:0 20px}}
+@keyframes lvPop{to{opacity:0;scale:.97;translate:0 4px}}
+.lv{pointer-events:none!important;user-select:none}
+.lv-fade{animation:lvFade var(--t-out-slow) var(--ease-exit) forwards!important}
+.lv-right{animation:lvRight var(--t-out-slow) var(--ease-exit) forwards!important}
+.lv-down{animation:lvDown var(--t-out-slow) var(--ease-exit) forwards!important}
+.lv-pop{animation:lvPop var(--t-out) var(--ease-exit) forwards!important}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* phone */
@@ -91,40 +106,40 @@ b,strong{font-weight:600} /* browsers default <b> to bold: semibold is our defau
 /* ===== v2 shared components (Nov 16) — one version each; never redefine inside a screen ===== */
 /* Forms */
 .lbl{font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;display:block}
-.inp{width:100%;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--paper);box-shadow:0 1px 2px rgba(22,22,26,.04);padding:0 12px;font:inherit;font-size:15px;color:var(--ink);box-sizing:border-box;transition:border-color .2s,box-shadow .2s}
+.inp{width:100%;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--paper);box-shadow:0 1px 2px rgba(22,22,26,.04);padding:0 12px;font:inherit;font-size:15px;color:var(--ink);box-sizing:border-box;transition:border-color var(--t-mid),box-shadow var(--t-mid)}
 .inp:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(22,22,26,.10)}
 @media (pointer:coarse){.inp{height:48px;font-size:17px}}
 .inp.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(224,49,49,.10)}
 /* Dropdown: square with a soft corner (same family as .btn.primary), own chevron. select.inp = form size 40; .sel = compact toolbar size 32. Never a pill. */
 select.inp,.sel{-webkit-appearance:none;appearance:none;background-color:var(--paper);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%2316161A' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:12px;padding-right:34px;cursor:pointer;text-overflow:ellipsis}
-.sel{display:inline-flex;align-items:center;height:32px;width:auto;padding-left:12px;border-radius:8px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(22,22,26,.04);font:inherit;font-size:13px;font-weight:600;color:var(--ink);transition:border-color .2s,box-shadow .2s,background-color .2s}
+.sel{display:inline-flex;align-items:center;height:32px;width:auto;padding-left:12px;border-radius:8px;border:1px solid var(--line);box-shadow:0 1px 2px rgba(22,22,26,.04);font:inherit;font-size:13px;font-weight:600;color:var(--ink);transition:border-color var(--t-mid),box-shadow var(--t-mid),background-color var(--t-mid)}
 select.inp:hover,.sel:hover{border-color:rgba(22,22,26,.22)}
 .sel:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(22,22,26,.10)}
 @media (pointer:coarse){.sel{height:40px;font-size:16px;border-radius:10px}}
 .hint{font-size:13px;line-height:18px;color:var(--ink-soft);margin-top:6px}
 .hint.err{color:var(--red)}
 /* Chip: filters + quick picks. 36px. .on = chosen, .sug = AI suggestion (dashed) */
-.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font:inherit;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;transition:background var(--t-mid),border-color var(--t-mid),color var(--t-mid)}
 .chip:hover{border-color:#D4D4DC}
 @media (pointer:coarse){.chip{height:36px;font-size:14px}}
 .chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
 .chip.sug{border-style:dashed}
 /* Switch (on/off). .sw and .toggle are the same */
-.sw,.toggle{width:44px;height:26px;border-radius:13px;background:#D1D1D6;position:relative;flex:none;border:0;cursor:pointer;transition:background .25s}
-.sw::after,.toggle::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .25s var(--ease)}
+.sw,.toggle{width:44px;height:26px;border-radius:13px;background:#D1D1D6;position:relative;flex:none;border:0;cursor:pointer;transition:background var(--t-mid)}
+.sw::after,.toggle::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform var(--t-mid) var(--ease)}
 .sw.on,.toggle.on{background:var(--jade)}
 .sw.on::after,.toggle.on::after{transform:translateX(18px)}
 /* Option row: tappable list row inside .group. 56px */
-.opt{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border:0;border-bottom:1px solid var(--line);background:var(--paper);font:inherit;font-size:16px;color:var(--ink);text-align:left;cursor:pointer;transition:background .2s}
+.opt{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:0 16px;border:0;border-bottom:1px solid var(--line);background:var(--paper);font:inherit;font-size:16px;color:var(--ink);text-align:left;cursor:pointer;transition:background var(--t-mid)}
 .opt:last-child{border-bottom:0}
 .opt:hover{background:#FAFAFB}
 .opt.on{background:var(--surface)}
 /* Choice card: big pick (setup, pay method) */
-.pick{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:18px;border:1px solid var(--line);background:var(--paper);font:inherit;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.pick{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:18px;border:1px solid var(--line);background:var(--paper);font:inherit;text-align:left;cursor:pointer;transition:border-color var(--t-mid),box-shadow var(--t-mid)}
 .pick.on{border:2px solid var(--ink);box-shadow:var(--shadow)}
 /* PIN keypad */
 .keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.key{height:60px;border-radius:14px;border:0;background:var(--paper);box-shadow:0 .5px 0 rgba(0,0,0,.04),0 2px 8px rgba(28,28,30,.06);font:inherit;font-size:24px;font-weight:500;color:var(--ink);cursor:pointer;transition:transform .12s}
+.key{height:60px;border-radius:14px;border:0;background:var(--paper);box-shadow:0 .5px 0 rgba(0,0,0,.04),0 2px 8px rgba(28,28,30,.06);font:inherit;font-size:24px;font-weight:500;color:var(--ink);cursor:pointer;transition:transform var(--t-fast)}
 .key:active{transform:scale(.96)}
 .dots{display:flex;gap:14px;justify-content:center}
 .dots i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);box-sizing:border-box}
@@ -132,20 +147,20 @@ select.inp:hover,.sel:hover{border-color:rgba(22,22,26,.22)}
 /* Overlays */
 @keyframes slideIn{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
 @keyframes sheetUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
-.scrim{position:absolute;inset:0;background:rgba(28,28,30,.22);z-index:5;border:0;padding:0;animation:fadeIn .25s ease both}
-.drawer{position:absolute;top:0;right:0;bottom:0;width:440px;background:var(--paper);box-shadow:var(--shadow-lg);z-index:6;display:flex;flex-direction:column;animation:slideIn .35s var(--ease) both}
+.scrim{position:absolute;inset:0;background:rgba(28,28,30,.22);z-index:5;border:0;padding:0;animation:fadeIn var(--t-mid) var(--ease) both}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:440px;background:var(--paper);box-shadow:var(--shadow-lg);z-index:6;display:flex;flex-direction:column;animation:slideIn var(--t-slow) var(--ease) both}
 .drawer-h{height:56px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--line);font-size:17px;font-weight:600}
 .drawer-b{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
 .drawer-f{padding:16px 20px;border-top:1px solid var(--line);display:flex;gap:10px}
-.sheet{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;background:var(--paper);border-radius:24px;box-shadow:0 -6px 24px rgba(28,28,30,.12);padding:20px;display:flex;flex-direction:column;gap:12px;animation:sheetUp .35s var(--ease) both}
-.toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);min-width:420px;max-width:calc(100% - 32px);box-sizing:border-box;background:var(--ink);color:#fff;border-radius:14px;padding:12px 12px 12px 18px;display:flex;align-items:center;gap:12px;font-size:15px;box-shadow:0 12px 32px rgba(0,0,0,.25);z-index:20;animation:fadeUp .35s var(--ease) both}
+.sheet{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;background:var(--paper);border-radius:24px;box-shadow:0 -6px 24px rgba(28,28,30,.12);padding:20px;display:flex;flex-direction:column;gap:12px;animation:sheetUp var(--t-slow) var(--ease) both}
+.toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);min-width:420px;max-width:calc(100% - 32px);box-sizing:border-box;background:var(--ink);color:#fff;border-radius:14px;padding:12px 12px 12px 18px;display:flex;align-items:center;gap:12px;font-size:15px;box-shadow:0 12px 32px rgba(0,0,0,.25);z-index:20;animation:fadeUp var(--t-slow) var(--ease) both}
 .toast .btn,.toast button:not(.bn-x){box-shadow:none;height:32px;padding:0 14px;border-radius:10px;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
 .phone .toast{min-width:0;left:16px;right:16px;transform:none}
 .toast{padding:6px 6px 6px 16px;min-height:44px;font-size:14px;border-radius:12px}
 .toast .bn-x{color:#fff}.toast .bn-x:hover{background:rgba(255,255,255,.14)}
 /* Banner (Nov 25, board "Notifications & Banners"): compact, one tone each, icon + bold first word, always an X.
    Default = rounded box inside a screen; .strip = full-width strip under the top bar. */
-.banner{display:flex;align-items:center;gap:10px;min-height:40px;padding:4px 5px 4px 12px;border-radius:12px;background:var(--orange-soft);border:1px solid #F4C9AF;color:var(--ink);font-size:14px;line-height:19px;box-sizing:border-box;animation:fadeIn .3s ease both}
+.banner{display:flex;align-items:center;gap:10px;min-height:40px;padding:4px 5px 4px 12px;border-radius:12px;background:var(--orange-soft);border:1px solid #F4C9AF;color:var(--ink);font-size:14px;line-height:19px;box-sizing:border-box;animation:fadeIn var(--t-mid) var(--ease) both}
 .banner .bn-ic{flex:none;color:var(--orange)}
 .banner .bn-t{flex:1;min-width:0}
 .banner .bn-t>b{font-weight:600;color:#B5470A}
@@ -232,14 +247,14 @@ select.inp:hover,.sel:hover{border-color:rgba(22,22,26,.22)}
    One picker for every date in the app: single day, date range (with presets) and month.
    Pattern = shadcn/ui date picker (button that opens a month grid in a popover) in our own look:
    ink circle = picked, soft band = days in between, ring = today. Never the browser's own date box. */
-.dp-btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:10px;border:0;background:var(--paper);box-shadow:var(--shadow-sm);font:inherit;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;white-space:nowrap;font-variant-numeric:tabular-nums;transition:box-shadow .2s var(--ease),background .2s}
+.dp-btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:10px;border:0;background:var(--paper);box-shadow:var(--shadow-sm);font:inherit;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;white-space:nowrap;font-variant-numeric:tabular-nums;transition:box-shadow var(--t-mid) var(--ease),background var(--t-mid)}
 .dp-btn:hover{background:#FBFBFC}
 .dp-btn[aria-expanded="true"]{box-shadow:0 0 0 1px var(--ink),0 0 0 4px rgba(22,22,26,.08)}
 .dp-btn svg{flex:none;color:var(--ink-soft)}
 .dp-btn .dp-ph{color:var(--muted);font-weight:400}
 .dp-btn.block{display:flex;width:100%;height:40px;justify-content:flex-start}
 .dp-btn .dp-chev{margin-left:auto}
-.dp-pop{position:fixed;z-index:60;background:var(--paper);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);display:flex;overflow:hidden;animation:dpIn .16s var(--ease) both}
+.dp-pop{position:fixed;z-index:60;background:var(--paper);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);display:flex;overflow:hidden;animation:dpIn var(--t-fast) var(--ease) both}
 @keyframes dpIn{from{opacity:0;transform:translateY(-4px) scale(.98)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.dp-pop{animation:none}}
 .dp-presets{display:flex;flex-direction:column;gap:2px;padding:12px 8px;border-right:1px solid var(--line);min-width:132px}
@@ -259,7 +274,7 @@ select.inp:hover,.sel:hover{border-color:rgba(22,22,26,.22)}
 .dp-cell.band.first{border-radius:18px 0 0 18px}
 .dp-cell.band.last{border-radius:0 18px 18px 0}
 .dp-cell.band.first.last{border-radius:18px}
-.dp-day{width:34px;height:34px;border-radius:50%;border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums;transition:background .15s}
+.dp-day{width:34px;height:34px;border-radius:50%;border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums;transition:background var(--t-fast)}
 .dp-day:hover:not(:disabled):not(.on){background:#E4E4EA}
 .dp-day.out{color:#B4B4BC}
 .dp-day.today{box-shadow:inset 0 0 0 1.5px var(--ink);font-weight:600}
