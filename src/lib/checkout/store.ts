@@ -6,6 +6,7 @@ import { enqueue, registerHandler } from "@/lib/offline/outbox";
 import { getSupabase } from "@/lib/supabase/client";
 import { rpc } from "@/lib/auth";
 import { api } from "@/lib/api";
+import type { ReceiptOutcome } from "./receiptSend";
 import { mergeOpen, seenIds, toPayload, type Ticket } from "./ticket";
 
 const KEY = "nailpos.tickets.v1";
@@ -187,6 +188,20 @@ registerHandler("ticket.receipt", async (item) => {
   // Text / email: send it now (once; the server records sent / skipped / failed on the receipt). Never blocks the outbox.
   if (p.channel === "text" || p.channel === "email") await api("/api/receipt/send", { id: p.id }).catch(() => undefined);
 });
+
+/** Text / email the receipt now and say what happened (one send per call). Offline or ticket not on the server yet:
+ *  saved in the outbox, sends later. Test copy: nothing is sent. */
+export async function sendReceipt(t: Ticket, channel: "text" | "email", to: string): Promise<ReceiptOutcome> {
+  const keep = (r: ReceiptOutcome) => { const cur = getTicket(t.id) ?? t; putLocal({ ...cur, receipt: channel, receiptSent: { channel, to, ...r, at: new Date().toISOString() } }); return r; };
+  if (!live) return keep({ status: "demo" });
+  const id = crypto.randomUUID();
+  const payload = { id, salonId: t.salonId, ticketId: t.id, channel, to };
+  if (typeof navigator !== "undefined" && navigator.onLine === false) { void enqueue("ticket.receipt", payload); return keep({ status: "queued" }); }
+  try { await rpc("log_receipt", { p_id: id, p_salon: t.salonId, p_ticket: t.id, p_channel: channel, p_to: to }); }
+  catch { void enqueue("ticket.receipt", payload); return keep({ status: "queued" }); }
+  try { const r = await api<ReceiptOutcome>("/api/receipt/send", { id }); return keep({ status: r.status, error: r.error ?? null }); }
+  catch (e) { return keep({ status: "failed", error: (e as Error).message }); }
+}
 
 export function logReceipt(t: Ticket, channel: "print" | "text" | "email" | "none", to?: string) {
   putLocal({ ...t, receipt: channel });

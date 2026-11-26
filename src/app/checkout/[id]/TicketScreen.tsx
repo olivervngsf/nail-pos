@@ -11,7 +11,7 @@ import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { useDesk, getActing, touchActing, type Desk, type DeskService } from "@/lib/desk";
-import { logReceipt, pullTickets, putTicket, saveNow, takeCashPart, undoCashPart, useTicket } from "@/lib/checkout/store";
+import { logReceipt, sendReceipt, pullTickets, putTicket, saveNow, takeCashPart, undoCashPart, useTicket } from "@/lib/checkout/store";
 import { api } from "@/lib/api";
 import { GiftSellDrawer, GiftUseDrawer } from "./GiftDrawers";
 import { AppReaderPay } from "./AppReader";
@@ -19,6 +19,8 @@ import { canAppReader, canTapToPay, keepTapWarm, onTapWarm, tapOnHere, tapWarmNo
 import { demoSettle, giftUndo } from "@/lib/checkout/gift";
 import { receiptBytes, type ReceiptDoc } from "@/lib/print/escpos";
 import { receiptCode } from "@/lib/receipt-code";
+import { maskTo, receiptLine } from "@/lib/checkout/receiptSend";
+import StatusIcon from "@/components/StatusIcon";
 import { canBluetooth, printBytes } from "@/lib/print/bluetooth";
 import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 import { usePrintSettings, type PrintSettings } from "@/lib/print/settings";
@@ -701,6 +703,18 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
   const how = isCard ? (pay.brand ? `${pay.brand[0].toUpperCase()}${pay.brand.slice(1)} ••${pay.last4 ?? ""}` : t("viaLink")) : t("cash").toLowerCase();
   const [email, setEmail] = useState<string | null>(null);
   const [refunding, setRefunding] = useState(false);
+  // Text / Email receipt: one send per tap, the result in plain words under the buttons; sending the same way again asks first.
+  const [rcptBusy, setRcptBusy] = useState<"text" | "email" | null>(null);
+  const [rcptAgain, setRcptAgain] = useState<{ channel: "text" | "email"; to: string } | null>(null);
+  const doSend = async (channel: "text" | "email", to: string) => {
+    setRcptBusy(channel);
+    try { await sendReceipt(ticket, channel, to); } finally { setRcptBusy(null); }
+  };
+  const askSend = (channel: "text" | "email", to: string) => {
+    const last = ticket.receiptSent;
+    if (last && last.channel === channel && (last.status === "sent" || last.status === "queued")) { setRcptAgain({ channel, to }); return; }
+    void doSend(channel, to);
+  };
   const newTicket = () => {
     const id = uuid();
     const a = getActing();
@@ -758,16 +772,24 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
         <div className="group">
           <BluetoothPrint desk={desk} ticket={ticket} say={say} />
           <button type="button" className="opt" data-testid="receipt-print" onClick={() => { logReceipt(ticket, "print"); setTimeout(() => window.print(), 50); say(t("printed")); }}>{canBluetooth() ? t("printWindow") : t("print")}<span className="grow" /><span className="cap">›</span></button>
-          <button type="button" className="opt" onClick={() => { if (!ticket.client?.phone) return say(t("noPhone")); logReceipt(ticket, "text", ticket.client.phone); say(t("textLater")); }}>
+          <button type="button" className="opt" data-testid="receipt-text" disabled={rcptBusy !== null} onClick={() => { if (!ticket.client?.phone) return say(t("noPhone")); askSend("text", ticket.client.phone); }}>
             {t("text")}<span className="grow" /><span className="cap num">{ticket.client?.phone ? fmtPhone(ticket.client.phone) : ""} ›</span></button>
           <button type="button" className="opt" onClick={() => setEmail("")}>{t("email")}<span className="grow" /><span className="cap">›</span></button>
           <button type="button" className="opt" style={{ color: "var(--ink-soft)" }} onClick={() => logReceipt(ticket, "none")}>{t("noReceipt")}</button>
         </div>
         {email !== null && <div style={{ display: "flex", gap: 8 }}>
           <input className="inp" type="email" placeholder={t("emailPh")} aria-label={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Button disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => { logReceipt(ticket, "email", email); setEmail(null); say(t("textLater")); }}>{t("send")}</Button>
+          <Button disabled={!/^\S+@\S+\.\S+$/.test(email) || rcptBusy !== null} onClick={() => { const to = email; setEmail(null); askSend("email", to); }}>{t("send")}</Button>
         </div>}
-        {ticket.receipt && <div className="cap">✓ {t(ticket.receipt === "none" ? "noReceipt" : ticket.receipt)}</div>}
+        {rcptBusy && <div className="cap" data-testid="receipt-result" aria-live="polite">{t("rcpt.sending")}</div>}
+        {!rcptBusy && rcptAgain && <div className="note" data-testid="receipt-again" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <span className="grow">{t("rcpt.again", { to: maskTo(rcptAgain.channel, rcptAgain.to) })}</span>
+          <Button onClick={() => { const a = rcptAgain; setRcptAgain(null); void doSend(a.channel, a.to); }}>{t("rcpt.sendAgain")}</Button>
+          <Button variant="ghost" onClick={() => setRcptAgain(null)}>{t("rcpt.cancel")}</Button>
+        </div>}
+        {!rcptBusy && !rcptAgain && ticket.receiptSent && (() => { const r = ticket.receiptSent; const l = receiptLine(r.channel, r); return (
+          <div className="cap" data-testid="receipt-result" aria-live="polite" style={{ display: "flex", gap: 6, alignItems: "center" }}><StatusIcon tone={l.tone} />{t(`rcpt.${l.key}`, { to: maskTo(r.channel, r.to) })}</div>); })()}
+        {!rcptBusy && !rcptAgain && !ticket.receiptSent && ticket.receipt && <div className="cap">✓ {t(ticket.receipt === "none" ? "noReceipt" : ticket.receipt)}</div>}
         <div className="cap">{t("receiptLang")}</div>
         <div style={{ flex: 1 }} />
         {ticket.status === "paid" && <Button variant="ghost" data-testid="refund" onClick={() => setRefunding(true)}>{t("refund")}</Button>}
