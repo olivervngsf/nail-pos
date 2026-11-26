@@ -68,14 +68,29 @@ Use the demo salon "Lotus Demo Nails" on live, owner login.
 - [ ] 2 hours before → "See you today at …" email. Texts for these stay off until the salon has its own number (logged as skipped).
 - [ ] Cancel a booking with the change/cancel link → no reminders for it.
 
-## 4d. Client texts in TEST MODE (confirm, reminder, receipt; before go-live)
-Only phones in Vercel `TEXT_TEST_PHONES` get them, on the PolishOS number, starting "(Test)". Promos never.
-1. Vercel → Settings → Environment Variables → `TEXT_TEST_PHONES` = your cell + Twilio's Virtual Phone number (Twilio → Messaging → Try it out → Send an SMS shows it), comma between. Production + Preview → redeploy.
-2. Confirm: book on the demo booking page with your cell, tick the texts box → "(Test) Lotus Demo Nails: You're booked …" arrives.
-3. Reminder: book ~2h 30 min ahead → the 2-hour reminder arrives at the next :23 / :53 run (needs CRON_SECRET).
-4. Receipt: Checkout → ticket with a client whose phone is on the list → pay → Receipt → Text → "(Test) … Your receipt #… ($…): link" → link opens the receipt.
-5. Same with the Virtual Phone number as the client phone → watch it in Twilio's Virtual Phone screen.
-6. Settings → Texting → Messages shows each one ✓. A phone NOT on the list: stays "not set up" (nothing sent).
+## 4d. Client flow in TEST MODE: book → confirm → reminder (3 min) → pay → receipt (Oliver, ~15 min, 8 AM–9 PM)
+Only phones in `TEXT_TEST_PHONES` get texts, on the PolishOS number, starting "(Test)". Promos never. Cost: ~1¢ per text, cash payment = no card charge.
+
+**Part A · once (Vercel + GitHub)**
+1. Make a secret: any long random text, e.g. from a password manager (30+ letters/numbers). Copy it.
+2. vercel.com → project nail-pos → Settings → Environment Variables → Add `CRON_SECRET` = that text (Production).
+3. Add `TEXT_TEST_PHONES` = your cell, 10 digits, e.g. `4085551234` (Production + Preview). Twilio Virtual Phone too? add it after a comma.
+4. Vercel → Deployments → newest Production → ⋯ → Redeploy (wait ~2 min until Ready).
+5. github.com/olivervngsf/nail-pos → Settings → Secrets and variables → Actions → New repository secret → name `CRON_SECRET`, same text.
+6. GitHub → Actions → "Scheduled texts" → Run workflow → Run. Green ✓ = the app now sends reminders every minute by itself.
+
+**Part B · test mode on (demo salon)**
+7. Private window → polishosapp.com/login → phone 555-010-0001 → code 123456 (demo owner).
+8. Profile (bottom left) → Settings → Booking reminders → 2nd reminder = 2h → switch on "Test reminders (24h)" → Save.
+
+**Part C · the client flow**
+9. New private window → polishosapp.com/lotus-demo-nails → pick a service → a time at least 3h from now → your name + YOUR cell → tick the texts box → Book.
+10. Within a minute: text "(Test) Lotus Demo Nails: You're booked …" with a change/cancel link.
+11. About 3 minutes later: "(Test) … reminder" text.
+12. Back in the owner window → Checkout → New ticket → find the client by your phone → add a service → Charge → Cash → Cash received.
+13. Paid screen → Receipt → Text → "(Test) … Your receipt #… ($…): link" arrives; the link opens the receipt.
+14. Settings → Texting → Messages: confirm, reminder, receipt all ✓. Anything else: send Claude a screenshot of this list (it shows the reason).
+15. Done testing? Settings → Booking reminders → switch Test reminders off (or it ends itself after 24h).
 
 ## 5. Things that must NOT text (5 min)
 - [ ] Book on the public booking page with a real phone + texts checkbox on → booked screen says texting **not on yet** (salon has no own number). No text arrives.
