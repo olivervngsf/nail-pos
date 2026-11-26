@@ -7,6 +7,15 @@ export type TextKind = "invite" | "salon_ready" | "confirm" | "reminder" | "rece
 export const PLATFORM_KINDS: TextKind[] = ["invite", "salon_ready"];
 /** Kinds that need the client's yes (clients.texts_ok) at that salon. Receipts are asked for at the desk. */
 export const NEEDS_YES: TextKind[] = ["confirm", "reminder", "promo"];
+/** Client kinds that may go to a TEST phone on the PolishOS number while a salon has no number of its own
+ *  (TEXT_TEST_PHONES in Vercel: our own phones + Twilio's Virtual Phone). Never promos. */
+export const TEST_KINDS: TextKind[] = ["confirm", "reminder", "receipt"];
+export function testPhones(list: string | undefined | null): string[] {
+  return (list ?? "").split(/[,;\n]+/).filter(Boolean).map((p) => e164(p)).filter((p): p is string => !!p);
+}
+export function onTestList(kind: TextKind, to: string, list: string | undefined | null): boolean {
+  return TEST_KINDS.includes(kind) && testPhones(list).includes(to);
+}
 
 /** Carrier keywords. Only the whole reply counts ("stop", "STOP." → stop; "don't stop" → nothing). */
 const STOP = ["STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT", "OPTOUT", "REVOKE", "DUNG", "HUY"];

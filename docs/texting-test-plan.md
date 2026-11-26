@@ -68,6 +68,15 @@ Use the demo salon "Lotus Demo Nails" on live, owner login.
 - [ ] 2 hours before → "See you today at …" email. Texts for these stay off until the salon has its own number (logged as skipped).
 - [ ] Cancel a booking with the change/cancel link → no reminders for it.
 
+## 4d. Client texts in TEST MODE (confirm, reminder, receipt; before go-live)
+Only phones in Vercel `TEXT_TEST_PHONES` get them, on the PolishOS number, starting "(Test)". Promos never.
+1. Vercel → Settings → Environment Variables → `TEXT_TEST_PHONES` = your cell + Twilio's Virtual Phone number (Twilio → Messaging → Try it out → Send an SMS shows it), comma between. Production + Preview → redeploy.
+2. Confirm: book on the demo booking page with your cell, tick the texts box → "(Test) Lotus Demo Nails: You're booked …" arrives.
+3. Reminder: book ~2h 30 min ahead → the 2-hour reminder arrives at the next :23 / :53 run (needs CRON_SECRET).
+4. Receipt: Checkout → ticket with a client whose phone is on the list → pay → Receipt → Text → "(Test) … Your receipt #… ($…): link" → link opens the receipt.
+5. Same with the Virtual Phone number as the client phone → watch it in Twilio's Virtual Phone screen.
+6. Settings → Texting → Messages shows each one ✓. A phone NOT on the list: stays "not set up" (nothing sent).
+
 ## 5. Things that must NOT text (5 min)
 - [ ] Book on the public booking page with a real phone + texts checkbox on → booked screen says texting **not on yet** (salon has no own number). No text arrives.
 - [ ] Settings → Texting → Send promo text → still **TEST VERSION**: credit taken, no text goes out.

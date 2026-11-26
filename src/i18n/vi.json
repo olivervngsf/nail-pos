@@ -181,7 +181,7 @@
     "email": "Email",
     "noReceipt": "Không lấy hóa đơn",
     "receiptLang": "Hóa đơn theo ngôn ngữ của khách.",
-    "textLater": "Đã lưu. Tin nhắn và email sẽ gửi khi số nhắn tin của tiệm được cài.",
+    "textLater": "Đã lưu. Gửi ngay nếu tiệm đã bật tin nhắn / email (xem Cài đặt → Tin nhắn → Tin đã gửi).",
     "printed": "Đã gửi tới máy in",
     "noPhone": "Thêm SĐT khách trên phiếu để nhắn hóa đơn.",
     "emailPh": "khach@email.com",
@@ -2683,7 +2683,8 @@
       "carriers": "Nhà mạng + Twilio",
       "stripe": "Stripe",
       "polishos": "PolishOS"
-    }
+    },
+    "noAddress": "không có số"
   },
   "textrules": {
     "title": "Quy định nhắn tin, và lý do",

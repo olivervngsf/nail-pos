@@ -8,7 +8,7 @@
 // salon numbers live in text_numbers.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { textParts } from "@/lib/texting/parts";
-import { e164, NEEDS_YES, PLATFORM_KINDS, type TextKind } from "@/lib/texting/sms";
+import { e164, NEEDS_YES, onTestList, PLATFORM_KINDS, type TextKind } from "@/lib/texting/sms";
 
 export type SendInput = { clientKey: string; kind: TextKind; to: string; body: string; salonId?: string | null };
 export type SendResult = { id?: string; status: "queued" | "sent" | "failed" | "skipped" | "blocked"; error?: string; duplicate?: boolean };
@@ -16,7 +16,7 @@ export type SendResult = { id?: string; status: "queued" | "sent" | "failed" | "
 export const smsConfigured = () => !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN);
 
 /** Which Messaging Service sends this text, or why none can yet. */
-async function senderFor(db: SupabaseClient, kind: TextKind, salonId: string | null): Promise<{ service?: string; phone?: string; from?: string; why?: string }> {
+async function senderFor(db: SupabaseClient, kind: TextKind, salonId: string | null, to: string): Promise<{ service?: string; phone?: string; from?: string; why?: string; test?: boolean }> {
   if (PLATFORM_KINDS.includes(kind) || !salonId) {
     const service = process.env.TWILIO_MESSAGING_SERVICE_SID, phone = process.env.TWILIO_FROM;
     // TWILIO_FROM = a plain Twilio number, for testing before the Messaging Service is registered (trial accounts too:
@@ -24,7 +24,12 @@ async function senderFor(db: SupabaseClient, kind: TextKind, salonId: string | n
     return service ? { service, from: "polishos" } : phone ? { phone, from: phone } : { why: "PolishOS number not set up yet" };
   }
   const { data } = await db.from("text_numbers").select("phone,messaging_service_sid").eq("salon_id", salonId).eq("status", "active").maybeSingle();
-  return data ? { service: data.messaging_service_sid, from: data.phone } : { why: "salon's texting number not registered yet" };
+  if (data) return { service: data.messaging_service_sid, from: data.phone };
+  // Test mode (before go-live): a confirm / reminder / receipt to a phone on TEXT_TEST_PHONES goes out on the PolishOS
+  // number, marked "(Test)". Only our own phones + Twilio's Virtual Phone; real clients still wait for the salon's number.
+  const service = process.env.TWILIO_MESSAGING_SERVICE_SID;
+  if (service && onTestList(kind, to, process.env.TEXT_TEST_PHONES)) return { service, from: "polishos-test", test: true };
+  return { why: "salon's texting number not registered yet" };
 }
 
 export async function sendText(db: SupabaseClient, input: SendInput, origin?: string): Promise<SendResult> {
@@ -60,7 +65,8 @@ export async function sendText(db: SupabaseClient, input: SendInput, origin?: st
     if (!ok) return record("blocked", { error: "no recorded yes to texts from this client" });
   }
 
-  const from = await senderFor(db, input.kind, salonId);
+  const from = await senderFor(db, input.kind, salonId, to);
+  if (from.test && !input.body.startsWith("(Test) ")) input = { ...input, body: `(Test) ${input.body}` };
   if (!smsConfigured()) return record("skipped", { error: "texting not switched on (no Twilio settings)" });
   if (!from.service && !from.phone) return record("skipped", { error: from.why });
 
