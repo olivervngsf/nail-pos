@@ -110,9 +110,9 @@ function Info({ a }: { a: Access }) {
             <Switch on={h.on} onChange={(on) => setDay(h.weekday, { on })} label={`${dayName(h.weekday)} ${L("open", "mở")}`} />
             {h.on
               ? <span className="si-times">
-                  <input className={`inp${h.close <= h.open ? " err" : ""}`} type="time" value={h.open} aria-label={`${dayName(h.weekday)} ${L("opens", "mở")}`} onChange={(e) => setDay(h.weekday, { open: e.target.value })} />
+                  <TimePick bad={h.close <= h.open} value={h.open} label={`${dayName(h.weekday)} ${L("opens", "mở")}`} onChange={(v) => setDay(h.weekday, { open: v })} />
                   <span className="cap">–</span>
-                  <input className={`inp${h.close <= h.open ? " err" : ""}`} type="time" value={h.close} aria-label={`${dayName(h.weekday)} ${L("closes", "đóng")}`} onChange={(e) => setDay(h.weekday, { close: e.target.value })} />
+                  <TimePick bad={h.close <= h.open} value={h.close} label={`${dayName(h.weekday)} ${L("closes", "đóng")}`} onChange={(v) => setDay(h.weekday, { close: v })} />
                 </span>
               : <span className="cap si-times">{L("Closed", "Nghỉ")}</span>}
           </div>
@@ -143,5 +143,24 @@ function Info({ a }: { a: Access }) {
       </div>
       {toast && <Toast>{toast}</Toast>}
     </div>
+  );
+}
+
+// Hours as a plain list of 15-minute times (same as setup), not the browser's clock picker.
+const TIMES = Array.from({ length: (23 - 5) * 4 + 1 }, (_, i) => {
+  const m = 5 * 60 + i * 15;
+  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+});
+const twelve = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return `${((h + 11) % 12) + 1}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+};
+function TimePick({ value, label, bad, onChange }: { value: string; label: string; bad: boolean; onChange: (v: string) => void }) {
+  const v = value.slice(0, 5);
+  const list = TIMES.includes(v) ? TIMES : [...TIMES, v].sort();
+  return (
+    <select className={`inp si-time${bad ? " err" : ""}`} aria-label={label} value={v} onChange={(e) => onChange(e.target.value)}>
+      {list.map((t) => <option key={t} value={t}>{twelve(t)}</option>)}
+    </select>
   );
 }

@@ -1698,6 +1698,7 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .si-dn { width: 44px; }
 .si-times { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 .si-times .inp { width: 128px; }
+.si-times select.si-time { width: 120px; text-align: center; }
 .si-bar { position: sticky; bottom: 0; display: flex; align-items: center; gap: 8px; justify-content: flex-end; padding: 12px 0; background: var(--surface); border-top: 1px solid var(--line); }
 .si-bar .cap { margin-right: auto; }
 .si-top { display: flex; align-items: center; gap: 12px; }
@@ -1780,3 +1781,28 @@ body:has(.faces .scrim) .clock-qr { display: none; }
   .set-win .set-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .set-win .set-chips .chip { flex: none; }
 }
+/* Nov 26 (Oliver: "left nav looks odd", "more space between sections"): one clean menu column, no scrollbar strip;
+   page header with room above + below; more air between sections. */
+@media (min-width: 900px) {
+  .set-win { background: linear-gradient(to right, transparent 249px, var(--line) 249px, var(--line) 250px, transparent 250px), var(--paper); }
+  .set-win-h { background: var(--paper); position: relative; z-index: 1; }
+  .set-win .set-nav { border-right: 0; background: transparent; scrollbar-width: none; }
+  .set-win .set-nav::-webkit-scrollbar { display: none; }
+  .set-search { margin: 16px 12px 6px; width: auto; }
+  .set-win .bar { height: auto; min-height: 76px; padding: 20px 32px 12px; align-items: center; }
+  .set-win .set-main, .set-win .me-main { padding-left: 32px; padding-right: 32px; gap: 32px; }
+}
+.set-win .set-main > * + .eyebrow, .set-win .me-main > * + .eyebrow { margin-top: 8px; }
+.set-win .bar .title { font-size: 20px; }
+.set-win .card + .card, .set-win .card + .group, .set-win .group + .card, .set-win .group + .group { margin-top: 12px; }
+
+/* Nov 26 (Oliver): the dim covers the WHOLE app incl. the left menu; the window sits in the middle of the screen
+   with clear space above and below; save bars inside the window have no grey strip. */
+@media (min-width: 900px) {
+  .set-scrim { left: 0; z-index: 40; }
+  .set-win { z-index: 41; top: max(56px, calc((100dvh - 820px) / 2)); bottom: max(56px, calc((100dvh - 820px) / 2));
+    left: max(40px, calc((100vw - 1120px) / 2)); right: max(40px, calc((100vw - 1120px) / 2)); }
+}
+.set-win .si-bar { background: var(--paper); border-top: 1px solid var(--line); margin: 0 -32px; padding: 14px 32px; }
+.set-win .si-page { gap: 24px; }
+@media (max-width: 599px) { .set-win .si-bar { margin: 0 -16px; padding: 12px 16px; } }
