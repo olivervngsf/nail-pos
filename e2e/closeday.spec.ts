@@ -49,6 +49,8 @@ test("payout sheet prints one slip per person (own page / own cut)", async ({ pa
     const d = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, "srcdoc")!;
     Object.defineProperty(HTMLIFrameElement.prototype, "srcdoc", { set(v: string) { (window as unknown as { __printed: string[] }).__printed = [...((window as unknown as { __printed?: string[] }).__printed ?? []), v]; d.set!.call(this, v); }, get() { return d.get!.call(this); } });
     window.print = () => {};
+    // No Bluetooth here: slips use the computer's print window (with Bluetooth they go straight to the receipt printer).
+    Object.defineProperty(Navigator.prototype, "bluetooth", { get: () => undefined, configurable: true });
   });
   await page.goto("/payouts");
   await expect(page.getByTestId("po-Kim")).toBeVisible();
