@@ -675,9 +675,6 @@ button:disabled { cursor: not-allowed; }
 .cal-alp { position: absolute; right: 0; top: 42px; width: 380px; padding: 8px 0; z-index: 20; box-shadow: 0 18px 50px rgba(28,28,30,.22), 0 0 0 1px rgba(0,0,0,.04); animation: popin .2s cubic-bezier(.2,.8,.2,1) both; }
 .cal-alr { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 12px 16px; border: 0; border-top: 1px solid var(--line); background: #fff; font: inherit; font-size: 13px; text-align: left; cursor: pointer; color: var(--ink); }
 .cal-alr:first-child { border-top: 0; }
-.cal-banner { display: flex; align-items: center; gap: 10px; padding: 6px 16px; background: #FDEEE6; font-size: 13px; flex: none; flex-wrap: wrap; }
-.cal-bwarn { color: #B5470A; }
-.cal-banner .btn.sm { height: 26px; background: #fff; }
 .cal-filters { height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 12px; flex: none; }
 .cal-svc { height: 32px; border-radius: 999px; background: #fff; border: 1px solid var(--line); padding: 0 12px; font: inherit; font-size: 13px; color: #5C5C5E; }
 .cal-avail button { border: 0; background: transparent; font: inherit; cursor: pointer; white-space: nowrap; }
@@ -698,7 +695,7 @@ button:disabled { cursor: not-allowed; }
 .cal-utag.out { color: #5C5C5E; }
 .cal-keys { line-height: 24px; }
 @media (max-width: 1199px) { .cal-search { width: 180px; } }
-@media (max-width: 899px) { .cal-waitpill { display: inline-flex; order: -1; } .cal-alabel, .cal-bsub { display: none; } .cal-banner { flex-wrap: nowrap; } .cal-banner .cal-bwarn { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; } .cal-filters, .cal-kbd, .cal-banner .cap { display: none; } .cal-alertbtn { padding: 0 8px; }
+@media (max-width: 899px) { .cal-waitpill { display: inline-flex; order: -1; } .cal-alabel, .cal-bsub { display: none; } .cal-filters, .cal-kbd { display: none; } .cal-alertbtn { padding: 0 8px; }
   /* Phone: no search box, but the Scan button stays. */
   .cal-search { width: auto; padding: 0; background: transparent; } .cal-search input, .cal-search .kbd { display: none; } .cal-scan { height: 34px; padding: 0 10px; } }
 .wi-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: 10px; align-items: stretch; }
@@ -1096,8 +1093,10 @@ button:disabled { cursor: not-allowed; }
 .tw-qr { width: 176px; height: 176px; background: #fff; border-radius: 12px; padding: 8px; align-self: center; }
 .tw-code { letter-spacing: 0.3em; text-align: center; font-size: 22px; font-variant-numeric: tabular-nums; }
 /* Support mode strip (admin inside a salon, owner allowed it): pinned to the top of every screen. */
-.support-banner { position: sticky; top: 0; z-index: 60; height: auto; min-height: 40px; flex-wrap: wrap; padding: 6px 16px; }
-.support-banner .grow { flex: 1; min-width: 180px; }
+.support-banner { position: sticky; top: 0; z-index: 60; flex-wrap: wrap; }
+.support-chip { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 60; height: 30px; padding: 0 12px 0 10px; border-radius: 999px; border: 1px solid var(--line); background: #F2F2F5; color: var(--ink); font: inherit; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 6px 20px rgba(28,28,30,.12); }
+/* Error banner next to a pay button: no wider than the buttons under it. */
+.bn-narrow { max-width: 520px; width: 100%; }
 
 /* ===== Calendar · Live design (Nov 18): exact sizes + looks from the Live calendar board (cal.css / Live.dc.html) ===== */
 .cal-app { background: #F6F6F8; height: 100dvh; overflow: hidden; }

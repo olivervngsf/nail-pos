@@ -133,11 +133,27 @@ b,strong{font-weight:600} /* browsers default <b> to bold: semibold is our defau
 .drawer-f{padding:16px 20px;border-top:1px solid var(--line);display:flex;gap:10px}
 .sheet{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;background:var(--paper);border-radius:24px;box-shadow:0 -6px 24px rgba(28,28,30,.12);padding:20px;display:flex;flex-direction:column;gap:12px;animation:sheetUp .35s var(--ease) both}
 .toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);min-width:420px;max-width:calc(100% - 32px);box-sizing:border-box;background:var(--ink);color:#fff;border-radius:14px;padding:12px 12px 12px 18px;display:flex;align-items:center;gap:12px;font-size:15px;box-shadow:0 12px 32px rgba(0,0,0,.25);z-index:20;animation:fadeUp .35s var(--ease) both}
-.toast .btn,.toast button{box-shadow:none;height:32px;padding:0 14px;border-radius:10px;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.toast .btn,.toast button:not(.bn-x){box-shadow:none;height:32px;padding:0 14px;border-radius:10px;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
 .phone .toast{min-width:0;left:16px;right:16px;transform:none}
-/* Banner: offline / syncing / warning strip under the top bar */
-.banner{display:flex;align-items:center;gap:10px;height:34px;padding:0 16px;background:var(--orange-soft);border-bottom:1px solid #F4C9AF;font-size:13px;box-sizing:border-box;animation:fadeIn .4s ease both}
-.banner.ok{background:var(--jade-soft);border-color:#CFE8D4}
+.toast{padding:6px 6px 6px 16px;min-height:44px;font-size:14px;border-radius:12px}
+.toast .bn-x{color:#fff}.toast .bn-x:hover{background:rgba(255,255,255,.14)}
+/* Banner (Nov 25, board "Notifications & Banners"): compact, one tone each, icon + bold first word, always an X.
+   Default = rounded box inside a screen; .strip = full-width strip under the top bar. */
+.banner{display:flex;align-items:center;gap:10px;min-height:40px;padding:4px 5px 4px 12px;border-radius:12px;background:var(--orange-soft);border:1px solid #F4C9AF;color:var(--ink);font-size:14px;line-height:19px;box-sizing:border-box;animation:fadeIn .3s ease both}
+.banner .bn-ic{flex:none;color:var(--orange)}
+.banner .bn-t{flex:1;min-width:0}
+.banner .bn-t>b{font-weight:600;color:#B5470A}
+.banner .bn-a{flex:none;display:flex;gap:6px}
+.banner .bn-a .btn{height:28px;padding:0 10px;border-radius:8px;font-size:13px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.bn-x{flex:none;width:30px;height:30px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--ink-soft);display:grid;place-items:center;cursor:pointer}
+.bn-x:hover{background:rgba(0,0,0,.06)}
+.bn-x:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.banner.ok{background:var(--jade-soft);border-color:#CFE8D4}.banner.ok .bn-ic{color:var(--jade)}.banner.ok .bn-t>b{color:#1E6B2E}
+.banner.info{background:#F2F2F5;border-color:var(--line)}.banner.info .bn-ic{color:var(--ink-soft)}.banner.info .bn-t>b{color:var(--ink)}
+.banner.bad{background:#FDECEC;border-color:#F5C2C2}.banner.bad .bn-ic{color:var(--red)}.banner.bad .bn-t>b{color:#B3261E}
+.banner.strip{border-radius:0;border-width:0 0 1px;padding-left:16px}
+@media (pointer:coarse){.bn-x{width:44px;height:44px;margin:-4px -5px -4px 0}}
+@media (prefers-reduced-motion:reduce){.banner{animation:none}}
 /* Empty state */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:40px;text-align:center;color:var(--ink-soft)}
 .empty .h2{color:var(--ink)}

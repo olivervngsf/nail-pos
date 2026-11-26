@@ -43,3 +43,27 @@ test("language switch shows Vietnamese", async ({ page }) => {
   await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: "Bộ thiết kế" })).toBeVisible(); // remembered
 });
+
+test("every banner and toast closes with its X; offline folds into the pill and comes back", async ({ page, context }) => {
+  await page.goto("/kit");
+  const late = page.getByRole("status").filter({ hasText: "PolishOS payment is late" });
+  await expect(late).toBeVisible();
+  await late.getByRole("button", { name: "Close" }).click();
+  await expect(late).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Show toast" }).click();
+  const toast = page.locator(".toast");
+  await expect(toast).toBeVisible();
+  await toast.getByRole("button", { name: "Close" }).click();
+  await expect(toast).toHaveCount(0);
+
+  await context.setOffline(true);
+  await page.evaluate(() => window.dispatchEvent(new Event("offline")));
+  const off = page.getByTestId("offline-banner");
+  await expect(off).toBeVisible();
+  await off.getByRole("button", { name: "Close" }).click();
+  await expect(off).toHaveCount(0);
+  await page.getByTestId("sync-pill").first().click(); // folded: tap the pill = open again
+  await expect(off).toBeVisible();
+  await context.setOffline(false);
+});

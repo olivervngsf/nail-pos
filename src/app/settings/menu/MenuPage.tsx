@@ -4,7 +4,7 @@
 // Owner/manager only (menu_service_save / menu_service_remove, logged). Checkout + calendar pick it up on next load.
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Drawer, Switch, Toast } from "@/components/kit";
+import { Banner, Button, Drawer, Switch, Toast } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
 import { rpc } from "@/lib/auth";
 import { fmtPrice } from "@/lib/onboarding/data";
@@ -71,7 +71,7 @@ function Menu({ a, adding }: { a: Access; adding: number }) {
         </div>
       ))}
       {!groups.length && <div className="card pad cap">{L("No service matches.", "Không có dịch vụ nào khớp.")}</div>}
-      {err && <div className="banner" role="alert">{err}</div>}
+      {err && <Banner tone="bad" onClose={() => setErr("")}>{err}</Banner>}
       {a.demo && <div className="demo">{L("Test version: changes stay on this screen.", "Bản thử: thay đổi chỉ ở màn hình này.")}</div>}
 
       {edit && <EditService a={a} item={edit} menu={menu} L={L} onClose={() => setEdit(null)}
@@ -155,7 +155,7 @@ function EditService({ a, item, menu, L, onClose, onSaved }: {
         </div>
         {problem && (it.name || price) && <div className="hint err">{msg[problem]}</div>}
         {sure && <div className="note">{L("Removed services leave the menu. Old tickets keep them.", "Dịch vụ đã gỡ rời khỏi bảng. Phiếu cũ vẫn giữ.")}</div>}
-        {err && <div className="banner" role="alert">{err}</div>}
+        {err && <Banner tone="bad" onClose={() => setErr("")}>{err}</Banner>}
       </div>
     </Drawer>
   );

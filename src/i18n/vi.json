@@ -6,7 +6,14 @@
     "offline": "Mất mạng · đã lưu trên máy",
     "waiting": "{count, plural, other {# thay đổi đang chờ gửi}}",
     "banner": "Mất mạng. Cứ làm tiếp: mọi thứ lưu trên máy này và tự gửi khi có mạng lại.",
-    "stuck": "{count} chưa lưu được · bấm để thử lại"
+    "stuck": "{count} chưa lưu được · bấm để thử lại",
+    "close": "Đóng",
+    "offlineTitle": "Không có mạng.",
+    "offlineText": "Cứ làm tiếp: mọi thứ lưu trên máy và gửi khi có mạng lại.",
+    "stuckTitle": "{count} chưa lưu.",
+    "stuckText": "Vẫn an toàn trên máy này. Bấm Thử lại để gửi lại.",
+    "retry": "Thử lại",
+    "openAgain": "Mở lại thông báo"
   },
   "home": {
     "tagline": "Tính tiền đơn giản, lương thợ rõ ràng.",
