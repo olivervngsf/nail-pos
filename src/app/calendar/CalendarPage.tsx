@@ -19,6 +19,8 @@ import { SeatDrawer, WalkInDrawer, Waitlist, seatAppt, useTick } from "./WalkIns
 import { DayPlan, LiveBoard } from "./LiveBoard";
 import { OmniSearch } from "./OmniSearch";
 import { liveBoard } from "@/lib/booking/board";
+import { weekdayOrder } from "@/lib/weekStart";
+import { useWeekStart } from "@/lib/useWeekStart";
 import { addDays, at, clamp, dayKey, fmtMin, fromDayKey, lanes, minutesOf, overlapping, snap, startOfWeek } from "@/lib/booking/grid";
 import { BookDrawer, DetailsDrawer, statusOf, ticketFor, type BookDraft } from "./BookDrawers";
 
@@ -46,14 +48,15 @@ function Calendar({ desk, refresh }: { desk: Desk; refresh: () => Promise<void> 
   const say = useCallback((text: string, undo?: () => void) => { setToast({ text, undo }); clearTimeout(timer.current); timer.current = setTimeout(() => setToast(null), 5000); }, []);
   const [draft, setDraft] = useState<BookDraft | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const ws = useWeekStart();
 
   const range = useMemo(() => {
     const d = fromDayKey(day);
     if (view === "day") return { from: at(day, 0), to: at(dayKey(addDays(d, 1)), 0) };
-    if (view === "week") { const s = startOfWeek(d); return { from: at(dayKey(s), 0), to: at(dayKey(addDays(s, 7)), 0) }; }
-    const s = startOfWeek(new Date(d.getFullYear(), d.getMonth(), 1));
+    if (view === "week") { const s = startOfWeek(d, ws); return { from: at(dayKey(s), 0), to: at(dayKey(addDays(s, 7)), 0) }; }
+    const s = startOfWeek(new Date(d.getFullYear(), d.getMonth(), 1), ws);
     return { from: at(dayKey(s), 0), to: at(dayKey(addDays(s, 42)), 0) };
-  }, [day, view]);
+  }, [day, view, ws]);
   const all = useAppts(desk.salonId, range.from, range.to);
   const today = dayKey(new Date());
   const list = useMemo(() => all.filter(onGrid), [all]);
@@ -93,7 +96,7 @@ function Calendar({ desk, refresh }: { desk: Desk; refresh: () => Promise<void> 
   const title = (() => {
     const d = fromDayKey(day);
     if (view === "day") return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-    if (view === "week") { const s = startOfWeek(d); return `${s.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${addDays(s, 6).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`; }
+    if (view === "week") { const s = startOfWeek(d, ws); return `${s.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${addDays(s, 6).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`; }
     return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
   })();
 
@@ -648,19 +651,22 @@ function payHow(tk: ReturnType<typeof getTicket>, t: (k: "paidCard" | "paidCash"
 
 const CLS: Record<string, string> = { blocked: "blocked", booked: "unconf", confirmed: "conf", arrived: "chair", done: "paid", no_show: "cancel", canceled: "cancel" };
 
+const WD2 = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const WD3 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 function MiniMonth({ day, list }: { day: string; list: Appt[] }) {
   const router = useRouter();
   const t = useTranslations("calendar");
   const d = fromDayKey(day);
   const first = new Date(d.getFullYear(), d.getMonth(), 1);
-  const start = startOfWeek(first);
+  const ws = useWeekStart();
+  const start = startOfWeek(first, ws);
   const busy = new Set(list.filter(live).map((a) => dayKey(new Date(a.start))));
   const today = dayKey(new Date());
   return (
     <div className="cal-minibox">
       <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}><b style={{ fontSize: 15, flex: 1 }}>{d.toLocaleDateString(undefined, { month: "long", year: "numeric" })}</b></div>
       <div className="cal-mini">
-        {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((x, i) => <span key={i} className="cap">{x}</span>)}
+        {weekdayOrder(ws).map((i) => <span key={i} className="cap">{WD2[i]}</span>)}
         {Array.from({ length: 42 }, (_, i) => { const x = addDays(start, i), k = dayKey(x); return (
           <button key={k} type="button" className={`${k === day ? "sel" : ""} ${k === today ? "today" : ""} ${busy.has(k) ? "busy" : ""} ${x.getMonth() !== d.getMonth() ? "out" : ""}`}
             onClick={() => router.replace(`/calendar?view=day&d=${k}`)}>{x.getDate()}</button>); })}
@@ -673,7 +679,7 @@ function MiniMonth({ day, list }: { day: string; list: Appt[] }) {
 /* ---------- Week (W1–W2) ---------- */
 function WeekView({ desk, day, list, onDay, onOpen, onBook }: { desk: Desk; day: string; list: Appt[]; onDay: (d: string) => void; onOpen: (id: string) => void; onBook: (d: BookDraft) => void }) {
   const t = useTranslations("calendar");
-  const s = startOfWeek(fromDayKey(day));
+  const s = startOfWeek(fromDayKey(day), useWeekStart());
   const days = Array.from({ length: 7 }, (_, i) => dayKey(addDays(s, i)));
   const name = (id?: string | null) => desk.staff.find((x) => x.id === id)?.name ?? t("anyone");
   return (
@@ -709,11 +715,12 @@ function WeekView({ desk, day, list, onDay, onOpen, onBook }: { desk: Desk; day:
 function MonthView({ day, list, onDay }: { day: string; list: Appt[]; onDay: (d: string) => void }) {
   const t = useTranslations("calendar");
   const d = fromDayKey(day);
-  const start = startOfWeek(new Date(d.getFullYear(), d.getMonth(), 1));
+  const ws = useWeekStart();
+  const start = startOfWeek(new Date(d.getFullYear(), d.getMonth(), 1), ws);
   const today = dayKey(new Date());
   return (
     <main className="cal-month">
-      {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((x) => <div key={x} className="cap cal-mh">{x}</div>)}
+      {weekdayOrder(ws).map((i) => <div key={i} className="cap cal-mh">{WD3[i]}</div>)}
       {Array.from({ length: 42 }, (_, i) => {
         const x = addDays(start, i), k = dayKey(x);
         const mine = list.filter((a) => dayKey(new Date(a.start)) === k && live(a) && !isBlocked(a));
