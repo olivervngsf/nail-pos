@@ -136,7 +136,7 @@ const SALON_ROWS: LRow[] = [
   { key: "devices", href: "/settings/devices", who: "admin" }, { key: "billing", href: "/settings/billing", who: "admin", label: "list.billing" },
 ];
 /** The pages behind one "Running the salon" row, for this role. */
-const hubItems = (g: string, role: Role) => NAV.filter((n) => n.group === g && canOpen(n.who, role));
+const hubItems = (g: string, role: Role, perms?: RolePerms) => NAV.filter((n) => n.group === g && canOpen(n.who, role, n.group, perms));
 
 const ICO = ({ k }: { k: string }) => <svg className="set-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={ICON[k] ?? ICON.menu} /></svg>;
 
@@ -216,15 +216,16 @@ function SettingsList({ role, q }: { role: Role; q: string }) {
   const photo = useMyPhoto();
   const phone = useMyPhone();
   const vals = useRowValues(role);
+  const perms = useMyPerms();
   const words = q.trim().toLowerCase();
   const name = (r: LRow) => t(r.label ?? `nav.${r.key}`);
   const groups: { g: string; rows: { key: string; href: string; name: string; icon?: string }[] }[] = words
-    ? [{ g: "", rows: [...ME_ROWS.map((r) => ({ ...r, name: name(r) })), ...NAV.filter((n) => n.href !== "/me" && canOpen(n.who, role)).map((n) => ({ key: n.key, href: n.href, name: t(`nav.${n.key}`) }))]
+    ? [{ g: "", rows: [...ME_ROWS.map((r) => ({ ...r, name: name(r) })), ...NAV.filter((n) => n.href !== "/me" && canOpen(n.who, role, n.group, perms)).map((n) => ({ key: n.key, href: n.href, name: t(`nav.${n.key}`) }))]
         .filter((r) => r.name.toLowerCase().includes(words)) }]
     : [
         { g: "me", rows: ME_ROWS.filter((r) => canOpen(r.who, role)).map((r) => ({ ...r, name: name(r) })) },
-        { g: "salon", rows: SALON_ROWS.filter((r) => canOpen(r.who, role)).map((r) => ({ ...r, name: name(r) })) },
-        { g: "running", rows: HUBS.map((g) => ({ g, items: hubItems(g, role) })).filter((h) => h.items.length).map(({ g, items }) => ({
+        { g: "salon", rows: SALON_ROWS.filter((r) => canOpen(r.who, role, "salon", perms)).map((r) => ({ ...r, name: name(r) })) },
+        { g: "running", rows: HUBS.map((g) => ({ g, items: hubItems(g, role, perms) })).filter((h) => h.items.length).map(({ g, items }) => ({
             key: g, name: t(`group.${g}`), icon: HUB_ICON[g], href: items.length === 1 ? items[0].href : `/settings/more/${g}` })) },
       ];
   const shown = groups.filter((x) => x.rows.length);
@@ -258,7 +259,8 @@ export function SettingsGroupPage({ group }: { group: string }) {
   const router = useRouter();
   const { me, isDevice, acting, ready } = useMe();
   const role: Role | null = me ? (isDevice ? (acting?.role ?? "tech") : me.role) : null;
-  const items = role ? hubItems(group, role) : [];
+  const perms = useMyPerms();
+  const items = role ? hubItems(group, role, perms) : [];
   const first = items[0]?.href ?? "";
   const vals = useRowValues(role ?? "tech");
   useEffect(() => {
