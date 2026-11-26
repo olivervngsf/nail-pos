@@ -98,7 +98,7 @@ test("calendar: book, move with undo, check in, week + month", async ({ page }) 
     // Right-click → menu → client is here (green "Here"), then 15 min later + Undo
     await vy.click({ button: "right" });
     await expect(page.getByTestId("cal-menu")).toBeVisible();
-    await page.getByRole("menuitem", { name: "Client is here (check in)" }).click();
+    await page.getByRole("menuitem", { name: "Client is here" }).click();
     await expect(vy).toContainText("Here");
     await vy.click({ button: "right" });
     await page.getByRole("menuitem", { name: "15 min later" }).click();
