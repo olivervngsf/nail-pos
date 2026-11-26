@@ -1944,3 +1944,13 @@ body:has(.faces .scrim) .clock-qr { display: none; }
   html[data-menu="hidden"] .app > .rail { display: none !important; }
 }
 @media (min-width: 600px) and (pointer: coarse) { .menu-tg { width: 44px; height: 44px; margin-left: -12px; } }
+
+/* Top bar · one rule (board "Top Bar · One Rule", Nov 26): page name + one fact left, find in the middle,
+   Saved then the ONE dark main button far right. Never the salon name. */
+.bar .title { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-fact { font-weight: 400; color: var(--ink-soft); }
+.bar.has-find .title { flex: 0 1 auto; }
+.bar-find { flex: 1; min-width: 0; display: flex; justify-content: center; }
+.bar-find .co-scan { width: 380px; }
+.bar-back { flex: none; }
+@media (max-width: 599px) { .bar-fact { display: none; } }

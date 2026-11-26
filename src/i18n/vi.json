@@ -1476,7 +1476,8 @@
     "cash": "Tiền mặt",
     "giftCard": "Thẻ quà",
     "toBankShort": "Vào ngân hàng",
-    "allMatch": "✓ Mọi phiếu khớp với thanh toán."
+    "allMatch": "✓ Mọi phiếu khớp với thanh toán.",
+    "stepOf": "Bước {n}/{total}"
   },
   "payouts": {
     "title": "Bảng lương",

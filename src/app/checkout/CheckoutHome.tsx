@@ -4,17 +4,31 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { LeftMenu, OfflineBanner, SyncPill, TopBar } from "@/components/kit";
+import { Button, LeftMenu, OfflineBanner, SyncPill, TopBar } from "@/components/kit";
 import { getActing, useDesk } from "@/lib/desk";
 import { NEW_FOR } from "@/lib/clients";
 import { pullTickets, putTicket, useTickets } from "@/lib/checkout/store";
 import { type Ticket } from "@/lib/checkout/ticket";
 import { useHomeLayout } from "@/lib/checkout/homeLayout";
-import HomeView from "./HomeViews";
+import HomeView, { ScanBox } from "./HomeViews";
+import { formatCents } from "@/lib/money";
+import { homeFacts } from "@/lib/checkout/home";
 import { getTicket } from "@/lib/checkout/store";
 import { parseTicketScan } from "@/lib/print/print";
 import { keepTapWarm } from "@/lib/app/reader";
 import TapIntro from "@/components/TapIntro";
+
+/** Computer / iPad (600px+): scan box + New ticket sit in the top bar. Phones keep them on the page. */
+function useWide() {
+  const [wide, setWide] = useState(true);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 600px)");
+    const on = () => setWide(mq.matches);
+    on(); mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return wide;
+}
 
 const startOfDay = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString(); };
 
@@ -24,6 +38,7 @@ export default function CheckoutHome() {
   const { desk, err } = useDesk();
   const all = useTickets(desk?.salonId ?? "");
   const { layout } = useHomeLayout(desk?.salonId, desk?.mode === "demo");
+  const wide = useWide();
 
   useEffect(() => {
     if (!desk || desk.mode !== "live") return;
@@ -87,6 +102,7 @@ export default function CheckoutHome() {
   const open = all.filter((x) => x.status === "open" && (x.lines.length || x.client?.name || x.number));
   const paid = all.filter((x) => x.status === "paid" && (x.payment?.at ?? x.createdAt) >= today);
   const acting = getActing();
+  const cards = layout === "cards";
 
   const newTicket = () => {
     const id = crypto.randomUUID();
@@ -97,12 +113,15 @@ export default function CheckoutHome() {
     <div className="app">
       <LeftMenu active="Checkout" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} />
       <div className="col">
-        <TopBar title={desk.salonName}>
+        <TopBar title={t("title")}
+          fact={cards ? `${t("openCount", { n: open.length })} · ${formatCents(homeFacts(open, paid).toCollect)}` : t("openCount", { n: open.length })}
+          find={wide ? <ScanBox scan={scan} setScan={setScan} onScan={() => void openScanned(scan)} /> : undefined}
+          action={wide && !cards ? <Button variant="primary" className="ck-new" data-testid="new-ticket" onClick={newTicket}>{t("newTicket")}</Button> : undefined}>
           <SyncPill />
         </TopBar>
         <OfflineBanner />
         <main className="co-home ck-home" data-layout={layout}>
-          <HomeView layout={layout} open={open} paid={paid} scan={scan} setScan={setScan} onScan={() => void openScanned(scan)} scanMsg={scanMsg} demo={desk.mode === "demo"}
+          <HomeView inBar={wide} layout={layout} open={open} paid={paid} scan={scan} setScan={setScan} onScan={() => void openScanned(scan)} scanMsg={scanMsg} demo={desk.mode === "demo"}
             onNew={newTicket} go={(x, pay) => router.push(`/checkout/${x.id}${pay ? "?pay=1" : ""}`)} />
         </main>
       </div>

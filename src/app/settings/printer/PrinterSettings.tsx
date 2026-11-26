@@ -2,7 +2,6 @@
 // Owner / manager: what every printout shows. Pick a printout (client receipt, staff slip, ticket slip), turn parts
 // on/off, see the paper change on the right (the same lines the printer prints), save for the whole salon, print a test.
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Button, Field, LeftMenu, OfflineBanner, Segmented, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
 import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
@@ -90,7 +89,7 @@ export default function PrinterSettings() {
     <div className="app">
       <LeftMenu active="Today" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={desk.me.display_name[0]} />
       <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/today">‹ {t("back")}</Link>{t("title")}</span>}><SyncPill /></TopBar>
+        <TopBar back={{ href: "/today", label: t("back") }} title={t("title")}><SyncPill /></TopBar>
         <OfflineBanner />
         {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
         {!admin ? <main style={{ padding: "20px 24px" }}><p className="hint err">{t("ownerOnly")}</p></main> : (
