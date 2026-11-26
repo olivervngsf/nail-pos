@@ -333,7 +333,29 @@
       "again": "Already sent to {to}. Send it again?",
       "sendAgain": "Send again",
       "cancel": "Cancel"
-    }
+    },
+    "rcPrint": "Print receipt",
+    "rcPcPrinter": "Computer printer",
+    "rcAddPhone": "+ Add phone",
+    "rcAddEmail": "+ Add email",
+    "rcTextTo": "Text the receipt to",
+    "rcEmailTo": "Email the receipt to",
+    "rcFromProfile": "{name} · from the client profile",
+    "rcOtherPhone": "Use another number",
+    "rcOtherEmail": "Use another email",
+    "rcBack": "Back to {to}",
+    "rcPhoneLbl": "Client's cell phone",
+    "rcEmailLbl": "Client's email",
+    "rcOneTime": "For this receipt only. To keep it on file, edit the client's profile.",
+    "rcSavesEmail": "Also saved to this client, since they have no email yet.",
+    "rcSendText": "Send text",
+    "rcSendEmail": "Send email",
+    "rcSent": "Sent for this ticket",
+    "rcPrinted": "Printed",
+    "rcTexted": "Texted to {to}",
+    "rcEmailed": "Emailed to {to}",
+    "rcDemo": "Test version: not sent to {to}",
+    "rcPrinter": "Printer settings"
   },
   "pay": {
     "title": "Pay {salon}",
@@ -2954,6 +2976,11 @@
     "title": "What’s new",
     "sub": "The latest changes to PolishOS, newest first.",
     "items": [
+      {
+        "date": "Nov 26",
+        "title": "Clearer receipt choices",
+        "body": "After payment: one big Print receipt button, then Text, Email or No receipt. Text and Email show the phone or email on file (or + Add). Sent for this ticket says what happened to each receipt."
+      },
       {
         "date": "Nov 26",
         "title": "New profile menu",
