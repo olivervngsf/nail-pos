@@ -62,7 +62,7 @@ test("front desk builds a ticket, takes cash with change + tips, ticket stays pa
   await page.getByTestId("receipt-text").click();
   await page.getByTestId("receipt-card").getByRole("textbox").fill("4085550142");
   await page.getByTestId("receipt-card").getByRole("button", { name: "Send text" }).click();
-  await expect(page.getByTestId("receipt-sent")).toContainText("Texted to ••0142");
+  await expect(page.getByTestId("receipt-sent")).toContainText("••0142");
   await page.getByRole("button", { name: "No receipt" }).click();
   await page.context().setOffline(false);
 

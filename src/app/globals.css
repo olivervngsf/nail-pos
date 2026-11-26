@@ -1916,7 +1916,6 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .rc-sent { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: var(--r-md); background: var(--paper); box-shadow: var(--shadow); }
 .rc-sent-row { display: flex; align-items: center; gap: 10px; font-size: 14px; }
 .rc-sent-row .grow { flex: 1; min-width: 0; }
-.rc-ok { color: var(--jade); font-weight: 700; }
 .rc-prn summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink-soft); padding: 6px 0; }
 .rc-prn[open] { display: flex; flex-direction: column; gap: 8px; padding: 0 0 4px; }
 .rc-prn[open] summary { color: var(--ink); }

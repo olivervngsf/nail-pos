@@ -317,6 +317,21 @@
     "tapAskOwner": "Ask the owner or a manager to turn on Tap to Pay on iPhone in Settings.",
     "practiceStuck": "The practice tap didn't answer, so it was stopped. Tap Charge to try again.",
     "tapPracticeWait": "Practice tap: it pays by itself in a few seconds…",
+    "rcpt": {
+      "texted": "Receipt texted to {to}.",
+      "emailed": "Receipt emailed to {to}.",
+      "queued": "Saved on this device. It sends when the internet is back.",
+      "demo": "Test version: nothing is sent.",
+      "textOff": "Not sent: client texts aren't on for this salon yet.",
+      "emailOff": "Not sent: email isn't switched on yet.",
+      "stop": "Not sent: this client replied STOP.",
+      "notMobile": "Not sent: that's not a mobile number.",
+      "failed": "Couldn't send. Try again.",
+      "sending": "Sending…",
+      "again": "Already sent to {to}. Send it again?",
+      "sendAgain": "Send again",
+      "cancel": "Cancel"
+    },
     "rcPrint": "Print receipt",
     "rcPcPrinter": "Computer printer",
     "rcAddPhone": "+ Add phone",
@@ -330,14 +345,15 @@
     "rcPhoneLbl": "Client's cell phone",
     "rcEmailLbl": "Client's email",
     "rcOneTime": "For this receipt only. To keep it on file, edit the client's profile.",
+    "rcSavesEmail": "Also saved to this client, since they have no email yet.",
     "rcSendText": "Send text",
     "rcSendEmail": "Send email",
     "rcSent": "Sent for this ticket",
     "rcPrinted": "Printed",
     "rcTexted": "Texted to {to}",
     "rcEmailed": "Emailed to {to}",
-    "rcPrinter": "Printer settings",
-    "rcSavesEmail": "Also saved to this client, since they have no email yet."
+    "rcDemo": "Test version: not sent to {to}",
+    "rcPrinter": "Printer settings"
   },
   "pay": {
     "title": "Pay {salon}",
@@ -2734,7 +2750,8 @@
       "notDelivered": "Didn't arrive.",
       "emailFailed": "Email didn't go through.",
       "skipped": "Not sent.",
-      "other": "Not sent."
+      "other": "Not sent.",
+      "noAddress": "Not sent: no phone or email on this booking."
     },
     "rule": {
       "law": "Law (FCC / state)",
