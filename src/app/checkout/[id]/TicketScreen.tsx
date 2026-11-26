@@ -36,19 +36,22 @@ const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("
 const $ = formatCents;
 
 type Step = "ticket" | "pay" | "cash" | "reader" | "link" | "app" | "tap";
+const RANK: Record<Step, number> = { ticket: 0, pay: 1, cash: 2, reader: 2, link: 2, app: 2, tap: 2 }; // steps slide forward / back by this
 
 export default function TicketScreen({ id, pay }: { id: string; pay?: boolean }) {
   const t = useTranslations("checkout");
   const router = useRouter();
   const { desk, err } = useDesk();
   const [ticket, ready] = useTicket(id);
-  const [step, setStep] = useState<Step>("ticket");
+  const [step, setStepNow] = useState<Step>("ticket");
+  const [dir, setDir] = useState<"fwd" | "back">("fwd");
+  const setStep = (s: Step) => { setDir(RANK[s] < RANK[step] ? "back" : "fwd"); setStepNow(s); };
   // "Charge" on the Checkout list opens the ticket straight on How to pay (?pay=1), once, and only if nothing is missing.
   const wantPay = useRef(!!pay);
   useEffect(() => {
     if (!wantPay.current || !ticket) return;
     wantPay.current = false;
-    if (ticket.status === "open" && blockers(ticket).length === 0 && totals(ticket).toPay > 0) setStep("pay");
+    if (ticket.status === "open" && blockers(ticket).length === 0 && totals(ticket).toPay > 0) setStepNow("pay");
   }, [ticket]);
   const [toast, setToast] = useState("");
   const say = useCallback((s: string) => { setToast(s); setTimeout(() => setToast(""), 3500); }, []);
@@ -65,7 +68,7 @@ export default function TicketScreen({ id, pay }: { id: string; pay?: boolean })
   return (
     <div className="app tk-app" onPointerDown={touchActing}>
       <LeftMenu active="Checkout" salonInitials={initials(desk.salonName)} />
-      <div className="col">
+      <div className="col" data-dir={dir}>
         <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {ticket.status === "open" && step !== "ticket" && <Button variant="ghost" size="sm" onClick={() => setStep(step === "pay" ? "ticket" : "pay")}>‹ {t("back")}</Button>}
           {ticket.status === "open" && step === "ticket" && <Button variant="ghost" size="sm" onClick={() => router.push("/checkout")}>‹ {t("title")}</Button>}

@@ -2184,3 +2184,25 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .ts-who { display: flex; flex-direction: column; min-width: 0; }
 .ts-who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .set-table .dtable td, .set-table .dtable th { white-space: nowrap; }
+
+/* ---------- Motion step 3 (Nov 26): pages fade in, checkout steps slide, switches slide ----------
+   Times + curves = kit tokens only. Opacity on pages (no transform: fixed bars + drawers keep their place).
+   Off with reduced motion (kit's global rule). */
+@keyframes pageIn { from { opacity: .2; } }
+.app > .col { animation: pageIn var(--t-mid) var(--ease) both; }
+/* Checkout ticket → How to pay → Cash/card → Paid: forward slides in from the right, Back from the left.
+   Only 900px+: below that the pay bar + Charge are pinned (position fixed) and must not move, so steps fade. */
+@keyframes stepFwd { from { opacity: 0; translate: 28px 0; } }
+@keyframes stepBack { from { opacity: 0; translate: -28px 0; } }
+.tk-app > .col > main { animation: pageIn var(--t-mid) var(--ease) both; }
+@media (min-width: 900px) {
+  .tk-app > .col > main { animation: stepFwd var(--t-slow) var(--ease) both; }
+  .tk-app > .col[data-dir="back"] > main { animation-name: stepBack; }
+}
+/* Sliding pill on every .seg (src/lib/motion.ts slideSeg puts it in and copies the picked option's look). */
+.seg { position: relative; }
+.seg-pill { position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; opacity: 0; }
+.seg.pill-ready .seg-pill { transition: transform var(--t-mid) var(--ease), width var(--t-mid) var(--ease), height var(--t-mid) var(--ease), opacity var(--t-fast) var(--ease); }
+.seg.pilled > :not(.seg-pill) { position: relative; z-index: 1; }
+.seg.pilled > .on { background: transparent !important; box-shadow: none !important; }
+.seg > button, .seg > a, .seg > span { transition: color var(--t-mid) var(--ease); }

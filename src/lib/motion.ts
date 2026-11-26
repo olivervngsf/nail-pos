@@ -1,5 +1,5 @@
 "use client";
-// Motion · leave gently (Nov 26, motion plan step 2).
+// Motion (Nov 26). Step 2 = leave gently; step 3 = sliding switch pill (further down).
 // Screens close pop-ups by removing them (React unmounts them). That made every drawer, sheet, toast and
 // pop-up vanish in one frame. One watcher fixes all of them at once: when an overlay leaves the page, a
 // silent copy (aria-hidden, inert, no ids/test ids, no clicks) takes its place and plays a short exit
@@ -70,12 +70,62 @@ function leaversIn(n: Node): { el: HTMLElement; l: Leaver; top: boolean }[] {
     .map((el) => ({ el, l: LEAVERS.find((l) => el.matches(l.sel))!, top: false }));
 }
 
+/* ---------- Sliding pill (step 3) ----------
+   Every switch (`.seg`: Day/Week/Month, filters, roles…) gets one white pill that slides to the picked
+   option instead of jumping. Works on any `.seg` with no wiring: the watcher finds them. The pill copies the
+   picked option's own look (background, shadow, corner), so custom switches keep their style. */
+const segOff = new WeakMap<HTMLElement, () => void>();
+
+function pickedIn(seg: HTMLElement) {
+  return Array.from(seg.children).find((c) => c.classList.contains("on") && !c.classList.contains("seg-pill")) as HTMLElement | undefined;
+}
+
+export function slideSeg(seg: HTMLElement) {
+  if (segOff.has(seg) || typeof ResizeObserver === "undefined" || seg.closest(".lv")) return; // never inside a leaving copy
+  const pill = document.createElement("i");
+  pill.className = "seg-pill";
+  pill.setAttribute("aria-hidden", "true");
+  let styled = false;
+  const place = () => {
+    const b = pickedIn(seg);
+    if (!b) { pill.style.opacity = "0"; return; }
+    if (!styled) { // copy the picked option's look once, before the pill takes it over
+      const cs = getComputedStyle(b);
+      pill.style.background = cs.backgroundColor; pill.style.boxShadow = cs.boxShadow; pill.style.borderRadius = cs.borderRadius;
+      styled = true;
+      seg.classList.add("pilled");
+    }
+    pill.style.opacity = "1";
+    pill.style.width = `${b.offsetWidth}px`; pill.style.height = `${b.offsetHeight}px`;
+    pill.style.transform = `translate(${b.offsetLeft}px, ${b.offsetTop}px)`;
+  };
+  seg.appendChild(pill);
+  place();
+  requestAnimationFrame(() => seg.classList.add("pill-ready")); // first spot without sliding in from 0
+  const mo = new MutationObserver((recs) => { if (recs.some((r) => r.target !== pill)) place(); });
+  mo.observe(seg, { attributes: true, attributeFilter: ["class"], subtree: true, childList: true });
+  const ro = new ResizeObserver(place);
+  ro.observe(seg);
+  segOff.set(seg, () => { mo.disconnect(); ro.disconnect(); });
+}
+function segsIn(n: Node, fn: (el: HTMLElement) => void) {
+  if (!(n instanceof HTMLElement)) return;
+  if (n.matches(".seg")) fn(n);
+  n.querySelectorAll<HTMLElement>(".seg").forEach(fn);
+}
+const unSeg = (el: HTMLElement) => { segOff.get(el)?.(); segOff.delete(el); };
+
 /** Start once (AppProviders). Returns stop. */
 export function startLeaveWatch(): () => void {
   if (typeof window === "undefined" || typeof MutationObserver === "undefined") return () => {};
   const onScroll = (e: Event) => { const t = e.target; if (t instanceof Element) scrolls.set(t, [t.scrollTop, t.scrollLeft]); };
   document.addEventListener("scroll", onScroll, true);
+  document.querySelectorAll<HTMLElement>(".seg").forEach(slideSeg);
   const mo = new MutationObserver((recs) => {
+    for (const r of recs) {
+      r.addedNodes.forEach((n) => segsIn(n, slideSeg));
+      r.removedNodes.forEach((n) => segsIn(n, (el) => { if (!el.isConnected) unSeg(el); }));
+    }
     if (reducedMotion()) return;
     for (const r of recs) {
       r.removedNodes.forEach((n) => {
@@ -95,7 +145,7 @@ export function startLeaveWatch(): () => void {
     }
   });
   mo.observe(document.body, { childList: true, subtree: true });
-  return () => { mo.disconnect(); document.removeEventListener("scroll", onScroll, true); };
+  return () => { mo.disconnect(); document.removeEventListener("scroll", onScroll, true); document.querySelectorAll<HTMLElement>(".seg").forEach(unSeg); };
 }
 
 /** In-flow things (banners): fold the real one away, then call done (which removes it). Instant with reduced motion. */
