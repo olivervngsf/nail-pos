@@ -1951,7 +1951,15 @@
     "sizeHint": "Chữ to hơn chỉ trên thiết bị này. Thiết bị khác giữ cỡ chữ riêng.",
     "signInHint": "Số điện thoại luôn dùng được. Email hoặc mật khẩu là cách thứ hai; 2 bước thêm một mã từ ứng dụng.",
     "signInsShort": "Đăng nhập của tôi",
-    "signInsSub": "Điện thoại + máy tính"
+    "signInsSub": "Điện thoại + máy tính",
+    "signInSecurity": "Đăng nhập + bảo mật",
+    "pinIsSet": "Mã PIN đã được đặt",
+    "pinLength": "Độ dài",
+    "pinDigits": "{n} số",
+    "pinWhoSets": "Ai quy định",
+    "pinRulesOwner": "Chủ tiệm · Quy tắc PIN",
+    "pinForgotH": "Quên mã PIN?",
+    "pinForgot": "Chủ tiệm hoặc quản lý có thể tạo mã mới cho bạn trong Cài đặt → Nhân viên, hoặc nhắn link PIN cho bạn."
   },
   "faces": {
     "gone": "Máy này đã bị gỡ khỏi tiệm. Cài lại để dùng mã PIN ở đây.",
@@ -2611,7 +2619,8 @@
       "slipRow": "Phiếu lương nhân viên in gì",
       "slipSub": "Từng vé, tiền tip, séc hay tiền mặt, chỗ ký tên",
       "openSheet": "Mở bảng lương"
-    }
+    },
+    "searchBack": "Tìm kiếm"
   },
   "promo": {
     "title": "Gửi tin khuyến mãi",

@@ -2094,8 +2094,8 @@ body:has(.faces .scrim) .clock-qr { display: none; }
   .set-search { margin: 4px 18px 6px; }
   /* page header: ‹ · title (centred) · ✓ */
   .set-win.is-page .bar { display: grid; grid-template-columns: minmax(44px, 1fr) auto minmax(44px, 1fr); align-items: center; height: 64px; padding: 0 14px; border-bottom: 0; }
-  .set-win.is-page .bar .bar-back { grid-column: 1; justify-self: start; width: 44px; height: 44px; min-width: 44px; padding: 0; border-radius: 50%; background: var(--fill); font-size: 0; display: inline-flex; align-items: center; justify-content: center; }
-  .set-win.is-page .bar .bar-back::before { content: "‹"; font-size: 26px; line-height: 1; margin-top: -3px; color: var(--ink); }
+  /* Back says where it goes (Apple): "‹ Settings", "‹ Profile", "‹ Search" — never a bare ‹ (Nov 27, board Settings Map). */
+  .set-win.is-page .bar .bar-back { grid-column: 1; justify-self: start; max-width: 100%; height: 44px; min-width: 44px; padding: 0 14px 0 12px; border-radius: 22px; background: var(--fill); font-size: 16px; font-weight: 600; color: var(--ink); display: inline-block; line-height: 44px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .set-win.is-page .bar .title { grid-column: 2; text-align: center; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .set-win.is-page .bar .set-bar-r { grid-column: 3; justify-self: end; grid-row: 1; margin-left: 0; }
   .set-win.is-page .bar .pill.ok { display: none; }
@@ -2151,6 +2151,14 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .me-hint { margin: 8px 4px 0; font-size: 13px; line-height: 18px; color: var(--ink-soft); }
 .me-danger { min-height: 54px; align-items: center; justify-content: center; font: inherit; font-size: 16px; font-weight: 500; color: var(--red); cursor: pointer; }
 .me-pin { display: flex; flex-direction: column; gap: 10px; max-width: 420px; }
+/* Settings map (Nov 27): row icons on Profile match the Settings list; PIN page = dots + "set", facts, Change PIN, who to ask. */
+.me-ico { width: 20px; height: 20px; flex: none; color: var(--ink-soft); }
+.me-pin-hero { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 8px 12px 4px; }
+.me-pin-hero b { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+.me-pin-hero .cap { max-width: 380px; }
+.me-pin-dots { display: flex; gap: 10px; margin-bottom: 4px; }
+.me-pin-dots i { width: 14px; height: 14px; border-radius: 7px; background: var(--ink); }
+.me-note { margin: 0; padding: 14px 16px; font-size: 15px; line-height: 21px; color: var(--ink-soft); }
 @media (max-width: 599px) { .me-k { width: 104px; } }
 /* iPhone/iPad Safari: never blow small text up on its own (it made the Settings group headings look loud). */
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
