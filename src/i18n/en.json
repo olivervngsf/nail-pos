@@ -2197,6 +2197,7 @@
       "texting": "Texting…",
       "textDemo": "Test version: no text sent.",
       "textAgain": "Already texted this invite. Make a new link to text again.",
+      "testLinkBlocked": "This is a test site link (vercel.app): phone carriers often block texts with these links. Send invites from polishosapp.com.",
       "noPinBox": "Joined, no PIN yet",
       "textPin": "Text the PIN link",
       "copyPin": "Copy link",
