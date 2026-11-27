@@ -15,7 +15,7 @@ test("roles + permissions: pick a level, fine-tune a box, save", async ({ page }
   await expect(page.getByTestId("levels-manager")).toContainText("Custom");
   await expect(page.getByTestId("roles-short")).toContainText("Front desk can give a discount.");
   await page.getByTestId("roles-save").click();
-  await expect(page.getByTestId("roles").getByText("Saved", { exact: true }).first()).toBeVisible();
+  await expect(page.getByTestId("roles-save")).toBeDisabled();
   await page.reload();
   await expect(page.getByTestId("perm-manager-ok.refund")).toHaveAttribute("aria-checked", "false");
   await expect(page.getByTestId("level-front_desk-standard")).toHaveAttribute("aria-checked", "true");
