@@ -309,4 +309,22 @@ select.inp:hover,.sel:hover{border-color:rgba(22,22,26,.22)}
   .dp-day{width:42px;height:42px;font-size:16px}
   .dp-months{width:auto}
 }
+/* Time picker (Nov 27): button + a SHORT list (about 7 rows), scrolled to the picked time. Never the browser's own list. */
+.tp-btn{min-width:124px}
+.tp-btn.err{box-shadow:0 0 0 1px var(--red),0 0 0 4px rgba(224,49,49,.10)}
+.tp-main{display:flex;flex-direction:column;width:200px;padding:6px}
+.tp-title{display:none}
+.tp-list{max-height:256px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;display:flex;flex-direction:column;gap:1px}
+.tp-opt{flex:none;display:flex;align-items:center;justify-content:space-between;height:34px;padding:0 10px;border:0;border-radius:8px;background:transparent;font:inherit;font-size:14px;color:var(--ink-soft);text-align:left;cursor:pointer;font-variant-numeric:tabular-nums}
+.tp-opt.hr{color:var(--ink)}
+.tp-opt:focus,.tp-opt:hover{background:var(--fill);outline:0}
+.tp-opt.on{background:var(--ink);color:#fff;font-weight:600}
+.tp-opt:focus-visible{box-shadow:inset 0 0 0 2px var(--ink)}
+@media (max-width:599px){
+  .tp-main{width:auto;padding:8px 16px 16px}
+  .tp-title{display:block;text-align:center;font-size:15px;font-weight:600;padding:8px 0 10px}
+  .tp-list{max-height:min(330px,50vh)}
+  .tp-opt{height:44px;font-size:16px;justify-content:center;position:relative}
+  .tp-opt svg{position:absolute;right:14px}
+}
 @media (pointer:coarse){.dp-btn{height:44px;font-size:15px}.dp-step{height:48px}.dp-step .dp-btn{height:44px}.dp-nav{width:44px;height:44px}.dp-link{padding:10px 12px}.dp-presets button{height:40px}}

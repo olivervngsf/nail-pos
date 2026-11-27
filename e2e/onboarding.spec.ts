@@ -68,7 +68,15 @@ test("salon info: closing before opening blocks Continue", async ({ page }) => {
   await page.getByRole("button", { name: "Verify" }).click();
   await page.fill("#salonName", "Mai Nails");
   await page.fill("#address", "1550 S Bascom Ave, Campbell, CA 95008");
-  await page.getByLabel("Mon closes").selectOption("08:00");
+  // Closing list only offers times after opening (short scroll list, not the browser's whole-screen list).
+  await page.getByLabel("Mon closes").click();
+  const list = page.getByRole("listbox", { name: "Mon closes" });
+  await expect(list.getByRole("option", { name: "8:00 AM", exact: true })).toHaveCount(0);
+  expect((await list.boundingBox())!.height).toBeLessThan(400);
+  await page.keyboard.press("Escape");
+  // Moving opening past closing still shows the error.
+  await page.getByLabel("Mon opens").click();
+  await page.getByRole("option", { name: "10:00 PM", exact: true }).click();
   await expect(page.getByText("Closes before it opens")).toBeVisible();
   await expect(page.locator(".foot").getByRole("button", { name: "Continue" })).toBeDisabled();
 });
