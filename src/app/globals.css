@@ -2234,3 +2234,18 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 /* a skeleton block anywhere (kit Skeleton) */
 .skel { display: block; position: relative; overflow: hidden; border-radius: 8px; background: var(--fill); }
 .skel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .6) 50%, transparent 70%); animation: shimmer 1.6s linear infinite; }
+
+/* ---------- Motion step 5 (Nov 27): the small moments ----------
+   Paid = the check draws itself + one soft glow ring. Saved pill = a tiny tick for a moment after a save.
+   Clocked in/out = a check in the toast. Wrong PIN = the dots shake gently (kit PinKeypad, + one buzz on Android).
+   Never loud, never on money errors beyond the shake. Off with reduced motion (the check just shows). */
+@keyframes drawCk { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.drawck path { stroke-dasharray: 1; stroke-dashoffset: 0; animation: drawCk 420ms var(--ease) 140ms both; }
+@keyframes glowRing { from { opacity: .55; transform: scale(1); } to { opacity: 0; transform: scale(1.9); } }
+.okmark.glow { position: relative; }
+.okmark.glow::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--jade); z-index: -1; animation: glowRing 900ms var(--ease) 260ms both; }
+.pill-ck { color: var(--jade); flex: none; }
+.toast-ck { display: inline-flex; align-items: center; gap: 8px; }
+.toast-ck .drawck { color: #7ee2a0; flex: none; }
+@keyframes pinShake { 0%, 100% { translate: 0 0; } 20% { translate: -7px 0; } 40% { translate: 6px 0; } 60% { translate: -4px 0; } 80% { translate: 2px 0; } }
+.dots.shake { animation: pinShake 360ms var(--ease) both; }

@@ -57,19 +57,37 @@ export function Stepper({ value, onChange, step = 1, min = -Infinity, max = Infi
   );
 }
 
-/** PIN pad (6 or 10 digits by salon rule; a person's older PIN keeps its own length). Calls onDone with all digits. */
+/** PIN pad (6 or 10 digits by salon rule; a person's older PIN keeps its own length). Calls onDone with all digits.
+ *  A wrong PIN shakes the dots gently (and buzzes once on Android), every time, even when the message is the same. */
 export function PinKeypad({ length = 6, onDone, error }: { length?: number; onDone: (pin: string) => void; error?: string }) {
   const [pin, setPin] = useState("");
+  const [shake, setShake] = useState(0);
+  const [tries, setTries] = useState(0);
+  const errRef = useRef(error);
+  const lastShake = useRef(0);
+  errRef.current = error;
+  const nudge = () => {
+    if (Date.now() - lastShake.current < 600) return;
+    lastShake.current = Date.now();
+    setShake((n) => n + 1);
+    try { navigator.vibrate?.(40); } catch { /* not on this device */ }
+  };
+  useEffect(() => { if (error) nudge(); }, [error]);
+  useEffect(() => { // same message twice still shakes: look again just after each try
+    if (!tries) return;
+    const h = setTimeout(() => { if (errRef.current) nudge(); }, 450);
+    return () => clearTimeout(h);
+  }, [tries]);
   const press = (k: string) => {
     if (k === "del") return setPin((p) => p.slice(0, -1));
     if (pin.length >= length) return;
     const v = pin + k;
     setPin(v);
-    if (v.length === length) setTimeout(() => { onDone(v); setPin(""); }, 150);
+    if (v.length === length) setTimeout(() => { onDone(v); setPin(""); setTries((n) => n + 1); }, 150);
   };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <div className="dots" aria-label={`${pin.length} of ${length} digits`}>{Array.from({ length }, (_, i) => <i key={i} className={i < pin.length ? "on" : ""} />)}</div>
+      <div key={shake} className={cx("dots", shake > 0 && "shake")} data-shake={shake} aria-label={`${pin.length} of ${length} digits`}>{Array.from({ length }, (_, i) => <i key={i} className={i < pin.length ? "on" : ""} />)}</div>
       <div className="hint err" role="alert" style={{ textAlign: "center", minHeight: 18 }}>{error}</div>
       <div className="keys">
         {"123456789".split("").map((k) => <button key={k} type="button" className="key" onClick={() => press(k)}>{k}</button>)}
@@ -80,6 +98,13 @@ export function PinKeypad({ length = 6, onDone, error }: { length?: number; onDo
     </div>
   );
 }
+
+/** A check mark that draws itself (paid, saved, clocked in). Static with reduced motion. */
+export const DrawCheck = ({ size = 28, className }: { size?: number; className?: string }) => (
+  <svg className={cx("drawck", className)} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M5 12.5l4.5 4.5L19 7.5" pathLength={1} />
+  </svg>
+);
 
 /* ---------- surfaces + lists ---------- */
 export const Card = ({ pad, className, ...p }: React.HTMLAttributes<HTMLDivElement> & { pad?: boolean }) => <div className={cx("card", pad && "pad", className)} {...p} />;
@@ -316,12 +341,20 @@ export function SyncPill() {
   const s = useSyncState();
   const folded = useFold();
   const open = folded ? { onClick: () => setFold(false), "aria-label": t("openAgain") } : {};
+  // a save that just went through gets a little tick for a moment (then the plain dot)
+  const busy = !!(s.syncing || s.pending);
+  const wasBusy = useRef(false);
+  const [justSaved, setJustSaved] = useState(false);
+  useEffect(() => {
+    if (wasBusy.current && !busy && s.online && !s.parked) { setJustSaved(true); const h = setTimeout(() => setJustSaved(false), 1800); wasBusy.current = busy; return () => clearTimeout(h); }
+    wasBusy.current = busy;
+  }, [busy, s.online, s.parked]);
   if (!s.online) return <button type="button" className="pill warn" style={{ cursor: folded ? "pointer" : "default", font: "inherit", fontSize: 12, color: "var(--ink)" }} data-testid="sync-pill" data-state="offline" {...open}><span aria-hidden>▲</span>{s.pending ? t("waiting", { count: s.pending }) : t("offline")}</button>;
   // Something the server kept refusing: kept on this device, but someone needs to look (hover shows why).
   // Tap to send them again (e.g. after signing in, or once the server is fixed).
   if (s.parked) return <button type="button" className="pill warn" style={{ cursor: "pointer", font: "inherit", fontSize: 12, color: "var(--ink)" }} data-testid="sync-pill" data-state="stuck" title={s.lastError} onClick={() => void retryParked().then(syncNow)}><span aria-hidden>!</span>{t("stuck", { count: s.parked })}</button>;
   if (s.syncing || s.pending) return <span className="pill" data-testid="sync-pill" data-state="syncing"><span className="dot pulse" aria-hidden />{t("syncing")}</span>;
-  return <span className="pill ok" data-testid="sync-pill" data-state="online"><span className="dot" aria-hidden />{t("saved")}</span>;
+  return <span className="pill ok" data-testid="sync-pill" data-state="online">{justSaved ? <DrawCheck size={12} className="pill-ck" /> : <span className="dot" aria-hidden />}{t("saved")}</span>;
 }
 
 /** Strip under the top bar while offline, or when something didn't save. X folds it into the sync pill. */

@@ -100,3 +100,16 @@ test("waiting screens show soft shapes, not a blank page", async ({ page }) => {
   expect(before).toBe('""');
   expect(await page.locator("#wait").evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(112);
 });
+
+test("a PIN message shakes the dots every time, even when it repeats", async ({ page }) => {
+  // the kit keypad answers every PIN with a message: the same message twice must still shake twice
+  await page.goto("/kit");
+  const pad = page.locator(".dots").first().locator("..");
+  const tap = async (digits: string) => { for (const d of digits) await pad.getByRole("button", { name: d, exact: true }).click(); };
+  const pinLen = await page.locator(".dots").first().locator("i").count();
+  const wrong = "1234".padEnd(pinLen, "1234");
+  await tap(wrong);
+  await expect(page.locator(".dots").first()).toHaveAttribute("data-shake", "1");
+  await tap(wrong);
+  await expect(page.locator(".dots").first()).toHaveAttribute("data-shake", "2", { timeout: 2000 });
+});

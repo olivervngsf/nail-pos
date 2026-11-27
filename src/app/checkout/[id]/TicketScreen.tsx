@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { Avatar, Banner, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Sheet, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
+import { Avatar, Banner, Button, Chip, DrawCheck, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Sheet, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
@@ -718,7 +718,7 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
     <main className="ck-main">
       <section className="card ck-left" style={{ padding: "24px 28px", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div className="okmark pop" aria-hidden style={ticket.status === "refunded" ? { background: "var(--orange)" } : undefined}>{ticket.status === "refunded" ? "↩" : "✓"}</div>
+          <div className={`okmark pop${ticket.status === "refunded" ? "" : " glow"}`} aria-hidden style={ticket.status === "refunded" ? { background: "var(--orange)" } : undefined}>{ticket.status === "refunded" ? "↩" : <DrawCheck size={30} />}</div>
           <div>
             <div className="money" data-testid="paid-total">{giftOnly ? t("paidGift", { amount: $(sum.total) }) : isCard ? t("paidBy", { amount: $(charged), how }) : t("paidCash", { amount: $(charged) })}</div>
             <div className="cap num">{t("paidLine", { services: $(sum.due), tip: $(sum.tip) })}</div>
