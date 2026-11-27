@@ -6,6 +6,7 @@ import en from "@/i18n/en.json";
 import vi from "@/i18n/vi.json";
 import { registerHandler, startSync } from "@/lib/offline/outbox";
 import DeviceBeat from "@/components/DeviceBeat";
+import { startLeaveWatch } from "@/lib/motion";
 import SupportBanner from "@/components/SupportBanner";
 import TwoStepGate from "@/components/TwoStepGate";
 import { applyTextSize, getTextSize } from "@/lib/textSize";
@@ -41,6 +42,7 @@ export default function AppProviders({ children }: { children: React.ReactNode }
     applyMenuHidden(getMenuHidden());
     startSync();
   }, []);
+  useEffect(() => startLeaveWatch(), []); // pop-ups leave gently (src/lib/motion.ts)
   const setLang = (l: Lang) => {
     setLangState(l);
     try {

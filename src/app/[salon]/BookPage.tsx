@@ -25,11 +25,13 @@ export default function BookPage({ slug }: { slug: string }) {
   useEffect(() => { loadPage(slug).then(setPage).catch((e) => { setErr((e as Error).message); setPage(null); }); }, [slug]);
   if (page === undefined) return <div className="bw" aria-busy="true" />;
   if (!page) return <div className="bw"><div className="bw-empty"><div className="h2">{t("notFound")}</div>{err && <p className="cap">{err}</p>}</div></div>;
-  if (page.salon.settings.on === false) return <div className="bw"><Header page={page} /><div className="bw-empty"><div className="h2">{t("pageOff")}</div></div></div>;
+  if (page.salon.settings.on === false) return <div className="bw"><Header page={page} home={null} /><div className="bw-empty"><div className="h2">{t("pageOff")}</div></div></div>;
   return <Flow page={page} />;
 }
 
-export function Header({ page }: { page: Page }) {
+/** Salon header. Logo + name go back to the salon's home (booking page door): `home` = a function (same page, keeps
+ *  the screen fast), null = already home (plain text), left out = link to /<slug> (other pages, e.g. /b/<token>). */
+export function Header({ page, home }: { page: Page; home?: (() => void) | null }) {
   const t = useTranslations("book");
   const today = hoursOn(page, dayKey(new Date()));
   const now = new Date().getHours() * 60 + new Date().getMinutes();
@@ -38,9 +40,13 @@ export function Header({ page }: { page: Page }) {
   const map = page.salon.address ? `https://maps.google.com/?q=${encodeURIComponent(`${page.salon.name}, ${page.salon.address}`)}` : null;
   return (
     <header className="bw-hdr">
-      <div className="bw-logo">{initials(page.salon.name)}</div>
+      {home === null ? <div className="bw-logo">{initials(page.salon.name)}</div>
+        : home ? <button type="button" className="bw-logo bw-home" aria-label={t("home", { salon: page.salon.name })} data-testid="bw-home" onClick={home}>{initials(page.salon.name)}</button>
+        : <a className="bw-logo bw-home" aria-label={t("home", { salon: page.salon.name })} data-testid="bw-home" href={`/${page.salon.slug}`}>{initials(page.salon.name)}</a>}
       <div className="bw-who">
-        <h1 className="bw-name">{page.salon.name}</h1>
+        <h1 className="bw-name">{home === null ? page.salon.name
+          : home ? <button type="button" className="bw-home-name" onClick={home}>{page.salon.name}</button>
+          : <a className="bw-home-name" href={`/${page.salon.slug}`}>{page.salon.name}</a>}</h1>
         <div className="cap">{[page.salon.address, page.salon.phone && fmtPhone(page.salon.phone)].filter(Boolean).join(" · ")}</div>
         <div className="cap">
           {open ? <b className="bw-open">{t("openNow")}</b> : <b>{t("closedNow")}</b>}
@@ -177,11 +183,11 @@ function Flow({ page }: { page: Page }) {
     } catch { setMsg(t("offline")); }
     setBusy(false);
   };
-  const restart = () => { setGuests([{ serviceIds: [] }]); setGi(0); setSlot(null); setNote(""); setDone(null); setMsg(""); setView("door"); };
+  const restart = () => { setGuests([{ serviceIds: [] }]); setGi(0); setSlot(null); setNote(""); setDone(null); setMsg(""); setView("door"); window.scrollTo(0, 0); };
 
   if (view === "door") return (
     <div className="bw">
-      <Header page={page} />
+      <Header page={page} home={null} />
       <div className="bw-door in">
         {page.salon.slug === DEMO_SLUG && <div className="demo">{t("demo")}</div>}
         <h2 className="h1">{t("bookVisit")}</h2>
@@ -211,7 +217,7 @@ function Flow({ page }: { page: Page }) {
     const longDay = fromDayKey(done.day).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
     return (
       <div className="bw">
-        <Header page={page} />
+        <Header page={page} home={restart} />
         <div className="bw-done bw-booked in" data-testid="booked">
           {/* Hero: one mark, one line, then who we told (one line per channel). */}
           <div className="bw-hero">
@@ -257,7 +263,7 @@ function Flow({ page }: { page: Page }) {
               ? <><a href={`/b/${done.token}`} data-testid="manage-link">{t("mLink")}</a><span>{t("mRule", { hours: page.salon.settings.cancel_hours })}</span></>
               : <span>{t("cancelRule", { hours: page.salon.settings.cancel_hours })}</span>}
             {page.salon.phone && <span>{t("callUs")} <a href={`tel:${page.salon.phone}`}>{fmtPhone(page.salon.phone)}</a></span>}
-            <button type="button" className="bw-link" onClick={restart}>{t("again")}</button>
+            <button type="button" className="bw-link" data-testid="bw-see-salon" onClick={restart}>{t("seeSalon")} ›</button>
           </div>
         </div>
       </div>
@@ -268,7 +274,7 @@ function Flow({ page }: { page: Page }) {
   const dayParts = [["morning", 0, 720], ["afternoon", 720, 1020], ["evening", 1020, 1440]] as const;
   return (
     <div className="bw">
-      <Header page={page} />
+      <Header page={page} home={restart} />
       <div className="bw-body">
         <section className="bw-main">
           <div className="bw-steps">{ORDER.map((v, i) => (

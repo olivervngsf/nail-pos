@@ -3,7 +3,7 @@
 // print or done. Only your own info shows, and it goes back to the faces screen after 30 seconds.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { Button, Segmented, Toast } from "@/components/kit";
+import { Button, DrawCheck, Segmented, Toast } from "@/components/kit";
 import FacesLock, { type Unlocked } from "@/components/FacesLock";
 import ClockQr from "@/components/ClockQr";
 import { useLang } from "@/components/AppProviders";
@@ -80,7 +80,7 @@ export default function ClockPage() {
           }} />
         <ClockQr salonId={desk.salonId} demo={desk.mode === "demo"} vi={lang === "vi"} />
         {desk.mode === "demo" && <div className="demo clock-demo">{t("demo")}</div>}
-        {toast && <Toast>{toast}</Toast>}
+        {toast && <Toast><span className="toast-ck" data-testid="clock-toast"><DrawCheck size={18} />{toast}</span></Toast>}
       </>
     );
   }
@@ -138,7 +138,7 @@ export default function ClockPage() {
           </section>
         </div>
       </div>
-      {toast && <Toast>{toast}</Toast>}
+      {toast && <Toast><span className="toast-ck" data-testid="clock-toast"><DrawCheck size={18} />{toast}</span></Toast>}
     </div>
   );
 }

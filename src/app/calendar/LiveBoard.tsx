@@ -37,7 +37,7 @@ export function LiveBoard({ waiting, dayList, order, nextId, onSeat, onWalkIn, o
         <div className="lb-sub"><span className="eyebrow" style={{ flex: 1 }}>{t("waitlist")} · <span data-testid="wait-count">{t("waitingN", { n: waiting.length })}</span></span>
           {waiting.length > 0 && <span className="cap" style={{ fontSize: 11.5 }}>{t("lbWaitSum", { longest: waitLabel(longest), avg: waitLabel(avg) })}</span>}</div>
         {sorted.map((a, i) => (
-          <button key={a.id} type="button" className="lb-wrow" draggable data-testid="wait-card" data-name={a.client?.name ?? ""}
+          <button key={a.id} type="button" className="lb-wrow flow" draggable data-testid="wait-card" data-name={a.client?.name ?? ""}
             onDragStart={(e) => { e.dataTransfer.setData("text/walkin", a.id); e.dataTransfer.effectAllowed = "move"; }}
             onClick={() => onSeat(a)} aria-label={`${a.client?.name || t("walkIn")} · ${t("waitingMin", { n: waits[i] })}`}>
             <span className="lb-pos">{i + 1}</span>

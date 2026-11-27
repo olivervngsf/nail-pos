@@ -169,7 +169,10 @@ export default function ManagePage({ token }: { token: string }) {
           <div className="bw-acts"><a className="btn primary" href={`/${salon.slug}`}>{t("mBookNew")}</a></div>
         </>}
 
-        {salon.phone && !(view === "see" && m.status === "live" && !m.canChange) && <div className="bw-foot cap bw-center"><span>{t("callUs")} {call}</span></div>}
+        <div className="bw-foot cap bw-center">
+          {salon.phone && !(view === "see" && m.status === "live" && !m.canChange) && <span>{t("callUs")} {call}</span>}
+          {view !== "canceled" && <a className="bw-link" data-testid="bw-see-salon" href={`/${salon.slug}`}>{t("seeSalon")} ›</a>}
+        </div>
       </div>
     </div>
   );

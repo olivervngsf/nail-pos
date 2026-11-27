@@ -51,7 +51,7 @@ const CalIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none
 const Chev = () => <svg className="dp-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>;
 
 /* ---------- popover: fixed under the button (flips up when there's no room), portal to <body> so drawers never cut it ---------- */
-function Popover({ anchor, onClose, label, children }: { anchor: HTMLElement | null; onClose: () => void; label: string; children: ReactNode }) {
+export function Popover({ anchor, onClose, label, children }: { anchor: HTMLElement | null; onClose: () => void; label: string; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
   const place = useCallback(() => {
