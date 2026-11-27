@@ -233,3 +233,23 @@ begin
   insert into public.audit_log (salon_id, person_id, action, detail)
   values (c.salon_id, public.my_person_id(), 'client.phone_viewed', jsonb_build_object('client', c.id));
 end $$;
+
+-- 7. Ticket client lookup: also by client id (a ticket that only knows ••7011); phone hidden unless owner.
+drop function if exists public.client_lookup(uuid, text);
+create function public.client_lookup(p_salon uuid, p_phone text, p_client uuid default null)
+returns table (client_id uuid, name text, phone text, notes text, visits integer, avg_cents bigint, last_visit timestamptz, last_services text)
+language sql stable security definer set search_path = '' as $$
+  select c.id, c.name, public._viewer_phone(p_salon, c.phone), c.notes,
+    (select count(*)::int from public.tickets t where t.client_id = c.id and t.status = 'paid'),
+    (select coalesce(round(avg(t.subtotal_cents - t.discount_cents)), 0)::bigint from public.tickets t where t.client_id = c.id and t.status = 'paid'),
+    lt.paid_at,
+    (select string_agg(l.name || coalesce(' with ' || m.display_name, ''), ', ' order by l.sort)
+       from public.ticket_lines l left join public.memberships m on m.id = l.staff_id
+       where l.ticket_id = lt.id and l.kind = 'service' and l.removed_at is null)
+  from public.clients c
+  left join lateral (select t.id, t.paid_at from public.tickets t where t.client_id = c.id and t.status = 'paid' order by t.paid_at desc limit 1) lt on true
+  where c.salon_id = p_salon and c.archived_at is null and public._is_desk(p_salon)
+    and (case when public._is_masked(p_phone) or coalesce(p_phone, '') = '' then c.id = p_client else c.phone = p_phone end);
+$$;
+revoke execute on function public.client_lookup(uuid, text, uuid) from public, anon;
+grant execute on function public.client_lookup(uuid, text, uuid) to authenticated;
