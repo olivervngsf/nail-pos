@@ -48,7 +48,7 @@ button:disabled { cursor: not-allowed; }
 .ptabs { position: sticky; margin-top: auto; padding-bottom: env(safe-area-inset-bottom); }
 /* overlays cover the real screen, not a board frame */
 .scrim { position: fixed; z-index: 40; }
-.drawer { position: fixed; width: min(440px, 100%); z-index: 41; }
+.drawer { position: fixed; width: min(clamp(440px, 34vw, 520px), 100%); z-index: 41; } /* Oliver, Nov 27: side panels never narrower than 440, up to 520 on big screens */
 .drawer-f { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
 .sheet { position: fixed; z-index: 41; }
 /* Centred without transform (the fade-in animation ends at transform:none, which pushed it half off a phone screen). */
@@ -1719,7 +1719,7 @@ html[data-text="larger"] { zoom: 1.2; --vh: calc(100dvh / 1.2); }
 .cc-row .tag { height: 18px; font-size: 11px; padding: 0 6px; }
 .cc-sub { display: block; font-size: 12px; }
 .cc-late { color: #B5470A; font-weight: 500; }
-.cc-drawer { width: 460px; max-width: 100%; }
+.cc-drawer { width: min(clamp(460px, 34vw, 520px), 100%); }
 .cc-drawer .stat-grid b { font-weight: 600; }
 .cc-care { padding: 10px 12px; border-radius: 12px; background: #FCEAEA; font-size: 14px; line-height: 20px; }
 .cc-care b { color: #B02525; font-weight: 600; }
