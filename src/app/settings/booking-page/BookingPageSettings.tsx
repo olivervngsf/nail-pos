@@ -6,7 +6,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import QRCode from "qrcode";
 import { useTranslations } from "next-intl";
-import { Button, Chip, LeftMenu, Segmented, OfflineBanner, Stepper, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
+import { Button, Chip, Segmented, Stepper, Switch, Toast } from "@/components/kit";
+import SettingsShell from "../SettingsShell";
 import { rpc } from "@/lib/auth";
 import { useDesk, type Desk } from "@/lib/desk";
 import { getSupabase } from "@/lib/supabase/client";
@@ -31,9 +32,15 @@ const ALARMS = [0, 30, 60, 120, 1440] as const;
 const PH = ["#C9A79A", "#B07C8E", "#8C9C88", "#D7B88F", "#6E7A8C"];
 
 export default function BookingPageSettings() {
+  const t = useTranslations("bookSettings");
+  // Inside the Settings window (Oliver, Nov 27: Settings never jumps to a full page). The window checks owner/manager.
+  return <SettingsShell title={t("title")}>{() => <Loader />}</SettingsShell>;
+}
+
+function Loader() {
   const { desk, err } = useDesk();
-  if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
-  if (!desk) return <div className="app" aria-busy="true" />;
+  if (err) return <p className="hint err">{err}</p>;
+  if (!desk) return <div aria-busy="true" />;
   return <Settings desk={desk} />;
 }
 
@@ -47,7 +54,6 @@ function Settings({ desk }: { desk: Desk }) {
   const t = useTranslations("bookSettings");
   const tc = useTranslations("calendar");
   const demo = desk.mode === "demo";
-  const admin = demo || desk.me.role === "owner" || desk.me.role === "manager";
   const [conf, setConf] = useState<Conf | null>(null);
   const [slug, setSlug] = useState("");
   const [rules, setRules] = useState<PageRules>(RULES);
@@ -63,7 +69,7 @@ function Settings({ desk }: { desk: Desk }) {
     if (!c) return;
     setConf(c); setSlug(c.slug); setRules({ ...RULES, ...c.settings });
   }, [demo, desk]);
-  useEffect(() => { if (admin) void load().catch((e) => setMsg((e as Error).message)); }, [admin, load]);
+  useEffect(() => { void load().catch((e) => setMsg((e as Error).message)); }, [load]); // the Settings window only lets an owner or manager in
   useEffect(() => { if (conf?.slug) void loadPage(demo ? DEMO_SLUG : conf.slug).then((p) => p && setInfo({ address: p.salon.address, phone: p.salon.phone })).catch(() => {}); }, [conf?.slug, demo]);
   const saveDemo = (c: Conf) => { setConf(c); try { localStorage.setItem(DEMO_KEY, JSON.stringify(c)); } catch { /* */ } };
 
@@ -144,19 +150,12 @@ function Settings({ desk }: { desk: Desk }) {
   const note = rules.calendar_note ?? "";
   const alarm = rules.calendar_alarm_min ?? 60;
   const alarmLabel = (m: number) => (m >= 1440 ? t("alarmDay") : m >= 60 ? t("alarmHr", { n: m / 60 }) : t("alarmMin", { n: m }));
-  const initials = desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   return (
-    <div className="app">
-      <LeftMenu active="Today" salonInitials={initials} me={desk.me.display_name[0]} />
-      <div className="col">
-        <TopBar back={{ href: "/today", label: t("back") }} title={t("title")}>
-          {conf && <a className="btn sm" href={url()} target="_blank" rel="noreferrer" data-testid="bp-preview">{t("preview")}</a>}
-          <SyncPill />
-        </TopBar>
-        <OfflineBanner />
-        {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
-        {!admin ? <main style={{ padding: "20px 24px" }}><p className="hint err">{t("ownerOnly")}</p></main> : !conf ? <main style={{ padding: 24 }} aria-busy="true">{msg && <p className="hint err">{msg}</p>}</main> : (
-        <main className="bp">
+    <>
+        {demo && <div className="demo">{t("demo")}</div>}
+        {!conf ? <div aria-busy="true">{msg && <p className="hint err">{msg}</p>}</div> : (
+        <div className="bp">
+          <div className="bw-row"><span className="bw-grow" /><a className="btn sm" href={url()} target="_blank" rel="noreferrer" data-testid="bp-preview">{t("preview")} ↗</a></div>
           {msg && <p className="hint err" role="alert">{msg}</p>}
           <section className="card pad bp-sec">
             <div className="bw-row"><span className={`tag${on ? " jade" : ""}`} data-testid="bp-state">{on ? t("live", { url: url().replace(/^https?:\/\//, "") }) : t("off")}</span>
@@ -291,9 +290,8 @@ function Settings({ desk }: { desk: Desk }) {
                 <div key={src} className="bp-bar" data-testid="bp-source"><span>{tc(`src_${src}` as "src_web")}</span><span className="bp-track"><i style={{ width: `${(n / maxN) * 100}%` }} /></span><b className="num">{n}</b></div>))}
             </section>
           </div>
-        </main>)}
-      </div>
+        </div>)}
       {toast && <Toast>{toast}</Toast>}
-    </div>
+    </>
   );
 }

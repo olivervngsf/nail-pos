@@ -1850,6 +1850,7 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 /* Settings → Business details */
 .biz{flex:1;overflow:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px;max-width:760px}
 .set-main .biz{padding:0;flex:none}
+.set-main .ps, .set-main .bp, .set-main .ly { padding: 0; flex: none; overflow: visible; }
 .biz-card{gap:14px}
 .biz-confirm{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.45;cursor:pointer}
 .biz-confirm input{width:20px;height:20px;margin-top:2px;flex:none}
@@ -2286,6 +2287,34 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .rc-next .btn { height: 48px; display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .rc-visit { display: block; text-align: center; text-decoration: none; margin: 0 auto; }
 
+/* Settings = one window (Oliver, Nov 27): the only way out to a work screen is a quiet "… ↗" link at the page bottom. */
+.set-leave { display: inline-flex; align-items: center; gap: 2px; margin-top: 8px; color: var(--ink-soft); font-size: 14px; font-weight: 600; text-decoration: none; }
+.set-leave:hover { color: var(--ink); text-decoration: underline; }
+@media (pointer: coarse) { .set-leave { min-height: 44px; } }
+/* Settings → Pay rules: one row per person (photo · name + role · pay · ›). */
+.pr-card { padding: 0; overflow: hidden; }
+.pr-row { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 16px; color: var(--ink); text-decoration: none; }
+.pr-row + .pr-row { border-top: 1px solid var(--line); }
+.pr-row:hover { background: var(--fill); }
+.pr-t { flex: 1; min-width: 0; display: flex; flex-direction: column; font-weight: 600; }
+.pr-t .cap { font-weight: 400; }
+.pr-v { color: var(--ink-soft); white-space: nowrap; }
+.pr-chev { color: var(--muted); font-size: 18px; }
+/* Settings → Printer (Nov 27): this device's printer as one clean card; preview label above the paper; big title centred. */
+.ps-dev { padding: 4px 16px; }
+.ps-dev-row { display: flex; align-items: center; gap: 12px; min-height: 64px; }
+.ps-dev-row + .ps-dev-row { border-top: 1px solid var(--line); }
+.ps-dev-paper { min-height: 56px; }
+.ps-dev-ico { width: 40px; height: 40px; flex: none; border-radius: 10px; background: var(--fill); color: var(--ink-soft); display: flex; align-items: center; justify-content: center; }
+.ps-dev-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ps-dev-t b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ps-dev-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 10px 0 12px; border-top: 1px solid var(--line); }
+.ps-link { border: 0; background: none; padding: 4px 0; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+.ps-link:hover { color: var(--ink); text-decoration: underline; }
+@media (pointer: coarse) { .ps-link { min-height: 44px; font-size: 15px; } }
+.ps-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px 2px; }
+.ps-paper .ps-big { font-size: 1.25em; white-space: normal; text-align: center; }
+.ps-opts .row { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }
 /* Booking pages: salon logo + name = back to the salon's home (door). Looks the same as before, just tappable. */
 .bw-home { border: 0; cursor: pointer; text-decoration: none; font: inherit; font-weight: 600; font-size: 18px; }
 .bw-home-name { all: unset; cursor: pointer; }
