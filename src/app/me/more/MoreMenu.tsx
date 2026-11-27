@@ -48,7 +48,7 @@ export default function MoreMenu() {
             {admin && item("/payouts", t("payouts"), "more-payouts")}
             {admin && item("/numbers", t("numbers"), "more-numbers")}
             {admin && item("/gift-cards", t("giftCards"), "more-gift-cards")}
-            {admin && item("/loyalty", t("loyalty"), "more-loyalty")}
+            {admin && item("/settings/loyalty", t("loyalty"), "more-loyalty")}
             {isDevice && item("/earnings", t("earnings"), "more-earnings")}
           </ListGroup>
           {(admin || isDevice) && <>

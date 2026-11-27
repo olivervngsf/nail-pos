@@ -6,7 +6,7 @@ test("loyalty: owner rule, reward at checkout (asks first), client page", async 
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
-  await page.goto("/loyalty");
+  await page.goto("/settings/loyalty");
   await expect(page.getByTestId("ly-members")).toHaveText("212");
   await expect(page.getByTestId("ly-preview")).toContainText("$10 reward");
   await expect(page.getByTestId("ly-link")).toContainText("/c/demo");

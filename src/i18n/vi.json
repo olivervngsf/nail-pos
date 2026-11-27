@@ -1805,7 +1805,14 @@
     "saved": "Đã lưu. Mọi máy trong tiệm sẽ in như vầy.",
     "needNet": "Cần internet để lưu.",
     "preview": "Xem trước",
-    "note": "In chữ thường (nhanh): dấu tiếng Việt sẽ không in. Thay đổi áp dụng cho mọi máy trong tiệm."
+    "note": "In chữ thường (nhanh): dấu tiếng Việt sẽ không in. Thay đổi áp dụng cho mọi máy trong tiệm.",
+    "devOnThis": "Bluetooth · đã lưu trên máy này",
+    "devNone": "Chọn một lần trên mỗi máy cần in",
+    "devPickTitle": "Chưa có máy in",
+    "devPick": "Chọn máy in",
+    "devNotListed": "Không thấy máy in?",
+    "devComputerTitle": "Máy in của máy tính",
+    "devComputer": "In qua cửa sổ in của máy tính này"
   },
   "credit": {
     "ringLabel": "Tín dụng tin nhắn · {money}",
@@ -2075,7 +2082,8 @@
       "language": "Ngôn ngữ",
       "textSize": "Cỡ chữ",
       "roles": "Vai trò",
-      "timesheet": "Bảng giờ làm"
+      "timesheet": "Bảng giờ làm",
+      "payRules": "Quy tắc trả lương"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -2095,7 +2103,7 @@
       "add": "+ Thêm người",
       "people": "nhân viên",
       "inNow": "đang làm",
-      "invited": "chưa nhận lời mời",
+      "invited": "chưa tham gia",
       "licenseDue": "bằng sắp hết hạn",
       "search": "Tìm tên hoặc số điện thoại",
       "none": "Không có ai.",
@@ -2107,7 +2115,7 @@
         "nopin": "Chưa có PIN"
       },
       "st": {
-        "invited": "Đã mời",
+        "invited": "Chưa tham gia",
         "noPin": "Chưa có PIN",
         "locked": "PIN bị khoá",
         "license": "Bằng · còn {d} ngày",
@@ -2117,7 +2125,20 @@
       "saved": "Đã lưu",
       "addedInvite": "Đã thêm {name}. Link mời sẵn sàng: gửi tới điện thoại của họ.",
       "inviteTexted": "Đã nhắn link mời tới {name}.",
-      "inviteNotTexted": "Chưa nhắn được link mời: {why} Hãy sao chép link (bấm vào tên họ)."
+      "inviteNotTexted": "Chưa nhắn được link mời: {why} Hãy sao chép link (bấm vào tên họ).",
+      "since": "từ {t}",
+      "last": "lần cuối {t}",
+      "tile": {
+        "in": "đang làm",
+        "invited": "chưa tham gia",
+        "nopin": "chưa có PIN",
+        "license": "sắp hết hạn bằng"
+      },
+      "g": {
+        "boss": "Chủ + quản lý",
+        "desk": "Quầy",
+        "tech": "Thợ"
+      }
     },
     "m": {
       "name": "Tên",
@@ -2593,6 +2614,17 @@
       "stripeOk": "Stripe ✓",
       "notSet": "Chưa cài",
       "devicesOn": "{on}/{n} đang bật"
+    },
+    "payRules": {
+      "intro": "Mỗi người được trả lương thế nào và phiếu lương in gì. Bảng lương dùng các quy tắc này.",
+      "who": "Lương của từng người",
+      "none": "Chưa ai có cách trả lương. Thêm trong Nhân viên.",
+      "changeOwner": "Bấm vào một người để đổi lương trong Nhân viên (hoa hồng hoặc theo giờ, séc hay tiền mặt).",
+      "changeManager": "Chỉ chủ tiệm đổi được lương. Bấm vào một người để xem trong Nhân viên.",
+      "slip": "Phiếu lương",
+      "slipRow": "Phiếu lương nhân viên in gì",
+      "slipSub": "Từng vé, tiền tip, séc hay tiền mặt, chỗ ký tên",
+      "openSheet": "Mở bảng lương"
     }
   },
   "promo": {
@@ -3043,7 +3075,8 @@
       "support_off": "Hết quyền hỗ trợ",
       "support_change": "PolishOS hỗ trợ đã đổi một mục",
       "roles_saved": "Đổi vai trò + quyền",
-      "clock_fix": "Sửa giờ chấm công"
+      "clock_fix": "Sửa giờ chấm công",
+      "amenities_saved": "Đổi tiện ích của tiệm"
     }
   },
   "picker": {
@@ -3232,5 +3265,22 @@
       "signed_out_others": "Đăng xuất"
     },
     "footer": "Máy của tiệm (iPad) được quản lý ở Cài đặt → Thiết bị. Chủ tiệm có thể chặn một người ngay ở Nhân viên → Lưu trữ."
+  },
+  "amenities": {
+    "title": "Miễn phí cho khách",
+    "sub": "Chọn những gì tiệm có. Khách thấy trên trang đặt lịch và hóa đơn.",
+    "none": "Chưa chọn gì.",
+    "wine": "Rượu vang miễn phí",
+    "coffee": "Trà & cà phê",
+    "water": "Nước uống",
+    "wifi": "Wi-Fi miễn phí",
+    "massage_chairs": "Ghế massage",
+    "kids": "Chào đón trẻ em",
+    "parking": "Đậu xe miễn phí",
+    "wheelchair": "Lối đi xe lăn",
+    "walk_ins": "Nhận khách vãng lai",
+    "vietnamese": "Nói tiếng Việt",
+    "spanish": "Nói tiếng Tây Ban Nha",
+    "label": "Tiệm có"
   }
 }

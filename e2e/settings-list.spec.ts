@@ -69,3 +69,29 @@ test("phones + tablets: Settings is a list with values; a row opens its page", a
   await expect(page).toHaveURL(/\/settings\/salon$/);
   await expect(page.getByTestId("settings-search")).toBeHidden(); // a page shows ‹ · title · ✓, not the list's search
 });
+
+// One rule (Oliver, Nov 27): every item in the Settings menu opens INSIDE the Settings window, never a full page.
+// Work screens (Gift cards, Payout sheet) are not in the menu; a page may only point to one with a "… ↗" link.
+test("computers: every Settings menu item opens inside the window", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "the side menu is beside the page on computers");
+  await page.setViewportSize({ width: 1280, height: 860 });
+  await page.goto("/settings/salon");
+  const nav = page.locator(".set-nav");
+  await expect(nav).toBeVisible();
+  const hrefs = await nav.locator("a").evaluateAll((as) => as.map((a) => a.getAttribute("href") ?? ""));
+  expect(hrefs.length).toBeGreaterThan(15);
+  for (const href of hrefs) expect(href, `${href} must be a Settings page`).toMatch(/^\/(settings|me)(\/|$)/);
+  expect(hrefs).not.toContain("/gift-cards");
+  expect(hrefs).not.toContain("/payouts");
+  for (const href of hrefs) {
+    await page.goto(href);
+    await expect(page.locator(".set-win"), `${href} opens in the window`).toBeVisible();
+    await expect(page.locator(".set-win .set-nav")).toBeVisible();
+  }
+  // Pay rules points to the payout sheet with the one "leaves Settings" link.
+  await page.goto("/settings/pay-rules");
+  await expect(page.getByTestId("pay-rule-row").first()).toBeVisible();
+  await page.getByTestId("open-payouts").click();
+  await expect(page).toHaveURL(/\/payouts$/);
+  await expect(page.locator(".set-win")).toHaveCount(0);
+});

@@ -1805,7 +1805,14 @@
     "saved": "Saved. Every device prints this way now.",
     "needNet": "Saving needs internet.",
     "preview": "Preview",
-    "note": "Prints use plain letters (fast): Vietnamese accents print without marks. Changes apply to every device in the salon."
+    "note": "Prints use plain letters (fast): Vietnamese accents print without marks. Changes apply to every device in the salon.",
+    "devOnThis": "Bluetooth · saved on this device",
+    "devNone": "Pick it once on each device that prints",
+    "devPickTitle": "No printer yet",
+    "devPick": "Pick printer",
+    "devNotListed": "Printer not in the list?",
+    "devComputerTitle": "Computer printer",
+    "devComputer": "Prints through this computer's print window"
   },
   "credit": {
     "ringLabel": "Text credit · {money}",
@@ -2075,7 +2082,8 @@
       "language": "Language",
       "textSize": "Text size",
       "roles": "Roles",
-      "timesheet": "Timesheet"
+      "timesheet": "Timesheet",
+      "payRules": "Pay rules"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -2095,7 +2103,7 @@
       "add": "+ Add member",
       "people": "team",
       "inNow": "in now",
-      "invited": "invite open",
+      "invited": "haven't joined",
       "licenseDue": "license due",
       "search": "Search name or phone",
       "none": "Nobody here.",
@@ -2107,7 +2115,7 @@
         "nopin": "No PIN"
       },
       "st": {
-        "invited": "Invited",
+        "invited": "Hasn't joined yet",
         "noPin": "No PIN yet",
         "locked": "PIN locked",
         "license": "License · {d} days",
@@ -2117,7 +2125,20 @@
       "saved": "Saved",
       "addedInvite": "{name} added. Invite link ready: send it to their phone.",
       "inviteTexted": "Invite texted to {name}.",
-      "inviteNotTexted": "Invite not texted: {why} Copy the link instead (open their name)."
+      "inviteNotTexted": "Invite not texted: {why} Copy the link instead (open their name).",
+      "since": "since {t}",
+      "last": "last in {t}",
+      "tile": {
+        "in": "in now",
+        "invited": "haven't joined",
+        "nopin": "no PIN yet",
+        "license": "license due"
+      },
+      "g": {
+        "boss": "Owner + managers",
+        "desk": "Front desk",
+        "tech": "Techs"
+      }
     },
     "m": {
       "name": "Name",
@@ -2593,6 +2614,17 @@
       "stripeOk": "Stripe ✓",
       "notSet": "Not set up",
       "devicesOn": "{on} of {n} on"
+    },
+    "payRules": {
+      "intro": "How each person is paid and what their pay slip shows. The payout sheet uses these.",
+      "who": "Each person's pay",
+      "none": "No one has pay set up yet. Add it in Team.",
+      "changeOwner": "Tap a person to change their pay in Team (commission or hourly, check vs cash).",
+      "changeManager": "Only the owner can change pay. Tap a person to see them in Team.",
+      "slip": "Pay slip",
+      "slipRow": "What the staff slip prints",
+      "slipSub": "Every ticket, tips, check vs cash, signature line",
+      "openSheet": "Open payout sheet"
     }
   },
   "promo": {
@@ -3043,7 +3075,8 @@
       "support_off": "Support access ended",
       "support_change": "PolishOS support changed something",
       "roles_saved": "Roles + permissions changed",
-      "clock_fix": "Clock time fixed"
+      "clock_fix": "Clock time fixed",
+      "amenities_saved": "Changed what the salon offers"
     }
   },
   "picker": {
@@ -3232,5 +3265,22 @@
       "signed_out_others": "Signed out"
     },
     "footer": "Salon devices (the iPads) are managed in Settings → Devices. The owner can cut a person off at once in Team → Archive."
+  },
+  "amenities": {
+    "title": "Free for clients",
+    "sub": "Tick what your salon offers. Clients see it on your booking page and receipt.",
+    "none": "Nothing picked yet.",
+    "wine": "Free wine",
+    "coffee": "Tea & coffee",
+    "water": "Water",
+    "wifi": "Free Wi-Fi",
+    "massage_chairs": "Massage chairs",
+    "kids": "Kids welcome",
+    "parking": "Free parking",
+    "wheelchair": "Wheelchair access",
+    "walk_ins": "Walk-ins welcome",
+    "vietnamese": "We speak Vietnamese",
+    "spanish": "We speak Spanish",
+    "label": "What we offer"
   }
 }
