@@ -1,11 +1,11 @@
 "use client";
 // Owner / manager: what every printout shows. Pick a printout (client receipt, staff slip, ticket slip), turn parts
 // on/off, see the paper change on the right (the same lines the printer prints), save for the whole salon, print a test.
-import { SaveCheck } from "../SettingsShell";
+import SettingsShell, { SaveCheck } from "../SettingsShell";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Field, LeftMenu, OfflineBanner, Segmented, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
-import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
+import { Button, Field, Segmented, Switch, Toast } from "@/components/kit";
+import { usePrinter, type Printer as PrinterState } from "@/components/PrinterSetup";
 import { useDesk } from "@/lib/desk";
 import { demoPayout } from "@/lib/closeday";
 import { formatCents } from "@/lib/money";
@@ -19,6 +19,12 @@ type Kind = "receipt" | "staff" | "slip";
 const $ = formatCents;
 
 export default function PrinterSettings() {
+  const t = useTranslations("printSettings");
+  // Inside the Settings window (Oliver, Nov 27: Settings never jumps to a full page). The window checks owner/manager.
+  return <SettingsShell title={t("title")}>{() => <Printer />}</SettingsShell>;
+}
+
+function Printer() {
   const t = useTranslations("printSettings");
   const tp = useTranslations("payouts");
   const tc = useTranslations("checkout");
@@ -63,9 +69,8 @@ export default function PrinterSettings() {
   }, [kind, draft, salon, tp, tc]);
   const lines = receiptLines(doc, printer.paper as Paper);
 
-  if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
-  if (!desk) return <div className="app" aria-busy="true" />;
-  const admin = demo || desk.me.role === "owner" || desk.me.role === "manager";
+  if (err) return <p className="hint err">{err}</p>;
+  if (!desk) return <div aria-busy="true" />;
   const set = <K extends Kind>(k: K, part: Partial<PrintSettings[K]>) => setDraft((d) => ({ ...d, [k]: { ...d[k], ...part } }));
   const toggles: { k: Kind; key: string; label: string; sub?: string }[] = kind === "receipt" ? [
     { k: "receipt", key: "staff", label: t("rStaff") }, { k: "receipt", key: "tips", label: t("rTips") },
@@ -87,16 +92,11 @@ export default function PrinterSettings() {
   };
 
   return (
-    <div className="app">
-      <LeftMenu active="Today" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={desk.me.display_name[0]} />
-      <div className="col">
-        <TopBar back={{ href: "/today", label: t("back") }} title={t("title")}><SyncPill /></TopBar>
-        <OfflineBanner />
-        {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
-        {!admin ? <main style={{ padding: "20px 24px" }}><p className="hint err">{t("ownerOnly")}</p></main> : (
-          <main className="ps">
+    <>
+        {demo && <div className="demo">{t("demo")}</div>}
+          <div className="ps">
             <section className="ps-left">
-              {(printer.ok || printer.ios) && <div className="card" style={{ padding: "6px 16px" }}><PrinterSetup p={printer} /></div>}
+              <DevicePrinter p={printer} />
               <Segmented label={t("which")} value={kind} onChange={setKind}
                 options={[{ value: "receipt", label: t("kReceipt") }, { value: "staff", label: t("kStaff") }, { value: "slip", label: t("kSlip") }]} />
               <div className="cap">{t(`about_${kind}`)}</div>
@@ -118,16 +118,53 @@ export default function PrinterSettings() {
               <div className="cap">{t("note")}</div>
             </section>
             <section className="ps-right" aria-label={t("preview")}>
-              <div className="eyebrow">{t("preview")} · {printer.paper} mm</div>
+              <div className="ps-eyebrow">{t("preview")} · {printer.paper} mm</div>
               <div className={`ps-paper w${printer.paper}`} data-testid="ps-paper">
                 {lines.map((l, i) => "qr" in l ? <div key={i} className="ps-qr" aria-label="QR">QR</div>
-                  : <div key={i} className={l.bold ? "b" : undefined} style={l.big ? { fontSize: "1.25em" } : undefined}>{l.text || " "}</div>)}
+                  // A big line is printed double width: its spaces are wider too, so centre it by CSS, not by the padding.
+                  : <div key={i} className={[l.bold && "b", l.big && "ps-big"].filter(Boolean).join(" ") || undefined}>{(l.big ? l.text.trim() : l.text) || " "}</div>)}
               </div>
             </section>
-          </main>
-        )}
-      </div>
+          </div>
       {toast && <Toast>{toast}</Toast>}
+    </>
+  );
+}
+
+const PrinterIco = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d="M6 9V3h12v6M6 17H4v-6h16v6h-2M7 14h10v7H7z" /></svg>);
+
+/** This device's printer, one clean card: which printer (or none yet) + Change, then paper size, then the less-used
+ *  picks as quiet links. Saved on this device only (each device picks its own); what prints is the salon setting below. */
+function DevicePrinter({ p }: { p: PrinterState }) {
+  const t = useTranslations("printSettings");
+  const tc = useTranslations("checkout");
+  const name = p.app ? tc("btBuiltIn") : p.saved?.name;
+  const where = p.ok ? (name ? t("devOnThis") : t("devNone")) : p.ios ? tc("btIos") : t("devComputer");
+  return (
+    <div className="card ps-dev" data-testid="printer-setup">
+      <div className="ps-dev-row">
+        <span className="ps-dev-ico"><PrinterIco /></span>
+        <span className="ps-dev-t"><b>{name ?? (p.ok ? t("devPickTitle") : t("devComputerTitle"))}</b><span className="cap">{where}</span></span>
+        {p.ok && !p.app && <Button size="sm" variant={name ? undefined : "primary"} onClick={() => void p.change()} data-testid="printer-change">{name ? tc("btChange") : t("devPick")}</Button>}
+      </div>
+      {p.ok && (name || p.app) && (
+        <div className="ps-dev-row ps-dev-paper">
+          <span className="ps-dev-t">{tc("btPaper")}</span>
+          <Segmented label={tc("btPaper")} value={String(p.paper)} onChange={(v) => p.setPaper(Number(v) as Paper)}
+            options={[{ value: "58", label: "58 mm" }, { value: "80", label: "80 mm" }]} />
+        </div>
+      )}
+      {p.ok && !p.app && (
+        <div className="ps-dev-links">
+          <span className="cap">{t("devNotListed")}</span>
+          <button type="button" className="ps-link" data-testid="printer-all" onClick={() => void p.change(true)}>{tc("btAll")}</button>
+          {p.builtIn && <button type="button" className="ps-link" data-testid="printer-builtin" onClick={() => void p.change(false, true)}>{tc("btBuiltIn")}</button>}
+        </div>
+      )}
+      {p.rawHint && <p className="cap">{tc("btRawbtHint")} <Button size="sm" variant="ghost" data-testid="printer-rawbt" onClick={p.useRawbt}>{tc("btRawbt")}</Button></p>}
+      {p.err && <p className="hint err" role="alert">{p.err}</p>}
     </div>
   );
 }

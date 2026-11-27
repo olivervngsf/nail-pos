@@ -80,9 +80,9 @@ export default function HomeView(p: Props) {
 
     {!cards && (
       <div className="co-stats">
-        <div className="card pad"><span className="cap">{t("toCollect")}</span><b className="num bold co-big" data-testid="to-collect">{formatCents(facts.toCollect)}</b><span className="cap">{t("openCount", { n: open.length })}</span></div>
-        <div className="card pad"><span className="cap">{t("paidToday")}</span><b className="num bold co-big">{formatCents(facts.paidCents)}</b><span className="cap num">{t("paidCount", { n: paid.length })} · {t("cardCash", { card: formatCents(facts.card), cash: formatCents(facts.cash) })}</span></div>
-        <div className="card pad"><span className="cap">{t("tipsToday")}</span><b className="num bold co-big">{formatCents(facts.tips)}</b><span className="cap">{t("tipsSub")}</span></div>
+        <div className="card pad"><span className="cap">{t("toCollect")}</span><b className="num bold co-big" data-roll data-testid="to-collect">{formatCents(facts.toCollect)}</b><span className="cap">{t("openCount", { n: open.length })}</span></div>
+        <div className="card pad"><span className="cap">{t("paidToday")}</span><b className="num bold co-big" data-roll>{formatCents(facts.paidCents)}</b><span className="cap num">{t("paidCount", { n: paid.length })} · {t("cardCash", { card: formatCents(facts.card), cash: formatCents(facts.cash) })}</span></div>
+        <div className="card pad"><span className="cap">{t("tipsToday")}</span><b className="num bold co-big" data-roll>{formatCents(facts.tips)}</b><span className="cap">{t("tipsSub")}</span></div>
       </div>
     )}
 
@@ -98,10 +98,10 @@ export default function HomeView(p: Props) {
       {cards ? (
         <div className="co-cards">
           {shown.map((x) => (
-            <div key={x.id} className="card pad co-card" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
+            <div key={x.id} className="card pad co-card flow" data-flow="card" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
               <div className="co-card-top"><Avatar name={x.client?.name || "?"} /><div className="grow"><b>{who(x)}</b><span className="cap">{t("ticket", { n: ticketLabel(x) })} · {openText(t, x, now)}</span></div></div>
               <div className="co-card-svc">{services(x)}{techsOn(x).length > 0 && <span className="cap"> · {techsOn(x).join(", ")}</span>}{!x.number && <span className="cap"> · {t("notSynced")}</span>}</div>
-              <div className="co-card-foot"><b className="num bold co-big">{formatCents(totals(x).left)}</b>{action(x)}</div>
+              <div className="co-card-foot"><b className="num bold co-big" data-roll>{formatCents(totals(x).left)}</b>{action(x)}</div>
             </div>
           ))}
           <button type="button" className="co-new" data-testid="new-ticket" onClick={p.onNew}>
@@ -112,7 +112,7 @@ export default function HomeView(p: Props) {
       ) : (
         <div className="group">
           {open.length ? open.map((x) => (
-            <div key={x.id} className="row l co-row" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
+            <div key={x.id} className="row l co-row flow" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
               <Avatar name={x.client?.name || "?"} />
               <div className="g"><b>{who(x)}</b><span className="cap">{sub(x)}</span></div>
               <span className="co-tech">{techsOn(x).join(", ")}</span>
@@ -131,7 +131,7 @@ export default function HomeView(p: Props) {
         {paid.length ? paid.map((x) => {
           const s = totals(x);
           return (
-            <div key={x.id} className="row l co-row" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
+            <div key={x.id} className="row l co-row flow" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
               <Avatar name={x.client?.name || "?"} />
               <div className="g"><b>{who(x)}</b><span className="cap">{sub(x)}</span></div>
               <span className="co-tech">{techsOn(x).join(", ")}</span>

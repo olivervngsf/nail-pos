@@ -6,7 +6,8 @@ export default defineConfig({
   timeout: 30_000,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
-  use: { baseURL: "http://localhost:3100", trace: "off" },
+  // Reduced motion = no leaving copies of closed pop-ups, so tests never see two of one thing. e2e/motion.spec.ts turns motion on.
+  use: { baseURL: "http://localhost:3100", trace: "off", reducedMotion: "reduce" },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } } },
     { name: "phone", use: { ...devices["Pixel 7"] } },

@@ -113,6 +113,7 @@ export default function MePage() {
             <section className="me-card" data-testid="my-pin">
               <Link href="/me/pin" className="me-f me-link" data-testid="change-pin"><span className="me-k">{t("pinShort")}</span><span className="me-v r">{t("pinNow", { n: rules.length })}</span><span className="me-chev" aria-hidden>›</span></Link>
               <Link href="/me/sign-in" className="me-f me-link" data-testid="me-sign-in"><span className="me-k">{t("signInShort")}</span><span className="me-v r">{t("signInWays")}</span><span className="me-chev" aria-hidden>›</span></Link>
+              {!isDevice && <Link href="/me/sign-ins" className="me-f me-link" data-testid="me-sign-ins"><span className="me-k">{t("signInsShort")}</span><span className="me-v r">{t("signInsSub")}</span><span className="me-chev" aria-hidden>›</span></Link>}
             </section>
             <p className="me-hint">{t("pinUse")}</p>
           </div>
