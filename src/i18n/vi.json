@@ -1115,7 +1115,10 @@
     "pointsBalance": "Bạn có {n} {unit}.",
     "rewardReady": "Thưởng {amt} sẵn sàng cho lần tới.",
     "pts": "điểm",
-    "visits": "lần"
+    "visits": "lần",
+    "bookAgain": "Đặt lịch lại",
+    "directions": "Chỉ đường",
+    "visit": "Xem hình, dịch vụ + thợ của tiệm"
   },
   "slip": {
     "ticket": "Phiếu #{n}",
