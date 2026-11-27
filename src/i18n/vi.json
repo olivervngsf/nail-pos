@@ -2073,7 +2073,8 @@
       "language": "Ngôn ngữ",
       "textSize": "Cỡ chữ",
       "roles": "Vai trò",
-      "timesheet": "Bảng giờ làm"
+      "timesheet": "Bảng giờ làm",
+      "payRules": "Quy tắc trả lương"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -2590,6 +2591,17 @@
       "stripeOk": "Stripe ✓",
       "notSet": "Chưa cài",
       "devicesOn": "{on}/{n} đang bật"
+    },
+    "payRules": {
+      "intro": "Mỗi người được trả lương thế nào và phiếu lương in gì. Bảng lương dùng các quy tắc này.",
+      "who": "Lương của từng người",
+      "none": "Chưa ai có cách trả lương. Thêm trong Nhân viên.",
+      "changeOwner": "Bấm vào một người để đổi lương trong Nhân viên (hoa hồng hoặc theo giờ, séc hay tiền mặt).",
+      "changeManager": "Chỉ chủ tiệm đổi được lương. Bấm vào một người để xem trong Nhân viên.",
+      "slip": "Phiếu lương",
+      "slipRow": "Phiếu lương nhân viên in gì",
+      "slipSub": "Từng vé, tiền tip, séc hay tiền mặt, chỗ ký tên",
+      "openSheet": "Mở bảng lương"
     }
   },
   "promo": {

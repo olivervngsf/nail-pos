@@ -2073,7 +2073,8 @@
       "language": "Language",
       "textSize": "Text size",
       "roles": "Roles",
-      "timesheet": "Timesheet"
+      "timesheet": "Timesheet",
+      "payRules": "Pay rules"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -2590,6 +2591,17 @@
       "stripeOk": "Stripe ✓",
       "notSet": "Not set up",
       "devicesOn": "{on} of {n} on"
+    },
+    "payRules": {
+      "intro": "How each person is paid and what their pay slip shows. The payout sheet uses these.",
+      "who": "Each person's pay",
+      "none": "No one has pay set up yet. Add it in Team.",
+      "changeOwner": "Tap a person to change their pay in Team (commission or hourly, check vs cash).",
+      "changeManager": "Only the owner can change pay. Tap a person to see them in Team.",
+      "slip": "Pay slip",
+      "slipRow": "What the staff slip prints",
+      "slipSub": "Every ticket, tips, check vs cash, signature line",
+      "openSheet": "Open payout sheet"
     }
   },
   "promo": {

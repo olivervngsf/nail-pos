@@ -189,7 +189,7 @@ export default function TodayDesk() {
             <b>Printer</b><span className="cap">Pick your printer and what each receipt and staff slip shows, with a live preview.</span></Link>}
           {canAdmin && <Link className="tile" href="/settings/texting" data-testid="texting-link" style={{ textDecoration: "none" }}>
             <b>Texting &amp; credit</b><span className="cap">Promo text credit, every send and top-up, what&apos;s included in your plan.</span></Link>}
-          {canAdmin && <Link className="tile" href="/loyalty" data-testid="loyalty-link" style={{ textDecoration: "none" }}>
+          {canAdmin && <Link className="tile" href="/settings/loyalty" data-testid="loyalty-link" style={{ textDecoration: "none" }}>
             <b>Loyalty</b><span className="cap">Points tied to the phone number, reward size, client page link.</span></Link>}
           {canAdmin && <Link className="tile" href="/payouts" data-testid="payouts-link" style={{ textDecoration: "none" }}>
             <b>Payout sheet</b><span className="cap">Each tech&apos;s pay + tips for the day or week, check vs cash, print, payroll export.</span></Link>}

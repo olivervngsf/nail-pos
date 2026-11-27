@@ -1,10 +1,10 @@
 "use client";
 // Owner / manager: what every printout shows. Pick a printout (client receipt, staff slip, ticket slip), turn parts
 // on/off, see the paper change on the right (the same lines the printer prints), save for the whole salon, print a test.
-import { SaveCheck } from "../SettingsShell";
+import SettingsShell, { SaveCheck } from "../SettingsShell";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Field, LeftMenu, OfflineBanner, Segmented, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
+import { Button, Field, Segmented, Switch, Toast } from "@/components/kit";
 import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 import { useDesk } from "@/lib/desk";
 import { demoPayout } from "@/lib/closeday";
@@ -19,6 +19,12 @@ type Kind = "receipt" | "staff" | "slip";
 const $ = formatCents;
 
 export default function PrinterSettings() {
+  const t = useTranslations("printSettings");
+  // Inside the Settings window (Oliver, Nov 27: Settings never jumps to a full page). The window checks owner/manager.
+  return <SettingsShell title={t("title")}>{() => <Printer />}</SettingsShell>;
+}
+
+function Printer() {
   const t = useTranslations("printSettings");
   const tp = useTranslations("payouts");
   const tc = useTranslations("checkout");
@@ -63,9 +69,8 @@ export default function PrinterSettings() {
   }, [kind, draft, salon, tp, tc]);
   const lines = receiptLines(doc, printer.paper as Paper);
 
-  if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
-  if (!desk) return <div className="app" aria-busy="true" />;
-  const admin = demo || desk.me.role === "owner" || desk.me.role === "manager";
+  if (err) return <p className="hint err">{err}</p>;
+  if (!desk) return <div aria-busy="true" />;
   const set = <K extends Kind>(k: K, part: Partial<PrintSettings[K]>) => setDraft((d) => ({ ...d, [k]: { ...d[k], ...part } }));
   const toggles: { k: Kind; key: string; label: string; sub?: string }[] = kind === "receipt" ? [
     { k: "receipt", key: "staff", label: t("rStaff") }, { k: "receipt", key: "tips", label: t("rTips") },
@@ -87,14 +92,9 @@ export default function PrinterSettings() {
   };
 
   return (
-    <div className="app">
-      <LeftMenu active="Today" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={desk.me.display_name[0]} />
-      <div className="col">
-        <TopBar back={{ href: "/today", label: t("back") }} title={t("title")}><SyncPill /></TopBar>
-        <OfflineBanner />
-        {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
-        {!admin ? <main style={{ padding: "20px 24px" }}><p className="hint err">{t("ownerOnly")}</p></main> : (
-          <main className="ps">
+    <>
+        {demo && <div className="demo">{t("demo")}</div>}
+          <div className="ps">
             <section className="ps-left">
               {(printer.ok || printer.ios) && <div className="card" style={{ padding: "6px 16px" }}><PrinterSetup p={printer} /></div>}
               <Segmented label={t("which")} value={kind} onChange={setKind}
@@ -124,10 +124,8 @@ export default function PrinterSettings() {
                   : <div key={i} className={l.bold ? "b" : undefined} style={l.big ? { fontSize: "1.25em" } : undefined}>{l.text || " "}</div>)}
               </div>
             </section>
-          </main>
-        )}
-      </div>
+          </div>
       {toast && <Toast>{toast}</Toast>}
-    </div>
+    </>
   );
 }
