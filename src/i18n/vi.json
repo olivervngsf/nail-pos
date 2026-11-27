@@ -1803,7 +1803,14 @@
     "saved": "Đã lưu. Mọi máy trong tiệm sẽ in như vầy.",
     "needNet": "Cần internet để lưu.",
     "preview": "Xem trước",
-    "note": "In chữ thường (nhanh): dấu tiếng Việt sẽ không in. Thay đổi áp dụng cho mọi máy trong tiệm."
+    "note": "In chữ thường (nhanh): dấu tiếng Việt sẽ không in. Thay đổi áp dụng cho mọi máy trong tiệm.",
+    "devOnThis": "Bluetooth · đã lưu trên máy này",
+    "devNone": "Chọn một lần trên mỗi máy cần in",
+    "devPickTitle": "Chưa có máy in",
+    "devPick": "Chọn máy in",
+    "devNotListed": "Không thấy máy in?",
+    "devComputerTitle": "Máy in của máy tính",
+    "devComputer": "In qua cửa sổ in của máy tính này"
   },
   "credit": {
     "ringLabel": "Tín dụng tin nhắn · {money}",

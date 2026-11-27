@@ -2232,3 +2232,18 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .pr-t .cap { font-weight: 400; }
 .pr-v { color: var(--ink-soft); white-space: nowrap; }
 .pr-chev { color: var(--muted); font-size: 18px; }
+/* Settings → Printer (Nov 27): this device's printer as one clean card; preview label above the paper; big title centred. */
+.ps-dev { padding: 4px 16px; }
+.ps-dev-row { display: flex; align-items: center; gap: 12px; min-height: 64px; }
+.ps-dev-row + .ps-dev-row { border-top: 1px solid var(--line); }
+.ps-dev-paper { min-height: 56px; }
+.ps-dev-ico { width: 40px; height: 40px; flex: none; border-radius: 10px; background: var(--fill); color: var(--ink-soft); display: flex; align-items: center; justify-content: center; }
+.ps-dev-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ps-dev-t b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ps-dev-links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 10px 0 12px; border-top: 1px solid var(--line); }
+.ps-link { border: 0; background: none; padding: 4px 0; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+.ps-link:hover { color: var(--ink); text-decoration: underline; }
+@media (pointer: coarse) { .ps-link { min-height: 44px; font-size: 15px; } }
+.ps-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px 2px; }
+.ps-paper .ps-big { font-size: 1.25em; white-space: normal; text-align: center; }
+.ps-opts .row { padding-left: 0; padding-right: 0; margin-left: 0; margin-right: 0; }

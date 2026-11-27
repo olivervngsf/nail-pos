@@ -1803,7 +1803,14 @@
     "saved": "Saved. Every device prints this way now.",
     "needNet": "Saving needs internet.",
     "preview": "Preview",
-    "note": "Prints use plain letters (fast): Vietnamese accents print without marks. Changes apply to every device in the salon."
+    "note": "Prints use plain letters (fast): Vietnamese accents print without marks. Changes apply to every device in the salon.",
+    "devOnThis": "Bluetooth · saved on this device",
+    "devNone": "Pick it once on each device that prints",
+    "devPickTitle": "No printer yet",
+    "devPick": "Pick printer",
+    "devNotListed": "Printer not in the list?",
+    "devComputerTitle": "Computer printer",
+    "devComputer": "Prints through this computer's print window"
   },
   "credit": {
     "ringLabel": "Text credit · {money}",
