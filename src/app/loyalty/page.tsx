@@ -1,6 +1,4 @@
-import type { Metadata } from "next";
-import LoyaltySettings from "./LoyaltySettings";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Loyalty · PolishOS" };
-
-export default function Page() { return <LoyaltySettings />; }
+// Loyalty rules moved into the Settings window (Nov 27). Old links + bookmarks land there.
+export default function Page() { redirect("/settings/loyalty"); }

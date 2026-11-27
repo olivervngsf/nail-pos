@@ -2,7 +2,6 @@
 // Owner / manager · Gift cards (Loyalty + Gift Cards board: GiftSetup G1–G2 + G10, GiftList G11–G12 + G18–G19).
 // What's owed on cards, every card (last 4 only), find a card, lock + replace a lost one, make + print plastic cards.
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button, Chip, Drawer, Field, LeftMenu, OfflineBanner, SyncPill, Toast, TopBar } from "@/components/kit";
 import { rpc } from "@/lib/auth";
@@ -72,7 +71,7 @@ export default function GiftCards() {
     <div className="app">
       <LeftMenu active="Today" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={desk.me.display_name[0]} />
       <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/today">‹ {t("back")}</Link>{t("title")}</span>}>
+        <TopBar back={{ href: "/today", label: t("back") }} title={t("title")}>
           <SyncPill />
         </TopBar>
         <OfflineBanner />

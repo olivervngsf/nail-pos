@@ -13,6 +13,9 @@ export type ServiceLine = {
   priceSet?: boolean;
   staffId?: string;
   staffName?: string;
+  /** The tech added this from their phone (ticket slip); addedAt = when. */
+  fromPhone?: boolean;
+  addedAt?: string;
 };
 export type Discount = { id: string; kind: "amt" | "pct"; value: number; reason: string; approvalId?: string; approvedBy?: string };
 export type Payment = {
@@ -47,7 +50,7 @@ export type Ticket = {
   status: "open" | "paid" | "refunded";
   createdAt: string;
   /** Who the ticket is for. Phone is the normal key; `id` links a client picked from Clients who has no phone; name is kept on the ticket either way. */
-  client?: { id?: string; phone: string; name: string };
+  client?: { id?: string; phone: string; name: string; email?: string };
   lines: ServiceLine[];
   discount?: Discount;
   /** Cash tip per staff id, cents. */
@@ -64,6 +67,10 @@ export type Ticket = {
   /** Server has this exact version. */
   synced?: boolean;
   receipt?: "print" | "text" | "email" | "none";
+  /** Where the last text / email receipt went (shown on the paid screen). */
+  receiptTo?: string;
+  /** Where the last text/email receipt went + what happened (shown on the paid screen). */
+  receiptSent?: { channel: "text" | "email"; to: string; status: "sent" | "skipped" | "failed" | "queued" | "demo"; error?: string | null; at: string };
 };
 
 export function discountCents(subtotal: number, d?: Discount): number {

@@ -2,9 +2,9 @@
 // Owner: loyalty program (Loyalty board L1–L2 + L6 receipt preview). V1 = points or a punch card tied to the phone number.
 // Packages, perks and referrals come later (shown as "later", not built).
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Button, LeftMenu, OfflineBanner, Stepper, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
+import { Button, Stepper, Switch, Toast } from "@/components/kit";
+import SettingsShell from "../SettingsShell";
 import { rpc } from "@/lib/auth";
 import { useDesk, type Desk } from "@/lib/desk";
 import { formatCents } from "@/lib/money";
@@ -13,16 +13,21 @@ import { DEMO_RULE, demoRule, saveDemoRule, type LoyaltyRule } from "@/lib/loyal
 type Stats = LoyaltyRule & { members: number; ready: number; redeemed30: number };
 
 export default function LoyaltySettings() {
+  const t = useTranslations("loyaltyAdmin");
+  // Inside the Settings window (Oliver, Nov 27: Settings never jumps to a full page). The window checks owner/manager.
+  return <SettingsShell title={t("title")}>{() => <Loader />}</SettingsShell>;
+}
+
+function Loader() {
   const { desk, err } = useDesk();
-  if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
-  if (!desk) return <div className="app" aria-busy="true" />;
+  if (err) return <p className="hint err">{err}</p>;
+  if (!desk) return <div aria-busy="true" />;
   return <Settings desk={desk} />;
 }
 
 function Settings({ desk }: { desk: Desk }) {
   const t = useTranslations("loyaltyAdmin");
   const demo = desk.mode === "demo";
-  const admin = demo || desk.me.role === "owner" || desk.me.role === "manager";
   const [rule, setRule] = useState<LoyaltyRule | null>(null);
   const [stats, setStats] = useState<Omit<Stats, keyof LoyaltyRule> | null>(null);
   const [slug, setSlug] = useState<string | null>(null);
@@ -44,22 +49,14 @@ function Settings({ desk }: { desk: Desk }) {
     catch { setMsg(t("failed")); }
   };
   const $ = (c: number) => formatCents(c).replace(/\.00$/, "");
-  const initials = desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   const r = rule ?? DEMO_RULE;
   const pts = r.kind === "points";
   const link = typeof window !== "undefined" && slug ? `${window.location.origin}/c/${slug}` : "";
   return (
-    <div className="app nm-app">
-      <LeftMenu active="Today" salonInitials={initials} me={desk.me.display_name[0]} />
-      <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/today">‹ {t("back")}</Link>{t("title")}</span>}>
-          {rule && admin && <span className="cap">{rule.on ? t("onSaved") : t("off")}</span>}
-          <SyncPill />
-        </TopBar>
-        <OfflineBanner />
-        {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
-        {!admin ? <main style={{ padding: 24 }}><p className="hint err">{t("ownerOnly")}</p></main> : !rule ? <main style={{ padding: 24 }} aria-busy="true">{msg && <p className="hint err">{msg}</p>}</main> : (
-        <main className="ly">
+    <>
+        {demo && <div className="demo">{t("demo")}</div>}
+        {!rule ? <div aria-busy="true">{msg && <p className="hint err">{msg}</p>}</div> : (
+        <div className="ly">
           {msg && <p className="hint err" role="alert">{msg}</p>}
           <section className="card pad ly-sec">
             <div className="ly-row"><div style={{ flex: 1 }}><h2 className="h2">{t("program")}</h2><p className="cap">{t("programSub")}</p></div>
@@ -105,9 +102,8 @@ function Settings({ desk }: { desk: Desk }) {
               <p className="cap">{t("laterSub")}</p>
             </section>
           </div>
-        </main>)}
-      </div>
+        </div>)}
       {toast && <Toast>{toast}</Toast>}
-    </div>
+    </>
   );
 }

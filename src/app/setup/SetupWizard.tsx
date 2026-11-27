@@ -9,7 +9,7 @@ import { api } from "@/lib/api";
 import { dropQueued, syncNow } from "@/lib/offline/outbox";
 import { queueSave, withIds } from "./sync";
 import { importMenu, shrinkPhoto } from "./menuImport";
-import { Button, Segmented, SyncPill } from "@/components/kit";
+import { Banner, Button, Segmented, SyncPill, TimePicker } from "@/components/kit";
 import { usePrinter } from "@/components/PrinterSetup";
 import { pickPrinter } from "@/lib/print/bluetooth";
 import { printDoc } from "@/lib/print/print";
@@ -19,6 +19,7 @@ import { useStored } from "@/lib/useStored";
 import { inIosApp } from "@/lib/app/bridge";
 import { canTapToPay, tapOnHere, turnOnTap, turnOnTapDemo, type TapCheck } from "@/lib/app/reader";
 import { HowToTapButton } from "@/components/HowToTap";
+import { addressOk, parseAddress } from "@/lib/stripe/address";
 import {
   STEPS, STATES, fmtHours, fmtMoney, fmtPhone, fmtTime, initials, newInviteCode, phoneOk, toMin,
   type PayType, type Service,
@@ -245,7 +246,10 @@ export function stepStatus(s: SetupState, i: number): { text: string; good?: boo
 /* 1. Salon info */
 const SalonInfo: StepView = ({ s, set, say }) => {
   const badDay = s.hours.some((h) => h.on && toMin(h.close) <= toMin(h.open));
-  const lock = badDay || !s.salonName.trim();
+  // Card readers + texting registration need a full address (street, city, ZIP): no Continue without it.
+  const addr = parseAddress(s.address, s.state);
+  const addrOk = addressOk(addr);
+  const lock = badDay || !s.salonName.trim() || !addrOk;
   const field = (k: "salonName" | "salonPhone" | "address", label: string, extra: Partial<React.InputHTMLAttributes<HTMLInputElement>> = {}) => (
     <div>
       <label className="lbl" htmlFor={k}>{label}</label>
@@ -258,7 +262,12 @@ const SalonInfo: StepView = ({ s, set, say }) => {
     <div className="grid2" style={{ gap: 16 }}>
       {field("salonName", "Salon name", { placeholder: "Mai Nails" })}
       {field("salonPhone", "Salon phone", { inputMode: "tel", placeholder: "(408) 555-0100" })}
-      {field("address", "Address", { autoComplete: "street-address" })}
+      <div>
+        {field("address", "Address", { autoComplete: "street-address", placeholder: "1550 S Bascom Ave, Campbell, CA 95008" })}
+        <div className="hint" data-testid="setup-address-check" style={{ color: addrOk || !s.address.trim() ? undefined : "#b5470a" }}>
+          {addrOk ? `✓ ${addr.line1}, ${addr.city}, ${addr.state} ${addr.postal_code}` : "Street, city, ZIP (card readers + texting need the ZIP)"}
+        </div>
+      </div>
       <div>
         <label className="lbl" htmlFor="st">State</label>
         <select className="inp" id="st" value={s.state} onChange={(e) => set((p) => ({ ...p, state: e.target.value }))}>
@@ -285,9 +294,9 @@ const SalonInfo: StepView = ({ s, set, say }) => {
               <span style={{ width: 40, fontWeight: 600 }}>{h.day}</span>
               <button type="button" className={`sw ${h.on ? "on" : ""}`} role="switch" aria-checked={h.on} aria-label={`${h.day} open`} onClick={() => upd({ on: !h.on })} />
               {h.on ? <>
-                <TimeSelect label={`${h.day} opens`} value={h.open} onChange={(v) => upd({ open: v })} />
+                <TimePicker className="tm" label={`${h.day} opens`} value={h.open} bad={bad} onChange={(v) => upd({ open: v })} />
                 <span className="cap">to</span>
-                <TimeSelect label={`${h.day} closes`} value={h.close} onChange={(v) => upd({ close: v })} />
+                <TimePicker className="tm" label={`${h.day} closes`} value={h.close} min={h.open} bad={bad} onChange={(v) => upd({ close: v })} />
                 {bad ? <span className="hint err" style={{ margin: 0 }}>Closes before it opens</span> : <span className="cap hl">{fmtHours(h)}</span>}
               </> : <span className="cap">Closed</span>}
             </div>
@@ -392,18 +401,6 @@ const Services: StepView = ({ s, set, say, next }) => {
     {s.svcWay === "tpl" && <div className="cap">Starts with manicure, pedicure, gel, acrylic, dip and waxing. Then edit prices.</div>}
   </>];
 };
-
-const TIMES = Array.from({ length: (23 - 5) * 4 + 1 }, (_, i) => {
-  const m = 5 * 60 + i * 15;
-  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-});
-function TimeSelect({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  return (
-    <select className="inp tm" aria-label={label} value={value} onChange={(e) => onChange(e.target.value)}>
-      {TIMES.map((t) => <option key={t} value={t}>{fmtTime(t)}</option>)}
-    </select>
-  );
-}
 
 let pendingPhoto: { image: string; mediaType: string } | null = null;
 function PhotoPick() {
@@ -699,13 +696,13 @@ function StripeConnect({ s, set }: Pick<StepProps, "s" | "set">) {
     <H1>Connect payments</H1>
     <div className="cap lead">Your salon gets its own Stripe account. Money goes straight to your bank; we never hold it. Takes about 5 minutes: have your EIN (or SSN) and bank details ready.</div>
     {!st && !err && <div className="card pad" role="status" style={{ flexDirection: "row", alignItems: "center", gap: 10 }}><span className="dot pulse" aria-hidden /> Checking Stripe…</div>}
-    {st?.on === false && <div className="banner" role="status">Card payments aren&apos;t switched on for this site yet (Stripe key missing). Call us.</div>}
+    {st?.on === false && <Banner tone="info">Card payments aren&apos;t switched on for this site yet (Stripe key missing). Call us.</Banner>}
     {pending && <div className="card pad" role="status" style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
       <div className="okmark" style={{ background: "var(--orange)" }}>…</div>
       <div style={{ flex: 1 }}><b style={{ fontSize: 17 }}>Connected · Stripe is checking your details</b><div className="cap">Usually a minute, sometimes a day. You can keep going; this updates by itself.</div></div>
       <button type="button" className="btn sm" onClick={() => void check()}>Check again</button>
     </div>}
-    {st?.connected && !pending && !st.chargesEnabled && <div className="banner" role="status">{st.state === "rejected" ? "Stripe turned this account down. Call us." : st.missing?.length ? <>Stripe still needs: {st.missing.join(" · ")}. Tap Continue with Stripe.</> : "Finish your details on Stripe. Tap Continue with Stripe."}</div>}
+    {st?.connected && !pending && !st.chargesEnabled && <Banner tone={st.state === "rejected" ? "bad" : "warn"}>{st.state === "rejected" ? "Stripe turned this account down. Call us." : st.missing?.length ? <>Stripe still needs: {st.missing.join(" · ")}. Tap Continue with Stripe.</> : "Finish your details on Stripe. Tap Continue with Stripe."}</Banner>}
     {!pending && <div className="card pad" style={{ gap: 12 }}>
       <b>What you&apos;ll need</b>
       <div className="cap" style={{ fontSize: 14, lineHeight: "22px" }}>Business name and type · EIN or SSN · Bank account for payouts · Your date of birth</div>
@@ -918,10 +915,11 @@ const Ready: StepView = ({ s, go }) => {
       <div className="okmark lg">✓</div>
       <H1>{s.salonName || "Your salon"} is ready</H1>
       <div className="cap lead" style={{ maxWidth: 520 }}>
-        {s.menu.filter((m) => m.on).length} services, payments, reader and printer are set. {waiting ? `${waiting} staff still to join (their invite is waiting).` : "Add staff any time in Settings."}
+        {s.menu.filter((m) => m.on).length} services, payments, reader and printer are set. Last step for client texts: your business details (legal name, EIN), so PolishOS can register your salon with the phone carriers. {waiting ? `${waiting} staff still to join (their invite is waiting).` : "Add staff any time in Settings."}
       </div>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
         {/* Setup is finished here: staff changes now live in Settings → Team (the wizard no longer saves them). */}
+        <Link className="btn" href="/settings/business" data-testid="setup-business">Business details (for cards + texting)</Link>
         {SMS_ON ? <Link className="btn" href="/settings/team">Staff</Link> : <button className="btn" type="button" onClick={() => go(2)}>Staff</button>}
         <Link className="btn primary" href={SMS_ON ? "/today" : "/"} onClick={() => queueSave(s)}>Open Today</Link>
       </div>

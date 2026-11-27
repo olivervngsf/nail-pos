@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { formatCents as $ } from "@/lib/money";
 import { fmtPhone } from "@/lib/onboarding/data";
+import { Amenities } from "@/components/Amenities";
 
 type R = {
-  salon: string; salonPhone: string | null; salonAddress: string | null; number: number; status: "paid" | "refunded"; at: string; client: string | null;
+  salon: string; salonPhone: string | null; salonAddress: string | null; bookSlug: string | null; amenities?: string[]; number: number; status: "paid" | "refunded"; at: string; client: string | null;
   lines: { kind: "service" | "discount" | "tip" | "loyalty_reward" | "gift_sale"; name: string; cents: number; tech: string | null }[];
   subtotal: number; discount: number; tip: number; total: number;
   points: { earned: number; used: number; balance: number; kind: "points" | "visits"; rewardPoints: number; rewardCents: number } | null;
@@ -32,7 +33,7 @@ export default function DigitalReceipt({ id }: { id: string }) {
           <div className="card pad" style={{ gap: 12 }} data-testid="digital-receipt">
             <div style={{ textAlign: "center" }}>
               <div className="h2">{r.salon}</div>
-              {(r.salonAddress || r.salonPhone) && <div className="cap">{[r.salonAddress, r.salonPhone && fmtPhone(r.salonPhone)].filter(Boolean).join(" · ")}</div>}
+              {(r.salonAddress || r.salonPhone) && <div className="cap">{r.salonAddress}{r.salonAddress && r.salonPhone && " · "}{r.salonPhone && <a href={`tel:${r.salonPhone}`} style={{ whiteSpace: "nowrap", color: "inherit" }}>{fmtPhone(r.salonPhone)}</a>}</div>}
               <div className="cap">{t("ticket", { n: r.number })} · {f.dateTime(new Date(r.at), { dateStyle: "medium", timeStyle: "short" })}</div>
               {r.client && <div style={{ marginTop: 6 }}>{t("thanks", { name: r.client })}</div>}
             </div>
@@ -50,11 +51,18 @@ export default function DigitalReceipt({ id }: { id: string }) {
             {r.pay && <div className="line cap"><span>{r.pay.method === "cash" ? t("cash") : r.pay.brand ? `${r.pay.brand.toUpperCase()} ••${r.pay.last4 ?? ""}` : t("card")}</span><span>{$(r.pay.method === "cash" ? r.pay.given ?? r.total : r.pay.cents)}</span></div>}
             {r.pay?.method === "cash" && r.pay.change != null && r.pay.change > 0 && <div className="line cap"><span>{t("change")}</span><span>{$(r.pay.change)}</span></div>}
             {r.points && <div className="note" data-testid="receipt-points" style={{ background: "#EAF5EC", color: "#1F7A33" }}>
-              {r.points.earned > 0 && t("pointsEarned", { n: r.points.earned, unit: r.points.kind === "visits" ? t("visits") : t("pts") })}{" "}
-              {t("pointsBalance", { n: r.points.balance, unit: r.points.kind === "visits" ? t("visits") : t("pts") })}
+              {r.points.earned > 0 && t("pointsEarned", { n: r.points.earned, unit: t(r.points.kind === "visits" ? "visits" : "pts", { n: r.points.earned }) })}{" "}
+              {t("pointsBalance", { n: r.points.balance, unit: t(r.points.kind === "visits" ? "visits" : "pts", { n: r.points.balance }) })}
               {r.points.balance >= r.points.rewardPoints && <> {t("rewardReady", { amt: $(r.points.rewardCents).replace(/\.00$/, "") })}</>}
             </div>}
             {r.status === "refunded" && <div className="note" style={{ background: "var(--orange-soft)", color: "#b5470a" }}>{t("refunded")}</div>}
+            {(r.bookSlug || r.salonAddress) && <div className="bw-acts rc-next" data-testid="receipt-next">
+              {r.bookSlug && <a className="btn primary" href={`/${r.bookSlug}`} data-testid="receipt-book">{t("bookAgain")}</a>}
+              {r.salonAddress && <a className="btn" target="_blank" rel="noreferrer" data-testid="receipt-directions"
+                href={`https://maps.google.com/?q=${encodeURIComponent(`${r.salon}, ${r.salonAddress}`)}`}>{t("directions")}</a>}
+            </div>}
+            <Amenities list={r.amenities} className="rc-amen" />
+            {r.bookSlug && <a className="bw-link rc-visit" href={`/${r.bookSlug}`} data-testid="receipt-visit">{t("visit")} ›</a>}
             <div className="cap" style={{ textAlign: "center", marginTop: 6 }}>{t("keep")}</div>
           </div>
         )}

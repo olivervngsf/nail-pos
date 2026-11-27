@@ -4,14 +4,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Button, Switch, Toast } from "@/components/kit";
+import { Banner, Segmented, Switch, TimePicker, Toast } from "@/components/kit";
+import { getWeekStart, setWeekStartLocal, type WeekStart } from "@/lib/weekStart";
 import { useLang } from "@/components/AppProviders";
 import { api } from "@/lib/api";
 import { rpc } from "@/lib/auth";
 import { addressOk, parseAddress } from "@/lib/stripe/address";
 import { STATES } from "@/lib/onboarding/data";
 import { dayName, fullWeek, infoProblem, sampleInfo, TIME_ZONES, US_STATES, type DayHours, type SalonInfo } from "@/lib/salonInfo";
-import SettingsShell, { type Access } from "../SettingsShell";
+import SettingsShell, { SaveCheck, type Access } from "../SettingsShell";
 
 export default function SalonInfoPage() {
   const t = useTranslations("settings");
@@ -29,16 +30,24 @@ function Info({ a }: { a: Access }) {
   const [toast, setToast] = useState("");
   const say = (m: string) => { setToast(m); setTimeout(() => setToast(""), 2500); };
   const load = (r: SalonInfo) => { const v = { ...r, phone: r.phone ?? "", address: r.address ?? "", hours: fullWeek(r.hours ?? []) }; setSaved(v); setS(v); };
+  // Week starts on (Nov 26): Monday by default; saved on its own (week_start_save) with the same Save button.
+  const [ws, setWs] = useState<WeekStart>(getWeekStart());
+  const [wsSaved, setWsSaved] = useState<WeekStart>(getWeekStart());
+  const loadWs = (v: WeekStart) => { setWs(v); setWsSaved(v); setWeekStartLocal(v); };
 
   useEffect(() => {
     if (a.demo) { load(sampleInfo()); return; }
     void rpc<SalonInfo>("salon_info_get", { p_salon: a.salonId }).then(load).catch((e: Error) => setErr(e.message));
+    void rpc<number>("week_start_get", { p_salon: a.salonId }).then((v) => loadWs(v === 0 ? 0 : 1)).catch(() => { /* keep the device copy */ });
   }, [a.demo, a.salonId]);
 
   if (!s || !saved) return <div className="card pad" aria-busy="true">{err || L("Loading…", "Đang tải…")}</div>;
   const set = (p: Partial<SalonInfo>) => setS({ ...s, ...p });
   const setDay = (i: number, p: Partial<DayHours>) => set({ hours: s.hours.map((h) => (h.weekday === i ? { ...h, ...p } : h)) });
-  const changed = JSON.stringify({ ...s, services: [] }) !== JSON.stringify({ ...saved, services: [] });
+  const infoChanged = JSON.stringify({ ...s, services: [] }) !== JSON.stringify({ ...saved, services: [] });
+  const changed = infoChanged || ws !== wsSaved;
+  // Hours follow the salon's week: Sunday first when the week starts Sunday (weekday 6 = Sunday here).
+  const hoursShown = ws === 0 ? [...s.hours.filter((h) => h.weekday === 6), ...s.hours.filter((h) => h.weekday !== 6)] : s.hours;
   const parts = parseAddress(s.address, s.state);
   const addrOk = addressOk(parts);
   const addrChanged = s.address.trim() !== saved.address.trim();
@@ -55,15 +64,16 @@ function Info({ a }: { a: Access }) {
         const r = await api<{ stripe: string }>("/api/salon/address", { salonId: a.salonId, address: s.address });
         if (r.stripe === "failed") note = ta("savedStripeFailed");
       }
-      if (!a.demo) load(await rpc<SalonInfo>("salon_info_save", { p_salon: a.salonId, p: { name: s.name, phone: s.phone, address: s.address, state: s.state, time_zone: s.time_zone, hours: s.hours } }));
+      if (!a.demo && infoChanged) load(await rpc<SalonInfo>("salon_info_save", { p_salon: a.salonId, p: { name: s.name, phone: s.phone, address: s.address, state: s.state, time_zone: s.time_zone, hours: s.hours } }));
       else setSaved(s);
+      if (ws !== wsSaved) loadWs(a.demo ? ws : ((await rpc<number>("week_start_save", { p_salon: a.salonId, p_day: ws })) === 0 ? 0 : 1));
       say(note);
     } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
   };
 
   return (
     <div className="si-page" data-testid="salon-info">
-      {!addressOk(parseAddress(saved.address, saved.state)) && <div className="banner" role="status" data-testid="address-needed">{ta("needed")}</div>}
+      {!addressOk(parseAddress(saved.address, saved.state)) && <Banner tone="warn" data-testid="address-needed">{ta("needed")}</Banner>}
       <div className="eyebrow">{L("Salon", "Tiệm")}</div>
       <section className="card pad si-grid">
         <div className="si-full">
@@ -104,15 +114,20 @@ function Info({ a }: { a: Access }) {
 
       <div className="eyebrow">{L("Opening hours", "Giờ mở cửa")}</div>
       <section className="card si-hours">
-        {s.hours.map((h) => (
+        <div className="si-day si-week" data-testid="week-start">
+          <span className="si-wk-t"><b>{L("Week starts on", "Tuần bắt đầu")}</b><span className="cap">{L("Calendar, date pickers, \"This week\" pay and timesheets", "Lịch, chọn ngày, lương và bảng giờ \"Tuần này\"")}</span></span>
+          <Segmented label={L("Week starts on", "Tuần bắt đầu")} value={String(ws)} onChange={(v) => setWs(v === "0" ? 0 : 1)}
+            options={[{ value: "1", label: L("Monday", "Thứ Hai") }, { value: "0", label: L("Sunday", "Chủ Nhật") }]} />
+        </div>
+        {hoursShown.map((h) => (
           <div key={h.weekday} className="si-day" data-testid={`si-day-${h.weekday}`}>
             <b className="si-dn">{dayName(h.weekday)}</b>
             <Switch on={h.on} onChange={(on) => setDay(h.weekday, { on })} label={`${dayName(h.weekday)} ${L("open", "mở")}`} />
             {h.on
               ? <span className="si-times">
-                  <input className={`inp${h.close <= h.open ? " err" : ""}`} type="time" value={h.open} aria-label={`${dayName(h.weekday)} ${L("opens", "mở")}`} onChange={(e) => setDay(h.weekday, { open: e.target.value })} />
+                  <TimePicker bad={h.close <= h.open} value={h.open} label={`${dayName(h.weekday)} ${L("opens", "mở")}`} onChange={(v) => setDay(h.weekday, { open: v })} data-testid={`si-open-${h.weekday}`} />
                   <span className="cap">–</span>
-                  <input className={`inp${h.close <= h.open ? " err" : ""}`} type="time" value={h.close} aria-label={`${dayName(h.weekday)} ${L("closes", "đóng")}`} onChange={(e) => setDay(h.weekday, { close: e.target.value })} />
+                  <TimePicker bad={h.close <= h.open} value={h.close} min={h.open} label={`${dayName(h.weekday)} ${L("closes", "đóng")}`} onChange={(v) => setDay(h.weekday, { close: v })} data-testid={`si-close-${h.weekday}`} />
                 </span>
               : <span className="cap si-times">{L("Closed", "Nghỉ")}</span>}
           </div>
@@ -122,7 +137,8 @@ function Info({ a }: { a: Access }) {
 
       <div className="eyebrow">{L("More from setup", "Các mục khác từ lúc cài đặt")}</div>
       <div className="group">
-        {([["/settings/menu", L("Service menu", "Bảng dịch vụ"), L("Services, prices, minutes", "Dịch vụ, giá, thời gian")],
+        {([["/settings/business", L("Business details", "Thông tin doanh nghiệp"), L("Legal name, EIN, texting sign-up", "Tên pháp lý, EIN, đăng ký nhắn tin")],
+           ["/settings/menu", L("Service menu", "Bảng dịch vụ"), L("Services, prices, minutes", "Dịch vụ, giá, thời gian")],
            ["/settings/team", L("Team", "Nhân viên"), L("Staff, roles, pay, PIN", "Thợ, vai trò, lương, PIN")],
            ["/settings/payments", L("Payments", "Thanh toán"), L("Stripe account", "Tài khoản Stripe")],
            ["/settings/reader", L("Card reader", "Máy quẹt thẻ"), L("Pair or remove", "Kết nối hoặc gỡ")],
@@ -134,13 +150,9 @@ function Info({ a }: { a: Access }) {
         ))}
       </div>
 
-      {err && <div className="banner" role="alert">{err}</div>}
+      {err && <Banner tone="bad" onClose={() => setErr("")}>{err}</Banner>}
       {a.demo && <div className="demo">{L("Test version: changes stay on this screen.", "Bản thử: thay đổi chỉ ở màn hình này.")}</div>}
-      <div className="si-bar">
-        <span className="cap">{changed ? L("You have changes", "Có thay đổi chưa lưu") : L("All saved", "Đã lưu hết")}</span>
-        <Button onClick={() => setS(saved)} disabled={!changed || busy}>{L("Undo", "Hoàn tác")}</Button>
-        <Button variant="primary" onClick={() => void save()} disabled={!changed || !!problem || busy} data-testid="si-save">{busy ? L("Saving…", "Đang lưu…") : L("Save", "Lưu")}</Button>
-      </div>
+      <SaveCheck dirty={changed} busy={busy} disabled={!!problem} onSave={() => void save()} onUndo={() => setS(saved)} testId="si-save" />
       {toast && <Toast>{toast}</Toast>}
     </div>
   );

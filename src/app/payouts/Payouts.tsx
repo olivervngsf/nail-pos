@@ -5,7 +5,7 @@
 import { Fragment, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useFormatter, useTranslations } from "next-intl";
-import { Button, LeftMenu, OfflineBanner, Segmented, SyncPill, Toast, TopBar } from "@/components/kit";
+import { Button, DateRangePicker, LeftMenu, MonthPicker, OfflineBanner, Segmented, SyncPill, Toast, TopBar } from "@/components/kit";
 import { rpc } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { useDesk } from "@/lib/desk";
@@ -16,7 +16,7 @@ import { PrinterSetup, usePrinter } from "@/components/PrinterSetup";
 import { usePrintSettings } from "@/lib/print/settings";
 
 const $ = formatCents;
-type Range = "today" | "week" | "last" | "custom";
+type Range = "today" | "yesterday" | "week" | "last" | "month" | "lastMonth" | "custom";
 
 export default function Payouts() {
   const t = useTranslations("payouts");
@@ -37,12 +37,18 @@ export default function Payouts() {
   const [toast, setToast] = useState("");
   const say = (s: string) => { setToast(s); setTimeout(() => setToast(""), 3500); };
 
-  const pick = (r: Range) => {
-    setRange(r);
-    if (r === "today") { setFrom(today); setTo(today); }
-    if (r === "week") { setFrom(weekStart(today)); setTo(today); }
-    if (r === "last") { const s = addDays(weekStart(today), -7); setFrom(s); setTo(addDays(s, 6)); }
-  };
+  const lastWk = addDays(weekStart(today), -7);
+  const thisMo = `${today.slice(0, 7)}-01`, lastMo = lastMonth(today);
+  const presets: { key: Range; label: string; from: string; to: string }[] = [
+    { key: "today", label: t("today"), from: today, to: today },
+    { key: "yesterday", label: t("yesterday"), from: addDays(today, -1), to: addDays(today, -1) },
+    { key: "week", label: t("thisWeek"), from: weekStart(today), to: today },
+    { key: "last", label: t("lastWeek"), from: lastWk, to: addDays(lastWk, 6) },
+    { key: "month", label: t("thisMonth"), from: thisMo, to: today },
+    { key: "lastMonth", label: t("lastMonthP"), from: lastMo, to: addDays(thisMo, -1) },
+  ];
+  const setDates = (a: string, b: string, key?: string) => { setFrom(a); setTo(b); setRange((key as Range) ?? presets.find((p) => p.from === a && p.to === b)?.key ?? "custom"); };
+  const pick = (r: Range) => { const p = presets.find((x) => x.key === r); if (p) setDates(p.from, p.to, p.key); };
 
   const load = useCallback(async () => {
     if (!desk) return;
@@ -126,19 +132,15 @@ export default function Payouts() {
     <div className="app cd-app">
       <LeftMenu active="Close day" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={desk.me.display_name[0]} />
       <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/close-day">‹ {t("back")}</Link>{t("title")}</span>}><SyncPill /></TopBar>
+        <TopBar back={{ href: "/close-day", label: t("back") }} title={t("title")}><SyncPill /></TopBar>
         <OfflineBanner />
         {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
         {!admin ? <main style={{ padding: "20px 24px" }}><p className="hint err">{t("ownerOnly")}</p></main> : (
           <main style={{ flex: 1, overflow: "auto", padding: "18px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
               <Segmented label={t("range")} value={range} onChange={pick}
-                options={[{ value: "today", label: t("today") }, { value: "week", label: t("thisWeek") }, { value: "last", label: t("lastWeek") }, { value: "custom", label: t("custom") }]} />
-              {range === "custom" && <>
-                <input className="inp" type="date" aria-label={t("from")} value={from} max={to} onChange={(e) => setFrom(e.target.value)} style={{ height: 36 }} />
-                <input className="inp" type="date" aria-label={t("to")} value={to} min={from} onChange={(e) => setTo(e.target.value)} style={{ height: 36 }} />
-              </>}
-              <span className="cap">{from === to ? from : `${from} → ${to}`}</span>
+                options={[{ value: "today", label: t("today") }, { value: "week", label: t("thisWeek") }, { value: "last", label: t("lastWeek") }]} />
+              <DateRangePicker label={t("range")} from={from} to={to} max={today} presets={presets} onChange={setDates} data-testid="po-range" />
               <span style={{ flex: 1 }} />
               <Button onClick={() => window.print()} disabled={!rows?.length}>{t("printSheet")}</Button>
               <Button data-testid="po-slips" onClick={() => void printPeople((rows ?? []).filter(worked))} disabled={!rows?.length || printing}>{t("printSlips")}</Button>
@@ -178,8 +180,7 @@ export default function Payouts() {
             <section className="card" style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 10 }} data-testid="tip-report">
               <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
                 <div className="h2" style={{ flex: 1 }}>{t("tipReport")}</div>
-                <input className="inp" type="month" aria-label={t("month")} value={tipMonth.slice(0, 7)} max={today.slice(0, 7)}
-                  onChange={(e) => e.target.value && setTipMonth(`${e.target.value}-01`)} style={{ height: 36, width: "auto" }} />
+                <MonthPicker label={t("month")} value={tipMonth} max={today} onChange={setTipMonth} data-testid="tip-month" />
               </div>
               <table className="cd-table">
                 <thead><tr><th>{t("person")}</th><th>{t("cardTips")}</th><th>{t("cashTips")}</th><th>{t("signedCol")}</th></tr></thead>
@@ -234,3 +235,4 @@ export default function Payouts() {
     </div>
   );
 }
+

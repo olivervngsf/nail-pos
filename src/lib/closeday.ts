@@ -1,3 +1,4 @@
+import { backDays, getWeekStart, type WeekStart } from "@/lib/weekStart";
 // Close day + payout sheet (M10): shapes from the server (day_summary, payout_sheet), drawer counting, payroll CSV,
 // and sample data for the test copy (sign-in off). Money in integer cents everywhere.
 
@@ -46,11 +47,11 @@ export function addDays(day: string, n: number) {
   const [y, m, d] = day.split("-").map(Number);
   return isoDay(new Date(y, m - 1, d + n));
 }
-/** Monday of the week that holds `day`. */
-export function weekStart(day: string) {
+/** First day (the salon's pick: Monday by default, or Sunday) of the week that holds `day`. */
+export function weekStart(day: string, ws: WeekStart = getWeekStart()) {
   const [y, m, d] = day.split("-").map(Number);
   const dt = new Date(y, m - 1, d);
-  return addDays(day, -((dt.getDay() + 6) % 7));
+  return addDays(day, -backDays(dt.getDay(), ws));
 }
 
 const csvCell = (v: string | number) => {

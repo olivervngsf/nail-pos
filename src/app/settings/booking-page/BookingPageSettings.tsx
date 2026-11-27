@@ -6,13 +6,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import QRCode from "qrcode";
 import { useTranslations } from "next-intl";
-import { Button, Chip, LeftMenu, Segmented, OfflineBanner, Stepper, Switch, SyncPill, Toast, TopBar } from "@/components/kit";
+import { Button, Chip, Segmented, Stepper, Switch, Toast } from "@/components/kit";
+import SettingsShell from "../SettingsShell";
 import { rpc } from "@/lib/auth";
 import { useDesk, type Desk } from "@/lib/desk";
 import { getSupabase } from "@/lib/supabase/client";
 import { DEMO_SLUG, loadPage, photoUrl, type PageRules } from "@/lib/booking/page";
 import { pullAppts, useAppts } from "@/lib/booking/appts";
 import { addDays, at, dayKey } from "@/lib/booking/grid";
+import { AMENITIES, DEMO_AMENITIES, amenityIcon, cleanAmenities, toggleAmenity, type AmenityKey } from "@/lib/booking/amenities";
 
 type Photo = { id: string; path: string; label: string; url?: string };
 type Conf = { slug: string; settings: PageRules; photos: Photo[]; services: { id: string; cat: string; name: string; online: boolean }[] };
@@ -31,23 +33,29 @@ const ALARMS = [0, 30, 60, 120, 1440] as const;
 const PH = ["#C9A79A", "#B07C8E", "#8C9C88", "#D7B88F", "#6E7A8C"];
 
 export default function BookingPageSettings() {
+  const t = useTranslations("bookSettings");
+  // Inside the Settings window (Oliver, Nov 27: Settings never jumps to a full page). The window checks owner/manager.
+  return <SettingsShell title={t("title")}>{() => <Loader />}</SettingsShell>;
+}
+
+function Loader() {
   const { desk, err } = useDesk();
-  if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
-  if (!desk) return <div className="app" aria-busy="true" />;
+  if (err) return <p className="hint err">{err}</p>;
+  if (!desk) return <div aria-busy="true" />;
   return <Settings desk={desk} />;
 }
 
 function demoConf(desk: Desk): Conf {
   try { const c = JSON.parse(localStorage.getItem(DEMO_KEY) || "null"); if (c) return c; } catch { /* */ }
-  return { slug: DEMO_SLUG, settings: RULES, services: desk.services.map((s) => ({ id: s.id, cat: s.cat, name: s.name, online: true })),
+  return { slug: DEMO_SLUG, settings: { ...RULES, amenities: DEMO_AMENITIES }, services: desk.services.map((s) => ({ id: s.id, cat: s.cat, name: s.name, online: true })),
     photos: ["Salon", "Gel art", "Pedi chairs", "Nail art"].map((label, i) => ({ id: `demo-${i}`, path: `demo:${i}`, label })) };
 }
 
 function Settings({ desk }: { desk: Desk }) {
   const t = useTranslations("bookSettings");
   const tc = useTranslations("calendar");
+  const ta = useTranslations("amenities");
   const demo = desk.mode === "demo";
-  const admin = demo || desk.me.role === "owner" || desk.me.role === "manager";
   const [conf, setConf] = useState<Conf | null>(null);
   const [slug, setSlug] = useState("");
   const [rules, setRules] = useState<PageRules>(RULES);
@@ -63,7 +71,7 @@ function Settings({ desk }: { desk: Desk }) {
     if (!c) return;
     setConf(c); setSlug(c.slug); setRules({ ...RULES, ...c.settings });
   }, [demo, desk]);
-  useEffect(() => { if (admin) void load().catch((e) => setMsg((e as Error).message)); }, [admin, load]);
+  useEffect(() => { void load().catch((e) => setMsg((e as Error).message)); }, [load]); // the Settings window only lets an owner or manager in
   useEffect(() => { if (conf?.slug) void loadPage(demo ? DEMO_SLUG : conf.slug).then((p) => p && setInfo({ address: p.salon.address, phone: p.salon.phone })).catch(() => {}); }, [conf?.slug, demo]);
   const saveDemo = (c: Conf) => { setConf(c); try { localStorage.setItem(DEMO_KEY, JSON.stringify(c)); } catch { /* */ } };
 
@@ -142,21 +150,16 @@ function Settings({ desk }: { desk: Desk }) {
 
   const on = rules.on !== false;
   const note = rules.calendar_note ?? "";
+  const amen: AmenityKey[] = cleanAmenities(rules.amenities);
+  const amenChanged = amen.join() !== cleanAmenities(conf?.settings.amenities).join();
   const alarm = rules.calendar_alarm_min ?? 60;
   const alarmLabel = (m: number) => (m >= 1440 ? t("alarmDay") : m >= 60 ? t("alarmHr", { n: m / 60 }) : t("alarmMin", { n: m }));
-  const initials = desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   return (
-    <div className="app">
-      <LeftMenu active="Today" salonInitials={initials} me={desk.me.display_name[0]} />
-      <div className="col">
-        <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}><Link className="btn ghost sm" href="/today">‹ {t("back")}</Link>{t("title")}</span>}>
-          {conf && <a className="btn sm" href={url()} target="_blank" rel="noreferrer" data-testid="bp-preview">{t("preview")}</a>}
-          <SyncPill />
-        </TopBar>
-        <OfflineBanner />
-        {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
-        {!admin ? <main style={{ padding: "20px 24px" }}><p className="hint err">{t("ownerOnly")}</p></main> : !conf ? <main style={{ padding: 24 }} aria-busy="true">{msg && <p className="hint err">{msg}</p>}</main> : (
-        <main className="bp">
+    <>
+        {demo && <div className="demo">{t("demo")}</div>}
+        {!conf ? <div aria-busy="true">{msg && <p className="hint err">{msg}</p>}</div> : (
+        <div className="bp">
+          <div className="bw-row"><span className="bw-grow" /><a className="btn sm" href={url()} target="_blank" rel="noreferrer" data-testid="bp-preview">{t("preview")} ↗</a></div>
           {msg && <p className="hint err" role="alert">{msg}</p>}
           <section className="card pad bp-sec">
             <div className="bw-row"><span className={`tag${on ? " jade" : ""}`} data-testid="bp-state">{on ? t("live", { url: url().replace(/^https?:\/\//, "") }) : t("off")}</span>
@@ -189,6 +192,22 @@ function Settings({ desk }: { desk: Desk }) {
               <label className="bp-add"><input type="file" accept="image/*" multiple hidden onChange={(e) => void addPhotos(e.target.files)} />{t("addPhotos")}</label>
             </div>
             <p className="cap">{t("photoTip")}</p>
+          </section>
+
+          {/* Amenities: free comforts the salon offers; shown on the booking page + receipt. One tap = on/off, Save once. */}
+          <section className="card pad bp-sec" data-testid="bp-amenities">
+            <div className="bw-row"><h2 className="h2 bw-grow">{ta("title")}</h2><span className="cap">{ta("sub")}</span></div>
+            <div className="bp-amen" role="group" aria-label={ta("title")}>
+              {AMENITIES.map((a) => {
+                const on = amen.includes(a.key);
+                return <Chip key={a.key} on={on} aria-pressed={on} data-testid={`amen-${a.key}`} onClick={() => setRules({ ...rules, amenities: toggleAmenity(amen, a.key) })}>
+                  <span aria-hidden="true">{amenityIcon(a.key)}</span>{ta(a.key)}</Chip>;
+              })}
+            </div>
+            <div className="bw-row">
+              <span className="cap bw-grow">{amenChanged ? "" : amen.length ? "" : ta("none")}</span>
+              <Button variant="primary" data-testid="bp-save-amen" disabled={!amenChanged} onClick={() => void save({ amenities: amen })}>{t("save")}</Button>
+            </div>
           </section>
 
           <div className="bp-two">
@@ -291,9 +310,8 @@ function Settings({ desk }: { desk: Desk }) {
                 <div key={src} className="bp-bar" data-testid="bp-source"><span>{tc(`src_${src}` as "src_web")}</span><span className="bp-track"><i style={{ width: `${(n / maxN) * 100}%` }} /></span><b className="num">{n}</b></div>))}
             </section>
           </div>
-        </main>)}
-      </div>
+        </div>)}
       {toast && <Toast>{toast}</Toast>}
-    </div>
+    </>
   );
 }

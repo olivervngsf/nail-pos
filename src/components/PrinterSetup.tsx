@@ -36,9 +36,22 @@ export type Printer = ReturnType<typeof usePrinter>;
 
 /** "NETUM · 58 mm" (or "Tap to pick your printer") + paper + Change printer. Nothing on a browser without Bluetooth
  * (a terminal with a printer inside still gets the row: its browser may have no Bluetooth but can reach that printer). */
-export function PrinterSetup({ p }: { p: Printer }) {
+export function PrinterSetup({ p, inline }: { p: Printer; inline?: boolean }) {
   const t = useTranslations("checkout");
   if (!p.ok) return p.ios ? <div className="row s"><span className="g cap">{t("btIos")}</span></div> : null;
+  // inline = sits right under a row that already names the printer: paper + links only, one line
+  if (inline) return (
+    <div className="prn-inline" data-testid="printer-setup">
+      {p.saved && <span className="prn-paper"><span className="cap">{t("btPaper")}</span><Segmented label={t("btPaper")} value={String(p.paper)} onChange={(v) => p.setPaper(Number(v) as Paper)} options={[{ value: "58", label: "58 mm" }, { value: "80", label: "80 mm" }]} /></span>}
+      {!p.app && <span className="prn-links">
+        <button type="button" className="link" onClick={() => void p.change()}>{p.saved ? t("btChange") : t("printBt")}</button>
+        <button type="button" className="link" data-testid="printer-all" onClick={() => void p.change(true)}>{t("btAll")}</button>
+        {p.builtIn && <button type="button" className="link" data-testid="printer-builtin" onClick={() => void p.change(false, true)}>{t("btBuiltIn")}</button>}
+      </span>}
+      {p.rawHint && <span className="cap" style={{ flexBasis: "100%" }}>{t("btRawbtHint")} <Button size="sm" variant="ghost" data-testid="printer-rawbt" onClick={p.useRawbt}>{t("btRawbt")}</Button></span>}
+      {p.err && <span className="cap" role="alert" style={{ flexBasis: "100%" }}>{p.err}</span>}
+    </div>
+  );
   return (
     <div className="row s" style={{ gap: 8, flexWrap: "wrap" }} data-testid="printer-setup">
       <span className="g cap">{p.saved ? `${p.saved.name} · ${p.saved.paper} mm` : t("btPair")}</span>

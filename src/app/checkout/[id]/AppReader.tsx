@@ -5,7 +5,7 @@
 // 3. The app's reader kit takes the card. 4. The server checks with Stripe and marks the ticket paid.
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Chip } from "@/components/kit";
+import { Banner, Button, Chip } from "@/components/kit";
 import { api } from "@/lib/api";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { getActing, type Desk } from "@/lib/desk";
@@ -141,7 +141,7 @@ export function AppReaderPay({ desk, ticket, onBack, tap = false }: { desk: Desk
         <div className="sep" />
         <div className="line" style={{ fontSize: 17, fontWeight: 600 }}><span>{tp("total")}</span><span data-testid="app-total">{$(base + tip)}</span></div>
       </div>
-      {err && <div className="banner" role="alert" data-testid="app-error" style={{ background: "var(--orange-soft)", color: "#b5470a", maxWidth: 520 }}>{err}</div>}
+      {err && <Banner tone="bad" className="bn-narrow" onClose={() => setErr("")} data-testid="app-error">{err}</Banner>}
       <div style={{ display: "flex", gap: 10 }}>
         <Button variant="primary" data-testid="app-charge" onClick={() => void charge()}>{t("appCharge", { amount: $(base + tip) })}</Button>
         <Button onClick={onBack}>{t("back")}</Button>

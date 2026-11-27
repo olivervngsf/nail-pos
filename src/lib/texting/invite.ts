@@ -20,6 +20,32 @@ export function pinLinkBody(p: { salon: string; link: string; lang?: string | nu
   return `PolishOS: ${salon} asks you to make your PIN. Tap your link (works once, 7 days): ${p.link} Reply STOP to stop.`;
 }
 
+/** "Your invite ends tomorrow" (sent once, about a day before an unused staff invite ends; campaign sample #3 style).
+ *  Same rules as inviteBody: starts "PolishOS:", Vietnamese without accents, ends with STOP. */
+export function inviteEndsBody(p: { salon: string; link: string; lang?: string | null }): string {
+  const salon = p.salon.trim() || "your salon";
+  if (p.lang === "vi") return `PolishOS: loi moi vao nhom tiem ${noAccents(salon)} het han ngay mai. Bam link de tham gia va tao ma PIN: ${p.link} Tra loi STOP de ngung.`;
+  return `PolishOS: your invite to join ${salon} ends tomorrow. Join and set your PIN: ${p.link} Reply STOP to stop.`;
+}
+
+/** Is it time to send the "ends tomorrow" text? The invite ends in more than 1h and at most 24h, and it is
+ *  9 AM–8 PM where the salon is (no texts at night; the hourly job tries again in the morning). */
+export function inviteEndsDue(p: { expiresAt: string | Date; now: Date; timeZone?: string | null }): boolean {
+  const left = new Date(p.expiresAt).getTime() - p.now.getTime();
+  if (!(left > 60 * 60 * 1000 && left <= 24 * 60 * 60 * 1000)) return false;
+  const hour = localHour(p.now, p.timeZone || "America/Los_Angeles");
+  return hour >= 9 && hour < 20;
+}
+
+export function localHour(at: Date, timeZone: string): number {
+  try {
+    const h = new Intl.DateTimeFormat("en-US", { timeZone, hour: "numeric", hourCycle: "h23" }).format(at);
+    return Number(h) % 24;
+  } catch {
+    return at.getUTCHours();
+  }
+}
+
 export function noAccents(s: string): string {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
 }

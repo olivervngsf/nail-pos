@@ -117,22 +117,19 @@ export default function TodayDesk() {
     <div className="app" onPointerDown={acting ? touch : undefined}>
       <LeftMenu active="Today" salonInitials={me.salon_name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} />
       <div className="col">
-        <TopBar title={ms.length > 1 && !isDevice
-          ? <select className="inp" aria-label="Salon" style={{ width: "auto", height: 38, fontSize: 17, fontWeight: 600 }} value={salonId}
+        <TopBar title="Today" fact={`${inCount} of ${staff.length} clocked in`}>
+          {ms.length > 1 && !isDevice && (
+            <select className="sel" aria-label="Salon" data-testid="salon-switch" value={salonId}
               onChange={(e) => { setSalonId(e.target.value); try { localStorage.setItem("nailpos.salon", e.target.value); } catch { /* */ } }}>
               {ms.map((m) => <option key={m.salon_id} value={m.salon_id}>{m.salon_name}</option>)}
             </select>
-          : me.salon_name}>
+          )}
           <SyncPill />
           {isDevice && acting && <Button data-testid="switch-person" title="Lock · show faces" onClick={() => { setLastId(acting.membership_id); void lockDevice(device?.id, acting.membership_id); setActing(null); }}>
             <Avatar name={acting.name} />{acting.name} · {ROLE_LABEL[acting.role]}<span className="cap">· Lock</span></Button>}
         </TopBar>
         <OfflineBanner />
         <main style={{ padding: 24, display: "flex", flexDirection: "column", gap: 20, maxWidth: 980, width: "100%" }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-            <h1 className="h1">Today</h1>
-            <span className="cap">{inCount} of {staff.length} clocked in</span>
-          </div>
           {salonId && canAdmin && <OwnerKpis salonId={salonId} />}
           {salonId && <WalkInStrip salonId={salonId} />}
           {salonId && <NeedsAttention salonId={salonId} staff={staff} />}
@@ -192,7 +189,7 @@ export default function TodayDesk() {
             <b>Printer</b><span className="cap">Pick your printer and what each receipt and staff slip shows, with a live preview.</span></Link>}
           {canAdmin && <Link className="tile" href="/settings/texting" data-testid="texting-link" style={{ textDecoration: "none" }}>
             <b>Texting &amp; credit</b><span className="cap">Promo text credit, every send and top-up, what&apos;s included in your plan.</span></Link>}
-          {canAdmin && <Link className="tile" href="/loyalty" data-testid="loyalty-link" style={{ textDecoration: "none" }}>
+          {canAdmin && <Link className="tile" href="/settings/loyalty" data-testid="loyalty-link" style={{ textDecoration: "none" }}>
             <b>Loyalty</b><span className="cap">Points tied to the phone number, reward size, client page link.</span></Link>}
           {canAdmin && <Link className="tile" href="/payouts" data-testid="payouts-link" style={{ textDecoration: "none" }}>
             <b>Payout sheet</b><span className="cap">Each tech&apos;s pay + tips for the day or week, check vs cash, print, payroll export.</span></Link>}

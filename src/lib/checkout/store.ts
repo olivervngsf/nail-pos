@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { enqueue, registerHandler } from "@/lib/offline/outbox";
 import { getSupabase } from "@/lib/supabase/client";
 import { rpc } from "@/lib/auth";
+import { api } from "@/lib/api";
+import type { ReceiptOutcome } from "./receiptSend";
 import { mergeOpen, seenIds, toPayload, type Ticket } from "./ticket";
 
 const KEY = "nailpos.tickets.v1";
@@ -91,9 +93,9 @@ export function useTickets(salonId: string) {
 
 type Row = {
   id: string; number: number; status: "open" | "paid" | "refunded" | "voided"; created_at: string; note: string; opened_by: string | null;
-  client: { id: string; phone: string | null; name: string } | null; client_name: string | null;
+  client: { id: string; phone: string | null; name: string; email: string | null } | null; client_name: string | null;
   ticket_lines: { id: string; kind: string; service_id: string | null; staff_id: string | null; name: string; minutes: number | null; amount_cents: number; price_from: boolean; reason: string | null; approval_id: string | null; removed_at: string | null; sort: number; gift_card_id: string | null;
-    source: "desk" | "phone"; desk_seen_at: string | null; tech_removed_at: string | null; price_open: boolean }[];
+    source: "desk" | "phone"; desk_seen_at: string | null; tech_removed_at: string | null; price_open: boolean; added_at: string | null }[];
   payments: { id: string; method: "cash" | "card_reader" | "pay_link" | "gift_card"; status: string; gift_card_id: string | null; given_cents: number | null; amount_cents: number; fee_cents: number; card_brand: string | null; card_last4: string | null; at: string; taken_by: string | null }[];
 };
 
@@ -102,7 +104,7 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
   const sb = getSupabase();
   if (!sb || !live) return;
   let q = sb.from("tickets")
-    .select("id,number,status,created_at,note,opened_by,client_name,client:clients(id,phone,name),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort,gift_card_id,source,desk_seen_at,tech_removed_at,price_open),payments(id,method,status,gift_card_id,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
+    .select("id,number,status,created_at,note,opened_by,client_name,client:clients(id,phone,name,email),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort,gift_card_id,source,desk_seen_at,tech_removed_at,price_open,added_at),payments(id,method,status,gift_card_id,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
     .eq("salon_id", salonId).neq("status", "voided");
   q = onlyId ? q.eq("id", onlyId) : q.gte("created_at", since);
   const { data, error } = await q.order("created_at", { ascending: false }).limit(200);
@@ -126,13 +128,15 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
     merge({
       id: r.id, salonId, number: r.number, status: r.status === "voided" ? "open" : r.status, createdAt: r.created_at, note: r.note,
       openedBy: r.opened_by ?? undefined,
-      client: r.client ? { id: r.client.id, phone: r.client.phone ?? "", name: r.client.name || r.client_name || "" }
+      client: r.client ? { id: r.client.id, phone: r.client.phone ?? "", name: r.client.name || r.client_name || "", ...(r.client.email ? { email: r.client.email } : {}) }
         : r.client_name ? { phone: "", name: r.client_name } : undefined,
       lines: lines.filter((l) => l.kind === "service").map((l) => ({
         id: l.id, serviceId: l.service_id ?? undefined, name: l.name, minutes: l.minutes ?? 0, cents: l.amount_cents, priceFrom: l.price_from,
         // A "$45+" service a tech added from the slip: the desk sets its final price first (on any desk).
         priceSet: !(l.price_from && l.price_open),
         staffId: l.staff_id ?? undefined, staffName: l.staff_id ? staffName(l.staff_id) : undefined,
+        // Added by the tech from their phone (logged in the Activity log): the desk sees who + when.
+        ...(l.source === "phone" ? { fromPhone: true, addedAt: l.added_at ?? undefined } : {}),
       })),
       discount: disc ? { id: disc.id, kind: "amt", value: -disc.amount_cents, reason: disc.reason ?? "", approvalId: disc.approval_id ?? undefined } : undefined,
       tips: Object.fromEntries(lines.filter((l) => l.kind === "tip" && l.staff_id).map((l) => [l.staff_id!, l.amount_cents])),
@@ -183,10 +187,34 @@ export function undoCashPart(t: Ticket, partId: string) {
 registerHandler("ticket.receipt", async (item) => {
   const p = item.payload as { id: string; salonId: string; ticketId: string; channel: string; to?: string };
   await rpc("log_receipt", { p_id: p.id, p_salon: p.salonId, p_ticket: p.ticketId, p_channel: p.channel, p_to: p.to ?? null });
+  // Text / email: send it now (once; the server records sent / skipped / failed on the receipt). Never blocks the outbox.
+  if (p.channel === "text" || p.channel === "email") await api("/api/receipt/send", { id: p.id }).catch(() => undefined);
 });
 
+/** Text / email the receipt now and say what happened (one send per call). Offline or ticket not on the server yet:
+ *  saved in the outbox, sends later. Test copy: nothing is sent. */
+export async function sendReceipt(t: Ticket, channel: "text" | "email", to: string): Promise<ReceiptOutcome> {
+  const keep = (r: ReceiptOutcome) => {
+    const cur = getTicket(t.id) ?? t;
+    // An email typed here also fills the client's empty email on file (server: log_receipt), so show it right away.
+    const client = channel === "email" && cur.client && !cur.client.email ? { ...cur.client, email: to } : cur.client;
+    putLocal({ ...cur, client, receipt: channel, receiptTo: to, receiptSent: { channel, to, ...r, at: new Date().toISOString() } });
+    return r;
+  };
+  if (!live) return keep({ status: "demo" });
+  const id = crypto.randomUUID();
+  const payload = { id, salonId: t.salonId, ticketId: t.id, channel, to };
+  if (typeof navigator !== "undefined" && navigator.onLine === false) { void enqueue("ticket.receipt", payload); return keep({ status: "queued" }); }
+  try { await rpc("log_receipt", { p_id: id, p_salon: t.salonId, p_ticket: t.id, p_channel: channel, p_to: to }); }
+  catch { void enqueue("ticket.receipt", payload); return keep({ status: "queued" }); }
+  try { const r = await api<ReceiptOutcome>("/api/receipt/send", { id }); return keep({ status: r.status, error: r.error ?? null }); }
+  catch (e) { return keep({ status: "failed", error: (e as Error).message }); }
+}
+
 export function logReceipt(t: Ticket, channel: "print" | "text" | "email" | "none", to?: string) {
-  putLocal({ ...t, receipt: channel });
+  // An email typed here also fills the client's empty email on file (server: log_receipt), so show it right away.
+  const client = channel === "email" && to && t.client && !t.client.email ? { ...t.client, email: to } : t.client;
+  putLocal({ ...t, client, receipt: channel, receiptTo: channel === "text" || channel === "email" ? to : undefined });
   if (live) void enqueue("ticket.receipt", { id: crypto.randomUUID(), salonId: t.salonId, ticketId: t.id, channel, to });
 }
 

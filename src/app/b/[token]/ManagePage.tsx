@@ -75,16 +75,15 @@ export default function ManagePage({ token }: { token: string }) {
         <b className="num">{fmtMin(m.start)} – {fmtMin(m.start + longest)}</b>
         <span className="cap">{staff.map((s) => t("with", { name: s })).join(", ")}{staff.length > 0 && " · "}{dur(longest)}</span>
       </div>
-      <div className="bw-stack">
+      <div className="bw-items">
         {m.guests.map((g, i) => (
-          <div key={i} className="bw-stack">
+          <div key={i} className="bw-items">
             {m.guests.length > 1 && <span className="eyebrow">{g.name || t("guestN", { n: i + 1 })}</span>}
             {g.services.map((s, j) => <div key={j} className="bw-line"><span className="bw-grow">{s.name}<span className="cap">{dur(s.minutes)}</span></span><span className="num">{formatCents(s.cents)}</span></div>)}
           </div>
         ))}
-        {total > 0 && <div className="bw-line bw-total"><span>{t("total")}</span><b className="num">{formatCents(total)}</b></div>}
       </div>
-      {salon.address && <div className="bw-where"><b>{salon.name}</b><span className="cap">{salon.address}</span></div>}
+      {total > 0 && <div className="bw-sum"><div className="bw-line"><span>{t("total")}</span><b className="num">{formatCents(total)}</b></div></div>}
     </div>
   );
 
@@ -92,10 +91,12 @@ export default function ManagePage({ token }: { token: string }) {
   return (
     <div className="bw">
       <Header page={m.page} />
-      <div className="bw-done in" data-testid="manage" data-view={view}>
+      <div className="bw-done bw-booked in" data-testid="manage" data-view={view}>
         {view === "see" && <>
-          <h2 className="h1 bw-center">{m.status === "canceled" ? t("mCanceledTitle") : m.status === "done" ? t("mDoneTitle") : t("mTitle", { name: m.name })}</h2>
-          {m.status === "live" && <p className="cap bw-center">{m.canChange ? t("mRule", { hours: salon.settings.cancel_hours }) : <>{t("mTooLate")} {call}</>}</p>}
+          <div className="bw-hero">
+            <h2 className="h1 bw-center">{m.status === "canceled" ? t("mCanceledTitle") : m.status === "done" ? t("mDoneTitle") : t("mTitle", { name: m.name })}</h2>
+            {m.status === "live" && <p className="cap bw-center bw-sent">{m.canChange ? t("mRule", { hours: salon.settings.cancel_hours }) : <>{t("mTooLate")} {call}</>}</p>}
+          </div>
           {ticket}
           {msg && <p className="hint err" role="alert">{msg}</p>}
           <div className="bw-acts">
@@ -109,8 +110,10 @@ export default function ManagePage({ token }: { token: string }) {
         </>}
 
         {view === "move" && <>
-          <h2 className="h1 bw-center">{t("mPick")}</h2>
-          <p className="cap bw-center">{t("mNow", { when: `${longDay(m.day)} · ${fmtMin(m.start)}` })}{staff.length > 0 && <> · {t("mSameTech", { name: staff.join(", ") })}</>}</p>
+          <div className="bw-hero">
+            <h2 className="h1 bw-center">{t("mPick")}</h2>
+            <p className="cap bw-center bw-sent">{t("mNow", { when: `${longDay(m.day)} · ${fmtMin(m.start)}` })}{staff.length > 0 && <> · {t("mSameTech", { name: staff.join(", ") })}</>}</p>
+          </div>
           <div className="bw-ticket">
             <div className="bw-days">{days.map((d) => {
               const dt = fromDayKey(d);
@@ -135,8 +138,10 @@ export default function ManagePage({ token }: { token: string }) {
         </>}
 
         {view === "cancel" && <>
-          <h2 className="h1 bw-center">{t("mCancelAsk")}</h2>
-          <p className="cap bw-center">{m.guests.length > 1 ? t("mCancelGroup", { n: m.guests.length }) : t("mCancelSub")}</p>
+          <div className="bw-hero">
+            <h2 className="h1 bw-center">{t("mCancelAsk")}</h2>
+            <p className="cap bw-center bw-sent">{m.guests.length > 1 ? t("mCancelGroup", { n: m.guests.length }) : t("mCancelSub")}</p>
+          </div>
           {ticket}
           {msg && <p className="hint err" role="alert">{msg}</p>}
           <div className="bw-acts">
@@ -146,21 +151,28 @@ export default function ManagePage({ token }: { token: string }) {
         </>}
 
         {view === "moved" && <>
-          <div className="bw-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
-          <h2 className="h1 bw-center">{t("mMoved")}</h2>
-          <p className="cap bw-center">{t("mMovedSub")}</p>
+          <div className="bw-hero">
+            <div className="bw-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
+            <h2 className="h1 bw-center">{t("mMoved")}</h2>
+            <p className="cap bw-center bw-sent">{t("mMovedSub")}</p>
+          </div>
           {ticket}
           <div className="bw-acts"><Button onClick={() => setView("see")}>{t("mBack")}</Button></div>
         </>}
 
         {view === "canceled" && <>
-          <h2 className="h1 bw-center">{t("mCanceledTitle")}</h2>
-          <p className="cap bw-center">{t("mCanceledSub")}</p>
+          <div className="bw-hero">
+            <h2 className="h1 bw-center">{t("mCanceledTitle")}</h2>
+            <p className="cap bw-center bw-sent">{t("mCanceledSub")}</p>
+          </div>
           {ticket}
           <div className="bw-acts"><a className="btn primary" href={`/${salon.slug}`}>{t("mBookNew")}</a></div>
         </>}
 
-        {salon.phone && view !== "see" && <p className="cap bw-center">{t("callUs")} {call}</p>}
+        <div className="bw-foot cap bw-center">
+          {salon.phone && !(view === "see" && m.status === "live" && !m.canChange) && <span>{t("callUs")} {call}</span>}
+          {view !== "canceled" && <a className="bw-link" data-testid="bw-see-salon" href={`/${salon.slug}`}>{t("seeSalon")} ›</a>}
+        </div>
       </div>
     </div>
   );

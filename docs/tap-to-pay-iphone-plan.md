@@ -23,10 +23,10 @@ the PDFs once they're in the repo (`docs/apple/`).
 | R8 | Merchant education ("how to tap") | iPhone app 1.4: Apple's own screens (`ProximityReaderDiscovery`, `.payment(.howToTap)`, iOS 18+) via "How to tap": shown right after Turn on, in Settings, on the tap screen at checkout, in setup. iOS 16/17 or older app: our short steps (EN + VI) | Built (Nov 25), not on a phone yet | Needs app 1.4 build |
 | R9 | Reader warmed up so the tap is fast; progress shown | App 1.3: after this iPhone's first tap, Tap to Pay connects when checkout opens + every time the app comes back (`keepTapWarm`, `/api/stripe/tap-ready`); never pops Apple's terms by itself; tile shows "Getting ready…" / "Ready to tap" | Built (Nov 25), not on a phone yet | Warm-up before the FIRST tap comes with R4 (terms in Settings) |
 | R10 | Clear errors | App 1.3 sends a code (passcode, iCloud, terms, no internet, declined…) → our own words in English + Vietnamese (`checkout.tapErr.*`) | Built (Nov 25), not on a phone yet | — |
-| R11 | 3 videos + checklist sent to Apple | None | To do | Steps 9–11 |
+| R11 | 3 videos + checklist sent to Apple | Recording kit `docs/apple/tap-to-pay-review-kit.md`: before-you-record list, a script per video (new user, existing user, checkout incl. failure + retry), checklist draft answers; Settings → Tap to Pay on iPhone → "Start over (for Apple's videos)" makes the iPhone look new again | Kit ready (Nov 25) | Oliver records + uploads (needs app 1.4 + a Stripe test card) |
 | R12 | Marketing: only Apple's toolkit, full name, Apple OKs press | None | Rule | Follow when we market it |
 
-Score (Nov 25): 1 done · 9 built, not tried on a phone (R2–R10) · left: R11 (videos + checklist) · 1 rule.
+Score (Nov 25): 1 done · 9 built, not tried on a phone (R2–R10) · R11 kit ready, waiting on Oliver's recordings · 1 rule.
 
 ## Steps (who · how long)
 

@@ -141,7 +141,17 @@ export async function profileFor(who: Who, c: { id?: string; phone?: string } | 
 }
 
 /* ---------- writes ---------- */
-export type ClientEdit = { name: string; phone: string; email: string; birthday: string; shape: string; colors: string; care: string; notes: string; textsOk: boolean; language: "en" | "vi"; approvalId: string };
+export type ClientEdit = { name: string; phone: string; email: string; birthday: string; shape: string; colors: string; care: string; notes: string; textsOk: boolean; language: "en" | "vi"; approvalId: string;
+  /** The words the desk read to the client when ticking "said yes to texts" (kept as proof with the answer). */
+  consentText: string };
+
+/** One recorded answer about texts (proof of consent): newest first from client_consent. */
+export type Consent = { said: "yes" | "no"; source: string; words: string | null; at: string; by: string | null };
+/** A client's text answers, desk roles only. Test copy / offline / not allowed = null (nothing shown). */
+export async function clientConsent(who: Who, id: string): Promise<Consent[] | null> {
+  if (who.mode === "demo" || !isDesk(who.role)) return null;
+  try { return await rpc<Consent[]>("client_consent", { p_client: id }); } catch { return null; }
+}
 export async function saveClient(who: Who, id: string | null, e: Partial<ClientEdit>): Promise<string> {
   if (who.mode === "demo") {
     const cur = id ? demoAll().find((x) => x.id === id) : undefined;

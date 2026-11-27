@@ -13,6 +13,8 @@ type Props = {
   layout: HomeLayout; open: Ticket[]; paid: Ticket[];
   scan: string; setScan: (s: string) => void; onScan: () => void; scanMsg: string; demo: boolean;
   onNew: () => void; go: (t: Ticket, pay?: boolean) => void;
+  /** Computer / iPad: the scan box + New ticket live in the top bar (CheckoutHome), not under it. */
+  inBar?: boolean;
 };
 type T = ReturnType<typeof useTranslations>;
 
@@ -21,6 +23,17 @@ const ScanIcon = ({ size = 18 }: { size?: number }) => (
     <path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3M8 9v6M12 9v6M16 9v6" />
   </svg>
 );
+
+/** Scan a slip or type a ticket number. In the top bar on computers / iPads, on top of the page on phones. */
+export function ScanBox({ scan, setScan, onScan, big }: { scan: string; setScan: (s: string) => void; onScan: () => void; big?: boolean }) {
+  const t = useTranslations("checkout");
+  return (
+    <form className="co-scan ck-scan" onSubmit={(e) => { e.preventDefault(); onScan(); }}>
+      <ScanIcon size={big ? 20 : 18} />
+      <input className="inp" data-testid="scan-box" aria-label={t("scanPh")} placeholder={t("scanPh")} value={scan} onChange={(e) => setScan(e.target.value)} />
+    </form>
+  );
+}
 
 /** Re-draw every 30 s so "Open 16 min" keeps counting. */
 function useNow() {
@@ -47,12 +60,7 @@ export default function HomeView(p: Props) {
   const shown = cards && pick ? open.filter((x) => techsOn(x).includes(pick)) : open;
   const paidAt = (x: Ticket) => f.dateTime(new Date(x.payment?.at ?? x.createdAt), { timeStyle: "short" });
 
-  const scanBox = (
-    <form className="co-scan ck-scan" onSubmit={(e) => { e.preventDefault(); p.onScan(); }}>
-      <ScanIcon size={cards ? 20 : 18} />
-      <input className="inp" data-testid="scan-box" aria-label={t("scanPh")} placeholder={t("scanPh")} value={p.scan} onChange={(e) => p.setScan(e.target.value)} />
-    </form>
-  );
+  const scanBox = <ScanBox scan={p.scan} setScan={p.setScan} onScan={p.onScan} big={cards} />;
   const action = (x: Ticket) => canCharge(x)
     ? <Button variant="primary" className="co-act" data-testid="row-charge" onClick={(e) => { e.stopPropagation(); p.go(x, true); }}>{t("chargeShort")}</Button>
     : <Button className="co-act" onClick={(e) => { e.stopPropagation(); p.go(x); }}>{t("openShort")}</Button>;
@@ -60,20 +68,21 @@ export default function HomeView(p: Props) {
   const sub = (x: Ticket) => `${t("ticket", { n: ticketLabel(x) })} · ${services(x)}${!x.number ? ` · ${t("notSynced")}` : ""}`;
 
   return <>
-    <div className="co-head ck-homebar">
-      <h1 className="h1">{t("title")}</h1>
-      {cards && <span className="cap num co-count">{t("openCount", { n: open.length })} · {formatCents(facts.toCollect)}</span>}
-      {scanBox}
-      {!cards && <Button variant="primary" className="ck-new" data-testid="new-ticket" onClick={p.onNew}>{t("newTicket")}</Button>}
-    </div>
+    {!p.inBar && (
+      <div className="co-head ck-homebar">
+        {cards && <span className="cap num co-count">{t("openCount", { n: open.length })} · {formatCents(facts.toCollect)}</span>}
+        {scanBox}
+        {!cards && <Button variant="primary" className="ck-new" data-testid="new-ticket" onClick={p.onNew}>{t("newTicket")}</Button>}
+      </div>
+    )}
     {p.scanMsg && <div className="hint err" role="alert">{p.scanMsg}</div>}
     {p.demo && <div className="demo">{t("demo")}</div>}
 
     {!cards && (
       <div className="co-stats">
-        <div className="card pad"><span className="cap">{t("toCollect")}</span><b className="num bold co-big" data-testid="to-collect">{formatCents(facts.toCollect)}</b><span className="cap">{t("openCount", { n: open.length })}</span></div>
-        <div className="card pad"><span className="cap">{t("paidToday")}</span><b className="num bold co-big">{formatCents(facts.paidCents)}</b><span className="cap num">{t("paidCount", { n: paid.length })} · {t("cardCash", { card: formatCents(facts.card), cash: formatCents(facts.cash) })}</span></div>
-        <div className="card pad"><span className="cap">{t("tipsToday")}</span><b className="num bold co-big">{formatCents(facts.tips)}</b><span className="cap">{t("tipsSub")}</span></div>
+        <div className="card pad"><span className="cap">{t("toCollect")}</span><b className="num bold co-big" data-roll data-testid="to-collect">{formatCents(facts.toCollect)}</b><span className="cap">{t("openCount", { n: open.length })}</span></div>
+        <div className="card pad"><span className="cap">{t("paidToday")}</span><b className="num bold co-big" data-roll>{formatCents(facts.paidCents)}</b><span className="cap num">{t("paidCount", { n: paid.length })} · {t("cardCash", { card: formatCents(facts.card), cash: formatCents(facts.cash) })}</span></div>
+        <div className="card pad"><span className="cap">{t("tipsToday")}</span><b className="num bold co-big" data-roll>{formatCents(facts.tips)}</b><span className="cap">{t("tipsSub")}</span></div>
       </div>
     )}
 
@@ -89,10 +98,10 @@ export default function HomeView(p: Props) {
       {cards ? (
         <div className="co-cards">
           {shown.map((x) => (
-            <div key={x.id} className="card pad co-card" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
+            <div key={x.id} className="card pad co-card flow" data-flow="card" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
               <div className="co-card-top"><Avatar name={x.client?.name || "?"} /><div className="grow"><b>{who(x)}</b><span className="cap">{t("ticket", { n: ticketLabel(x) })} · {openText(t, x, now)}</span></div></div>
               <div className="co-card-svc">{services(x)}{techsOn(x).length > 0 && <span className="cap"> · {techsOn(x).join(", ")}</span>}{!x.number && <span className="cap"> · {t("notSynced")}</span>}</div>
-              <div className="co-card-foot"><b className="num bold co-big">{formatCents(totals(x).left)}</b>{action(x)}</div>
+              <div className="co-card-foot"><b className="num bold co-big" data-roll>{formatCents(totals(x).left)}</b>{action(x)}</div>
             </div>
           ))}
           <button type="button" className="co-new" data-testid="new-ticket" onClick={p.onNew}>
@@ -103,7 +112,7 @@ export default function HomeView(p: Props) {
       ) : (
         <div className="group">
           {open.length ? open.map((x) => (
-            <div key={x.id} className="row l co-row" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
+            <div key={x.id} className="row l co-row flow" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
               <Avatar name={x.client?.name || "?"} />
               <div className="g"><b>{who(x)}</b><span className="cap">{sub(x)}</span></div>
               <span className="co-tech">{techsOn(x).join(", ")}</span>
@@ -122,7 +131,7 @@ export default function HomeView(p: Props) {
         {paid.length ? paid.map((x) => {
           const s = totals(x);
           return (
-            <div key={x.id} className="row l co-row" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
+            <div key={x.id} className="row l co-row flow" data-testid="ticket-row" role="button" tabIndex={0} onClick={() => p.go(x)} onKeyDown={(e) => { if (e.key === "Enter") p.go(x); }}>
               <Avatar name={x.client?.name || "?"} />
               <div className="g"><b>{who(x)}</b><span className="cap">{sub(x)}</span></div>
               <span className="co-tech">{techsOn(x).join(", ")}</span>

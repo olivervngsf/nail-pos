@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Avatar, ListGroup, PinKeypad } from "@/components/kit";
 import { ROLE_LABEL, getDevice, pinMessage, rpc, type PinResult, type Role } from "@/lib/auth";
 import { pinLenFor } from "@/lib/pin";
+import { canOk, useRolePerms } from "@/lib/roles";
 
 export type OkScope = { mode: "demo" | "live"; salonId: string; role: Role };
 export type OkPurpose = "client" | "menu";
@@ -14,7 +15,8 @@ type Approver = { id: string; name: string; role: Role };
 
 export function useOwnerOk(scope: OkScope, needed: boolean, purpose: OkPurpose) {
   const device = getDevice();
-  const admin = scope.role === "owner" || scope.role === "manager";
+  const perms = useRolePerms(scope.salonId, scope.mode === "demo");
+  const admin = canOk(perms, scope.role, purpose);
   const gate: "free" | "self" | "pin" | "denied" = !needed ? "free" : scope.mode === "demo" || device ? "pin" : admin ? "self" : "denied";
   const [okd, setOkd] = useState<{ approvalId?: string; name: string } | null>(null);
   const [approvers, setApprovers] = useState<Approver[]>([]);
@@ -24,11 +26,11 @@ export function useOwnerOk(scope: OkScope, needed: boolean, purpose: OkPurpose) 
     if (gate !== "pin") return;
     if (scope.mode === "demo") { setApprovers([{ id: "demo", name: "Mai", role: "owner" }]); setApprover("demo"); return; }
     void rpc<{ membership_id: string; display_name: string; role: Role }[]>("desk_staff", { p_salon: scope.salonId }).then((r) => {
-      const a = r.filter((s) => s.role === "owner" || s.role === "manager").map((s) => ({ id: s.membership_id, name: s.display_name, role: s.role }));
+      const a = r.filter((s) => canOk(perms, s.role, purpose)).map((s) => ({ id: s.membership_id, name: s.display_name, role: s.role }));
       setApprovers(a);
       if (a.length === 1) setApprover(a[0].id);
     }).catch(() => setErr("offline"));
-  }, [gate, scope.mode, scope.salonId]);
+  }, [gate, scope.mode, scope.salonId, perms, purpose]);
   const checkPin = async (pin: string) => {
     setErr("");
     if (scope.mode === "demo") return setOkd({ name: "Mai" });

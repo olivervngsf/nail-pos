@@ -49,6 +49,8 @@ test("payout sheet prints one slip per person (own page / own cut)", async ({ pa
     const d = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, "srcdoc")!;
     Object.defineProperty(HTMLIFrameElement.prototype, "srcdoc", { set(v: string) { (window as unknown as { __printed: string[] }).__printed = [...((window as unknown as { __printed?: string[] }).__printed ?? []), v]; d.set!.call(this, v); }, get() { return d.get!.call(this); } });
     window.print = () => {};
+    // No Bluetooth here: slips use the computer's print window (with Bluetooth they go straight to the receipt printer).
+    Object.defineProperty(Navigator.prototype, "bluetooth", { get: () => undefined, configurable: true });
   });
   await page.goto("/payouts");
   await expect(page.getByTestId("po-Kim")).toBeVisible();
@@ -101,4 +103,32 @@ test("tips report: PIN shows last month's tips, signing marks it signed; owner s
   await expect(page.getByTestId("tip-Kim")).toContainText("Signed");
   await expect(page.getByTestId("tip-Ngọc")).toContainText("Not signed");
   await expect(page.getByTestId("tip-Tuyết")).toContainText("Changed since signed");
+});
+
+test("payout sheet: kit date pickers (range with presets, month)", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/payouts");
+  const range = page.getByTestId("po-range");
+  await range.click();
+  await page.getByTestId("dp-preset-today").click();
+  await expect(page.locator(".dp-pop")).toHaveCount(0);
+  const today = await range.getAttribute("data-to");
+  expect(await range.getAttribute("data-from")).toBe(today);
+  // Pick first + last day by hand: Apply waits for the last day.
+  await range.click();
+  const first = `${today!.slice(0, 7)}-01`;
+  await page.locator(`.dp-pop [data-day="${first}"]`).click();
+  await expect(page.getByTestId("dp-apply")).toBeDisabled();
+  await page.locator(`.dp-pop [data-day="${today}"]`).click();
+  await expect(page.getByTestId("dp-sum")).toContainText("day");
+  await page.getByTestId("dp-apply").click();
+  await expect(range).toHaveAttribute("data-from", first);
+  await expect(range).toHaveAttribute("data-to", today!);
+  // Month: › is off on this month (no future), ‹ goes back one.
+  const month = page.getByTestId("tip-month");
+  const m0 = await month.getAttribute("data-value");
+  await month.getByRole("button", { name: "Previous month" }).click();
+  await expect(month).not.toHaveAttribute("data-value", m0!);
+  expect(errors).toEqual([]);
 });

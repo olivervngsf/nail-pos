@@ -58,3 +58,25 @@ ${n.salon.address ? `<p style="margin:14px 0 0;padding-top:14px;border-top:1px d
 </div></body></html>`;
   return { subject, text, html };
 }
+
+export type ReminderKind = "day_before" | "two_hours";
+
+/** Reminder text, 1 day or 2 hours before. Plain letters, short, salon name first, change/cancel link. */
+export function reminderSms(n: Notice, link: string, kind: ReminderKind): string {
+  const techs = techsOf(n), with_ = techs.length ? ` with ${techs.join(" & ")}` : "";
+  return kind === "day_before"
+    ? `${n.salon.name}: Reminder, see you tomorrow ${whenOf(n, false)}${with_}. Change or cancel: ${link} Reply STOP to opt out.`
+    : `${n.salon.name}: See you today at ${fmtMin(n.start)}${with_}. Running late or can't come? ${link} Reply STOP to opt out.`;
+}
+
+/** Reminder email = the booking email with a reminder subject + greeting. */
+export function reminderEmail(n: Notice, link: string, kind: ReminderKind): { subject: string; text: string; html: string } {
+  const m = noticeEmail(n, link);
+  const soon = kind === "day_before" ? "tomorrow" : "today";
+  const greet = `Hi ${n.name}, see you ${soon} at ${n.salon.name}.`;
+  return {
+    subject: kind === "day_before" ? `Reminder: ${n.salon.name} tomorrow, ${whenOf(n, false)}` : `See you today at ${fmtMin(n.start)}: ${n.salon.name}`,
+    text: m.text.replace(`Hi ${n.name}, you're booked at ${n.salon.name}.`, greet),
+    html: m.html.replace(`You're booked, ${esc(n.name)}`, `See you ${soon}, ${esc(n.name)}`),
+  };
+}

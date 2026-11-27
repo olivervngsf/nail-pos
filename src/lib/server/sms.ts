@@ -8,7 +8,7 @@
 // salon numbers live in text_numbers.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { textParts } from "@/lib/texting/parts";
-import { e164, NEEDS_YES, PLATFORM_KINDS, type TextKind } from "@/lib/texting/sms";
+import { e164, NEEDS_YES, onTestList, PLATFORM_KINDS, type TextKind } from "@/lib/texting/sms";
 
 export type SendInput = { clientKey: string; kind: TextKind; to: string; body: string; salonId?: string | null };
 export type SendResult = { id?: string; status: "queued" | "sent" | "failed" | "skipped" | "blocked"; error?: string; duplicate?: boolean };
@@ -16,7 +16,7 @@ export type SendResult = { id?: string; status: "queued" | "sent" | "failed" | "
 export const smsConfigured = () => !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN);
 
 /** Which Messaging Service sends this text, or why none can yet. */
-async function senderFor(db: SupabaseClient, kind: TextKind, salonId: string | null): Promise<{ service?: string; phone?: string; from?: string; why?: string }> {
+async function senderFor(db: SupabaseClient, kind: TextKind, salonId: string | null, to: string): Promise<{ service?: string; phone?: string; from?: string; why?: string; test?: boolean }> {
   if (PLATFORM_KINDS.includes(kind) || !salonId) {
     const service = process.env.TWILIO_MESSAGING_SERVICE_SID, phone = process.env.TWILIO_FROM;
     // TWILIO_FROM = a plain Twilio number, for testing before the Messaging Service is registered (trial accounts too:
@@ -24,7 +24,12 @@ async function senderFor(db: SupabaseClient, kind: TextKind, salonId: string | n
     return service ? { service, from: "polishos" } : phone ? { phone, from: phone } : { why: "PolishOS number not set up yet" };
   }
   const { data } = await db.from("text_numbers").select("phone,messaging_service_sid").eq("salon_id", salonId).eq("status", "active").maybeSingle();
-  return data ? { service: data.messaging_service_sid, from: data.phone } : { why: "salon's texting number not registered yet" };
+  if (data) return { service: data.messaging_service_sid, from: data.phone };
+  // Test mode (before go-live): a confirm / reminder / receipt to a phone on TEXT_TEST_PHONES goes out on the PolishOS
+  // number, marked "(Test)". Only our own phones + Twilio's Virtual Phone; real clients still wait for the salon's number.
+  const service = process.env.TWILIO_MESSAGING_SERVICE_SID;
+  if (service && onTestList(kind, to, process.env.TEXT_TEST_PHONES)) return { service, from: "polishos-test", test: true };
+  return { why: "salon's texting number not registered yet" };
 }
 
 export async function sendText(db: SupabaseClient, input: SendInput, origin?: string): Promise<SendResult> {
@@ -52,13 +57,16 @@ export async function sendText(db: SupabaseClient, input: SendInput, origin?: st
     .filter("salon_id", usesPlatform ? "is" : "eq", usesPlatform ? null : salonId).maybeSingle();
   if (stopped) return record("blocked", { error: "replied STOP" });
 
-  // Client said yes to texts at this salon?
+  // Client said yes to texts at this salon, and we can prove it? The latest recorded answer (text_consents: when,
+  // where, the words they saw) must be yes. A yes on file without a record counts as no: ask the client again.
   if (salonId && NEEDS_YES.includes(input.kind)) {
-    const { data: c } = await db.from("clients").select("texts_ok").eq("salon_id", salonId).eq("phone", to).maybeSingle();
-    if (!c?.texts_ok) return record("blocked", { error: "client hasn't said yes to texts" });
+    const { data: ok, error: cErr } = await db.rpc("consent_ok", { p_salon: salonId, p_phone: to });
+    if (cErr) throw new Error(cErr.message);
+    if (!ok) return record("blocked", { error: "no recorded yes to texts from this client" });
   }
 
-  const from = await senderFor(db, input.kind, salonId);
+  const from = await senderFor(db, input.kind, salonId, to);
+  if (from.test && !input.body.startsWith("(Test) ")) input = { ...input, body: `(Test) ${input.body}` };
   if (!smsConfigured()) return record("skipped", { error: "texting not switched on (no Twilio settings)" });
   if (!from.service && !from.phone) return record("skipped", { error: from.why });
 
@@ -100,5 +108,9 @@ export async function setOptOut(db: SupabaseClient, phone: string, salonId: stri
   } else {
     await db.from("text_optouts").delete().eq("phone", phone).filter("salon_id", salonId ? "eq" : "is", salonId);
   }
-  if (salonId) await db.from("clients").update({ texts_ok: !stop }).eq("salon_id", salonId).eq("phone", phone);
+  // Through the database so the reply is recorded as proof (text_consents: source text_reply, the word they sent).
+  if (salonId) {
+    const { error } = await db.rpc("consent_text_reply", { p_salon: salonId, p_phone: phone, p_stop: stop, p_words: stop ? "STOP" : "START" });
+    if (error) throw new Error(error.message);
+  }
 }

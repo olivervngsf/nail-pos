@@ -1,6 +1,6 @@
 # Go-live plan (PolishOS) — start here
 
-One plan from "works on the test setup" to "first real salon takes real money". Updated Nov 20.
+One plan from "works on the test setup" to "first real salon takes real money". Updated Nov 25 (texting campaign approved).
 Every step: **who** (Oliver · Elang · Claude), **how long**, and where the click-by-click lives.
 When a step is done: tick it here, write the date, and tick the same check in **polishosapp.com/admin/system** (Running smooth checks).
 
@@ -11,6 +11,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 - PIN help for owners (two ways to give a new PIN): `docs/pin-help.md`
 - Test logins (test project only): `docs/test-accounts.md`
 - Texting plan + FAQ (claude.ai): https://claude.ai/artifact/CCKEccsu486fXUywR76kdz
+- Texting test plan (after campaign approval): `docs/texting-test-plan.md`
 - Hardware to buy: `docs/hardware-shopping-list.md`
 - Every price point (salons pay, we pay, per salon): `docs/costs.md`
 
@@ -27,7 +28,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 | Card payments | Sandbox works; webhook On (made by hand Nov 19) | Stripe live mode not set up |
 | Plans + text credit | Sandbox: webhook On (Admin → System button, Nov 20); text credit test payment started Nov 20 (Stripe page reached, paying with test card 4242 still to finish) | Same button again after the live key, then one real $5 credit + refund (step 5) |
 | Sign-in codes by text | Twilio Verify works | Done Nov 20: live phone sign-in on (Twilio Verify) + test numbers 555-010-0001…0009 = 123456 |
-| Salon texts (invites, reminders) | Code ready; carriers block them until the campaign is approved | Campaign review ~1–3 weeks |
+| Salon texts (invites, reminders) | Code ready | **Campaign approved Nov 24** (`CM72fc4b…ad8f63`): staff invites + notices can send once `TWILIO_MESSAGING_SERVICE_SID` is in Vercel. Client texts wait on each salon's own number (consent proof done, PR #169) + each salon's own number. Test: `docs/texting-test-plan.md` |
 | Email sign-in | Resend sender works | Copy SMTP + templates to the live project (not checked yet) |
 | Admins' 2-step login | 0 of 2 on | Must be 2 of 2 |
 | Running smooth checks | All "Not set" | All ticked |
@@ -97,15 +98,24 @@ When a step is done: tick it here, write the date, and tick the same check in **
   - Refund both in the Stripe dashboard. Write the date here: ____.
 
 ## 6. Texting (Oliver · forms now, carriers take ~1–3 weeks)
+> **What texts work today (Nov 25) — don't forget**
+> - ✅ Staff invite texts (Settings → Team → "Text the invite") — PolishOS number
+> - ✅ PIN link texts (Team → PIN → "Text the PIN link") — PolishOS number
+> - ❌ Client texts (booking confirm, reminders, receipts, promos) are OFF. Each salon needs its OWN number + brand + campaign first. Never send them on the PolishOS number.
+> - Plan for salon numbers + promos: Research — The Salon Texting Plan https://claude.ai/artifact/HFF6aerJLea9q7nbAYJ6Nr
+
 - [x] Nov 19: Twilio pay-as-you-go; number +1 (775) 535-8984; sole proprietor brand "Viet Nguyen" **approved**.
-- [ ] Campaign approved (submitted Nov 19) → Messaging Service already has the number → Messaging Service `MG…` → Vercel `TWILIO_MESSAGING_SERVICE_SID` (Production + Preview) → redeploy → Admin → Home → "Send a test text" says Delivered.
+- [x] Nov 24: **campaign approved** (Twilio email; campaign `CM72fc4b8e892533f9845eda3760ad8f63`, use case = staff invites + notices, no marketing). Registered with carriers.
+- [x] Nov 25: first test text **Delivered**. Oliver: Messaging Service `MG…` → Vercel `TWILIO_MESSAGING_SERVICE_SID` (Production + Preview) + check `TWILIO_AUTH_TOKEN` = Nov 19 token → redeploy → run `docs/texting-test-plan.md` (first text Delivered, HELP/STOP/START/DUNG replies, invite + PIN link texts, things that must NOT text). Date: ____.
 - [ ] **Before charging the first salon money:** switch Twilio to a business account (EO Collective + EIN + business address) and move the tax info. Sole proprietor = testing/pilot only (1 number, <3,000 texts/day).
 - [ ] Salon promo texts never go on the PolishOS number: each salon needs its own number + brand + Marketing campaign (on its setup day).
 - [x] Nov 19: campaign form submitted (sole proprietor, invites + notices, verbal opt-in script, links `/legal/terms` + `/legal/privacy`); legal pages renamed "Terms of Service" / "Privacy Policy" with an SMS Terms section. Carrier review ~1–3 weeks.
 - [x] Nov 20 DONE (set by API): Messaging Service renamed "PolishOS" (MGfb1e10…), incoming = `https://polishosapp.com/api/sms/inbound`, delivery status = `https://polishosapp.com/api/sms/status`, number's own webhook off (STOP/HELP reach us).
 - [x] Nov 20: support@polishosapp.com is a real inbox (reviewers + the HELP reply point to it). Nov 23: now a Google Workspace alias of oliver@ (was ImprovMX → Gmail).
-- [ ] **Claude: proof of consent** (Build Tracker row 4c, ~1 session): save WHEN + WHERE each client said yes to texts (booking page, desk, kiosk, START reply) and when they said STOP; today only yes/no. **Deadline: before the first real client text** (confirm, reminder, receipt, promo) = before any salon's own number is approved. Not needed for staff invites. Safe to ship any time.
-- [ ] Claude: "invite ends in 1 day" reminder text (campaign sample #3).
+- [x] **Claude: proof of consent** (Build Tracker row 4c; PR #169, migration `20270112000001_text_consent`, on test; goes to live with the merge): save WHEN + WHERE each client said yes to texts (booking page, desk, kiosk, START reply) and when they said STOP; today only yes/no. **Deadline: before the first real client text** (confirm, reminder, receipt, promo) = before any salon's own number is approved. Not needed for staff invites. Safe to ship any time.
+- [x] Nov 25: "invite ends tomorrow" text built (hourly job `/api/cron/invite-reminders` via GitHub Actions "Scheduled texts"; once per invite, only to staff who got the first invite text, 9 AM–8 PM salon time). **Oliver: make a long random `CRON_SECRET`, put the same value in Vercel (Production) + GitHub → Settings → Secrets → Actions, redeploy.** Until then the job skips.
+- [x] Nov 26: test mode for client texts (#193): Vercel `TEXT_TEST_PHONES` = Oliver's cell + Twilio Virtual Phone; confirm / reminder / receipt texts reach ONLY those phones, on the PolishOS number, starting "(Test)". Receipts by text + email send for real from the paid screen. **Oliver: set `TEXT_TEST_PHONES`, redeploy, run `docs/texting-test-plan.md` § 4d.** Remove it (empty) before the first real salon.
+- [ ] Nov 26: Twilio reset the Auth Token again. **Oliver: copy the new one into Vercel `TWILIO_AUTH_TOKEN` (Production + Preview) + redeploy**; if sign-in codes fail, also Supabase → Auth → Phone (test + live).
 - [ ] Claude: wire confirm / reminder / receipt texts (texting plan steps 3–6) once the campaign is approved.
 
 ## 7. Decisions + legal (Oliver + Elang · before the first paying salon)
@@ -126,6 +136,7 @@ When a step is done: tick it here, write the date, and tick the same check in **
 ## 10. First pilot salon (Elang leads · Oliver on call)
 - [ ] Before: remove the live demo salon (`demo_remove.sql`) if it was added. Admin → System all green.
 - [ ] polishosapp.com/admin → Salons → Add salon by invite → text/email the invite → owner signs in → setup (10 steps, ~1 h): info, menu, staff + PINs, Connect payments, reader, printer, devices, clock-in rule, clients, $1 test. Show the owner the PIN box (Settings → Team → person): "Make a new PIN now" when they're here, PIN link when they're away (`docs/pin-help.md`).
+- [ ] Day 0 (as soon as the owner says yes): owner fills **Settings → Business details** (legal name, EIN, area code, how clients say yes, confirm) so card + texting registration can start; full steps in the Salon Onboarding doc https://claude.ai/artifact/6pxbR9ZNRba5m9WtKoVvwQ .
 - [ ] Day 1: Elang on call. Week 1: check-in logged in Admin → Salons. Week 4: pilot review (keep / pay / changes).
 
 ## Later (after the pilot)

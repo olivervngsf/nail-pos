@@ -3,6 +3,7 @@
 // 4 tips per staff → 5 closed. Every number comes from the server (day_summary); closing saves a locked record (close_day).
 // Front desk can fill it in; finishing needs an owner/manager (own login) or a manager PIN on the salon device.
 import { pinLenFor } from "@/lib/pin";
+import { canOk, useRolePerms } from "@/lib/roles";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -31,6 +32,7 @@ export default function CloseDay() {
   const params = useSearchParams();
   const day = params.get("d") && /^\d{4}-\d{2}-\d{2}$/.test(params.get("d")!) ? params.get("d")! : isoDay();
   const { desk, err } = useDesk();
+  const perms = useRolePerms(desk?.salonId, desk?.mode === "demo");
   const [sum, setSum] = useState<DaySummary | null>(null);
   const [loadErr, setLoadErr] = useState("");
   const [step, setStep] = useState<Step>("open");
@@ -64,8 +66,8 @@ export default function CloseDay() {
   const diff = counted - expected;
   const allResolved = useMemo(() => (sum?.open ?? []).every((o) => left[o.id]), [sum, left]);
   const idx = STEPS.indexOf(step);
-  const admins = (desk?.staff ?? []).filter((s) => s.role === "owner" || s.role === "manager");
-  const ownLoginAdmin = !!desk && !desk.device && (desk.me.role === "owner" || desk.me.role === "manager");
+  const admins = (desk?.staff ?? []).filter((s) => canOk(perms, s.role, "close"));
+  const ownLoginAdmin = !!desk && !desk.device && canOk(perms, desk.me.role, "close");
 
   if (err) return <main className="pad"><p className="hint err">{err}</p></main>;
   if (!desk) return <div className="app" aria-busy="true" />;
@@ -121,7 +123,10 @@ export default function CloseDay() {
     <div className="app cd-app">
       <LeftMenu active="Close day" salonInitials={desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={desk.me.display_name[0]} />
       <div className="col">
-        <TopBar title={<>{t("title")} <span className="cap">· {dayLabel}</span></>}><SyncPill /></TopBar>
+        <TopBar title={t("title")} fact={dayLabel}>
+          {step !== "done" && !closed && <span className="cap bar-step" data-testid="bar-step">{t("stepOf", { n: idx + 1, total: STEPS.length })}</span>}
+          <SyncPill />
+        </TopBar>
         <OfflineBanner />
         {demo && <div className="demo" style={{ margin: "12px 24px 0" }}>{t("demo")}</div>}
         {loadErr && <p className="hint err" style={{ margin: "12px 24px 0" }}>{loadErr} <Button size="sm" onClick={() => void load()}>{t("retry")}</Button></p>}

@@ -1,0 +1,25 @@
+name: Scheduled texts
+# Every hour: polishosapp.com sends texts that are due. Today: "your invite ends tomorrow" to staff who haven't joined
+# (/api/cron/invite-reminders; 9 AM–8 PM salon time only, each invite once) + booking reminders 1 day and 2 hours
+# before (/api/cron/booking-reminders; email now, texts once the salon has its own number; 8 AM–9 PM salon time).
+# This run also tells the database the site address, so its own once-a-minute job (pg_cron) keeps reminders on time.
+# Needs repo secret CRON_SECRET = the same value as CRON_SECRET in Vercel (Production). Missing = the run is skipped.
+on:
+  schedule:
+    - cron: "23 * * * *"
+    - cron: "53 * * * *"
+  workflow_dispatch:
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Send due texts
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE: ${{ vars.UPTIME_URL || 'https://polishosapp.com' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then echo "::warning::CRON_SECRET not set: nothing sent"; exit 0; fi
+          curl -fsS --max-time 60 -X POST -H "Authorization: Bearer $CRON_SECRET" "$SITE/api/cron/invite-reminders"; echo
+          curl -fsS --max-time 120 -X POST -H "Authorization: Bearer $CRON_SECRET" "$SITE/api/cron/booking-reminders"; echo

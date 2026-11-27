@@ -81,7 +81,7 @@ test("backup /device page: facts without a PIN, owner PIN opens the buttons, fit
   expect(errors).toEqual([]);
 });
 
-test("settings: add a team member, PIN rules to 10 digits, PIN activity", async ({ page }) => {
+test("settings: add a team member, PIN rules to 10 digits, PIN activity in the log", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/settings/team");
@@ -96,8 +96,11 @@ test("settings: add a team member, PIN rules to 10 digits, PIN activity", async 
   await page.getByTestId("len-10").click();
   await expect(page.getByTestId("len-10")).toHaveAttribute("aria-pressed", "true");
 
+  // Old PIN activity link opens the Activity log on its PIN filter.
   await page.goto("/settings/pin-activity");
-  await expect(page.getByTestId("pin-log")).toContainText("Wrong PIN");
+  await expect(page).toHaveURL(/\/settings\/activity\?kind=pin/);
+  await expect(page.getByTestId("act-kind-pin")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("act-log")).toContainText("Wrong PIN");
   expect(errors).toEqual([]);
 });
 
@@ -141,7 +144,7 @@ test("devices: owner shows a QR, tablet types the code at /go and opens the fron
 });
 
 test("my profile shows 2-step sign-in (off) and the health check answers", async ({ page, request }) => {
-  await page.goto("/me");
+  await page.goto("/me/sign-in");
   await expect(page.getByTestId("two-step-state")).toHaveText("Off");
   const r = await request.get("/api/health");
   expect(r.status()).toBe(200);

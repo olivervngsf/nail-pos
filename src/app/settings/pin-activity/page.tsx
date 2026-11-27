@@ -1,6 +1,4 @@
-import type { Metadata } from "next";
-import PinActivityPage from "./PinActivityPage";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "PIN activity · PolishOS" };
-
-export default function Page() { return <PinActivityPage />; }
+// PIN activity is now the PIN filter of the Activity log (Nov 26). Old links still work.
+export default function Page() { redirect("/settings/activity?kind=pin"); }

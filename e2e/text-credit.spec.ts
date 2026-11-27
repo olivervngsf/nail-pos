@@ -13,6 +13,8 @@ test("text credit: ring popover, manage page, add credit, promo send with cost c
   await expect(page.getByTestId("tc-rows")).toContainText("Holiday 15% off");
 
   if (info.project.name === "desktop") {
+    // The ring lives in the left menu; Settings now dims the menu (window over the app), so check it from Checkout.
+    await page.goto("/checkout");
     const ring = page.getByTestId("credit-ring");
     await expect(ring).toHaveAttribute("data-level", "good");
     await ring.click();
@@ -20,6 +22,7 @@ test("text credit: ring popover, manage page, add credit, promo send with cost c
     await expect(page.getByTestId("credit-amount")).toHaveText("$18.40");
     await page.keyboard.press("Escape");
     await expect(page.getByTestId("credit-pop")).toHaveCount(0);
+    await page.goto("/settings/texting");
   }
 
   await page.getByTestId("tc-pick-1000").click();
