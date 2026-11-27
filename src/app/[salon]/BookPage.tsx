@@ -5,6 +5,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Amenities } from "@/components/Amenities";
+import { TeamRow } from "./Team";
+import { loadTeam, type TeamMember } from "@/lib/staffProfile";
+import { getSupabase } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
 import { Button, Chip } from "@/components/kit";
 import { formatCents } from "@/lib/money";
@@ -128,6 +131,16 @@ function Flow({ page }: { page: Page }) {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [done, setDone] = useState<{ staff: string[]; day: string; start: number; token?: string } | null>(null);
+  // Tech profiles (board "Tech Profiles" C): the team row on the door; "Book with <tech>" starts booking with them picked.
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  useEffect(() => {
+    let live = true;
+    void loadTeam(page.salon.slug, page.salon.slug === DEMO_SLUG || !getSupabase()).then((r) => { if (live && r?.on) setTeam(r.team); }).catch(() => {});
+    return () => { live = false; };
+  }, [page.salon.slug]);
+  const bookWith = useCallback((id: string) => { setGroup(false); setGuests([{ serviceIds: [], staffId: id }]); setGi(0); setView("services"); window.scrollTo(0, 0); }, []);
+  const withId = sp.get("with");
+  useEffect(() => { if (withId && page.staff.some((x) => x.id === withId)) bookWith(withId); }, [withId, page.staff, bookWith]);
 
   const svc = useMemo(() => Object.fromEntries(page.services.map((s) => [s.id, s])), [page]);
   const minsOf = useCallback((g: Guest) => g.serviceIds.reduce((a, id) => a + (svc[id]?.minutes ?? 0), 0), [svc]);
@@ -197,6 +210,7 @@ function Flow({ page }: { page: Page }) {
           <span className="bw-ico">◯</span><span><b>{t("forMe")}</b><span className="cap">{t("forMeSub")}</span></span><span className="cap">›</span></button>
         {max > 1 && <button type="button" className="bw-doorbtn" data-testid="book-group" onClick={() => { setGroup(true); setGuests([{ serviceIds: [] }, { serviceIds: [] }]); setGi(0); setView("services"); }}>
           <span className="bw-ico">◎</span><span><b>{t("group")}</b><span className="cap">{t("groupSub", { max })}</span></span><span className="cap">›</span></button>}
+        <TeamRow team={team} slug={page.salon.slug} onBook={bookWith} />
         <p className="cap bw-center">{t("sameLink")}</p>
       </div>
     </div>

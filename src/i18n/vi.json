@@ -1262,7 +1262,18 @@
     "hrMin": "{h} giờ {m} phút",
     "opens": "mở lúc {time}",
     "seeSalon": "Xem hình, dịch vụ + thợ của tiệm",
-    "home": "Trang chủ {salon}"
+    "home": "Trang chủ {salon}",
+    "team": "Thợ của tiệm",
+    "teamYears": "{n} năm",
+    "teamSeeAll": "Xem tất cả",
+    "teamBookWith": "Đặt với {name}",
+    "teamBestAt": "Giỏi nhất",
+    "teamSpeaks": "Nói",
+    "teamDoing": "Làm nail",
+    "teamWork": "Tác phẩm của {name}",
+    "teamGone": "Người này không có trên trang thợ.",
+    "teamBack": "Về trang tiệm",
+    "close": "Đóng"
   },
   "kiosk": {
     "welcome": "Chào mừng đến {salon}",

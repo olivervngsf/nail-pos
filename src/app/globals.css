@@ -2350,3 +2350,38 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .bw-amen { margin-top: 8px; }
 .rc-amen { justify-content: center; }
 .bp-amen { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+
+/* Tech profiles on the booking page (board "Tech Profiles": C = team row + quick sheet, B = full page). */
+.tp-team { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.tp-row { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: none; }
+.tp-row::-webkit-scrollbar { display: none; }
+.tp-card { flex: none; width: 96px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); font: inherit; color: var(--ink); cursor: pointer; transition: border-color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease); }
+.tp-card:hover { border-color: var(--ink); transform: translateY(-1px); }
+.tp-card b { font-size: 14px; font-weight: 600; }
+.tp-card .cap { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.tp-face { display: flex; align-items: center; justify-content: center; border-radius: 50%; background-size: cover; background-position: center; font-weight: 600; color: var(--ink); flex: none; }
+.tp-sheet { display: flex; flex-direction: column; gap: 14px; }
+.sheet:has(.tp-sheet) { max-width: 520px; margin-inline: auto; }
+.tp-sheet-head { display: flex; align-items: center; gap: 12px; }
+.tp-grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tp-name { font-size: 20px; font-weight: 600; }
+.tp-x { width: 36px; padding: 0; }
+.tp-about { margin: 0; font-size: 16px; line-height: 23px; }
+.tp-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.tp-sheet .tp-tags { justify-content: flex-start; }
+.tp-grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.tp-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.tp-tile { margin: 0; aspect-ratio: 1 / 1; border-radius: 10px; background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 5px; box-sizing: border-box; }
+.tp-tile figcaption { background: rgba(255,255,255,.94); color: var(--ink); font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 7px; }
+.tp-more { align-self: flex-start; font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: none; }
+.tp-book { height: 52px; font-size: 17px; text-decoration: none; }
+.tp-page { width: min(620px, 100% - 32px); margin: 28px auto 140px; display: flex; flex-direction: column; gap: 18px; }
+.tp-hero { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.tp-hero .h1 { margin: 6px 0 0; }
+.tp-hero .tp-about { max-width: 340px; }
+.tp-facts { padding: 4px 0; }
+.tp-fact { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 0 16px; border-bottom: 1px solid var(--line); font-size: 15px; }
+.tp-fact:last-child { border-bottom: 0; }
+.tp-fact b { font-weight: 500; }
+.tp-bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); background: rgba(246,246,248,.94); border-top: 1px solid var(--line); display: flex; justify-content: center; z-index: 5; }
+.tp-bar .tp-book { width: min(620px, 100%); }

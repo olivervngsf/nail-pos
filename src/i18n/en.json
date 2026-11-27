@@ -1262,7 +1262,18 @@
     "hrMin": "{h} hr {m} min",
     "opens": "opens at {time}",
     "seeSalon": "See our photos, services + team",
-    "home": "{salon} home"
+    "home": "{salon} home",
+    "team": "Our team",
+    "teamYears": "{n} years",
+    "teamSeeAll": "See all work",
+    "teamBookWith": "Book with {name}",
+    "teamBestAt": "Best at",
+    "teamSpeaks": "Speaks",
+    "teamDoing": "Doing nails",
+    "teamWork": "{name}'s work",
+    "teamGone": "This person isn't on the team page.",
+    "teamBack": "Back to the salon",
+    "close": "Close"
   },
   "kiosk": {
     "welcome": "Welcome to {salon}",
