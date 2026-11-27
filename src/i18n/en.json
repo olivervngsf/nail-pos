@@ -1260,7 +1260,9 @@
     "min": "{n} min",
     "hr": "{h} hr",
     "hrMin": "{h} hr {m} min",
-    "opens": "opens at {time}"
+    "opens": "opens at {time}",
+    "seeSalon": "See our photos, services + team",
+    "home": "{salon} home"
   },
   "kiosk": {
     "welcome": "Welcome to {salon}",
