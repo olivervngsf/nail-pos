@@ -2727,7 +2727,8 @@
     "swipeHint": "Swipe left or right for another day.",
     "totalBeforeTip": "Total before tip",
     "repeats": "Every {n, plural, one {week} other {# weeks}}",
-    "bookedOnline": "Booked online"
+    "bookedOnline": "Booked online",
+    "myProfile": "My profile (clients see it)"
   },
   "go": {
     "title": "Set up this device",

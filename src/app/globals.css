@@ -2385,3 +2385,18 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .tp-fact b { font-weight: 500; }
 .tp-bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); background: rgba(246,246,248,.94); border-top: 1px solid var(--line); display: flex; justify-content: center; z-index: 5; }
 .tp-bar .tp-book { width: min(620px, 100%); }
+/* Tech app → Me → My profile */
+.tp-edit { display: flex; flex-direction: column; gap: 16px; }
+.tp-backlink { text-decoration: none; font-weight: 600; color: var(--ink); }
+.tp-edit-face { display: flex; align-items: center; gap: 14px; }
+.tp-edit-face .tp-grow { align-items: flex-start; gap: 4px; }
+.tp-count { font-weight: 400; }
+.tp-area { height: auto; min-height: 76px; padding: 10px 12px; resize: none; font-size: 16px; line-height: 22px; }
+.tp-years { width: 96px; font-size: 16px; }
+.tp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.tp-tile { position: relative; }
+.tp-tile.tp-wait { outline: 2px solid var(--orange); outline-offset: -2px; }
+.tp-tile.tp-wait figcaption { color: #B5470A; }
+.tp-del { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(255,255,255,.94); font-size: 12px; cursor: pointer; color: var(--ink); }
+.tp-add { aspect-ratio: 1 / 1; border: 1.5px dashed #C7C7CF; border-radius: 10px; background: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font: inherit; font-size: 18px; color: var(--ink-soft); cursor: pointer; }
+.tp-add span { font-size: 12px; font-weight: 600; }

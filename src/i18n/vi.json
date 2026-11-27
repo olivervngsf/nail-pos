@@ -2727,7 +2727,8 @@
     "swipeHint": "Vuốt trái hoặc phải để xem ngày khác.",
     "totalBeforeTip": "Tổng trước tip",
     "repeats": "Mỗi {n, plural, other {# tuần}}",
-    "bookedOnline": "Đặt online"
+    "bookedOnline": "Đặt online",
+    "myProfile": "Hồ sơ của tôi (khách thấy)"
   },
   "go": {
     "title": "Cài thiết bị này",
