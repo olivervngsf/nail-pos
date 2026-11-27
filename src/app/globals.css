@@ -1755,7 +1755,9 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .rp-head{min-height:44px;background:var(--surface);border-bottom:1px solid var(--line);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft)}
 .rp-row{min-height:52px;border-bottom:1px solid var(--line)}
 .rp-row:last-child{border-bottom:0}
-.rp-sec{padding:14px 16px 4px;font-size:13px;font-weight:600;color:var(--ink-soft)}
+/* Section break (Oliver, Nov 27): a clear grey band between "OK with PIN" and "Open in Settings", never just a label in the list. */
+.rp-sec{padding:12px 16px 8px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);background:var(--surface);border-bottom:1px solid var(--line)}
+.rp-row + .rp-sec{padding-top:32px}
 .rp-what{display:flex;flex-direction:column;min-width:0;padding:6px 0}
 .rp-what b{font-weight:500;font-size:15px}
 .rp-c{display:flex;justify-content:center;text-align:center}
@@ -1798,7 +1800,7 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .si-dn { width: 44px; }
 .si-times { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 .si-times .inp { width: 128px; }
-.si-times select.si-time { width: 120px; text-align: center; }
+.si-times .tp-btn { width: 132px; justify-content: flex-start; }
 .si-bar { position: sticky; bottom: 0; display: flex; align-items: center; gap: 8px; justify-content: flex-end; padding: 12px 0; background: var(--surface); border-top: 1px solid var(--line); }
 .si-bar .cap { margin-right: auto; }
 .si-top { display: flex; align-items: center; gap: 12px; }
@@ -1814,7 +1816,7 @@ body:has(.faces .scrim) .clock-qr { display: none; }
   .card.si-grid, .si-two { grid-template-columns: 1fr; }
   .si-day { flex-wrap: wrap; gap: 8px 12px; padding: 8px 0; }
   .si-times { width: 100%; margin-left: 0; }
-  .si-times .inp { width: auto; flex: 1; min-width: 0; }
+  .si-times .inp, .si-times .tp-btn { width: auto; flex: 1; min-width: 0; }
   .si-day > .cap.si-times { width: auto; margin-left: auto; }
   .si-top .inp { max-width: none; }
   .set-lock { display: none; }

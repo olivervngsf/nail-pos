@@ -9,7 +9,7 @@ import { api } from "@/lib/api";
 import { dropQueued, syncNow } from "@/lib/offline/outbox";
 import { queueSave, withIds } from "./sync";
 import { importMenu, shrinkPhoto } from "./menuImport";
-import { Banner, Button, Segmented, SyncPill } from "@/components/kit";
+import { Banner, Button, Segmented, SyncPill, TimePicker } from "@/components/kit";
 import { usePrinter } from "@/components/PrinterSetup";
 import { pickPrinter } from "@/lib/print/bluetooth";
 import { printDoc } from "@/lib/print/print";
@@ -294,9 +294,9 @@ const SalonInfo: StepView = ({ s, set, say }) => {
               <span style={{ width: 40, fontWeight: 600 }}>{h.day}</span>
               <button type="button" className={`sw ${h.on ? "on" : ""}`} role="switch" aria-checked={h.on} aria-label={`${h.day} open`} onClick={() => upd({ on: !h.on })} />
               {h.on ? <>
-                <TimeSelect label={`${h.day} opens`} value={h.open} onChange={(v) => upd({ open: v })} />
+                <TimePicker className="tm" label={`${h.day} opens`} value={h.open} bad={bad} onChange={(v) => upd({ open: v })} />
                 <span className="cap">to</span>
-                <TimeSelect label={`${h.day} closes`} value={h.close} onChange={(v) => upd({ close: v })} />
+                <TimePicker className="tm" label={`${h.day} closes`} value={h.close} min={h.open} bad={bad} onChange={(v) => upd({ close: v })} />
                 {bad ? <span className="hint err" style={{ margin: 0 }}>Closes before it opens</span> : <span className="cap hl">{fmtHours(h)}</span>}
               </> : <span className="cap">Closed</span>}
             </div>
@@ -401,18 +401,6 @@ const Services: StepView = ({ s, set, say, next }) => {
     {s.svcWay === "tpl" && <div className="cap">Starts with manicure, pedicure, gel, acrylic, dip and waxing. Then edit prices.</div>}
   </>];
 };
-
-const TIMES = Array.from({ length: (23 - 5) * 4 + 1 }, (_, i) => {
-  const m = 5 * 60 + i * 15;
-  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-});
-function TimeSelect({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  return (
-    <select className="inp tm" aria-label={label} value={value} onChange={(e) => onChange(e.target.value)}>
-      {TIMES.map((t) => <option key={t} value={t}>{fmtTime(t)}</option>)}
-    </select>
-  );
-}
 
 let pendingPhoto: { image: string; mediaType: string } | null = null;
 function PhotoPick() {
