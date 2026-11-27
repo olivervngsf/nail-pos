@@ -1114,8 +1114,11 @@
     "pointsEarned": "+{n} {unit} today.",
     "pointsBalance": "You have {n} {unit}.",
     "rewardReady": "Your {amt} reward is ready next visit.",
-    "pts": "points",
-    "visits": "visits"
+    "pts": "{n, plural, one {point} other {points}}",
+    "visits": "{n, plural, one {visit} other {visits}}",
+    "bookAgain": "Book again",
+    "directions": "Directions",
+    "visit": "See our photos, services + team"
   },
   "slip": {
     "ticket": "Ticket #{n}",
