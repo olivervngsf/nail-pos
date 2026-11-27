@@ -2213,3 +2213,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .si-row > span.si-btn { display: none; }
   .si-ht { width: 96px; }
 }
+/* Digital receipt (/r/<code>): ways back to the salon after paying (Book again, Directions, see the salon). */
+.rc-next { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+.rc-next .btn { height: 48px; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.rc-visit { display: block; text-align: center; text-decoration: none; margin: 0 auto; }
