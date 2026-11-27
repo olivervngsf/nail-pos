@@ -2146,6 +2146,13 @@
         "boss": "Owner + managers",
         "desk": "Front desk",
         "tech": "Techs"
+      },
+      "sortBy": "Sort",
+      "sort": {
+        "role": "By role",
+        "az": "Name A → Z",
+        "za": "Name Z → A",
+        "status": "Needs attention first"
       }
     },
     "m": {

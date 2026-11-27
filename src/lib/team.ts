@@ -81,6 +81,18 @@ export function statusTone(st: ReturnType<typeof memberStatus>, m: Pick<Member, 
 
 /** Role groups for the list, in this order. */
 export const TEAM_GROUPS = ["boss", "desk", "tech"] as const;
+/** How the owner orders the Team list (saved per device): by role (grouped), name A→Z / Z→A, or who needs attention first. */
+export const TEAM_SORTS = ["role", "az", "za", "status"] as const;
+export type TeamSort = (typeof TEAM_SORTS)[number];
+const STATUS_ORDER = ["in", "license", "locked", "noPin", "invited", "out"] as const;
+export function sortTeam(list: Member[], sort: TeamSort, today = new Date()): Member[] {
+  const byName = (a: Member, b: Member) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+  const out = [...list];
+  if (sort === "az") return out.sort(byName);
+  if (sort === "za") return out.sort((a, b) => byName(b, a));
+  if (sort === "status") return out.sort((a, b) => STATUS_ORDER.indexOf(memberStatus(a, today)) - STATUS_ORDER.indexOf(memberStatus(b, today)) || byName(a, b));
+  return out;
+}
 export type TeamGroup = (typeof TEAM_GROUPS)[number];
 export const groupOf = (r: Role): TeamGroup => (r === "owner" || r === "manager" ? "boss" : r === "front_desk" ? "desk" : "tech");
 
