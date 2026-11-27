@@ -2395,3 +2395,15 @@ button.tm-tile:hover { border-color: var(--line); }
   .tm-act { margin-left: 44px; order: 9; }
   .tm-go { display: none; }
 }
+
+/* Staff join · done screen (Nov 27): centred check + title, then "what's next" rows (icon · bold line · grey line). */
+.jn-done { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 12px 0 8px; }
+.jn-done .okmark { margin-bottom: 8px; }
+.jn-done .h2 { margin: 0; }
+.jn-next { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 4px 16px; }
+.jn-row { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; }
+.jn-row + .jn-row { border-top: 1px solid var(--line); }
+.jn-row b { display: block; font-weight: 600; line-height: 22px; }
+.jn-row .cap { line-height: 20px; margin-top: 2px; }
+.jn-ic { width: 32px; height: 32px; border-radius: 50%; background: var(--fill); color: var(--ink); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex: none; letter-spacing: -1px; }
+.jn-foot { text-align: center; }

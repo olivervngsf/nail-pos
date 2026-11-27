@@ -6,6 +6,8 @@ import { pinProblem } from "@/lib/pin";
 import PhoneCodeLogin from "@/components/PhoneCodeLogin";
 import { ROLE_LABEL, SMS_ON, myMemberships, rpc, type Role } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase/client";
+import { DrawCheck } from "@/components/kit";
+import type { PhoneRule } from "@/lib/clockrule";
 
 type Invite = { code: string; name: string; role: string; salon: string; owner: string };
 type JoinState = {
@@ -24,7 +26,10 @@ const T = {
     weak: "Too easy to guess. Try another.", nomatch: "Didn't match. Start again.",
     photo: "Add your photo", photoCap: "Clients and the front desk see it on the calendar. You can change it any time.",
     take: "Take a photo", lib: "Choose from library", skip: "Skip",
-    set: (n: string) => `You're all set, ${n}`, clockHow: "How to clock in", clockWhere: "At the salon: this phone, or the front desk iPad with your PIN",
+    set: (n: string) => `You're all set, ${n}`, clockHow: "Clock in at the salon",
+    clockWhere: { off: "Tap your face on the time clock or front desk, then type your PIN.", qr: "Scan the QR on the salon's time clock with this phone. Or use your PIN at the front desk.", wifi: "On the salon Wi-Fi, clock in from this phone. Or use your PIN at the front desk.", qr_or_wifi: "Scan the QR on the time clock, or use the salon Wi-Fi on this phone. Or use your PIN at the front desk." },
+    pinHow: "Keep your PIN to yourself", pinWhere: "It's how the salon knows it's you: clock in, your tickets, your earnings.",
+    homeHow: "Your schedule and earnings", homeWhere: "On this phone any time at polishosapp.com/t",
     nothing: "Nothing else to do now. You can close this and come back any time.", home: "Open my Home",
     hi: (n: string) => `Hi ${n}`, clockIn: "Clock in", clocked: "Clocked in", earn: "Today's earnings", clients: "My clients today", me: "My photo · language · PIN",
     clockNote: "Clock-in works at the salon only (salon Wi-Fi or location).",
@@ -38,7 +43,10 @@ const T = {
     weak: "Dễ đoán quá. Thử số khác.", nomatch: "Không khớp. Làm lại.",
     photo: "Thêm ảnh của bạn", photoCap: "Khách và quầy thấy ảnh trên lịch. Đổi lúc nào cũng được.",
     take: "Chụp ảnh", lib: "Chọn từ thư viện", skip: "Bỏ qua",
-    set: (n: string) => `Xong rồi, ${n}`, clockHow: "Cách chấm công", clockWhere: "Tại tiệm: điện thoại này, hoặc iPad ở quầy với mã PIN",
+    set: (n: string) => `Xong rồi, ${n}`, clockHow: "Chấm công tại tiệm",
+    clockWhere: { off: "Chọn mặt của bạn trên máy chấm công hoặc ở quầy, rồi nhập mã PIN.", qr: "Dùng điện thoại này quét mã QR trên máy chấm công. Hoặc nhập PIN ở quầy.", wifi: "Khi dùng Wi-Fi của tiệm, chấm công ngay trên điện thoại này. Hoặc nhập PIN ở quầy.", qr_or_wifi: "Quét QR trên máy chấm công, hoặc dùng Wi-Fi tiệm trên điện thoại này. Hoặc nhập PIN ở quầy." },
+    pinHow: "Giữ mã PIN cho riêng bạn", pinWhere: "Tiệm biết là bạn nhờ mã này: chấm công, phiếu của bạn, thu nhập của bạn.",
+    homeHow: "Lịch và thu nhập của bạn", homeWhere: "Trên điện thoại này, bất cứ lúc nào tại polishosapp.com/t",
     nothing: "Không cần làm gì thêm. Bạn có thể đóng và quay lại bất cứ lúc nào.", home: "Mở trang chính",
     hi: (n: string) => `Chào ${n}`, clockIn: "Chấm công vào", clocked: "Đã chấm công", earn: "Thu nhập hôm nay", clients: "Khách của tôi hôm nay", me: "Ảnh · ngôn ngữ · PIN",
     clockNote: "Chỉ chấm công được khi ở tiệm (Wi-Fi hoặc vị trí tiệm).",
@@ -89,6 +97,12 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
   const [err, setErr] = useState("");
   const t = T[s.lang];
   const first = invite.name.split(" ")[0] || invite.name;
+  // How this salon clocks in (Settings → Clock-in): say the real way, never "this phone" when phones are off.
+  const [rule, setRule] = useState<PhoneRule>("off");
+  useEffect(() => {
+    if (!SMS_ON || s.step !== "done" || !s.salonId) return;
+    void rpc<{ phone?: PhoneRule } | null>("clock_rules_get", { p_salon: s.salonId }).then((r) => { if (r?.phone) setRule(r.phone); }).catch(() => {});
+  }, [s.step, s.salonId]);
   const go = (step: JoinState["step"]) => { setS((p) => ({ ...p, step })); window.scrollTo(0, 0); };
 
   if (!ready) return <div className="phone" aria-busy="true" />;
@@ -195,12 +209,18 @@ export default function StaffJoin({ invite: linkInvite }: { invite: Invite }) {
       </Shell>;
     case "done":
       return <Shell t={t} step={s.step} go={go} title="PolishOS">
-        <div className="okmark" style={{ alignSelf: "center" }}>✓</div>
-        <h1 className="h2" style={{ textAlign: "center" }}>{t.set(first)}</h1>
-        <div className="cap lead" style={{ textAlign: "center" }}>{invite.salon} · {invite.role} · {s.lang}</div>
-        <div className="group"><div className="row m"><span className="g"><span className="cap">{t.clockHow}</span><b style={{ fontWeight: 600 }}>{t.clockWhere}</b></span></div></div>
-        <div className="cap">{t.nothing}</div>
+        <div className="jn-done">
+          <div className="okmark lg glow"><DrawCheck size={36} /></div>
+          <h1 className="h2">{t.set(first)}</h1>
+          <div className="cap lead">{invite.salon} · {invite.role}</div>
+        </div>
+        <div className="jn-next" data-testid="join-next">
+          <div className="jn-row"><span className="jn-ic" aria-hidden>◷</span><div><b>{t.clockHow}</b><div className="cap">{t.clockWhere[rule]}</div></div></div>
+          <div className="jn-row"><span className="jn-ic" aria-hidden>•••</span><div><b>{t.pinHow}</b><div className="cap">{t.pinWhere}</div></div></div>
+          <div className="jn-row"><span className="jn-ic" aria-hidden>$</span><div><b>{t.homeHow}</b><div className="cap">{t.homeWhere}</div></div></div>
+        </div>
         <button className="btn primary block" type="button" onClick={() => (SMS_ON ? router.push("/t") : go("home"))}>{t.home}</button>
+        <div className="cap jn-foot">{t.nothing}</div>
       </Shell>;
     case "home":
       return <Shell t={t} step={s.step} go={go} title={t.tabs[0]} tabs>
