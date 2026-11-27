@@ -69,3 +69,27 @@ export function savePayload(salonId: string, x: Member, withPay: boolean) {
       hourlyCents: x.hourlyCents == null ? "" : String(x.hourlyCents), checkPct: String(x.checkPct) } : {}),
   };
 }
+
+/** Status → icon tone (never colour alone: the row always shows the word too). Out = no icon. */
+export function statusTone(st: ReturnType<typeof memberStatus>, m: Pick<Member, "licenseExpires">, today = new Date()): "good" | "watch" | "bad" | null {
+  if (st === "in") return "good";
+  if (st === "locked") return "bad";
+  if (st === "license") { const d = licenseDaysLeft(m, today); return d !== null && d <= 7 ? "bad" : "watch"; }
+  if (st === "invited" || st === "noPin") return "watch";
+  return null;
+}
+
+/** Role groups for the list, in this order. */
+export const TEAM_GROUPS = ["boss", "desk", "tech"] as const;
+export type TeamGroup = (typeof TEAM_GROUPS)[number];
+export const groupOf = (r: Role): TeamGroup => (r === "owner" || r === "manager" ? "boss" : r === "front_desk" ? "desk" : "tech");
+
+/** "9:02 AM" today, "Mon 6:10 PM" this week, else "Nov 3". */
+export function clockWhen(iso: string | null, now = new Date()): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  if (d.toDateString() === now.toDateString()) return time;
+  if (now.getTime() - d.getTime() < 6 * 86_400_000) return `${d.toLocaleDateString("en-US", { weekday: "short" })} ${time}`;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}

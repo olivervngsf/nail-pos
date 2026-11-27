@@ -2103,7 +2103,7 @@
       "add": "+ Add member",
       "people": "team",
       "inNow": "in now",
-      "invited": "invite open",
+      "invited": "haven't joined",
       "licenseDue": "license due",
       "search": "Search name or phone",
       "none": "Nobody here.",
@@ -2115,7 +2115,7 @@
         "nopin": "No PIN"
       },
       "st": {
-        "invited": "Invited",
+        "invited": "Hasn't joined yet",
         "noPin": "No PIN yet",
         "locked": "PIN locked",
         "license": "License · {d} days",
@@ -2125,7 +2125,20 @@
       "saved": "Saved",
       "addedInvite": "{name} added. Invite link ready: send it to their phone.",
       "inviteTexted": "Invite texted to {name}.",
-      "inviteNotTexted": "Invite not texted: {why} Copy the link instead (open their name)."
+      "inviteNotTexted": "Invite not texted: {why} Copy the link instead (open their name).",
+      "since": "since {t}",
+      "last": "last in {t}",
+      "tile": {
+        "in": "in now",
+        "invited": "haven't joined",
+        "nopin": "no PIN yet",
+        "license": "license due"
+      },
+      "g": {
+        "boss": "Owner + managers",
+        "desk": "Front desk",
+        "tech": "Techs"
+      }
     },
     "m": {
       "name": "Name",
