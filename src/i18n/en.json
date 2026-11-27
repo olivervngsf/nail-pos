@@ -1951,7 +1951,15 @@
     "sizeHint": "Bigger text on this device only. Other devices keep their own size.",
     "signInHint": "Your phone number always works. An email or password is a second way in; 2-step adds a code from an app.",
     "signInsShort": "My sign-ins",
-    "signInsSub": "Phones + computers"
+    "signInsSub": "Phones + computers",
+    "signInSecurity": "Sign in + security",
+    "pinIsSet": "Your PIN is set",
+    "pinLength": "Length",
+    "pinDigits": "{n} digits",
+    "pinWhoSets": "Who sets it",
+    "pinRulesOwner": "Owner · PIN rules",
+    "pinForgotH": "Forgot it?",
+    "pinForgot": "The owner or a manager can make you a new one in Settings → Team, or text you a PIN link."
   },
   "faces": {
     "gone": "This device was removed from the salon. Set it up again to use PINs here.",
@@ -2625,7 +2633,8 @@
       "slipRow": "What the staff slip prints",
       "slipSub": "Every ticket, tips, check vs cash, signature line",
       "openSheet": "Open payout sheet"
-    }
+    },
+    "searchBack": "Search"
   },
   "promo": {
     "title": "Send promo text",

@@ -29,6 +29,9 @@ export type Access = { salonId: string; salonName: string; role: Role; owner: bo
 const GROUPS = ["me", "salon", "team", "pay", "clients", "money", "safety"] as const;
 const NAV = [
   { href: "/me", key: "profile", group: "me", who: "all" },
+  { href: "/me/pin", key: "pin", group: "me", who: "all" },
+  { href: "/me/language", key: "language", group: "me", who: "all" },
+  { href: "/me/text-size", key: "textSize", group: "me", who: "all" },
   { href: "/settings/salon", key: "salon", group: "salon", who: "admin" },
   { href: "/settings/business", key: "business", group: "salon", who: "admin" },
   { href: "/settings/menu", key: "menu", group: "salon", who: "admin" },
@@ -121,19 +124,24 @@ export function SettingsNav({ role, q = "" }: { role: Role; q?: string }) {
 }
 
 const BACK = "nailpos.setBack";
+/** The words in Settings search, kept while Settings is open: a page opened from a search result goes ‹ Search,
+ *  back to the same results (Apple's rule). Cleared when the box is emptied or Settings closes. */
+const SEARCH = "nailpos.setQ";
+const readQ = () => { try { return sessionStorage.getItem(SEARCH) ?? ""; } catch { return ""; } };
+const keepQ = (q: string) => { try { if (q.trim()) sessionStorage.setItem(SEARCH, q); else sessionStorage.removeItem(SEARCH); } catch { /* private mode */ } };
 /** Remember the screen Settings was opened from, so X closes back to it. */
 export function rememberSettingsBack(path: string) { try { if (!path.startsWith("/settings") && path !== "/me" && !path.startsWith("/me/")) sessionStorage.setItem(BACK, path); } catch { /* private mode */ } }
 
 /** Where a page's ✓ Save goes: the page header (all sizes). Pages render <SaveCheck> and it lands here. */
 export const SAVE_SLOT = "set-save-slot";
 
-/** Phones + tablets list (board "Settings like Claude · Tablet", frame 1): 3 groups, 13 rows. Each row in "Running the
+/** Phones + tablets list (board "Settings Map + Back Rules", After 1): 3 groups, 12 rows. One home per setting:
+ *  your name card at the top IS Profile (no extra row); PIN, Language + Text size live here only, not on Profile. Each row in "Running the
  *  salon" opens a short list of its pages (/settings/more/<group>); Business details sits on Salon info. Search = every page. */
 type LRow = { key: string; href: string; who: Who; label?: string; icon?: string };
 const HUB_ICON: Record<string, string> = { team: "team", pay: "payments", clients: "bookingPage", money: "payouts", safety: "activity" };
 const HUBS = ["team", "pay", "clients", "money", "safety"] as const;
 const ME_ROWS: LRow[] = [
-  { key: "profile", href: "/me", who: "all", label: "list.profile" },
   { key: "pin", href: "/me/pin", who: "all" }, { key: "language", href: "/me/language", who: "all" }, { key: "textSize", href: "/me/text-size", who: "all" },
 ];
 const SALON_ROWS: LRow[] = [
@@ -225,7 +233,7 @@ function SettingsList({ role, q }: { role: Role; q: string }) {
   const words = q.trim().toLowerCase();
   const name = (r: LRow) => t(r.label ?? `nav.${r.key}`);
   const groups: { g: string; rows: { key: string; href: string; name: string; icon?: string }[] }[] = words
-    ? [{ g: "", rows: [...ME_ROWS.map((r) => ({ ...r, name: name(r) })), ...NAV.filter((n) => n.href !== "/me" && canOpen(n.who, role, n.group, perms)).map((n) => ({ key: n.key, href: n.href, name: t(`nav.${n.key}`) }))]
+    ? [{ g: "", rows: [...ME_ROWS.map((r) => ({ ...r, name: name(r) })), ...NAV.filter((n) => !ME_ROWS.some((r) => r.href === n.href) && canOpen(n.who, role, n.group, perms)).map((n) => ({ key: n.key, href: n.href, name: t(`nav.${n.key}`) }))]
         .filter((r) => r.name.toLowerCase().includes(words)) }]
     : [
         { g: "me", rows: ME_ROWS.filter((r) => canOpen(r.who, role)).map((r) => ({ ...r, name: name(r) })) },
@@ -296,8 +304,10 @@ export function SettingsWindow({ role, title, actions, home, back, children }: {
 }) {
   const t = useTranslations("settings");
   const router = useRouter();
-  const [q, setQ] = useState("");
-  const close = () => { let to = "/today"; try { to = sessionStorage.getItem(BACK) || to; } catch { /* */ } router.push(to); };
+  const [q, setQRaw] = useState("");
+  useEffect(() => { setQRaw(readQ()); }, []);
+  const setQ = (v: string) => { setQRaw(v); keepQ(v); };
+  const close = () => { let to = "/today"; try { to = sessionStorage.getItem(BACK) || to; } catch { /* */ } keepQ(""); router.push(to); };
   useEffect(() => {
     const esc = (e: KeyboardEvent) => { // Esc closes the window only when nothing smaller is open (a drawer, sheet, menu or popover closes first).
       if (e.key === "Escape" && window.innerWidth >= 900 && !document.querySelector(".drawer, .sheet, .scrim, [role=menu], [data-testid=credit-pop], [aria-expanded=true]")) close(); };
@@ -305,11 +315,13 @@ export function SettingsWindow({ role, title, actions, home, back, children }: {
     window.addEventListener("keydown", esc, true);
     return () => window.removeEventListener("keydown", esc, true);
   });
-  const backTo = back ?? { href: "/settings", label: t("title") };
+  // Back goes up one step and says where: ‹ Search (opened from a search result), else the parent page, else ‹ Settings.
+  const fromSearch = !home && !!q.trim();
+  const backTo = fromSearch ? { href: "/settings", label: t("searchBack") } : back ?? { href: "/settings", label: t("title") };
   return (
     <>
       <div className="set-scrim" aria-hidden onClick={close} />
-      <section className={`set-win${home ? " is-home" : " is-page"}${back ? " is-deep" : ""}`} role="dialog" aria-label={t("title")}>
+      <section className={`set-win${home ? " is-home" : " is-page"}${back && !fromSearch ? " is-deep" : ""}`} role="dialog" aria-label={t("title")}>
         <div className="set-win-h">
           <Button variant="ghost" size="sm" className="set-x" aria-label={t("close")} onClick={close} data-testid="settings-close">✕</Button>
           <span>{t("title")}</span>

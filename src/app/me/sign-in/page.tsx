@@ -13,7 +13,7 @@ export default function Page() {
   const { me, isDevice } = useMe();
   const vi = lang === "vi";
   return (
-    <MeSub title={t("signInShort")}>
+    <MeSub title={t("signInShort")} parent="profile">
       <div>
         <section className="card pad" style={{ gap: 12 }}>
           <SignInEmail vi={vi} />

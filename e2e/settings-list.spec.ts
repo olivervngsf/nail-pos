@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 // A small red PNG for the photo upload.
 const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAIAAAADnC86AAAAMElEQVR4nO3NAQ0AAAQAMOTSP4UwYtjsL/Cc7rhQJ6tYLBaLxWKxWCwWi8VisfhpvCLkAaTnZDPmAAAAAElFTkSuQmCC", "base64");
 
-test("profile: photo upload, name saved with ✓, language picker", async ({ page }) => {
+test("profile: photo upload, name saved with ✓; language picker lives on the Settings list", async ({ page }, info) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/me");
@@ -21,14 +21,19 @@ test("profile: photo upload, name saved with ✓, language picker", async ({ pag
   await expect(check).toBeEnabled();
   await check.click();
   await expect(check).toBeDisabled();
-  // Language: a picker page with a ✓, back to Profile
-  await page.getByTestId("me-language").click();
-  await expect(page).toHaveURL(/\/me\/language$/);
+  // One home per setting: Language, Text size, PIN + Sign out are not on Profile any more
+  await expect(page.getByTestId("me-language")).toHaveCount(0);
+  await expect(page.getByTestId("my-sign-in")).toBeVisible();
+  // Language: a picker page with a ✓; Back goes to the Settings list (phones + tablets)
+  await page.goto("/me/language");
   await page.getByTestId("lang-vi").click();
   await expect(page.getByTestId("lang-vi")).toHaveAttribute("aria-checked", "true");
   await page.getByTestId("lang-en").click();
-  await page.getByTestId("bar-back").click();
-  await expect(page).toHaveURL(/\/me$/);
+  if (info.project.name !== "desktop") {
+    await page.getByTestId("bar-back").click();
+    await expect(page).toHaveURL(/\/settings$/);
+  }
+  await page.goto("/me");
   // photo removed → initials again
   await page.getByTestId("photo-remove").click();
   await expect(page.locator(".me-av img")).toHaveCount(0);
@@ -56,7 +61,7 @@ test("phones + tablets: Settings is a list with values; a row opens its page", a
   await expect(page.getByTestId("row-pin")).toContainText("digit");
   await expect(page.getByTestId("row-devices")).toContainText("2 of 3 on");
   await expect(page.getByTestId("row-team")).toContainText("people");
-  await expect(page.locator(".set-lrow")).toHaveCount(13); // the board's list: 4 + 4 + 5
+  await expect(page.locator(".set-lrow")).toHaveCount(12); // board "Settings Map + Back Rules": 3 + 4 + 5 (the name card is Profile)
   // full screen: the left / bottom menu sits under Settings (never on top of it)
   const onTop = await page.evaluate(() => [[10, 300], [innerWidth / 2, innerHeight - 10]].some(([x, y]) => !!document.elementFromPoint(x, y)?.closest(".rail")));
   expect(onTop).toBe(false);
