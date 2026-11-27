@@ -14,7 +14,7 @@ import {
   LEVELS, OK_PERMS, SET_PERMS, applyLevel, cachedPerms, can, diffFromDefaults, levelOf, storePerms,
   type EditRole, type Level, type Perm, type RolePerms,
 } from "@/lib/roles";
-import SettingsShell, { type Access } from "../SettingsShell";
+import SettingsShell, { SaveCheck, type Access } from "../SettingsShell";
 
 export default function RolesPage() {
   const t = useTranslations("settings");
@@ -167,13 +167,15 @@ function Form({ a }: { a: Access }) {
           "Ô tắt = người có quyền (bạn hoặc quản lý) nhập PIN để duyệt. Mọi lần duyệt đều lưu trong Nhật ký hoạt động.")}</li>
       </ul>
 
-      <div className="si-bar rp-bar">
+      {/* In short (Nov 27): a calm card under the grid, not a floating bar; Save = ✓ in the header like every Settings page. */}
+      <section className="card rp-sum">
+        <span className="eyebrow">{T("In short", "Tóm lại")}</span>
         <span className="rp-short" data-testid="roles-short">
           {ROLES.map((r) => <span key={r}><b>{roleName(r)}</b> {short(r)}</span>)}
         </span>
-        <Button variant="ghost" disabled={busy || !Object.keys(clean).length} onClick={() => setDraft({})} data-testid="roles-reset">{T("Back to default", "Về mặc định")}</Button>
-        <Button variant="primary" disabled={busy || !changed} onClick={() => void save()} data-testid="roles-save">{busy ? T("Saving…", "Đang lưu…") : changed ? T("Save", "Lưu") : T("Saved", "Đã lưu")}</Button>
-      </div>
+        <Button variant="ghost" size="sm" disabled={busy || !Object.keys(clean).length} onClick={() => setDraft({})} data-testid="roles-reset">{T("Back to default", "Về mặc định")}</Button>
+      </section>
+      <SaveCheck dirty={changed} busy={busy} onSave={() => void save()} onUndo={() => setDraft(saved)} testId="roles-save" />
       {toast && <Toast>{toast}</Toast>}
     </div>
   );
