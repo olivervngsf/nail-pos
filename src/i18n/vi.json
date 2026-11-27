@@ -1937,7 +1937,9 @@
     "photoBad": "Chọn một tấm ảnh (JPG hoặc PNG).",
     "langHint": "Đổi ngay màn hình của thiết bị này. Khách luôn thấy ngôn ngữ của họ trên hoá đơn và trang đặt lịch.",
     "sizeHint": "Chữ to hơn chỉ trên thiết bị này. Thiết bị khác giữ cỡ chữ riêng.",
-    "signInHint": "Số điện thoại luôn dùng được. Email hoặc mật khẩu là cách thứ hai; 2 bước thêm một mã từ ứng dụng."
+    "signInHint": "Số điện thoại luôn dùng được. Email hoặc mật khẩu là cách thứ hai; 2 bước thêm một mã từ ứng dụng.",
+    "signInsShort": "Đăng nhập của tôi",
+    "signInsSub": "Điện thoại + máy tính"
   },
   "faces": {
     "gone": "Máy này đã bị gỡ khỏi tiệm. Cài lại để dùng mã PIN ở đây.",
@@ -3059,6 +3061,11 @@
     "items": [
       {
         "date": "26/11",
+        "title": "Đăng nhập của tôi",
+        "body": "Hồ sơ → Đăng nhập của tôi: mọi điện thoại và máy tính bạn đang đăng nhập. Đăng xuất điện thoại bị mất từ máy khác."
+      },
+      {
+        "date": "26/11",
         "title": "Bảng giờ làm",
         "body": "Cài đặt → Bảng giờ làm: ai đang làm, giờ làm theo ngày và tuần, nghỉ ăn trễ và tăng ca. Sửa giờ ra bị thiếu kèm lý do; giờ cũ vẫn được lưu."
       },
@@ -3182,5 +3189,42 @@
     "noteLabel": "Ghi chú (không bắt buộc)",
     "notePh": "vd: về lúc 6:30, đã báo quầy",
     "fixNote": "{name} thấy được lần sửa này. Lưu kèm tên bạn và lý do."
+  },
+  "signins": {
+    "title": "Đăng nhập của tôi",
+    "intro": "Mọi điện thoại, máy tính và app mà <b>bạn</b> đang đăng nhập. Mất điện thoại? Đăng xuất nó ở đây từ máy khác.",
+    "deviceTitle": "Đây là máy của tiệm",
+    "deviceBody": "Máy của tiệm được quản lý ở Cài đặt → Thiết bị. Hãy khoá thay vì đăng xuất.",
+    "errTitle": "Không làm được",
+    "outOne": "Đã đăng xuất {name}",
+    "outAll": "{n, plural, other {Đã đăng xuất # máy khác}}",
+    "outNote": "Máy đó phải đăng nhập lại mới mở được PolishOS. Màn hình đang mở sẽ đóng trong vòng 1 giờ.",
+    "thisDevice": "Máy này",
+    "notUsed": "Không dùng {n} ngày",
+    "withTwoStep": "Đăng nhập với 2 bước",
+    "withCode": "Đăng nhập bằng mã hoặc mật khẩu",
+    "network": "Mạng {ip}",
+    "working": "Đang làm…",
+    "signOut": "Đăng xuất",
+    "none": "Chỉ máy này đang đăng nhập.",
+    "outAllBtn": "{n, plural, other {Đăng xuất # máy khác}}",
+    "allSure": "{n, plural, other {Đăng xuất # máy khác? Máy này vẫn đăng nhập.}}",
+    "cancel": "Huỷ",
+    "allYes": "Đăng xuất",
+    "twoOn": "Đăng nhập 2 bước đang bật",
+    "twoOnSub": "Máy mới cần mã 6 số từ app xác thực của bạn.",
+    "twoOff": "Đăng nhập 2 bước đang tắt",
+    "twoOffSub": "Bật lên để người lấy được mật khẩu cũng không mở được tiệm.",
+    "change": "Đổi",
+    "turnOn": "Bật",
+    "recent": "Đăng nhập · 30 ngày qua",
+    "othersLine": "Máy khác ({what})",
+    "noHistory": "Không có gì trong 30 ngày qua.",
+    "what": {
+      "signed_in": "Đăng nhập",
+      "signed_out": "Đăng xuất",
+      "signed_out_others": "Đăng xuất"
+    },
+    "footer": "Máy của tiệm (iPad) được quản lý ở Cài đặt → Thiết bị. Chủ tiệm có thể chặn một người ngay ở Nhân viên → Lưu trữ."
   }
 }

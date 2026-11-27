@@ -1937,7 +1937,9 @@
     "photoBad": "Pick a photo (JPG or PNG).",
     "langHint": "Changes this device's screens right away. Clients always see their own language on receipts and the booking page.",
     "sizeHint": "Bigger text on this device only. Other devices keep their own size.",
-    "signInHint": "Your phone number always works. An email or password is a second way in; 2-step adds a code from an app."
+    "signInHint": "Your phone number always works. An email or password is a second way in; 2-step adds a code from an app.",
+    "signInsShort": "My sign-ins",
+    "signInsSub": "Phones + computers"
   },
   "faces": {
     "gone": "This device was removed from the salon. Set it up again to use PINs here.",
@@ -3059,6 +3061,11 @@
     "items": [
       {
         "date": "Nov 26",
+        "title": "My sign-ins",
+        "body": "Profile → My sign-ins: every phone and computer where you are signed in. Sign out a lost phone from any computer."
+      },
+      {
+        "date": "Nov 26",
         "title": "Timesheet",
         "body": "Settings → Timesheet: who is clocked in now, hours per day and week, late meal breaks and overtime. Fix a missing clock-out with a reason; the old time stays on record."
       },
@@ -3182,5 +3189,42 @@
     "noteLabel": "Note (optional)",
     "notePh": "e.g. left at 6:30, told the desk",
     "fixNote": "{name} can see this fix. It is saved with your name and the reason."
+  },
+  "signins": {
+    "title": "My sign-ins",
+    "intro": "Every phone, computer and app where <b>you</b> are signed in. Lost a phone? Sign it out here from any computer.",
+    "deviceTitle": "This is a salon device",
+    "deviceBody": "Salon devices are managed in Settings → Devices. Lock it instead of signing out.",
+    "errTitle": "Couldn't do that",
+    "outOne": "Signed out {name}",
+    "outAll": "{n, plural, one {Signed out # other device} other {Signed out # other devices}}",
+    "outNote": "It can't open PolishOS again without signing in. A screen already open closes within the hour.",
+    "thisDevice": "This device",
+    "notUsed": "Not used {n} days",
+    "withTwoStep": "Signed in with 2-step",
+    "withCode": "Signed in by code or password",
+    "network": "Network {ip}",
+    "working": "Working…",
+    "signOut": "Sign out",
+    "none": "Only this device is signed in.",
+    "outAllBtn": "{n, plural, one {Sign out the other device} other {Sign out all # other devices}}",
+    "allSure": "{n, plural, one {Sign out the other device? This one stays signed in.} other {Sign out all # other devices? This one stays signed in.}}",
+    "cancel": "Cancel",
+    "allYes": "Sign them out",
+    "twoOn": "2-step login is on",
+    "twoOnSub": "A new device needs the 6-digit code from your authenticator app.",
+    "twoOff": "2-step login is off",
+    "twoOffSub": "Turn it on so a stolen password alone can't open your salon.",
+    "change": "Change",
+    "turnOn": "Turn on",
+    "recent": "Sign-ins · last 30 days",
+    "othersLine": "Other devices ({what})",
+    "noHistory": "Nothing in the last 30 days.",
+    "what": {
+      "signed_in": "Signed in",
+      "signed_out": "Signed out",
+      "signed_out_others": "Signed out"
+    },
+    "footer": "Salon devices (the iPads) are managed in Settings → Devices. The owner can cut a person off at once in Team → Archive."
   }
 }

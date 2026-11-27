@@ -2184,3 +2184,32 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .ts-who { display: flex; flex-direction: column; min-width: 0; }
 .ts-who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .set-table .dtable td, .set-table .dtable th { white-space: nowrap; }
+
+/* My sign-ins (Profile → My sign-ins; board SignIns.dc.html). */
+.si-page { display: flex; flex-direction: column; gap: 18px; }
+.si-page .me-hint { margin: 0 4px; }
+.si-all { align-self: flex-start; }
+.si-list { min-height: 56px; }
+.si-row { display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 10px 16px; }
+.si-row + .si-row { box-shadow: inset 0 1px 0 var(--line); }
+.si-ico { width: 40px; height: 40px; border-radius: 12px; background: var(--fill); color: var(--ink); display: flex; align-items: center; justify-content: center; flex: none; }
+.si-ico.ok { background: var(--jade-soft); color: #1E6E30; }
+.si-ico.warn { background: var(--orange-soft); color: #B5470A; }
+.si-g { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.si-n { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 15px; }
+.si-when { width: 96px; text-align: right; flex: none; }
+.si-btn { width: 96px; flex: none; justify-content: center; }
+.si-two { flex-direction: row; align-items: center; gap: 14px; padding: 14px 16px; }
+.si-confirm { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+.si-confirm > span { flex: 1; min-width: 180px; }
+.si-h { display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 6px 16px; font-size: 14px; }
+.si-h + .si-h { box-shadow: inset 0 1px 0 var(--line); }
+.si-ht { width: 130px; flex: none; }
+@media (max-width: 599px) {
+  .si-row { flex-wrap: wrap; row-gap: 6px; }
+  .si-row .si-g { flex: 1 1 calc(100% - 52px); }
+  .si-when { width: auto; order: 3; text-align: left; margin-left: 52px; }
+  .si-btn { order: 4; margin-left: auto; }
+  .si-row > span.si-btn { display: none; }
+  .si-ht { width: 96px; }
+}
