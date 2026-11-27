@@ -32,7 +32,11 @@ jobs:
         run: npm test
       - run: npm run build
       - name: Install browser
-        run: npx playwright install --with-deps chromium
+        # Newer runners (Ubuntu 26.04) list Microsoft's apt repo, which answers 403 for that release and
+        # stops `--with-deps` (Nov 26). We don't need anything from it, so drop it before apt runs.
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/microsoft*
+          npx playwright install --with-deps chromium
       - name: Screen tests (desktop + phone)
         run: npm run e2e
       - name: Database tests on a throwaway Postgres (every migration + salon wall, accounts, checkout, review fixes)

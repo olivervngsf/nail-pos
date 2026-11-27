@@ -23,6 +23,9 @@ import { can, useRolePerms, type Perm, type RolePerms } from "@/lib/roles";
 export type Access = { salonId: string; salonName: string; role: Role; owner: boolean; demo: boolean };
 
 // Grouped by job (Oliver, Nov 25: clearer grouping). Order inside a group = how often it's opened.
+// One rule (Oliver, Nov 27): every item here is a setting and opens INSIDE the Settings window. Work tools (Gift cards,
+// Payout sheet, Close day) live in the left menu / More → Money, never in this list; a settings page may point to one
+// only with <LeaveLink> ("Open payout sheet ↗"), which says it leaves.
 const GROUPS = ["me", "salon", "team", "pay", "clients", "money", "safety"] as const;
 const NAV = [
   { href: "/me", key: "profile", group: "me", who: "all" },
@@ -32,6 +35,7 @@ const NAV = [
   { href: "/settings/devices", key: "devices", group: "salon", who: "admin" },
   { href: "/settings/billing", key: "billing", group: "salon", who: "admin" },
   { href: "/settings/team", key: "team", group: "team", who: "admin" },
+  { href: "/settings/timesheet", key: "timesheet", group: "team", who: "admin" },
   { href: "/settings/clock-in", key: "clockIn", group: "team", who: "admin" },
   { href: "/settings/pin", key: "pinRules", group: "team", who: "admin" },
   { href: "/settings/roles", key: "roles", group: "team", who: "owner" },
@@ -43,9 +47,8 @@ const NAV = [
   { href: "/settings/reminders", key: "reminders", group: "clients", who: "admin" },
   { href: "/settings/contact", key: "contact", group: "clients", who: "admin" },
   { href: "/settings/texting", key: "texting", group: "clients", who: "admin" },
-  { href: "/loyalty", key: "loyalty", group: "clients", who: "admin" },
-  { href: "/gift-cards", key: "giftCards", group: "clients", who: "admin" },
-  { href: "/payouts", key: "payouts", group: "money", who: "admin" },
+  { href: "/settings/loyalty", key: "loyalty", group: "clients", who: "admin" },
+  { href: "/settings/pay-rules", key: "payRules", group: "money", who: "admin" },
   { href: "/settings/activity", key: "activity", group: "safety", who: "admin" },
   { href: "/settings/support", key: "support", group: "safety", who: "admin" },
 ] as const;
@@ -56,17 +59,17 @@ const ICON: Record<string, string> = {
   salon: "M3 11l9-7 9 7v9H3z", business: "M4 21V7l8-4 8 4v14M9 21v-6h6v6", menu: "M5 3h14v18H5zM9 8h6M9 12h6M9 16h4",
   devices: "M6 3h12v18H6zM11 18h2", billing: "M2 6h20v12H2zM2 10h20", support: "M12 3a9 9 0 100 18 9 9 0 000-18zM9.5 9a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17v.5",
   team: "M9 5a3.5 3.5 0 100 7 3.5 3.5 0 000-7zM2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 010 7",
-  clockIn: "M12 3a9 9 0 100 18 9 9 0 000-18zM12 7v5l3 2", pinRules: "M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 017 0v3",
+  clockIn: "M12 3a9 9 0 100 18 9 9 0 000-18zM12 7v5l3 2", timesheet: "M3 5h18v16H3zM3 10h18M8 3v4M16 3v4M8 14h3M8 17h6", pinRules: "M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 017 0v3",
   payments: "M2 6h20v12H2zM12 9.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5", reader: "M7 2h10v20H7zM10 6h4M10 18h4", tapToPay: "M6 3h12v18H6zM11 18h2M9 9c1.5-1.5 4.5-1.5 6 0M10.5 11.5c.8-.8 2.2-.8 3 0",
   printer: "M6 9V3h12v6M6 17H4v-6h16v6h-2M7 14h10v7H7z", bookingPage: "M3 5h18v16H3zM3 10h18M8 3v4M16 3v4", texting: "M4 4h16v12H8l-4 4z", reminders: "M12 3a7 7 0 00-7 7v4l-2 3h18l-2-3v-4a7 7 0 00-7-7zM10 20a2 2 0 004 0",
   contact: "M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z",
   loyalty: "M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z", giftCards: "M3 9h18v4H3zM5 13h14v8H5zM12 9v12",
   roles: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6zM9 12l2 2 4-4",
-  payouts: "M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z", activity: "M5 3h14v18H5zM9 8h6M9 12h6M9 16h4",
+  payouts: "M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z", payRules: "M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z", activity: "M5 3h14v18H5zM9 8h6M9 12h6M9 16h4",
   pin: "M5 11h14v10H5zM8 11V8a4 4 0 018 0v3M12 15v2", language: "M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
   textSize: "M4 18L9 6l5 12M6 14h6M15 18l3-7 3 7M16 15.5h4",
 };
-const NEW = new Set(["activity", "roles"]);
+const NEW = new Set(["activity", "roles", "timesheet"]);
 
 type Who = "all" | "admin" | "owner";
 /** Who may open a settings page: everyone (own profile), owner + manager, or the owner only.
@@ -329,6 +332,12 @@ export function SettingsWindow({ role, title, actions, home, back, children }: {
       </section>
     </>
   );
+}
+
+/** The one way a settings page points to a work screen outside Settings: a quiet link at the bottom that says it
+ *  leaves (↗). Following it closes the window (the work screen has no Settings frame). */
+export function LeaveLink({ href, children, testId }: { href: string; children: React.ReactNode; testId?: string }) {
+  return <Link href={href} className="set-leave" data-testid={testId}>{children}<span aria-hidden> ↗</span></Link>;
 }
 
 /** ✓ Save in the page header (Claude's pattern): grey until something changed; "Not saved · Undo" beside it while

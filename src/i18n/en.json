@@ -1114,8 +1114,11 @@
     "pointsEarned": "+{n} {unit} today.",
     "pointsBalance": "You have {n} {unit}.",
     "rewardReady": "Your {amt} reward is ready next visit.",
-    "pts": "points",
-    "visits": "visits"
+    "pts": "{n, plural, one {point} other {points}}",
+    "visits": "{n, plural, one {visit} other {visits}}",
+    "bookAgain": "Book again",
+    "directions": "Directions",
+    "visit": "See our photos, services + team"
   },
   "slip": {
     "ticket": "Ticket #{n}",
@@ -1257,7 +1260,9 @@
     "min": "{n} min",
     "hr": "{h} hr",
     "hrMin": "{h} hr {m} min",
-    "opens": "opens at {time}"
+    "opens": "opens at {time}",
+    "seeSalon": "See our photos, services + team",
+    "home": "{salon} home"
   },
   "kiosk": {
     "welcome": "Welcome to {salon}",
@@ -1800,7 +1805,14 @@
     "saved": "Saved. Every device prints this way now.",
     "needNet": "Saving needs internet.",
     "preview": "Preview",
-    "note": "Prints use plain letters (fast): Vietnamese accents print without marks. Changes apply to every device in the salon."
+    "note": "Prints use plain letters (fast): Vietnamese accents print without marks. Changes apply to every device in the salon.",
+    "devOnThis": "Bluetooth · saved on this device",
+    "devNone": "Pick it once on each device that prints",
+    "devPickTitle": "No printer yet",
+    "devPick": "Pick printer",
+    "devNotListed": "Printer not in the list?",
+    "devComputerTitle": "Computer printer",
+    "devComputer": "Prints through this computer's print window"
   },
   "credit": {
     "ringLabel": "Text credit · {money}",
@@ -1937,7 +1949,9 @@
     "photoBad": "Pick a photo (JPG or PNG).",
     "langHint": "Changes this device's screens right away. Clients always see their own language on receipts and the booking page.",
     "sizeHint": "Bigger text on this device only. Other devices keep their own size.",
-    "signInHint": "Your phone number always works. An email or password is a second way in; 2-step adds a code from an app."
+    "signInHint": "Your phone number always works. An email or password is a second way in; 2-step adds a code from an app.",
+    "signInsShort": "My sign-ins",
+    "signInsSub": "Phones + computers"
   },
   "faces": {
     "gone": "This device was removed from the salon. Set it up again to use PINs here.",
@@ -2067,7 +2081,9 @@
       "pin": "PIN",
       "language": "Language",
       "textSize": "Text size",
-      "roles": "Roles"
+      "roles": "Roles",
+      "timesheet": "Timesheet",
+      "payRules": "Pay rules"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -2087,7 +2103,7 @@
       "add": "+ Add member",
       "people": "team",
       "inNow": "in now",
-      "invited": "invite open",
+      "invited": "haven't joined",
       "licenseDue": "license due",
       "search": "Search name or phone",
       "none": "Nobody here.",
@@ -2099,7 +2115,7 @@
         "nopin": "No PIN"
       },
       "st": {
-        "invited": "Invited",
+        "invited": "Hasn't joined yet",
         "noPin": "No PIN yet",
         "locked": "PIN locked",
         "license": "License · {d} days",
@@ -2109,7 +2125,20 @@
       "saved": "Saved",
       "addedInvite": "{name} added. Invite link ready: send it to their phone.",
       "inviteTexted": "Invite texted to {name}.",
-      "inviteNotTexted": "Invite not texted: {why} Copy the link instead (open their name)."
+      "inviteNotTexted": "Invite not texted: {why} Copy the link instead (open their name).",
+      "since": "since {t}",
+      "last": "last in {t}",
+      "tile": {
+        "in": "in now",
+        "invited": "haven't joined",
+        "nopin": "no PIN yet",
+        "license": "license due"
+      },
+      "g": {
+        "boss": "Owner + managers",
+        "desk": "Front desk",
+        "tech": "Techs"
+      }
     },
     "m": {
       "name": "Name",
@@ -2168,6 +2197,7 @@
       "texting": "Texting…",
       "textDemo": "Test version: no text sent.",
       "textAgain": "Already texted this invite. Make a new link to text again.",
+      "testLinkBlocked": "This is a test site link (vercel.app): phone carriers often block texts with these links. Send invites from polishosapp.com.",
       "noPinBox": "Joined, no PIN yet",
       "textPin": "Text the PIN link",
       "copyPin": "Copy link",
@@ -2584,6 +2614,17 @@
       "stripeOk": "Stripe ✓",
       "notSet": "Not set up",
       "devicesOn": "{on} of {n} on"
+    },
+    "payRules": {
+      "intro": "How each person is paid and what their pay slip shows. The payout sheet uses these.",
+      "who": "Each person's pay",
+      "none": "No one has pay set up yet. Add it in Team.",
+      "changeOwner": "Tap a person to change their pay in Team (commission or hourly, check vs cash).",
+      "changeManager": "Only the owner can change pay. Tap a person to see them in Team.",
+      "slip": "Pay slip",
+      "slipRow": "What the staff slip prints",
+      "slipSub": "Every ticket, tips, check vs cash, signature line",
+      "openSheet": "Open payout sheet"
     }
   },
   "promo": {
@@ -3033,7 +3074,9 @@
       "support_on": "Support access turned on",
       "support_off": "Support access ended",
       "support_change": "PolishOS support changed something",
-      "roles_saved": "Roles + permissions changed"
+      "roles_saved": "Roles + permissions changed",
+      "clock_fix": "Clock time fixed",
+      "amenities_saved": "Changed what the salon offers"
     }
   },
   "picker": {
@@ -3055,6 +3098,16 @@
     "title": "What’s new",
     "sub": "The latest changes to PolishOS, newest first.",
     "items": [
+      {
+        "date": "Nov 26",
+        "title": "My sign-ins",
+        "body": "Profile → My sign-ins: every phone and computer where you are signed in. Sign out a lost phone from any computer."
+      },
+      {
+        "date": "Nov 26",
+        "title": "Timesheet",
+        "body": "Settings → Timesheet: who is clocked in now, hours per day and week, late meal breaks and overtime. Fix a missing clock-out with a reason; the old time stays on record."
+      },
       {
         "date": "Nov 26",
         "title": "Settings like Claude + profile photo",
@@ -3091,5 +3144,143 @@
         "body": "Change the salon address, hours and every service after setup, in Settings."
       }
     ]
+  },
+  "timesheet": {
+    "title": "Timesheet",
+    "view": "Show",
+    "day": "Day",
+    "week": "Week",
+    "earlier": "Earlier",
+    "later": "Later",
+    "today": "Today",
+    "print": "Print",
+    "csv": "Download CSV",
+    "fixTitle": "{n, plural, one {# clock-out is missing} other {# clock-outs are missing}}",
+    "fixBody": "{name} never clocked out on {day}. Add the real time so their hours are right.",
+    "fixTime": "Fix time",
+    "tile": {
+      "inNow": "In now",
+      "inNowSub": "clocked in right now",
+      "hours": "Hours",
+      "hoursDay": "worked this day",
+      "hoursWeek": "worked this week",
+      "meal": "Late meal break",
+      "mealSub": "no 30-min break before the 5th hour",
+      "ot": "Overtime",
+      "otSub": "over 8h a day or 40h a week"
+    },
+    "person": "Person",
+    "inOut": "In → out",
+    "break": "Break",
+    "hours": "Hours",
+    "now": "Now",
+    "notIn": "Not in",
+    "refusedAt": "Clock-in refused {time} (not at the salon)",
+    "mealLate": "No meal break before the 5th hour",
+    "total": "Total",
+    "flags": "Check",
+    "flag": {
+      "fix": "Fix",
+      "ot": "Overtime",
+      "meal": "Meal break",
+      "ok": "OK"
+    },
+    "state": {
+      "fix": "Needs fix",
+      "in": "In",
+      "out": "Out",
+      "refused": "Refused",
+      "off": "Off"
+    },
+    "note": "Facts from the time clock, not payroll. California: overtime after 8h a day or 40h a week; a 30-min meal break before the 5th hour. Every fix keeps the old time with who and why.",
+    "in": "In",
+    "out": "Out",
+    "stillIn": "Still in",
+    "missing": "Missing",
+    "wasAt": "Was {time} · fixed by {by}",
+    "addedBy": "Added by {by}",
+    "fix": "Fix",
+    "add": "Add",
+    "via": {
+      "device": "Salon device",
+      "phone": "Own phone",
+      "fix": "Added by hand",
+      "pin": "Salon device"
+    },
+    "noPunches": "No clock in or out in these days.",
+    "drawerNote": "Fix a time or add a missing one. The old time stays on record and shows in the Activity log.",
+    "fixTitleOne": "Fix {name}'s time",
+    "addTitle": "Add {name}'s missing time",
+    "cancel": "Cancel",
+    "saveFix": "Save fix",
+    "saving": "Saving…",
+    "realTime": "Real time",
+    "inTime": "Real clock-in time",
+    "outTime": "Real clock-out time",
+    "future": "That time hasn't happened yet.",
+    "why": "Why",
+    "reason": {
+      "forgot": "Forgot",
+      "device_off": "Device was off",
+      "wrong_person": "Wrong person",
+      "other": "Other"
+    },
+    "noteLabel": "Note (optional)",
+    "notePh": "e.g. left at 6:30, told the desk",
+    "fixNote": "{name} can see this fix. It is saved with your name and the reason."
+  },
+  "signins": {
+    "title": "My sign-ins",
+    "intro": "Every phone, computer and app where <b>you</b> are signed in. Lost a phone? Sign it out here from any computer.",
+    "deviceTitle": "This is a salon device",
+    "deviceBody": "Salon devices are managed in Settings → Devices. Lock it instead of signing out.",
+    "errTitle": "Couldn't do that",
+    "outOne": "Signed out {name}",
+    "outAll": "{n, plural, one {Signed out # other device} other {Signed out # other devices}}",
+    "outNote": "It can't open PolishOS again without signing in. A screen already open closes within the hour.",
+    "thisDevice": "This device",
+    "notUsed": "Not used {n} days",
+    "withTwoStep": "Signed in with 2-step",
+    "withCode": "Signed in by code or password",
+    "network": "Network {ip}",
+    "working": "Working…",
+    "signOut": "Sign out",
+    "none": "Only this device is signed in.",
+    "outAllBtn": "{n, plural, one {Sign out the other device} other {Sign out all # other devices}}",
+    "allSure": "{n, plural, one {Sign out the other device? This one stays signed in.} other {Sign out all # other devices? This one stays signed in.}}",
+    "cancel": "Cancel",
+    "allYes": "Sign them out",
+    "twoOn": "2-step login is on",
+    "twoOnSub": "A new device needs the 6-digit code from your authenticator app.",
+    "twoOff": "2-step login is off",
+    "twoOffSub": "Turn it on so a stolen password alone can't open your salon.",
+    "change": "Change",
+    "turnOn": "Turn on",
+    "recent": "Sign-ins · last 30 days",
+    "othersLine": "Other devices ({what})",
+    "noHistory": "Nothing in the last 30 days.",
+    "what": {
+      "signed_in": "Signed in",
+      "signed_out": "Signed out",
+      "signed_out_others": "Signed out"
+    },
+    "footer": "Salon devices (the iPads) are managed in Settings → Devices. The owner can cut a person off at once in Team → Archive."
+  },
+  "amenities": {
+    "title": "Free for clients",
+    "sub": "Tick what your salon offers. Clients see it on your booking page and receipt.",
+    "none": "Nothing picked yet.",
+    "wine": "Free wine",
+    "coffee": "Tea & coffee",
+    "water": "Water",
+    "wifi": "Free Wi-Fi",
+    "massage_chairs": "Massage chairs",
+    "kids": "Kids welcome",
+    "parking": "Free parking",
+    "wheelchair": "Wheelchair access",
+    "walk_ins": "Walk-ins welcome",
+    "vietnamese": "We speak Vietnamese",
+    "spanish": "We speak Spanish",
+    "label": "What we offer"
   }
 }

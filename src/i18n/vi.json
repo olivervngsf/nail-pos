@@ -1115,7 +1115,10 @@
     "pointsBalance": "Bạn có {n} {unit}.",
     "rewardReady": "Thưởng {amt} sẵn sàng cho lần tới.",
     "pts": "điểm",
-    "visits": "lần"
+    "visits": "lần",
+    "bookAgain": "Đặt lịch lại",
+    "directions": "Chỉ đường",
+    "visit": "Xem hình, dịch vụ + thợ của tiệm"
   },
   "slip": {
     "ticket": "Phiếu #{n}",
@@ -1257,7 +1260,9 @@
     "min": "{n} phút",
     "hr": "{h} giờ",
     "hrMin": "{h} giờ {m} phút",
-    "opens": "mở lúc {time}"
+    "opens": "mở lúc {time}",
+    "seeSalon": "Xem hình, dịch vụ + thợ của tiệm",
+    "home": "Trang chủ {salon}"
   },
   "kiosk": {
     "welcome": "Chào mừng đến {salon}",
@@ -1800,7 +1805,14 @@
     "saved": "Đã lưu. Mọi máy trong tiệm sẽ in như vầy.",
     "needNet": "Cần internet để lưu.",
     "preview": "Xem trước",
-    "note": "In chữ thường (nhanh): dấu tiếng Việt sẽ không in. Thay đổi áp dụng cho mọi máy trong tiệm."
+    "note": "In chữ thường (nhanh): dấu tiếng Việt sẽ không in. Thay đổi áp dụng cho mọi máy trong tiệm.",
+    "devOnThis": "Bluetooth · đã lưu trên máy này",
+    "devNone": "Chọn một lần trên mỗi máy cần in",
+    "devPickTitle": "Chưa có máy in",
+    "devPick": "Chọn máy in",
+    "devNotListed": "Không thấy máy in?",
+    "devComputerTitle": "Máy in của máy tính",
+    "devComputer": "In qua cửa sổ in của máy tính này"
   },
   "credit": {
     "ringLabel": "Tín dụng tin nhắn · {money}",
@@ -1937,7 +1949,9 @@
     "photoBad": "Chọn một tấm ảnh (JPG hoặc PNG).",
     "langHint": "Đổi ngay màn hình của thiết bị này. Khách luôn thấy ngôn ngữ của họ trên hoá đơn và trang đặt lịch.",
     "sizeHint": "Chữ to hơn chỉ trên thiết bị này. Thiết bị khác giữ cỡ chữ riêng.",
-    "signInHint": "Số điện thoại luôn dùng được. Email hoặc mật khẩu là cách thứ hai; 2 bước thêm một mã từ ứng dụng."
+    "signInHint": "Số điện thoại luôn dùng được. Email hoặc mật khẩu là cách thứ hai; 2 bước thêm một mã từ ứng dụng.",
+    "signInsShort": "Đăng nhập của tôi",
+    "signInsSub": "Điện thoại + máy tính"
   },
   "faces": {
     "gone": "Máy này đã bị gỡ khỏi tiệm. Cài lại để dùng mã PIN ở đây.",
@@ -2067,7 +2081,9 @@
       "pin": "Mã PIN",
       "language": "Ngôn ngữ",
       "textSize": "Cỡ chữ",
-      "roles": "Vai trò"
+      "roles": "Vai trò",
+      "timesheet": "Bảng giờ làm",
+      "payRules": "Quy tắc trả lương"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -2087,7 +2103,7 @@
       "add": "+ Thêm người",
       "people": "nhân viên",
       "inNow": "đang làm",
-      "invited": "chưa nhận lời mời",
+      "invited": "chưa tham gia",
       "licenseDue": "bằng sắp hết hạn",
       "search": "Tìm tên hoặc số điện thoại",
       "none": "Không có ai.",
@@ -2099,7 +2115,7 @@
         "nopin": "Chưa có PIN"
       },
       "st": {
-        "invited": "Đã mời",
+        "invited": "Chưa tham gia",
         "noPin": "Chưa có PIN",
         "locked": "PIN bị khoá",
         "license": "Bằng · còn {d} ngày",
@@ -2109,7 +2125,20 @@
       "saved": "Đã lưu",
       "addedInvite": "Đã thêm {name}. Link mời sẵn sàng: gửi tới điện thoại của họ.",
       "inviteTexted": "Đã nhắn link mời tới {name}.",
-      "inviteNotTexted": "Chưa nhắn được link mời: {why} Hãy sao chép link (bấm vào tên họ)."
+      "inviteNotTexted": "Chưa nhắn được link mời: {why} Hãy sao chép link (bấm vào tên họ).",
+      "since": "từ {t}",
+      "last": "lần cuối {t}",
+      "tile": {
+        "in": "đang làm",
+        "invited": "chưa tham gia",
+        "nopin": "chưa có PIN",
+        "license": "sắp hết hạn bằng"
+      },
+      "g": {
+        "boss": "Chủ + quản lý",
+        "desk": "Quầy",
+        "tech": "Thợ"
+      }
     },
     "m": {
       "name": "Tên",
@@ -2168,6 +2197,7 @@
       "texting": "Đang nhắn…",
       "textDemo": "Bản thử: không gửi tin nhắn.",
       "textAgain": "Đã nhắn link mời này rồi. Tạo link mới để nhắn lại.",
+      "testLinkBlocked": "Đây là link trang thử (vercel.app): nhà mạng thường chặn tin nhắn có link này. Hãy gửi lời mời từ polishosapp.com.",
       "noPinBox": "Đã vào, chưa có PIN",
       "textPin": "Nhắn link tạo PIN",
       "copyPin": "Sao chép link",
@@ -2584,6 +2614,17 @@
       "stripeOk": "Stripe ✓",
       "notSet": "Chưa cài",
       "devicesOn": "{on}/{n} đang bật"
+    },
+    "payRules": {
+      "intro": "Mỗi người được trả lương thế nào và phiếu lương in gì. Bảng lương dùng các quy tắc này.",
+      "who": "Lương của từng người",
+      "none": "Chưa ai có cách trả lương. Thêm trong Nhân viên.",
+      "changeOwner": "Bấm vào một người để đổi lương trong Nhân viên (hoa hồng hoặc theo giờ, séc hay tiền mặt).",
+      "changeManager": "Chỉ chủ tiệm đổi được lương. Bấm vào một người để xem trong Nhân viên.",
+      "slip": "Phiếu lương",
+      "slipRow": "Phiếu lương nhân viên in gì",
+      "slipSub": "Từng vé, tiền tip, séc hay tiền mặt, chỗ ký tên",
+      "openSheet": "Mở bảng lương"
     }
   },
   "promo": {
@@ -3033,7 +3074,9 @@
       "support_on": "Bật quyền hỗ trợ",
       "support_off": "Hết quyền hỗ trợ",
       "support_change": "PolishOS hỗ trợ đã đổi một mục",
-      "roles_saved": "Đổi vai trò + quyền"
+      "roles_saved": "Đổi vai trò + quyền",
+      "clock_fix": "Sửa giờ chấm công",
+      "amenities_saved": "Đổi tiện ích của tiệm"
     }
   },
   "picker": {
@@ -3055,6 +3098,16 @@
     "title": "Có gì mới",
     "sub": "Những thay đổi mới nhất của PolishOS, mới nhất ở trên.",
     "items": [
+      {
+        "date": "26/11",
+        "title": "Đăng nhập của tôi",
+        "body": "Hồ sơ → Đăng nhập của tôi: mọi điện thoại và máy tính bạn đang đăng nhập. Đăng xuất điện thoại bị mất từ máy khác."
+      },
+      {
+        "date": "26/11",
+        "title": "Bảng giờ làm",
+        "body": "Cài đặt → Bảng giờ làm: ai đang làm, giờ làm theo ngày và tuần, nghỉ ăn trễ và tăng ca. Sửa giờ ra bị thiếu kèm lý do; giờ cũ vẫn được lưu."
+      },
       {
         "date": "26/11",
         "title": "Cài đặt giống Claude + ảnh hồ sơ",
@@ -3091,5 +3144,143 @@
         "body": "Đổi địa chỉ, giờ mở cửa và mọi dịch vụ sau khi cài đặt, trong Cài đặt."
       }
     ]
+  },
+  "timesheet": {
+    "title": "Bảng giờ làm",
+    "view": "Xem",
+    "day": "Ngày",
+    "week": "Tuần",
+    "earlier": "Trước",
+    "later": "Sau",
+    "today": "Hôm nay",
+    "print": "In",
+    "csv": "Tải CSV",
+    "fixTitle": "{n, plural, other {# lần thiếu giờ ra}}",
+    "fixBody": "{name} chưa chấm giờ ra ngày {day}. Thêm giờ thật để tính đúng giờ làm.",
+    "fixTime": "Sửa giờ",
+    "tile": {
+      "inNow": "Đang làm",
+      "inNowSub": "đang chấm công",
+      "hours": "Giờ làm",
+      "hoursDay": "trong ngày này",
+      "hoursWeek": "trong tuần này",
+      "meal": "Nghỉ ăn trễ",
+      "mealSub": "không nghỉ 30 phút trước giờ thứ 5",
+      "ot": "Tăng ca",
+      "otSub": "hơn 8h/ngày hoặc 40h/tuần"
+    },
+    "person": "Người",
+    "inOut": "Vào → ra",
+    "break": "Nghỉ",
+    "hours": "Giờ",
+    "now": "Bây giờ",
+    "notIn": "Không vào",
+    "refusedAt": "Chấm công bị từ chối {time} (không ở tiệm)",
+    "mealLate": "Không nghỉ ăn trước giờ thứ 5",
+    "total": "Tổng",
+    "flags": "Kiểm tra",
+    "flag": {
+      "fix": "Cần sửa",
+      "ot": "Tăng ca",
+      "meal": "Nghỉ ăn",
+      "ok": "OK"
+    },
+    "state": {
+      "fix": "Cần sửa",
+      "in": "Đang vào",
+      "out": "Đã ra",
+      "refused": "Bị từ chối",
+      "off": "Nghỉ"
+    },
+    "note": "Số liệu từ máy chấm công, không phải bảng lương. California: tăng ca sau 8h/ngày hoặc 40h/tuần; nghỉ ăn 30 phút trước giờ thứ 5. Mỗi lần sửa đều giữ giờ cũ, ai sửa và lý do.",
+    "in": "Vào",
+    "out": "Ra",
+    "stillIn": "Vẫn đang làm",
+    "missing": "Thiếu",
+    "wasAt": "Trước là {time} · {by} sửa",
+    "addedBy": "{by} thêm",
+    "fix": "Sửa",
+    "add": "Thêm",
+    "via": {
+      "device": "Máy của tiệm",
+      "phone": "Điện thoại riêng",
+      "fix": "Thêm bằng tay",
+      "pin": "Máy của tiệm"
+    },
+    "noPunches": "Không có giờ vào/ra trong những ngày này.",
+    "drawerNote": "Sửa giờ hoặc thêm giờ bị thiếu. Giờ cũ vẫn được lưu và hiện trong Nhật ký hoạt động.",
+    "fixTitleOne": "Sửa giờ của {name}",
+    "addTitle": "Thêm giờ thiếu của {name}",
+    "cancel": "Huỷ",
+    "saveFix": "Lưu",
+    "saving": "Đang lưu…",
+    "realTime": "Giờ thật",
+    "inTime": "Giờ vào thật",
+    "outTime": "Giờ ra thật",
+    "future": "Giờ đó chưa tới.",
+    "why": "Lý do",
+    "reason": {
+      "forgot": "Quên",
+      "device_off": "Máy bị tắt",
+      "wrong_person": "Nhầm người",
+      "other": "Khác"
+    },
+    "noteLabel": "Ghi chú (không bắt buộc)",
+    "notePh": "vd: về lúc 6:30, đã báo quầy",
+    "fixNote": "{name} thấy được lần sửa này. Lưu kèm tên bạn và lý do."
+  },
+  "signins": {
+    "title": "Đăng nhập của tôi",
+    "intro": "Mọi điện thoại, máy tính và app mà <b>bạn</b> đang đăng nhập. Mất điện thoại? Đăng xuất nó ở đây từ máy khác.",
+    "deviceTitle": "Đây là máy của tiệm",
+    "deviceBody": "Máy của tiệm được quản lý ở Cài đặt → Thiết bị. Hãy khoá thay vì đăng xuất.",
+    "errTitle": "Không làm được",
+    "outOne": "Đã đăng xuất {name}",
+    "outAll": "{n, plural, other {Đã đăng xuất # máy khác}}",
+    "outNote": "Máy đó phải đăng nhập lại mới mở được PolishOS. Màn hình đang mở sẽ đóng trong vòng 1 giờ.",
+    "thisDevice": "Máy này",
+    "notUsed": "Không dùng {n} ngày",
+    "withTwoStep": "Đăng nhập với 2 bước",
+    "withCode": "Đăng nhập bằng mã hoặc mật khẩu",
+    "network": "Mạng {ip}",
+    "working": "Đang làm…",
+    "signOut": "Đăng xuất",
+    "none": "Chỉ máy này đang đăng nhập.",
+    "outAllBtn": "{n, plural, other {Đăng xuất # máy khác}}",
+    "allSure": "{n, plural, other {Đăng xuất # máy khác? Máy này vẫn đăng nhập.}}",
+    "cancel": "Huỷ",
+    "allYes": "Đăng xuất",
+    "twoOn": "Đăng nhập 2 bước đang bật",
+    "twoOnSub": "Máy mới cần mã 6 số từ app xác thực của bạn.",
+    "twoOff": "Đăng nhập 2 bước đang tắt",
+    "twoOffSub": "Bật lên để người lấy được mật khẩu cũng không mở được tiệm.",
+    "change": "Đổi",
+    "turnOn": "Bật",
+    "recent": "Đăng nhập · 30 ngày qua",
+    "othersLine": "Máy khác ({what})",
+    "noHistory": "Không có gì trong 30 ngày qua.",
+    "what": {
+      "signed_in": "Đăng nhập",
+      "signed_out": "Đăng xuất",
+      "signed_out_others": "Đăng xuất"
+    },
+    "footer": "Máy của tiệm (iPad) được quản lý ở Cài đặt → Thiết bị. Chủ tiệm có thể chặn một người ngay ở Nhân viên → Lưu trữ."
+  },
+  "amenities": {
+    "title": "Miễn phí cho khách",
+    "sub": "Chọn những gì tiệm có. Khách thấy trên trang đặt lịch và hóa đơn.",
+    "none": "Chưa chọn gì.",
+    "wine": "Rượu vang miễn phí",
+    "coffee": "Trà & cà phê",
+    "water": "Nước uống",
+    "wifi": "Wi-Fi miễn phí",
+    "massage_chairs": "Ghế massage",
+    "kids": "Chào đón trẻ em",
+    "parking": "Đậu xe miễn phí",
+    "wheelchair": "Lối đi xe lăn",
+    "walk_ins": "Nhận khách vãng lai",
+    "vietnamese": "Nói tiếng Việt",
+    "spanish": "Nói tiếng Tây Ban Nha",
+    "label": "Tiệm có"
   }
 }

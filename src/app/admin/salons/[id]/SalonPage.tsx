@@ -11,7 +11,7 @@ import { fmtPhone } from "@/lib/onboarding/data";
 import { MOOD, TEXTING, USE, alertsFor, daysSinceCheckin, isLive, pilotDay, pilotDaysLeft, planOf, PLAN_CENTS, stripeState, usageOf, type SalonFacts, type Texting } from "@/lib/admin/health";
 import { COLUMN_LABEL, TONE_LABEL, ago, healthRow, type Column, type Tone } from "@/lib/admin/signals";
 import { GROUPS, TEXT_KIND, dayIn, describe, lastDays, sampleSalon, sampleSignals, stripeEvent, whoLabel, type Group, type SalonDetail, type Signals } from "@/lib/admin/salon";
-import { Button, Chip } from "@/components/kit";
+import { Button, Chip, Skeleton } from "@/components/kit";
 import DeviceMark from "@/components/DeviceMark";
 import StatusIcon from "@/components/StatusIcon";
 import { deviceState } from "@/lib/devices";
@@ -355,7 +355,7 @@ function ActivityLog({ d, start = "all" }: { d: SalonDetail | null; start?: Grou
         <h2 className="h2" style={{ margin: "0 auto 0 0" }}>Activity</h2>
         {GROUPS.map((x) => <Chip key={x.key} on={g === x.key} aria-pressed={g === x.key} onClick={() => setG(x.key)} data-testid={`act-${x.key}`}>{x.label}</Chip>)}
       </div>
-      {!d && <div className="row s cap">Loading…</div>}
+      {!d && <div className="row s"><Skeleton lines={2} /></div>}
       {d && !rows.length && <div className="row s cap">Nothing here yet.</div>}
       {rows.map(({ a, label, group, tone }, i) => (
         <div key={i} className="row m" style={{ alignItems: "flex-start", paddingTop: 10, paddingBottom: 10 }}>
