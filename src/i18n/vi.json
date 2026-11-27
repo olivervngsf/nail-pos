@@ -2146,6 +2146,13 @@
         "boss": "Chủ + quản lý",
         "desk": "Quầy",
         "tech": "Thợ"
+      },
+      "sortBy": "Sắp xếp",
+      "sort": {
+        "role": "Theo vai trò",
+        "az": "Tên A → Z",
+        "za": "Tên Z → A",
+        "status": "Cần chú ý trước"
       }
     },
     "m": {
