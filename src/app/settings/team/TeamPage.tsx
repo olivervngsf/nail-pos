@@ -180,7 +180,9 @@ function MemberDrawer({ a, m, onClose, onSaved, onChanged }: { a: Access; m: Mem
       if (a.demo) { setTextMsg(t("m.textDemo")); return; }
       let r = await textInvite(code).catch((e: Error) => ({ status: "error", error: e.message }) as SendReply);
       if (r.status === "error" && /ended/.test(r.error ?? "")) r = await textInvite(await rpc<string>("team_invite", { p_membership: m.id }));
-      setTextMsg(r.status === "error" ? r.error ?? "" : r.duplicate ? t("m.textAgain") : textLine(r));
+      const line = r.status === "error" ? r.error ?? "" : r.duplicate ? t("m.textAgain") : textLine(r);
+      // Carriers often block texts whose link is a test site (*.vercel.app): say so instead of "Sent".
+      setTextMsg(r.status !== "error" && /\.vercel\.app$/.test(location.hostname) ? `${line} ${t("m.testLinkBlocked")}` : line);
     } catch (e) { setTextMsg((e as Error).message); }
   };
   const newInvite = async () => {

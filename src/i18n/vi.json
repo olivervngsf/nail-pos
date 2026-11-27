@@ -2176,6 +2176,7 @@
       "texting": "Đang nhắn…",
       "textDemo": "Bản thử: không gửi tin nhắn.",
       "textAgain": "Đã nhắn link mời này rồi. Tạo link mới để nhắn lại.",
+      "testLinkBlocked": "Đây là link trang thử (vercel.app): nhà mạng thường chặn tin nhắn có link này. Hãy gửi lời mời từ polishosapp.com.",
       "noPinBox": "Đã vào, chưa có PIN",
       "textPin": "Nhắn link tạo PIN",
       "copyPin": "Sao chép link",

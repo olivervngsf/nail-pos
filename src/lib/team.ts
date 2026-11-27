@@ -41,7 +41,7 @@ export function payLabel(m: Pick<Member, "payType" | "commissionPct" | "hourlyCe
 }
 
 export const blankMember = (): Member => ({
-  id: "", name: "", nickname: null, phone: "", email: null, role: "tech", language: "vi", payType: "commission", commissionPct: 60, hourlyCents: null,
+  id: "", name: "", nickname: null, phone: "", email: null, role: "tech", language: "en", payType: "commission", commissionPct: 60, hourlyCents: null,
   checkPct: 100, skills: [], workdays: [1, 2, 3, 4, 5], licenseNo: null, licenseState: null, licenseExpires: null, birthday: null, emergency: null,
   startDate: null, joined: false, hasPin: false, locked: false, clockedIn: false, lastClock: null, invite: null,
 });
