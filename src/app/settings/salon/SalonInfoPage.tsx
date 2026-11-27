@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Banner, Segmented, Switch, Toast } from "@/components/kit";
+import { Banner, Segmented, Switch, TimePicker, Toast } from "@/components/kit";
 import { getWeekStart, setWeekStartLocal, type WeekStart } from "@/lib/weekStart";
 import { useLang } from "@/components/AppProviders";
 import { api } from "@/lib/api";
@@ -125,9 +125,9 @@ function Info({ a }: { a: Access }) {
             <Switch on={h.on} onChange={(on) => setDay(h.weekday, { on })} label={`${dayName(h.weekday)} ${L("open", "mở")}`} />
             {h.on
               ? <span className="si-times">
-                  <TimePick bad={h.close <= h.open} value={h.open} label={`${dayName(h.weekday)} ${L("opens", "mở")}`} onChange={(v) => setDay(h.weekday, { open: v })} />
+                  <TimePicker bad={h.close <= h.open} value={h.open} label={`${dayName(h.weekday)} ${L("opens", "mở")}`} onChange={(v) => setDay(h.weekday, { open: v })} data-testid={`si-open-${h.weekday}`} />
                   <span className="cap">–</span>
-                  <TimePick bad={h.close <= h.open} value={h.close} label={`${dayName(h.weekday)} ${L("closes", "đóng")}`} onChange={(v) => setDay(h.weekday, { close: v })} />
+                  <TimePicker bad={h.close <= h.open} value={h.close} min={h.open} label={`${dayName(h.weekday)} ${L("closes", "đóng")}`} onChange={(v) => setDay(h.weekday, { close: v })} data-testid={`si-close-${h.weekday}`} />
                 </span>
               : <span className="cap si-times">{L("Closed", "Nghỉ")}</span>}
           </div>
@@ -155,24 +155,5 @@ function Info({ a }: { a: Access }) {
       <SaveCheck dirty={changed} busy={busy} disabled={!!problem} onSave={() => void save()} onUndo={() => setS(saved)} testId="si-save" />
       {toast && <Toast>{toast}</Toast>}
     </div>
-  );
-}
-
-// Hours as a plain list of 15-minute times (same as setup), not the browser's clock picker.
-const TIMES = Array.from({ length: (23 - 5) * 4 + 1 }, (_, i) => {
-  const m = 5 * 60 + i * 15;
-  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
-});
-const twelve = (t: string) => {
-  const [h, m] = t.split(":").map(Number);
-  return `${((h + 11) % 12) + 1}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
-};
-function TimePick({ value, label, bad, onChange }: { value: string; label: string; bad: boolean; onChange: (v: string) => void }) {
-  const v = value.slice(0, 5);
-  const list = TIMES.includes(v) ? TIMES : [...TIMES, v].sort();
-  return (
-    <select className={`inp si-time${bad ? " err" : ""}`} aria-label={label} value={v} onChange={(e) => onChange(e.target.value)}>
-      {list.map((t) => <option key={t} value={t}>{twelve(t)}</option>)}
-    </select>
   );
 }
