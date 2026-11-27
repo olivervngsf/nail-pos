@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { useRouter } from "next/navigation";
 import { useFormatter, useTranslations } from "next-intl";
-import { Avatar, Banner, Button, Chip, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Sheet, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
+import { Avatar, Banner, Button, Chip, DrawCheck, Drawer, Field, LeftMenu, ListGroup, OfflineBanner, PinKeypad, Sheet, SyncPill, Tag, Toast, TopBar } from "@/components/kit";
 import { ROLE_LABEL, e164, pinMessage, rpc, type PinResult } from "@/lib/auth";
 import { formatCents, parseDollars, percentOf } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
@@ -36,19 +36,22 @@ const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("
 const $ = formatCents;
 
 type Step = "ticket" | "pay" | "cash" | "reader" | "link" | "app" | "tap";
+const RANK: Record<Step, number> = { ticket: 0, pay: 1, cash: 2, reader: 2, link: 2, app: 2, tap: 2 }; // steps slide forward / back by this
 
 export default function TicketScreen({ id, pay }: { id: string; pay?: boolean }) {
   const t = useTranslations("checkout");
   const router = useRouter();
   const { desk, err } = useDesk();
   const [ticket, ready] = useTicket(id);
-  const [step, setStep] = useState<Step>("ticket");
+  const [step, setStepNow] = useState<Step>("ticket");
+  const [dir, setDir] = useState<"fwd" | "back">("fwd");
+  const setStep = (s: Step) => { setDir(RANK[s] < RANK[step] ? "back" : "fwd"); setStepNow(s); };
   // "Charge" on the Checkout list opens the ticket straight on How to pay (?pay=1), once, and only if nothing is missing.
   const wantPay = useRef(!!pay);
   useEffect(() => {
     if (!wantPay.current || !ticket) return;
     wantPay.current = false;
-    if (ticket.status === "open" && blockers(ticket).length === 0 && totals(ticket).toPay > 0) setStep("pay");
+    if (ticket.status === "open" && blockers(ticket).length === 0 && totals(ticket).toPay > 0) setStepNow("pay");
   }, [ticket]);
   const [toast, setToast] = useState("");
   const say = useCallback((s: string) => { setToast(s); setTimeout(() => setToast(""), 3500); }, []);
@@ -65,7 +68,7 @@ export default function TicketScreen({ id, pay }: { id: string; pay?: boolean })
   return (
     <div className="app tk-app" onPointerDown={touchActing}>
       <LeftMenu active="Checkout" salonInitials={initials(desk.salonName)} />
-      <div className="col">
+      <div className="col" data-dir={dir}>
         <TopBar title={<span style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {ticket.status === "open" && step !== "ticket" && <Button variant="ghost" size="sm" onClick={() => setStep(step === "pay" ? "ticket" : "pay")}>‹ {t("back")}</Button>}
           {ticket.status === "open" && step === "ticket" && <Button variant="ghost" size="sm" onClick={() => router.push("/checkout")}>‹ {t("title")}</Button>}
@@ -141,7 +144,7 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
         <div className="h1">{t("services")}</div>
         <div className="group" data-testid="lines">
           {ticket.lines.map((l) => (
-            <div className="row" key={l.id} data-testid="line">
+            <div className="row flow" key={l.id} data-testid="line">
               <button type="button" className="av" style={{ border: 0, cursor: "pointer" }} aria-label={l.staffName ?? t("whoDoes")} onClick={() => setSheet({ kind: "staff", lineId: l.id })}>{l.staffName ? initials(l.staffName) : "?"}</button>
               <div className="grow">
                 <div className="ck-lname" style={{ fontWeight: 600 }}>{l.name}</div>
@@ -191,7 +194,7 @@ function Build({ desk, ticket, save, onCharge }: { desk: Desk; ticket: Ticket; s
           {sum.gift > 0 && <div className="line fade" data-testid="gift-total"><span>{t("giftCards")}</span><span>{$(sum.gift)}</span></div>}
           <div className="sep" />
           <div className="ck-paybar">
-            <div className="ck-due"><div className="cap">{t("dueNow")}</div><div className="money fade" data-testid="due">{$(sum.toPay)}</div></div>
+            <div className="ck-due"><div className="cap">{t("dueNow")}</div><div className="money fade" data-roll data-testid="due">{$(sum.toPay)}</div></div>
             <div className="ck-go">
               <Button className="ck-more" data-testid="ticket-more" aria-haspopup="dialog" onClick={() => setMore(true)}>{t("moreBtn")}</Button>
               <Button variant="primary" data-testid="charge" disabled={block.length > 0} onClick={onCharge}>{t("charge", { amount: $(sum.toPay) })}</Button>
@@ -638,7 +641,7 @@ function Cash({ desk, ticket, save, onPart }: { desk: Desk; ticket: Ticket; save
         {sum.giftPaid > 0 && <div className="line"><span>{t("giftCardPaid")}</span><span>−{$(sum.giftPaid)}</span></div>}
         {sum.cashPaid > 0 && <div className="line"><span>{t("cashPartPaid")}</span><span>−{$(sum.cashPaid)}</span></div>}
         {sum.tip > 0 && <div className="line"><span>{t("tips")}</span><span>{$(sum.tip)}</span></div>}
-        <div className="line"><span style={{ fontSize: 17, fontWeight: 600 }}>{t("total")}</span><span className="money" style={{ fontSize: 28 }} data-testid="cash-total">{$(sum.left)}</span></div>
+        <div className="line"><span style={{ fontSize: 17, fontWeight: 600 }}>{t("total")}</span><span className="money" style={{ fontSize: 28 }} data-roll data-testid="cash-total">{$(sum.left)}</span></div>
         <div>
           <div className="eyebrow" style={{ marginBottom: 8 }}>{t("clientGave")}</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 8 }}>
@@ -648,7 +651,7 @@ function Cash({ desk, ticket, save, onPart }: { desk: Desk; ticket: Ticket; save
         <div data-testid="change-box" data-short={short} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 20px", borderRadius: 16, background: short && typed ? "var(--orange-soft)" : "var(--surface)" }}>
           <span style={{ fontSize: 17, fontWeight: 600 }}>{short ? t("stillDue") : t("change")}
             {typed && short && <span className="cap" style={{ display: "block", fontWeight: 400 }}>{t("notEnough", { amount: $(given) })}</span>}</span>
-          <span className="money fade" style={{ fontSize: 40, color: short && typed ? "var(--orange)" : undefined }} data-testid="change">{$(Math.abs(typed ? diff : sum.left))}</span>
+          <span className="money fade" style={{ fontSize: 40, color: short && typed ? "var(--orange)" : undefined }} data-roll data-testid="change">{$(Math.abs(typed ? diff : sum.left))}</span>
         </div>
         <div className="sep" />
         <div className="ck-tips">
@@ -715,7 +718,7 @@ function Done({ desk, ticket, say }: { desk: Desk; ticket: Ticket; say: (s: stri
     <main className="ck-main">
       <section className="card ck-left" style={{ padding: "24px 28px", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div className="okmark pop" aria-hidden style={ticket.status === "refunded" ? { background: "var(--orange)" } : undefined}>{ticket.status === "refunded" ? "↩" : "✓"}</div>
+          <div className={`okmark pop${ticket.status === "refunded" ? "" : " glow"}`} aria-hidden style={ticket.status === "refunded" ? { background: "var(--orange)" } : undefined}>{ticket.status === "refunded" ? "↩" : <DrawCheck size={30} />}</div>
           <div>
             <div className="money" data-testid="paid-total">{giftOnly ? t("paidGift", { amount: $(sum.total) }) : isCard ? t("paidBy", { amount: $(charged), how }) : t("paidCash", { amount: $(charged) })}</div>
             <div className="cap num">{t("paidLine", { services: $(sum.due), tip: $(sum.tip) })}</div>

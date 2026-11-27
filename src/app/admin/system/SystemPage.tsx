@@ -8,7 +8,7 @@ import { rpc } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { income } from "@/lib/admin/health";
 import { STATUS_LABEL, checks, sampleSystem, sortChecks, summary, totalCents, type Check, type CheckStatus, type Cost, type SystemFacts } from "@/lib/admin/system";
-import { Button, Chip, Drawer, Field } from "@/components/kit";
+import { Button, Chip, Drawer, Field, Skeleton } from "@/components/kit";
 import { AdminShell, useAdmin } from "../shell";
 
 const CACHE = "nailpos.admin.system";
@@ -65,7 +65,7 @@ export default function SystemPage() {
   return (
     <AdminShell tab="system" admin={admin} title="System"
       actions={f && <span className={`ad-pill ${sum.level}`} data-testid="system-summary">{sum.text}</span>}>
-      {!f ? <p className="cap">Loading…</p> : (
+      {!f ? <Skeleton lines={4} /> : (
         <>
           <section className="ad-tiles" aria-label="System at a glance">
             {[
