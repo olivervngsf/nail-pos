@@ -2094,7 +2094,8 @@
       "textSize": "Text size",
       "roles": "Roles",
       "timesheet": "Timesheet",
-      "payRules": "Pay rules"
+      "payRules": "Pay rules",
+      "techProfiles": "Tech profiles"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",

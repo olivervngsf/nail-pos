@@ -2400,3 +2400,22 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .tp-del { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: rgba(255,255,255,.94); font-size: 12px; cursor: pointer; color: var(--ink); }
 .tp-add { aspect-ratio: 1 / 1; border: 1.5px dashed #C7C7CF; border-radius: 10px; background: var(--paper); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font: inherit; font-size: 18px; color: var(--ink-soft); cursor: pointer; }
 .tp-add span { font-size: 12px; font-weight: 600; }
+/* Settings → Tech profiles */
+.tpo-page { display: flex; flex-direction: column; gap: 16px; }
+.tpo-lead { margin: 0; font-size: 14px; }
+.tpo-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tpo-grow { flex: 1; }
+.tpo-row { gap: 12px; }
+.tpo-row .g { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tpo-row .g b { font-weight: 600; }
+.tpo-st { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.tpo-acts { display: inline-flex; gap: 6px; }
+.tpo-drawer { display: flex; flex-direction: column; gap: 18px; }
+.tpo-sec { display: flex; flex-direction: column; gap: 10px; }
+.tpo-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.tpo-pick { display: flex; flex-direction: column; gap: 6px; }
+.tpo-two { display: flex; gap: 6px; }
+.tpo-two .btn { flex: 1; }
+.tpo-big { aspect-ratio: 4 / 3; }
+.tpo-link { border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600; color: var(--ink-soft); cursor: pointer; padding: 2px 0; text-align: left; }
+@media (max-width: 599px) { .tpo-row { flex-wrap: wrap; } .tpo-st { order: 3; } }

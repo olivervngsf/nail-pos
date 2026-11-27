@@ -2094,7 +2094,8 @@
       "textSize": "Cỡ chữ",
       "roles": "Vai trò",
       "timesheet": "Bảng giờ làm",
-      "payRules": "Quy tắc trả lương"
+      "payRules": "Quy tắc trả lương",
+      "techProfiles": "Hồ sơ thợ"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
