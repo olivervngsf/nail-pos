@@ -1,6 +1,7 @@
 "use client";
 // Public booking page data (polishosapp.com/<salon>): no sign-in. The server re-checks every booking under a lock,
 // so the page can never double-book. Slug "demo" (or no Supabase) = the test salon, booked into this device's calendar.
+import { DEMO_AMENITIES } from "./amenities";
 import { rpc } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase/client";
 import { DEMO_DESK } from "@/lib/desk";
@@ -12,7 +13,7 @@ export const DEMO_SLUG = "demo";
 export type PageService = { id: string; cat: string; name: string; minutes: number; cents: number; from: boolean };
 export type PageStaff = { id: string; name: string };
 export type PageHours = { weekday: number; open: boolean; opens: string | null; closes: string | null };
-export type PageRules = { on?: boolean; days_ahead: number; latest_before_close: number; group_max: number; cancel_hours: number; min_notice: number; calendar_note?: string; calendar_alarm_min?: number };
+export type PageRules = { on?: boolean; days_ahead: number; latest_before_close: number; group_max: number; cancel_hours: number; min_notice: number; calendar_note?: string; calendar_alarm_min?: number; amenities?: string[] };
 export type BookPage = {
   salon: { name: string; phone: string | null; address: string | null; slug: string; timeZone?: string; settings: PageRules };
   hours: PageHours[]; photos: { path: string; label: string }[]; services: PageService[]; staff: PageStaff[];
@@ -36,7 +37,7 @@ const demoNote = () => { const n = demoSaved().calendar_note; return typeof n ==
 
 function demoPage(): BookPage {
   return {
-    salon: { name: DEMO_DESK.salonName, phone: "(408) 555-0100", address: "1234 Story Rd, San Jose, CA", slug: DEMO_SLUG, timeZone: "America/Los_Angeles", settings: { ...RULES, calendar_note: demoNote(), calendar_alarm_min: demoSaved().calendar_alarm_min ?? 60 } },
+    salon: { name: DEMO_DESK.salonName, phone: "(408) 555-0100", address: "1234 Story Rd, San Jose, CA", slug: DEMO_SLUG, timeZone: "America/Los_Angeles", settings: { ...RULES, calendar_note: demoNote(), calendar_alarm_min: demoSaved().calendar_alarm_min ?? 60, amenities: demoSaved().amenities ?? DEMO_AMENITIES } },
     hours: defaultHours().map((h, i) => ({ weekday: i, open: h.on, opens: h.open, closes: h.close })),
     photos: [{ path: "demo:1", label: "Salon" }, { path: "demo:2", label: "Gel art" }, { path: "demo:3", label: "Pedi chairs" }, { path: "demo:4", label: "Nail art" }],
     services: DEMO_DESK.services.map((s) => ({ id: s.id, cat: s.cat, name: s.name, minutes: s.minutes, cents: s.cents, from: s.priceFrom })),

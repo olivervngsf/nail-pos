@@ -3061,7 +3061,8 @@
       "support_off": "Hết quyền hỗ trợ",
       "support_change": "PolishOS hỗ trợ đã đổi một mục",
       "roles_saved": "Đổi vai trò + quyền",
-      "clock_fix": "Sửa giờ chấm công"
+      "clock_fix": "Sửa giờ chấm công",
+      "amenities_saved": "Đổi tiện ích của tiệm"
     }
   },
   "picker": {
@@ -3250,5 +3251,22 @@
       "signed_out_others": "Đăng xuất"
     },
     "footer": "Máy của tiệm (iPad) được quản lý ở Cài đặt → Thiết bị. Chủ tiệm có thể chặn một người ngay ở Nhân viên → Lưu trữ."
+  },
+  "amenities": {
+    "title": "Miễn phí cho khách",
+    "sub": "Chọn những gì tiệm có. Khách thấy trên trang đặt lịch và hóa đơn.",
+    "none": "Chưa chọn gì.",
+    "wine": "Rượu vang miễn phí",
+    "coffee": "Trà & cà phê",
+    "water": "Nước uống",
+    "wifi": "Wi-Fi miễn phí",
+    "massage_chairs": "Ghế massage",
+    "kids": "Chào đón trẻ em",
+    "parking": "Đậu xe miễn phí",
+    "wheelchair": "Lối đi xe lăn",
+    "walk_ins": "Nhận khách vãng lai",
+    "vietnamese": "Nói tiếng Việt",
+    "spanish": "Nói tiếng Tây Ban Nha",
+    "label": "Tiệm có"
   }
 }

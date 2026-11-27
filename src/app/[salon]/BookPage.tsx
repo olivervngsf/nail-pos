@@ -4,6 +4,7 @@
 // No account, no app. Where the client came from (?src=google|website|instagram|qr|text) stays on the booking.
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Amenities } from "@/components/Amenities";
 import { useTranslations } from "next-intl";
 import { Button, Chip } from "@/components/kit";
 import { formatCents } from "@/lib/money";
@@ -53,6 +54,7 @@ export function Header({ page, home }: { page: Page; home?: (() => void) | null 
           {today && (open ? <> · {t("until", { time: fmtMin(today.close) })}</> : now < today.open ? <> · {t("opens", { time: fmtMin(today.open) })}</> : null)}
           {map && <> · <a href={map} target="_blank" rel="noreferrer">{t("directions")}</a></>}
         </div>
+        <Amenities list={page.salon.settings.amenities} className="bw-amen" />
       </div>
       {page.photos.length > 0 && (
         <div className="bw-photos" aria-label={t("photos")}>
