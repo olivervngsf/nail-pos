@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { formatCents as $ } from "@/lib/money";
 import { fmtPhone } from "@/lib/onboarding/data";
+import { Amenities } from "@/components/Amenities";
 
 type R = {
-  salon: string; salonPhone: string | null; salonAddress: string | null; bookSlug: string | null; number: number; status: "paid" | "refunded"; at: string; client: string | null;
+  salon: string; salonPhone: string | null; salonAddress: string | null; bookSlug: string | null; amenities?: string[]; number: number; status: "paid" | "refunded"; at: string; client: string | null;
   lines: { kind: "service" | "discount" | "tip" | "loyalty_reward" | "gift_sale"; name: string; cents: number; tech: string | null }[];
   subtotal: number; discount: number; tip: number; total: number;
   points: { earned: number; used: number; balance: number; kind: "points" | "visits"; rewardPoints: number; rewardCents: number } | null;
@@ -60,6 +61,7 @@ export default function DigitalReceipt({ id }: { id: string }) {
               {r.salonAddress && <a className="btn" target="_blank" rel="noreferrer" data-testid="receipt-directions"
                 href={`https://maps.google.com/?q=${encodeURIComponent(`${r.salon}, ${r.salonAddress}`)}`}>{t("directions")}</a>}
             </div>}
+            <Amenities list={r.amenities} className="rc-amen" />
             {r.bookSlug && <a className="bw-link rc-visit" href={`/${r.bookSlug}`} data-testid="receipt-visit">{t("visit")} ›</a>}
             <div className="cap" style={{ textAlign: "center", marginTop: 6 }}>{t("keep")}</div>
           </div>

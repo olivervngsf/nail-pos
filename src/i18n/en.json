@@ -3042,7 +3042,8 @@
       "support_off": "Support access ended",
       "support_change": "PolishOS support changed something",
       "roles_saved": "Roles + permissions changed",
-      "clock_fix": "Clock time fixed"
+      "clock_fix": "Clock time fixed",
+      "amenities_saved": "Changed what the salon offers"
     }
   },
   "picker": {
@@ -3231,5 +3232,22 @@
       "signed_out_others": "Signed out"
     },
     "footer": "Salon devices (the iPads) are managed in Settings → Devices. The owner can cut a person off at once in Team → Archive."
+  },
+  "amenities": {
+    "title": "Free for clients",
+    "sub": "Tick what your salon offers. Clients see it on your booking page and receipt.",
+    "none": "Nothing picked yet.",
+    "wine": "Free wine",
+    "coffee": "Tea & coffee",
+    "water": "Water",
+    "wifi": "Free Wi-Fi",
+    "massage_chairs": "Massage chairs",
+    "kids": "Kids welcome",
+    "parking": "Free parking",
+    "wheelchair": "Wheelchair access",
+    "walk_ins": "Walk-ins welcome",
+    "vietnamese": "We speak Vietnamese",
+    "spanish": "We speak Spanish",
+    "label": "What we offer"
   }
 }

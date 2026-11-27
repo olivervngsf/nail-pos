@@ -2291,3 +2291,10 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .bw-home-name { all: unset; cursor: pointer; }
 .bw-home-name:hover, .bw-home-name:focus-visible { text-decoration: underline; }
 .bw-foot .bw-link { text-decoration: none; }
+
+/* Amenities (what the salon offers for free): quiet chips with icon + words; booking page header + digital receipt. */
+.amen { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.amen-i { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; background: var(--fill); color: var(--ink); font-size: 13px; font-weight: 500; }
+.bw-amen { margin-top: 8px; }
+.rc-amen { justify-content: center; }
+.bp-amen { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }

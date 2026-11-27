@@ -13,6 +13,7 @@ import { getSupabase } from "@/lib/supabase/client";
 import { DEMO_SLUG, loadPage, photoUrl, type PageRules } from "@/lib/booking/page";
 import { pullAppts, useAppts } from "@/lib/booking/appts";
 import { addDays, at, dayKey } from "@/lib/booking/grid";
+import { AMENITIES, DEMO_AMENITIES, amenityIcon, cleanAmenities, toggleAmenity, type AmenityKey } from "@/lib/booking/amenities";
 
 type Photo = { id: string; path: string; label: string; url?: string };
 type Conf = { slug: string; settings: PageRules; photos: Photo[]; services: { id: string; cat: string; name: string; online: boolean }[] };
@@ -39,13 +40,14 @@ export default function BookingPageSettings() {
 
 function demoConf(desk: Desk): Conf {
   try { const c = JSON.parse(localStorage.getItem(DEMO_KEY) || "null"); if (c) return c; } catch { /* */ }
-  return { slug: DEMO_SLUG, settings: RULES, services: desk.services.map((s) => ({ id: s.id, cat: s.cat, name: s.name, online: true })),
+  return { slug: DEMO_SLUG, settings: { ...RULES, amenities: DEMO_AMENITIES }, services: desk.services.map((s) => ({ id: s.id, cat: s.cat, name: s.name, online: true })),
     photos: ["Salon", "Gel art", "Pedi chairs", "Nail art"].map((label, i) => ({ id: `demo-${i}`, path: `demo:${i}`, label })) };
 }
 
 function Settings({ desk }: { desk: Desk }) {
   const t = useTranslations("bookSettings");
   const tc = useTranslations("calendar");
+  const ta = useTranslations("amenities");
   const demo = desk.mode === "demo";
   const admin = demo || desk.me.role === "owner" || desk.me.role === "manager";
   const [conf, setConf] = useState<Conf | null>(null);
@@ -142,6 +144,8 @@ function Settings({ desk }: { desk: Desk }) {
 
   const on = rules.on !== false;
   const note = rules.calendar_note ?? "";
+  const amen: AmenityKey[] = cleanAmenities(rules.amenities);
+  const amenChanged = amen.join() !== cleanAmenities(conf?.settings.amenities).join();
   const alarm = rules.calendar_alarm_min ?? 60;
   const alarmLabel = (m: number) => (m >= 1440 ? t("alarmDay") : m >= 60 ? t("alarmHr", { n: m / 60 }) : t("alarmMin", { n: m }));
   const initials = desk.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
@@ -189,6 +193,22 @@ function Settings({ desk }: { desk: Desk }) {
               <label className="bp-add"><input type="file" accept="image/*" multiple hidden onChange={(e) => void addPhotos(e.target.files)} />{t("addPhotos")}</label>
             </div>
             <p className="cap">{t("photoTip")}</p>
+          </section>
+
+          {/* Amenities: free comforts the salon offers; shown on the booking page + receipt. One tap = on/off, Save once. */}
+          <section className="card pad bp-sec" data-testid="bp-amenities">
+            <div className="bw-row"><h2 className="h2 bw-grow">{ta("title")}</h2><span className="cap">{ta("sub")}</span></div>
+            <div className="bp-amen" role="group" aria-label={ta("title")}>
+              {AMENITIES.map((a) => {
+                const on = amen.includes(a.key);
+                return <Chip key={a.key} on={on} aria-pressed={on} data-testid={`amen-${a.key}`} onClick={() => setRules({ ...rules, amenities: toggleAmenity(amen, a.key) })}>
+                  <span aria-hidden="true">{amenityIcon(a.key)}</span>{ta(a.key)}</Chip>;
+              })}
+            </div>
+            <div className="bw-row">
+              <span className="cap bw-grow">{amenChanged ? "" : amen.length ? "" : ta("none")}</span>
+              <Button variant="primary" data-testid="bp-save-amen" disabled={!amenChanged} onClick={() => void save({ amenities: amen })}>{t("save")}</Button>
+            </div>
           </section>
 
           <div className="bp-two">
