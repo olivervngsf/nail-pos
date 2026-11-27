@@ -1260,7 +1260,9 @@
     "min": "{n} phút",
     "hr": "{h} giờ",
     "hrMin": "{h} giờ {m} phút",
-    "opens": "mở lúc {time}"
+    "opens": "mở lúc {time}",
+    "seeSalon": "Xem hình, dịch vụ + thợ của tiệm",
+    "home": "Trang chủ {salon}"
   },
   "kiosk": {
     "welcome": "Chào mừng đến {salon}",

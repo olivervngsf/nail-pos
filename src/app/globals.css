@@ -2189,3 +2189,9 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .rc-next { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
 .rc-next .btn { height: 48px; display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .rc-visit { display: block; text-align: center; text-decoration: none; margin: 0 auto; }
+
+/* Booking pages: salon logo + name = back to the salon's home (door). Looks the same as before, just tappable. */
+.bw-home { border: 0; cursor: pointer; text-decoration: none; font: inherit; font-weight: 600; font-size: 18px; }
+.bw-home-name { all: unset; cursor: pointer; }
+.bw-home-name:hover, .bw-home-name:focus-visible { text-decoration: underline; }
+.bw-foot .bw-link { text-decoration: none; }
