@@ -20,7 +20,7 @@ on:
         default: "Test iPhone (Tap to Pay)"
 
 permissions:
-  contents: read
+  contents: write # the test-iPhone build pushes its install files to branch ios-test-build
 
 jobs:
   upload:
@@ -137,5 +137,16 @@ jobs:
         with:
           name: polishos-ios-test-${{ github.run_number }}
           path: ${{ runner.temp }}/ios
+      - name: Put the install files on branch ios-test-build (Claude adds them to public/ios from there)
+        if: inputs.target != 'TestFlight'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B ios-test-build
+          mkdir -p public/ios
+          cp "$RUNNER_TEMP/ios/PolishOS.ipa" "$RUNNER_TEMP/ios/manifest.plist" public/ios/
+          git add -f public/ios/PolishOS.ipa public/ios/manifest.plist
+          git commit -m "iPhone test build ${{ github.run_number }} (Tap to Pay)"
+          git push -f origin ios-test-build
       - if: always()
         run: rm -rf "$RUNNER_TEMP/keys"

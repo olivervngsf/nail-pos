@@ -150,7 +150,10 @@
       "declined": "Card declined. Ask for another card or another way to pay.",
       "busy": "Still finishing the last try. Wait a moment, then try again.",
       "tap_start": "Tap to Pay didn't start. Try again.",
-      "no_reader": "No reader found. Turn the reader on, keep it close, then try again."
+      "no_reader": "No reader found. Turn the reader on, keep it close, then try again.",
+      "entitlement": "This copy of the PolishOS app can't take taps: it was installed without Apple's Tap to Pay permission (the TestFlight copy). Install the Tap to Pay test copy from polishosapp.com/ios, then try again.",
+      "stuck": "The iPhone app is stuck from the last try. Close PolishOS fully (swipe it away), open it again, then tap Charge.",
+      "practice_stuck": "The practice tap didn't answer, so it was stopped. Tap Charge to try again."
     },
     "cash": "Cash",
     "cashSub": "Enter cash given, we show the change.",

@@ -181,3 +181,12 @@ describe("busy reader (older app)", () => {
     expect(sent.some((m) => m.reader === "cancel")).toBe(true);
   });
 });
+
+describe("app without Apple's Tap to Pay permission", () => {
+  it("turns Apple's 'not permitted' into our own words", async () => {
+    const { explainAppError, tapErrorKey } = await import("./reader");
+    const e = explainAppError(new Error("Operation not permitted. Verify the app has the necessary entitlements and that the application bundle is valid."));
+    expect(e.code).toBe("entitlement");
+    expect(tapErrorKey(e.code)).toBe("tapErr.entitlement");
+  });
+});

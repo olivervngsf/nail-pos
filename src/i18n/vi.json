@@ -150,7 +150,10 @@
       "declined": "Thẻ bị từ chối. Xin thẻ khác hoặc cách trả khác.",
       "busy": "Đang xong lần thử trước. Đợi một chút rồi thử lại.",
       "tap_start": "Tap to Pay chưa chạy. Thử lại.",
-      "no_reader": "Không thấy máy đọc thẻ. Bật máy, để gần rồi thử lại."
+      "no_reader": "Không thấy máy đọc thẻ. Bật máy, để gần rồi thử lại.",
+      "entitlement": "Bản app PolishOS này chưa nhận chạm thẻ được: cài không có quyền Tap to Pay của Apple (bản TestFlight). Cài bản thử có Tap to Pay ở polishosapp.com/ios rồi thử lại.",
+      "stuck": "App trên iPhone bị kẹt từ lần thử trước. Tắt hẳn PolishOS (vuốt lên), mở lại rồi bấm Tính tiền.",
+      "practice_stuck": "Chạm thử không trả lời nên đã dừng. Bấm Tính tiền để thử lại."
     },
     "cash": "Tiền mặt",
     "cashSub": "Nhập tiền khách đưa, máy tính tiền thối.",
