@@ -35,7 +35,7 @@ select pg_temp.try('fd_disc0', $q$select public.approve_discount('00000000-0000-
 
 -- owner changes it
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000fe01","role":"authenticated"}', true);
-select pg_temp.try('junk_role', $q$select public.role_perms_save('00000000-0000-0000-0000-0000000073a1', '{"tech":{"ok.refund":true}}')::text$q$);
+select pg_temp.try('junk_role', $q$select public.role_perms_save('00000000-0000-0000-0000-0000000073a1', '{"cashier":{"ok.refund":true}}')::text$q$);
 select pg_temp.try('junk_perm', $q$select public.role_perms_save('00000000-0000-0000-0000-0000000073a1', '{"manager":{"ok.everything":true}}')::text$q$);
 select pg_temp.try('saved', $q$select public.role_perms_save('00000000-0000-0000-0000-0000000073a1',
   '{"manager":{"ok.refund":false,"ok.close":true,"set.money":false},"front_desk":{"ok.discount":true,"set.team":true}}')::text$q$);
@@ -56,7 +56,7 @@ begin
   if (select v from t_out where k = 'mgr_disc0') <> 'true' then raise exception 'FAIL manager should OK a discount by default'; end if;
   if (select v from t_out where k = 'fd_disc0') <> 'false' then raise exception 'FAIL front desk should not OK a discount by default'; end if;
   if (select v from t_out where k = 'mgr_save') not like 'ERR%Only the owner%' then raise exception 'FAIL a manager changed permissions: %', (select v from t_out where k = 'mgr_save'); end if;
-  if (select v from t_out where k = 'junk_role') not like 'ERR%Unknown role%' then raise exception 'FAIL tech role accepted'; end if;
+  if (select v from t_out where k = 'junk_role') not like 'ERR%Unknown role%' then raise exception 'FAIL made-up role accepted'; end if;
   if (select v from t_out where k = 'junk_perm') not like 'ERR%Unknown permission%' then raise exception 'FAIL made-up permission accepted'; end if;
   -- only changes from the defaults are kept; front desk never gets Settings
   select role_perms::text into got from public.salons where id = s;
