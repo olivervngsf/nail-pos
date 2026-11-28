@@ -1561,7 +1561,7 @@ html[data-text="larger"] { zoom: 1.2; --vh: calc(100dvh / 1.2); }
 
 /* Touch screens 600–899 wide (iPhone Duo open, iPad upright): Cash received + paid screen's New ticket stay on screen while you scroll. */
 @media (min-width: 600px) and (max-width: 899px) and (pointer: coarse) {
-  .btn.ck-pin { position: sticky; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 30; height: 56px !important; box-shadow: 0 0 0 16px var(--paper), 0 48px 0 16px var(--paper), 0 -17px 0 0 var(--line); }
+  .btn.ck-pin { position: sticky; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 30; height: 56px !important; margin-top: 40px; /* clear of Refund + the last row above (paper edge reaches 17px up) */ box-shadow: 0 0 0 16px var(--paper), 0 48px 0 16px var(--paper), 0 -17px 0 0 var(--line); }
   .btn.primary.ck-pin:disabled { opacity: 1; background: #d4d4d9; border-color: #d4d4d9; color: #fff; }
 }
 
