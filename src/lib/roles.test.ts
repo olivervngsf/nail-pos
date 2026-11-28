@@ -36,4 +36,15 @@ describe("roles + permissions", () => {
     expect(diffFromDefaults({ manager: { "ok.refund": true, "ok.close": false }, front_desk: { "ok.menu": false, "set.team": true } }))
       .toEqual({ manager: { "ok.close": false } });
   });
+  it("tech profiles: techs edit only their own; managers edit + OK everyone's; quick levels keep the profile rows", () => {
+    expect(can({}, "tech", "pf.own")).toBe(true);
+    expect(can({}, "tech", "pf.team")).toBe(false);
+    expect(can({}, "tech", "ok.discount")).toBe(false);
+    expect(can({}, "manager", "pf.ok")).toBe(true);
+    expect(can({}, "front_desk", "pf.team")).toBe(false);
+    expect(can({ tech: { "pf.own": false } }, "tech", "pf.own")).toBe(false);
+    expect(diffFromDefaults({ tech: { "pf.own": false }, front_desk: { "pf.ok": true } })).toEqual({ front_desk: { "pf.ok": true }, tech: { "pf.own": false } });
+    const p = applyLevel({ front_desk: { "pf.team": true } }, "front_desk", "careful");
+    expect(can(p, "front_desk", "pf.team")).toBe(true);
+  });
 });

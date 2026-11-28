@@ -11,7 +11,7 @@ import { Banner, Button, Toast } from "@/components/kit";
 import { useLang } from "@/components/AppProviders";
 import { rpc } from "@/lib/auth";
 import {
-  LEVELS, OK_PERMS, SET_PERMS, applyLevel, cachedPerms, can, diffFromDefaults, levelOf, storePerms,
+  LEVELS, OK_PERMS, PF_PERMS, SET_PERMS, applyLevel, cachedPerms, can, diffFromDefaults, levelOf, storePerms,
   type EditRole, type Level, type Perm, type RolePerms,
 } from "@/lib/roles";
 import SettingsShell, { SaveCheck, type Access } from "../SettingsShell";
@@ -34,6 +34,9 @@ const WORDS: Record<Perm, W> = {
   "set.clients": ["Clients + booking", "Booking page, reminders, texting, loyalty, gift cards", "Khách + đặt lịch", "Trang đặt lịch, nhắc lịch, tin nhắn, tích điểm, thẻ quà"],
   "set.money": ["Pay the team", "Payout sheet", "Trả lương", "Bảng lương"],
   "set.safety": ["Safety + records", "Activity log, support access", "An toàn + lịch sử", "Nhật ký hoạt động, quyền hỗ trợ"],
+  "pf.own": ["Edit their own profile", "Photo, about me, best at, languages, work photos", "Sửa hồ sơ của mình", "Ảnh, giới thiệu, giỏi nhất, ngôn ngữ, ảnh tác phẩm"],
+  "pf.team": ["Edit everyone's profile", "Fill in for a tech, fix words, ask to update", "Sửa hồ sơ của mọi người", "Điền giúp thợ, sửa chữ, nhờ cập nhật"],
+  "pf.ok": ["OK new work photos", "Only when \"New photos need my OK\" is on", "Duyệt ảnh tác phẩm mới", "Chỉ khi bật \"Ảnh mới cần tôi duyệt\""],
 };
 const LEVEL_WORDS: Record<EditRole, Partial<Record<Level, [string, string, string, string]>>> = {
   manager: {
@@ -73,7 +76,7 @@ function Form({ a }: { a: Access }) {
   if (!a.owner) return <div className="card pad" data-testid="roles-owner-only">{T("Only the owner can change roles + permissions.", "Chỉ chủ tiệm mới đổi được quyền.")}</div>;
   if (!saved) return <div className="card pad" aria-busy="true">{T("Loading…", "Đang tải…")}</div>;
 
-  const flip = (role: EditRole, k: Perm) => setDraft((d) => ({ ...d, [role]: { ...(d[role] ?? {}), [k]: !can(d, role, k) } }));
+  const flip = (role: EditRole | "tech", k: Perm) => setDraft((d) => ({ ...d, [role]: { ...(d[role] ?? {}), [k]: !can(d, role, k) } }));
   const clean = diffFromDefaults(draft);
   const changed = JSON.stringify(clean) !== JSON.stringify(diffFromDefaults(saved));
   const roleName = (r: EditRole) => (r === "manager" ? T("Manager", "Quản lý") : T("Front desk", "Lễ tân"));
@@ -104,6 +107,12 @@ function Form({ a }: { a: Access }) {
     );
   };
 
+  // Techs get one right only: their own profile (pf.own). Every other row stays "never" for techs.
+  const techCell = (k: Perm) => k !== "pf.own" ? <span className="rp-never" aria-label={T("Never", "Không bao giờ")}>—</span> : (() => {
+    const on = can(draft, "tech", k);
+    return <button type="button" role="checkbox" aria-checked={on} aria-label={`${T("Tech", "Thợ")}: ${vi ? WORDS[k][2] : WORDS[k][0]}`} className={`rp-hit${on ? " is-on" : ""}`}
+      onClick={() => flip("tech", k)} data-testid={`perm-tech-${k}`}><span className="rp-box" aria-hidden><Check on={on} /></span></button>;
+  })();
   const section = (title: string, keys: readonly Perm[]) => (
     <>
       <div className="rp-sec" role="row"><span role="columnheader">{title}</span></div>
@@ -114,7 +123,7 @@ function Form({ a }: { a: Access }) {
             <span className="rp-what" role="rowheader"><b>{vi ? v : en}</b><span className="cap">{vi ? viSub : enSub}</span></span>
             <span className="rp-c rp-fixed" role="cell"><span className="rp-always" role="img" aria-label={T("Always", "Luôn luôn")}><Check on /></span></span>
             {ROLES.map((r) => <span key={r} className="rp-c" role="cell">{cell(r, k)}</span>)}
-            <span className="rp-c rp-fixed" role="cell"><span className="rp-never" aria-label={T("Never", "Không bao giờ")}>—</span></span>
+            <span className={`rp-c${k === "pf.own" ? "" : " rp-fixed"}`} role="cell">{techCell(k)}</span>
           </div>
         );
       })}
@@ -159,6 +168,7 @@ function Form({ a }: { a: Access }) {
         </div>
         {section(T("OK with their PIN", "Duyệt bằng PIN"), OK_PERMS)}
         {section(T("Open in Settings", "Mở trong Cài đặt"), SET_PERMS)}
+        {section(T("Tech profiles", "Hồ sơ thợ"), PF_PERMS)}
       </div>
       <ul className="rem-notes">
         <li>{T("Grey tick = always (owner). Dash = never for that role. Techs see their own bookings, tickets and earnings only.",
