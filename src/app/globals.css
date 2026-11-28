@@ -2367,8 +2367,8 @@ button.tm-tile:hover { border-color: var(--line); }
 .tm-tile.on { border-color: var(--ink); }
 .tm-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .tm-search { flex: 1 1 200px; max-width: 280px; min-width: 0; }
-.tm-sels { display: flex; gap: 8px; margin-left: auto; }
-.tm-sels .sel { width: auto; flex: none; }
+.tm-sels { display: flex; gap: 8px; margin-left: auto; min-width: 0; max-width: 100%; }
+.tm-sels .sel { width: auto; flex: 0 1 auto; min-width: 0; text-overflow: ellipsis; }
 .tm-group { display: flex; flex-direction: column; gap: 6px; }
 .tm-gh { display: flex; align-items: baseline; gap: 8px; padding: 4px 2px 0; }
 .tm-row { cursor: pointer; }
