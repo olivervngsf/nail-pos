@@ -76,7 +76,7 @@ export function TechTabs() {
 /** One tab's page: top bar, body, tabs. */
 export function TechShell({ title, me, err, children }: { title: string; me: TechMe | null; err?: string; children: ReactNode }) {
   return (
-    <div className="phone">
+    <div className="phone tk-phone">
       <PhoneBar title={title} left={me ? <TechSheet me={me} /> : null} right={<SyncPill />} />
       {err ? <div className="pbody"><p className="hint err">{err}</p></div>
         : !me ? <div className="pbody" aria-busy="true" />

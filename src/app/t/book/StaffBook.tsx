@@ -39,8 +39,8 @@ export default function StaffBookPage() {
       } catch (e) { setErr((e as Error).message); }
     })();
   }, [router]);
-  if (err) return <div className="phone"><PhoneBar title="PolishOS" /><div className="pbody"><p className="hint err">{err}</p></div></div>;
-  if (!me) return <div className="phone" aria-busy="true" />;
+  if (err) return <div className="phone tk-phone"><PhoneBar title="PolishOS" /><div className="pbody"><p className="hint err">{err}</p></div></div>;
+  if (!me) return <div className="phone tk-phone" aria-busy="true" />;
   return <Book me={me} />;
 }
 
@@ -138,7 +138,7 @@ function Book({ me }: { me: Me }) {
   const n = order.indexOf(step);
   const title = step === "day" ? t("myDay") : t("newBooking");
   return (
-    <div className="phone">
+    <div className="phone tk-phone">
       <PhoneBar title={<span>{title}{n >= 0 && <span className="cap"> · {t("step", { n: n + 1 })}</span>}</span>}
         left={BACK[step] ? <button type="button" className="btn ghost" onClick={() => setStep(BACK[step]!)}>{t("back")}</button> : step === "day" ? <button type="button" className="btn ghost" onClick={() => router.push("/t")}>{t("back")}</button> : undefined}
         right={<SyncPill />} />
