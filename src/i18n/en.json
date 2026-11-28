@@ -276,6 +276,7 @@
     "slipBack": "Bring it back to the front desk to pay.",
     "slipPrinted": "Slip printed. The tech scans its QR to add services; scan it here again to pay.",
     "scanPh": "Scan slip or type ticket #",
+    "scanPhShort": "Scan or ticket #",
     "scanNone": "No open ticket found for that slip or number.",
     "loyalty": "Loyalty",
     "ptsUnit": "pts",

@@ -2054,7 +2054,14 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .bar-fact { font-weight: 400; color: var(--ink-soft); }
 .bar.has-find .title { flex: 0 1 auto; }
 .bar-find { flex: 1; min-width: 0; display: flex; justify-content: center; }
-.bar-find .co-scan { width: 380px; }
+.bar-find .co-scan { width: 100%; max-width: 380px; min-width: 0; }
+/* Small tablets + iPhone Duo open (600–899): drop the fact so the scan box keeps room for its words. */
+@media (min-width: 600px) and (max-width: 899px) {
+  .bar.has-find .bar-fact { display: none; }
+  /* calm "Saved" = just the green dot here (words stay for screen readers); problems keep their words */
+  .bar.has-find .pill.ok { padding: 0 9px; gap: 0; }
+  .bar.has-find .pill.ok .pill-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
 .bar-back { flex: none; }
 @media (max-width: 599px) { .bar-fact { display: none; } }
 
