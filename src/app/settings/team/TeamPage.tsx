@@ -288,7 +288,7 @@ function MemberDrawer({ a, m, onClose, onSaved, onChanged }: { a: Access; m: Mem
             <div className="cap" style={{ marginTop: 6 }}>{t(`m.roleNote.${x.role}`)}</div></div>
         )}
         <div><span className="lbl">{t("m.workdays")}</span>
-          <div className="set-chips">{DAYS.map((d, i) => <Chip key={d} on={x.workdays.includes(i)} onClick={() => set({ workdays: toggle(x.workdays, i).sort() })}>{t(`days.${i}`)}</Chip>)}</div></div>
+          <div className="set-chips tm-days">{DAYS.map((d, i) => <Chip key={d} on={x.workdays.includes(i)} onClick={() => set({ workdays: toggle(x.workdays, i).sort() })}>{t(`days.${i}`)}</Chip>)}</div></div>
         {x.role === "tech" && <>
           <div><span className="lbl">{t("m.skills")}</span>
             <div className="set-chips">{SKILLS.map((s) => <Chip key={s} on={x.skills.includes(s)} onClick={() => set({ skills: toggle(x.skills, s) })}>{s}</Chip>)}</div>

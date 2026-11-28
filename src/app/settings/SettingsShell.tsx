@@ -2,7 +2,7 @@
 // Settings frame (board 5.1): left menu + settings side nav + one section. Owner/manager only; on a salon device the person
 // unlocked with the faces screen must be an owner or manager (else: lock and come back with that PIN).
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -101,8 +101,22 @@ export function SettingsNav({ role, q = "" }: { role: Role; q?: string }) {
   const path = usePathname();
   const items = useItems(role, q);
   const groups = GROUPS.map((g) => ({ g, items: items.filter((n) => n.group === g) })).filter((x) => x.items.length);
+  // Each Settings page mounts a fresh menu: keep it where the person left it (Oliver, Nov 27: tapping Booking page
+  // must not jump the menu back to the top). Restore before paint; then make sure the picked item is in view.
+  const ref = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    const nav = ref.current;
+    if (!nav) return;
+    try { nav.scrollTop = Number(sessionStorage.getItem(NAV_Y) || 0); } catch { /* */ }
+    const on = nav.querySelector<HTMLElement>("a.on");
+    if (on) {
+      const n = nav.getBoundingClientRect(), r = on.getBoundingClientRect();
+      if (r.top < n.top || r.bottom > n.bottom) on.scrollIntoView({ block: "nearest" });
+    }
+  }, [path]);
+  const keep = () => { try { if (ref.current) sessionStorage.setItem(NAV_Y, String(ref.current.scrollTop)); } catch { /* */ } };
   return (
-    <nav className="set-nav" aria-label={t("title")}>
+    <nav ref={ref} className="set-nav" aria-label={t("title")} onScroll={keep}>
       <div className="set-nav-title">{t("title")}<span className="set-nav-who">{t("who")}</span></div>
       {groups.map(({ g, items }) => (
         <div key={g} className="set-nav-group">
@@ -124,6 +138,7 @@ export function SettingsNav({ role, q = "" }: { role: Role; q?: string }) {
 }
 
 const BACK = "nailpos.setBack";
+const NAV_Y = "nailpos.setNavY";
 /** The words in Settings search, kept while Settings is open: a page opened from a search result goes ‹ Search,
  *  back to the same results (Apple's rule). Cleared when the box is emptied or Settings closes. */
 const SEARCH = "nailpos.setQ";

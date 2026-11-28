@@ -100,3 +100,19 @@ test("computers: every Settings menu item opens inside the window", async ({ pag
   await expect(page).toHaveURL(/\/payouts$/);
   await expect(page.locator(".set-win")).toHaveCount(0);
 });
+
+// Oliver, Nov 27: tapping an item low in the menu keeps the menu where it was (no jump back to the top).
+test("computers: the Settings menu stays where you scrolled after opening a page", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "the side menu is beside the page on computers");
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/settings/salon");
+  const nav = page.locator(".set-win .set-nav");
+  await expect(nav).toBeVisible();
+  await nav.evaluate((n) => { n.scrollTop = 520; n.dispatchEvent(new Event("scroll")); });
+  const item = page.getByTestId("nav-bookingPage");
+  const before = (await item.boundingBox())!.y;
+  await item.click();
+  await expect(page).toHaveURL(/\/settings\/booking-page$/);
+  await expect(page.locator(".set-win .set-nav a.on")).toHaveAttribute("data-testid", "nav-bookingPage");
+  await expect.poll(async () => Math.round((await item.boundingBox())!.y)).toBe(Math.round(before));
+});

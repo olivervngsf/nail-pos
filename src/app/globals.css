@@ -2407,3 +2407,6 @@ button.tm-tile:hover { border-color: var(--line); }
 .jn-row .cap { line-height: 20px; margin-top: 2px; }
 .jn-ic { width: 32px; height: 32px; border-radius: 50%; background: var(--fill); color: var(--ink); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex: none; letter-spacing: -1px; }
 .jn-foot { text-align: center; }
+/* Team drawer: the 7 work days always sit on one row (Oliver, Nov 27). */
+.set-chips.tm-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.set-chips.tm-days > * { padding-left: 0; padding-right: 0; justify-content: center; min-width: 0; }
