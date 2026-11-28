@@ -233,4 +233,5 @@ Docs win over this file if they disagree. Update this file when a big decision l
 ## How we work
 - ONE place to track (Oliver, Nov 24): the Build Tracker doc https://claude.ai/artifact/6DjfxMPXy64uDX8YZdCCnt (Claude Docs; edit with the Claude Docs connector, doc id `2a44ea76-125f-483a-bd07-2d4ad141de29`). Tab "Build Tracker" = status per feature; tab "Session log" = one row per topic (date · topic · discussed/decided · built · PR, newest first) + a "Waiting on Oliver" checklist. At the END of EVERY session: add the session's rows, tick/add Waiting-on-Oliver items, move feature statuses. Before building, read the Session log's newest rows + Waiting list.
 - One feature per session. Plan in docs, build here.
+- ALWAYS show the result (Oliver, Nov 28): after finishing any coding, send Oliver a short clip (under 10 s, Playwright video/GIF) or screenshots of the changed screens (phone, tablet, desktop where it matters) with SendUserFile. Screen work isn't "done" until he has seen it.
 - User is not a coder: plain words, short answers.
