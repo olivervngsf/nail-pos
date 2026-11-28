@@ -93,7 +93,7 @@ export function useTickets(salonId: string) {
 
 type Row = {
   id: string; number: number; status: "open" | "paid" | "refunded" | "voided"; created_at: string; note: string; opened_by: string | null;
-  client: { id: string; phone: string | null; name: string; email: string | null } | null; client_name: string | null;
+  client: { id: string; phone?: string | null; name: string; email?: string | null } | null; client_name: string | null;
   ticket_lines: { id: string; kind: string; service_id: string | null; staff_id: string | null; name: string; minutes: number | null; amount_cents: number; price_from: boolean; reason: string | null; approval_id: string | null; removed_at: string | null; sort: number; gift_card_id: string | null;
     source: "desk" | "phone"; desk_seen_at: string | null; tech_removed_at: string | null; price_open: boolean; added_at: string | null }[];
   payments: { id: string; method: "cash" | "card_reader" | "pay_link" | "gift_card"; status: string; gift_card_id: string | null; given_cents: number | null; amount_cents: number; fee_cents: number; card_brand: string | null; card_last4: string | null; at: string; taken_by: string | null }[];
@@ -104,12 +104,20 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
   const sb = getSupabase();
   if (!sb || !live) return;
   let q = sb.from("tickets")
-    .select("id,number,status,created_at,note,opened_by,client_name,client:clients(id,phone,name,email),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort,gift_card_id,source,desk_seen_at,tech_removed_at,price_open,added_at),payments(id,method,status,gift_card_id,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
+    .select("id,number,status,created_at,note,opened_by,client_name,client:clients(id,name),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort,gift_card_id,source,desk_seen_at,tech_removed_at,price_open,added_at),payments(id,method,status,gift_card_id,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
     .eq("salon_id", salonId).neq("status", "voided");
   q = onlyId ? q.eq("id", onlyId) : q.gte("created_at", since);
   const { data, error } = await q.order("created_at", { ascending: false }).limit(200);
   if (error) throw new Error(error.message);
-  for (const r of (data ?? []) as unknown as Row[]) {
+  const rows = (data ?? []) as unknown as Row[];
+  // Phone + email come from the server as this person may see them: full for the owner, ••7011 / mari•••@… for everyone else.
+  const ids = [...new Set(rows.map((r) => r.client?.id).filter((x): x is string => !!x))];
+  if (ids.length) {
+    const contact = new Map((await rpc<{ id: string; phone: string; email: string }[]>("ticket_clients", { p_salon: salonId, p_ids: ids }).catch(() => []))
+      .map((c) => [c.id, c]));
+    for (const r of rows) if (r.client) { const c = contact.get(r.client.id); r.client.phone = c?.phone ?? getTicket(r.id)?.client?.phone ?? null; r.client.email = c?.email || null; }
+  }
+  for (const r of rows) {
     const lines = r.ticket_lines.filter((l) => !l.removed_at).sort((a, b) => a.sort - b.sort);
     const disc = lines.find((l) => l.kind === "discount");
     // 'extra' = card money that came in for a stopped try (flagged to refund), not this ticket's payment.

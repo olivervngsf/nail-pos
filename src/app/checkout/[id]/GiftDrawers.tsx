@@ -2,6 +2,7 @@
 // Checkout · gift cards (Loyalty + Gift Cards board: GiftSell G3–G5 + G17, GiftUse G7–G9; Checkout Tk6).
 // Sell: new digital (code made by the server), new plastic (scan a blank card), or add money to a card.
 // Use: scan / type a code or find by the client's phone → checks → use part or all of it.
+import { isMasked, showPhone } from "@/lib/contact";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Banner, Button, Chip, Drawer, Field } from "@/components/kit";
@@ -40,7 +41,9 @@ function Refused({ r }: { r: GiftResult }) {
 function FindCard({ desk, ticket, onFound, want }: { desk: Desk; ticket: Ticket; want: "use" | "plastic" | "reload"; onFound: (r: GiftResult | null) => void }) {
   const t = useTranslations("gift");
   const [code, setCode] = useState("");
-  const [phone, setPhone] = useState(ticket.client?.phone ? fmtPhone(ticket.client.phone) : "");
+  const [phone, setPhone] = useState(showPhone(ticket.client?.phone));
+  // Hidden ••7011 (everyone but the owner): look up this ticket's client by id instead of the number.
+  const onFile = isMasked(phone) && phone === ticket.client?.phone && !!ticket.client?.id;
   const [list, setList] = useState<GiftResult[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -51,7 +54,7 @@ function FindCard({ desk, ticket, onFound, want }: { desk: Desk; ticket: Ticket;
   };
   const byPhone = async () => {
     setBusy(true); setErr(""); onFound(null);
-    try { setList(await giftFind(desk, e164(phone))); } catch (e) { setErr(navigator.onLine ? (e as Error).message : t("needNet")); }
+    try { setList(await (onFile ? giftFind(desk, "", ticket.client!.id) : giftFind(desk, e164(phone)))); } catch (e) { setErr(navigator.onLine ? (e as Error).message : t("needNet")); }
     setBusy(false);
   };
   return <>
@@ -65,7 +68,7 @@ function FindCard({ desk, ticket, onFound, want }: { desk: Desk; ticket: Ticket;
       <div className="eyebrow">{t("orPhone")}</div>
       <div style={{ display: "flex", gap: 8 }}>
         <input className="inp" inputMode="tel" aria-label={t("phone")} placeholder="(408) 555-0199" value={phone} onChange={(e) => setPhone(fmtPhone(e.target.value))} />
-        <Button disabled={busy || !phoneOk(phone)} data-testid="gift-phone" onClick={() => void byPhone()}>{t("find")}</Button>
+        <Button disabled={busy || !(phoneOk(phone) || onFile)} data-testid="gift-phone" onClick={() => void byPhone()}>{t("find")}</Button>
       </div>
       {list && (list.length ? <div className="group">{list.map((r) => (
         <button key={r.card!.id} type="button" className="opt" onClick={() => { setList(null); onFound(r); }}>

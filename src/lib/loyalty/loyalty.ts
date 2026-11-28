@@ -17,11 +17,12 @@ export const pointsFor = (r: Pick<LoyaltyRule, "kind" | "pointsPerDollar">, serv
 /** How far to the next reward (0 = ready). */
 export const toNext = (points: number, rewardPoints: number) => Math.max(0, rewardPoints - points);
 
-export async function clientLoyalty(live: boolean, salonId: string, phone: string): Promise<ClientLoyalty | null> {
+export async function clientLoyalty(live: boolean, salonId: string, phone: string, clientId?: string): Promise<ClientLoyalty | null> {
   if (!live) {
     const r = demoRule();
     if (!r.on || phone !== "+14085550142") return r.on ? { points: 0, kind: r.kind, pointsPerDollar: r.pointsPerDollar, rewardPoints: r.rewardPoints, rewardCents: r.rewardCents, ready: false } : null;
     return { points: 105, kind: r.kind, pointsPerDollar: r.pointsPerDollar, rewardPoints: r.rewardPoints, rewardCents: r.rewardCents, ready: 105 >= r.rewardPoints };
   }
-  return rpc<ClientLoyalty | null>("loyalty_for_client", { p_salon: salonId, p_phone: phone });
+  // By client id when we have it: the device may only hold ••7011 (full phone = owner only).
+  return rpc<ClientLoyalty | null>("loyalty_for_client", { p_salon: salonId, p_phone: phone, p_client: clientId ?? null });
 }
