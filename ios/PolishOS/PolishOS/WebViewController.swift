@@ -48,21 +48,26 @@ final class WebViewController: UIViewController, WKScriptMessageHandler, WKNavig
         view = root
     }
 
-    /** Left / right space to keep clear: the larger of iOS's safe area and a side-mounted status bar. */
-    private func sideInsets() -> (left: CGFloat, right: CGFloat) {
-        var left = view.safeAreaInsets.left, right = view.safeAreaInsets.right
+    /** Space to keep clear around the page. iOS's safe area, plus wherever the status bar (time, signal, camera)
+     *  really sits: iPhone Duo folded = a column down the RIGHT edge; Duo open = a small pill in the top-right
+     *  corner that iOS doesn't count as safe area (Nov 28: it covered Saved / New ticket / Book). A tall bar on a
+     *  side keeps that side clear; any other bar near the top keeps the top clear down to its bottom edge. */
+    private func clearInsets() -> UIEdgeInsets {
+        var e = UIEdgeInsets(top: 0, left: view.safeAreaInsets.left, bottom: 0, right: view.safeAreaInsets.right)
         let w = view.bounds.width
-        if let bar = view.window?.windowScene?.statusBarManager?.statusBarFrame, bar.height > bar.width, bar.width < w / 2 {
-            let local = view.convert(bar, from: nil)
-            if local.midX > w / 2 { right = max(right, w - local.minX) } else { left = max(left, local.maxX) }
+        guard let raw = view.window?.windowScene?.statusBarManager?.statusBarFrame, !raw.isEmpty else { return e }
+        let bar = view.convert(raw, from: nil)
+        if bar.height > bar.width, bar.width < w / 2 {
+            if bar.midX > w / 2 { e.right = max(e.right, w - bar.minX) } else { e.left = max(e.left, bar.maxX) }
+        } else if bar.minY < 4, bar.maxY < view.bounds.height / 3 {
+            e.top = max(view.safeAreaInsets.top, bar.maxY)
         }
-        return (left, right)
+        return e
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        let side = sideInsets()
-        web.frame = CGRect(x: side.left, y: 0, width: max(0, view.bounds.width - side.left - side.right), height: view.bounds.height)
+        web.frame = view.bounds.inset(by: clearInsets())
     }
 
     override func viewSafeAreaInsetsDidChange() {
