@@ -2447,3 +2447,7 @@ button.tm-tile:hover { border-color: var(--line); }
 /* Team drawer: the 7 work days always sit on one row (Oliver, Nov 27). */
 .set-chips.tm-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .set-chips.tm-days > * { padding-left: 0; padding-right: 0; justify-content: center; min-width: 0; }
+/* Settings page → page (Nov 27): window + menu stay still; only the page side fades in, quick and soft (like Claude). */
+@keyframes setPageIn { from { opacity: 0; } to { opacity: 1; } }
+.set-win .set-win-b > .col, .set-win .set-win-b > .set-list { animation: setPageIn var(--t-mid) var(--ease) both; }
+@media (prefers-reduced-motion: reduce) { .set-win .set-win-b > .col, .set-win .set-win-b > .set-list { animation: none; } }

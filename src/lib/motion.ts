@@ -28,6 +28,23 @@ export const LEAVERS: Leaver[] = [
   { sel: ".sr-pop", kind: "pop", local: true },
 ];
 const ALL = LEAVERS.map((l) => l.sel).join(",");
+
+/* Settings page → page (Oliver, Nov 27: "Claude motion didn't look like that"). Each Settings page mounts its own
+   window, so a page switch removes the old window a moment before the new one mounts. That is a swap, not a close:
+   the window, scrim and menu must stay still and only the page side changes. A tap on a link inside the window that
+   stays in Settings (or browser back/forward landing in Settings) marks a swap for a short moment. */
+const IN_SETTINGS = /^\/(settings|me)(\/|$|\?)/;
+const SWAP_SEL = new Set([".set-win", ".set-scrim"]);
+let setSwapAt = 0;
+const settingsSwap = () => Date.now() - setSwapAt < 1500;
+function markSwap(e: Event) {
+  const a = (e.target as Element | null)?.closest?.(".set-win a[href]") as HTMLAnchorElement | null;
+  let stay = false;
+  try { stay = !!a && IN_SETTINGS.test(new URL(a.href, location.href).pathname); } catch { /* */ }
+  setSwapAt = stay ? Date.now() : 0; // any other tap (X, Sign out, a link out) = a real close: let it fade
+}
+const clearSwap = (e: KeyboardEvent) => { if (e.key === "Escape") setSwapAt = 0; };
+const markPop = () => { if (IN_SETTINGS.test(location.pathname)) setSwapAt = Date.now(); };
 const MAX_MS = 700; // safety: a copy never stays longer than this
 
 export const reducedMotion = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -169,6 +186,9 @@ export function startLeaveWatch(): () => void {
   if (typeof window === "undefined" || typeof MutationObserver === "undefined") return () => {};
   const onScroll = (e: Event) => { const t = e.target; if (t instanceof Element) scrolls.set(t, [t.scrollTop, t.scrollLeft]); };
   document.addEventListener("scroll", onScroll, true);
+  document.addEventListener("click", markSwap, true);
+  window.addEventListener("popstate", markPop);
+  document.addEventListener("keydown", clearSwap, true);
   document.querySelectorAll<HTMLElement>(".seg").forEach(slideSeg);
   const mo = new MutationObserver((recs) => {
     for (const r of recs) {
@@ -200,6 +220,7 @@ export function startLeaveWatch(): () => void {
           if (el.isConnected) continue; // moved, not removed
           // a swap (one drawer for another, Settings page to page) is not a close
           if (Array.from(document.querySelectorAll(l.sel)).some((x) => !x.closest(".lv"))) continue;
+          if (SWAP_SEL.has(l.sel) && settingsSwap()) continue;
           const parent = r.target as HTMLElement;
           const home = top && parent.isConnected ? parent : l.local ? null : document.body;
           if (!home) continue;
@@ -212,7 +233,7 @@ export function startLeaveWatch(): () => void {
     }
   });
   mo.observe(document.body, { childList: true, subtree: true, characterData: true });
-  return () => { mo.disconnect(); document.removeEventListener("scroll", onScroll, true); document.querySelectorAll<HTMLElement>(".seg").forEach(unSeg); };
+  return () => { mo.disconnect(); document.removeEventListener("scroll", onScroll, true); document.removeEventListener("click", markSwap, true); window.removeEventListener("popstate", markPop); document.removeEventListener("keydown", clearSwap, true); document.querySelectorAll<HTMLElement>(".seg").forEach(unSeg); };
 }
 
 /** In-flow things (banners): fold the real one away, then call done (which removes it). Instant with reduced motion. */
