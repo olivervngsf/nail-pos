@@ -910,6 +910,8 @@
     "adOwnerOnly": "Owner only",
     "adCall": "Call",
     "adText": "Text reminder",
+    "adReachErr": "Couldn't get the number. The owner may have turned this off for your role.",
+    "adReachOffline": "Calling or texting from here needs internet.",
     "adStep_booked": "Booked",
     "adStep_confirmed": "Confirmed",
     "adStep_here": "Here",

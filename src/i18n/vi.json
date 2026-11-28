@@ -910,6 +910,8 @@
     "adOwnerOnly": "Chỉ chủ tiệm",
     "adCall": "Gọi",
     "adText": "Nhắn nhắc lịch",
+    "adReachErr": "Không lấy được số. Chủ tiệm có thể đã tắt mục này cho vai trò của bạn.",
+    "adReachOffline": "Cần có mạng để gọi hoặc nhắn tin từ đây.",
     "adStep_booked": "Đã đặt",
     "adStep_confirmed": "Đã xác nhận",
     "adStep_here": "Đã đến",
