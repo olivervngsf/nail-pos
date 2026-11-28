@@ -80,3 +80,6 @@ Apps built with an older iOS SDK open on the iPhone Duo's inner screen at iPhone
 open screen and the web page inside switches to its tablet layout by itself. Both workflows
 (`ios.yml`, `testflight.yml`) run on GitHub's `xcode-27` image with the newest released Xcode 27 (27.2 on Nov 28); they stop
 with a clear message if the Mac has none. After a build, install the new version on the phone.
+Apps built with the iOS 27 SDK must use the scene life cycle or they crash at launch: the window is made
+in `SceneDelegate.swift` (Info.plist `UIApplicationSceneManifest`), never in `AppDelegate`. The CI job opens
+the app on a simulated iPhone after building and fails if it crashed.

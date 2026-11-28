@@ -41,5 +41,17 @@ jobs:
         run: |
           xcodebuild -project PolishOS.xcodeproj -scheme PolishOS -configuration Debug \
             -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
-            CODE_SIGNING_ALLOWED=NO build | tail -40
+            -derivedDataPath "$RUNNER_TEMP/dd" CODE_SIGNING_ALLOWED=NO build | tail -40
           test "${PIPESTATUS[0]}" -eq 0
+      # Compiling is not enough: on Nov 28 a build that compiled crashed the moment it opened (iOS 27 SDK
+      # needs the scene life cycle). Open the app on a simulated iPhone and fail if it is gone after 15 s.
+      - name: Open the app on a simulated iPhone (must not crash)
+        run: |
+          APP=$(ls -d "$RUNNER_TEMP"/dd/Build/Products/Debug-iphonesimulator/PolishOS.app)
+          DEV=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(x["udid"] for k,v in d.items() if "iOS" in k for x in v if x["name"].startswith("iPhone")))')
+          xcrun simctl boot "$DEV"; xcrun simctl bootstatus "$DEV" -b
+          xcrun simctl install "$DEV" "$APP"
+          xcrun simctl launch "$DEV" com.polishos.app
+          sleep 15
+          if xcrun simctl spawn "$DEV" launchctl list | grep -q 'com.polishos.app'; then echo "App still running after 15 s: OK"; else
+            echo "PolishOS crashed or quit on launch."; ls ~/Library/Logs/DiagnosticReports 2>/dev/null | tail -5; exit 1; fi
