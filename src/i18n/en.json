@@ -2092,7 +2092,8 @@
       "textSize": "Text size",
       "roles": "Roles",
       "timesheet": "Timesheet",
-      "payRules": "Pay rules"
+      "payRules": "Pay rules",
+      "notifications": "Notifications"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -3093,7 +3094,9 @@
       "support_change": "PolishOS support changed something",
       "roles_saved": "Roles + permissions changed",
       "clock_fix": "Clock time fixed",
-      "amenities_saved": "Changed what the salon offers"
+      "amenities_saved": "Changed what the salon offers",
+      "alert_queued": "Alert sent to owner",
+      "notify_saved": "Notifications changed"
     }
   },
   "picker": {
@@ -3115,6 +3118,11 @@
     "title": "What’s new",
     "sub": "The latest changes to PolishOS, newest first.",
     "items": [
+      {
+        "date": "Nov 27",
+        "title": "Notifications",
+        "body": "Settings → Notifications: pick who gets alerts and how. Big refunds, big discounts, a short cash drawer, PIN lock-outs, refused clock-ins, a failed plan payment and low text credit now email the owner and managers."
+      },
       {
         "date": "Nov 26",
         "title": "My sign-ins",
