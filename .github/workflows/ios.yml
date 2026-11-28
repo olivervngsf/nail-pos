@@ -15,16 +15,21 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Use Xcode 26 or newer (Apple refuses uploads built with older Xcode)
+      # Xcode 27.1+ = iOS 27.1 SDK. Apps built with an older SDK run letterboxed (iPhone size + black bars)
+      # on the iPhone Duo's open screen; 27.1+ fills it. Prefer a released Xcode over a beta.
+      - name: Use Xcode 27.1 or newer (fills the iPhone Duo's open screen)
         run: |
-          X=$(ls -d /Applications/Xcode_2[6-9]*.app 2>/dev/null | sort -V | tail -1)
-          test -n "$X" || { echo "No Xcode 26+ on this Mac. Installed:"; ls -d /Applications/Xcode*.app; exit 1; }
+          ls -d /Applications/Xcode*.app
+          pick() { ls -d /Applications/Xcode_*.app 2>/dev/null | grep -E 'Xcode_(27\.([1-9]|[1-9][0-9])|2[89]|[3-9][0-9])' | grep -viE "$1" | sort -V | tail -1; }
+          X=$(pick 'beta|rc'); test -n "$X" || X=$(pick '^$')
+          test -n "$X" || { echo "No Xcode 27.1+ on this Mac (needed so the app fills the iPhone Duo screen)."; exit 1; }
           sudo xcode-select -s "$X/Contents/Developer"
           xcodebuild -version
+          xcodebuild -showsdks | grep -i iphoneos
       - name: Make the Xcode project
         working-directory: ios/PolishOS
         run: brew install xcodegen && xcodegen generate
