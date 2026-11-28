@@ -103,14 +103,19 @@ function Team({ a, edit, setEdit }: { a: Access; edit: Member | null; setEdit: (
           </button>
         ))}
       </div>
+      {/* One quiet bar (Oliver, Nov 28): search on the left, who + order as two dropdowns on the right. A tile's filter
+          shows as the dropdown's picked option, so the bar always says what the list is showing. */}
       <div className="tm-bar">
-        {(["all", "tech", "desk"] as const).map((f) => <Chip key={f} on={filter === f} onClick={() => setFilter(f)}>{t(`team.f.${f}`)} {count(f)}</Chip>)}
-        {!["all", "tech", "desk"].includes(filter) && <Chip on onClick={() => setFilter("all")}>{t(`team.tile.${filter}`)} ✕</Chip>}
-        <span style={{ flex: 1 }} />
-        <select className="sel tm-sort" aria-label={t("team.sortBy")} data-testid="team-sort" value={sort} onChange={(e) => setSort(e.target.value as TeamSort)}>
-          {TEAM_SORTS.map((x) => <option key={x} value={x}>{t(`team.sort.${x}`)}</option>)}
-        </select>
         <input className="inp tm-search" type="search" placeholder={t("team.search")} aria-label={t("team.search")} value={q} onChange={(e) => setQ(e.target.value)} />
+        <span className="tm-sels">
+          <select className="sel tm-role" aria-label={t("team.showWho")} data-testid="team-role" value={filter} onChange={(e) => setFilter(e.target.value as Filter)}>
+            {(["all", "tech", "desk"] as const).map((f) => <option key={f} value={f}>{t(`team.f.${f}`)} {count(f)}</option>)}
+            {!["all", "tech", "desk"].includes(filter) && <option value={filter}>{t(`team.tile.${filter}`)} {count(filter)}</option>}
+          </select>
+          <select className="sel tm-sort" aria-label={t("team.sortBy")} data-testid="team-sort" value={sort} onChange={(e) => setSort(e.target.value as TeamSort)}>
+            {TEAM_SORTS.map((x) => <option key={x} value={x}>{t(`team.sort.${x}`)}</option>)}
+          </select>
+        </span>
       </div>
       {grouped
         ? TEAM_GROUPS.map((g) => {
