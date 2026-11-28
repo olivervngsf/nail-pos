@@ -532,7 +532,7 @@ function CardWait({ desk, ticket, method, onBack }: { desk: Desk; ticket: Ticket
   const [copied, setCopied] = useState(false);
   const started = useRef(false);
   const sum = totals(ticket);
-  const reader = desk.pay.readers[0];
+  const reader = desk.pay.readers.find((r) => !r.simulated) ?? desk.pay.readers[0]; // a real reader wins over the test one
 
   const start = useCallback(async () => {
     setErr(""); setPr(null);
