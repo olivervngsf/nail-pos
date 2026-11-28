@@ -18,6 +18,8 @@ import { skillsNeeded } from "@/lib/booking/skills";
 import { GoodFit, SkillTags } from "./SkillTags";
 import { CustomService } from "./CustomService";
 import { ClientFacts } from "./ClientFacts";
+import { EditServices } from "./EditServices";
+import { canEditServices } from "@/lib/booking/editServices";
 import { last4 } from "@/lib/clients";
 import { useLang } from "@/components/AppProviders";
 import { canContact, dialFor, isMasked, logContact, reminderBody, seesFullPhone, smsHref, telHref, useContactSettings } from "@/lib/clientContact";
@@ -228,6 +230,7 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
   const router = useRouter();
   const contact = useContactSettings(desk.salonId, desk.mode === "demo");
   const [reachErr, setReachErr] = useState("");
+  const [editing, setEditing] = useState(false);
   const { lang } = useLang();
   const st = statusOf(a);
   const staff = desk.staff.find((s) => s.id === a.staffId);
@@ -322,8 +325,10 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
         {reachErr && <div className="hint err" data-testid="appt-reach-err">{reachErr}</div>}
       </div>
       {a.client?.care && <div className="card cl-care"><b>▲ {t("care")}</b></div>}
-      {a.services.length > 0 && <>
-        <div className="eyebrow">{t("adServices", { n: a.services.length })}</div>
+      {editing && <EditServices desk={desk} a={a} say={say} onDone={() => setEditing(false)} />}
+      {!editing && a.services.length > 0 && <>
+        <div className="ad-svc-h"><span className="eyebrow">{t("adServices", { n: a.services.length })}</span>
+          {canEditServices(a) && <button type="button" className="ad-link" data-testid="svc-edit-open" onClick={() => setEditing(true)}>{t("svcEdit")}</button>}</div>
         <div className="group">
           {a.services.map((s, i) => <div key={i} className="row ad-svc"><span className="grow"><b>{s.name}</b><span className="cap">{t("min", { n: s.minutes })}</span></span><b className="num">{formatCents(s.cents)}</b></div>)}
           <div className="row ad-total"><b className="grow">{t("totalPreTip")}</b><b className="num" data-testid="appt-total">{formatCents(total)}</b></div>
