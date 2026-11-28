@@ -19,7 +19,7 @@ test("profile pop-up (left menu on desktop, bottom menu on phones) opens My prof
   }
   await page.getByTestId("go-me").click();
   await expect(page).toHaveURL(/\/me$/);
-  await expect(page.getByTestId("my-pin")).toContainText("6-digit PIN");
+  await expect(page.getByTestId("my-sign-in")).toBeVisible();
   expect(errors).toEqual([]);
 });
 

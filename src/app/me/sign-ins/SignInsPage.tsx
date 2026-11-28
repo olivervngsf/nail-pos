@@ -69,7 +69,7 @@ export default function SignInsPage() {
   const admin = !!me && isAdminRole(me.role);
 
   return (
-    <MeSub title={t("title")}>
+    <MeSub title={t("title")} parent="profile">
       <div className="si-page" data-testid="signins">
         <p className="me-hint" style={{ marginTop: 0 }}>{t.rich("intro", { b: (c) => <b style={{ color: "var(--ink)" }}>{c}</b> })}</p>
         {isDevice && <Banner tone="info" title={t("deviceTitle")}>{t("deviceBody")}</Banner>}

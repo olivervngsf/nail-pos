@@ -276,6 +276,7 @@
     "slipBack": "Bring it back to the front desk to pay.",
     "slipPrinted": "Slip printed. The tech scans its QR to add services; scan it here again to pay.",
     "scanPh": "Scan slip or type ticket #",
+    "scanPhShort": "Scan or ticket #",
     "scanNone": "No open ticket found for that slip or number.",
     "loyalty": "Loyalty",
     "ptsUnit": "pts",
@@ -1951,7 +1952,15 @@
     "sizeHint": "Bigger text on this device only. Other devices keep their own size.",
     "signInHint": "Your phone number always works. An email or password is a second way in; 2-step adds a code from an app.",
     "signInsShort": "My sign-ins",
-    "signInsSub": "Phones + computers"
+    "signInsSub": "Phones + computers",
+    "signInSecurity": "Sign in + security",
+    "pinIsSet": "Your PIN is set",
+    "pinLength": "Length",
+    "pinDigits": "{n} digits",
+    "pinWhoSets": "Who sets it",
+    "pinRulesOwner": "Owner · PIN rules",
+    "pinForgotH": "Forgot it?",
+    "pinForgot": "The owner or a manager can make you a new one in Settings → Team, or text you a PIN link."
   },
   "faces": {
     "gone": "This device was removed from the salon. Set it up again to use PINs here.",
@@ -2104,7 +2113,7 @@
       "add": "+ Add member",
       "people": "team",
       "inNow": "in now",
-      "invited": "invite open",
+      "invited": "haven't joined",
       "licenseDue": "license due",
       "search": "Search name or phone",
       "none": "Nobody here.",
@@ -2116,7 +2125,7 @@
         "nopin": "No PIN"
       },
       "st": {
-        "invited": "Invited",
+        "invited": "Hasn't joined yet",
         "noPin": "No PIN yet",
         "locked": "PIN locked",
         "license": "License · {d} days",
@@ -2126,7 +2135,27 @@
       "saved": "Saved",
       "addedInvite": "{name} added. Invite link ready: send it to their phone.",
       "inviteTexted": "Invite texted to {name}.",
-      "inviteNotTexted": "Invite not texted: {why} Copy the link instead (open their name)."
+      "inviteNotTexted": "Invite not texted: {why} Copy the link instead (open their name).",
+      "since": "since {t}",
+      "last": "last in {t}",
+      "tile": {
+        "in": "in now",
+        "invited": "haven't joined",
+        "nopin": "no PIN yet",
+        "license": "license due"
+      },
+      "g": {
+        "boss": "Owner + managers",
+        "desk": "Front desk",
+        "tech": "Techs"
+      },
+      "sortBy": "Sort",
+      "sort": {
+        "role": "By role",
+        "az": "Name A → Z",
+        "za": "Name Z → A",
+        "status": "Needs attention first"
+      }
     },
     "m": {
       "name": "Name",
@@ -2185,6 +2214,7 @@
       "texting": "Texting…",
       "textDemo": "Test version: no text sent.",
       "textAgain": "Already texted this invite. Make a new link to text again.",
+      "testLinkBlocked": "This is a test site link (vercel.app): phone carriers often block texts with these links. Send invites from polishosapp.com.",
       "noPinBox": "Joined, no PIN yet",
       "textPin": "Text the PIN link",
       "copyPin": "Copy link",
@@ -2612,7 +2642,8 @@
       "slipRow": "What the staff slip prints",
       "slipSub": "Every ticket, tips, check vs cash, signature line",
       "openSheet": "Open payout sheet"
-    }
+    },
+    "searchBack": "Search"
   },
   "promo": {
     "title": "Send promo text",
