@@ -94,3 +94,20 @@ test("Checkout top bar: the scan box words fit on Duo open, iPad upright and com
     expect(f.need, `${size.width}px: placeholder needs ${f.need}px, has ${f.room}px`).toBeLessThanOrEqual(f.room);
   }
 });
+
+test("Tech app fills the screen on the iPhone Duo (folded, open, sideways) and tablets", async ({ page }, info) => {
+  test.skip(info.project.name !== "phone", "touch screen only");
+  for (const size of [FOLDED, OPEN, OPEN_SIDEWAYS, { width: 820, height: 1180 }]) {
+    await page.setViewportSize(size);
+    for (const url of ["/t", "/t/schedule", "/t/earnings", "/t/me"]) {
+      await page.goto(url);
+      const bar = page.locator(".tk-phone .pbar");
+      await expect(bar, `${url} ${size.width}`).toBeVisible();
+      expect(Math.round((await bar.boundingBox())!.width), `${url} ${size.width}: top bar full width`).toBe(size.width);
+      const tabs = page.getByTestId("tab-home");
+      await expect(tabs).toBeVisible();
+      const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(wide, `${url} ${size.width}: sideways scroll`).toBeLessThanOrEqual(0);
+    }
+  }
+});

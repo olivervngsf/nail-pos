@@ -43,9 +43,14 @@ button:disabled { cursor: not-allowed; }
   .foot .btn.primary { flex: 1; padding: 0 16px; }
 }
 .phone { width: 100%; height: auto; min-height: var(--vh); max-width: 480px; margin: 0 auto; overflow: visible; }
-.pbar { justify-content: space-between; padding: env(safe-area-inset-top) 8px 0; position: sticky; top: 0; z-index: 5; }
-.pbody { display: flex; flex-direction: column; gap: 14px; padding: 20px 16px calc(24px + env(safe-area-inset-bottom)); }
-.ptabs { position: sticky; margin-top: auto; padding-bottom: env(safe-area-inset-bottom); }
+.pbar { justify-content: space-between; padding: env(safe-area-inset-top) calc(8px + env(safe-area-inset-right)) 0 calc(8px + env(safe-area-inset-left)); position: sticky; top: 0; z-index: 5; }
+.pbody { display: flex; flex-direction: column; gap: 14px; padding: 20px calc(16px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left)); }
+.ptabs { position: sticky; margin-top: auto; padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+/* Tech app (Nov 28, iPhone Duo): fill the whole screen. Top bar + tab bar run edge to edge; the cards sit in a
+   readable 760px column on big screens. Camera / clock edges stay clear (safe-area insets on every side). */
+.phone.tk-phone { max-width: none; }
+.tk-phone .pbody { width: 100%; max-width: calc(760px + env(safe-area-inset-left) + env(safe-area-inset-right)); margin: 0 auto; box-sizing: border-box; }
+@media (min-width: 600px) { .tk-phone .ptabs { justify-content: center; } .tk-phone .ptabs .ptab { flex: 0 1 152px; } }
 /* overlays cover the real screen, not a board frame */
 .scrim { position: fixed; z-index: 40; }
 .drawer { position: fixed; width: min(clamp(500px, 34vw, 520px), 100%); z-index: 41; } /* Oliver, Nov 27: side panels never narrower than 500 (was 440), up to 520 on big screens */

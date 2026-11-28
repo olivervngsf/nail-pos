@@ -79,8 +79,8 @@ export default function TechTicket({ id }: { id: string }) {
     setBusy(false);
   };
 
-  if (err) return <main className="phone"><div className="pbody" style={{ paddingTop: 32 }}><div className="card pad"><b>{err}</b></div></div></main>;
-  if (!tk) return <main className="phone" aria-busy="true" />;
+  if (err) return <main className="phone tk-phone"><div className="pbody" style={{ paddingTop: 32 }}><div className="card pad"><b>{err}</b></div></div></main>;
+  if (!tk) return <main className="phone tk-phone" aria-busy="true" />;
 
   const lines = tk.lines;
   const mine = lines.filter((l) => l.staff_id === me), others = lines.filter((l) => l.staff_id !== me);
@@ -88,7 +88,7 @@ export default function TechTicket({ id }: { id: string }) {
   const list = svc.filter((s) => (s.name + " " + s.category).toLowerCase().includes(q.trim().toLowerCase()));
 
   return (
-    <main className="phone">
+    <main className="phone tk-phone">
       <PhoneBar title={t("ticket", { n: tk.number })} />
       <div className="pbody">
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
