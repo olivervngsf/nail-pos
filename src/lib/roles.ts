@@ -7,15 +7,18 @@ import { rpc, type Role } from "@/lib/auth";
 
 export const OK_PERMS = ["ok.discount", "ok.refund", "ok.close", "ok.client", "ok.menu"] as const;
 export const SET_PERMS = ["set.salon", "set.team", "set.pay", "set.clients", "set.money", "set.safety"] as const;
-export type Perm = (typeof OK_PERMS)[number] | (typeof SET_PERMS)[number];
+/** Tech profiles (Nov 27): edit own profile (techs too), edit everyone's, OK new work photos. */
+export const PF_PERMS = ["pf.own", "pf.team", "pf.ok"] as const;
+export type Perm = (typeof OK_PERMS)[number] | (typeof SET_PERMS)[number] | (typeof PF_PERMS)[number];
 export type EditRole = "manager" | "front_desk";
-export type RolePerms = Partial<Record<EditRole, Partial<Record<Perm, boolean>>>>;
+export type RolePerms = Partial<Record<EditRole | "tech", Partial<Record<Perm, boolean>>>>;
 export type OkPurpose = "discount" | "refund" | "close" | "client" | "menu";
 
 /** What a role may do before the owner changes anything (= how the app worked before this page). */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- same shape as the database's _role_perm_default(role, perm)
 export function permDefault(role: Role, perm: Perm): boolean {
   if (role === "owner") return true;
+  if (perm === "pf.own") return role === "manager" || role === "front_desk" || role === "tech";
+  if (perm === "pf.team" || perm === "pf.ok") return role === "manager";
   if (role === "manager") return true;
   return false; // front desk + tech: no OKs, no Settings
 }
@@ -23,6 +26,7 @@ export function permDefault(role: Role, perm: Perm): boolean {
 /** May this role do it in this salon? Front desk never opens Settings; techs never OK anything. */
 export function can(perms: RolePerms | null | undefined, role: Role, perm: Perm): boolean {
   if (role === "owner") return true;
+  if (role === "tech") { if (perm !== "pf.own") return false; const v = perms?.tech?.[perm]; return typeof v === "boolean" ? v : permDefault(role, perm); }
   if (role !== "manager" && role !== "front_desk") return false;
   if (role === "front_desk" && perm.startsWith("set.")) return false;
   const v = perms?.[role]?.[perm];
@@ -35,13 +39,15 @@ export function diffFromDefaults(p: RolePerms): RolePerms {
   const out: RolePerms = {};
   for (const r of ["manager", "front_desk"] as EditRole[]) {
     const one: Partial<Record<Perm, boolean>> = {};
-    for (const k of [...OK_PERMS, ...SET_PERMS]) {
+    for (const k of [...OK_PERMS, ...SET_PERMS, ...PF_PERMS]) {
       if (r === "front_desk" && k.startsWith("set.")) continue;
       const v = p[r]?.[k];
       if (typeof v === "boolean" && v !== permDefault(r, k)) one[k] = v;
     }
     if (Object.keys(one).length) out[r] = one;
   }
+  const own = p.tech?.["pf.own"];
+  if (typeof own === "boolean" && own !== permDefault("tech", "pf.own")) out.tech = { "pf.own": own };
   return out;
 }
 
@@ -72,7 +78,7 @@ export function levelOf(p: RolePerms, role: EditRole): Level | null {
 export function applyLevel(p: RolePerms, role: EditRole, level: Level): RolePerms {
   const l = LEVELS[role].find((x) => x.key === level);
   if (!l) return p;
-  return { ...p, [role]: Object.fromEntries(permsFor(role).map((k) => [k, l.on.includes(k)])) };
+  return { ...p, [role]: { ...(p[role] ?? {}), ...Object.fromEntries(permsFor(role).map((k) => [k, l.on.includes(k)])) } }; // keeps the profile rows
 }
 
 const KEY = (salon: string) => `nailpos.roles.${salon}`;

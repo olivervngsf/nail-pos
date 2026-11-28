@@ -39,6 +39,7 @@ const NAV = [
   { href: "/settings/billing", key: "billing", group: "salon", who: "admin" },
   { href: "/settings/team", key: "team", group: "team", who: "admin" },
   { href: "/settings/timesheet", key: "timesheet", group: "team", who: "admin" },
+  { href: "/settings/tech-profiles", key: "techProfiles", group: "team", who: "admin" },
   { href: "/settings/clock-in", key: "clockIn", group: "team", who: "admin" },
   { href: "/settings/pin", key: "pinRules", group: "team", who: "admin" },
   { href: "/settings/roles", key: "roles", group: "team", who: "owner" },
@@ -68,11 +69,12 @@ const ICON: Record<string, string> = {
   contact: "M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z",
   loyalty: "M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z", giftCards: "M3 9h18v4H3zM5 13h14v8H5zM12 9v12",
   roles: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6zM9 12l2 2 4-4",
+  techProfiles: "M4 4h16v16H4zM12 8a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM7.5 17c.8-2 2.5-3 4.5-3s3.7 1 4.5 3",
   payouts: "M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z", payRules: "M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z", activity: "M5 3h14v18H5zM9 8h6M9 12h6M9 16h4",
   pin: "M5 11h14v10H5zM8 11V8a4 4 0 018 0v3M12 15v2", language: "M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
   textSize: "M4 18L9 6l5 12M6 14h6M15 18l3-7 3 7M16 15.5h4",
 };
-const NEW = new Set(["activity", "roles", "timesheet"]);
+const NEW = new Set(["activity", "roles", "timesheet", "techProfiles"]);
 
 type Who = "all" | "admin" | "owner";
 /** Who may open a settings page: everyone (own profile), owner + manager, or the owner only.

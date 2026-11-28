@@ -1262,7 +1262,18 @@
     "hrMin": "{h} giờ {m} phút",
     "opens": "mở lúc {time}",
     "seeSalon": "Xem hình, dịch vụ + thợ của tiệm",
-    "home": "Trang chủ {salon}"
+    "home": "Trang chủ {salon}",
+    "team": "Thợ của tiệm",
+    "teamYears": "{n} năm",
+    "teamSeeAll": "Xem tất cả",
+    "teamBookWith": "Đặt với {name}",
+    "teamBestAt": "Giỏi nhất",
+    "teamSpeaks": "Nói",
+    "teamDoing": "Làm nail",
+    "teamWork": "Tác phẩm của {name}",
+    "teamGone": "Người này không có trên trang thợ.",
+    "teamBack": "Về trang tiệm",
+    "close": "Đóng"
   },
   "kiosk": {
     "welcome": "Chào mừng đến {salon}",
@@ -2091,7 +2102,8 @@
       "textSize": "Cỡ chữ",
       "roles": "Vai trò",
       "timesheet": "Bảng giờ làm",
-      "payRules": "Quy tắc trả lương"
+      "payRules": "Quy tắc trả lương",
+      "techProfiles": "Hồ sơ thợ"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -2746,7 +2758,8 @@
     "swipeHint": "Vuốt trái hoặc phải để xem ngày khác.",
     "totalBeforeTip": "Tổng trước tip",
     "repeats": "Mỗi {n, plural, other {# tuần}}",
-    "bookedOnline": "Đặt online"
+    "bookedOnline": "Đặt online",
+    "myProfile": "Hồ sơ của tôi (khách thấy)"
   },
   "go": {
     "title": "Cài thiết bị này",
@@ -3092,7 +3105,13 @@
       "support_change": "PolishOS hỗ trợ đã đổi một mục",
       "roles_saved": "Đổi vai trò + quyền",
       "clock_fix": "Sửa giờ chấm công",
-      "amenities_saved": "Đổi tiện ích của tiệm"
+      "amenities_saved": "Đổi tiện ích của tiệm",
+      "profile_saved": "Sửa hồ sơ thợ",
+      "profile_photo_added": "Thêm ảnh tác phẩm",
+      "profile_photo_shown": "Hiện ảnh tác phẩm cho khách",
+      "profile_photo_hidden": "Ẩn ảnh tác phẩm",
+      "profile_asked": "Nhờ thợ cập nhật hồ sơ",
+      "profile_settings_saved": "Đổi cài đặt hồ sơ thợ"
     }
   },
   "picker": {

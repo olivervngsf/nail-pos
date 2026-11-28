@@ -1262,7 +1262,18 @@
     "hrMin": "{h} hr {m} min",
     "opens": "opens at {time}",
     "seeSalon": "See our photos, services + team",
-    "home": "{salon} home"
+    "home": "{salon} home",
+    "team": "Our team",
+    "teamYears": "{n} years",
+    "teamSeeAll": "See all work",
+    "teamBookWith": "Book with {name}",
+    "teamBestAt": "Best at",
+    "teamSpeaks": "Speaks",
+    "teamDoing": "Doing nails",
+    "teamWork": "{name}'s work",
+    "teamGone": "This person isn't on the team page.",
+    "teamBack": "Back to the salon",
+    "close": "Close"
   },
   "kiosk": {
     "welcome": "Welcome to {salon}",
@@ -2091,7 +2102,8 @@
       "textSize": "Text size",
       "roles": "Roles",
       "timesheet": "Timesheet",
-      "payRules": "Pay rules"
+      "payRules": "Pay rules",
+      "techProfiles": "Tech profiles"
     },
     "needPin": "Owner or manager only",
     "needPinDevice": "On the salon device, an owner or manager unlocks Settings with their PIN.",
@@ -2746,7 +2758,8 @@
     "swipeHint": "Swipe left or right for another day.",
     "totalBeforeTip": "Total before tip",
     "repeats": "Every {n, plural, one {week} other {# weeks}}",
-    "bookedOnline": "Booked online"
+    "bookedOnline": "Booked online",
+    "myProfile": "My profile (clients see it)"
   },
   "go": {
     "title": "Set up this device",
@@ -3092,7 +3105,13 @@
       "support_change": "PolishOS support changed something",
       "roles_saved": "Roles + permissions changed",
       "clock_fix": "Clock time fixed",
-      "amenities_saved": "Changed what the salon offers"
+      "amenities_saved": "Changed what the salon offers",
+      "profile_saved": "Changed a tech profile",
+      "profile_photo_added": "Added a work photo",
+      "profile_photo_shown": "Showed a work photo to clients",
+      "profile_photo_hidden": "Hid a work photo",
+      "profile_asked": "Asked a tech to update their profile",
+      "profile_settings_saved": "Changed tech profile settings"
     }
   },
   "picker": {
