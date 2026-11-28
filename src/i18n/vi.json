@@ -3075,7 +3075,13 @@
       "support_change": "PolishOS hỗ trợ đã đổi một mục",
       "roles_saved": "Đổi vai trò + quyền",
       "clock_fix": "Sửa giờ chấm công",
-      "amenities_saved": "Đổi tiện ích của tiệm"
+      "amenities_saved": "Đổi tiện ích của tiệm",
+      "profile_saved": "Sửa hồ sơ thợ",
+      "profile_photo_added": "Thêm ảnh tác phẩm",
+      "profile_photo_shown": "Hiện ảnh tác phẩm cho khách",
+      "profile_photo_hidden": "Ẩn ảnh tác phẩm",
+      "profile_asked": "Nhờ thợ cập nhật hồ sơ",
+      "profile_settings_saved": "Đổi cài đặt hồ sơ thợ"
     }
   },
   "picker": {

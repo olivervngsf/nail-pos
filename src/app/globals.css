@@ -2361,7 +2361,8 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .tp-card .cap { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .tp-face { display: flex; align-items: center; justify-content: center; border-radius: 50%; background-size: cover; background-position: center; font-weight: 600; color: var(--ink); flex: none; }
 .tp-sheet { display: flex; flex-direction: column; gap: 14px; }
-.sheet:has(.tp-sheet) { max-width: 520px; margin-inline: auto; }
+.sheet:has(.tp-sheet) { max-width: 520px; margin-inline: auto; max-height: calc(var(--vh, 100vh) - 24px); overflow-y: auto; overscroll-behavior: contain; padding-bottom: 0; }
+.tp-sheet .tp-book { position: sticky; bottom: 0; margin-bottom: 16px; box-shadow: 0 0 0 12px var(--paper), 0 12px 0 12px var(--paper); }
 .tp-sheet-head { display: flex; align-items: center; gap: 12px; }
 .tp-grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .tp-name { font-size: 20px; font-weight: 600; }

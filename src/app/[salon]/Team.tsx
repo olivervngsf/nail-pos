@@ -4,6 +4,7 @@
 //   B = the full profile page /<salon>/team/<id> (big photo, facts card, work photos, Book with <name>)
 // Clients see first names only, never a phone or last name; work photos only after the owner's OK.
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Sheet } from "@/components/kit";
@@ -45,7 +46,8 @@ export function TeamRow({ team, slug, onBook }: { team: TeamMember[]; slug: stri
           </button>
         ))}
       </div>
-      {m && open !== null && (
+      {/* Portal: the door fades in with a transform, which would pin a fixed sheet to it instead of the screen. */}
+      {m && open !== null && createPortal(
         <Sheet label={m.name} onClose={() => setOpen(null)}>
           <div className="tp-sheet" data-testid="team-sheet">
             <div className="tp-sheet-head">
@@ -64,7 +66,7 @@ export function TeamRow({ team, slug, onBook }: { team: TeamMember[]; slug: stri
               {t("teamBookWith", { name: m.name })}
             </button>
           </div>
-        </Sheet>
+        </Sheet>, document.body
       )}
     </section>
   );

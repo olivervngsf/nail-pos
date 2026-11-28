@@ -3075,7 +3075,13 @@
       "support_change": "PolishOS support changed something",
       "roles_saved": "Roles + permissions changed",
       "clock_fix": "Clock time fixed",
-      "amenities_saved": "Changed what the salon offers"
+      "amenities_saved": "Changed what the salon offers",
+      "profile_saved": "Changed a tech profile",
+      "profile_photo_added": "Added a work photo",
+      "profile_photo_shown": "Showed a work photo to clients",
+      "profile_photo_hidden": "Hid a work photo",
+      "profile_asked": "Asked a tech to update their profile",
+      "profile_settings_saved": "Changed tech profile settings"
     }
   },
   "picker": {
