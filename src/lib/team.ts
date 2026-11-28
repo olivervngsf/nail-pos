@@ -41,7 +41,7 @@ export function payLabel(m: Pick<Member, "payType" | "commissionPct" | "hourlyCe
 }
 
 export const blankMember = (): Member => ({
-  id: "", name: "", nickname: null, phone: "", email: null, role: "tech", language: "vi", payType: "commission", commissionPct: 60, hourlyCents: null,
+  id: "", name: "", nickname: null, phone: "", email: null, role: "tech", language: "en", payType: "commission", commissionPct: 60, hourlyCents: null,
   checkPct: 100, skills: [], workdays: [1, 2, 3, 4, 5], licenseNo: null, licenseState: null, licenseExpires: null, birthday: null, emergency: null,
   startDate: null, joined: false, hasPin: false, locked: false, clockedIn: false, lastClock: null, invite: null,
 });
@@ -68,4 +68,40 @@ export function savePayload(salonId: string, x: Member, withPay: boolean) {
     ...(withPay ? { payType: x.payType ?? "", commissionPct: x.commissionPct == null ? "" : String(x.commissionPct),
       hourlyCents: x.hourlyCents == null ? "" : String(x.hourlyCents), checkPct: String(x.checkPct) } : {}),
   };
+}
+
+/** Status → icon tone (never colour alone: the row always shows the word too). Out = no icon. */
+export function statusTone(st: ReturnType<typeof memberStatus>, m: Pick<Member, "licenseExpires">, today = new Date()): "good" | "watch" | "bad" | null {
+  if (st === "in") return "good";
+  if (st === "locked") return "bad";
+  if (st === "license") { const d = licenseDaysLeft(m, today); return d !== null && d <= 7 ? "bad" : "watch"; }
+  if (st === "invited" || st === "noPin") return "watch";
+  return null;
+}
+
+/** Role groups for the list, in this order. */
+export const TEAM_GROUPS = ["boss", "desk", "tech"] as const;
+/** How the owner orders the Team list (saved per device): by role (grouped), name A→Z / Z→A, or who needs attention first. */
+export const TEAM_SORTS = ["role", "az", "za", "status"] as const;
+export type TeamSort = (typeof TEAM_SORTS)[number];
+const STATUS_ORDER = ["in", "license", "locked", "noPin", "invited", "out"] as const;
+export function sortTeam(list: Member[], sort: TeamSort, today = new Date()): Member[] {
+  const byName = (a: Member, b: Member) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+  const out = [...list];
+  if (sort === "az") return out.sort(byName);
+  if (sort === "za") return out.sort((a, b) => byName(b, a));
+  if (sort === "status") return out.sort((a, b) => STATUS_ORDER.indexOf(memberStatus(a, today)) - STATUS_ORDER.indexOf(memberStatus(b, today)) || byName(a, b));
+  return out;
+}
+export type TeamGroup = (typeof TEAM_GROUPS)[number];
+export const groupOf = (r: Role): TeamGroup => (r === "owner" || r === "manager" ? "boss" : r === "front_desk" ? "desk" : "tech");
+
+/** "9:02 AM" today, "Mon 6:10 PM" this week, else "Nov 3". */
+export function clockWhen(iso: string | null, now = new Date()): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  if (d.toDateString() === now.toDateString()) return time;
+  if (now.getTime() - d.getTime() < 6 * 86_400_000) return `${d.toLocaleDateString("en-US", { weekday: "short" })} ${time}`;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }

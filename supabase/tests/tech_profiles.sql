@@ -1,4 +1,4 @@
--- Tech profiles (migration 20270131000001): a tech edits only their own profile; new work photos wait for the owner's OK;
+-- Tech profiles (migration 20270201000001): a tech edits only their own profile; new work photos wait for the owner's OK;
 -- the owner sees everyone, OKs photos, asks for updates and switches the photo OK off; the public booking page gets
 -- first names + shown photos only; Roles can take a tech's right away. Rolls back.
 begin;

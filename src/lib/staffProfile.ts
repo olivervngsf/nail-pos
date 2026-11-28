@@ -2,7 +2,7 @@
 // Tech profiles on the salon page (board "Tech Profiles": C = team row + quick sheet on the booking page, B = full page).
 // A tech fills in their own (tech app → Me → My profile); the owner sees everyone in Settings → Tech profiles, asks for
 // updates and OKs new work photos. Clients see first names only, never a phone or last name.
-// Database: migration 20270131000001_tech_profiles (staff_profiles, staff_photos, book_team, staff_profile_*).
+// Database: migration 20270201000001_tech_profiles (staff_profiles, staff_photos, book_team, staff_profile_*).
 // Test copy (no Supabase, or the "demo" salon): sample profiles kept on this device.
 import { rpc, SMS_ON } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase/client";
