@@ -27,3 +27,13 @@ describe("client contact", () => {
     expect(reminderBody({ first: "", salon: "Lotus", when: "today 3:00 PM" }, "vi")).toContain("Chào bạn");
   });
 });
+
+describe("hidden contact", () => {
+  it("knows a phone or email the server hid", async () => {
+    const { isMasked } = await import("./clientContact");
+    expect(isMasked("••7011")).toBe(true);
+    expect(isMasked("l•••@gmail.com")).toBe(true);
+    expect(isMasked("+16125457011")).toBe(false);
+    expect(isMasked("")).toBe(false);
+  });
+});

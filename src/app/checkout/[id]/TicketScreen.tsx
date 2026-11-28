@@ -357,11 +357,11 @@ function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save:
     if (!(phoneOk(phone) || hidden) || desk.mode !== "live") { setFound(null); return; }
     if (!navigator.onLine) { setFound("offline"); return; }
     let stop = false;
-    void rpc<Found[]>("client_lookup", { p_salon: desk.salonId, p_phone: hidden ? phone : e164(phone), p_client: hidden ? ticket.client!.id : null })
+    void rpc<Found[]>("client_lookup", { p_salon: desk.salonId, p_phone: hidden ? phone : e164(phone), p_client: hidden ? ticket.client?.id : null })
       .then((r) => { if (!stop) setFound(r[0] ?? null); })
       .catch(() => !stop && setFound("offline"));
     return () => { stop = true; };
-  }, [phone, desk.mode, desk.salonId, look]);
+  }, [phone, hidden, ticket.client?.id, desk.mode, desk.salonId, look]);
 
   const commit = (p: string, n: string) => save({ client: isMasked(p) && ticket.client?.id ? { id: ticket.client.id, phone: p, name: n.trim() }
     : phoneOk(p) ? { phone: e164(p), name: n.trim() } : n.trim() ? { phone: "", name: n.trim() } : undefined });
