@@ -39,7 +39,40 @@ final class WebViewController: UIViewController, WKScriptMessageHandler, WKNavig
         web.allowsBackForwardNavigationGestures = true
         web.scrollView.contentInsetAdjustmentBehavior = .never
         if #available(iOS 16.4, *) { web.isInspectable = false }
-        view = web
+        // The page sits inside a plain view so it can stop short of a side that holds the clock / camera.
+        // iPhone Duo folded: iOS puts the status bar (time, signal, camera) in a column down the RIGHT edge,
+        // and the page slid under it (Nov 28). Same idea covers a notch when an iPhone is turned sideways.
+        let root = UIView()
+        root.backgroundColor = UIColor(red: 245/255, green: 245/255, blue: 247/255, alpha: 1) // app background
+        root.addSubview(web)
+        view = root
+    }
+
+    /** Left / right space to keep clear: the larger of iOS's safe area and a side-mounted status bar. */
+    private func sideInsets() -> (left: CGFloat, right: CGFloat) {
+        var left = view.safeAreaInsets.left, right = view.safeAreaInsets.right
+        let w = view.bounds.width
+        if let bar = view.window?.windowScene?.statusBarManager?.statusBarFrame, bar.height > bar.width, bar.width < w / 2 {
+            let local = view.convert(bar, from: nil)
+            if local.midX > w / 2 { right = max(right, w - local.minX) } else { left = max(left, local.maxX) }
+        }
+        return (left, right)
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let side = sideInsets()
+        web.frame = CGRect(x: side.left, y: 0, width: max(0, view.bounds.width - side.left - side.right), height: view.bounds.height)
+    }
+
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        view.setNeedsLayout()
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { [weak self] _ in self?.view.setNeedsLayout(); self?.view.layoutIfNeeded() })
     }
 
     override func viewDidLoad() {
