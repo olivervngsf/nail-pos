@@ -71,9 +71,9 @@ export async function giftLookup(desk: Desk, code: string): Promise<GiftResult> 
   return fromRaw(await rpc<Raw>("gift_lookup", { p_salon: desk.salonId, p_code: code }));
 }
 
-export async function giftFind(desk: Desk, phone: string): Promise<GiftResult[]> {
+export async function giftFind(desk: Desk, phone: string, clientId?: string): Promise<GiftResult[]> {
   if (desk.mode === "demo") return demoCards().filter((c) => c.sentTo === phone && c.status !== "in_stock").map(demoResult);
-  return (await rpc<Raw[]>("gift_find", { p_salon: desk.salonId, p_phone: phone })).map(fromRaw);
+  return (await rpc<Raw[]>("gift_find", { p_salon: desk.salonId, p_phone: phone, p_client: clientId ?? null })).map(fromRaw);
 }
 
 /** New digital card for a sale. The code shows on the receipt (and goes by text once texting is on). */

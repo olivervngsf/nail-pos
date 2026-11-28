@@ -55,7 +55,7 @@ export function putAppt(a: Appt) {
 function toPayload(a: Appt) {
   return JSON.parse(JSON.stringify({
     id: a.id, salonId: a.salonId, start: a.start, end: a.end, staffId: a.staffId ?? null,
-    client: a.client?.phone || a.client?.name ? { phone: a.client.phone, name: a.client.name } : undefined,
+    client: a.client?.phone || a.client?.name ? { ...(a.client.id ? { id: a.client.id } : {}), phone: a.client.phone, name: a.client.name } : undefined,
     services: a.services, status: a.status, source: a.source, note: a.note, ticketId: a.ticketId ?? null, repeat: a.repeat, arrivedAt: a.arrivedAt ?? null, seatReason: a.seatReason ?? null, updatedAt: a.updatedAt,
   }));
 }
