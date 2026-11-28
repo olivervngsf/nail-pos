@@ -30,6 +30,18 @@ function useWide() {
   return wide;
 }
 
+/** Top bar too tight for the long scan words (iPhone Duo open, iPad upright): 600–899px. */
+function useSnug() {
+  const [snug, setSnug] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 600px) and (max-width: 899px)");
+    const on = () => setSnug(mq.matches);
+    on(); mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return snug;
+}
+
 const startOfDay = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString(); };
 
 export default function CheckoutHome() {
@@ -39,6 +51,7 @@ export default function CheckoutHome() {
   const all = useTickets(desk?.salonId ?? "");
   const { layout } = useHomeLayout(desk?.salonId, desk?.mode === "demo");
   const wide = useWide();
+  const snug = useSnug();
 
   useEffect(() => {
     if (!desk || desk.mode !== "live") return;
@@ -115,7 +128,7 @@ export default function CheckoutHome() {
       <div className="col">
         <TopBar title={t("title")}
           fact={cards ? `${t("openCount", { n: open.length })} · ${formatCents(homeFacts(open, paid).toCollect)}` : t("openCount", { n: open.length })}
-          find={wide ? <ScanBox scan={scan} setScan={setScan} onScan={() => void openScanned(scan)} /> : undefined}
+          find={wide ? <ScanBox short={snug} scan={scan} setScan={setScan} onScan={() => void openScanned(scan)} /> : undefined}
           action={wide && !cards ? <Button variant="primary" className="ck-new" data-testid="new-ticket" onClick={newTicket}>{t("newTicket")}</Button> : undefined}>
           <SyncPill />
         </TopBar>
