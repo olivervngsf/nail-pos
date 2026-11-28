@@ -113,3 +113,19 @@ test("a PIN message shakes the dots every time, even when it repeats", async ({ 
   await tap(wrong);
   await expect(page.locator(".dots").first()).toHaveAttribute("data-shake", "2", { timeout: 2000 });
 });
+
+// Oliver, Nov 27: Settings page → page is a swap, not a close: the window + dim never fade out and back in.
+test("Settings: switching pages keeps the window still; X still closes gently", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "side menu is beside the page on computers");
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/today");
+  await page.goto("/me");
+  await expect(page.locator(".set-win")).toBeVisible();
+  for (const id of ["nav-pin", "nav-language", "nav-profile"]) {
+    await page.getByTestId(id).click();
+    for (let i = 0; i < 6; i++) { await expect(page.locator(".set-win.lv, .set-scrim.lv")).toHaveCount(0); await page.waitForTimeout(40); }
+  }
+  await page.getByTestId("settings-close").click();
+  await expect(page.locator(".set-win.lv")).toHaveCount(1);
+  await expect(page.locator(".set-win.lv")).toHaveCount(0);
+});
