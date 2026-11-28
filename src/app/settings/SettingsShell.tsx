@@ -50,11 +50,13 @@ const NAV = [
   { href: "/settings/loyalty", key: "loyalty", group: "clients", who: "admin" },
   { href: "/settings/pay-rules", key: "payRules", group: "money", who: "admin" },
   { href: "/settings/activity", key: "activity", group: "safety", who: "admin" },
+  { href: "/settings/notifications", key: "notifications", group: "safety", who: "admin" },
   { href: "/settings/support", key: "support", group: "safety", who: "admin" },
 ] as const;
 
 // Line icons for the menu (Claude-style: an icon beside every item). Paths on a 24px grid.
 const ICON: Record<string, string> = {
+  notifications: "M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6zM10 19a2 2 0 004 0",
   profile: "M12 4a4 4 0 100 8 4 4 0 000-8zM4 21c1-4 4.5-6 8-6s7 2 8 6",
   salon: "M3 11l9-7 9 7v9H3z", business: "M4 21V7l8-4 8 4v14M9 21v-6h6v6", menu: "M5 3h14v18H5zM9 8h6M9 12h6M9 16h4",
   devices: "M6 3h12v18H6zM11 18h2", billing: "M2 6h20v12H2zM2 10h20", support: "M12 3a9 9 0 100 18 9 9 0 000-18zM9.5 9a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17v.5",
@@ -69,7 +71,7 @@ const ICON: Record<string, string> = {
   pin: "M5 11h14v10H5zM8 11V8a4 4 0 018 0v3M12 15v2", language: "M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
   textSize: "M4 18L9 6l5 12M6 14h6M15 18l3-7 3 7M16 15.5h4",
 };
-const NEW = new Set(["activity", "roles", "timesheet"]);
+const NEW = new Set(["activity", "roles", "timesheet", "notifications"]);
 
 type Who = "all" | "admin" | "owner";
 /** Who may open a settings page: everyone (own profile), owner + manager, or the owner only.
