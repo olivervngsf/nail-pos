@@ -14,6 +14,7 @@ test("booking details: edit services (add, remove, save, undo)", async ({ page }
   await page.getByTestId("book-name").fill("Quynh Le");
   await page.getByTestId("book-q").fill("p1");
   await page.getByTestId("book-q").press("Enter");
+  await page.getByTestId("book-staff-Kim").click();
   await page.getByTestId("book-save").click();
   const block = page.locator('[data-testid="cal-block"][data-name="Quynh Le"]');
   await expect(block).toBeVisible();
@@ -30,13 +31,12 @@ test("booking details: edit services (add, remove, save, undo)", async ({ page }
   await page.getByTestId("svc-save").click();
   await expect(page.getByText(/Services saved · 2 services/)).toBeVisible();
 
-  await block.click();
+  // the drawer stays open and shows the new services + total
   await expect(page.getByTestId("appt-total")).not.toHaveText(before);
   // remove the added one again → back to the first total
   await page.getByTestId("svc-edit-open").click();
   await page.getByTestId("svc-remove").last().click();
   await page.getByTestId("svc-save").click();
-  await block.click();
   await expect(page.getByTestId("appt-total")).toHaveText(before);
   expect(errors).toEqual([]);
 });
