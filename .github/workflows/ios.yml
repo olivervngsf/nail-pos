@@ -21,12 +21,13 @@ jobs:
       - uses: actions/checkout@v4
       # Xcode 27.1+ = iOS 27.1 SDK. Apps built with an older SDK run letterboxed (iPhone size + black bars)
       # on the iPhone Duo's open screen; 27.1+ fills it. GitHub's "xcode-27" image has it (macos-26 stops at 26.6).
-      # Use 27.1 (released, the image's default) so App Store Connect accepts the upload; never a beta.
-      - name: Use Xcode 27.1 (fills the iPhone Duo's open screen)
+      # Use the newest RELEASED Xcode 27.x on the image (27.2 now, same as Oliver's Mac) so App Store Connect
+      # accepts the upload; never a beta/RC. Falls back to the image's default Xcode.
+      - name: Use the newest Xcode 27 (27.1+ fills the iPhone Duo's open screen)
         run: |
           ls -d /Applications/Xcode*.app
-          X=/Applications/Xcode_27.1.app
-          test -d "$X" || X=/Applications/Xcode.app
+          X=$(ls -d /Applications/Xcode_27.[0-9]*.app 2>/dev/null | grep -viE 'beta|rc|release_candidate' | sort -V | tail -1)
+          test -n "$X" || X=/Applications/Xcode.app
           sudo xcode-select -s "$X/Contents/Developer"
           xcodebuild -version
           V=$(xcodebuild -version | awk 'NR==1{print $2}')
