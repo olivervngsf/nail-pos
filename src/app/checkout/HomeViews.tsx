@@ -25,12 +25,12 @@ const ScanIcon = ({ size = 18 }: { size?: number }) => (
 );
 
 /** Scan a slip or type a ticket number. In the top bar on computers / iPads, on top of the page on phones. */
-export function ScanBox({ scan, setScan, onScan, big }: { scan: string; setScan: (s: string) => void; onScan: () => void; big?: boolean }) {
+export function ScanBox({ scan, setScan, onScan, big, short }: { scan: string; setScan: (s: string) => void; onScan: () => void; big?: boolean; short?: boolean }) {
   const t = useTranslations("checkout");
   return (
     <form className="co-scan ck-scan" onSubmit={(e) => { e.preventDefault(); onScan(); }}>
       <ScanIcon size={big ? 20 : 18} />
-      <input className="inp" data-testid="scan-box" aria-label={t("scanPh")} placeholder={t("scanPh")} value={scan} onChange={(e) => setScan(e.target.value)} />
+      <input className="inp" data-testid="scan-box" aria-label={t("scanPh")} placeholder={t(short ? "scanPhShort" : "scanPh")} value={scan} onChange={(e) => setScan(e.target.value)} />
     </form>
   );
 }

@@ -354,7 +354,7 @@ export function SyncPill() {
   // Tap to send them again (e.g. after signing in, or once the server is fixed).
   if (s.parked) return <button type="button" className="pill warn" style={{ cursor: "pointer", font: "inherit", fontSize: 12, color: "var(--ink)" }} data-testid="sync-pill" data-state="stuck" title={s.lastError} onClick={() => void retryParked().then(syncNow)}><span aria-hidden>!</span>{t("stuck", { count: s.parked })}</button>;
   if (s.syncing || s.pending) return <span className="pill" data-testid="sync-pill" data-state="syncing"><span className="dot pulse" aria-hidden />{t("syncing")}</span>;
-  return <span className="pill ok" data-testid="sync-pill" data-state="online">{justSaved ? <DrawCheck size={12} className="pill-ck" /> : <span className="dot" aria-hidden />}{t("saved")}</span>;
+  return <span className="pill ok" data-testid="sync-pill" data-state="online" title={t("saved")}>{justSaved ? <DrawCheck size={12} className="pill-ck" /> : <span className="dot" aria-hidden />}<span className="pill-t">{t("saved")}</span></span>;
 }
 
 /** Strip under the top bar while offline, or when something didn't save. X folds it into the sync pill. */

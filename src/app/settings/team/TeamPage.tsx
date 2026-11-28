@@ -1,13 +1,14 @@
 "use client";
 // Settings → Team (board 5.1): everyone in the salon, who is in, pay, license; + Add member with full details.
 // Owner sets pay; managers edit the rest. A new member gets an invite link (they set their own PIN on their phone).
+import { useStored } from "@/lib/useStored";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Chip, DateField, Drawer, Field, ListGroup, PinKeypad, Toast } from "@/components/kit";
 import { cachedRules, pinProblem } from "@/lib/pin";
 import { e164, rpc, type Role } from "@/lib/auth";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
-import { DAYS, DEMO_TEAM, SKILLS, TEAM_GROUPS, blankMember, clockWhen, groupOf, licenseDaysLeft, memberStatus, payLabel, savePayload, statusTone, type Member, type PayType } from "@/lib/team";
+import { DAYS, DEMO_TEAM, SKILLS, TEAM_GROUPS, TEAM_SORTS, sortTeam, type TeamSort, blankMember, clockWhen, groupOf, licenseDaysLeft, memberStatus, payLabel, savePayload, statusTone, type Member, type PayType } from "@/lib/team";
 import StatusIcon from "@/components/StatusIcon";
 import SettingsShell, { type Access } from "../SettingsShell";
 import { textInvite, textLine, textPinLink, type SendReply } from "@/lib/texting/client";
@@ -35,6 +36,7 @@ function Team({ a, edit, setEdit }: { a: Access; edit: Member | null; setEdit: (
   const [team, setTeam] = useState<Member[] | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [q, setQ] = useState("");
+  const [sort, setSort] = useStored<TeamSort>("nailpos.teamSort", () => "role");
   const [err, setErr] = useState("");
   const [toast, setToast] = useState("");
   const say = (m: string) => { setToast(m); setTimeout(() => setToast(""), 3500); };
@@ -48,6 +50,7 @@ function Team({ a, edit, setEdit }: { a: Access; edit: Member | null; setEdit: (
   const shown = useMemo(() => (team ?? []).filter((m) =>
     inFilter(filter, m)
     && (!q || m.name.toLowerCase().includes(q.toLowerCase()) || m.phone.replace(/\D/g, "").includes(q.replace(/\D/g, "") || "~"))), [team, filter, q]);
+  const sorted = useMemo(() => sortTeam(shown, sort), [shown, sort]);
 
   if (err) return <p className="hint err">{err}</p>;
   if (!team) return <div aria-busy="true" />;
@@ -60,7 +63,7 @@ function Team({ a, edit, setEdit }: { a: Access; edit: Member | null; setEdit: (
     { f: "nopin", tone: "watch", n: count("nopin"), show: count("nopin") > 0 },
     { f: "license", tone: "watch", n: count("license"), show: count("license") > 0 },
   ];
-  const grouped = filter === "all" && !q;
+  const grouped = sort === "role" && filter === "all" && !q;
   const quickText = async (m: Member) => {
     if (a.demo) return say(t("m.textDemo"));
     try {
@@ -104,6 +107,9 @@ function Team({ a, edit, setEdit }: { a: Access; edit: Member | null; setEdit: (
         {(["all", "tech", "desk"] as const).map((f) => <Chip key={f} on={filter === f} onClick={() => setFilter(f)}>{t(`team.f.${f}`)} {count(f)}</Chip>)}
         {!["all", "tech", "desk"].includes(filter) && <Chip on onClick={() => setFilter("all")}>{t(`team.tile.${filter}`)} ✕</Chip>}
         <span style={{ flex: 1 }} />
+        <select className="sel tm-sort" aria-label={t("team.sortBy")} data-testid="team-sort" value={sort} onChange={(e) => setSort(e.target.value as TeamSort)}>
+          {TEAM_SORTS.map((x) => <option key={x} value={x}>{t(`team.sort.${x}`)}</option>)}
+        </select>
         <input className="inp tm-search" type="search" placeholder={t("team.search")} aria-label={t("team.search")} value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       {grouped
@@ -116,7 +122,7 @@ function Team({ a, edit, setEdit }: { a: Access; edit: Member | null; setEdit: (
               </section>
             ) : null;
           })
-        : <ListGroup>{shown.map(row)}{!shown.length && <div className="row"><span className="cap">{t("team.none")}</span></div>}</ListGroup>}
+        : <ListGroup>{sorted.map(row)}{!shown.length && <div className="row"><span className="cap">{t("team.none")}</span></div>}</ListGroup>}
       {a.demo && <div className="demo">{t("demo")}</div>}
       {edit && <MemberDrawer a={a} m={edit} onClose={() => setEdit(null)}
         onSaved={(x, invite) => {
@@ -282,7 +288,7 @@ function MemberDrawer({ a, m, onClose, onSaved, onChanged }: { a: Access; m: Mem
             <div className="cap" style={{ marginTop: 6 }}>{t(`m.roleNote.${x.role}`)}</div></div>
         )}
         <div><span className="lbl">{t("m.workdays")}</span>
-          <div className="set-chips">{DAYS.map((d, i) => <Chip key={d} on={x.workdays.includes(i)} onClick={() => set({ workdays: toggle(x.workdays, i).sort() })}>{t(`days.${i}`)}</Chip>)}</div></div>
+          <div className="set-chips tm-days">{DAYS.map((d, i) => <Chip key={d} on={x.workdays.includes(i)} onClick={() => set({ workdays: toggle(x.workdays, i).sort() })}>{t(`days.${i}`)}</Chip>)}</div></div>
         {x.role === "tech" && <>
           <div><span className="lbl">{t("m.skills")}</span>
             <div className="set-chips">{SKILLS.map((s) => <Chip key={s} on={x.skills.includes(s)} onClick={() => set({ skills: toggle(x.skills, s) })}>{s}</Chip>)}</div>

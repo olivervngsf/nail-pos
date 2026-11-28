@@ -76,3 +76,21 @@ test("iPhone Duo: open the phone mid-ticket, ticket stays, Charge on screen; fol
   await page.getByTestId("cash-received").click();
   await inView("new-ticket");
 });
+
+test("Checkout top bar: the scan box words fit on Duo open, iPad upright and computers", async ({ page }, info) => {
+  test.skip(info.project.name !== "phone", "touch screen only");
+  for (const size of [OPEN, OPEN_SIDEWAYS, { width: 744, height: 1133 }, { width: 820, height: 1180 }, { width: 1024, height: 768 }]) {
+    await page.setViewportSize(size);
+    await page.goto("/checkout");
+    const box = page.locator(".bar [data-testid=scan-box]");
+    await expect(box, `${size.width}`).toBeVisible();
+    const f = await box.evaluate((el: HTMLInputElement) => {
+      const cs = getComputedStyle(el);
+      const ctx = document.createElement("canvas").getContext("2d")!;
+      ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      const room = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      return { need: Math.ceil(ctx.measureText(el.placeholder).width), room };
+    });
+    expect(f.need, `${size.width}px: placeholder needs ${f.need}px, has ${f.room}px`).toBeLessThanOrEqual(f.room);
+  }
+});

@@ -276,6 +276,7 @@
     "slipBack": "Mang phiếu lại quầy để thanh toán.",
     "slipPrinted": "Đã in phiếu. Thợ quét mã QR để thêm dịch vụ; quét lại ở đây để thanh toán.",
     "scanPh": "Quét phiếu hoặc gõ số phiếu",
+    "scanPhShort": "Quét hoặc số phiếu",
     "scanNone": "Không tìm thấy phiếu đang mở cho phiếu hoặc số này.",
     "loyalty": "Tích điểm",
     "ptsUnit": "điểm",
@@ -1953,7 +1954,15 @@
     "sizeHint": "Chữ to hơn chỉ trên thiết bị này. Thiết bị khác giữ cỡ chữ riêng.",
     "signInHint": "Số điện thoại luôn dùng được. Email hoặc mật khẩu là cách thứ hai; 2 bước thêm một mã từ ứng dụng.",
     "signInsShort": "Đăng nhập của tôi",
-    "signInsSub": "Điện thoại + máy tính"
+    "signInsSub": "Điện thoại + máy tính",
+    "signInSecurity": "Đăng nhập + bảo mật",
+    "pinIsSet": "Mã PIN đã được đặt",
+    "pinLength": "Độ dài",
+    "pinDigits": "{n} số",
+    "pinWhoSets": "Ai quy định",
+    "pinRulesOwner": "Chủ tiệm · Quy tắc PIN",
+    "pinForgotH": "Quên mã PIN?",
+    "pinForgot": "Chủ tiệm hoặc quản lý có thể tạo mã mới cho bạn trong Cài đặt → Nhân viên, hoặc nhắn link PIN cho bạn."
   },
   "faces": {
     "gone": "Máy này đã bị gỡ khỏi tiệm. Cài lại để dùng mã PIN ở đây.",
@@ -2140,6 +2149,13 @@
         "boss": "Chủ + quản lý",
         "desk": "Quầy",
         "tech": "Thợ"
+      },
+      "sortBy": "Sắp xếp",
+      "sort": {
+        "role": "Theo vai trò",
+        "az": "Tên A → Z",
+        "za": "Tên Z → A",
+        "status": "Cần chú ý trước"
       }
     },
     "m": {
@@ -2627,7 +2643,8 @@
       "slipRow": "Phiếu lương nhân viên in gì",
       "slipSub": "Từng vé, tiền tip, séc hay tiền mặt, chỗ ký tên",
       "openSheet": "Mở bảng lương"
-    }
+    },
+    "searchBack": "Tìm kiếm"
   },
   "promo": {
     "title": "Gửi tin khuyến mãi",
