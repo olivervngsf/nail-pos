@@ -1,6 +1,7 @@
 "use client";
 // Quick-book card (D2: phone first, top services, who is free, time, repeat, reminder texts) and the booking details
 // panel (D4 peek / D12 details: confirm, check in → checkout, no-show, cancel, client profile).
+import { isMasked, showPhone } from "@/lib/contact";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -24,7 +25,7 @@ import { canContact, logContact, reminderBody, seesFullPhone, smsHref, telHref, 
 
 export type BookDraft = { day: string; start: number; minutes: number; staffId?: string;
   /** "Book a later time" from a waiting walk-in: start with their name, phone and services; the walk-in leaves the waitlist once booked. */
-  client?: { name: string; phone: string }; services?: ApptService[]; replaces?: Appt };
+  client?: { id?: string; name: string; phone: string }; services?: ApptService[]; replaces?: Appt };
 
 /** Open (or reuse) the checkout ticket for a booking: client + services with the tech. Saved on the device, synced later. */
 export function ticketFor(desk: Desk, a: Appt, staffId: string | null): string {
@@ -36,7 +37,7 @@ export function ticketFor(desk: Desk, a: Appt, staffId: string | null): string {
     const noPhoneName = !a.client?.phone && a.client?.name ? a.client.name : "";
     putTicket({ id, salonId: desk.salonId, status: "open", createdAt: new Date().toISOString(), tips: {}, openedBy: by, deviceId: desk.device?.id,
       note: [noPhoneName, a.note].filter(Boolean).join(" · "),
-      client: a.client?.name || a.client?.phone ? { phone: a.client.phone ?? "", name: a.client.name } : undefined,
+      client: a.client?.name || a.client?.phone ? { ...(a.client.id ? { id: a.client.id } : {}), phone: a.client.phone ?? "", name: a.client.name } : undefined,
       lines: a.services.map((s) => ({ id: crypto.randomUUID(), serviceId: s.serviceId, name: s.name, minutes: s.minutes, cents: s.cents,
         staffId: staffId ?? undefined, staffName })) }, { now: true });
   }
@@ -59,7 +60,7 @@ function Pin({ label, value, children }: { label: string; value?: string; childr
 export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged }: { desk: Desk; draft: BookDraft; all: Appt[]; onClose: () => void; onBooked: (n: number, name: string) => void; onMenuChanged?: () => void }) {
   const t = useTranslations("calendar");
   const [source, setSource] = useState<ApptSource>("phone");
-  const [phone, setPhone] = useState(draft.client?.phone ? fmtPhone(draft.client.phone) : "");
+  const [phone, setPhone] = useState(showPhone(draft.client?.phone));
   const [name, setName] = useState(draft.client?.name ?? "");
   const [found, setFound] = useState<Found | null>(null);
   const [svcs, setSvcs] = useState<ApptService[]>(draft.services ?? []);
@@ -106,7 +107,8 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
     .sort((a, b) => Number(isFree(busyOf(b.id), start, start + minutes)) - Number(isFree(busyOf(a.id), start, start + minutes)) || Number(b.clockedIn) - Number(a.clockedIn));
   // A typed start time that can't be read blocks Book (never save at the old time by mistake).
   const typedBad = tText !== null && parseTime(tText) === null;
-  const ok = (phoneOk(phone) || name.trim()) && svcs.length > 0 && !typedBad;
+  const onFile = isMasked(phone) && !!draft.client?.id; // hidden ••7011: the client on file, known by id
+  const ok = (phoneOk(phone) || onFile || name.trim()) && svcs.length > 0 && !typedBad;
 
   const add = (s: { id?: string; name: string; minutes: number; cents: number }) => setSvcs((x) => [...x, { serviceId: s.id, name: s.name, minutes: s.minutes, cents: s.cents }]);
   const addCodes = () => { if (!hits.length) return; hits.forEach(add); setQ(""); };
@@ -116,14 +118,14 @@ export function BookDrawer({ desk, draft, all, onClose, onBooked, onMenuChanged 
     if (typed === null) { setTErr(true); return; }
     const days = rep ? repeatDays(day, rep.every, rep.times) : [day];
     const rule = rep ? { id: crypto.randomUUID(), everyWeeks: rep.every, times: rep.times } : undefined;
-    const client = { name: name.trim() || found?.name || "", phone: phoneOk(phone) ? e164(phone) : "" };
+    const client = { ...(onFile ? { id: draft.client!.id } : {}), name: name.trim() || found?.name || "", phone: phoneOk(phone) ? e164(phone) : onFile ? phone : "" };
     for (const d of days) {
       putAppt({ id: crypto.randomUUID(), salonId: desk.salonId, start: at(d, typed), end: at(d, typed + minutes), staffId: staffId ?? null,
         client, services: svcs, status: "booked", source, note, repeat: rule, repeatRuleId: rule?.id, updatedAt: "" });
     }
     const old = draft.replaces ? all.find((x) => x.id === draft.replaces!.id) ?? draft.replaces : undefined;
     if (old) putAppt({ ...old, status: "canceled", note: [old.note, t("rebookedLater")].filter(Boolean).join(" · "), updatedAt: "" });
-    onBooked(days.length, client.name || fmtPhone(client.phone));
+    onBooked(days.length, client.name || showPhone(client.phone));
   };
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const dayIn = (n: number) => { const d = new Date(today); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
@@ -253,6 +255,8 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
   const viewer = acting?.role ?? desk.me.role;
   const demo = desk.mode === "demo";
   const phone = a.client?.phone ?? "";
+  // Call / Text use the hidden number the server sent for this role (works offline); a full phone on file (owner) also works.
+  const dial = a.client?.dial || (phone && !isMasked(phone) ? phone : "");
   const len = em - sm;
   const lenTxt = len >= 60 ? `${Math.floor(len / 60)}h${len % 60 ? ` ${t("min", { n: len % 60 })}` : ""}` : t("min", { n: len });
   const STEPS = ["booked", "confirmed", "here", "chair", "paid"] as const;
@@ -292,18 +296,18 @@ export function DetailsDrawer({ desk, a, onClose, say }: { desk: Desk; a: Appt; 
         </ol>}
         <div className="ad-who">
           {phone ? seesFullPhone(viewer)
-            ? <span className="num" data-testid="appt-phone">{fmtPhone(phone)} <span className="tag">{t("adOwnerOnly")}</span></span>
+            ? <span className="num" data-testid="appt-phone">{showPhone(phone)} <span className="tag">{t("adOwnerOnly")}</span></span>
             : <span className="num cap" data-testid="appt-phone">{t("adPhone", { last4: last4(phone) })}</span>
             : <span className="cap">—</span>}
           {a.client?.id && <a href={`/clients/${a.client.id}`} className="ad-link">{t("profile")} ›</a>}
         </div>
-        {phone && (canContact(contact, viewer, "call") || canContact(contact, viewer, "text")) && <div className="ad-reach">
+        {dial && (canContact(contact, viewer, "call") || canContact(contact, viewer, "text")) && <div className="ad-reach">
           {/* Reach the client without seeing the number (only the owner sees it); every tap is logged. */}
-          {canContact(contact, viewer, "call") && <a className="ad-reach-btn" href={telHref(phone)} data-testid="appt-call"
+          {canContact(contact, viewer, "call") && <a className="ad-reach-btn" href={telHref(dial)} data-testid="appt-call"
             onClick={() => logContact({ salonId: desk.salonId, clientId: a.client?.id, apptId: a.id, way: "call", by: acting?.membership_id, demo })}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z" /></svg>{t("adCall")}</a>}
           {canContact(contact, viewer, "text") && <a className="ad-reach-btn" data-testid="appt-text"
-            href={smsHref(phone, reminderBody({ first: (a.client?.name ?? "").split(" ")[0], salon: desk.salonName,
+            href={smsHref(dial, reminderBody({ first: (a.client?.name ?? "").split(" ")[0], salon: desk.salonName,
               when: `${new Date(a.start).toLocaleDateString(lang === "vi" ? "vi-VN" : "en-US", { weekday: "short", month: "short", day: "numeric" })} ${lang === "vi" ? "lúc" : "at"} ${fmtMin(sm)}` }, lang === "vi" ? "vi" : "en"))}
             onClick={() => logContact({ salonId: desk.salonId, clientId: a.client?.id, apptId: a.id, way: "text", by: acting?.membership_id, demo })}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H8l-4 4z" /></svg>{t("adText")}</a>}

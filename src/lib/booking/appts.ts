@@ -15,7 +15,9 @@ export type ApptSource = "desk" | "phone" | "walk_in" | "web" | "google" | "text
 export type ApptService = { serviceId?: string; name: string; minutes: number; cents: number };
 export type Appt = {
   id: string; salonId: string; start: string; end: string; staffId?: string | null;
-  client?: { id?: string; name: string; phone: string; care?: boolean; textsOk?: boolean };
+  client?: { id?: string; name: string; phone: string; care?: boolean; textsOk?: boolean;
+    /** Number for the Call / Text buttons only (never shown): sent only to roles the owner allowed. */
+    dial?: string };
   services: ApptService[]; status: ApptStatus; source: ApptSource; note: string;
   ticketId?: string | null; ticketStatus?: string | null; repeatRuleId?: string | null;
   repeat?: { id: string; everyWeeks: number; times: number };
@@ -55,7 +57,7 @@ export function putAppt(a: Appt) {
 function toPayload(a: Appt) {
   return JSON.parse(JSON.stringify({
     id: a.id, salonId: a.salonId, start: a.start, end: a.end, staffId: a.staffId ?? null,
-    client: a.client?.phone || a.client?.name ? { phone: a.client.phone, name: a.client.name } : undefined,
+    client: a.client?.phone || a.client?.name || a.client?.id ? { id: a.client.id, phone: a.client.phone, name: a.client.name } : undefined,
     services: a.services, status: a.status, source: a.source, note: a.note, ticketId: a.ticketId ?? null, repeat: a.repeat, arrivedAt: a.arrivedAt ?? null, seatReason: a.seatReason ?? null, updatedAt: a.updatedAt,
   }));
 }
