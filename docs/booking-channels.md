@@ -79,3 +79,13 @@ What the calendar apps do well and we copy:
 Rules for all channels: one calendar; nothing moves by itself (clashes become Alerts); reminders 1 day + 2 h; no-show counted on the profile; every booking keeps its source for reports (Numbers: new clients by source).
 
 Built on the Booking board: D11 phone call card (From + phone first + Repeat), D12 details panel, D13 repeat dialog. Next: Week + Month views (not drawn yet).
+
+## 7. Next: salon profile + marketplace (Nov 27, research only)
+
+Full research: [Research — Salon Page + Marketplace](https://claude.ai/artifact/7J8ssuezP9FxJ3CZQ4ipyS) (audit of Vagaro, Yelp, Booksy, Fresha, GlossGenius, Mangomint, ABC, OpenTable + business model).
+
+- Our booking page books well but has no reviews, about, staff cards, deals, holiday notice, share/save or templates.
+- Oliver leaning: a **separate profile** on top of the booking page (Yelp profile → Book → Square page). `/<salon>` stays the fast booking page.
+- Link plan: `/<salon>/about` · `/<salon>/staff` (one tech `/staff/kim`) · `/<salon>/services` · `/<salon>/giftcard` · `/<salon>/products` + a read-only API per salon.
+- Name parked (not "salon page": sounds like the salon's own website).
+- Open: name, separate vs one page, reviews (ours / Google / both), which 2 money ideas to test in the pilot.

@@ -73,3 +73,10 @@ opens, Apple-approved names/icons only. Drop the 2 PDFs into the chat to check e
   `PolishOS/PolishOS.entitlements`.
 - `AppDelegate.swift` (start), `WebViewController.swift` (window, `window.PolishOSApp` bridge for polishosapp.com
   only, links, camera, alerts), `CardReader.swift` (Tap to Pay + M2).
+
+## iPhone Duo (foldable) — build with Xcode 27.1+
+Apps built with an older iOS SDK open on the iPhone Duo's inner screen at iPhone size with black bars
+(plus Apple's shrink / rotate buttons). Built with Xcode 27.1 or newer (iOS 27.1 SDK) the app fills the
+open screen and the web page inside switches to its tablet layout by itself. Both workflows
+(`ios.yml`, `testflight.yml`) run on GitHub's `xcode-27` image with the newest released Xcode 27 (27.2 on Nov 28); they stop
+with a clear message if the Mac has none. After a build, install the new version on the phone.

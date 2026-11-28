@@ -2,7 +2,7 @@
 // Settings frame (board 5.1): left menu + settings side nav + one section. Owner/manager only; on a salon device the person
 // unlocked with the faces screen must be an owner or manager (else: lock and come back with that PIN).
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -29,6 +29,9 @@ export type Access = { salonId: string; salonName: string; role: Role; owner: bo
 const GROUPS = ["me", "salon", "team", "pay", "clients", "money", "safety"] as const;
 const NAV = [
   { href: "/me", key: "profile", group: "me", who: "all" },
+  { href: "/me/pin", key: "pin", group: "me", who: "all" },
+  { href: "/me/language", key: "language", group: "me", who: "all" },
+  { href: "/me/text-size", key: "textSize", group: "me", who: "all" },
   { href: "/settings/salon", key: "salon", group: "salon", who: "admin" },
   { href: "/settings/business", key: "business", group: "salon", who: "admin" },
   { href: "/settings/menu", key: "menu", group: "salon", who: "admin" },
@@ -50,11 +53,13 @@ const NAV = [
   { href: "/settings/loyalty", key: "loyalty", group: "clients", who: "admin" },
   { href: "/settings/pay-rules", key: "payRules", group: "money", who: "admin" },
   { href: "/settings/activity", key: "activity", group: "safety", who: "admin" },
+  { href: "/settings/notifications", key: "notifications", group: "safety", who: "admin" },
   { href: "/settings/support", key: "support", group: "safety", who: "admin" },
 ] as const;
 
 // Line icons for the menu (Claude-style: an icon beside every item). Paths on a 24px grid.
 const ICON: Record<string, string> = {
+  notifications: "M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6zM10 19a2 2 0 004 0",
   profile: "M12 4a4 4 0 100 8 4 4 0 000-8zM4 21c1-4 4.5-6 8-6s7 2 8 6",
   salon: "M3 11l9-7 9 7v9H3z", business: "M4 21V7l8-4 8 4v14M9 21v-6h6v6", menu: "M5 3h14v18H5zM9 8h6M9 12h6M9 16h4",
   devices: "M6 3h12v18H6zM11 18h2", billing: "M2 6h20v12H2zM2 10h20", support: "M12 3a9 9 0 100 18 9 9 0 000-18zM9.5 9a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17v.5",
@@ -69,7 +74,7 @@ const ICON: Record<string, string> = {
   pin: "M5 11h14v10H5zM8 11V8a4 4 0 018 0v3M12 15v2", language: "M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",
   textSize: "M4 18L9 6l5 12M6 14h6M15 18l3-7 3 7M16 15.5h4",
 };
-const NEW = new Set(["activity", "roles", "timesheet"]);
+const NEW = new Set(["activity", "roles", "timesheet", "notifications"]);
 
 type Who = "all" | "admin" | "owner";
 /** Who may open a settings page: everyone (own profile), owner + manager, or the owner only.
@@ -98,8 +103,22 @@ export function SettingsNav({ role, q = "" }: { role: Role; q?: string }) {
   const path = usePathname();
   const items = useItems(role, q);
   const groups = GROUPS.map((g) => ({ g, items: items.filter((n) => n.group === g) })).filter((x) => x.items.length);
+  // Each Settings page mounts a fresh menu: keep it where the person left it (Oliver, Nov 27: tapping Booking page
+  // must not jump the menu back to the top). Restore before paint; then make sure the picked item is in view.
+  const ref = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    const nav = ref.current;
+    if (!nav) return;
+    try { nav.scrollTop = Number(sessionStorage.getItem(NAV_Y) || 0); } catch { /* */ }
+    const on = nav.querySelector<HTMLElement>("a.on");
+    if (on) {
+      const n = nav.getBoundingClientRect(), r = on.getBoundingClientRect();
+      if (r.top < n.top || r.bottom > n.bottom) on.scrollIntoView({ block: "nearest" });
+    }
+  }, [path]);
+  const keep = () => { try { if (ref.current) sessionStorage.setItem(NAV_Y, String(ref.current.scrollTop)); } catch { /* */ } };
   return (
-    <nav className="set-nav" aria-label={t("title")}>
+    <nav ref={ref} className="set-nav" aria-label={t("title")} onScroll={keep}>
       <div className="set-nav-title">{t("title")}<span className="set-nav-who">{t("who")}</span></div>
       {groups.map(({ g, items }) => (
         <div key={g} className="set-nav-group">
@@ -121,19 +140,25 @@ export function SettingsNav({ role, q = "" }: { role: Role; q?: string }) {
 }
 
 const BACK = "nailpos.setBack";
+const NAV_Y = "nailpos.setNavY";
+/** The words in Settings search, kept while Settings is open: a page opened from a search result goes ‹ Search,
+ *  back to the same results (Apple's rule). Cleared when the box is emptied or Settings closes. */
+const SEARCH = "nailpos.setQ";
+const readQ = () => { try { return sessionStorage.getItem(SEARCH) ?? ""; } catch { return ""; } };
+const keepQ = (q: string) => { try { if (q.trim()) sessionStorage.setItem(SEARCH, q); else sessionStorage.removeItem(SEARCH); } catch { /* private mode */ } };
 /** Remember the screen Settings was opened from, so X closes back to it. */
 export function rememberSettingsBack(path: string) { try { if (!path.startsWith("/settings") && path !== "/me" && !path.startsWith("/me/")) sessionStorage.setItem(BACK, path); } catch { /* private mode */ } }
 
 /** Where a page's ✓ Save goes: the page header (all sizes). Pages render <SaveCheck> and it lands here. */
 export const SAVE_SLOT = "set-save-slot";
 
-/** Phones + tablets list (board "Settings like Claude · Tablet", frame 1): 3 groups, 13 rows. Each row in "Running the
+/** Phones + tablets list (board "Settings Map + Back Rules", After 1): 3 groups, 12 rows. One home per setting:
+ *  your name card at the top IS Profile (no extra row); PIN, Language + Text size live here only, not on Profile. Each row in "Running the
  *  salon" opens a short list of its pages (/settings/more/<group>); Business details sits on Salon info. Search = every page. */
 type LRow = { key: string; href: string; who: Who; label?: string; icon?: string };
 const HUB_ICON: Record<string, string> = { team: "team", pay: "payments", clients: "bookingPage", money: "payouts", safety: "activity" };
 const HUBS = ["team", "pay", "clients", "money", "safety"] as const;
 const ME_ROWS: LRow[] = [
-  { key: "profile", href: "/me", who: "all", label: "list.profile" },
   { key: "pin", href: "/me/pin", who: "all" }, { key: "language", href: "/me/language", who: "all" }, { key: "textSize", href: "/me/text-size", who: "all" },
 ];
 const SALON_ROWS: LRow[] = [
@@ -225,7 +250,7 @@ function SettingsList({ role, q }: { role: Role; q: string }) {
   const words = q.trim().toLowerCase();
   const name = (r: LRow) => t(r.label ?? `nav.${r.key}`);
   const groups: { g: string; rows: { key: string; href: string; name: string; icon?: string }[] }[] = words
-    ? [{ g: "", rows: [...ME_ROWS.map((r) => ({ ...r, name: name(r) })), ...NAV.filter((n) => n.href !== "/me" && canOpen(n.who, role, n.group, perms)).map((n) => ({ key: n.key, href: n.href, name: t(`nav.${n.key}`) }))]
+    ? [{ g: "", rows: [...ME_ROWS.map((r) => ({ ...r, name: name(r) })), ...NAV.filter((n) => !ME_ROWS.some((r) => r.href === n.href) && canOpen(n.who, role, n.group, perms)).map((n) => ({ key: n.key, href: n.href, name: t(`nav.${n.key}`) }))]
         .filter((r) => r.name.toLowerCase().includes(words)) }]
     : [
         { g: "me", rows: ME_ROWS.filter((r) => canOpen(r.who, role)).map((r) => ({ ...r, name: name(r) })) },
@@ -296,8 +321,10 @@ export function SettingsWindow({ role, title, actions, home, back, children }: {
 }) {
   const t = useTranslations("settings");
   const router = useRouter();
-  const [q, setQ] = useState("");
-  const close = () => { let to = "/today"; try { to = sessionStorage.getItem(BACK) || to; } catch { /* */ } router.push(to); };
+  const [q, setQRaw] = useState("");
+  useEffect(() => { setQRaw(readQ()); }, []);
+  const setQ = (v: string) => { setQRaw(v); keepQ(v); };
+  const close = () => { let to = "/today"; try { to = sessionStorage.getItem(BACK) || to; } catch { /* */ } keepQ(""); router.push(to); };
   useEffect(() => {
     const esc = (e: KeyboardEvent) => { // Esc closes the window only when nothing smaller is open (a drawer, sheet, menu or popover closes first).
       if (e.key === "Escape" && window.innerWidth >= 900 && !document.querySelector(".drawer, .sheet, .scrim, [role=menu], [data-testid=credit-pop], [aria-expanded=true]")) close(); };
@@ -305,11 +332,13 @@ export function SettingsWindow({ role, title, actions, home, back, children }: {
     window.addEventListener("keydown", esc, true);
     return () => window.removeEventListener("keydown", esc, true);
   });
-  const backTo = back ?? { href: "/settings", label: t("title") };
+  // Back goes up one step and says where: ‹ Search (opened from a search result), else the parent page, else ‹ Settings.
+  const fromSearch = !home && !!q.trim();
+  const backTo = fromSearch ? { href: "/settings", label: t("searchBack") } : back ?? { href: "/settings", label: t("title") };
   return (
     <>
       <div className="set-scrim" aria-hidden onClick={close} />
-      <section className={`set-win${home ? " is-home" : " is-page"}${back ? " is-deep" : ""}`} role="dialog" aria-label={t("title")}>
+      <section className={`set-win${home ? " is-home" : " is-page"}${back && !fromSearch ? " is-deep" : ""}`} role="dialog" aria-label={t("title")}>
         <div className="set-win-h">
           <Button variant="ghost" size="sm" className="set-x" aria-label={t("close")} onClick={close} data-testid="settings-close">✕</Button>
           <span>{t("title")}</span>

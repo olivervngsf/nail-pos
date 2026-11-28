@@ -1,18 +1,19 @@
 "use client";
-// Small pages under My profile (PIN, Sign in, Language, Text size): same Settings window, ‹ back to My profile.
+// Small pages under Me (board "Settings Map + Back Rules"): same Settings window. Back goes up one step and says where:
+// PIN, Language, Text size live on the Settings list → ‹ Settings; Sign in + My sign-ins live on Profile → ‹ Profile.
 import { useTranslations } from "next-intl";
 import { LeftMenu } from "@/components/kit";
 import { useMe } from "@/lib/me";
 import { SettingsWindow } from "../settings/SettingsShell";
 
-export default function MeSub({ title, children }: { title: string; children: React.ReactNode }) {
+export default function MeSub({ title, parent = "settings", children }: { title: string; parent?: "settings" | "profile"; children: React.ReactNode }) {
   const t = useTranslations("me");
   const { me, isDevice, acting } = useMe();
   if (!me) return <div className="app" aria-busy="true" />;
   return (
     <div className="app me-app set-app">
       <LeftMenu active="Me" salonInitials={me.salonName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()} me={me.name} />
-      <SettingsWindow role={isDevice ? (acting?.role ?? me.role) : me.role} title={title} back={{ href: "/me", label: t("titleShort") }}>
+      <SettingsWindow role={isDevice ? (acting?.role ?? me.role) : me.role} title={title} back={parent === "profile" ? { href: "/me", label: t("titleShort") } : undefined}>
         <main className="me-main me-v2">{children}</main>
       </SettingsWindow>
     </div>
