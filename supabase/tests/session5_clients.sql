@@ -31,8 +31,10 @@ select pg_temp.visit(4, '+14085550131', 'Jen Park', 3000, 150);
 select pg_temp.visit(5, '+14085550131', 'Jen Park', 3000, 120);
 select pg_temp.visit(6, '+14085550131', 'Jen Park', 5500, 90);
 select pg_temp.visit(7, '+14085550170', 'Mai Pham', 6000, 0);
+reset role;  -- the browser role can't read clients.phone any more (owner-only contact)
 create temp table t_lan as select id from public.clients where phone = '+14085550142';
 grant all on t_lan to authenticated;
+set local role authenticated;
 
 insert into t_out values ('all', public.client_list('00000000-0000-0000-0000-0000000009a1', 'all', ''));
 insert into t_out values ('lost', public.client_list('00000000-0000-0000-0000-0000000009a1', 'lost', ''));

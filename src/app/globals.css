@@ -2019,6 +2019,15 @@ body:has(.faces .scrim) .clock-qr { display: none; }
 .ad-svc .grow { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .ad-svc .grow b { font-weight: 600; }
 .ad-total { background: var(--surface); }
+/* Edit services on a booking */
+.ad-svc-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+button.ad-link { border: 0; background: none; padding: 4px 6px; border-radius: 8px; cursor: pointer; font: inherit; font-size: 13px; font-weight: 600; }
+.ad-edit { display: flex; flex-direction: column; gap: 10px; }
+.ad-x { width: 30px; height: 30px; border: 0; border-radius: 8px; background: var(--fill); color: var(--ink-soft); font-size: 18px; line-height: 1; cursor: pointer; flex: none; }
+.ad-x:disabled { opacity: .35; cursor: default; }
+button.ad-pick { width: 100%; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
+button.ad-pick:hover { background: var(--fill); }
+@media (pointer: coarse) { .ad-x { width: 44px; height: 44px; } }
 .ad-total .num { font-size: 20px; font-weight: 700; }
 .ad-facts { line-height: 20px; }
 .drawer-f > .ad-acts { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }

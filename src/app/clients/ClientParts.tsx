@@ -6,12 +6,13 @@ import { Button, Drawer, Field } from "@/components/kit";
 import { e164, getDevice } from "@/lib/auth";
 import { formatCents } from "@/lib/money";
 import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
+import { isMasked } from "@/lib/clientContact";
 import { useOwnerOk, OwnerOkPanel } from "@/components/OwnerOk";
 import { addPhoto, everyWeeks, saveClient, type Profile, type Visit, type Who } from "@/lib/clients";
 
 export const $ = formatCents;
 export const initials = (n: string) => n.split(" ").map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "?";
-export const phone = (p: string | null) => (p ? fmtPhone(p) : "");
+export const phone = (p: string | null) => (p ? (isMasked(p) ? p : fmtPhone(p)) : "");
 
 export function Stats({ p }: { p: Profile }) {
   const t = useTranslations("clients");
@@ -81,18 +82,20 @@ export function EditDrawer({ who, p, onClose, onSaved }: { who: Who; p: Profile 
   const ok = useOwnerOk(who, !!p, "client");
   const okErr = (e: string) => (e === "offline" ? t("okOffline") : e === "not_manager" ? t("okOnlyAdmin") : e);
   const [f, setF] = useState({
-    name: p?.name ?? "", phone: p?.phone ? fmtPhone(p.phone) : "", email: p?.email ?? "", birthday: p?.birthday?.slice(5) ?? "",
+    name: p?.name ?? "", phone: phone(p?.phone ?? null), email: p?.email ?? "", birthday: p?.birthday?.slice(5) ?? "",
     shape: p?.shape ?? "", colors: p?.colors ?? "", care: p?.care ?? "", notes: p?.notes ?? "", textsOk: p?.texts_ok ?? false, language: p?.language ?? "en",
   });
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
   const bdayOk = !f.birthday || /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(f.birthday);
-  const valid = (f.name.trim() || phoneOk(f.phone)) && (!f.phone || phoneOk(f.phone)) && bdayOk;
+  // A hidden phone/email (only the owner sees them) left as it is = unchanged; the server keeps the one on file.
+  const okPhone = (v: string) => phoneOk(v) || isMasked(v);
+  const valid = (f.name.trim() || okPhone(f.phone)) && (!f.phone || okPhone(f.phone)) && bdayOk;
   const save = async () => {
     setBusy(true); setErr("");
     try {
-      const phone = f.phone ? e164(f.phone) : "";
+      const phone = f.phone ? (isMasked(f.phone) ? f.phone : e164(f.phone)) : "";
       const approvalId = await ok.approvalId();
       const id = await saveClient(who, p?.id ?? null, { ...f, phone, birthday: f.birthday ? `2000-${f.birthday}` : "", language: f.language as "en" | "vi", approvalId, consentText: t("textsOk") });
       onSaved(id, { name: f.name.trim(), phone });
@@ -112,7 +115,7 @@ export function EditDrawer({ who, p, onClose, onSaved }: { who: Who; p: Profile 
       footer={<Button variant="primary" block disabled={!valid || busy} onClick={() => void save()} data-testid="client-save">{t("save")}</Button>}>
       {ok.okd && <div className="note" data-testid="client-ok">{t("okBy", { name: ok.okd.name })}</div>}
       <Field id="cn" label={t("name")} value={f.name} onChange={set("name")} />
-      <Field id="cp" label={t("phone")} inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} error={f.phone && !phoneOk(f.phone) ? t("phoneBad") : undefined} />
+      <Field id="cp" label={t("phone")} inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: fmtPhone(e.target.value) })} error={f.phone && !okPhone(f.phone) ? t("phoneBad") : undefined} />
       <Field id="ce" label={t("email")} type="email" value={f.email} onChange={set("email")} />
       <Field id="cb" label={t("birthday")} placeholder="MM-DD" value={f.birthday} onChange={set("birthday")} error={bdayOk ? undefined : "MM-DD"} />
       <div>

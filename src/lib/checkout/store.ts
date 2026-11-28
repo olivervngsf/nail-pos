@@ -104,12 +104,20 @@ export async function pullTickets(salonId: string, staffName: (id: string) => st
   const sb = getSupabase();
   if (!sb || !live) return;
   let q = sb.from("tickets")
-    .select("id,number,status,created_at,note,opened_by,client_name,client:clients(id,phone,name,email),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort,gift_card_id,source,desk_seen_at,tech_removed_at,price_open,added_at),payments(id,method,status,gift_card_id,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
+    .select("id,number,status,created_at,note,opened_by,client_name,client:clients(id,name),ticket_lines(id,kind,service_id,staff_id,name,minutes,amount_cents,price_from,reason,approval_id,removed_at,sort,gift_card_id,source,desk_seen_at,tech_removed_at,price_open,added_at),payments(id,method,status,gift_card_id,given_cents,amount_cents,fee_cents,card_brand,card_last4,at,taken_by)")
     .eq("salon_id", salonId).neq("status", "voided");
   q = onlyId ? q.eq("id", onlyId) : q.gte("created_at", since);
   const { data, error } = await q.order("created_at", { ascending: false }).limit(200);
   if (error) throw new Error(error.message);
+  // Phone + email come from the server already hidden for everyone but the owner (the browser can't read them).
+  const ids = [...new Set(((data ?? []) as unknown as Row[]).map((r) => r.client?.id).filter(Boolean))] as string[];
+  const contact = new Map<string, { phone: string; email: string }>();
+  if (ids.length) {
+    const cs = await rpc<{ id: string; phone: string; email: string }[]>("ticket_contacts", { p_salon: salonId, p_clients: ids }).catch(() => []);
+    for (const c of cs ?? []) contact.set(c.id, c);
+  }
   for (const r of (data ?? []) as unknown as Row[]) {
+    if (r.client) { const c = contact.get(r.client.id); r.client.phone = c?.phone ?? null; r.client.email = c?.email || null; }
     const lines = r.ticket_lines.filter((l) => !l.removed_at).sort((a, b) => a.sort - b.sort);
     const disc = lines.find((l) => l.kind === "discount");
     // 'extra' = card money that came in for a stopped try (flagged to refund), not this ticket's payment.

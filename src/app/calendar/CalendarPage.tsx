@@ -210,7 +210,7 @@ function Calendar({ desk, refresh }: { desk: Desk; refresh: () => Promise<void> 
         const order = turnOrder(deskT.staff.filter((x) => x.role === "tech"), list.filter((x) => dayKey(new Date(x.start)) === today), nowM);
         return <SeatDrawer desk={deskT} a={a} order={order} onClose={() => setSeatFor(null)} say={say}
           onLater={() => { setSeatFor(null); setDraft({ day: today, start: Math.min(20 * 60, Math.ceil((nowM + 30) / 15) * 15), minutes: a.services.reduce((x, s) => x + s.minutes, 0) || 45,
-            client: { name: a.client?.name ?? "", phone: a.client?.phone ?? "" }, services: a.services, replaces: a }); }} />; })()}
+            client: { id: a.client?.id, name: a.client?.name ?? "", phone: a.client?.phone ?? "" }, services: a.services, replaces: a }); }} />; })()}
       {scanOpen && <ScanDialog onCode={(x) => void handleScan(x)} onClose={() => setScanOpen(false)} />}
       {toast && <Toast action={toast.undo ? { label: t("undo"), onClick: () => { toast.undo?.(); setToast(null); } } : undefined}>{toast.text}</Toast>}
     </div>

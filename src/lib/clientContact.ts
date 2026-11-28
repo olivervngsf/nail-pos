@@ -15,6 +15,9 @@ export const canContact = (s: ContactSettings, role: Role, way: Way) => role ===
 /** Only the owner sees a client's full phone number; everyone else the last 4. */
 export const seesFullPhone = (role: Role) => role === "owner";
 
+/** The server hides a client's phone/email from everyone but the owner ("••7011", "l•••@gmail.com"). */
+export const isMasked = (v?: string | null) => !!v && v.includes("•");
+
 /** "+16125457011" from any US phone the client gave. */
 export const dialNumber = (phone: string) => "+1" + phone.replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
 
@@ -55,5 +58,12 @@ export function useContactSettings(salonId: string, demo: boolean): ContactSetti
 /** Log one tap (who, which client, which booking). Never blocks the call/text: offline it just isn't logged. */
 export function logContact(o: { salonId: string; clientId?: string; apptId?: string; way: Way; by?: string; demo: boolean }) {
   if (o.demo) return;
-  void rpc("client_contact_log", { p_salon: o.salonId, p_client: o.clientId ?? null, p_appt: o.apptId ?? null, p_way: o.way, p_by: o.by ?? null }).catch(() => null);
+  void dialFor(o).catch(() => null);
+}
+
+/** The number to call / text when this device only has ••7011: the server hands it out only to a role the owner
+ *  switched on, and logs the tap. Needs internet. */
+export async function dialFor(o: { salonId: string; clientId?: string; apptId?: string; way: Way; by?: string }): Promise<string> {
+  const r = await rpc<{ phone?: string }>("client_contact_log", { p_salon: o.salonId, p_client: o.clientId ?? null, p_appt: o.apptId ?? null, p_way: o.way, p_by: o.by ?? null });
+  return r?.phone ?? "";
 }

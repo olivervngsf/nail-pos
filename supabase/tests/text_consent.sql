@@ -50,9 +50,11 @@ insert into t_out values ('rows', (select jsonb_agg(jsonb_build_object('p', phon
   from public.text_consents where salon_id = '00000000-0000-0000-0000-0000000041a1'));
 
 -- Desk reads a client's history.
+create temp table t_c2 as select id from public.clients where salon_id = '00000000-0000-0000-0000-0000000041a1' and phone = '+15550109002';
+grant all on t_c2 to authenticated;
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000fd01","role":"authenticated"}', true);
-insert into t_out values ('hist', public.client_consent((select id from public.clients where salon_id = '00000000-0000-0000-0000-0000000041a1' and phone = '+15550109002')));
+insert into t_out values ('hist', public.client_consent((select id from t_c2)));
 reset role;
 
 do $$
