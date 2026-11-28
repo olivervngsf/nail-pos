@@ -11,6 +11,7 @@ import { fmtPhone, phoneOk } from "@/lib/onboarding/data";
 import { getActing, type Desk } from "@/lib/desk";
 import { giftFind, giftLookup, giftPrepareDigital, giftUse, type GiftCard, type GiftResult } from "@/lib/checkout/gift";
 import { totals, type GiftSale, type Ticket } from "@/lib/checkout/ticket";
+import { isMasked } from "@/lib/clientContact";
 
 const $ = formatCents;
 const AMOUNTS = [2500, 5000, 10000];
@@ -40,7 +41,8 @@ function Refused({ r }: { r: GiftResult }) {
 function FindCard({ desk, ticket, onFound, want }: { desk: Desk; ticket: Ticket; want: "use" | "plastic" | "reload"; onFound: (r: GiftResult | null) => void }) {
   const t = useTranslations("gift");
   const [code, setCode] = useState("");
-  const [phone, setPhone] = useState(ticket.client?.phone ? fmtPhone(ticket.client.phone) : "");
+  const [phone, setPhone] = useState(ticket.client?.phone ? (isMasked(ticket.client.phone) ? ticket.client.phone : fmtPhone(ticket.client.phone)) : "");
+  const hidden = isMasked(phone) && !!ticket.client?.id;
   const [list, setList] = useState<GiftResult[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -51,7 +53,7 @@ function FindCard({ desk, ticket, onFound, want }: { desk: Desk; ticket: Ticket;
   };
   const byPhone = async () => {
     setBusy(true); setErr(""); onFound(null);
-    try { setList(await giftFind(desk, e164(phone))); } catch (e) { setErr(navigator.onLine ? (e as Error).message : t("needNet")); }
+    try { setList(await giftFind(desk, hidden ? phone : e164(phone), hidden ? ticket.client?.id : undefined)); } catch (e) { setErr(navigator.onLine ? (e as Error).message : t("needNet")); }
     setBusy(false);
   };
   return <>
@@ -65,7 +67,7 @@ function FindCard({ desk, ticket, onFound, want }: { desk: Desk; ticket: Ticket;
       <div className="eyebrow">{t("orPhone")}</div>
       <div style={{ display: "flex", gap: 8 }}>
         <input className="inp" inputMode="tel" aria-label={t("phone")} placeholder="(408) 555-0199" value={phone} onChange={(e) => setPhone(fmtPhone(e.target.value))} />
-        <Button disabled={busy || !phoneOk(phone)} data-testid="gift-phone" onClick={() => void byPhone()}>{t("find")}</Button>
+        <Button disabled={busy || !(phoneOk(phone) || hidden)} data-testid="gift-phone" onClick={() => void byPhone()}>{t("find")}</Button>
       </div>
       {list && (list.length ? <div className="group">{list.map((r) => (
         <button key={r.card!.id} type="button" className="opt" onClick={() => { setList(null); onFound(r); }}>

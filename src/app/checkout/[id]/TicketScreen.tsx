@@ -30,6 +30,7 @@ import { clientLoyalty, pointsFor, type ClientLoyalty } from "@/lib/loyalty/loya
 import { getProfile, profileFor, type Profile, type Who } from "@/lib/clients";
 import { EditDrawer } from "@/app/clients/ClientParts";
 import { blockers, changeCents, quickCash, splitTipByPrice, staffOn, ticketLabel, totals, type Discount, type ServiceLine, type Ticket } from "@/lib/checkout/ticket";
+import { isMasked } from "@/lib/clientContact";
 
 const uuid = () => crypto.randomUUID();
 const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
@@ -341,9 +342,11 @@ type Found = { client_id: string; name: string; notes: string; visits: number; a
 function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save: SaveFn }) {
   const t = useTranslations("checkout");
   const f = useFormatter();
-  const [phone, setPhone] = useState(ticket.client?.phone ? fmtPhone(ticket.client.phone) : "");
+  // A client on file this viewer may only see as ••7011 (owner-only phones): kept as it is, tied to the client id.
+  const [phone, setPhone] = useState(ticket.client?.phone ? (isMasked(ticket.client.phone) ? ticket.client.phone : fmtPhone(ticket.client.phone)) : "");
   const [name, setName] = useState(ticket.client?.name ?? "");
-  const [locked, setLocked] = useState(!!ticket.client && (phoneOk(fmtPhone(ticket.client.phone)) || !!ticket.client.name));
+  const hidden = isMasked(phone) && !!ticket.client?.id;
+  const [locked, setLocked] = useState(!!ticket.client && (hidden || phoneOk(fmtPhone(ticket.client.phone)) || !!ticket.client.name));
   const [found, setFound] = useState<Found | null | "offline">(null);
   const [look, setLook] = useState(0);
   const [edit, setEdit] = useState<Profile | null>(null);
@@ -351,16 +354,17 @@ function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save:
   const who: Who = { mode: desk.mode, salonId: desk.salonId, salonName: desk.salonName, role: desk.me.role, name: desk.me.display_name };
 
   useEffect(() => {
-    if (!phoneOk(phone) || desk.mode !== "live") { setFound(null); return; }
+    if (!(phoneOk(phone) || hidden) || desk.mode !== "live") { setFound(null); return; }
     if (!navigator.onLine) { setFound("offline"); return; }
     let stop = false;
-    void rpc<Found[]>("client_lookup", { p_salon: desk.salonId, p_phone: e164(phone) })
+    void rpc<Found[]>("client_lookup", { p_salon: desk.salonId, p_phone: hidden ? phone : e164(phone), p_client: hidden ? ticket.client!.id : null })
       .then((r) => { if (!stop) setFound(r[0] ?? null); })
       .catch(() => !stop && setFound("offline"));
     return () => { stop = true; };
   }, [phone, desk.mode, desk.salonId, look]);
 
-  const commit = (p: string, n: string) => save({ client: phoneOk(p) ? { phone: e164(p), name: n.trim() } : n.trim() ? { phone: "", name: n.trim() } : undefined });
+  const commit = (p: string, n: string) => save({ client: isMasked(p) && ticket.client?.id ? { id: ticket.client.id, phone: p, name: n.trim() }
+    : phoneOk(p) ? { phone: e164(p), name: n.trim() } : n.trim() ? { phone: "", name: n.trim() } : undefined });
   const c = found && found !== "offline" ? found : null;
   // A number on file: attach that client as they are (their saved name, not what was typed).
   useEffect(() => {
@@ -401,7 +405,7 @@ function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save:
       {found === "offline" && <div className="cap">{t("lookupOffline")}</div>}
       {edit && <EditDrawer who={who} p={edit} onClose={() => setEdit(null)} onSaved={(_, v) => {
         // Keep the ticket pointing at the same person if their phone or name was fixed.
-        setEdit(null); const p = v.phone ? fmtPhone(v.phone) : phone; setPhone(p); setName(v.name || name); commit(p, v.name || name); setLook((n) => n + 1);
+        setEdit(null); const p = v.phone && !isMasked(v.phone) ? fmtPhone(v.phone) : phone; setPhone(p); setName(v.name || name); commit(p, v.name || name); setLook((n) => n + 1);
       }} />}
       {c && <>
         <div className="grid3" style={{ gap: 8, textAlign: "center" }}>
@@ -414,20 +418,20 @@ function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save:
         {c.notes && <div><div className="eyebrow" style={{ marginBottom: 6 }}>{t("notes")}</div><div style={{ fontSize: 15, background: "var(--surface)", borderRadius: 12, padding: "10px 12px" }}>{c.notes}</div></div>}
       </>}
       {phoneOk(phone) && !c && found === null && desk.mode === "live" && <div className="cap">{t("noVisits")}</div>}
-      {phoneOk(phone) && <LoyaltyBox desk={desk} ticket={ticket} save={save} phone={e164(phone)} name={name} />}
+      {(phoneOk(phone) || hidden) && <LoyaltyBox desk={desk} ticket={ticket} save={save} phone={hidden ? phone : e164(phone)} clientId={hidden ? ticket.client?.id : undefined} name={name} />}
     </aside>
   );
 }
 /* Loyalty (Loyalty board L7–L8): points + "reward ready"; Use asks first; never applied by itself. */
-function LoyaltyBox({ desk, ticket, save, phone, name }: { desk: Desk; ticket: Ticket; save: SaveFn; phone: string; name: string }) {
+function LoyaltyBox({ desk, ticket, save, phone, clientId, name }: { desk: Desk; ticket: Ticket; save: SaveFn; phone: string; clientId?: string; name: string }) {
   const t = useTranslations("checkout");
   const [ly, setLy] = useState<ClientLoyalty | null>(null);
   const [ask, setAsk] = useState(false);
   useEffect(() => {
     let stop = false;
-    void clientLoyalty(desk.mode === "live", desk.salonId, phone).then((r) => !stop && setLy(r)).catch(() => !stop && setLy(null));
+    void clientLoyalty(desk.mode === "live", desk.salonId, phone, clientId).then((r) => !stop && setLy(r)).catch(() => !stop && setLy(null));
     return () => { stop = true; };
-  }, [desk.mode, desk.salonId, phone]);
+  }, [desk.mode, desk.salonId, phone, clientId]);
   if (!ly) return null;
   const open = ticket.status === "open";
   const sum = totals(ticket);
