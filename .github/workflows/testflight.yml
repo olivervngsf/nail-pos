@@ -24,20 +24,22 @@ permissions:
 
 jobs:
   upload:
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       # Xcode 27.1+ = iOS 27.1 SDK. Apps built with an older SDK run letterboxed (iPhone size + black bars)
-      # on the iPhone Duo's open screen; 27.1+ fills it. Prefer a released Xcode over a beta.
-      - name: Use Xcode 27.1 or newer (fills the iPhone Duo's open screen)
+      # on the iPhone Duo's open screen; 27.1+ fills it. GitHub's "xcode-27" image has it (macos-26 stops at 26.6).
+      # Use 27.1 (released, the image's default) so App Store Connect accepts the upload; never a beta.
+      - name: Use Xcode 27.1 (fills the iPhone Duo's open screen)
         run: |
           ls -d /Applications/Xcode*.app
-          pick() { ls -d /Applications/Xcode_*.app 2>/dev/null | grep -E 'Xcode_(27\.([1-9]|[1-9][0-9])|2[89]|[3-9][0-9])' | grep -viE "$1" | sort -V | tail -1; }
-          X=$(pick 'beta|rc'); test -n "$X" || X=$(pick '^$')
-          test -n "$X" || { echo "No Xcode 27.1+ on this Mac (needed so the app fills the iPhone Duo screen)."; exit 1; }
+          X=/Applications/Xcode_27.1.app
+          test -d "$X" || X=/Applications/Xcode.app
           sudo xcode-select -s "$X/Contents/Developer"
           xcodebuild -version
+          V=$(xcodebuild -version | awk 'NR==1{print $2}')
+          printf '%s\n27.1\n' "$V" | sort -V -C -r || { echo "Xcode $V is older than 27.1: the app would be letterboxed on the iPhone Duo."; exit 1; }
           xcodebuild -showsdks | grep -i iphoneos
       - name: Make the Xcode project
         working-directory: ios/PolishOS
