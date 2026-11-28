@@ -2101,7 +2101,8 @@
       "textSize": "Cỡ chữ",
       "roles": "Vai trò",
       "timesheet": "Bảng giờ làm",
-      "payRules": "Quy tắc trả lương"
+      "payRules": "Quy tắc trả lương",
+      "notifications": "Thông báo"
     },
     "needPin": "Chỉ chủ hoặc quản lý",
     "needPinDevice": "Trên thiết bị của tiệm, chủ hoặc quản lý mở Cài đặt bằng PIN.",
@@ -3102,7 +3103,9 @@
       "support_change": "PolishOS hỗ trợ đã đổi một mục",
       "roles_saved": "Đổi vai trò + quyền",
       "clock_fix": "Sửa giờ chấm công",
-      "amenities_saved": "Đổi tiện ích của tiệm"
+      "amenities_saved": "Đổi tiện ích của tiệm",
+      "alert_queued": "Đã gửi cảnh báo cho chủ tiệm",
+      "notify_saved": "Đổi cài đặt thông báo"
     }
   },
   "picker": {
@@ -3124,6 +3127,11 @@
     "title": "Có gì mới",
     "sub": "Những thay đổi mới nhất của PolishOS, mới nhất ở trên.",
     "items": [
+      {
+        "date": "27/11",
+        "title": "Thông báo",
+        "body": "Cài đặt → Thông báo: chọn ai nhận cảnh báo và cách nhận. Hoàn tiền lớn, giảm giá lớn, két lệch, khoá PIN, chấm công bị từ chối, thanh toán gói thất bại và tín dụng tin nhắn thấp giờ gửi email cho chủ tiệm và quản lý."
+      },
       {
         "date": "26/11",
         "title": "Đăng nhập của tôi",
