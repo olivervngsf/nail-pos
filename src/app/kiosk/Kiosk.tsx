@@ -3,6 +3,7 @@
 // "same as last time?" + service tiles + optional tech, done (#n in line, ticket B·n, resets in 10 s).
 // Today's booking for that phone → checked in ("Here" on the calendar, the desk + tech see it). Otherwise a walk-in joins the line.
 // Saved on this device first (works offline), synced to the calendar through the outbox.
+import { isMasked } from "@/lib/contact";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -77,7 +78,12 @@ function Kiosk({ desk }: { desk: Desk }) {
 
   const lookup = async () => {
     // Booked for today? → checked in ("Here"). The tech starts the service from the calendar (that opens the ticket).
-    const mine = appts.filter((a) => a.client?.phone === phone && (a.status === "booked" || a.status === "confirmed") && a.source !== "kiosk" && a.source !== "walk_in")
+    // The kiosk only holds hidden numbers (••7011) unless it runs on the owner's login: match the full number, else the
+    // last 4 when exactly one booking today ends that way.
+    const open = appts.filter((a) => (a.status === "booked" || a.status === "confirmed") && a.source !== "kiosk" && a.source !== "walk_in");
+    const last4 = phone.replace(/\D/g, "").slice(-4);
+    const byLast4 = open.filter((a) => isMasked(a.client?.phone) && a.client!.phone.replace(/\D/g, "") === last4);
+    const mine = open.filter((a) => a.client?.phone === phone || (byLast4.length === 1 && byLast4[0] === a))
       .sort((x, y) => Math.abs(new Date(x.start).getTime() - Date.now()) - Math.abs(new Date(y.start).getTime() - Date.now()))[0];
     if (mine) {
       if (!isHere(mine)) putAppt({ ...mine, status: "confirmed", arrivedAt: new Date().toISOString() });

@@ -372,6 +372,7 @@ function ClientPanel({ desk, ticket, save }: { desk: Desk; ticket: Ticket; save:
       .then((r) => { if (!stop) setFound(r[0] ?? null); })
       .catch(() => !stop && setFound("offline"));
     return () => { stop = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onFile/who follow the ticket's client, which `phone` already tracks
   }, [phone, desk.mode, desk.salonId, look]);
 
   const commit = (p: string, n: string) => save({ client: isMasked(p) && ticket.client?.id ? { ...ticket.client, name: n.trim() || ticket.client.name }
