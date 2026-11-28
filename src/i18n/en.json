@@ -2153,7 +2153,8 @@
         "az": "Name A → Z",
         "za": "Name Z → A",
         "status": "Needs attention first"
-      }
+      },
+      "showWho": "Show"
     },
     "m": {
       "name": "Name",

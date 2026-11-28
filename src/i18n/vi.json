@@ -2153,7 +2153,8 @@
         "az": "Tên A → Z",
         "za": "Tên Z → A",
         "status": "Cần chú ý trước"
-      }
+      },
+      "showWho": "Hiện"
     },
     "m": {
       "name": "Tên",
