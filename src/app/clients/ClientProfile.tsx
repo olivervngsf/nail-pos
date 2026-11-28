@@ -10,6 +10,7 @@ import { Button, Drawer } from "@/components/kit";
 import { NEW_FOR, birthdayIn, clientConsent, dueBack, isDesk, last4, phoneViewed, setCare, setPrivate, type Consent, type Profile, type Who } from "@/lib/clients";
 import { dayKey } from "@/lib/booking/grid";
 import { $, PhotoButton, TagChip, canEditClient, initials, phone, useDate } from "./ClientParts";
+import { isMasked } from "@/lib/clientContact";
 
 type Props = { who: Who; p: Profile; reload: () => void; say: (s: string) => void; onEdit: () => void; onHistory?: () => void; phoneBar?: boolean };
 
@@ -69,7 +70,7 @@ export function ClientProfile({ who, p, reload, say, onEdit, onHistory, phoneBar
           <div className="cap num cl2-sub">
             {p.number ? <span className="cl2-no" data-testid="client-number">{t("clientNo", { n: p.number })}</span> : null}
             <span data-testid="client-phone">{showPh ? phone(p.phone) : p.phone ? t("phoneMasked", { last4: last4(p.phone) }) : ""}</span>
-            {p.can_edit && p.phone && <button type="button" className="cl2-lock" onClick={() => void toggleShow()} title={t("lockShow")} data-testid="phone-show">
+            {p.can_edit && p.phone && !isMasked(p.phone) && <button type="button" className="cl2-lock" onClick={() => void toggleShow()} title={t("lockShow")} data-testid="phone-show">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 018 0v4" /></svg>
               {showPh ? t("hide") : t("show")}</button>}
             <span><span className="cl2-sep">· </span>{t("since", { date: String(new Date(p.since).getFullYear()) })}<ConsentNote who={who} p={p} /></span>

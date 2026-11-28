@@ -70,7 +70,7 @@ function Book({ me }: { me: Me }) {
   }, [me]);
 
   const [step, setStep] = useState<Step>("day");
-  const [client, setClient] = useState<{ name: string; phone: string } | null>(null);
+  const [client, setClient] = useState<{ id?: string; name: string; phone: string } | null>(null);
   const [newPhone, setNewPhone] = useState("");
   const [newName, setNewName] = useState("");
   const [svc, setSvc] = useState<Svc | null>(null);
@@ -106,7 +106,7 @@ function Book({ me }: { me: Me }) {
     const id = crypto.randomUUID();
     try {
       if (me.live) {
-        const r = await rpc<{ ok: boolean; reason?: string }>("staff_book", { p: { id, salonId: me.salonId, phone: client.phone, name: client.name, serviceIds: [svc.id], day, start: slot } });
+        const r = await rpc<{ ok: boolean; reason?: string }>("staff_book", { p: { id, salonId: me.salonId, phone: client.phone, clientId: client.id ?? null, name: client.name, serviceIds: [svc.id], day, start: slot } });
         if (!r.ok) { setMsg(t("taken")); setSlot(null); setStep("time"); setBusy(false); return; }
         await pullAppts(me.salonId, from, to).catch(() => {});
       } else {
@@ -162,7 +162,7 @@ function Book({ me }: { me: Me }) {
           {regulars.length > 0 && <><div className="eyebrow">{t("regulars")}</div>
             <div className="group">{regulars.map((r) => (
               <button key={r.phone} type="button" className="opt" data-testid="sb-regular" onClick={() => {
-                setClient({ name: r.name, phone: r.phone });
+                setClient({ id: r.id, name: r.name, phone: r.phone });
                 const usual = services.find((s) => s.id === r.serviceId || s.name === r.service);
                 if (usual) setSvc(usual);
                 setStep("service");

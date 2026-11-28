@@ -16,6 +16,9 @@ import { pullAppts, putAppt, useAppts, type Appt } from "@/lib/booking/appts";
 import { at, dayKey, fmtMin, minutesOf } from "@/lib/booking/grid";
 import { isLive } from "@/lib/checkout/store";
 import { isHere, isWaiting, nextWalkCode } from "@/lib/booking/turns";
+/** Today's booking for the typed number: the kiosk sees ••7011 for clients (only the owner gets full numbers). */
+const samePhone = (shown: string | undefined, typed: string) =>
+  !!shown && (shown === typed || (shown.includes("•") && shown.replace(/\D/g, "") === typed.replace(/\D/g, "").slice(-4)));
 
 type Step = "welcome" | "phone" | "services" | "done";
 type Last = { first: string; last: { id: string | null; name: string; staffId: string | null }[] | null } | null;
@@ -77,7 +80,7 @@ function Kiosk({ desk }: { desk: Desk }) {
 
   const lookup = async () => {
     // Booked for today? → checked in ("Here"). The tech starts the service from the calendar (that opens the ticket).
-    const mine = appts.filter((a) => a.client?.phone === phone && (a.status === "booked" || a.status === "confirmed") && a.source !== "kiosk" && a.source !== "walk_in")
+    const mine = appts.filter((a) => samePhone(a.client?.phone, phone) && (a.status === "booked" || a.status === "confirmed") && a.source !== "kiosk" && a.source !== "walk_in")
       .sort((x, y) => Math.abs(new Date(x.start).getTime() - Date.now()) - Math.abs(new Date(y.start).getTime() - Date.now()))[0];
     if (mine) {
       if (!isHere(mine)) putAppt({ ...mine, status: "confirmed", arrivedAt: new Date().toISOString() });
