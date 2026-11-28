@@ -39,7 +39,7 @@ language sql stable security definer set search_path = '' as $$
   select public.is_owner(p_salon) or exists (
     select 1 from public.salons s
     where s.id = p_salon and coalesce(
-      (select m.role from public.memberships m join public.people pp on pp.id = m.person_id
+      (select m.role::text from public.memberships m join public.people pp on pp.id = m.person_id
         where m.salon_id = p_salon and pp.auth_user_id = (select auth.uid()) and m.archived_at is null limit 1),
       case when public._device_of(p_salon, array['front_desk']) then 'front_desk' end)
       = any (public._contact_roles(s.contact_settings, 'call') || public._contact_roles(s.contact_settings, 'text')))
